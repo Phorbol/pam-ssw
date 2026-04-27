@@ -13,6 +13,8 @@ Implemented scope:
 - M2 curvature-inverting bias cleanup: Gaussian bias weight now follows the documented curvature inversion rule, and the soft-mode oracle no longer mixes in an undocumented random direction after candidate scoring.
 - M3 direction acquisition skeleton: SSW inner walk now uses a documented candidate-direction framework. Enabled candidates are previous/soft direction, random Cartesian directions, and bond directions only when `local_softening_pairs` are configured. Cell candidates remain unavailable until variable-cell coordinates exist.
 - M4 direction novelty: candidate direction scoring now includes descriptor novelty gain evaluated by probing the candidate displacement against the archive. This remains score-only and does not alter the proposal PES.
+- M5 trust-region feedback: Gaussian curvature inversion now supplies only the initial local bias seed. After each modified-PES proposal relax, the walker evaluates the true PES energy change, compares it with the local quadratic prediction, and updates the next-step trust radius and bias scale. The controller is system-agnostic and uses no LJ-, cluster-, reseed-, or recombination-specific operations.
+- M5 diagnostics: `SearchResult.stats` now reports trust-region step count, mean local-model error, shrink/expand counts, and damage events.
 
 Explicit support claim after M1:
 
@@ -23,5 +25,5 @@ Explicit support claim after M1:
 Verification:
 
 - `pytest -q tests/unit tests/integration`
-- Output: `runs/20260427-151600-epam-generalization/logs/pytest_m4_direction_novelty.out`
-- Result: `35 passed`
+- Output: `runs/20260427-151600-epam-generalization/logs/pytest_m5_trust_region.out`
+- Result: `38 passed`

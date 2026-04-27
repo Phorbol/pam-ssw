@@ -13,6 +13,7 @@ from pamssw.walker import (
     ProposalPotential,
     SoftModeOracle,
     SurfaceWalker,
+    TrustRegionBiasController,
 )
 
 
@@ -111,3 +112,53 @@ def test_direction_scorer_rewards_score_only_novelty_gain_from_archive():
     )
 
     assert far_score > near_score
+
+
+def test_trust_region_controller_shrinks_after_bad_local_model():
+    controller = TrustRegionBiasController()
+
+    update = controller.update(
+        curvature=2.0,
+        sigma=0.5,
+        true_delta=2.0,
+        sigma_scale=1.0,
+        weight_scale=1.0,
+    )
+
+    assert update.action == "shrink"
+    assert update.sigma_scale < 1.0
+    assert update.weight_scale < 1.0
+    assert update.model_error > controller.error_tolerance
+
+
+def test_trust_region_controller_expands_after_acceptable_local_model():
+    controller = TrustRegionBiasController()
+
+    update = controller.update(
+        curvature=2.0,
+        sigma=0.5,
+        true_delta=0.26,
+        sigma_scale=1.0,
+        weight_scale=1.0,
+    )
+
+    assert update.action == "expand"
+    assert update.sigma_scale > 1.0
+    assert update.weight_scale > 1.0
+
+
+def test_surface_walker_reports_trust_region_diagnostics():
+    initial = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(max_trials=1, max_steps_per_walk=2, oracle_candidates=2, rng_seed=0),
+        softening_enabled=False,
+    )
+
+    result = walker.run(initial)
+
+    assert result.stats["trust_region_steps"] == 2
+    assert "trust_model_error_mean" in result.stats
+    assert "trust_shrink_steps" in result.stats
+    assert "trust_expand_steps" in result.stats
+    assert "trust_damage_events" in result.stats

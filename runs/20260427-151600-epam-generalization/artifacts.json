@@ -30,5 +30,13 @@
     "producer_step": "pytest_m4_direction_novelty",
     "created_at": "2026-04-27T16:15:00+08:00",
     "description": "Full unit and integration test output after score-only novelty gain in direction acquisition"
+  },
+  {
+    "artifact_id": "pytest_m5_trust_region",
+    "type": "log",
+    "path": "runs/20260427-151600-epam-generalization/logs/pytest_m5_trust_region.out",
+    "producer_step": "pytest_m5_trust_region",
+    "created_at": "2026-04-27T16:25:00+08:00",
+    "description": "Full unit and integration test output after trust-region feedback control for local SSW bias"
   }
 ]

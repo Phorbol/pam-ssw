@@ -48,6 +48,67 @@ class DirectionChoice:
     curvature: float
 
 
+@dataclass(frozen=True)
+class TrustRegionUpdate:
+    predicted_delta: float
+    true_delta: float
+    model_error: float
+    damaged: bool
+    sigma_scale: float
+    weight_scale: float
+    action: str
+
+
+@dataclass(frozen=True)
+class TrustRegionBiasController:
+    error_tolerance: float = 1.0
+    gamma_down: float = 0.5
+    gamma_up: float = 1.15
+    min_scale: float = 0.25
+    max_scale: float = 2.0
+    damage_ratio: float = 8.0
+    epsilon: float = 1e-8
+
+    def update(
+        self,
+        curvature: float,
+        sigma: float,
+        true_delta: float,
+        sigma_scale: float,
+        weight_scale: float,
+    ) -> TrustRegionUpdate:
+        predicted_delta = self.predicted_delta(curvature, sigma)
+        denominator = abs(predicted_delta) + self.epsilon
+        model_error = abs(true_delta - predicted_delta) / denominator
+        damaged = true_delta > max(1.0, self.damage_ratio * denominator)
+        if damaged or model_error > self.error_tolerance:
+            return TrustRegionUpdate(
+                predicted_delta=predicted_delta,
+                true_delta=float(true_delta),
+                model_error=float(model_error),
+                damaged=damaged,
+                sigma_scale=self._clip(sigma_scale * self.gamma_down),
+                weight_scale=self._clip(weight_scale * self.gamma_down),
+                action="shrink",
+            )
+        return TrustRegionUpdate(
+            predicted_delta=predicted_delta,
+            true_delta=float(true_delta),
+            model_error=float(model_error),
+            damaged=False,
+            sigma_scale=self._clip(sigma_scale * self.gamma_up),
+            weight_scale=self._clip(weight_scale * self.gamma_up),
+            action="expand",
+        )
+
+    @staticmethod
+    def predicted_delta(curvature: float, sigma: float) -> float:
+        return float(0.5 * sigma * sigma * curvature)
+
+    def _clip(self, value: float) -> float:
+        return float(np.clip(value, self.min_scale, self.max_scale))
+
+
 class DirectionCandidateKind(str, Enum):
     SOFT = "soft"
     RANDOM = "random"
@@ -239,6 +300,8 @@ class SurfaceWalker:
         self.oracle = SoftModeOracle(calculator, self.rng, config.oracle_candidates, bond_pairs=bond_pairs)
         self.proposal_scorer = ProposalScorer()
         self.selector = BanditSelector()
+        self.trust_controller = TrustRegionBiasController()
+        self._reset_trust_stats()
 
     def relax_true_minimum(self, state: State) -> RelaxResult:
         relaxer = Relaxer(self.calculator.evaluate_flat)
@@ -248,6 +311,7 @@ class SurfaceWalker:
     def run(self, initial_state: State):
         from .archive import MinimaArchive
 
+        self._reset_trust_stats()
         initial = self.relax_true_minimum(initial_state)
         archive = MinimaArchive(
             energy_tol=self.config.dedup_energy_tol,
@@ -316,6 +380,7 @@ class SurfaceWalker:
                 "descriptor_degeneracy_rate": archive.descriptor_degeneracy_rate(),
                 "coordinate_system": "cartesian_fixed_cell",
                 "variable_cell_supported": 0,
+                **self._trust_stats_summary(),
             },
         )
 
@@ -327,12 +392,15 @@ class SurfaceWalker:
         previous_direction: np.ndarray | None = None
         biases: list[GaussianBiasTerm] = []
         softening = self._build_softening(seed_state)
+        sigma_scale = 1.0
+        weight_scale = 1.0
 
         for _ in range(self.config.max_steps_per_walk):
             proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
             choice = self.oracle.choose_direction(current, proposal, previous_direction, archive=archive)
-            sigma = self._step_scale(choice.curvature)
-            weight = self._bias_weight(choice.curvature, sigma)
+            sigma = self._scaled_step_scale(choice.curvature, sigma_scale)
+            weight = self._bias_weight(choice.curvature, sigma) * weight_scale
+            true_energy_before = self.calculator.evaluate(current).energy
             biases.append(
                 GaussianBiasTerm(
                     center=current.flatten_positions(),
@@ -348,6 +416,17 @@ class SurfaceWalker:
                 fmax=self.config.proposal_fmax,
                 maxiter=self.config.proposal_relax_steps,
             )
+            true_energy_after = self.calculator.evaluate(proposal_relax.state).energy
+            trust_update = self.trust_controller.update(
+                curvature=choice.curvature,
+                sigma=sigma,
+                true_delta=true_energy_after - true_energy_before,
+                sigma_scale=sigma_scale,
+                weight_scale=weight_scale,
+            )
+            sigma_scale = trust_update.sigma_scale
+            weight_scale = trust_update.weight_scale
+            self._record_trust_update(trust_update)
             displacement = proposal_relax.state.flatten_positions() - current.flatten_positions()
             if np.linalg.norm(displacement) > 1e-8:
                 previous_direction = displacement / np.linalg.norm(displacement)
@@ -362,8 +441,39 @@ class SurfaceWalker:
         sigma = np.sqrt(2.0 * self.config.target_uphill_energy / effective)
         return float(np.clip(sigma, self.config.min_step_scale, self.config.max_step_scale))
 
+    def _scaled_step_scale(self, curvature: float, sigma_scale: float) -> float:
+        sigma = self._step_scale(curvature) * sigma_scale
+        return float(np.clip(sigma, self.config.min_step_scale, self.config.max_step_scale))
+
     def _bias_weight(self, curvature: float, sigma: float) -> float:
         return float(sigma * sigma * max(curvature + self.config.target_negative_curvature, 0.0))
+
+    def _reset_trust_stats(self) -> None:
+        self._trust_steps = 0
+        self._trust_model_error_sum = 0.0
+        self._trust_shrink_steps = 0
+        self._trust_expand_steps = 0
+        self._trust_damage_events = 0
+
+    def _record_trust_update(self, update: TrustRegionUpdate) -> None:
+        self._trust_steps += 1
+        self._trust_model_error_sum += update.model_error
+        if update.action == "shrink":
+            self._trust_shrink_steps += 1
+        if update.action == "expand":
+            self._trust_expand_steps += 1
+        if update.damaged:
+            self._trust_damage_events += 1
+
+    def _trust_stats_summary(self) -> dict[str, float | int]:
+        mean_error = self._trust_model_error_sum / self._trust_steps if self._trust_steps else 0.0
+        return {
+            "trust_region_steps": self._trust_steps,
+            "trust_model_error_mean": float(mean_error),
+            "trust_shrink_steps": self._trust_shrink_steps,
+            "trust_expand_steps": self._trust_expand_steps,
+            "trust_damage_events": self._trust_damage_events,
+        }
 
     def _build_softening(self, seed_state: State) -> LocalSofteningModel | None:
         if not self.softening_enabled or not isinstance(self.config, LSSSWConfig):
