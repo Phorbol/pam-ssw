@@ -38,3 +38,9 @@ Smoke benchmark:
 
 - Output: `runs/20260427-151600-epam-generalization/lj13_smoke_m11_diagnostics.json`
 - Result: SSW LJ13 seed0 budget5 gap `5.9314266691942095`, force evaluations `2646`, minima `2`, duplicate rate `0.6`, frontier nodes `1`, dead nodes `0`.
+
+Quick gate:
+
+- Output: `runs/20260427-151600-epam-generalization/lj_quick_m12.json`
+- Result: failed. Mean gaps were SSW LJ13 `3.295909127321515`, BH LJ13 `0.42739604324551195`, GA LJ13 `0.4273960397517058`, SSW LJ38 `18.134550242531958`, BH LJ38 `7.3573034236761`, GA LJ38 `5.513193285469555`.
+- Diagnosis: LJ13 and LJ38 seed1 show high duplicate/dead-node behavior; LJ38 seed0 discovers many unique minima but remains high-energy, indicating excessive exploration relative to low-energy exploitation.

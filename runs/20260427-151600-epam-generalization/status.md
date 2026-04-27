@@ -1,6 +1,6 @@
 # Status
 
-Current phase: M11 LJ13 smoke benchmark verified
+Current phase: M12 LJ quick gate completed, failed performance target
 
 - Removed GA/BH-style reseed/recombination/motif mechanisms from core `pamssw`.
 - Added Cartesian coordinate/tangent layer and metric module.
@@ -24,4 +24,5 @@ Current phase: M11 LJ13 smoke benchmark verified
 - Added frontier diagnostics to `SearchResult.stats`: frontier node count, dead node count, and mean frontier score.
 - Added SSW diagnostic fields to LJ benchmark summaries: force evaluations, budget exhaustion, number of minima, duplicate rate, frontier nodes, and dead nodes.
 - LJ13 seed0 budget5 smoke benchmark completed with no stderr and valid JSON output. Smoke result is a runtime/accounting check only, not a performance conclusion.
+- LJ13/LJ38 seeds 0/1 budget60 quick gate completed with no stderr and valid JSON output. SSW did not beat BH/GA; observed failures are high duplicate/dead-node behavior for LJ13 and LJ38 seed1, plus high-energy over-exploration for LJ38 seed0.
 - Full tests: `55 passed`.
