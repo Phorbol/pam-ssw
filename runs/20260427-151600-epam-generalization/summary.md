@@ -77,3 +77,9 @@ M18 quick gate:
 - Output: `runs/20260427-151600-epam-generalization/lj_quick_m18_rigid_projection.json`
 - Result: improved but not final pass. SSW LJ13 mean gap improved to `0.42739603905526735`; SSW LJ38 mean gap improved to `15.747809644768466`.
 - Diagnosis: rigid projection removed the repeated-proposal failure mode on LJ13 and LJ38 seed1. The remaining dominant failure is LJ38 seed0 high-energy over-exploration, not self-return duplication.
+
+M20 quick gate:
+
+- Output: `runs/20260427-151600-epam-generalization/lj_quick_m20_lbfgsb_gtol.json`
+- Result: SSW numerical gaps are nearly unchanged from M18, but relaxation quality improved for true quenches. SSW LJ13 mean gap `0.4273960389438223`, SSW LJ38 mean gap `15.747809427532786`.
+- Diagnosis: true-quench unconverged counts decreased after passing `gtol=fmax`, but proposal relax remains heavily unconverged and close to the 40-step cap. The next physics-level check is proposal relaxation depth and SSW walking length `H`, not archive policy.
