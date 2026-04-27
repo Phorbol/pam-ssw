@@ -47,7 +47,7 @@ def quench(state: State, calculator: ASECalculator, fmax: float = 1e-3, maxiter:
 
 
 def run_ssw_trial(size: int, seed: int, budget: int) -> RunSummary:
-    steps_per_walk = 4
+    steps_per_walk = 8
     max_trials = max(1, budget // (steps_per_walk + 1))
     calculator = make_calculator()
     result = run_ssw(
@@ -56,7 +56,7 @@ def run_ssw_trial(size: int, seed: int, budget: int) -> RunSummary:
         SSWConfig(
             max_trials=max_trials,
             max_steps_per_walk=steps_per_walk,
-            target_uphill_energy=0.6,
+            target_uphill_energy=1.2,
             quench_fmax=1e-3,
             dedup_rmsd_tol=0.2,
             rng_seed=seed,
