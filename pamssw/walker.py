@@ -5,7 +5,7 @@ from enum import Enum
 
 import numpy as np
 
-from .acquisition import BanditSelector, ProposalOutcome, ProposalScorer
+from .acquisition import AcquisitionPolicy, BanditSelector, ProposalOutcome, ProposalScorer
 from .accounting import BudgetExceeded, EvalCounter
 from .bias import GaussianBiasTerm
 from .config import LSSSWConfig, RelaxConfig, SSWConfig
@@ -363,7 +363,7 @@ class SurfaceWalker:
         bond_pairs = config.local_softening_pairs if softening_enabled and isinstance(config, LSSSWConfig) else []
         self.oracle = SoftModeOracle(calculator, self.rng, config.oracle_candidates, bond_pairs=bond_pairs)
         self.proposal_scorer = ProposalScorer.for_mode(config.search_mode)
-        self.selector = BanditSelector()
+        self.selector = BanditSelector(AcquisitionPolicy.for_mode(config.search_mode))
         self.trust_controller = TrustRegionBiasController()
         self.step_target_controller = StepTargetController(config.target_uphill_energy)
         self._reset_trust_stats()

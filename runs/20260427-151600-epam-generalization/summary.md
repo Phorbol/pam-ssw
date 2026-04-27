@@ -21,6 +21,8 @@ Implemented scope:
 - M9 force/energy accounting: all true-PES calculator calls are routed through an `EvalCounter`, including proposal PES calls, true quench calls, curvature probes, and diagnostic energy checks. `SSWConfig.max_force_evals` can stop new work when the budget is exhausted, and the final stats report force/energy counts and budget status.
 - M10 observable frontier policy: archive nodes now receive frontier/dead status from directly observed statistics: visits, low-energy window, descriptor sparsity, success rate, and duplicate-heavy failed trials. Bandit selection uses this frontier score and penalizes dead nodes, with frontier diagnostics reported in `SearchResult.stats`.
 - M11 LJ smoke: the LJ benchmark reporter now includes SSW diagnostic fields for force evaluations, budget exhaustion, minima count, duplicate rate, frontier nodes, and dead nodes. A LJ13 seed0 budget5 smoke benchmark completed successfully; it is recorded as a runtime/accounting check, not a performance gate.
+- M12 quick gate: LJ13/LJ38 seeds 0/1 budget60 completed and failed the performance target. SSW lagged both BH and GA; diagnostics showed high duplicate/dead-node behavior on LJ13 and LJ38 seed1, and high-energy over-exploration on LJ38 seed0.
+- M13 mode-aware node policy: acquisition now has task-mode presets. Global-minimum mode increases energy preference relative to reaction-network mode, and baseline fallback avoids dead nodes when live nodes exist.
 
 Explicit support claim after M1:
 
@@ -32,7 +34,7 @@ Verification:
 
 - `pytest -q tests/unit tests/integration`
 - Output: `runs/20260427-151600-epam-generalization/logs/pytest_m11_lj_smoke_reporting.out`
-- Result: `55 passed`
+- Result: `57 passed`
 
 Smoke benchmark:
 

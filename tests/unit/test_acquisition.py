@@ -94,6 +94,27 @@ def test_bandit_selector_uses_observable_frontier_and_avoids_dead_nodes():
     assert selector.select(archive, np.random.default_rng(1)).entry_id == frontier.entry_id
 
 
+def test_baseline_selection_avoids_dead_nodes_when_live_nodes_exist():
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=1e-3)
+    dead_low = archive.add(_state(0.0), -5.0, parent_id=None)
+    live_higher = archive.add(_state(5.0), -4.9, parent_id=None)
+    dead_low.node_trials = 20
+    dead_low.duplicate_hits = 18
+    archive.refresh_frontier_status()
+
+    selector = BanditSelector(policy=AcquisitionPolicy(baseline_probability=1.0))
+
+    assert selector.select(archive, np.random.default_rng(0)).entry_id == live_higher.entry_id
+
+
+def test_global_minimum_mode_policy_prioritizes_energy_more_than_reaction_network_mode():
+    global_policy = AcquisitionPolicy.for_mode(SearchMode.GLOBAL_MINIMUM)
+    reaction_policy = AcquisitionPolicy.for_mode(SearchMode.REACTION_NETWORK)
+
+    assert global_policy.beta_energy > reaction_policy.beta_energy
+    assert reaction_policy.frontier_weight > global_policy.frontier_weight
+
+
 def test_policy_lowers_archive_density_weight_when_degeneracy_is_high():
     policy = AcquisitionPolicy(archive_density_weight=1.0, frontier_weight=1.0)
 
