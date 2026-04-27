@@ -118,5 +118,13 @@
     "producer_step": "pytest_m13_mode_node_policy",
     "created_at": "2026-04-27T21:06:00+08:00",
     "description": "Full unit and integration test output after mode-aware node acquisition and live-node baseline selection"
+  },
+  {
+    "artifact_id": "lj_quick_m13_mode_node_policy",
+    "type": "benchmark_json",
+    "path": "runs/20260427-151600-epam-generalization/lj_quick_m13_mode_node_policy.json",
+    "producer_step": "lj_quick_m13_mode_node_policy",
+    "created_at": "2026-04-27T21:14:00+08:00",
+    "description": "Quick gate rerun after mode-aware node acquisition; worsened SSW aggregate gaps and should not be kept as a performance improvement"
   }
 ]

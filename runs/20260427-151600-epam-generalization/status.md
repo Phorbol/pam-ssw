@@ -1,6 +1,6 @@
 # Status
 
-Current phase: M13 mode-aware node acquisition verified
+Current phase: M13 mode-aware node acquisition benchmarked and marked for discard
 
 - Removed GA/BH-style reseed/recombination/motif mechanisms from core `pamssw`.
 - Added Cartesian coordinate/tangent layer and metric module.
@@ -27,4 +27,5 @@ Current phase: M13 mode-aware node acquisition verified
 - LJ13/LJ38 seeds 0/1 budget60 quick gate completed with no stderr and valid JSON output. SSW did not beat BH/GA; observed failures are high duplicate/dead-node behavior for LJ13 and LJ38 seed1, plus high-energy over-exploration for LJ38 seed0.
 - Added mode-aware node acquisition policy. Global-minimum mode now weights low energy more strongly than reaction-network mode, while reaction-network mode weights frontier value more strongly.
 - Baseline fallback selection now avoids dead nodes when live archive nodes exist.
+- Quick gate rerun after M13 worsened SSW mean gaps, so this implementation is marked for discard and should be reverted while preserving the benchmark record.
 - Full tests: `57 passed`.
