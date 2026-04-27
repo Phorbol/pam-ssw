@@ -30,6 +30,12 @@ class RunSummary:
     energy_gap: float
     success: bool
     local_relaxations: int
+    force_evaluations: int | None = None
+    budget_exhausted: bool | None = None
+    n_minima: int | None = None
+    duplicate_rate: float | None = None
+    frontier_nodes: int | None = None
+    dead_nodes: int | None = None
 
 
 def random_cluster_state(size: int, seed: int) -> State:
@@ -73,6 +79,12 @@ def run_ssw_trial(size: int, seed: int, budget: int) -> RunSummary:
         energy_gap=gap,
         success=gap <= 1e-3,
         local_relaxations=int(result.stats.get("local_relaxations", 0)),
+        force_evaluations=int(result.stats.get("force_evaluations", 0)),
+        budget_exhausted=bool(result.stats.get("budget_exhausted", 0)),
+        n_minima=int(result.stats.get("n_minima", 0)),
+        duplicate_rate=float(result.stats.get("duplicate_rate", 0.0)),
+        frontier_nodes=int(result.stats.get("frontier_nodes", 0)),
+        dead_nodes=int(result.stats.get("dead_nodes", 0)),
     )
 
 

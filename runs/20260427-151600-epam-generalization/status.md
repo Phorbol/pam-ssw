@@ -1,6 +1,6 @@
 # Status
 
-Current phase: M10 observable frontier/dead-node policy verified
+Current phase: M11 LJ13 smoke benchmark verified
 
 - Removed GA/BH-style reseed/recombination/motif mechanisms from core `pamssw`.
 - Added Cartesian coordinate/tangent layer and metric module.
@@ -22,4 +22,6 @@ Current phase: M10 observable frontier/dead-node policy verified
 - Added observable frontier and dead-node status for archive nodes. Frontier/dead labels now come from visits, low-energy window, descriptor sparsity, success rate, and duplicate-heavy failed trials rather than committor-style terminology.
 - Bandit selection uses observable frontier score and strongly penalizes dead nodes.
 - Added frontier diagnostics to `SearchResult.stats`: frontier node count, dead node count, and mean frontier score.
-- Full tests: `54 passed`.
+- Added SSW diagnostic fields to LJ benchmark summaries: force evaluations, budget exhaustion, number of minima, duplicate rate, frontier nodes, and dead nodes.
+- LJ13 seed0 budget5 smoke benchmark completed with no stderr and valid JSON output. Smoke result is a runtime/accounting check only, not a performance conclusion.
+- Full tests: `55 passed`.

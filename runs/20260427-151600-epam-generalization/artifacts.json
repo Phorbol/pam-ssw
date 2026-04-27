@@ -78,5 +78,29 @@
     "producer_step": "pytest_m10_frontier_policy",
     "created_at": "2026-04-27T20:36:00+08:00",
     "description": "Full unit and integration test output after observable frontier and dead-node policy"
+  },
+  {
+    "artifact_id": "lj13_smoke_m11",
+    "type": "benchmark_json",
+    "path": "runs/20260427-151600-epam-generalization/lj13_smoke_m11.json",
+    "producer_step": "lj13_seed0_budget5",
+    "created_at": "2026-04-27T20:45:00+08:00",
+    "description": "Initial LJ13 seed0 budget5 smoke benchmark before diagnostic reporting extension"
+  },
+  {
+    "artifact_id": "lj13_smoke_m11_diagnostics",
+    "type": "benchmark_json",
+    "path": "runs/20260427-151600-epam-generalization/lj13_smoke_m11_diagnostics.json",
+    "producer_step": "lj13_seed0_budget5_diagnostics",
+    "created_at": "2026-04-27T20:48:00+08:00",
+    "description": "LJ13 seed0 budget5 smoke benchmark with SSW evaluation/frontier diagnostics"
+  },
+  {
+    "artifact_id": "pytest_m11_lj_smoke_reporting",
+    "type": "log",
+    "path": "runs/20260427-151600-epam-generalization/logs/pytest_m11_lj_smoke_reporting.out",
+    "producer_step": "pytest_m11_lj_smoke_reporting",
+    "created_at": "2026-04-27T20:50:00+08:00",
+    "description": "Full unit and integration test output after LJ benchmark diagnostic reporting"
   }
 ]

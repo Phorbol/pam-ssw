@@ -20,6 +20,7 @@ Implemented scope:
 - M8 adaptive step target: SSW walking now derives the target energy climb from archive energy scale and escape/damage feedback, with `target_uphill_energy` kept as the compatibility fallback and initial scale. Early damage feedback is warmed up before shrinking the multiplier so sparse noisy events do not shut down exploration.
 - M9 force/energy accounting: all true-PES calculator calls are routed through an `EvalCounter`, including proposal PES calls, true quench calls, curvature probes, and diagnostic energy checks. `SSWConfig.max_force_evals` can stop new work when the budget is exhausted, and the final stats report force/energy counts and budget status.
 - M10 observable frontier policy: archive nodes now receive frontier/dead status from directly observed statistics: visits, low-energy window, descriptor sparsity, success rate, and duplicate-heavy failed trials. Bandit selection uses this frontier score and penalizes dead nodes, with frontier diagnostics reported in `SearchResult.stats`.
+- M11 LJ smoke: the LJ benchmark reporter now includes SSW diagnostic fields for force evaluations, budget exhaustion, minima count, duplicate rate, frontier nodes, and dead nodes. A LJ13 seed0 budget5 smoke benchmark completed successfully; it is recorded as a runtime/accounting check, not a performance gate.
 
 Explicit support claim after M1:
 
@@ -30,5 +31,10 @@ Explicit support claim after M1:
 Verification:
 
 - `pytest -q tests/unit tests/integration`
-- Output: `runs/20260427-151600-epam-generalization/logs/pytest_m10_frontier_policy.out`
-- Result: `54 passed`
+- Output: `runs/20260427-151600-epam-generalization/logs/pytest_m11_lj_smoke_reporting.out`
+- Result: `55 passed`
+
+Smoke benchmark:
+
+- Output: `runs/20260427-151600-epam-generalization/lj13_smoke_m11_diagnostics.json`
+- Result: SSW LJ13 seed0 budget5 gap `5.9314266691942095`, force evaluations `2646`, minima `2`, duplicate rate `0.6`, frontier nodes `1`, dead nodes `0`.
