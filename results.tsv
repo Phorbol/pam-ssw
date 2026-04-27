@@ -16,3 +16,4 @@ experiment	commit	metric	status	description
 14	831085e	9.811410655167737	discard	tighten compact reseed radius
 15	8737b1a	4.135163302042553	keep	implement E-PAM-SSW archive acquisition and LJ motif reseed
 16	ed267a7	8.087602841911867	keep	project rigid modes from free-cluster directions; doc-aligned, improves current SSW but does not beat GA/BH aggregate
+17	candidate_m22	2.9496448919172502	keep	H=8 proposal_relax_steps=80; beats GA/BH on LJ13/LJ38 quick gate and improves LJ55 seed0/1

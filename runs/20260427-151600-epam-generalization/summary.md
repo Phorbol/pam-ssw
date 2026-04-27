@@ -89,3 +89,12 @@ M21 depth scan:
 - Output: `runs/20260427-151600-epam-generalization/lj38_seed0_depth_scan_m21.json`
 - Result: for LJ38 seed0, `H=8/proposal_relax_steps=40` gives gap `27.0569941756969`; `H=8/proposal_relax_steps=80` gives gap `4.438624586424936`; `H=14/proposal_relax_steps=40` gives gap `4.438624617696036`.
 - Diagnosis: the LJ38 seed0 high-energy failure is mostly caused by under-resolved modified-PES walking/proposal relaxation. The lowest-cost next quick gate should use `H=8`, `proposal_relax_steps=80`.
+
+M22 production candidate and curves:
+
+- Config: `max_steps_per_walk=8`, `proposal_relax_steps=80`, `target_uphill_energy=1.2`, free-cluster rigid-body projection enabled, L-BFGS-B `gtol=fmax`.
+- LJ13/LJ38 quick gate output: `runs/20260427-151600-epam-generalization/lj_quick_m22_h8_prop80.json`
+- Curve plot: `runs/20260427-151600-epam-generalization/lj_quick_m22_h8_prop80_curves.png`
+- Result: SSW LJ13 mean gap `0.42739603752985644`, SSW LJ38 mean gap `5.471893746304644`; BH LJ38 `7.269735555874135`, GA LJ38 `5.903696103794346`.
+- Larger-cluster check: LJ55 seeds 0/1 budget 60 gives SSW `10.968849326606573`, BH `17.780370065155097`, GA `14.967247873689018`.
+- Conclusion: this is the current production-level LJ cluster quick configuration. It is still not a robust-gate claim; robust validation should run LJ13/LJ38/LJ55 over more seeds.

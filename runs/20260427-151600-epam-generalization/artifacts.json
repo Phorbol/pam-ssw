@@ -246,5 +246,45 @@
     "producer_step": "lj38_seed0_depth_scan_m21",
     "created_at": "2026-04-27T23:32:00+08:00",
     "description": "SSW-only LJ38 seed0 scan over H and proposal-relax depth; shows proposal_relax_steps=80 fixes high-energy failure at lower cost than H=14"
+  },
+  {
+    "artifact_id": "pytest_m22_energy_traces",
+    "type": "log",
+    "path": "runs/20260427-151600-epam-generalization/logs/pytest_m22_energy_traces.out",
+    "producer_step": "pytest_m22_energy_traces",
+    "created_at": "2026-04-27T23:36:00+08:00",
+    "description": "Full unit and integration test output after adding SSW/BH/GA energy trace recording and plot output"
+  },
+  {
+    "artifact_id": "lj_quick_m22_h8_prop80",
+    "type": "benchmark_json",
+    "path": "runs/20260427-151600-epam-generalization/lj_quick_m22_h8_prop80.json",
+    "producer_step": "lj_quick_m22_h8_prop80",
+    "created_at": "2026-04-27T23:46:00+08:00",
+    "description": "LJ13/LJ38 quick gate for candidate production config H=8 proposal_relax_steps=80"
+  },
+  {
+    "artifact_id": "lj_quick_m22_h8_prop80_traces",
+    "type": "benchmark_json",
+    "path": "runs/20260427-151600-epam-generalization/lj_quick_m22_h8_prop80_traces.json",
+    "producer_step": "lj_quick_m22_h8_prop80",
+    "created_at": "2026-04-27T23:46:00+08:00",
+    "description": "Per-step best-energy traces for SSW/BH/GA on LJ13/LJ38 using candidate production config"
+  },
+  {
+    "artifact_id": "lj_quick_m22_h8_prop80_curves",
+    "type": "plot_png",
+    "path": "runs/20260427-151600-epam-generalization/lj_quick_m22_h8_prop80_curves.png",
+    "producer_step": "lj_quick_m22_h8_prop80",
+    "created_at": "2026-04-27T23:46:00+08:00",
+    "description": "Mean best-energy-gap curves versus local relaxations/generation step for SSW/BH/GA on LJ13/LJ38"
+  },
+  {
+    "artifact_id": "lj55_m22_h8_prop80",
+    "type": "benchmark_json",
+    "path": "runs/20260427-151600-epam-generalization/lj55_m22_h8_prop80.json",
+    "producer_step": "lj55_m22_h8_prop80",
+    "created_at": "2026-04-27T23:51:00+08:00",
+    "description": "LJ55 seeds 0/1 budget60 check for candidate production config H=8 proposal_relax_steps=80"
   }
 ]

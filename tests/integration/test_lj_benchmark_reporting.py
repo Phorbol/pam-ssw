@@ -1,4 +1,4 @@
-from benchmarks.lj_cluster_compare import run_ssw_trial
+from benchmarks.lj_cluster_compare import run_algorithm_traces, run_ssw_trial
 
 
 def test_lj_benchmark_reports_ssw_diagnostics():
@@ -33,3 +33,20 @@ def test_lj_benchmark_accepts_ssw_walk_and_relax_depth_controls():
     assert deeper.direction_choices == 4
     assert shallow.proposal_relax_mean_iterations <= 5
     assert deeper.proposal_relax_mean_iterations <= 10
+
+
+def test_lj_benchmark_can_record_energy_traces():
+    traces = run_algorithm_traces(
+        size=13,
+        seeds=[0],
+        budget=3,
+        ssw_steps_per_walk=2,
+        ssw_proposal_relax_steps=5,
+    )
+
+    assert {trace.algorithm for trace in traces} == {"ssw", "bh", "ga"}
+    for trace in traces:
+        assert trace.points[0]["step"] == 1
+        assert trace.points[-1]["step"] <= 3
+        gaps = [point["energy_gap"] for point in trace.points]
+        assert gaps[-1] <= gaps[0]
