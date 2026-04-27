@@ -14,5 +14,13 @@
     "producer_step": "pytest_m2_curvature_bias",
     "created_at": "2026-04-27T15:55:00+08:00",
     "description": "Full unit and integration test output after curvature-inverting bias cleanup"
+  },
+  {
+    "artifact_id": "pytest_m3_direction_acquisition",
+    "type": "log",
+    "path": "runs/20260427-151600-epam-generalization/logs/pytest_m3_direction_acquisition.out",
+    "producer_step": "pytest_m3_direction_acquisition",
+    "created_at": "2026-04-27T16:05:00+08:00",
+    "description": "Full unit and integration test output after direction candidate acquisition skeleton"
   }
 ]

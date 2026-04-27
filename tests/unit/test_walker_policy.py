@@ -4,7 +4,14 @@ from pamssw import SSWConfig
 from pamssw.calculators import AnalyticCalculator
 from pamssw.potentials import DoubleWell2D
 from pamssw.state import State
-from pamssw.walker import ProposalPotential, SoftModeOracle, SurfaceWalker
+from pamssw.walker import (
+    CandidateDirectionGenerator,
+    DirectionCandidateKind,
+    DirectionScorer,
+    ProposalPotential,
+    SoftModeOracle,
+    SurfaceWalker,
+)
 
 
 def test_bias_weight_matches_curvature_inversion_rule():
@@ -38,3 +45,39 @@ def test_soft_mode_oracle_returns_best_candidate_without_random_mixing():
     )
 
     np.testing.assert_allclose(choice.direction, direction)
+
+
+def test_direction_generator_exposes_documented_enabled_and_guarded_kinds():
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    generator = CandidateDirectionGenerator(np.random.default_rng(0), n_random=2)
+
+    candidates = generator.generate(state, previous_direction=np.array([1.0, 0.0, 0.0]))
+
+    assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.SOFT) == 1
+    assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.RANDOM) == 2
+    assert DirectionCandidateKind.BOND not in [candidate.kind for candidate in candidates]
+    assert DirectionCandidateKind.CELL not in [candidate.kind for candidate in candidates]
+
+
+def test_direction_generator_adds_bond_candidate_when_pairs_are_provided():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+    )
+    generator = CandidateDirectionGenerator(np.random.default_rng(0), n_random=0, bond_pairs=[(0, 1)])
+
+    candidates = generator.generate(state, previous_direction=None)
+
+    assert [candidate.kind for candidate in candidates] == [DirectionCandidateKind.BOND]
+    np.testing.assert_allclose(candidates[0].direction.reshape(2, 3)[0], np.array([-1.0, 0.0, 0.0]) / np.sqrt(2.0))
+    np.testing.assert_allclose(candidates[0].direction.reshape(2, 3)[1], np.array([1.0, 0.0, 0.0]) / np.sqrt(2.0))
+
+
+def test_direction_scorer_penalizes_damage_risk_and_discontinuity():
+    scorer = DirectionScorer(damage_weight=10.0, continuity_weight=1.0)
+    previous = np.array([1.0, 0.0, 0.0])
+
+    smooth = scorer.score(curvature=1.0, sigma=0.5, direction=previous, previous_direction=previous, damage_risk=0.0)
+    damaging = scorer.score(curvature=1.0, sigma=0.5, direction=-previous, previous_direction=previous, damage_risk=1.0)
+
+    assert smooth > damaging

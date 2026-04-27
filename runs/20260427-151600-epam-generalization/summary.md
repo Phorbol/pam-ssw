@@ -11,6 +11,7 @@ Implemented scope:
 - Removed unsupported public controls: `cluster_reseed_interval`, `proposal_pool_size`, and exposed acquisition weights.
 - Archive degeneracy diagnostic now uses descriptor bins and feeds into effective acquisition weights.
 - M2 curvature-inverting bias cleanup: Gaussian bias weight now follows the documented curvature inversion rule, and the soft-mode oracle no longer mixes in an undocumented random direction after candidate scoring.
+- M3 direction acquisition skeleton: SSW inner walk now uses a documented candidate-direction framework. Enabled candidates are previous/soft direction, random Cartesian directions, and bond directions only when `local_softening_pairs` are configured. Cell candidates remain unavailable until variable-cell coordinates exist.
 
 Explicit support claim after M1:
 
@@ -21,5 +22,5 @@ Explicit support claim after M1:
 Verification:
 
 - `pytest -q tests/unit tests/integration`
-- Output: `runs/20260427-151600-epam-generalization/logs/pytest_m2_curvature_bias.out`
-- Result: `31 passed`
+- Output: `runs/20260427-151600-epam-generalization/logs/pytest_m3_direction_acquisition.out`
+- Result: `34 passed`

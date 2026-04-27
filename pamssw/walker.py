@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 
 import numpy as np
 
@@ -47,6 +48,93 @@ class DirectionChoice:
     curvature: float
 
 
+class DirectionCandidateKind(str, Enum):
+    SOFT = "soft"
+    RANDOM = "random"
+    BOND = "bond"
+    CELL = "cell"
+
+
+@dataclass(frozen=True)
+class DirectionCandidate:
+    kind: DirectionCandidateKind
+    direction: np.ndarray
+    damage_risk: float = 0.0
+
+
+@dataclass(frozen=True)
+class DirectionScorer:
+    damage_weight: float = 1.0
+    continuity_weight: float = 0.1
+
+    def score(
+        self,
+        curvature: float,
+        sigma: float,
+        direction: np.ndarray,
+        previous_direction: np.ndarray | None,
+        damage_risk: float,
+    ) -> float:
+        energy_cost = 0.5 * sigma * sigma * curvature
+        discontinuity = 0.0
+        if previous_direction is not None:
+            prev = previous_direction / (np.linalg.norm(previous_direction) + 1e-12)
+            cur = direction / (np.linalg.norm(direction) + 1e-12)
+            discontinuity = float(np.linalg.norm(cur - prev) ** 2)
+        return float(-energy_cost - self.damage_weight * damage_risk - self.continuity_weight * discontinuity)
+
+
+class CandidateDirectionGenerator:
+    def __init__(
+        self,
+        rng: np.random.Generator,
+        n_random: int,
+        bond_pairs: list[tuple[int, int]] | None = None,
+    ) -> None:
+        self.rng = rng
+        self.n_random = n_random
+        self.bond_pairs = bond_pairs or []
+
+    def generate(self, state: State, previous_direction: np.ndarray | None) -> list[DirectionCandidate]:
+        coordinates = CartesianCoordinates.from_state(state)
+        candidates: list[DirectionCandidate] = []
+        if previous_direction is not None:
+            candidates.append(DirectionCandidate(DirectionCandidateKind.SOFT, self._normalized(previous_direction)))
+        for atom_i, atom_j in self.bond_pairs:
+            direction = self._bond_direction(state, atom_i, atom_j)
+            if direction is not None:
+                candidates.append(DirectionCandidate(DirectionCandidateKind.BOND, direction))
+        for _ in range(self.n_random):
+            active = self.rng.normal(size=coordinates.active_size)
+            active /= np.linalg.norm(active) + 1e-12
+            direction = coordinates.full_tangent_from_active(active).values
+            candidates.append(DirectionCandidate(DirectionCandidateKind.RANDOM, self._normalized(direction)))
+        return candidates
+
+    @staticmethod
+    def _normalized(direction: np.ndarray) -> np.ndarray:
+        direction = np.asarray(direction, dtype=float)
+        return direction / (np.linalg.norm(direction) + 1e-12)
+
+    def _bond_direction(self, state: State, atom_i: int, atom_j: int) -> np.ndarray | None:
+        if atom_i < 0 or atom_j < 0 or atom_i >= state.n_atoms or atom_j >= state.n_atoms or atom_i == atom_j:
+            return None
+        delta = state.positions[atom_j] - state.positions[atom_i]
+        norm = np.linalg.norm(delta)
+        if norm <= 1e-12:
+            return None
+        axis = delta / norm
+        values = np.zeros(state.n_atoms * 3, dtype=float).reshape(state.n_atoms, 3)
+        if state.movable_mask[atom_i]:
+            values[atom_i] -= axis
+        if state.movable_mask[atom_j]:
+            values[atom_j] += axis
+        flat = values.reshape(-1)
+        if np.linalg.norm(flat) <= 1e-12:
+            return None
+        return self._normalized(flat)
+
+
 @dataclass(frozen=True)
 class CandidateProposal:
     label: str
@@ -54,10 +142,18 @@ class CandidateProposal:
 
 
 class SoftModeOracle:
-    def __init__(self, calculator, rng: np.random.Generator, candidates: int) -> None:
+    def __init__(
+        self,
+        calculator,
+        rng: np.random.Generator,
+        candidates: int,
+        bond_pairs: list[tuple[int, int]] | None = None,
+    ) -> None:
         self.calculator = calculator
         self.rng = rng
         self.candidates = candidates
+        self.generator = CandidateDirectionGenerator(rng, candidates, bond_pairs=bond_pairs)
+        self.scorer = DirectionScorer()
 
     def choose_direction(
         self,
@@ -65,22 +161,23 @@ class SoftModeOracle:
         proposal: ProposalPotential,
         previous_direction: np.ndarray | None,
     ) -> DirectionChoice:
-        coordinates = CartesianCoordinates.from_state(state)
         best_direction: np.ndarray | None = None
         best_curvature: float | None = None
-        candidate_vectors: list[np.ndarray] = []
-        if previous_direction is not None:
-            candidate_vectors.append(previous_direction)
-        for _ in range(self.candidates):
-            active = self.rng.normal(size=coordinates.active_size)
-            active /= np.linalg.norm(active) + 1e-12
-            candidate_vectors.append(coordinates.full_tangent_from_active(active).values)
-        for vector in candidate_vectors:
-            vector = vector / (np.linalg.norm(vector) + 1e-12)
-            curvature = self._directional_curvature(state, proposal, vector)
-            if best_curvature is None or curvature < best_curvature:
+        best_score: float | None = None
+        for candidate in self.generator.generate(state, previous_direction):
+            curvature = self._directional_curvature(state, proposal, candidate.direction)
+            sigma = self._step_scale_from_curvature(curvature)
+            score = self.scorer.score(
+                curvature=curvature,
+                sigma=sigma,
+                direction=candidate.direction,
+                previous_direction=previous_direction,
+                damage_risk=candidate.damage_risk,
+            )
+            if best_score is None or score > best_score:
+                best_score = score
                 best_curvature = curvature
-                best_direction = vector
+                best_direction = candidate.direction
         assert best_direction is not None and best_curvature is not None
 
         return DirectionChoice(best_direction, best_curvature)
@@ -101,6 +198,11 @@ class SoftModeOracle:
         hvp = (grad_plus - grad_minus) / (2.0 * epsilon)
         return float(np.dot(hvp, direction))
 
+    @staticmethod
+    def _step_scale_from_curvature(curvature: float) -> float:
+        effective = max(abs(curvature), 1e-4)
+        return float(np.sqrt(2.0 / effective))
+
 
 class SurfaceWalker:
     def __init__(self, calculator, config: SSWConfig, softening_enabled: bool) -> None:
@@ -108,7 +210,8 @@ class SurfaceWalker:
         self.config = config
         self.softening_enabled = softening_enabled
         self.rng = np.random.default_rng(config.rng_seed)
-        self.oracle = SoftModeOracle(calculator, self.rng, config.oracle_candidates)
+        bond_pairs = config.local_softening_pairs if softening_enabled and isinstance(config, LSSSWConfig) else []
+        self.oracle = SoftModeOracle(calculator, self.rng, config.oracle_candidates, bond_pairs=bond_pairs)
         self.proposal_scorer = ProposalScorer()
         self.selector = BanditSelector()
 
