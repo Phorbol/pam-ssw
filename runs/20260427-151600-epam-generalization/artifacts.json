@@ -22,5 +22,13 @@
     "producer_step": "pytest_m3_direction_acquisition",
     "created_at": "2026-04-27T16:05:00+08:00",
     "description": "Full unit and integration test output after direction candidate acquisition skeleton"
+  },
+  {
+    "artifact_id": "pytest_m4_direction_novelty",
+    "type": "log",
+    "path": "runs/20260427-151600-epam-generalization/logs/pytest_m4_direction_novelty.out",
+    "producer_step": "pytest_m4_direction_novelty",
+    "created_at": "2026-04-27T16:15:00+08:00",
+    "description": "Full unit and integration test output after score-only novelty gain in direction acquisition"
   }
 ]

@@ -1,12 +1,14 @@
 import numpy as np
 
 from pamssw import SSWConfig
+from pamssw.archive import MinimaArchive
 from pamssw.calculators import AnalyticCalculator
 from pamssw.potentials import DoubleWell2D
 from pamssw.state import State
 from pamssw.walker import (
     CandidateDirectionGenerator,
     DirectionCandidateKind,
+    DirectionCandidate,
     DirectionScorer,
     ProposalPotential,
     SoftModeOracle,
@@ -81,3 +83,31 @@ def test_direction_scorer_penalizes_damage_risk_and_discontinuity():
     damaging = scorer.score(curvature=1.0, sigma=0.5, direction=-previous, previous_direction=previous, damage_risk=1.0)
 
     assert smooth > damaging
+
+
+def test_direction_scorer_rewards_score_only_novelty_gain_from_archive():
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=1e-6)
+    state = State(numbers=np.array([1, 1]), positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]))
+    archive.add(state, 0.0, parent_id=None)
+    scorer = DirectionScorer(novelty_weight=10.0)
+
+    near = DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([0.0, 1.0, 0.0, 0.0, 1.0, 0.0]) / np.sqrt(2.0))
+    far = DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([-1.0, 0.0, 0.0, 1.0, 0.0, 0.0]) / np.sqrt(2.0))
+    near_score = scorer.score_candidate(
+        state=state,
+        candidate=near,
+        curvature=0.0,
+        sigma=0.2,
+        previous_direction=None,
+        archive=archive,
+    )
+    far_score = scorer.score_candidate(
+        state=state,
+        candidate=far,
+        curvature=0.0,
+        sigma=2.0,
+        previous_direction=None,
+        archive=archive,
+    )
+
+    assert far_score > near_score

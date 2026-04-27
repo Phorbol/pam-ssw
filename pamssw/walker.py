@@ -66,6 +66,7 @@ class DirectionCandidate:
 class DirectionScorer:
     damage_weight: float = 1.0
     continuity_weight: float = 0.1
+    novelty_weight: float = 0.5
 
     def score(
         self,
@@ -82,6 +83,28 @@ class DirectionScorer:
             cur = direction / (np.linalg.norm(direction) + 1e-12)
             discontinuity = float(np.linalg.norm(cur - prev) ** 2)
         return float(-energy_cost - self.damage_weight * damage_risk - self.continuity_weight * discontinuity)
+
+    def score_candidate(
+        self,
+        state: State,
+        candidate: DirectionCandidate,
+        curvature: float,
+        sigma: float,
+        previous_direction: np.ndarray | None,
+        archive,
+    ) -> float:
+        score = self.score(
+            curvature=curvature,
+            sigma=sigma,
+            direction=candidate.direction,
+            previous_direction=previous_direction,
+            damage_risk=candidate.damage_risk,
+        )
+        if archive is None:
+            return score
+        probe = CartesianCoordinates.from_state(state).displace(TangentVector(candidate.direction), sigma)
+        novelty_gain = archive.coverage_gain(structural_descriptor(probe))
+        return float(score + self.novelty_weight * novelty_gain)
 
 
 class CandidateDirectionGenerator:
@@ -160,6 +183,7 @@ class SoftModeOracle:
         state: State,
         proposal: ProposalPotential,
         previous_direction: np.ndarray | None,
+        archive=None,
     ) -> DirectionChoice:
         best_direction: np.ndarray | None = None
         best_curvature: float | None = None
@@ -167,12 +191,13 @@ class SoftModeOracle:
         for candidate in self.generator.generate(state, previous_direction):
             curvature = self._directional_curvature(state, proposal, candidate.direction)
             sigma = self._step_scale_from_curvature(curvature)
-            score = self.scorer.score(
+            score = self.scorer.score_candidate(
+                state=state,
+                candidate=candidate,
                 curvature=curvature,
                 sigma=sigma,
-                direction=candidate.direction,
                 previous_direction=previous_direction,
-                damage_risk=candidate.damage_risk,
+                archive=archive,
             )
             if best_score is None or score > best_score:
                 best_score = score
@@ -295,9 +320,9 @@ class SurfaceWalker:
         )
 
     def _proposal_pool(self, seed_state: State, archive, trial_index: int) -> list[CandidateProposal]:
-        return [CandidateProposal("ssw_walk", self._walk_candidate_from_seed(seed_state))]
+        return [CandidateProposal("ssw_walk", self._walk_candidate_from_seed(seed_state, archive))]
 
-    def _walk_candidate_from_seed(self, seed_state: State) -> State:
+    def _walk_candidate_from_seed(self, seed_state: State, archive=None) -> State:
         current = seed_state
         previous_direction: np.ndarray | None = None
         biases: list[GaussianBiasTerm] = []
@@ -305,7 +330,7 @@ class SurfaceWalker:
 
         for _ in range(self.config.max_steps_per_walk):
             proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
-            choice = self.oracle.choose_direction(current, proposal, previous_direction)
+            choice = self.oracle.choose_direction(current, proposal, previous_direction, archive=archive)
             sigma = self._step_scale(choice.curvature)
             weight = self._bias_weight(choice.curvature, sigma)
             biases.append(
