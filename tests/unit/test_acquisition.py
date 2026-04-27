@@ -1,0 +1,74 @@
+import numpy as np
+
+from pamssw.acquisition import BanditSelector, ProposalOutcome, ProposalScorer
+from pamssw.archive import MinimaArchive
+from pamssw.state import State
+
+
+def _state(offset: float) -> State:
+    return State(
+        numbers=np.full(4, 18),
+        positions=np.array(
+            [
+                [offset, 0.0, 0.0],
+                [offset + 1.0, 0.0, 0.0],
+                [offset, 1.0, 0.0],
+                [offset, 0.0, 1.0],
+            ]
+        ),
+    )
+
+
+def test_archive_density_increases_when_nearby_descriptor_points_are_added():
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=1e-3)
+    first = archive.add(_state(0.0), -4.0, parent_id=None)
+    density_one = archive.descriptor_density(first)
+
+    archive.add(_state(0.03), -3.9, parent_id=first.entry_id)
+    density_two = archive.descriptor_density(first)
+
+    assert density_two > density_one
+
+
+def test_bandit_selector_prefers_novel_low_density_underexplored_node():
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=1e-3)
+    crowded = archive.add(_state(0.0), -5.0, parent_id=None)
+    novel = archive.add(_state(5.0), -4.9, parent_id=None)
+    archive.add(_state(0.05), -4.8, parent_id=crowded.entry_id)
+
+    crowded.node_trials = 8
+    crowded.node_successes = 0
+    crowded.frontier_value = 0.0
+    novel.node_trials = 0
+    novel.node_successes = 0
+    novel.frontier_value = 1.0
+
+    selector = BanditSelector(
+        archive_density_weight=1.0,
+        novelty_weight=1.0,
+        frontier_weight=1.0,
+        exploration_weight=0.5,
+        baseline_probability=0.0,
+    )
+
+    assert selector.select(archive, np.random.default_rng(4)).entry_id == novel.entry_id
+
+
+def test_proposal_scorer_penalizes_duplicates_and_rewards_novel_energy_improvements():
+    scorer = ProposalScorer()
+    duplicate = ProposalOutcome(
+        energy=-4.0,
+        previous_best_energy=-4.5,
+        is_new_minimum=False,
+        is_duplicate=True,
+        descriptor_coverage_gain=0.0,
+    )
+    novel = ProposalOutcome(
+        energy=-5.0,
+        previous_best_energy=-4.5,
+        is_new_minimum=True,
+        is_duplicate=False,
+        descriptor_coverage_gain=0.4,
+    )
+
+    assert scorer.score(novel) > scorer.score(duplicate)

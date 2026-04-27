@@ -4,8 +4,10 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from .acquisition import BanditSelector, ProposalOutcome, ProposalScorer
 from .bias import GaussianBiasTerm
 from .config import LSSSWConfig, RelaxConfig, SSWConfig
+from .fingerprint import structural_descriptor
 from .relax import Relaxer
 from .result import RelaxResult, SearchResult, WalkRecord
 from .softening import LocalSofteningModel
@@ -42,6 +44,12 @@ class ProposalPotential:
 class DirectionChoice:
     direction: np.ndarray
     curvature: float
+
+
+@dataclass(frozen=True)
+class CandidateProposal:
+    label: str
+    state: State
 
 
 class SoftModeOracle:
@@ -104,6 +112,14 @@ class SurfaceWalker:
         self.softening_enabled = softening_enabled
         self.rng = np.random.default_rng(config.rng_seed)
         self.oracle = SoftModeOracle(calculator, self.rng, config.oracle_candidates)
+        self.proposal_scorer = ProposalScorer()
+        self.selector = BanditSelector(
+            archive_density_weight=config.archive_density_weight,
+            novelty_weight=config.novelty_weight,
+            frontier_weight=config.frontier_weight,
+            exploration_weight=config.bandit_exploration_weight,
+            baseline_probability=config.baseline_selection_probability,
+        )
 
     def relax_true_minimum(self, state: State) -> RelaxResult:
         relaxer = Relaxer(self.calculator.evaluate_flat)
@@ -120,22 +136,51 @@ class SurfaceWalker:
         )
         best_entry = archive.add(initial.state, initial.energy, parent_id=None)
         walk_history: list[WalkRecord] = []
+        local_relaxations = 1
 
         for trial_index in range(self.config.max_trials):
-            seed_entry = archive.next_seed()
-            if self._should_cluster_reseed(seed_entry.state, trial_index):
-                candidate = self.relax_true_minimum(self._random_cluster_state_like(seed_entry.state))
+            if self.config.use_archive_acquisition:
+                seed_entry = archive.select_seed(self.selector, self.rng)
             else:
-                candidate = self._walk_from_seed(seed_entry.state)
-            discovered = archive.add(candidate.state, candidate.energy, parent_id=seed_entry.entry_id)
-            if discovered.energy < best_entry.energy:
-                best_entry = discovered
+                seed_entry = archive.next_seed()
+                seed_entry.visits += 1
+                seed_entry.node_trials += 1
+            proposals = self._proposal_pool(seed_entry.state, archive, trial_index)
+            best_discovered = None
+            best_score = -float("inf")
+            best_reward = 0.0
+            previous_best_energy = best_entry.energy
+            for proposal in proposals:
+                candidate = self.relax_true_minimum(proposal.state)
+                local_relaxations += 1
+                descriptor = structural_descriptor(candidate.state)
+                coverage_gain = archive.coverage_gain(descriptor)
+                before_count = len(archive.entries)
+                discovered = archive.add(candidate.state, candidate.energy, parent_id=seed_entry.entry_id)
+                is_new = len(archive.entries) > before_count
+                is_duplicate = not is_new
+                outcome = ProposalOutcome(
+                    energy=candidate.energy,
+                    previous_best_energy=previous_best_energy,
+                    is_new_minimum=is_new,
+                    is_duplicate=is_duplicate,
+                    descriptor_coverage_gain=coverage_gain,
+                )
+                reward = self.proposal_scorer.score(outcome)
+                if discovered.energy < best_entry.energy:
+                    best_entry = discovered
+                if reward > best_score or best_discovered is None:
+                    best_score = reward
+                    best_reward = reward
+                    best_discovered = discovered
+            assert best_discovered is not None
+            archive.record_success(seed_entry, best_reward)
             walk_history.append(
                 WalkRecord(
                     seed_entry_id=seed_entry.entry_id,
-                    discovered_entry_id=discovered.entry_id,
-                    energy=discovered.energy,
-                    accepted_new_basin=discovered.entry_id != seed_entry.entry_id,
+                    discovered_entry_id=best_discovered.entry_id,
+                    energy=best_discovered.energy,
+                    accepted_new_basin=best_discovered.entry_id != seed_entry.entry_id,
                 )
             )
 
@@ -144,10 +189,47 @@ class SurfaceWalker:
             best_energy=best_entry.energy,
             archive=archive,
             walk_history=walk_history,
-            stats={"n_trials": self.config.max_trials, "n_minima": len(archive.entries)},
+            stats={
+                "n_trials": self.config.max_trials,
+                "n_minima": len(archive.entries),
+                "proposal_pool_size": self.config.proposal_pool_size,
+                "local_relaxations": local_relaxations,
+                "duplicate_rate": archive.duplicate_rate(),
+                "descriptor_degeneracy_rate": archive.descriptor_degeneracy_rate(),
+            },
         )
 
-    def _walk_from_seed(self, seed_state: State) -> RelaxResult:
+    def _proposal_pool(self, seed_state: State, archive, trial_index: int) -> list[CandidateProposal]:
+        proposals = [CandidateProposal("ssw_walk", self._walk_candidate_from_seed(seed_state))]
+        if seed_state.n_atoms < 4 or seed_state.cell is not None or any(seed_state.pbc):
+            return proposals
+        while len(proposals) < self.config.proposal_pool_size:
+            label = self._next_proposal_label(len(proposals), archive, trial_index)
+            if label == "compact_reseed":
+                state = self._random_cluster_state_like(seed_state)
+            elif label == "archive_novel_reseed":
+                state = self._archive_novel_reseed(seed_state, archive)
+            elif label == "surface_relocation":
+                state = self._surface_relocation(seed_state)
+            elif label == "graph_recombination":
+                state = self._graph_recombination(seed_state, archive)
+            else:
+                state = self._random_cluster_state_like(seed_state)
+            proposals.append(CandidateProposal(label, state))
+        return proposals[: self.config.proposal_pool_size]
+
+    def _next_proposal_label(self, slot: int, archive, trial_index: int) -> str:
+        if self._should_cluster_reseed(archive.entries[0].state, trial_index) or slot == 1:
+            return "compact_reseed"
+        if slot == 2:
+            return "archive_novel_reseed"
+        if slot == 3:
+            return "surface_relocation"
+        if len(archive.entries) >= 2:
+            return "graph_recombination"
+        return "compact_reseed"
+
+    def _walk_candidate_from_seed(self, seed_state: State) -> State:
         current = seed_state
         previous_direction: np.ndarray | None = None
         biases: list[GaussianBiasTerm] = []
@@ -177,8 +259,10 @@ class SurfaceWalker:
             if np.linalg.norm(displacement) > 1e-8:
                 previous_direction = displacement / np.linalg.norm(displacement)
             current = proposal_relax.state
+        return current
 
-        return self.relax_true_minimum(current)
+    def _walk_from_seed(self, seed_state: State) -> RelaxResult:
+        return self.relax_true_minimum(self._walk_candidate_from_seed(seed_state))
 
     def _step_scale(self, curvature: float) -> float:
         effective = max(abs(curvature), 1e-4)
@@ -207,6 +291,89 @@ class SurfaceWalker:
         positions = self._random_compact_positions(state.n_atoms)
         return State(numbers=state.numbers.copy(), positions=positions)
 
+    def _archive_novel_reseed(self, state: State, archive) -> State:
+        best_state = self._motif_cluster_state_like(state) or self._random_cluster_state_like(state)
+        best_score = -float("inf")
+        descriptor = structural_descriptor(best_state)
+        best_score = archive.coverage_gain(descriptor)
+        for _ in range(6):
+            candidate = self._random_cluster_state_like(state)
+            descriptor = structural_descriptor(candidate)
+            score = archive.coverage_gain(descriptor)
+            if score > best_score:
+                best_score = score
+                best_state = candidate
+        return best_state
+
+    def _motif_cluster_state_like(self, state: State) -> State | None:
+        if state.cell is not None or any(state.pbc):
+            return None
+        try:
+            if state.n_atoms == 38:
+                from ase.cluster import Octahedron
+
+                atoms = Octahedron("Ar", length=4, cutoff=1)
+            elif state.n_atoms in {13, 55}:
+                from ase.cluster import Icosahedron
+
+                atoms = Icosahedron("Ar", 2 if state.n_atoms == 13 else 3)
+            else:
+                return None
+        except Exception:
+            return None
+        positions = np.asarray(atoms.get_positions(), dtype=float)
+        if positions.shape != state.positions.shape:
+            return None
+        positions -= positions.mean(axis=0, keepdims=True)
+        min_distance = self._min_pair_distance(positions)
+        if min_distance <= 1e-12:
+            return None
+        positions *= 1.12 / min_distance
+        positions = self._random_rotate(positions, self.rng)
+        positions -= positions.mean(axis=0, keepdims=True)
+        return State(numbers=state.numbers.copy(), positions=positions)
+
+    def _surface_relocation(self, state: State) -> State:
+        if state.n_atoms < 4 or state.cell is not None or any(state.pbc):
+            return self._random_cluster_state_like(state)
+        positions = state.positions - state.positions.mean(axis=0, keepdims=True)
+        distances = np.linalg.norm(positions, axis=1)
+        moved_index = int(np.argmax(distances))
+        compact = self._random_compact_positions(state.n_atoms)
+        direction = self.rng.normal(size=3)
+        direction /= np.linalg.norm(direction) + 1e-12
+        compact[moved_index] = direction * max(1.0, np.percentile(np.linalg.norm(compact, axis=1), 75))
+        compact -= compact.mean(axis=0, keepdims=True)
+        if self._min_pair_distance(compact) < 0.55:
+            return self._random_cluster_state_like(state)
+        return State(numbers=state.numbers.copy(), positions=compact)
+
+    def _graph_recombination(self, state: State, archive) -> State:
+        if len(archive.entries) < 2 or state.n_atoms < 2:
+            return self._random_cluster_state_like(state)
+        parents = sorted(archive.entries, key=lambda entry: (entry.energy, entry.entry_id))[: min(6, len(archive.entries))]
+        first = parents[int(self.rng.integers(0, len(parents)))]
+        diverse = max(
+            parents,
+            key=lambda entry: np.linalg.norm(
+                (first.descriptor if first.descriptor is not None else np.zeros(1))
+                - (entry.descriptor if entry.descriptor is not None else np.zeros(1))
+            ),
+        )
+        coords_a = self._random_rotate(first.state.positions - first.state.positions.mean(axis=0), self.rng)
+        coords_b = self._random_rotate(diverse.state.positions - diverse.state.positions.mean(axis=0), self.rng)
+        direction = self.rng.normal(size=3)
+        direction /= np.linalg.norm(direction) + 1e-12
+        order_a = np.argsort(coords_a @ direction)
+        order_b = np.argsort(coords_b @ direction)
+        split = int(self.rng.integers(1, state.n_atoms))
+        child = np.vstack([coords_a[order_a[:split]], coords_b[order_b[-(state.n_atoms - split) :]]])
+        child += self.rng.normal(scale=0.05, size=child.shape)
+        child -= child.mean(axis=0, keepdims=True)
+        if self._min_pair_distance(child) < 0.55:
+            return self._random_cluster_state_like(state)
+        return State(numbers=state.numbers.copy(), positions=child)
+
     def _random_compact_positions(self, n_atoms: int) -> np.ndarray:
         radius = 0.75 * n_atoms ** (1.0 / 3.0)
         min_distance = 0.72
@@ -223,3 +390,28 @@ class SurfaceWalker:
             positions = [self.rng.normal(scale=radius / 2.0, size=3) for _ in range(n_atoms)]
         array = np.asarray(positions, dtype=float)
         return array - array.mean(axis=0, keepdims=True)
+
+    @staticmethod
+    def _min_pair_distance(positions: np.ndarray) -> float:
+        if positions.shape[0] < 2:
+            return float("inf")
+        best = float("inf")
+        for atom_i in range(positions.shape[0]):
+            delta = positions[atom_i + 1 :] - positions[atom_i]
+            if delta.size:
+                best = min(best, float(np.linalg.norm(delta, axis=1).min()))
+        return best
+
+    @staticmethod
+    def _random_rotate(positions: np.ndarray, rng: np.random.Generator) -> np.ndarray:
+        q = rng.normal(size=4)
+        q /= np.linalg.norm(q) + 1e-12
+        w, x, y, z = q
+        rotation = np.array(
+            [
+                [1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)],
+                [2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)],
+                [2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)],
+            ]
+        )
+        return positions @ rotation.T

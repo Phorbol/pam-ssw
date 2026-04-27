@@ -30,6 +30,13 @@ class SSWConfig:
     min_step_scale: float = 0.15
     max_step_scale: float = 1.5
     cluster_reseed_interval: int = 2
+    use_archive_acquisition: bool = True
+    proposal_pool_size: int = 3
+    archive_density_weight: float = 0.5
+    novelty_weight: float = 1.0
+    frontier_weight: float = 0.5
+    bandit_exploration_weight: float = 0.75
+    baseline_selection_probability: float = 0.15
 
     def __post_init__(self) -> None:
         positive_ints = {
@@ -38,6 +45,7 @@ class SSWConfig:
             "oracle_candidates": self.oracle_candidates,
             "proposal_relax_steps": self.proposal_relax_steps,
             "cluster_reseed_interval": self.cluster_reseed_interval,
+            "proposal_pool_size": self.proposal_pool_size,
         }
         for name, value in positive_ints.items():
             if value <= 0:
@@ -50,10 +58,16 @@ class SSWConfig:
             "proposal_fmax": self.proposal_fmax,
             "min_step_scale": self.min_step_scale,
             "max_step_scale": self.max_step_scale,
+            "archive_density_weight": self.archive_density_weight,
+            "novelty_weight": self.novelty_weight,
+            "frontier_weight": self.frontier_weight,
+            "bandit_exploration_weight": self.bandit_exploration_weight,
         }
         for name, value in positive_floats.items():
             if value <= 0:
                 raise ValueError(f"{name} must be positive")
+        if not 0.0 <= self.baseline_selection_probability <= 1.0:
+            raise ValueError("baseline_selection_probability must be between 0 and 1")
         if self.min_step_scale > self.max_step_scale:
             raise ValueError("min_step_scale cannot exceed max_step_scale")
 

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from .fingerprint import descriptor_distance, structural_descriptor
 from .state import State
 
 
@@ -14,6 +15,11 @@ class MinimaEntry:
     energy: float
     parent_id: int | None
     visits: int = 0
+    descriptor: np.ndarray | None = None
+    node_trials: int = 0
+    node_successes: int = 0
+    frontier_value: float = 1.0
+    duplicate_hits: int = 0
 
 
 class MinimaArchive:
@@ -28,6 +34,7 @@ class MinimaArchive:
                 continue
             if self._rmsd(entry.state, state) <= self.rmsd_tol:
                 entry.visits += 1
+                entry.duplicate_hits += 1
                 return entry
 
         entry = MinimaEntry(
@@ -36,12 +43,77 @@ class MinimaArchive:
             energy=float(energy),
             parent_id=parent_id,
             visits=1,
+            descriptor=structural_descriptor(state),
         )
         self.entries.append(entry)
+        self._refresh_frontier_values()
         return entry
 
     def next_seed(self) -> MinimaEntry:
         return min(self.entries, key=lambda entry: (entry.visits, entry.energy, entry.entry_id))
+
+    def select_seed(self, selector, rng: np.random.Generator) -> MinimaEntry:
+        entry = selector.select(self, rng)
+        entry.node_trials += 1
+        entry.visits += 1
+        return entry
+
+    def normalized_energy(self, entry: MinimaEntry) -> float:
+        energies = np.asarray([item.energy for item in self.entries], dtype=float)
+        span = float(np.ptp(energies))
+        if span <= 1e-12:
+            return 0.0
+        return float((entry.energy - energies.min()) / span)
+
+    def descriptor_density(self, entry: MinimaEntry | np.ndarray) -> float:
+        descriptor = entry if isinstance(entry, np.ndarray) else entry.descriptor
+        if descriptor is None or not self.entries:
+            return 0.0
+        distances = np.asarray(
+            [
+                descriptor_distance(descriptor, other.descriptor)
+                for other in self.entries
+                if other.descriptor is not None and (not isinstance(entry, MinimaEntry) or other.entry_id != entry.entry_id)
+            ],
+            dtype=float,
+        )
+        if distances.size == 0:
+            return 0.0
+        bandwidth = max(0.25, float(np.median(distances)) + 1e-6)
+        return float(np.exp(-0.5 * (distances / bandwidth) ** 2).sum())
+
+    def novelty(self, entry: MinimaEntry | np.ndarray) -> float:
+        return float(1.0 / (1.0 + self.descriptor_density(entry)))
+
+    def coverage_gain(self, descriptor: np.ndarray) -> float:
+        return self.novelty(descriptor)
+
+    def duplicate_rate(self) -> float:
+        hits = sum(entry.duplicate_hits for entry in self.entries)
+        total = hits + len(self.entries)
+        return hits / total if total else 0.0
+
+    def descriptor_degeneracy_rate(self, tol: float = 1e-3) -> float:
+        if len(self.entries) < 2:
+            return 0.0
+        close = 0
+        total = 0
+        for index, lhs in enumerate(self.entries):
+            for rhs in self.entries[index + 1 :]:
+                total += 1
+                if lhs.descriptor is not None and rhs.descriptor is not None:
+                    close += descriptor_distance(lhs.descriptor, rhs.descriptor) <= tol
+        return close / total if total else 0.0
+
+    def record_success(self, entry: MinimaEntry, reward: float) -> None:
+        if reward > 0.0:
+            entry.node_successes += 1
+        entry.frontier_value = 0.8 * entry.frontier_value + 0.2 * max(0.0, reward)
+
+    def _refresh_frontier_values(self) -> None:
+        for entry in self.entries:
+            success_rate = entry.node_successes / max(1, entry.node_trials)
+            entry.frontier_value = max(entry.frontier_value, self.novelty(entry) * (1.0 + success_rate))
 
     @staticmethod
     def _rmsd(lhs: State, rhs: State) -> float:

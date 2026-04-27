@@ -48,7 +48,8 @@ def quench(state: State, calculator: ASECalculator, fmax: float = 1e-3, maxiter:
 
 def run_ssw_trial(size: int, seed: int, budget: int) -> RunSummary:
     steps_per_walk = 8
-    max_trials = max(1, budget // (steps_per_walk + 1))
+    proposal_pool_size = 3
+    max_trials = max(1, (budget - 1) // proposal_pool_size)
     calculator = make_calculator()
     result = run_ssw(
         random_cluster_state(size, seed),
@@ -56,6 +57,7 @@ def run_ssw_trial(size: int, seed: int, budget: int) -> RunSummary:
         SSWConfig(
             max_trials=max_trials,
             max_steps_per_walk=steps_per_walk,
+            proposal_pool_size=proposal_pool_size,
             target_uphill_energy=1.2,
             quench_fmax=1e-3,
             dedup_rmsd_tol=0.2,
@@ -71,7 +73,7 @@ def run_ssw_trial(size: int, seed: int, budget: int) -> RunSummary:
         best_energy=result.best_energy,
         energy_gap=gap,
         success=gap <= 1e-3,
-        local_relaxations=max_trials * (steps_per_walk + 1),
+        local_relaxations=int(result.stats.get("local_relaxations", 0)),
     )
 
 
