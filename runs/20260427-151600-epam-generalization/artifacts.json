@@ -206,5 +206,13 @@
     "producer_step": "lj_quick_m18_rigid_projection",
     "created_at": "2026-04-27T22:49:00+08:00",
     "description": "Quick gate rerun after rigid-body projection; improves LJ13 repeat trapping and LJ38 seed1, but LJ38 seed0 remains high-energy"
+  },
+  {
+    "artifact_id": "pytest_m19_relax_convergence_diagnostics",
+    "type": "log",
+    "path": "runs/20260427-151600-epam-generalization/logs/pytest_m19_relax_convergence_diagnostics.out",
+    "producer_step": "pytest_m19_relax_convergence_diagnostics",
+    "created_at": "2026-04-27T23:00:00+08:00",
+    "description": "Full unit and integration test output after adding true-quench and proposal-relax convergence diagnostics"
   }
 ]

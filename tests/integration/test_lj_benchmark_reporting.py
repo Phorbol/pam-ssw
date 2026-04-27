@@ -17,3 +17,9 @@ def test_lj_benchmark_reports_ssw_diagnostics():
     assert summary.direction_mean_candidate_pool_size is not None
     assert summary.direction_rigid_body_overlap_mean is not None
     assert summary.direction_post_projection_rigid_body_overlap_mean is not None
+    assert summary.true_quench_count is not None
+    assert summary.true_quench_unconverged is not None
+    assert summary.true_quench_max_gradient is not None
+    assert summary.proposal_relax_count is not None
+    assert summary.proposal_relax_unconverged is not None
+    assert summary.proposal_relax_max_gradient is not None

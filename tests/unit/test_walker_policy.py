@@ -245,6 +245,24 @@ def test_surface_walker_reports_adaptive_step_target_diagnostics():
     assert "adaptive_step_multiplier" in result.stats
 
 
+def test_surface_walker_reports_relaxation_convergence_diagnostics():
+    initial = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(max_trials=1, max_steps_per_walk=1, oracle_candidates=2, rng_seed=0),
+        softening_enabled=False,
+    )
+
+    result = walker.run(initial)
+
+    assert result.stats["true_quench_count"] >= 1
+    assert result.stats["true_quench_max_gradient"] <= walker.config.quench_fmax
+    assert result.stats["true_quench_unconverged"] == 0
+    assert result.stats["proposal_relax_count"] == 1
+    assert result.stats["proposal_relax_max_gradient"] >= 0.0
+    assert "proposal_relax_unconverged" in result.stats
+
+
 def test_surface_walker_reports_observable_frontier_diagnostics():
     initial = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))
     walker = SurfaceWalker(

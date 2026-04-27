@@ -47,6 +47,14 @@ class RunSummary:
     direction_selected_random: int | None = None
     direction_selected_bond: int | None = None
     direction_selected_cell: int | None = None
+    true_quench_count: int | None = None
+    true_quench_unconverged: int | None = None
+    true_quench_max_gradient: float | None = None
+    true_quench_mean_iterations: float | None = None
+    proposal_relax_count: int | None = None
+    proposal_relax_unconverged: int | None = None
+    proposal_relax_max_gradient: float | None = None
+    proposal_relax_mean_iterations: float | None = None
 
 
 def random_cluster_state(size: int, seed: int) -> State:
@@ -109,6 +117,14 @@ def run_ssw_trial(size: int, seed: int, budget: int) -> RunSummary:
         direction_selected_random=int(result.stats.get("direction_selected_random", 0)),
         direction_selected_bond=int(result.stats.get("direction_selected_bond", 0)),
         direction_selected_cell=int(result.stats.get("direction_selected_cell", 0)),
+        true_quench_count=int(result.stats.get("true_quench_count", 0)),
+        true_quench_unconverged=int(result.stats.get("true_quench_unconverged", 0)),
+        true_quench_max_gradient=float(result.stats.get("true_quench_max_gradient", 0.0)),
+        true_quench_mean_iterations=float(result.stats.get("true_quench_mean_iterations", 0.0)),
+        proposal_relax_count=int(result.stats.get("proposal_relax_count", 0)),
+        proposal_relax_unconverged=int(result.stats.get("proposal_relax_unconverged", 0)),
+        proposal_relax_max_gradient=float(result.stats.get("proposal_relax_max_gradient", 0.0)),
+        proposal_relax_mean_iterations=float(result.stats.get("proposal_relax_mean_iterations", 0.0)),
     )
 
 

@@ -404,17 +404,21 @@ class SurfaceWalker:
         self.step_target_controller = StepTargetController(config.target_uphill_energy)
         self._reset_trust_stats()
         self._reset_direction_stats()
+        self._reset_relax_stats()
 
     def relax_true_minimum(self, state: State) -> RelaxResult:
         relaxer = Relaxer(self.calculator.evaluate_flat)
         relax_config = RelaxConfig(fmax=self.config.quench_fmax, maxiter=400)
-        return relaxer.relax(state, fmax=relax_config.fmax, maxiter=relax_config.maxiter)
+        result = relaxer.relax(state, fmax=relax_config.fmax, maxiter=relax_config.maxiter)
+        self._record_relax_result("true_quench", result, relax_config.fmax)
+        return result
 
     def run(self, initial_state: State):
         from .archive import MinimaArchive
 
         self._reset_trust_stats()
         self._reset_direction_stats()
+        self._reset_relax_stats()
         initial = self.relax_true_minimum(initial_state)
         archive = MinimaArchive(
             energy_tol=self.config.dedup_energy_tol,
@@ -529,6 +533,7 @@ class SurfaceWalker:
                 "variable_cell_supported": 0,
                 **self._trust_stats_summary(),
                 **self._direction_stats_summary(),
+                **self._relax_stats_summary(),
                 **self.step_target_controller.stats(),
             },
         )
@@ -566,6 +571,7 @@ class SurfaceWalker:
                 fmax=self.config.proposal_fmax,
                 maxiter=self.config.proposal_relax_steps,
             )
+            self._record_relax_result("proposal_relax", proposal_relax, self.config.proposal_fmax)
             true_energy_after = self.calculator.evaluate(proposal_relax.state).energy
             trust_update = self.trust_controller.update(
                 curvature=choice.curvature,
@@ -613,6 +619,19 @@ class SurfaceWalker:
         self._direction_selected = {kind: 0 for kind in DirectionCandidateKind}
         self._direction_rigid_overlap_sum = 0.0
         self._direction_post_projection_rigid_overlap_sum = 0.0
+
+    def _reset_relax_stats(self) -> None:
+        self._relax_stats = {
+            "true_quench": {"count": 0, "unconverged": 0, "max_gradient": 0.0, "n_iter_sum": 0},
+            "proposal_relax": {"count": 0, "unconverged": 0, "max_gradient": 0.0, "n_iter_sum": 0},
+        }
+
+    def _record_relax_result(self, label: str, result: RelaxResult, fmax: float) -> None:
+        stats = self._relax_stats[label]
+        stats["count"] += 1
+        stats["n_iter_sum"] += result.n_iter
+        stats["max_gradient"] = max(float(stats["max_gradient"]), result.gradient_norm)
+        stats["unconverged"] += int(result.gradient_norm > fmax)
 
     def _record_direction_choice(self, choice: DirectionChoice) -> None:
         self._direction_choices += 1
@@ -662,6 +681,16 @@ class SurfaceWalker:
             "direction_selected_bond": self._direction_selected[DirectionCandidateKind.BOND],
             "direction_selected_cell": self._direction_selected[DirectionCandidateKind.CELL],
         }
+
+    def _relax_stats_summary(self) -> dict[str, float | int]:
+        summary: dict[str, float | int] = {}
+        for label, stats in self._relax_stats.items():
+            count = int(stats["count"])
+            summary[f"{label}_count"] = count
+            summary[f"{label}_unconverged"] = int(stats["unconverged"])
+            summary[f"{label}_max_gradient"] = float(stats["max_gradient"])
+            summary[f"{label}_mean_iterations"] = float(stats["n_iter_sum"] / count) if count else 0.0
+        return summary
 
     def _build_softening(self, seed_state: State) -> LocalSofteningModel | None:
         if not self.softening_enabled or not isinstance(self.config, LSSSWConfig):
