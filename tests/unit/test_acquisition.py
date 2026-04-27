@@ -1,6 +1,6 @@
 import numpy as np
 
-from pamssw.acquisition import AcquisitionPolicy, BanditSelector, ProposalOutcome, ProposalScorer
+from pamssw.acquisition import AcquisitionPolicy, BanditSelector, ProposalOutcome, ProposalScorer, SearchMode
 from pamssw.archive import MinimaArchive
 from pamssw.state import State
 
@@ -96,3 +96,45 @@ def test_proposal_scorer_penalizes_duplicates_and_rewards_novel_energy_improveme
     )
 
     assert scorer.score(novel) > scorer.score(duplicate)
+
+
+def test_global_mode_rank_key_is_lexicographic_not_weight_tuned():
+    scorer = ProposalScorer.for_mode(SearchMode.GLOBAL_MINIMUM)
+    small_best_gain = ProposalOutcome(
+        energy=-4.51,
+        previous_best_energy=-4.5,
+        is_new_minimum=False,
+        is_duplicate=True,
+        descriptor_coverage_gain=0.0,
+    )
+    high_coverage_no_best_gain = ProposalOutcome(
+        energy=-4.4,
+        previous_best_energy=-4.5,
+        is_new_minimum=True,
+        is_duplicate=False,
+        descriptor_coverage_gain=100.0,
+    )
+
+    assert scorer.rank_key(small_best_gain) > scorer.rank_key(high_coverage_no_best_gain)
+
+
+def test_reaction_network_mode_prioritizes_validated_edges_over_best_energy():
+    scorer = ProposalScorer.for_mode(SearchMode.REACTION_NETWORK)
+    new_edge = ProposalOutcome(
+        energy=-4.4,
+        previous_best_energy=-4.5,
+        is_new_minimum=False,
+        is_duplicate=False,
+        descriptor_coverage_gain=0.0,
+        is_new_edge=True,
+    )
+    lower_energy_no_edge = ProposalOutcome(
+        energy=-5.0,
+        previous_best_energy=-4.5,
+        is_new_minimum=True,
+        is_duplicate=False,
+        descriptor_coverage_gain=0.0,
+        is_new_edge=False,
+    )
+
+    assert scorer.rank_key(new_edge) > scorer.rank_key(lower_energy_no_edge)

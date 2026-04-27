@@ -1,8 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 
 import numpy as np
+
+
+class SearchMode(str, Enum):
+    GLOBAL_MINIMUM = "global_minimum"
+    REACTION_NETWORK = "reaction_network"
+    CRYSTAL_SEARCH = "crystal_search"
 
 
 @dataclass(frozen=True)
@@ -33,23 +40,61 @@ class ProposalOutcome:
     is_new_minimum: bool
     is_duplicate: bool
     descriptor_coverage_gain: float
+    is_new_edge: bool = False
 
 
 @dataclass(frozen=True)
 class ProposalScorer:
-    w_new: float = 1.0
-    w_best: float = 5.0
-    w_cov: float = 0.5
-    w_dup: float = 0.25
+    mode: SearchMode = SearchMode.GLOBAL_MINIMUM
+    near_energy_window: float = 0.5
+
+    @classmethod
+    def for_mode(cls, mode: SearchMode | str) -> ProposalScorer:
+        return cls(mode=SearchMode(mode))
+
+    def rank_key(self, outcome: ProposalOutcome) -> tuple[float, ...]:
+        best_gain = self._best_gain(outcome)
+        near_low_energy = float(outcome.energy <= outcome.previous_best_energy + self.near_energy_window)
+        not_duplicate = 1.0 - float(outcome.is_duplicate)
+        if self.mode == SearchMode.GLOBAL_MINIMUM:
+            return (
+                best_gain,
+                near_low_energy,
+                float(outcome.is_new_minimum),
+                float(outcome.descriptor_coverage_gain),
+                not_duplicate,
+            )
+        if self.mode == SearchMode.REACTION_NETWORK:
+            return (
+                float(outcome.is_new_edge),
+                float(outcome.is_new_minimum),
+                float(outcome.descriptor_coverage_gain),
+                best_gain,
+                not_duplicate,
+            )
+        if self.mode == SearchMode.CRYSTAL_SEARCH:
+            return (
+                near_low_energy,
+                float(outcome.is_new_minimum),
+                float(outcome.descriptor_coverage_gain),
+                best_gain,
+                not_duplicate,
+            )
+        raise ValueError(f"unsupported search mode: {self.mode}")
 
     def score(self, outcome: ProposalOutcome) -> float:
-        best_gain = max(0.0, outcome.previous_best_energy - outcome.energy)
+        best_gain = self._best_gain(outcome)
         return (
-            self.w_new * float(outcome.is_new_minimum)
-            + self.w_best * best_gain
-            + self.w_cov * outcome.descriptor_coverage_gain
-            - self.w_dup * float(outcome.is_duplicate)
+            best_gain
+            + float(outcome.is_new_minimum)
+            + float(outcome.is_new_edge)
+            + float(outcome.descriptor_coverage_gain)
+            - float(outcome.is_duplicate)
         )
+
+    @staticmethod
+    def _best_gain(outcome: ProposalOutcome) -> float:
+        return max(0.0, outcome.previous_best_energy - outcome.energy)
 
 
 @dataclass(frozen=True)

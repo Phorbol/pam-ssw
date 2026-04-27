@@ -1,6 +1,6 @@
 # Status
 
-Current phase: M5 trust-region SSW feedback verified
+Current phase: M6 task-mode proposal ranking verified
 
 - Removed GA/BH-style reseed/recombination/motif mechanisms from core `pamssw`.
 - Added Cartesian coordinate/tangent layer and metric module.
@@ -12,4 +12,5 @@ Current phase: M5 trust-region SSW feedback verified
 - Added score-only descriptor novelty gain for direction candidate scoring. This uses archive descriptors only to rank candidate directions and does not add archive forces to the inner PES.
 - Added trust-region feedback control for the local SSW bias. Curvature inversion now provides the initial Gaussian bias seed; true-PES energy change after the proposal relax updates the next-step trust radius and bias scale.
 - Added trust-region diagnostics to `SearchResult.stats`: steps, mean model error, shrink/expand counts, and damage events.
-- Full tests: `38 passed`.
+- Added documented search modes and lexicographic proposal ranking. Global-minimum mode prioritizes best-energy improvement before near-low-energy minima, novelty, coverage, and duplicate avoidance; reaction-network mode prioritizes validated edge discovery. No raw proposal-weight knobs were added to `SSWConfig`.
+- Full tests: `41 passed`.

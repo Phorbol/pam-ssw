@@ -38,5 +38,13 @@
     "producer_step": "pytest_m5_trust_region",
     "created_at": "2026-04-27T16:25:00+08:00",
     "description": "Full unit and integration test output after trust-region feedback control for local SSW bias"
+  },
+  {
+    "artifact_id": "pytest_m6_search_modes",
+    "type": "log",
+    "path": "runs/20260427-151600-epam-generalization/logs/pytest_m6_search_modes.out",
+    "producer_step": "pytest_m6_search_modes",
+    "created_at": "2026-04-27T16:40:00+08:00",
+    "description": "Full unit and integration test output after task-mode lexicographic proposal ranking"
   }
 ]

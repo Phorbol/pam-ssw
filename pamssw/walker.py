@@ -298,7 +298,7 @@ class SurfaceWalker:
         self.rng = np.random.default_rng(config.rng_seed)
         bond_pairs = config.local_softening_pairs if softening_enabled and isinstance(config, LSSSWConfig) else []
         self.oracle = SoftModeOracle(calculator, self.rng, config.oracle_candidates, bond_pairs=bond_pairs)
-        self.proposal_scorer = ProposalScorer()
+        self.proposal_scorer = ProposalScorer.for_mode(config.search_mode)
         self.selector = BanditSelector()
         self.trust_controller = TrustRegionBiasController()
         self._reset_trust_stats()
@@ -330,7 +330,7 @@ class SurfaceWalker:
                 seed_entry.node_trials += 1
             proposals = self._proposal_pool(seed_entry.state, archive, trial_index)
             best_discovered = None
-            best_score = -float("inf")
+            best_rank_key: tuple[float, ...] | None = None
             best_reward = 0.0
             previous_best_energy = best_entry.energy
             for proposal in proposals:
@@ -350,10 +350,11 @@ class SurfaceWalker:
                     descriptor_coverage_gain=coverage_gain,
                 )
                 reward = self.proposal_scorer.score(outcome)
+                rank_key = self.proposal_scorer.rank_key(outcome)
                 if discovered.energy < best_entry.energy:
                     best_entry = discovered
-                if reward > best_score or best_discovered is None:
-                    best_score = reward
+                if best_rank_key is None or rank_key > best_rank_key:
+                    best_rank_key = rank_key
                     best_reward = reward
                     best_discovered = discovered
             assert best_discovered is not None

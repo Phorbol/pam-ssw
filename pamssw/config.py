@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from .acquisition import SearchMode
+
 
 @dataclass(frozen=True)
 class RelaxConfig:
@@ -31,6 +33,7 @@ class SSWConfig:
     min_step_scale: float = 0.15
     max_step_scale: float = 1.5
     use_archive_acquisition: bool = True
+    search_mode: SearchMode | str = SearchMode.GLOBAL_MINIMUM
 
     def __post_init__(self) -> None:
         positive_ints = {
@@ -57,6 +60,10 @@ class SSWConfig:
                 raise ValueError(f"{name} must be positive")
         if self.min_step_scale > self.max_step_scale:
             raise ValueError("min_step_scale cannot exceed max_step_scale")
+        try:
+            SearchMode(self.search_mode)
+        except ValueError as exc:
+            raise ValueError("search_mode must be a documented SearchMode") from exc
 
 
 @dataclass(frozen=True)
