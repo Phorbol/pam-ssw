@@ -10,3 +10,8 @@ def test_lj_benchmark_reports_ssw_diagnostics():
     assert summary.duplicate_rate is not None
     assert summary.frontier_nodes is not None
     assert summary.dead_nodes is not None
+    assert summary.mean_node_duplicate_failure_rate is not None
+    assert summary.max_node_duplicate_failure_rate is not None
+    assert summary.direction_choices is not None
+    assert summary.direction_candidate_evaluations is not None
+    assert summary.direction_mean_candidate_pool_size is not None

@@ -36,6 +36,15 @@ class RunSummary:
     duplicate_rate: float | None = None
     frontier_nodes: int | None = None
     dead_nodes: int | None = None
+    mean_node_duplicate_failure_rate: float | None = None
+    max_node_duplicate_failure_rate: float | None = None
+    direction_choices: int | None = None
+    direction_candidate_evaluations: int | None = None
+    direction_mean_candidate_pool_size: float | None = None
+    direction_selected_soft: int | None = None
+    direction_selected_random: int | None = None
+    direction_selected_bond: int | None = None
+    direction_selected_cell: int | None = None
 
 
 def random_cluster_state(size: int, seed: int) -> State:
@@ -85,6 +94,15 @@ def run_ssw_trial(size: int, seed: int, budget: int) -> RunSummary:
         duplicate_rate=float(result.stats.get("duplicate_rate", 0.0)),
         frontier_nodes=int(result.stats.get("frontier_nodes", 0)),
         dead_nodes=int(result.stats.get("dead_nodes", 0)),
+        mean_node_duplicate_failure_rate=float(result.stats.get("mean_node_duplicate_failure_rate", 0.0)),
+        max_node_duplicate_failure_rate=float(result.stats.get("max_node_duplicate_failure_rate", 0.0)),
+        direction_choices=int(result.stats.get("direction_choices", 0)),
+        direction_candidate_evaluations=int(result.stats.get("direction_candidate_evaluations", 0)),
+        direction_mean_candidate_pool_size=float(result.stats.get("direction_mean_candidate_pool_size", 0.0)),
+        direction_selected_soft=int(result.stats.get("direction_selected_soft", 0)),
+        direction_selected_random=int(result.stats.get("direction_selected_random", 0)),
+        direction_selected_bond=int(result.stats.get("direction_selected_bond", 0)),
+        direction_selected_cell=int(result.stats.get("direction_selected_cell", 0)),
     )
 
 

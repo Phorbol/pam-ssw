@@ -37,3 +37,5 @@ Current phase: M14 geometry-risk scoring discarded after unchanged quick gate
 - Full tests after M15 diagnostics: `56 passed`.
 - Added M16 seed-node duplicate attribution. `duplicate_hits` remains the global basin revisit count, while new `node_duplicate_failures` records duplicate outcomes caused by proposals from a selected seed. Dead/frontier status now uses seed-local duplicate failure rate, which is the statistic needed for document-backed `S_repeat`/anti-repeat graph policy.
 - Full tests after M16 seed duplicate attribution: `57 passed`.
+- Added M17 benchmark diagnostic reporting for seed-local duplicate failure and direction acquisition statistics. Quick gate numerical gaps are unchanged, but the JSON now shows LJ13 seeds 0/1 and LJ38 seed1 have seed-local duplicate failure means around `0.85-0.89`, while LJ38 seed0 has `0.0` duplicate failure but high-energy over-exploration.
+- Full tests after M17 benchmark diagnostics: `57 passed`.

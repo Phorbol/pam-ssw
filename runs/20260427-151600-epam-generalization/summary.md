@@ -26,6 +26,7 @@ Implemented scope:
 - M14 geometry damage risk: implemented a strictly score-only `S_risk` candidate-direction penalty from cheap relative geometry checks. The quick gate was identical to M12, so this did not advance the benchmark target and was reverted. The result suggests the current candidate choices are not controlled by this risk term under the quick LJ workload.
 - M15 direction acquisition diagnostics: added stats for direction choices, candidate evaluations, mean candidate-pool size, and selected soft/random/bond/cell counts. This supports the document requirement for explicit duplicate/damage/exploration diagnostics and helps determine whether future outer-loop direction scores actually affect the inner SSW walk.
 - M16 seed duplicate attribution: corrected the repeat/failure statistics used by frontier/dead-node logic. Basin-level `duplicate_hits` records where duplicate proposals landed; seed-level `node_duplicate_failures` now records whether proposals from a selected node repeatedly produced duplicates. Frontier/dead-node status and reported node duplicate failure rates use the seed-level statistic.
+- M17 benchmark diagnostics: LJ benchmark summaries now expose seed-local duplicate failure and direction acquisition diagnostics. The quick gate values are unchanged, but the added fields show repeated-proposal traps are seed-local on LJ13 and LJ38 seed1, while LJ38 seed0 is instead a high-energy over-exploration case.
 
 Explicit support claim after M1:
 
@@ -40,6 +41,7 @@ Verification:
 - Result after reverting M14 implementation: `55 passed`
 - Result after M15 direction diagnostics: `56 passed`
 - Result after M16 seed duplicate attribution: `57 passed`
+- Result after M17 benchmark diagnostics: `57 passed`
 
 Smoke benchmark:
 
@@ -57,3 +59,9 @@ M14 quick gate:
 - Output: `runs/20260427-151600-epam-generalization/lj_quick_m14_geometry_risk.json`
 - Result: unchanged relative to M12. SSW LJ13 mean gap `3.295909127321515`, SSW LJ38 mean gap `18.134550242531958`; BH/GA reference values were unchanged.
 - Decision: discarded and reverted because the primary metric did not improve.
+
+M17 quick gate:
+
+- Output: `runs/20260427-151600-epam-generalization/lj_quick_m17_benchmark_diagnostics.json`
+- Result: unchanged relative to M12. SSW LJ13 mean gap `3.295909127321515`, SSW LJ38 mean gap `18.134550242531958`.
+- Added diagnosis: LJ13 seed0/1 and LJ38 seed1 have mean seed-local duplicate failure rates near `0.85-0.89`; LJ38 seed0 has `0.0` seed-local duplicate failure but poor energy, indicating high-energy over-exploration rather than repeat trapping.
