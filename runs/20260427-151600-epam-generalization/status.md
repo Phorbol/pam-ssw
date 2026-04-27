@@ -1,6 +1,6 @@
 # Status
 
-Current phase: M13 mode-aware node acquisition benchmarked and marked for discard
+Current phase: M13 implementation discarded after worse quick gate
 
 - Removed GA/BH-style reseed/recombination/motif mechanisms from core `pamssw`.
 - Added Cartesian coordinate/tangent layer and metric module.
@@ -28,4 +28,5 @@ Current phase: M13 mode-aware node acquisition benchmarked and marked for discar
 - Added mode-aware node acquisition policy. Global-minimum mode now weights low energy more strongly than reaction-network mode, while reaction-network mode weights frontier value more strongly.
 - Baseline fallback selection now avoids dead nodes when live archive nodes exist.
 - Quick gate rerun after M13 worsened SSW mean gaps, so this implementation is marked for discard and should be reverted while preserving the benchmark record.
-- Full tests: `57 passed`.
+- M13 implementation logic has been reverted; benchmark records remain in the ledger.
+- Full tests after revert: `55 passed`.
