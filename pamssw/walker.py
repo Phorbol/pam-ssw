@@ -10,7 +10,7 @@ from .accounting import BudgetExceeded, EvalCounter
 from .bias import GaussianBiasTerm
 from .config import LSSSWConfig, RelaxConfig, SSWConfig
 from .coordinates import CartesianCoordinates, TangentVector
-from .fingerprint import pair_distances, structural_descriptor
+from .fingerprint import structural_descriptor
 from .relax import Relaxer
 from .result import RelaxResult, SearchResult, WalkRecord
 from .softening import LocalSofteningModel
@@ -187,39 +187,6 @@ class DirectionCandidate:
     damage_risk: float = 0.0
 
 
-def geometry_damage_risk(
-    state: State,
-    direction: np.ndarray,
-    sigma: float,
-    min_distance_fraction: float = 0.5,
-    stretch_ratio_limit: float = 1.5,
-) -> float:
-    current_distances = pair_distances(state)
-    if current_distances.size == 0:
-        return 0.0
-    current_positive = current_distances[current_distances > 1e-12]
-    if current_positive.size == 0:
-        return 0.0
-
-    proposed = state.displaced(direction, sigma)
-    proposed_distances = pair_distances(proposed)
-    if proposed_distances.size == 0:
-        return 0.0
-
-    reference_distance = max(float(np.percentile(current_positive, 10.0)), 1e-12)
-    min_allowed = min_distance_fraction * reference_distance
-    proposed_min = float(np.min(proposed_distances))
-    overlap_risk = 0.0
-    if proposed_min < min_allowed:
-        overlap_risk = (min_allowed - proposed_min) / max(min_allowed, 1e-12)
-
-    finite_current = np.maximum(current_distances, 1e-12)
-    stretch = float(np.max(np.abs(proposed_distances - current_distances) / finite_current))
-    stretch_risk = max(0.0, (stretch - stretch_ratio_limit) / max(stretch_ratio_limit, 1e-12))
-
-    return float(np.clip(overlap_risk + 0.25 * stretch_risk, 0.0, 1.0))
-
-
 @dataclass(frozen=True)
 class DirectionScorer:
     damage_weight: float = 1.0
@@ -251,16 +218,12 @@ class DirectionScorer:
         previous_direction: np.ndarray | None,
         archive,
     ) -> float:
-        damage_risk = max(
-            candidate.damage_risk,
-            geometry_damage_risk(state, candidate.direction, sigma),
-        )
         score = self.score(
             curvature=curvature,
             sigma=sigma,
             direction=candidate.direction,
             previous_direction=previous_direction,
-            damage_risk=damage_risk,
+            damage_risk=candidate.damage_risk,
         )
         if archive is None:
             return score

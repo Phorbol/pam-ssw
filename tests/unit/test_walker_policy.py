@@ -10,7 +10,6 @@ from pamssw.walker import (
     DirectionCandidateKind,
     DirectionCandidate,
     DirectionScorer,
-    geometry_damage_risk,
     ProposalPotential,
     SoftModeOracle,
     StepTargetController,
@@ -114,30 +113,6 @@ def test_direction_scorer_rewards_score_only_novelty_gain_from_archive():
     )
 
     assert far_score > near_score
-
-
-def test_geometry_damage_risk_penalizes_overlap_without_compactness_reward():
-    state = State(numbers=np.array([1, 1]), positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]))
-    toward_overlap = np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0]) / np.sqrt(2.0)
-    apart = -toward_overlap
-
-    risky = geometry_damage_risk(state, toward_overlap, sigma=0.6)
-    safe = geometry_damage_risk(state, apart, sigma=0.6)
-
-    assert risky > 0.0
-    assert safe == 0.0
-
-
-def test_geometry_damage_risk_uses_relative_structure_scale():
-    small = State(numbers=np.array([1, 1]), positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]))
-    large = State(numbers=np.array([1, 1]), positions=np.array([[0.0, 0.0, 0.0], [10.0, 0.0, 0.0]]))
-    direction = np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0]) / np.sqrt(2.0)
-
-    small_risk = geometry_damage_risk(small, direction, sigma=0.6)
-    large_risk = geometry_damage_risk(large, direction, sigma=6.0)
-
-    assert small_risk > 0.0
-    np.testing.assert_allclose(large_risk, small_risk)
 
 
 def test_trust_region_controller_shrinks_after_bad_local_model():
