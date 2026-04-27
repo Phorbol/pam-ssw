@@ -22,6 +22,18 @@ def test_state_accepts_cluster_and_slab_shapes():
     assert slab.fixed_mask.tolist() == [True, False]
 
 
+def test_state_copies_metadata_for_practical_immutability():
+    metadata = {"support": "cartesian_fixed_cell"}
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[0.0, 0.0, 0.0]]),
+        metadata=metadata,
+    )
+    metadata["support"] = "changed"
+
+    assert state.metadata == {"support": "cartesian_fixed_cell"}
+
+
 def test_state_rejects_mismatched_atom_counts():
     with pytest.raises(ValueError):
         State(

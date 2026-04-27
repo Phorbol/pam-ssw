@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any
 
 import numpy as np
 
@@ -12,6 +13,7 @@ class State:
     cell: np.ndarray | None = None
     pbc: tuple[bool, bool, bool] = (False, False, False)
     fixed_mask: np.ndarray | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         numbers = np.asarray(self.numbers, dtype=int)
@@ -41,6 +43,7 @@ class State:
         object.__setattr__(self, "cell", cell)
         object.__setattr__(self, "fixed_mask", fixed_mask)
         object.__setattr__(self, "pbc", pbc)
+        object.__setattr__(self, "metadata", dict(self.metadata))
 
     @property
     def n_atoms(self) -> int:
@@ -64,6 +67,7 @@ class State:
             cell=None if self.cell is None else self.cell.copy(),
             pbc=self.pbc,
             fixed_mask=self.fixed_mask.copy(),
+            metadata=self.metadata.copy(),
         )
 
     def with_active_positions(self, flat_active: np.ndarray) -> State:
@@ -79,8 +83,10 @@ class State:
             cell=None if self.cell is None else self.cell.copy(),
             pbc=self.pbc,
             fixed_mask=self.fixed_mask.copy(),
+            metadata=self.metadata.copy(),
         )
 
     def displaced(self, full_direction: np.ndarray, step: float) -> State:
-        displaced = self.flatten_positions() + step * np.asarray(full_direction, dtype=float)
-        return self.with_flat_positions(displaced)
+        from .coordinates import CartesianCoordinates, TangentVector
+
+        return CartesianCoordinates.from_state(self).displace(TangentVector(full_direction), step)

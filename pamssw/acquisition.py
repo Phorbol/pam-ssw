@@ -6,6 +6,27 @@ import numpy as np
 
 
 @dataclass(frozen=True)
+class AcquisitionPolicy:
+    archive_density_weight: float = 0.5
+    novelty_weight: float = 1.0
+    frontier_weight: float = 0.5
+    exploration_weight: float = 0.75
+    baseline_probability: float = 0.15
+    beta_energy: float = 1.0
+
+    def effective(self, duplicate_rate: float, descriptor_degeneracy_rate: float) -> AcquisitionPolicy:
+        health = float(np.clip(1.0 - max(duplicate_rate, descriptor_degeneracy_rate), 0.0, 1.0))
+        return AcquisitionPolicy(
+            archive_density_weight=self.archive_density_weight * health,
+            novelty_weight=self.novelty_weight,
+            frontier_weight=self.frontier_weight * health,
+            exploration_weight=self.exploration_weight,
+            baseline_probability=self.baseline_probability,
+            beta_energy=self.beta_energy,
+        )
+
+
+@dataclass(frozen=True)
 class ProposalOutcome:
     energy: float
     previous_best_energy: float
@@ -33,17 +54,16 @@ class ProposalScorer:
 
 @dataclass(frozen=True)
 class BanditSelector:
-    archive_density_weight: float
-    novelty_weight: float
-    frontier_weight: float
-    exploration_weight: float
-    baseline_probability: float
-    beta_energy: float = 1.0
+    policy: AcquisitionPolicy = AcquisitionPolicy()
 
     def select(self, archive, rng: np.random.Generator):
         if not archive.entries:
             raise ValueError("cannot select from an empty archive")
-        if rng.random() < self.baseline_probability:
+        effective_policy = self.policy.effective(
+            duplicate_rate=archive.duplicate_rate(),
+            descriptor_degeneracy_rate=archive.descriptor_degeneracy_rate(),
+        )
+        if rng.random() < effective_policy.baseline_probability:
             if rng.random() < 0.7:
                 return min(archive.entries, key=lambda entry: (entry.energy, entry.entry_id))
             return archive.entries[int(rng.integers(0, len(archive.entries)))]
@@ -52,17 +72,25 @@ class BanditSelector:
         return max(
             archive.entries,
             key=lambda entry: (
-                self.score_entry(archive, entry, total_trials),
+                self.score_entry(archive, entry, total_trials, effective_policy),
                 -entry.entry_id,
             ),
         )
 
-    def score_entry(self, archive, entry, total_trials: int | None = None) -> float:
+    def score_entry(
+        self,
+        archive,
+        entry,
+        total_trials: int | None = None,
+        policy: AcquisitionPolicy | None = None,
+    ) -> float:
+        policy = self.policy if policy is None else policy
         total = sum(item.node_trials for item in archive.entries) if total_trials is None else total_trials
+        density_penalty = np.log1p(archive.descriptor_density(entry))
         return (
-            -self.beta_energy * archive.normalized_energy(entry)
-            + self.novelty_weight * archive.novelty(entry)
-            - self.archive_density_weight * archive.descriptor_density(entry)
-            + self.exploration_weight * np.sqrt(np.log1p(total + 1.0) / (1.0 + entry.node_trials))
-            + self.frontier_weight * entry.frontier_value
+            -policy.beta_energy * archive.normalized_energy(entry)
+            + policy.novelty_weight * archive.novelty(entry)
+            - policy.archive_density_weight * density_penalty
+            + policy.exploration_weight * np.sqrt(np.log1p(total + 1.0) / (1.0 + entry.node_trials))
+            + policy.frontier_weight * entry.frontier_value
         )

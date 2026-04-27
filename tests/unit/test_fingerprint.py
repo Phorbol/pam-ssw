@@ -2,6 +2,7 @@ import numpy as np
 
 from pamssw.fingerprint import (
     contact_count,
+    pair_distances,
     pair_distance_fingerprint,
     rdf_histogram_fingerprint,
 )
@@ -57,3 +58,14 @@ def test_rdf_and_contact_descriptors_distinguish_compact_and_elongated_clusters(
 
     assert contact_count(compact) > contact_count(elongated)
     assert np.linalg.norm(rdf_histogram_fingerprint(compact) - rdf_histogram_fingerprint(elongated)) > 0.25
+
+
+def test_periodic_pair_distances_use_minimum_image_convention():
+    state = State(
+        numbers=np.array([18, 18]),
+        positions=np.array([[0.1, 0.0, 0.0], [9.9, 0.0, 0.0]]),
+        cell=np.diag([10.0, 10.0, 10.0]),
+        pbc=(True, True, True),
+    )
+
+    np.testing.assert_allclose(pair_distances(state), np.array([0.2]), atol=1e-12)

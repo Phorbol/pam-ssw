@@ -10,6 +10,7 @@ def pair_distances(state: State) -> np.ndarray:
     for atom_i in range(state.n_atoms):
         delta = state.positions[atom_i + 1 :] - state.positions[atom_i]
         if delta.size:
+            delta = _minimum_image_delta(delta, state)
             distances.extend(np.linalg.norm(delta, axis=1).tolist())
     return np.asarray(distances, dtype=float)
 
@@ -59,3 +60,13 @@ def descriptor_distance(lhs: np.ndarray, rhs: np.ndarray) -> float:
     if lhs.shape != rhs.shape:
         return float("inf")
     return float(np.linalg.norm(lhs - rhs))
+
+
+def _minimum_image_delta(delta: np.ndarray, state: State) -> np.ndarray:
+    if state.cell is None or not any(state.pbc):
+        return delta
+    fractional = delta @ np.linalg.inv(state.cell)
+    for axis, periodic in enumerate(state.pbc):
+        if periodic:
+            fractional[:, axis] -= np.round(fractional[:, axis])
+    return fractional @ state.cell

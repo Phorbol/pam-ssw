@@ -1,6 +1,6 @@
 import numpy as np
 
-from pamssw.acquisition import BanditSelector, ProposalOutcome, ProposalScorer
+from pamssw.acquisition import AcquisitionPolicy, BanditSelector, ProposalOutcome, ProposalScorer
 from pamssw.archive import MinimaArchive
 from pamssw.state import State
 
@@ -30,6 +30,19 @@ def test_archive_density_increases_when_nearby_descriptor_points_are_added():
     assert density_two > density_one
 
 
+def test_descriptor_degeneracy_counts_bins_with_multiple_distinct_minima():
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=1e-6)
+    first = archive.add(_state(0.0), -4.0, parent_id=None)
+    second = archive.add(_state(0.2), -3.8, parent_id=first.entry_id)
+    third = archive.add(_state(5.0), -3.5, parent_id=second.entry_id)
+
+    first.descriptor = np.array([0.01, 0.01])
+    second.descriptor = np.array([0.02, 0.02])
+    third.descriptor = np.array([1.0, 1.0])
+
+    assert archive.descriptor_degeneracy_rate(bin_width=0.1) == 0.5
+
+
 def test_bandit_selector_prefers_novel_low_density_underexplored_node():
     archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=1e-3)
     crowded = archive.add(_state(0.0), -5.0, parent_id=None)
@@ -44,14 +57,25 @@ def test_bandit_selector_prefers_novel_low_density_underexplored_node():
     novel.frontier_value = 1.0
 
     selector = BanditSelector(
-        archive_density_weight=1.0,
-        novelty_weight=1.0,
-        frontier_weight=1.0,
-        exploration_weight=0.5,
-        baseline_probability=0.0,
+        policy=AcquisitionPolicy(
+            archive_density_weight=1.0,
+            novelty_weight=1.0,
+            frontier_weight=1.0,
+            exploration_weight=0.5,
+            baseline_probability=0.0,
+        )
     )
 
     assert selector.select(archive, np.random.default_rng(4)).entry_id == novel.entry_id
+
+
+def test_policy_lowers_archive_density_weight_when_degeneracy_is_high():
+    policy = AcquisitionPolicy(archive_density_weight=1.0, frontier_weight=1.0)
+
+    effective = policy.effective(duplicate_rate=0.0, descriptor_degeneracy_rate=0.75)
+
+    assert effective.archive_density_weight < policy.archive_density_weight
+    assert effective.frontier_weight < policy.frontier_weight
 
 
 def test_proposal_scorer_penalizes_duplicates_and_rewards_novel_energy_improvements():

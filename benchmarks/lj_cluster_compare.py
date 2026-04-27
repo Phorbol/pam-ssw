@@ -17,6 +17,7 @@ CCD_GLOBAL_MINIMA = {
     13: -44.326801,
     38: -173.928427,
     55: -279.248470,
+    75: -397.492331,
 }
 
 
@@ -48,8 +49,7 @@ def quench(state: State, calculator: ASECalculator, fmax: float = 1e-3, maxiter:
 
 def run_ssw_trial(size: int, seed: int, budget: int) -> RunSummary:
     steps_per_walk = 8
-    proposal_pool_size = 3
-    max_trials = max(1, (budget - 1) // proposal_pool_size)
+    max_trials = max(1, budget - 1)
     calculator = make_calculator()
     result = run_ssw(
         random_cluster_state(size, seed),
@@ -57,7 +57,6 @@ def run_ssw_trial(size: int, seed: int, budget: int) -> RunSummary:
         SSWConfig(
             max_trials=max_trials,
             max_steps_per_walk=steps_per_walk,
-            proposal_pool_size=proposal_pool_size,
             target_uphill_energy=1.2,
             quench_fmax=1e-3,
             dedup_rmsd_tol=0.2,

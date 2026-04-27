@@ -1,0 +1,14 @@
+task: epam_ssw_generalization_and_larger_lj
+approval_text: Approve execution
+branch: autoresearch/20260427-lj-ssw
+scope:
+  - isolate LJ-specific motif proposals behind a default-off benchmark helper
+  - keep generic E-PAM-SSW applicable to cluster, slab, and bulk states
+  - run tests and compare generic-only versus optional LJ helper benchmarks
+  - attempt larger LJ pressure tests within practical runtime
+constraints:
+  - no new third-party dependencies
+  - descriptor density remains outside force loops
+  - LJ helper results must not be used as generic-algorithm evidence
+  - preserve existing untracked user artifacts
+created_at: 2026-04-27T15:16:00+08:00

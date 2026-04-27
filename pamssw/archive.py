@@ -93,17 +93,19 @@ class MinimaArchive:
         total = hits + len(self.entries)
         return hits / total if total else 0.0
 
-    def descriptor_degeneracy_rate(self, tol: float = 1e-3) -> float:
+    def descriptor_degeneracy_rate(self, bin_width: float = 0.05) -> float:
         if len(self.entries) < 2:
             return 0.0
-        close = 0
-        total = 0
-        for index, lhs in enumerate(self.entries):
-            for rhs in self.entries[index + 1 :]:
-                total += 1
-                if lhs.descriptor is not None and rhs.descriptor is not None:
-                    close += descriptor_distance(lhs.descriptor, rhs.descriptor) <= tol
-        return close / total if total else 0.0
+        bins: dict[tuple[int, ...], set[int]] = {}
+        for entry in self.entries:
+            if entry.descriptor is None:
+                continue
+            key = tuple(np.floor(entry.descriptor / bin_width).astype(int).tolist())
+            bins.setdefault(key, set()).add(entry.entry_id)
+        if not bins:
+            return 0.0
+        degenerate_bins = sum(1 for entry_ids in bins.values() if len(entry_ids) > 1)
+        return degenerate_bins / len(bins)
 
     def record_success(self, entry: MinimaEntry, reward: float) -> None:
         if reward > 0.0:
