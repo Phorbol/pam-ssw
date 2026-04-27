@@ -121,9 +121,12 @@ class SurfaceWalker:
         best_entry = archive.add(initial.state, initial.energy, parent_id=None)
         walk_history: list[WalkRecord] = []
 
-        for _ in range(self.config.max_trials):
+        for trial_index in range(self.config.max_trials):
             seed_entry = archive.next_seed()
-            candidate = self._walk_from_seed(seed_entry.state)
+            if self._should_cluster_reseed(seed_entry.state, trial_index):
+                candidate = self.relax_true_minimum(self._random_cluster_state_like(seed_entry.state))
+            else:
+                candidate = self._walk_from_seed(seed_entry.state)
             discovered = archive.add(candidate.state, candidate.energy, parent_id=seed_entry.entry_id)
             if discovered.energy < best_entry.energy:
                 best_entry = discovered
@@ -192,3 +195,31 @@ class SurfaceWalker:
             pairs=self.config.local_softening_pairs,
             strength=self.config.local_softening_strength,
         )
+
+    def _should_cluster_reseed(self, state: State, trial_index: int) -> bool:
+        if self.config.cluster_reseed_interval <= 0:
+            return False
+        if state.n_atoms < 4 or state.cell is not None or any(state.pbc):
+            return False
+        return (trial_index + 1) % self.config.cluster_reseed_interval == 0
+
+    def _random_cluster_state_like(self, state: State) -> State:
+        positions = self._random_compact_positions(state.n_atoms)
+        return State(numbers=state.numbers.copy(), positions=positions)
+
+    def _random_compact_positions(self, n_atoms: int) -> np.ndarray:
+        radius = 0.75 * n_atoms ** (1.0 / 3.0)
+        min_distance = 0.72
+        positions: list[np.ndarray] = []
+        attempts = 0
+        while len(positions) < n_atoms and attempts < 5000:
+            attempts += 1
+            point = self.rng.normal(size=3)
+            point /= np.linalg.norm(point) + 1e-12
+            point *= radius * self.rng.random() ** (1.0 / 3.0)
+            if all(np.linalg.norm(point - existing) >= min_distance for existing in positions):
+                positions.append(point)
+        if len(positions) < n_atoms:
+            positions = [self.rng.normal(scale=radius / 2.0, size=3) for _ in range(n_atoms)]
+        array = np.asarray(positions, dtype=float)
+        return array - array.mean(axis=0, keepdims=True)

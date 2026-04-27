@@ -29,6 +29,7 @@ class SSWConfig:
     proposal_fmax: float = 5e-3
     min_step_scale: float = 0.15
     max_step_scale: float = 1.5
+    cluster_reseed_interval: int = 3
 
     def __post_init__(self) -> None:
         positive_ints = {
@@ -36,6 +37,7 @@ class SSWConfig:
             "max_steps_per_walk": self.max_steps_per_walk,
             "oracle_candidates": self.oracle_candidates,
             "proposal_relax_steps": self.proposal_relax_steps,
+            "cluster_reseed_interval": self.cluster_reseed_interval,
         }
         for name, value in positive_ints.items():
             if value <= 0:
