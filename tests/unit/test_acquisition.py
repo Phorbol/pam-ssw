@@ -69,6 +69,31 @@ def test_bandit_selector_prefers_novel_low_density_underexplored_node():
     assert selector.select(archive, np.random.default_rng(4)).entry_id == novel.entry_id
 
 
+def test_bandit_selector_uses_observable_frontier_and_avoids_dead_nodes():
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=1e-3)
+    dead = archive.add(_state(0.0), -5.0, parent_id=None)
+    frontier = archive.add(_state(5.0), -4.9, parent_id=None)
+
+    dead.node_trials = 20
+    dead.node_successes = 0
+    dead.duplicate_hits = 18
+    frontier.node_trials = 0
+    frontier.node_successes = 0
+    archive.refresh_frontier_status()
+
+    selector = BanditSelector(
+        policy=AcquisitionPolicy(
+            archive_density_weight=0.0,
+            novelty_weight=0.0,
+            frontier_weight=1.0,
+            exploration_weight=0.0,
+            baseline_probability=0.0,
+        )
+    )
+
+    assert selector.select(archive, np.random.default_rng(1)).entry_id == frontier.entry_id
+
+
 def test_policy_lowers_archive_density_weight_when_degeneracy_is_high():
     policy = AcquisitionPolicy(archive_density_weight=1.0, frontier_weight=1.0)
 

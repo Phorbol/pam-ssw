@@ -132,10 +132,13 @@ class BanditSelector:
         policy = self.policy if policy is None else policy
         total = sum(item.node_trials for item in archive.entries) if total_trials is None else total_trials
         density_penalty = np.log1p(archive.descriptor_density(entry))
+        dead_penalty = 1.0 if getattr(entry, "is_dead", False) else 0.0
+        frontier_score = getattr(entry, "frontier_score", entry.frontier_value)
         return (
             -policy.beta_energy * archive.normalized_energy(entry)
             + policy.novelty_weight * archive.novelty(entry)
             - policy.archive_density_weight * density_penalty
             + policy.exploration_weight * np.sqrt(np.log1p(total + 1.0) / (1.0 + entry.node_trials))
-            + policy.frontier_weight * entry.frontier_value
+            + policy.frontier_weight * frontier_score
+            - 10.0 * dead_penalty
         )

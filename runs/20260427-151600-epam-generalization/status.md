@@ -1,6 +1,6 @@
 # Status
 
-Current phase: M9 force/energy evaluation accounting verified
+Current phase: M10 observable frontier/dead-node policy verified
 
 - Removed GA/BH-style reseed/recombination/motif mechanisms from core `pamssw`.
 - Added Cartesian coordinate/tangent layer and metric module.
@@ -19,4 +19,7 @@ Current phase: M9 force/energy evaluation accounting verified
 - Added adaptive step diagnostics to `SearchResult.stats`: target, multiplier, escape rate, and damage rate.
 - Added exact true-PES evaluation accounting through a calculator wrapper. Proposal PES calls, true quench calls, curvature probes, and diagnostic true-PES calls all increment force/energy evaluation counters when they invoke the underlying calculator.
 - Added optional `max_force_evals` budget gating and budget diagnostics to `SearchResult.stats`.
-- Full tests: `50 passed`.
+- Added observable frontier and dead-node status for archive nodes. Frontier/dead labels now come from visits, low-energy window, descriptor sparsity, success rate, and duplicate-heavy failed trials rather than committor-style terminology.
+- Bandit selection uses observable frontier score and strongly penalizes dead nodes.
+- Added frontier diagnostics to `SearchResult.stats`: frontier node count, dead node count, and mean frontier score.
+- Full tests: `54 passed`.

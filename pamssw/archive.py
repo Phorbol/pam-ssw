@@ -20,6 +20,9 @@ class MinimaEntry:
     node_successes: int = 0
     frontier_value: float = 1.0
     duplicate_hits: int = 0
+    frontier_score: float = 1.0
+    is_frontier: bool = True
+    is_dead: bool = False
 
 
 @dataclass
@@ -63,7 +66,7 @@ class MinimaArchive:
         )
         self.entries.append(entry)
         self._update_prototypes(entry)
-        self._refresh_frontier_values()
+        self.refresh_frontier_status()
         return entry
 
     def next_seed(self) -> MinimaEntry:
@@ -148,15 +151,51 @@ class MinimaArchive:
             "mean_prototype_weight": float(weights.mean()),
         }
 
+    def frontier_diagnostics(self) -> dict[str, float | int]:
+        if not self.entries:
+            return {
+                "frontier_nodes": 0,
+                "dead_nodes": 0,
+                "mean_frontier_score": 0.0,
+            }
+        scores = np.asarray([entry.frontier_score for entry in self.entries], dtype=float)
+        return {
+            "frontier_nodes": sum(1 for entry in self.entries if entry.is_frontier),
+            "dead_nodes": sum(1 for entry in self.entries if entry.is_dead),
+            "mean_frontier_score": float(scores.mean()),
+        }
+
     def record_success(self, entry: MinimaEntry, reward: float) -> None:
         if reward > 0.0:
             entry.node_successes += 1
-        entry.frontier_value = 0.8 * entry.frontier_value + 0.2 * max(0.0, reward)
+        self.refresh_frontier_status()
 
-    def _refresh_frontier_values(self) -> None:
+    def refresh_frontier_status(self) -> None:
+        if not self.entries:
+            return
+        best_energy = min(entry.energy for entry in self.entries)
+        energies = np.asarray([entry.energy for entry in self.entries], dtype=float)
+        energy_window = max(self.energy_tol, float(np.median(energies - best_energy)) + self.energy_tol)
+        max_trials = max((entry.node_trials for entry in self.entries), default=0)
         for entry in self.entries:
+            duplicate_rate = entry.duplicate_hits / max(1, entry.duplicate_hits + entry.node_successes + 1)
             success_rate = entry.node_successes / max(1, entry.node_trials)
-            entry.frontier_value = max(entry.frontier_value, self.novelty(entry) * (1.0 + success_rate))
+            low_visit = entry.node_trials <= max(1, int(0.5 * max_trials))
+            low_energy = entry.energy <= best_energy + energy_window
+            sparse = self.novelty(entry) >= 0.4
+            recently_successful = entry.node_successes > 0 and success_rate >= 0.1
+            entry.is_dead = entry.node_trials >= 8 and duplicate_rate >= 0.75 and success_rate <= 0.05
+            if entry.is_dead:
+                entry.frontier_score = 0.0
+                entry.frontier_value = 0.0
+                entry.is_frontier = False
+                continue
+            entry.is_frontier = bool(low_visit and low_energy and (sparse or recently_successful or entry.node_trials == 0))
+            visit_score = 1.0 / (1.0 + entry.node_trials)
+            energy_score = 1.0 / (1.0 + max(0.0, entry.energy - best_energy) / max(energy_window, self.energy_tol))
+            observable_score = 0.4 * visit_score + 0.3 * self.novelty(entry) + 0.2 * energy_score + 0.1 * success_rate
+            entry.frontier_score = float(np.clip(observable_score if entry.is_frontier else 0.5 * observable_score, 0.0, 1.0))
+            entry.frontier_value = entry.frontier_score
 
     def _update_prototypes(self, entry: MinimaEntry) -> None:
         if entry.descriptor is None:

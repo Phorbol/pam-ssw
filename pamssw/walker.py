@@ -457,7 +457,9 @@ class SurfaceWalker:
             )
             completed_trials += 1
 
+        archive.refresh_frontier_status()
         prototype_stats = archive.prototype_occupancy()
+        frontier_stats = archive.frontier_diagnostics()
         return SearchResult(
             best_state=best_entry.state,
             best_energy=best_entry.energy,
@@ -478,6 +480,9 @@ class SurfaceWalker:
                 "archive_max_prototypes": prototype_stats["max_prototypes"],
                 "archive_max_prototype_weight": prototype_stats["max_prototype_weight"],
                 "archive_mean_prototype_weight": prototype_stats["mean_prototype_weight"],
+                "frontier_nodes": frontier_stats["frontier_nodes"],
+                "dead_nodes": frontier_stats["dead_nodes"],
+                "mean_frontier_score": frontier_stats["mean_frontier_score"],
                 "coordinate_system": "cartesian_fixed_cell",
                 "variable_cell_supported": 0,
                 **self._trust_stats_summary(),

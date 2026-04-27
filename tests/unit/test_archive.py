@@ -92,3 +92,33 @@ def test_archive_density_uses_weighted_prototypes_for_occupancy():
     sparse = archive.add(_pair_state(3.0), 10.0, parent_id=crowded.entry_id)
 
     assert archive.descriptor_density(crowded) > archive.descriptor_density(sparse)
+
+
+def test_frontier_value_comes_from_observable_low_visit_sparse_node():
+    archive = MinimaArchive(energy_tol=1e-8, rmsd_tol=1e-8)
+    crowded = archive.add(_pair_state(1.0), -10.0, parent_id=None)
+    sparse = archive.add(_pair_state(3.0), -9.9, parent_id=None)
+    for index in range(4):
+        archive.add(_pair_state(1.0 + 0.01 * (index + 1)), -9.8 + index, parent_id=crowded.entry_id)
+    crowded.node_trials = 8
+    crowded.node_successes = 0
+    sparse.node_trials = 0
+    sparse.node_successes = 0
+
+    archive.refresh_frontier_status()
+
+    assert sparse.frontier_score > crowded.frontier_score
+    assert sparse.is_frontier
+
+
+def test_dead_node_status_comes_from_duplicate_and_failed_trial_statistics():
+    archive = MinimaArchive(energy_tol=1e-8, rmsd_tol=1e-8)
+    entry = archive.add(_pair_state(1.0), -10.0, parent_id=None)
+    entry.node_trials = 12
+    entry.node_successes = 0
+    entry.duplicate_hits = 10
+
+    archive.refresh_frontier_status()
+
+    assert entry.is_dead
+    assert entry.frontier_score == 0.0

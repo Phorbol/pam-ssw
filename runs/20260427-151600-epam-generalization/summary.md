@@ -19,6 +19,7 @@ Implemented scope:
 - M7 bounded prototypes: archive density/novelty now uses a fixed-capacity weighted prototype set. Full minima entries are still retained for graph nodes and duplicate detection, but occupancy scoring no longer requires a full KDE over every archived minimum. `SSWConfig.max_prototypes` is the single public archive-capacity knob, and prototype diagnostics are reported in `SearchResult.stats`.
 - M8 adaptive step target: SSW walking now derives the target energy climb from archive energy scale and escape/damage feedback, with `target_uphill_energy` kept as the compatibility fallback and initial scale. Early damage feedback is warmed up before shrinking the multiplier so sparse noisy events do not shut down exploration.
 - M9 force/energy accounting: all true-PES calculator calls are routed through an `EvalCounter`, including proposal PES calls, true quench calls, curvature probes, and diagnostic energy checks. `SSWConfig.max_force_evals` can stop new work when the budget is exhausted, and the final stats report force/energy counts and budget status.
+- M10 observable frontier policy: archive nodes now receive frontier/dead status from directly observed statistics: visits, low-energy window, descriptor sparsity, success rate, and duplicate-heavy failed trials. Bandit selection uses this frontier score and penalizes dead nodes, with frontier diagnostics reported in `SearchResult.stats`.
 
 Explicit support claim after M1:
 
@@ -29,5 +30,5 @@ Explicit support claim after M1:
 Verification:
 
 - `pytest -q tests/unit tests/integration`
-- Output: `runs/20260427-151600-epam-generalization/logs/pytest_m9_eval_accounting.out`
-- Result: `50 passed`
+- Output: `runs/20260427-151600-epam-generalization/logs/pytest_m10_frontier_policy.out`
+- Result: `54 passed`
