@@ -83,3 +83,9 @@ M20 quick gate:
 - Output: `runs/20260427-151600-epam-generalization/lj_quick_m20_lbfgsb_gtol.json`
 - Result: SSW numerical gaps are nearly unchanged from M18, but relaxation quality improved for true quenches. SSW LJ13 mean gap `0.4273960389438223`, SSW LJ38 mean gap `15.747809427532786`.
 - Diagnosis: true-quench unconverged counts decreased after passing `gtol=fmax`, but proposal relax remains heavily unconverged and close to the 40-step cap. The next physics-level check is proposal relaxation depth and SSW walking length `H`, not archive policy.
+
+M21 depth scan:
+
+- Output: `runs/20260427-151600-epam-generalization/lj38_seed0_depth_scan_m21.json`
+- Result: for LJ38 seed0, `H=8/proposal_relax_steps=40` gives gap `27.0569941756969`; `H=8/proposal_relax_steps=80` gives gap `4.438624586424936`; `H=14/proposal_relax_steps=40` gives gap `4.438624617696036`.
+- Diagnosis: the LJ38 seed0 high-energy failure is mostly caused by under-resolved modified-PES walking/proposal relaxation. The lowest-cost next quick gate should use `H=8`, `proposal_relax_steps=80`.

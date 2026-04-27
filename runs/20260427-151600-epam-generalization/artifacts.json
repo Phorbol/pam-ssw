@@ -230,5 +230,21 @@
     "producer_step": "lj_quick_m20_lbfgsb_gtol",
     "created_at": "2026-04-27T23:18:00+08:00",
     "description": "Quick gate rerun after L-BFGS-B gradient stopping fix; true-quench convergence improves but proposal relax remains under-resolved"
+  },
+  {
+    "artifact_id": "pytest_m21_benchmark_depth_controls",
+    "type": "log",
+    "path": "runs/20260427-151600-epam-generalization/logs/pytest_m21_benchmark_depth_controls.out",
+    "producer_step": "pytest_m21_benchmark_depth_controls",
+    "created_at": "2026-04-27T23:26:00+08:00",
+    "description": "Full unit and integration test output after adding benchmark controls for SSW walk and proposal-relax depth"
+  },
+  {
+    "artifact_id": "lj38_seed0_depth_scan_m21",
+    "type": "benchmark_json",
+    "path": "runs/20260427-151600-epam-generalization/lj38_seed0_depth_scan_m21.json",
+    "producer_step": "lj38_seed0_depth_scan_m21",
+    "created_at": "2026-04-27T23:32:00+08:00",
+    "description": "SSW-only LJ38 seed0 scan over H and proposal-relax depth; shows proposal_relax_steps=80 fixes high-energy failure at lower cost than H=14"
   }
 ]

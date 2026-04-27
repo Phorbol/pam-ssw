@@ -72,8 +72,13 @@ def quench(state: State, calculator: ASECalculator, fmax: float = 1e-3, maxiter:
     return relax_minimum(state, calculator, RelaxConfig(fmax=fmax, maxiter=maxiter))
 
 
-def run_ssw_trial(size: int, seed: int, budget: int) -> RunSummary:
-    steps_per_walk = 8
+def run_ssw_trial(
+    size: int,
+    seed: int,
+    budget: int,
+    steps_per_walk: int = 8,
+    proposal_relax_steps: int = 40,
+) -> RunSummary:
     max_trials = max(1, budget - 1)
     calculator = make_calculator()
     result = run_ssw(
@@ -84,6 +89,7 @@ def run_ssw_trial(size: int, seed: int, budget: int) -> RunSummary:
             max_steps_per_walk=steps_per_walk,
             target_uphill_energy=1.2,
             quench_fmax=1e-3,
+            proposal_relax_steps=proposal_relax_steps,
             dedup_rmsd_tol=0.2,
             rng_seed=seed,
         ),
@@ -259,6 +265,8 @@ def main() -> None:
     parser.add_argument("--sizes", nargs="+", type=int, default=[13, 38, 55])
     parser.add_argument("--seeds", nargs="+", type=int, default=[0, 1, 2])
     parser.add_argument("--budget", type=int, default=60, help="Approximate local-relaxation budget per run.")
+    parser.add_argument("--ssw-steps-per-walk", type=int, default=8)
+    parser.add_argument("--ssw-proposal-relax-steps", type=int, default=40)
     parser.add_argument("--output", type=Path, default=Path("benchmark_results_lj.json"))
     args = parser.parse_args()
 
@@ -267,7 +275,15 @@ def main() -> None:
         if size not in CCD_GLOBAL_MINIMA:
             raise ValueError(f"No CCD target energy registered for LJ{size}")
         for seed in args.seeds:
-            runs.append(run_ssw_trial(size, seed, args.budget))
+            runs.append(
+                run_ssw_trial(
+                    size,
+                    seed,
+                    args.budget,
+                    steps_per_walk=args.ssw_steps_per_walk,
+                    proposal_relax_steps=args.ssw_proposal_relax_steps,
+                )
+            )
             runs.append(run_bh_trial(size, seed, args.budget))
             runs.append(run_ga_trial(size, seed, args.budget))
 
@@ -275,6 +291,8 @@ def main() -> None:
         "sizes": args.sizes,
         "seeds": args.seeds,
         "budget": args.budget,
+        "ssw_steps_per_walk": args.ssw_steps_per_walk,
+        "ssw_proposal_relax_steps": args.ssw_proposal_relax_steps,
         "ccd_global_minima": CCD_GLOBAL_MINIMA,
         "summary": aggregate(runs),
     }

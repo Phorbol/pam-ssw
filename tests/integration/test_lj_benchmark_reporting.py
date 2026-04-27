@@ -23,3 +23,13 @@ def test_lj_benchmark_reports_ssw_diagnostics():
     assert summary.proposal_relax_count is not None
     assert summary.proposal_relax_unconverged is not None
     assert summary.proposal_relax_max_gradient is not None
+
+
+def test_lj_benchmark_accepts_ssw_walk_and_relax_depth_controls():
+    shallow = run_ssw_trial(size=13, seed=0, budget=2, steps_per_walk=2, proposal_relax_steps=5)
+    deeper = run_ssw_trial(size=13, seed=0, budget=2, steps_per_walk=4, proposal_relax_steps=10)
+
+    assert shallow.direction_choices == 2
+    assert deeper.direction_choices == 4
+    assert shallow.proposal_relax_mean_iterations <= 5
+    assert deeper.proposal_relax_mean_iterations <= 10
