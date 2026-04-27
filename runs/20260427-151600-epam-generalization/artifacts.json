@@ -214,5 +214,13 @@
     "producer_step": "pytest_m19_relax_convergence_diagnostics",
     "created_at": "2026-04-27T23:00:00+08:00",
     "description": "Full unit and integration test output after adding true-quench and proposal-relax convergence diagnostics"
+  },
+  {
+    "artifact_id": "pytest_m20_lbfgsb_gtol",
+    "type": "log",
+    "path": "runs/20260427-151600-epam-generalization/logs/pytest_m20_lbfgsb_gtol.out",
+    "producer_step": "pytest_m20_lbfgsb_gtol",
+    "created_at": "2026-04-27T23:10:00+08:00",
+    "description": "Full unit and integration test output after passing fmax as L-BFGS-B gradient tolerance"
   }
 ]

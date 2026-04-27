@@ -29,6 +29,7 @@ Implemented scope:
 - M17 benchmark diagnostics: LJ benchmark summaries now expose seed-local duplicate failure and direction acquisition diagnostics. The quick gate values are unchanged, but the added fields show repeated-proposal traps are seed-local on LJ13 and LJ38 seed1, while LJ38 seed0 is instead a high-energy over-exploration case.
 - M18 rigid-body projection: added a general free-nonperiodic rigid-mode projector and wired it into direction generation. Candidate directions for clusters/molecules with at least three movable atoms are projected away from translation/rotation components before curvature scoring. PBC/slab/bulk states are left unchanged. Direction diagnostics now report rigid-body overlap before and after projection.
 - M19 relaxation convergence diagnostics: added stats for true-PES quench and modified-PES proposal relaxation convergence. This records counts, unconverged counts, maximum final gradient, and mean optimizer iterations in both `SearchResult.stats` and LJ benchmark summaries.
+- M20 L-BFGS-B convergence fix: the Relaxer now passes `gtol=fmax`, strict `ftol`, and a larger line-search budget to SciPy L-BFGS-B. This addresses a basic computational-chemistry concern: local minima must be force-converged before judging PES search quality. The stricter relaxation also exposed that an old 1D toy SSW crossing test relied on under-relaxed proposal motion, so that test now uses a larger documented uphill target.
 
 Explicit support claim after M1:
 
@@ -46,6 +47,7 @@ Verification:
 - Result after M17 benchmark diagnostics: `57 passed`
 - Result after M18 rigid-body projection: `60 passed`
 - Result after M19 relaxation diagnostics: `61 passed`
+- Result after M20 L-BFGS-B gtol fix: `62 passed`
 
 Smoke benchmark:
 

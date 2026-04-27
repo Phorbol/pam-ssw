@@ -33,7 +33,7 @@ class Relaxer:
             x0,
             method="L-BFGS-B",
             jac=True,
-            options={"maxiter": maxiter},
+            options={"maxiter": maxiter, "gtol": fmax, "ftol": 1e-12, "maxls": 50},
         )
         relaxed = state.with_active_positions(np.asarray(result.x, dtype=float))
         energy, full_gradient = self.evaluator(relaxed.flatten_positions(), relaxed)
