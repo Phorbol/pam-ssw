@@ -67,3 +67,9 @@ M17 quick gate:
 - Output: `runs/20260427-151600-epam-generalization/lj_quick_m17_benchmark_diagnostics.json`
 - Result: unchanged relative to M12. SSW LJ13 mean gap `3.295909127321515`, SSW LJ38 mean gap `18.134550242531958`.
 - Added diagnosis: LJ13 seed0/1 and LJ38 seed1 have mean seed-local duplicate failure rates near `0.85-0.89`; LJ38 seed0 has `0.0` seed-local duplicate failure but poor energy, indicating high-energy over-exploration rather than repeat trapping.
+
+M18 quick gate:
+
+- Output: `runs/20260427-151600-epam-generalization/lj_quick_m18_rigid_projection.json`
+- Result: improved but not final pass. SSW LJ13 mean gap improved to `0.42739603905526735`; SSW LJ38 mean gap improved to `15.747809644768466`.
+- Diagnosis: rigid projection removed the repeated-proposal failure mode on LJ13 and LJ38 seed1. The remaining dominant failure is LJ38 seed0 high-energy over-exploration, not self-return duplication.

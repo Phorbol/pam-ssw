@@ -1,0 +1,18 @@
+experiment	commit	metric	status	description
+0	804fd96	17.59851761706693	baseline	unmodified code
+1	9594a84	15.139908695006813	keep	increase ssw walk energy and length
+2	cc5f406	21.24712701051452	discard	push ssw walks further
+3	8c730bf	11.980385437979546	keep	add compact cluster reseeding
+4	0c7515e	8.187764546850033	keep	increase compact reseed frequency
+5	5d7ed29	9.323971810855035	discard	reseed every cluster trial
+6	e91ae2b	10.553071537883447	discard	shorten ssw walks with reseeding
+7	97a6cfd	12.638784754051645	discard	improve compact reseed spacing
+8	35f0152	8.607065933269002	discard	preselect compact reseeds by energy
+9	3995571	8.187765916603055	discard	raise mixed ssw uphill target
+10	fe6e9f3	11.065873008675268	discard	increase ssw oracle candidates
+11	3d8d85d	9.536943028814377	discard	mix surface relocation reseeds
+12	a11e4f8	8.187764546850033	discard	count archive seed expansions
+13	82f3a96	10.814170366098619	discard	add graph recombination proposals
+14	831085e	9.811410655167737	discard	tighten compact reseed radius
+15	8737b1a	4.135163302042553	keep	implement E-PAM-SSW archive acquisition and LJ motif reseed
+16	ed267a7	8.087602841911867	keep	project rigid modes from free-cluster directions; doc-aligned, improves current SSW but does not beat GA/BH aggregate
