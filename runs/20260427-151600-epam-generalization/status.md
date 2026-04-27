@@ -1,6 +1,6 @@
 # Status
 
-Current phase: M13 implementation discarded after worse quick gate
+Current phase: M14 geometry-risk scoring discarded after unchanged quick gate
 
 - Removed GA/BH-style reseed/recombination/motif mechanisms from core `pamssw`.
 - Added Cartesian coordinate/tangent layer and metric module.
@@ -30,3 +30,6 @@ Current phase: M13 implementation discarded after worse quick gate
 - Quick gate rerun after M13 worsened SSW mean gaps, so this implementation is marked for discard and should be reverted while preserving the benchmark record.
 - M13 implementation logic has been reverted; benchmark records remain in the ledger.
 - Full tests after revert: `55 passed`.
+- Tested a doc-backed cheap geometry `S_risk` candidate-direction scorer based on relative minimum-distance collapse and pair-distance stretch. It was score-only and did not enter the force loop, quench, or calculator.
+- M14 quick gate was unchanged versus M12: SSW LJ13 mean gap `3.295909127321515`, SSW LJ38 mean gap `18.134550242531958`; BH/GA values were unchanged. Because there was no primary-metric improvement, the implementation was discarded while benchmark records were retained.
+- Full tests after reverting M14: `55 passed`.

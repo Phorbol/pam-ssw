@@ -134,5 +134,29 @@
     "producer_step": "pytest_m13_revert",
     "created_at": "2026-04-27T21:24:00+08:00",
     "description": "Full unit and integration test output after discarding M13 mode-aware node acquisition implementation"
+  },
+  {
+    "artifact_id": "pytest_m14_geometry_risk",
+    "type": "log",
+    "path": "runs/20260427-151600-epam-generalization/logs/pytest_m14_geometry_risk.out",
+    "producer_step": "pytest_m14_geometry_risk",
+    "created_at": "2026-04-27T21:50:00+08:00",
+    "description": "Full unit and integration test output after score-only cheap geometry S_risk candidate-direction scoring"
+  },
+  {
+    "artifact_id": "lj_quick_m14_geometry_risk",
+    "type": "benchmark_json",
+    "path": "runs/20260427-151600-epam-generalization/lj_quick_m14_geometry_risk.json",
+    "producer_step": "lj_quick_m14_geometry_risk",
+    "created_at": "2026-04-27T21:56:00+08:00",
+    "description": "Quick gate rerun after cheap geometry S_risk candidate-direction scoring; unchanged from M12 and discarded"
+  },
+  {
+    "artifact_id": "pytest_m14_revert",
+    "type": "log",
+    "path": "runs/20260427-151600-epam-generalization/logs/pytest_m14_revert.out",
+    "producer_step": "pytest_m14_revert",
+    "created_at": "2026-04-27T21:58:00+08:00",
+    "description": "Full unit and integration test output after reverting M14 geometry-risk scoring"
   }
 ]

@@ -1,0 +1,224 @@
+{
+  "bh_LJ13": {
+    "success_rate": 0.0,
+    "best_energy": -43.89940496113745,
+    "mean_energy_gap": 0.42739604324551195,
+    "runs": [
+      {
+        "algorithm": "bh",
+        "size": 13,
+        "seed": 0,
+        "best_energy": -43.89940496113745,
+        "energy_gap": 0.42739603886255395,
+        "success": false,
+        "local_relaxations": 60,
+        "force_evaluations": null,
+        "budget_exhausted": null,
+        "n_minima": null,
+        "duplicate_rate": null,
+        "frontier_nodes": null,
+        "dead_nodes": null
+      },
+      {
+        "algorithm": "bh",
+        "size": 13,
+        "seed": 1,
+        "best_energy": -43.89940495237153,
+        "energy_gap": 0.42739604762846994,
+        "success": false,
+        "local_relaxations": 60,
+        "force_evaluations": null,
+        "budget_exhausted": null,
+        "n_minima": null,
+        "duplicate_rate": null,
+        "frontier_nodes": null,
+        "dead_nodes": null
+      }
+    ]
+  },
+  "bh_LJ38": {
+    "success_rate": 0.0,
+    "best_energy": -167.05543086224824,
+    "mean_energy_gap": 7.3573034236761,
+    "runs": [
+      {
+        "algorithm": "bh",
+        "size": 38,
+        "seed": 0,
+        "best_energy": -167.05543086224824,
+        "energy_gap": 6.872996137751755,
+        "success": false,
+        "local_relaxations": 60,
+        "force_evaluations": null,
+        "budget_exhausted": null,
+        "n_minima": null,
+        "duplicate_rate": null,
+        "frontier_nodes": null,
+        "dead_nodes": null
+      },
+      {
+        "algorithm": "bh",
+        "size": 38,
+        "seed": 1,
+        "best_energy": -166.08681629039955,
+        "energy_gap": 7.841610709600445,
+        "success": false,
+        "local_relaxations": 60,
+        "force_evaluations": null,
+        "budget_exhausted": null,
+        "n_minima": null,
+        "duplicate_rate": null,
+        "frontier_nodes": null,
+        "dead_nodes": null
+      }
+    ]
+  },
+  "ga_LJ13": {
+    "success_rate": 0.0,
+    "best_energy": -43.89940496128909,
+    "mean_energy_gap": 0.4273960397517058,
+    "runs": [
+      {
+        "algorithm": "ga",
+        "size": 13,
+        "seed": 0,
+        "best_energy": -43.89940496128909,
+        "energy_gap": 0.4273960387109099,
+        "success": false,
+        "local_relaxations": 60,
+        "force_evaluations": null,
+        "budget_exhausted": null,
+        "n_minima": null,
+        "duplicate_rate": null,
+        "frontier_nodes": null,
+        "dead_nodes": null
+      },
+      {
+        "algorithm": "ga",
+        "size": 13,
+        "seed": 1,
+        "best_energy": -43.8994049592075,
+        "energy_gap": 0.4273960407925017,
+        "success": false,
+        "local_relaxations": 60,
+        "force_evaluations": null,
+        "budget_exhausted": null,
+        "n_minima": null,
+        "duplicate_rate": null,
+        "frontier_nodes": null,
+        "dead_nodes": null
+      }
+    ]
+  },
+  "ga_LJ38": {
+    "success_rate": 0.0,
+    "best_energy": -169.48980226616706,
+    "mean_energy_gap": 5.513193285469555,
+    "runs": [
+      {
+        "algorithm": "ga",
+        "size": 38,
+        "seed": 0,
+        "best_energy": -169.48980226616706,
+        "energy_gap": 4.438624733832938,
+        "success": false,
+        "local_relaxations": 60,
+        "force_evaluations": null,
+        "budget_exhausted": null,
+        "n_minima": null,
+        "duplicate_rate": null,
+        "frontier_nodes": null,
+        "dead_nodes": null
+      },
+      {
+        "algorithm": "ga",
+        "size": 38,
+        "seed": 1,
+        "best_energy": -167.34066516289383,
+        "energy_gap": 6.5877618371061715,
+        "success": false,
+        "local_relaxations": 60,
+        "force_evaluations": null,
+        "budget_exhausted": null,
+        "n_minima": null,
+        "duplicate_rate": null,
+        "frontier_nodes": null,
+        "dead_nodes": null
+      }
+    ]
+  },
+  "ssw_LJ13": {
+    "success_rate": 0.0,
+    "best_energy": -41.04458337363668,
+    "mean_energy_gap": 3.295909127321515,
+    "runs": [
+      {
+        "algorithm": "ssw",
+        "size": 13,
+        "seed": 0,
+        "best_energy": -41.0172003717203,
+        "energy_gap": 3.3096006282797035,
+        "success": false,
+        "local_relaxations": 60,
+        "force_evaluations": 35722,
+        "budget_exhausted": false,
+        "n_minima": 7,
+        "duplicate_rate": 0.8833333333333333,
+        "frontier_nodes": 0,
+        "dead_nodes": 3
+      },
+      {
+        "algorithm": "ssw",
+        "size": 13,
+        "seed": 1,
+        "best_energy": -41.04458337363668,
+        "energy_gap": 3.2822176263633267,
+        "success": false,
+        "local_relaxations": 60,
+        "force_evaluations": 35671,
+        "budget_exhausted": false,
+        "n_minima": 6,
+        "duplicate_rate": 0.9,
+        "frontier_nodes": 1,
+        "dead_nodes": 2
+      }
+    ]
+  },
+  "ssw_LJ38": {
+    "success_rate": 0.0,
+    "best_energy": -165.19159708251732,
+    "mean_energy_gap": 18.134550242531958,
+    "runs": [
+      {
+        "algorithm": "ssw",
+        "size": 38,
+        "seed": 0,
+        "best_energy": -146.39615643241876,
+        "energy_gap": 27.532270567581236,
+        "success": false,
+        "local_relaxations": 60,
+        "force_evaluations": 36010,
+        "budget_exhausted": false,
+        "n_minima": 60,
+        "duplicate_rate": 0.0,
+        "frontier_nodes": 49,
+        "dead_nodes": 0
+      },
+      {
+        "algorithm": "ssw",
+        "size": 38,
+        "seed": 1,
+        "best_energy": -165.19159708251732,
+        "energy_gap": 8.73682991748268,
+        "success": false,
+        "local_relaxations": 60,
+        "force_evaluations": 37053,
+        "budget_exhausted": false,
+        "n_minima": 6,
+        "duplicate_rate": 0.9,
+        "frontier_nodes": 0,
+        "dead_nodes": 3
+      }
+    ]
+  }
+}

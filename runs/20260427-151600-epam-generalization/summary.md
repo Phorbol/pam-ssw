@@ -23,6 +23,7 @@ Implemented scope:
 - M11 LJ smoke: the LJ benchmark reporter now includes SSW diagnostic fields for force evaluations, budget exhaustion, minima count, duplicate rate, frontier nodes, and dead nodes. A LJ13 seed0 budget5 smoke benchmark completed successfully; it is recorded as a runtime/accounting check, not a performance gate.
 - M12 quick gate: LJ13/LJ38 seeds 0/1 budget60 completed and failed the performance target. SSW lagged both BH and GA; diagnostics showed high duplicate/dead-node behavior on LJ13 and LJ38 seed1, and high-energy over-exploration on LJ38 seed0.
 - M13 mode-aware node policy: acquisition was extended with task-mode node presets and live-node baseline selection, then rerun on the same quick gate. It worsened SSW aggregate gaps, so the implementation was discarded while the benchmark record was retained.
+- M14 geometry damage risk: implemented a strictly score-only `S_risk` candidate-direction penalty from cheap relative geometry checks. The quick gate was identical to M12, so this did not advance the benchmark target and was reverted. The result suggests the current candidate choices are not controlled by this risk term under the quick LJ workload.
 
 Explicit support claim after M1:
 
@@ -34,7 +35,7 @@ Verification:
 
 - `pytest -q tests/unit tests/integration`
 - Output: `runs/20260427-151600-epam-generalization/logs/pytest_m11_lj_smoke_reporting.out`
-- Result after reverting M13 implementation: `55 passed`
+- Result after reverting M14 implementation: `55 passed`
 
 Smoke benchmark:
 
@@ -46,3 +47,9 @@ Quick gate:
 - Output: `runs/20260427-151600-epam-generalization/lj_quick_m12.json`
 - Result: failed. Mean gaps were SSW LJ13 `3.295909127321515`, BH LJ13 `0.42739604324551195`, GA LJ13 `0.4273960397517058`, SSW LJ38 `18.134550242531958`, BH LJ38 `7.3573034236761`, GA LJ38 `5.513193285469555`.
 - Diagnosis: LJ13 and LJ38 seed1 show high duplicate/dead-node behavior; LJ38 seed0 discovers many unique minima but remains high-energy, indicating excessive exploration relative to low-energy exploitation.
+
+M14 quick gate:
+
+- Output: `runs/20260427-151600-epam-generalization/lj_quick_m14_geometry_risk.json`
+- Result: unchanged relative to M12. SSW LJ13 mean gap `3.295909127321515`, SSW LJ38 mean gap `18.134550242531958`; BH/GA reference values were unchanged.
+- Decision: discarded and reverted because the primary metric did not improve.
