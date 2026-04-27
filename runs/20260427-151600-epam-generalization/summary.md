@@ -25,6 +25,7 @@ Implemented scope:
 - M13 mode-aware node policy: acquisition was extended with task-mode node presets and live-node baseline selection, then rerun on the same quick gate. It worsened SSW aggregate gaps, so the implementation was discarded while the benchmark record was retained.
 - M14 geometry damage risk: implemented a strictly score-only `S_risk` candidate-direction penalty from cheap relative geometry checks. The quick gate was identical to M12, so this did not advance the benchmark target and was reverted. The result suggests the current candidate choices are not controlled by this risk term under the quick LJ workload.
 - M15 direction acquisition diagnostics: added stats for direction choices, candidate evaluations, mean candidate-pool size, and selected soft/random/bond/cell counts. This supports the document requirement for explicit duplicate/damage/exploration diagnostics and helps determine whether future outer-loop direction scores actually affect the inner SSW walk.
+- M16 seed duplicate attribution: corrected the repeat/failure statistics used by frontier/dead-node logic. Basin-level `duplicate_hits` records where duplicate proposals landed; seed-level `node_duplicate_failures` now records whether proposals from a selected node repeatedly produced duplicates. Frontier/dead-node status and reported node duplicate failure rates use the seed-level statistic.
 
 Explicit support claim after M1:
 
@@ -38,6 +39,7 @@ Verification:
 - Output: `runs/20260427-151600-epam-generalization/logs/pytest_m11_lj_smoke_reporting.out`
 - Result after reverting M14 implementation: `55 passed`
 - Result after M15 direction diagnostics: `56 passed`
+- Result after M16 seed duplicate attribution: `57 passed`
 
 Smoke benchmark:
 

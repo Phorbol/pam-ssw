@@ -76,7 +76,7 @@ def test_bandit_selector_uses_observable_frontier_and_avoids_dead_nodes():
 
     dead.node_trials = 20
     dead.node_successes = 0
-    dead.duplicate_hits = 18
+    dead.node_duplicate_failures = 18
     frontier.node_trials = 0
     frontier.node_successes = 0
     archive.refresh_frontier_status()

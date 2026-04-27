@@ -20,6 +20,7 @@ class MinimaEntry:
     node_successes: int = 0
     frontier_value: float = 1.0
     duplicate_hits: int = 0
+    node_duplicate_failures: int = 0
     frontier_score: float = 1.0
     is_frontier: bool = True
     is_dead: bool = False
@@ -157,15 +158,24 @@ class MinimaArchive:
                 "frontier_nodes": 0,
                 "dead_nodes": 0,
                 "mean_frontier_score": 0.0,
+                "mean_node_duplicate_failure_rate": 0.0,
+                "max_node_duplicate_failure_rate": 0.0,
             }
         scores = np.asarray([entry.frontier_score for entry in self.entries], dtype=float)
+        duplicate_failure_rates = np.asarray(
+            [entry.node_duplicate_failures / max(1, entry.node_trials) for entry in self.entries],
+            dtype=float,
+        )
         return {
             "frontier_nodes": sum(1 for entry in self.entries if entry.is_frontier),
             "dead_nodes": sum(1 for entry in self.entries if entry.is_dead),
             "mean_frontier_score": float(scores.mean()),
+            "mean_node_duplicate_failure_rate": float(duplicate_failure_rates.mean()),
+            "max_node_duplicate_failure_rate": float(duplicate_failure_rates.max()),
         }
 
-    def record_success(self, entry: MinimaEntry, reward: float) -> None:
+    def record_success(self, entry: MinimaEntry, reward: float, duplicate_failures: int = 0) -> None:
+        entry.node_duplicate_failures += duplicate_failures
         if reward > 0.0:
             entry.node_successes += 1
         self.refresh_frontier_status()
@@ -178,13 +188,13 @@ class MinimaArchive:
         energy_window = max(self.energy_tol, float(np.median(energies - best_energy)) + self.energy_tol)
         max_trials = max((entry.node_trials for entry in self.entries), default=0)
         for entry in self.entries:
-            duplicate_rate = entry.duplicate_hits / max(1, entry.duplicate_hits + entry.node_successes + 1)
+            duplicate_failure_rate = entry.node_duplicate_failures / max(1, entry.node_trials)
             success_rate = entry.node_successes / max(1, entry.node_trials)
             low_visit = entry.node_trials <= max(1, int(0.5 * max_trials))
             low_energy = entry.energy <= best_energy + energy_window
             sparse = self.novelty(entry) >= 0.4
             recently_successful = entry.node_successes > 0 and success_rate >= 0.1
-            entry.is_dead = entry.node_trials >= 8 and duplicate_rate >= 0.75 and success_rate <= 0.05
+            entry.is_dead = entry.node_trials >= 8 and duplicate_failure_rate >= 0.75 and success_rate <= 0.05
             if entry.is_dead:
                 entry.frontier_score = 0.0
                 entry.frontier_value = 0.0

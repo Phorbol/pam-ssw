@@ -235,6 +235,8 @@ def test_surface_walker_reports_observable_frontier_diagnostics():
     assert "frontier_nodes" in result.stats
     assert "dead_nodes" in result.stats
     assert "mean_frontier_score" in result.stats
+    assert "mean_node_duplicate_failure_rate" in result.stats
+    assert "max_node_duplicate_failure_rate" in result.stats
 
 
 def test_surface_walker_reports_direction_acquisition_diagnostics():

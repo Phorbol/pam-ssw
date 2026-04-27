@@ -35,3 +35,5 @@ Current phase: M14 geometry-risk scoring discarded after unchanged quick gate
 - Full tests after reverting M14: `55 passed`.
 - Added M15 direction acquisition diagnostics. `SearchResult.stats` now reports direction choices, candidate evaluations, mean candidate-pool size, and selected soft/random/bond/cell counts. This is observability only and does not alter candidate generation, scoring, PES force evaluation, or relaxation.
 - Full tests after M15 diagnostics: `56 passed`.
+- Added M16 seed-node duplicate attribution. `duplicate_hits` remains the global basin revisit count, while new `node_duplicate_failures` records duplicate outcomes caused by proposals from a selected seed. Dead/frontier status now uses seed-local duplicate failure rate, which is the statistic needed for document-backed `S_repeat`/anti-repeat graph policy.
+- Full tests after M16 seed duplicate attribution: `57 passed`.

@@ -116,9 +116,21 @@ def test_dead_node_status_comes_from_duplicate_and_failed_trial_statistics():
     entry = archive.add(_pair_state(1.0), -10.0, parent_id=None)
     entry.node_trials = 12
     entry.node_successes = 0
-    entry.duplicate_hits = 10
+    entry.node_duplicate_failures = 10
 
     archive.refresh_frontier_status()
 
     assert entry.is_dead
     assert entry.frontier_score == 0.0
+
+
+def test_duplicate_hits_on_target_basin_do_not_make_that_target_a_dead_seed():
+    archive = MinimaArchive(energy_tol=1e-8, rmsd_tol=1e-8)
+    target = archive.add(_pair_state(1.0), -10.0, parent_id=None)
+    target.node_trials = 12
+    target.node_successes = 0
+    target.duplicate_hits = 10
+
+    archive.refresh_frontier_status()
+
+    assert not target.is_dead

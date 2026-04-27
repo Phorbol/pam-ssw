@@ -417,6 +417,7 @@ class SurfaceWalker:
             best_rank_key: tuple[float, ...] | None = None
             best_reward = 0.0
             any_new = False
+            duplicate_failures = 0
             previous_best_energy = best_entry.energy
             for proposal in proposals:
                 try:
@@ -431,6 +432,7 @@ class SurfaceWalker:
                 discovered = archive.add(candidate.state, candidate.energy, parent_id=seed_entry.entry_id)
                 is_new = len(archive.entries) > before_count
                 is_duplicate = not is_new
+                duplicate_failures += int(is_duplicate)
                 any_new = any_new or is_new
                 outcome = ProposalOutcome(
                     energy=candidate.energy,
@@ -453,7 +455,7 @@ class SurfaceWalker:
                 escaped=any_new,
                 damaged=self._trust_damage_events > damage_events_before,
             )
-            archive.record_success(seed_entry, best_reward)
+            archive.record_success(seed_entry, best_reward, duplicate_failures=duplicate_failures)
             walk_history.append(
                 WalkRecord(
                     seed_entry_id=seed_entry.entry_id,
@@ -490,6 +492,8 @@ class SurfaceWalker:
                 "frontier_nodes": frontier_stats["frontier_nodes"],
                 "dead_nodes": frontier_stats["dead_nodes"],
                 "mean_frontier_score": frontier_stats["mean_frontier_score"],
+                "mean_node_duplicate_failure_rate": frontier_stats["mean_node_duplicate_failure_rate"],
+                "max_node_duplicate_failure_rate": frontier_stats["max_node_duplicate_failure_rate"],
                 "coordinate_system": "cartesian_fixed_cell",
                 "variable_cell_supported": 0,
                 **self._trust_stats_summary(),
