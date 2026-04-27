@@ -24,6 +24,7 @@ Implemented scope:
 - M12 quick gate: LJ13/LJ38 seeds 0/1 budget60 completed and failed the performance target. SSW lagged both BH and GA; diagnostics showed high duplicate/dead-node behavior on LJ13 and LJ38 seed1, and high-energy over-exploration on LJ38 seed0.
 - M13 mode-aware node policy: acquisition was extended with task-mode node presets and live-node baseline selection, then rerun on the same quick gate. It worsened SSW aggregate gaps, so the implementation was discarded while the benchmark record was retained.
 - M14 geometry damage risk: implemented a strictly score-only `S_risk` candidate-direction penalty from cheap relative geometry checks. The quick gate was identical to M12, so this did not advance the benchmark target and was reverted. The result suggests the current candidate choices are not controlled by this risk term under the quick LJ workload.
+- M15 direction acquisition diagnostics: added stats for direction choices, candidate evaluations, mean candidate-pool size, and selected soft/random/bond/cell counts. This supports the document requirement for explicit duplicate/damage/exploration diagnostics and helps determine whether future outer-loop direction scores actually affect the inner SSW walk.
 
 Explicit support claim after M1:
 
@@ -36,6 +37,7 @@ Verification:
 - `pytest -q tests/unit tests/integration`
 - Output: `runs/20260427-151600-epam-generalization/logs/pytest_m11_lj_smoke_reporting.out`
 - Result after reverting M14 implementation: `55 passed`
+- Result after M15 direction diagnostics: `56 passed`
 
 Smoke benchmark:
 

@@ -33,3 +33,5 @@ Current phase: M14 geometry-risk scoring discarded after unchanged quick gate
 - Tested a doc-backed cheap geometry `S_risk` candidate-direction scorer based on relative minimum-distance collapse and pair-distance stretch. It was score-only and did not enter the force loop, quench, or calculator.
 - M14 quick gate was unchanged versus M12: SSW LJ13 mean gap `3.295909127321515`, SSW LJ38 mean gap `18.134550242531958`; BH/GA values were unchanged. Because there was no primary-metric improvement, the implementation was discarded while benchmark records were retained.
 - Full tests after reverting M14: `55 passed`.
+- Added M15 direction acquisition diagnostics. `SearchResult.stats` now reports direction choices, candidate evaluations, mean candidate-pool size, and selected soft/random/bond/cell counts. This is observability only and does not alter candidate generation, scoring, PES force evaluation, or relaxation.
+- Full tests after M15 diagnostics: `56 passed`.

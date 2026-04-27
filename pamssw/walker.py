@@ -47,6 +47,8 @@ class ProposalPotential:
 class DirectionChoice:
     direction: np.ndarray
     curvature: float
+    kind: DirectionCandidateKind
+    candidate_count: int
 
 
 @dataclass(frozen=True)
@@ -313,7 +315,9 @@ class SoftModeOracle:
         best_direction: np.ndarray | None = None
         best_curvature: float | None = None
         best_score: float | None = None
-        for candidate in self.generator.generate(state, previous_direction):
+        candidates = self.generator.generate(state, previous_direction)
+        best_kind: DirectionCandidateKind | None = None
+        for candidate in candidates:
             curvature = self._directional_curvature(state, proposal, candidate.direction)
             sigma = self._step_scale_from_curvature(curvature)
             score = self.scorer.score_candidate(
@@ -328,9 +332,10 @@ class SoftModeOracle:
                 best_score = score
                 best_curvature = curvature
                 best_direction = candidate.direction
-        assert best_direction is not None and best_curvature is not None
+                best_kind = candidate.kind
+        assert best_direction is not None and best_curvature is not None and best_kind is not None
 
-        return DirectionChoice(best_direction, best_curvature)
+        return DirectionChoice(best_direction, best_curvature, best_kind, len(candidates))
 
     def _directional_curvature(
         self,
@@ -367,6 +372,7 @@ class SurfaceWalker:
         self.trust_controller = TrustRegionBiasController()
         self.step_target_controller = StepTargetController(config.target_uphill_energy)
         self._reset_trust_stats()
+        self._reset_direction_stats()
 
     def relax_true_minimum(self, state: State) -> RelaxResult:
         relaxer = Relaxer(self.calculator.evaluate_flat)
@@ -377,6 +383,7 @@ class SurfaceWalker:
         from .archive import MinimaArchive
 
         self._reset_trust_stats()
+        self._reset_direction_stats()
         initial = self.relax_true_minimum(initial_state)
         archive = MinimaArchive(
             energy_tol=self.config.dedup_energy_tol,
@@ -486,6 +493,7 @@ class SurfaceWalker:
                 "coordinate_system": "cartesian_fixed_cell",
                 "variable_cell_supported": 0,
                 **self._trust_stats_summary(),
+                **self._direction_stats_summary(),
                 **self.step_target_controller.stats(),
             },
         )
@@ -504,6 +512,7 @@ class SurfaceWalker:
         for _ in range(self.config.max_steps_per_walk):
             proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
             choice = self.oracle.choose_direction(current, proposal, previous_direction, archive=archive)
+            self._record_direction_choice(choice)
             sigma = self._scaled_step_scale(choice.curvature, sigma_scale, step_target=step_target)
             weight = self._bias_weight(choice.curvature, sigma) * weight_scale
             true_energy_before = self.calculator.evaluate(current).energy
@@ -563,6 +572,16 @@ class SurfaceWalker:
         self._trust_expand_steps = 0
         self._trust_damage_events = 0
 
+    def _reset_direction_stats(self) -> None:
+        self._direction_choices = 0
+        self._direction_candidate_evaluations = 0
+        self._direction_selected = {kind: 0 for kind in DirectionCandidateKind}
+
+    def _record_direction_choice(self, choice: DirectionChoice) -> None:
+        self._direction_choices += 1
+        self._direction_candidate_evaluations += choice.candidate_count
+        self._direction_selected[choice.kind] += 1
+
     def _record_trust_update(self, update: TrustRegionUpdate) -> None:
         self._trust_steps += 1
         self._trust_model_error_sum += update.model_error
@@ -581,6 +600,20 @@ class SurfaceWalker:
             "trust_shrink_steps": self._trust_shrink_steps,
             "trust_expand_steps": self._trust_expand_steps,
             "trust_damage_events": self._trust_damage_events,
+        }
+
+    def _direction_stats_summary(self) -> dict[str, float | int]:
+        mean_pool_size = (
+            self._direction_candidate_evaluations / self._direction_choices if self._direction_choices else 0.0
+        )
+        return {
+            "direction_choices": self._direction_choices,
+            "direction_candidate_evaluations": self._direction_candidate_evaluations,
+            "direction_mean_candidate_pool_size": float(mean_pool_size),
+            "direction_selected_soft": self._direction_selected[DirectionCandidateKind.SOFT],
+            "direction_selected_random": self._direction_selected[DirectionCandidateKind.RANDOM],
+            "direction_selected_bond": self._direction_selected[DirectionCandidateKind.BOND],
+            "direction_selected_cell": self._direction_selected[DirectionCandidateKind.CELL],
         }
 
     def _build_softening(self, seed_state: State) -> LocalSofteningModel | None:

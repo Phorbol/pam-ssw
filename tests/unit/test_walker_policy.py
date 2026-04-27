@@ -235,3 +235,20 @@ def test_surface_walker_reports_observable_frontier_diagnostics():
     assert "frontier_nodes" in result.stats
     assert "dead_nodes" in result.stats
     assert "mean_frontier_score" in result.stats
+
+
+def test_surface_walker_reports_direction_acquisition_diagnostics():
+    initial = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(max_trials=1, max_steps_per_walk=2, oracle_candidates=2, rng_seed=0),
+        softening_enabled=False,
+    )
+
+    result = walker.run(initial)
+
+    assert result.stats["direction_choices"] == 2
+    assert result.stats["direction_candidate_evaluations"] >= result.stats["direction_choices"]
+    assert result.stats["direction_selected_random"] >= 1
+    assert result.stats["direction_selected_soft"] >= 0
+    assert result.stats["direction_selected_bond"] == 0
