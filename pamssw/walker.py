@@ -13,6 +13,7 @@ from .coordinates import CartesianCoordinates, TangentVector
 from .fingerprint import structural_descriptor
 from .relax import Relaxer
 from .result import RelaxResult, SearchResult, WalkRecord
+from .rigid import project_out_rigid_body_modes, rigid_body_overlap
 from .softening import LocalSofteningModel
 from .state import State
 
@@ -49,6 +50,8 @@ class DirectionChoice:
     curvature: float
     kind: DirectionCandidateKind
     candidate_count: int
+    mean_rigid_body_overlap: float = 0.0
+    mean_post_projection_rigid_body_overlap: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -187,6 +190,8 @@ class DirectionCandidate:
     kind: DirectionCandidateKind
     direction: np.ndarray
     damage_risk: float = 0.0
+    rigid_body_overlap: float = 0.0
+    post_projection_rigid_body_overlap: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -249,17 +254,32 @@ class CandidateDirectionGenerator:
         coordinates = CartesianCoordinates.from_state(state)
         candidates: list[DirectionCandidate] = []
         if previous_direction is not None:
-            candidates.append(DirectionCandidate(DirectionCandidateKind.SOFT, self._normalized(previous_direction)))
+            candidates.append(self._candidate(state, DirectionCandidateKind.SOFT, previous_direction))
         for atom_i, atom_j in self.bond_pairs:
             direction = self._bond_direction(state, atom_i, atom_j)
             if direction is not None:
-                candidates.append(DirectionCandidate(DirectionCandidateKind.BOND, direction))
+                candidates.append(self._candidate(state, DirectionCandidateKind.BOND, direction))
         for _ in range(self.n_random):
             active = self.rng.normal(size=coordinates.active_size)
             active /= np.linalg.norm(active) + 1e-12
             direction = coordinates.full_tangent_from_active(active).values
-            candidates.append(DirectionCandidate(DirectionCandidateKind.RANDOM, self._normalized(direction)))
+            candidates.append(self._candidate(state, DirectionCandidateKind.RANDOM, direction))
         return candidates
+
+    def _candidate(self, state: State, kind: DirectionCandidateKind, direction: np.ndarray) -> DirectionCandidate:
+        raw = self._normalized(direction)
+        overlap = rigid_body_overlap(state, raw)
+        projected = project_out_rigid_body_modes(state, raw)
+        if np.linalg.norm(projected) <= 1e-12:
+            projected = raw
+        projected = self._normalized(projected)
+        post_overlap = rigid_body_overlap(state, projected)
+        return DirectionCandidate(
+            kind=kind,
+            direction=projected,
+            rigid_body_overlap=overlap,
+            post_projection_rigid_body_overlap=post_overlap,
+        )
 
     @staticmethod
     def _normalized(direction: np.ndarray) -> np.ndarray:
@@ -317,7 +337,11 @@ class SoftModeOracle:
         best_score: float | None = None
         candidates = self.generator.generate(state, previous_direction)
         best_kind: DirectionCandidateKind | None = None
+        rigid_overlap_sum = 0.0
+        post_projection_rigid_overlap_sum = 0.0
         for candidate in candidates:
+            rigid_overlap_sum += candidate.rigid_body_overlap
+            post_projection_rigid_overlap_sum += candidate.post_projection_rigid_body_overlap
             curvature = self._directional_curvature(state, proposal, candidate.direction)
             sigma = self._step_scale_from_curvature(curvature)
             score = self.scorer.score_candidate(
@@ -335,7 +359,14 @@ class SoftModeOracle:
                 best_kind = candidate.kind
         assert best_direction is not None and best_curvature is not None and best_kind is not None
 
-        return DirectionChoice(best_direction, best_curvature, best_kind, len(candidates))
+        return DirectionChoice(
+            best_direction,
+            best_curvature,
+            best_kind,
+            len(candidates),
+            rigid_overlap_sum / len(candidates),
+            post_projection_rigid_overlap_sum / len(candidates),
+        )
 
     def _directional_curvature(
         self,
@@ -580,11 +611,15 @@ class SurfaceWalker:
         self._direction_choices = 0
         self._direction_candidate_evaluations = 0
         self._direction_selected = {kind: 0 for kind in DirectionCandidateKind}
+        self._direction_rigid_overlap_sum = 0.0
+        self._direction_post_projection_rigid_overlap_sum = 0.0
 
     def _record_direction_choice(self, choice: DirectionChoice) -> None:
         self._direction_choices += 1
         self._direction_candidate_evaluations += choice.candidate_count
         self._direction_selected[choice.kind] += 1
+        self._direction_rigid_overlap_sum += choice.mean_rigid_body_overlap
+        self._direction_post_projection_rigid_overlap_sum += choice.mean_post_projection_rigid_body_overlap
 
     def _record_trust_update(self, update: TrustRegionUpdate) -> None:
         self._trust_steps += 1
@@ -610,10 +645,18 @@ class SurfaceWalker:
         mean_pool_size = (
             self._direction_candidate_evaluations / self._direction_choices if self._direction_choices else 0.0
         )
+        mean_rigid_overlap = self._direction_rigid_overlap_sum / self._direction_choices if self._direction_choices else 0.0
+        mean_post_projection_overlap = (
+            self._direction_post_projection_rigid_overlap_sum / self._direction_choices
+            if self._direction_choices
+            else 0.0
+        )
         return {
             "direction_choices": self._direction_choices,
             "direction_candidate_evaluations": self._direction_candidate_evaluations,
             "direction_mean_candidate_pool_size": float(mean_pool_size),
+            "direction_rigid_body_overlap_mean": float(mean_rigid_overlap),
+            "direction_post_projection_rigid_body_overlap_mean": float(mean_post_projection_overlap),
             "direction_selected_soft": self._direction_selected[DirectionCandidateKind.SOFT],
             "direction_selected_random": self._direction_selected[DirectionCandidateKind.RANDOM],
             "direction_selected_bond": self._direction_selected[DirectionCandidateKind.BOND],

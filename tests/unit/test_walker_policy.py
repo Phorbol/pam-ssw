@@ -77,6 +77,29 @@ def test_direction_generator_adds_bond_candidate_when_pairs_are_provided():
     np.testing.assert_allclose(candidates[0].direction.reshape(2, 3)[1], np.array([1.0, 0.0, 0.0]) / np.sqrt(2.0))
 
 
+def test_direction_generator_projects_random_candidates_out_of_rigid_modes():
+    state = State(
+        numbers=np.full(4, 18),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0],
+                [0.0, 0.0, 1.0],
+            ],
+            dtype=float,
+        ),
+    )
+    generator = CandidateDirectionGenerator(np.random.default_rng(0), n_random=4)
+
+    candidates = generator.generate(state, previous_direction=None)
+
+    assert len(candidates) == 4
+    assert max(candidate.rigid_body_overlap for candidate in candidates) > 0.0
+    for candidate in candidates:
+        assert candidate.post_projection_rigid_body_overlap < 1e-10
+
+
 def test_direction_scorer_penalizes_damage_risk_and_discontinuity():
     scorer = DirectionScorer(damage_weight=10.0, continuity_weight=1.0)
     previous = np.array([1.0, 0.0, 0.0])
@@ -251,6 +274,8 @@ def test_surface_walker_reports_direction_acquisition_diagnostics():
 
     assert result.stats["direction_choices"] == 2
     assert result.stats["direction_candidate_evaluations"] >= result.stats["direction_choices"]
+    assert "direction_rigid_body_overlap_mean" in result.stats
+    assert "direction_post_projection_rigid_body_overlap_mean" in result.stats
     assert result.stats["direction_selected_random"] >= 1
     assert result.stats["direction_selected_soft"] >= 0
     assert result.stats["direction_selected_bond"] == 0

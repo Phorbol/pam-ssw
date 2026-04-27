@@ -27,6 +27,7 @@ Implemented scope:
 - M15 direction acquisition diagnostics: added stats for direction choices, candidate evaluations, mean candidate-pool size, and selected soft/random/bond/cell counts. This supports the document requirement for explicit duplicate/damage/exploration diagnostics and helps determine whether future outer-loop direction scores actually affect the inner SSW walk.
 - M16 seed duplicate attribution: corrected the repeat/failure statistics used by frontier/dead-node logic. Basin-level `duplicate_hits` records where duplicate proposals landed; seed-level `node_duplicate_failures` now records whether proposals from a selected node repeatedly produced duplicates. Frontier/dead-node status and reported node duplicate failure rates use the seed-level statistic.
 - M17 benchmark diagnostics: LJ benchmark summaries now expose seed-local duplicate failure and direction acquisition diagnostics. The quick gate values are unchanged, but the added fields show repeated-proposal traps are seed-local on LJ13 and LJ38 seed1, while LJ38 seed0 is instead a high-energy over-exploration case.
+- M18 rigid-body projection: added a general free-nonperiodic rigid-mode projector and wired it into direction generation. Candidate directions for clusters/molecules with at least three movable atoms are projected away from translation/rotation components before curvature scoring. PBC/slab/bulk states are left unchanged. Direction diagnostics now report rigid-body overlap before and after projection.
 
 Explicit support claim after M1:
 
@@ -42,6 +43,7 @@ Verification:
 - Result after M15 direction diagnostics: `56 passed`
 - Result after M16 seed duplicate attribution: `57 passed`
 - Result after M17 benchmark diagnostics: `57 passed`
+- Result after M18 rigid-body projection: `60 passed`
 
 Smoke benchmark:
 

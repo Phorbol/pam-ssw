@@ -41,6 +41,8 @@ class RunSummary:
     direction_choices: int | None = None
     direction_candidate_evaluations: int | None = None
     direction_mean_candidate_pool_size: float | None = None
+    direction_rigid_body_overlap_mean: float | None = None
+    direction_post_projection_rigid_body_overlap_mean: float | None = None
     direction_selected_soft: int | None = None
     direction_selected_random: int | None = None
     direction_selected_bond: int | None = None
@@ -99,6 +101,10 @@ def run_ssw_trial(size: int, seed: int, budget: int) -> RunSummary:
         direction_choices=int(result.stats.get("direction_choices", 0)),
         direction_candidate_evaluations=int(result.stats.get("direction_candidate_evaluations", 0)),
         direction_mean_candidate_pool_size=float(result.stats.get("direction_mean_candidate_pool_size", 0.0)),
+        direction_rigid_body_overlap_mean=float(result.stats.get("direction_rigid_body_overlap_mean", 0.0)),
+        direction_post_projection_rigid_body_overlap_mean=float(
+            result.stats.get("direction_post_projection_rigid_body_overlap_mean", 0.0)
+        ),
         direction_selected_soft=int(result.stats.get("direction_selected_soft", 0)),
         direction_selected_random=int(result.stats.get("direction_selected_random", 0)),
         direction_selected_bond=int(result.stats.get("direction_selected_bond", 0)),

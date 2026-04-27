@@ -15,3 +15,5 @@ def test_lj_benchmark_reports_ssw_diagnostics():
     assert summary.direction_choices is not None
     assert summary.direction_candidate_evaluations is not None
     assert summary.direction_mean_candidate_pool_size is not None
+    assert summary.direction_rigid_body_overlap_mean is not None
+    assert summary.direction_post_projection_rigid_body_overlap_mean is not None

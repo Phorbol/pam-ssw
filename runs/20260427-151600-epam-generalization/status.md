@@ -39,3 +39,5 @@ Current phase: M14 geometry-risk scoring discarded after unchanged quick gate
 - Full tests after M16 seed duplicate attribution: `57 passed`.
 - Added M17 benchmark diagnostic reporting for seed-local duplicate failure and direction acquisition statistics. Quick gate numerical gaps are unchanged, but the JSON now shows LJ13 seeds 0/1 and LJ38 seed1 have seed-local duplicate failure means around `0.85-0.89`, while LJ38 seed0 has `0.0` duplicate failure but high-energy over-exploration.
 - Full tests after M17 benchmark diagnostics: `57 passed`.
+- Added M18 rigid-body mode projection for free non-periodic systems with at least three movable atoms, based on the LJ cluster advice and original SSW warning that pure lowest modes can collapse into translation/rotation/frustrated rigid modes. PBC/slab/bulk states are not projected by this module. Direction diagnostics now report pre- and post-projection rigid-body overlap.
+- Full tests after M18 rigid projection: `60 passed`.
