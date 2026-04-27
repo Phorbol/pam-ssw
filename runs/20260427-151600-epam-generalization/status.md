@@ -1,6 +1,6 @@
 # Status
 
-Current phase: M7 bounded archive prototypes verified
+Current phase: M8 adaptive step target verified
 
 - Removed GA/BH-style reseed/recombination/motif mechanisms from core `pamssw`.
 - Added Cartesian coordinate/tangent layer and metric module.
@@ -15,4 +15,6 @@ Current phase: M7 bounded archive prototypes verified
 - Added documented search modes and lexicographic proposal ranking. Global-minimum mode prioritizes best-energy improvement before near-low-energy minima, novelty, coverage, and duplicate avoidance; reaction-network mode prioritizes validated edge discovery. No raw proposal-weight knobs were added to `SSWConfig`.
 - Added bounded archive prototypes for density/novelty occupancy. Full minima entries remain available for graph nodes and duplicate checks, while archive density uses fixed-capacity weighted prototypes controlled by `max_prototypes`.
 - Added prototype diagnostics to `SearchResult.stats`: prototype count, maximum capacity, maximum prototype weight, and mean prototype weight.
-- Full tests: `45 passed`.
+- Added adaptive energy-scale step target control. The walking target now uses archive energy scale and escape/damage feedback, with `target_uphill_energy` retained as a compatibility fallback and initial scale.
+- Added adaptive step diagnostics to `SearchResult.stats`: target, multiplier, escape rate, and damage rate.
+- Full tests: `48 passed`.

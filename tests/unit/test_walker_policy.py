@@ -12,6 +12,7 @@ from pamssw.walker import (
     DirectionScorer,
     ProposalPotential,
     SoftModeOracle,
+    StepTargetController,
     SurfaceWalker,
     TrustRegionBiasController,
 )
@@ -176,3 +177,46 @@ def test_surface_walker_reports_bounded_archive_prototype_diagnostics():
 
     assert result.stats["archive_prototypes"] <= 2
     assert result.stats["archive_max_prototypes"] == 2
+
+
+def test_step_target_controller_uses_archive_energy_scale():
+    archive = MinimaArchive(energy_tol=1e-8, rmsd_tol=1e-8)
+    archive.add(State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]])), -10.0, parent_id=None)
+    archive.add(State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]])), -8.0, parent_id=None)
+    controller = StepTargetController(fallback_target=0.6)
+
+    target = controller.target(archive)
+
+    assert target != 0.6
+    assert target > controller.min_target
+
+
+def test_step_target_controller_feedback_increases_on_low_escape_and_decreases_on_damage():
+    archive = MinimaArchive(energy_tol=1e-8, rmsd_tol=1e-8)
+    archive.add(State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]])), -10.0, parent_id=None)
+    archive.add(State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]])), -8.0, parent_id=None)
+    controller = StepTargetController(fallback_target=0.6)
+
+    base = controller.target(archive)
+    controller.record_trial(escaped=False, damaged=False)
+    increased = controller.target(archive)
+    for _ in range(controller.feedback_warmup_trials):
+        controller.record_trial(escaped=False, damaged=True)
+    decreased = controller.target(archive)
+
+    assert increased > base
+    assert decreased < increased
+
+
+def test_surface_walker_reports_adaptive_step_target_diagnostics():
+    initial = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(max_trials=1, max_steps_per_walk=1, oracle_candidates=2, rng_seed=0),
+        softening_enabled=False,
+    )
+
+    result = walker.run(initial)
+
+    assert "adaptive_step_target" in result.stats
+    assert "adaptive_step_multiplier" in result.stats

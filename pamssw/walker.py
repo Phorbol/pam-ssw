@@ -109,6 +109,69 @@ class TrustRegionBiasController:
         return float(np.clip(value, self.min_scale, self.max_scale))
 
 
+@dataclass
+class StepTargetController:
+    fallback_target: float
+    eta_energy_scale: float = 0.2
+    min_fraction: float = 0.05
+    max_factor: float = 5.0
+    target_escape_rate: float = 0.2
+    damage_tolerance: float = 0.3
+    feedback_warmup_trials: int = 4
+    gamma_up: float = 1.1
+    gamma_down: float = 0.7
+
+    def __post_init__(self) -> None:
+        if self.fallback_target <= 0.0:
+            raise ValueError("fallback_target must be positive")
+        self.min_target = self.min_fraction * self.fallback_target
+        self.max_target = self.max_factor * self.fallback_target
+        self.multiplier = 1.0
+        self.trials = 0
+        self.escapes = 0
+        self.damage_events = 0
+        self.last_target = self.fallback_target
+
+    def target(self, archive=None) -> float:
+        raw_target = self._archive_target(archive)
+        self.last_target = float(np.clip(raw_target * self.multiplier, self.min_target, self.max_target))
+        return self.last_target
+
+    def record_trial(self, escaped: bool, damaged: bool) -> None:
+        self.trials += 1
+        self.escapes += int(escaped)
+        self.damage_events += int(damaged)
+        escape_rate = self.escapes / self.trials
+        damage_rate = self.damage_events / self.trials
+        if self.trials >= self.feedback_warmup_trials and damage_rate > self.damage_tolerance:
+            self.multiplier = float(np.clip(self.multiplier * self.gamma_down, 0.75, 4.0))
+        elif escape_rate < self.target_escape_rate:
+            self.multiplier = float(np.clip(self.multiplier * self.gamma_up, 0.75, 4.0))
+
+    def stats(self) -> dict[str, float | int]:
+        escape_rate = self.escapes / self.trials if self.trials else 0.0
+        damage_rate = self.damage_events / self.trials if self.trials else 0.0
+        return {
+            "adaptive_step_target": float(self.last_target),
+            "adaptive_step_multiplier": float(self.multiplier),
+            "adaptive_escape_rate": float(escape_rate),
+            "adaptive_damage_rate": float(damage_rate),
+        }
+
+    def _archive_target(self, archive) -> float:
+        if archive is None or len(archive.entries) < 2:
+            return self.fallback_target
+        energies = np.asarray([entry.energy for entry in archive.entries], dtype=float)
+        best = float(energies.min())
+        deltas = energies - best
+        median = float(np.median(deltas))
+        mad = float(np.median(np.abs(deltas - median)))
+        scale = max(mad, float(np.median(deltas[deltas > 1e-12])) if np.any(deltas > 1e-12) else 0.0)
+        if scale <= 1e-12:
+            return self.fallback_target
+        return float(np.clip(self.eta_energy_scale * scale, self.min_target, self.max_target))
+
+
 class DirectionCandidateKind(str, Enum):
     SOFT = "soft"
     RANDOM = "random"
@@ -301,6 +364,7 @@ class SurfaceWalker:
         self.proposal_scorer = ProposalScorer.for_mode(config.search_mode)
         self.selector = BanditSelector()
         self.trust_controller = TrustRegionBiasController()
+        self.step_target_controller = StepTargetController(config.target_uphill_energy)
         self._reset_trust_stats()
 
     def relax_true_minimum(self, state: State) -> RelaxResult:
@@ -323,16 +387,19 @@ class SurfaceWalker:
         local_relaxations = 1
 
         for trial_index in range(self.config.max_trials):
+            step_target = self.step_target_controller.target(archive)
+            damage_events_before = self._trust_damage_events
             if self.config.use_archive_acquisition:
                 seed_entry = archive.select_seed(self.selector, self.rng)
             else:
                 seed_entry = archive.next_seed()
                 seed_entry.visits += 1
                 seed_entry.node_trials += 1
-            proposals = self._proposal_pool(seed_entry.state, archive, trial_index)
+            proposals = self._proposal_pool(seed_entry.state, archive, trial_index, step_target)
             best_discovered = None
             best_rank_key: tuple[float, ...] | None = None
             best_reward = 0.0
+            any_new = False
             previous_best_energy = best_entry.energy
             for proposal in proposals:
                 candidate = self.relax_true_minimum(proposal.state)
@@ -343,6 +410,7 @@ class SurfaceWalker:
                 discovered = archive.add(candidate.state, candidate.energy, parent_id=seed_entry.entry_id)
                 is_new = len(archive.entries) > before_count
                 is_duplicate = not is_new
+                any_new = any_new or is_new
                 outcome = ProposalOutcome(
                     energy=candidate.energy,
                     previous_best_energy=previous_best_energy,
@@ -359,6 +427,10 @@ class SurfaceWalker:
                     best_reward = reward
                     best_discovered = discovered
             assert best_discovered is not None
+            self.step_target_controller.record_trial(
+                escaped=any_new,
+                damaged=self._trust_damage_events > damage_events_before,
+            )
             archive.record_success(seed_entry, best_reward)
             walk_history.append(
                 WalkRecord(
@@ -388,13 +460,14 @@ class SurfaceWalker:
                 "coordinate_system": "cartesian_fixed_cell",
                 "variable_cell_supported": 0,
                 **self._trust_stats_summary(),
+                **self.step_target_controller.stats(),
             },
         )
 
-    def _proposal_pool(self, seed_state: State, archive, trial_index: int) -> list[CandidateProposal]:
-        return [CandidateProposal("ssw_walk", self._walk_candidate_from_seed(seed_state, archive))]
+    def _proposal_pool(self, seed_state: State, archive, trial_index: int, step_target: float | None = None) -> list[CandidateProposal]:
+        return [CandidateProposal("ssw_walk", self._walk_candidate_from_seed(seed_state, archive, step_target))]
 
-    def _walk_candidate_from_seed(self, seed_state: State, archive=None) -> State:
+    def _walk_candidate_from_seed(self, seed_state: State, archive=None, step_target: float | None = None) -> State:
         current = seed_state
         previous_direction: np.ndarray | None = None
         biases: list[GaussianBiasTerm] = []
@@ -405,7 +478,7 @@ class SurfaceWalker:
         for _ in range(self.config.max_steps_per_walk):
             proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
             choice = self.oracle.choose_direction(current, proposal, previous_direction, archive=archive)
-            sigma = self._scaled_step_scale(choice.curvature, sigma_scale)
+            sigma = self._scaled_step_scale(choice.curvature, sigma_scale, step_target=step_target)
             weight = self._bias_weight(choice.curvature, sigma) * weight_scale
             true_energy_before = self.calculator.evaluate(current).energy
             biases.append(
@@ -448,8 +521,10 @@ class SurfaceWalker:
         sigma = np.sqrt(2.0 * self.config.target_uphill_energy / effective)
         return float(np.clip(sigma, self.config.min_step_scale, self.config.max_step_scale))
 
-    def _scaled_step_scale(self, curvature: float, sigma_scale: float) -> float:
-        sigma = self._step_scale(curvature) * sigma_scale
+    def _scaled_step_scale(self, curvature: float, sigma_scale: float, step_target: float | None = None) -> float:
+        target = self.config.target_uphill_energy if step_target is None else step_target
+        effective = max(abs(curvature), 1e-4)
+        sigma = np.sqrt(2.0 * target / effective) * sigma_scale
         return float(np.clip(sigma, self.config.min_step_scale, self.config.max_step_scale))
 
     def _bias_weight(self, curvature: float, sigma: float) -> float:

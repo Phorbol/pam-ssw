@@ -54,5 +54,13 @@
     "producer_step": "pytest_m7_bounded_prototypes",
     "created_at": "2026-04-27T16:37:00+08:00",
     "description": "Full unit and integration test output after bounded archive prototype occupancy"
+  },
+  {
+    "artifact_id": "pytest_m8_adaptive_step_target",
+    "type": "log",
+    "path": "runs/20260427-151600-epam-generalization/logs/pytest_m8_adaptive_step_target.out",
+    "producer_step": "pytest_m8_adaptive_step_target",
+    "created_at": "2026-04-27T16:51:00+08:00",
+    "description": "Full unit and integration test output after adaptive energy-scale step target control"
   }
 ]
