@@ -35,6 +35,7 @@ class SSWConfig:
     use_archive_acquisition: bool = True
     search_mode: SearchMode | str = SearchMode.GLOBAL_MINIMUM
     max_prototypes: int = 1000
+    max_force_evals: int | None = None
 
     def __post_init__(self) -> None:
         positive_ints = {
@@ -47,6 +48,8 @@ class SSWConfig:
         for name, value in positive_ints.items():
             if value <= 0:
                 raise ValueError(f"{name} must be positive")
+        if self.max_force_evals is not None and self.max_force_evals <= 0:
+            raise ValueError("max_force_evals must be positive when set")
         positive_floats = {
             "target_uphill_energy": self.target_uphill_energy,
             "target_negative_curvature": self.target_negative_curvature,

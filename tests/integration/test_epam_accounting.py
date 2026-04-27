@@ -32,6 +32,33 @@ def test_ssw_local_relaxation_accounting_is_exact():
     assert len(result.walk_history) == 3
     assert result.stats["coordinate_system"] == "cartesian_fixed_cell"
     assert result.stats["variable_cell_supported"] == 0
+    assert result.stats["force_evaluations"] > 0
+    assert result.stats["energy_evaluations"] == result.stats["force_evaluations"]
+
+
+def test_force_evaluation_accounting_matches_wrapped_calculator_calls():
+    calculator = AnalyticCalculator(DoubleWell2D())
+    result = run_ssw(
+        initial_state=State(numbers=np.array([1]), positions=np.array([[-1.0, 0.0, 0.0]])),
+        calculator=calculator,
+        config=SSWConfig(max_trials=2, max_steps_per_walk=2, oracle_candidates=2, rng_seed=4),
+    )
+
+    counter = result.stats["force_evaluations"]
+
+    assert isinstance(counter, int)
+    assert counter > result.stats["local_relaxations"]
+
+
+def test_force_evaluation_budget_limits_started_trials():
+    result = run_ssw(
+        initial_state=State(numbers=np.array([1]), positions=np.array([[-1.0, 0.0, 0.0]])),
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(max_trials=20, max_steps_per_walk=2, oracle_candidates=2, max_force_evals=80, rng_seed=4),
+    )
+
+    assert result.stats["force_evaluations"] <= 80
+    assert result.stats["n_trials"] < 20
 
 
 def test_default_proposal_pool_uses_only_ssw_walk_for_cluster():

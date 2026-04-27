@@ -6,6 +6,7 @@ from enum import Enum
 import numpy as np
 
 from .acquisition import BanditSelector, ProposalOutcome, ProposalScorer
+from .accounting import BudgetExceeded, EvalCounter
 from .bias import GaussianBiasTerm
 from .config import LSSSWConfig, RelaxConfig, SSWConfig
 from .coordinates import CartesianCoordinates, TangentVector
@@ -355,7 +356,7 @@ class SoftModeOracle:
 
 class SurfaceWalker:
     def __init__(self, calculator, config: SSWConfig, softening_enabled: bool) -> None:
-        self.calculator = calculator
+        self.calculator = EvalCounter(calculator, max_force_evals=config.max_force_evals)
         self.config = config
         self.softening_enabled = softening_enabled
         self.rng = np.random.default_rng(config.rng_seed)
@@ -386,7 +387,12 @@ class SurfaceWalker:
         walk_history: list[WalkRecord] = []
         local_relaxations = 1
 
+        completed_trials = 0
+        budget_exhausted = False
         for trial_index in range(self.config.max_trials):
+            if self.calculator.exhausted():
+                budget_exhausted = True
+                break
             step_target = self.step_target_controller.target(archive)
             damage_events_before = self._trust_damage_events
             if self.config.use_archive_acquisition:
@@ -395,14 +401,22 @@ class SurfaceWalker:
                 seed_entry = archive.next_seed()
                 seed_entry.visits += 1
                 seed_entry.node_trials += 1
-            proposals = self._proposal_pool(seed_entry.state, archive, trial_index, step_target)
+            try:
+                proposals = self._proposal_pool(seed_entry.state, archive, trial_index, step_target)
+            except BudgetExceeded:
+                budget_exhausted = True
+                break
             best_discovered = None
             best_rank_key: tuple[float, ...] | None = None
             best_reward = 0.0
             any_new = False
             previous_best_energy = best_entry.energy
             for proposal in proposals:
-                candidate = self.relax_true_minimum(proposal.state)
+                try:
+                    candidate = self.relax_true_minimum(proposal.state)
+                except BudgetExceeded:
+                    budget_exhausted = True
+                    break
                 local_relaxations += 1
                 descriptor = structural_descriptor(candidate.state)
                 coverage_gain = archive.coverage_gain(descriptor)
@@ -426,7 +440,8 @@ class SurfaceWalker:
                     best_rank_key = rank_key
                     best_reward = reward
                     best_discovered = discovered
-            assert best_discovered is not None
+            if best_discovered is None:
+                break
             self.step_target_controller.record_trial(
                 escaped=any_new,
                 damaged=self._trust_damage_events > damage_events_before,
@@ -440,6 +455,7 @@ class SurfaceWalker:
                     accepted_new_basin=best_discovered.entry_id != seed_entry.entry_id,
                 )
             )
+            completed_trials += 1
 
         prototype_stats = archive.prototype_occupancy()
         return SearchResult(
@@ -448,9 +464,14 @@ class SurfaceWalker:
             archive=archive,
             walk_history=walk_history,
             stats={
-                "n_trials": self.config.max_trials,
+                "n_trials": completed_trials,
+                "configured_max_trials": self.config.max_trials,
                 "n_minima": len(archive.entries),
                 "local_relaxations": local_relaxations,
+                "force_evaluations": self.calculator.force_evaluations,
+                "energy_evaluations": self.calculator.energy_evaluations,
+                "max_force_evals": self.config.max_force_evals if self.config.max_force_evals is not None else 0,
+                "budget_exhausted": int(budget_exhausted or self.calculator.exhausted()),
                 "duplicate_rate": archive.duplicate_rate(),
                 "descriptor_degeneracy_rate": archive.descriptor_degeneracy_rate(),
                 "archive_prototypes": prototype_stats["n_prototypes"],

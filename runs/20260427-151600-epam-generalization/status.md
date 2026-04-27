@@ -1,6 +1,6 @@
 # Status
 
-Current phase: M8 adaptive step target verified
+Current phase: M9 force/energy evaluation accounting verified
 
 - Removed GA/BH-style reseed/recombination/motif mechanisms from core `pamssw`.
 - Added Cartesian coordinate/tangent layer and metric module.
@@ -17,4 +17,6 @@ Current phase: M8 adaptive step target verified
 - Added prototype diagnostics to `SearchResult.stats`: prototype count, maximum capacity, maximum prototype weight, and mean prototype weight.
 - Added adaptive energy-scale step target control. The walking target now uses archive energy scale and escape/damage feedback, with `target_uphill_energy` retained as a compatibility fallback and initial scale.
 - Added adaptive step diagnostics to `SearchResult.stats`: target, multiplier, escape rate, and damage rate.
-- Full tests: `48 passed`.
+- Added exact true-PES evaluation accounting through a calculator wrapper. Proposal PES calls, true quench calls, curvature probes, and diagnostic true-PES calls all increment force/energy evaluation counters when they invoke the underlying calculator.
+- Added optional `max_force_evals` budget gating and budget diagnostics to `SearchResult.stats`.
+- Full tests: `50 passed`.
