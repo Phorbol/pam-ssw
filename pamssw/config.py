@@ -34,6 +34,7 @@ class SSWConfig:
     max_step_scale: float = 1.5
     use_archive_acquisition: bool = True
     search_mode: SearchMode | str = SearchMode.GLOBAL_MINIMUM
+    max_prototypes: int = 1000
 
     def __post_init__(self) -> None:
         positive_ints = {
@@ -41,6 +42,7 @@ class SSWConfig:
             "max_steps_per_walk": self.max_steps_per_walk,
             "oracle_candidates": self.oracle_candidates,
             "proposal_relax_steps": self.proposal_relax_steps,
+            "max_prototypes": self.max_prototypes,
         }
         for name, value in positive_ints.items():
             if value <= 0:

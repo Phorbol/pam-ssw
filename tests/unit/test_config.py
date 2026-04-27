@@ -8,6 +8,7 @@ def test_configs_keep_high_level_defaults_only():
 
     assert ssw.max_trials > 0
     assert ssw.target_uphill_energy > 0.0
+    assert ssw.max_prototypes > 0
     assert not hasattr(ssw, "cluster_reseed_interval")
     assert not hasattr(ssw, "proposal_pool_size")
     assert ls.local_softening_strength > 0.0
@@ -19,3 +20,8 @@ def test_config_exposes_only_documented_search_modes():
 
     with pytest.raises(ValueError):
         SSWConfig(search_mode="lj_cluster_fast_path")
+
+
+def test_config_rejects_empty_archive_prototype_budget():
+    with pytest.raises(ValueError):
+        SSWConfig(max_prototypes=0)

@@ -162,3 +162,17 @@ def test_surface_walker_reports_trust_region_diagnostics():
     assert "trust_shrink_steps" in result.stats
     assert "trust_expand_steps" in result.stats
     assert "trust_damage_events" in result.stats
+
+
+def test_surface_walker_reports_bounded_archive_prototype_diagnostics():
+    initial = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(max_trials=2, max_steps_per_walk=1, oracle_candidates=2, max_prototypes=2, rng_seed=0),
+        softening_enabled=False,
+    )
+
+    result = walker.run(initial)
+
+    assert result.stats["archive_prototypes"] <= 2
+    assert result.stats["archive_max_prototypes"] == 2

@@ -22,11 +22,27 @@ class MinimaEntry:
     duplicate_hits: int = 0
 
 
+@dataclass
+class ArchivePrototype:
+    descriptor: np.ndarray
+    representative_entry_id: int
+    weight: int = 1
+
+    def merge(self, descriptor: np.ndarray) -> None:
+        total = self.weight + 1
+        self.descriptor = (self.descriptor * self.weight + descriptor) / total
+        self.weight = total
+
+
 class MinimaArchive:
-    def __init__(self, energy_tol: float, rmsd_tol: float) -> None:
+    def __init__(self, energy_tol: float, rmsd_tol: float, max_prototypes: int = 1000) -> None:
+        if max_prototypes <= 0:
+            raise ValueError("max_prototypes must be positive")
         self.energy_tol = energy_tol
         self.rmsd_tol = rmsd_tol
+        self.max_prototypes = max_prototypes
         self.entries: list[MinimaEntry] = []
+        self.prototypes: list[ArchivePrototype] = []
 
     def add(self, state: State, energy: float, parent_id: int | None) -> MinimaEntry:
         for entry in self.entries:
@@ -46,6 +62,7 @@ class MinimaArchive:
             descriptor=structural_descriptor(state),
         )
         self.entries.append(entry)
+        self._update_prototypes(entry)
         self._refresh_frontier_values()
         return entry
 
@@ -67,20 +84,28 @@ class MinimaArchive:
 
     def descriptor_density(self, entry: MinimaEntry | np.ndarray) -> float:
         descriptor = entry if isinstance(entry, np.ndarray) else entry.descriptor
-        if descriptor is None or not self.entries:
+        if descriptor is None or not self.prototypes:
             return 0.0
         distances = np.asarray(
             [
-                descriptor_distance(descriptor, other.descriptor)
-                for other in self.entries
-                if other.descriptor is not None and (not isinstance(entry, MinimaEntry) or other.entry_id != entry.entry_id)
+                descriptor_distance(descriptor, prototype.descriptor)
+                for prototype in self.prototypes
+                if not isinstance(entry, MinimaEntry) or prototype.representative_entry_id != entry.entry_id
             ],
             dtype=float,
         )
         if distances.size == 0:
             return 0.0
+        weights = np.asarray(
+            [
+                prototype.weight
+                for prototype in self.prototypes
+                if not isinstance(entry, MinimaEntry) or prototype.representative_entry_id != entry.entry_id
+            ],
+            dtype=float,
+        )
         bandwidth = max(0.25, float(np.median(distances)) + 1e-6)
-        return float(np.exp(-0.5 * (distances / bandwidth) ** 2).sum())
+        return float((weights * np.exp(-0.5 * (distances / bandwidth) ** 2)).sum())
 
     def novelty(self, entry: MinimaEntry | np.ndarray) -> float:
         return float(1.0 / (1.0 + self.descriptor_density(entry)))
@@ -107,6 +132,22 @@ class MinimaArchive:
         degenerate_bins = sum(1 for entry_ids in bins.values() if len(entry_ids) > 1)
         return degenerate_bins / len(bins)
 
+    def prototype_occupancy(self) -> dict[str, float | int]:
+        if not self.prototypes:
+            return {
+                "n_prototypes": 0,
+                "max_prototypes": self.max_prototypes,
+                "max_prototype_weight": 0,
+                "mean_prototype_weight": 0.0,
+            }
+        weights = np.asarray([prototype.weight for prototype in self.prototypes], dtype=float)
+        return {
+            "n_prototypes": len(self.prototypes),
+            "max_prototypes": self.max_prototypes,
+            "max_prototype_weight": int(weights.max()),
+            "mean_prototype_weight": float(weights.mean()),
+        }
+
     def record_success(self, entry: MinimaEntry, reward: float) -> None:
         if reward > 0.0:
             entry.node_successes += 1
@@ -116,6 +157,41 @@ class MinimaArchive:
         for entry in self.entries:
             success_rate = entry.node_successes / max(1, entry.node_trials)
             entry.frontier_value = max(entry.frontier_value, self.novelty(entry) * (1.0 + success_rate))
+
+    def _update_prototypes(self, entry: MinimaEntry) -> None:
+        if entry.descriptor is None:
+            return
+        if not self.prototypes:
+            self.prototypes.append(ArchivePrototype(entry.descriptor.copy(), entry.entry_id))
+            return
+        nearest_index, nearest_distance = self._nearest_prototype(entry.descriptor)
+        if len(self.prototypes) < self.max_prototypes:
+            self.prototypes.append(ArchivePrototype(entry.descriptor.copy(), entry.entry_id))
+            return
+        spread = self._prototype_distance_scale()
+        if nearest_distance <= spread:
+            self.prototypes[nearest_index].merge(entry.descriptor)
+            return
+        replace_index = min(range(len(self.prototypes)), key=lambda index: (self.prototypes[index].weight, index))
+        self.prototypes[replace_index] = ArchivePrototype(entry.descriptor.copy(), entry.entry_id)
+
+    def _nearest_prototype(self, descriptor: np.ndarray) -> tuple[int, float]:
+        distances = [descriptor_distance(descriptor, prototype.descriptor) for prototype in self.prototypes]
+        nearest_index = int(np.argmin(distances))
+        return nearest_index, float(distances[nearest_index])
+
+    def _prototype_distance_scale(self) -> float:
+        if len(self.prototypes) < 2:
+            return 0.25
+        distances: list[float] = []
+        for index, prototype in enumerate(self.prototypes):
+            for other in self.prototypes[index + 1 :]:
+                distance = descriptor_distance(prototype.descriptor, other.descriptor)
+                if np.isfinite(distance):
+                    distances.append(distance)
+        if not distances:
+            return 0.25
+        return max(0.25, float(np.median(np.asarray(distances, dtype=float))))
 
     @staticmethod
     def _rmsd(lhs: State, rhs: State) -> float:

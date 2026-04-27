@@ -316,6 +316,7 @@ class SurfaceWalker:
         archive = MinimaArchive(
             energy_tol=self.config.dedup_energy_tol,
             rmsd_tol=self.config.dedup_rmsd_tol,
+            max_prototypes=self.config.max_prototypes,
         )
         best_entry = archive.add(initial.state, initial.energy, parent_id=None)
         walk_history: list[WalkRecord] = []
@@ -368,6 +369,7 @@ class SurfaceWalker:
                 )
             )
 
+        prototype_stats = archive.prototype_occupancy()
         return SearchResult(
             best_state=best_entry.state,
             best_energy=best_entry.energy,
@@ -379,6 +381,10 @@ class SurfaceWalker:
                 "local_relaxations": local_relaxations,
                 "duplicate_rate": archive.duplicate_rate(),
                 "descriptor_degeneracy_rate": archive.descriptor_degeneracy_rate(),
+                "archive_prototypes": prototype_stats["n_prototypes"],
+                "archive_max_prototypes": prototype_stats["max_prototypes"],
+                "archive_max_prototype_weight": prototype_stats["max_prototype_weight"],
+                "archive_mean_prototype_weight": prototype_stats["mean_prototype_weight"],
                 "coordinate_system": "cartesian_fixed_cell",
                 "variable_cell_supported": 0,
                 **self._trust_stats_summary(),

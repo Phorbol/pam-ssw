@@ -16,6 +16,7 @@ Implemented scope:
 - M5 trust-region feedback: Gaussian curvature inversion now supplies only the initial local bias seed. After each modified-PES proposal relax, the walker evaluates the true PES energy change, compares it with the local quadratic prediction, and updates the next-step trust radius and bias scale. The controller is system-agnostic and uses no LJ-, cluster-, reseed-, or recombination-specific operations.
 - M5 diagnostics: `SearchResult.stats` now reports trust-region step count, mean local-model error, shrink/expand counts, and damage events.
 - M6 task modes: proposal ranking now uses documented `SearchMode` presets and lexicographic keys instead of exposing raw proposal reward weights. Global-minimum mode ranks best-energy improvement before secondary discovery and coverage terms; reaction-network mode ranks validated edge discovery first; crystal-search mode is represented as a preset for low-enthalpy/diversity search. `SSWConfig` exposes only `search_mode`, not individual reward weights.
+- M7 bounded prototypes: archive density/novelty now uses a fixed-capacity weighted prototype set. Full minima entries are still retained for graph nodes and duplicate detection, but occupancy scoring no longer requires a full KDE over every archived minimum. `SSWConfig.max_prototypes` is the single public archive-capacity knob, and prototype diagnostics are reported in `SearchResult.stats`.
 
 Explicit support claim after M1:
 
@@ -26,5 +27,5 @@ Explicit support claim after M1:
 Verification:
 
 - `pytest -q tests/unit tests/integration`
-- Output: `runs/20260427-151600-epam-generalization/logs/pytest_m6_search_modes.out`
-- Result: `41 passed`
+- Output: `runs/20260427-151600-epam-generalization/logs/pytest_m7_bounded_prototypes.out`
+- Result: `45 passed`

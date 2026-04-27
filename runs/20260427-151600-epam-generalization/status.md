@@ -1,6 +1,6 @@
 # Status
 
-Current phase: M6 task-mode proposal ranking verified
+Current phase: M7 bounded archive prototypes verified
 
 - Removed GA/BH-style reseed/recombination/motif mechanisms from core `pamssw`.
 - Added Cartesian coordinate/tangent layer and metric module.
@@ -13,4 +13,6 @@ Current phase: M6 task-mode proposal ranking verified
 - Added trust-region feedback control for the local SSW bias. Curvature inversion now provides the initial Gaussian bias seed; true-PES energy change after the proposal relax updates the next-step trust radius and bias scale.
 - Added trust-region diagnostics to `SearchResult.stats`: steps, mean model error, shrink/expand counts, and damage events.
 - Added documented search modes and lexicographic proposal ranking. Global-minimum mode prioritizes best-energy improvement before near-low-energy minima, novelty, coverage, and duplicate avoidance; reaction-network mode prioritizes validated edge discovery. No raw proposal-weight knobs were added to `SSWConfig`.
-- Full tests: `41 passed`.
+- Added bounded archive prototypes for density/novelty occupancy. Full minima entries remain available for graph nodes and duplicate checks, while archive density uses fixed-capacity weighted prototypes controlled by `max_prototypes`.
+- Added prototype diagnostics to `SearchResult.stats`: prototype count, maximum capacity, maximum prototype weight, and mean prototype weight.
+- Full tests: `45 passed`.

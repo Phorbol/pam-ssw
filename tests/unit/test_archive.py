@@ -11,6 +11,13 @@ def _state(x):
     )
 
 
+def _pair_state(distance: float) -> State:
+    return State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [distance, 0.0, 0.0]]),
+    )
+
+
 def test_archive_deduplicates_nearby_structures():
     archive = MinimaArchive(energy_tol=1e-3, rmsd_tol=0.05)
 
@@ -64,3 +71,24 @@ def test_archive_keeps_distinct_single_particle_positions():
 
     assert second.entry_id != first.entry_id
     assert len(archive.entries) == 2
+
+
+def test_archive_prototype_set_is_bounded_independently_of_entries():
+    archive = MinimaArchive(energy_tol=1e-8, rmsd_tol=1e-8, max_prototypes=3)
+
+    for index in range(8):
+        archive.add(_pair_state(0.8 + 0.2 * index), float(index), parent_id=None)
+
+    assert len(archive.entries) == 8
+    assert len(archive.prototypes) == 3
+    assert archive.prototype_occupancy()["n_prototypes"] == 3
+
+
+def test_archive_density_uses_weighted_prototypes_for_occupancy():
+    archive = MinimaArchive(energy_tol=1e-8, rmsd_tol=1e-8, max_prototypes=4)
+    crowded = archive.add(_pair_state(1.0), 0.0, parent_id=None)
+    for index in range(5):
+        archive.add(_pair_state(1.0 + 0.01 * (index + 1)), float(index + 1), parent_id=crowded.entry_id)
+    sparse = archive.add(_pair_state(3.0), 10.0, parent_id=crowded.entry_id)
+
+    assert archive.descriptor_density(crowded) > archive.descriptor_density(sparse)

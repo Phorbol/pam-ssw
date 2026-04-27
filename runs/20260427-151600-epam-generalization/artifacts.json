@@ -46,5 +46,13 @@
     "producer_step": "pytest_m6_search_modes",
     "created_at": "2026-04-27T16:40:00+08:00",
     "description": "Full unit and integration test output after task-mode lexicographic proposal ranking"
+  },
+  {
+    "artifact_id": "pytest_m7_bounded_prototypes",
+    "type": "log",
+    "path": "runs/20260427-151600-epam-generalization/logs/pytest_m7_bounded_prototypes.out",
+    "producer_step": "pytest_m7_bounded_prototypes",
+    "created_at": "2026-04-27T16:37:00+08:00",
+    "description": "Full unit and integration test output after bounded archive prototype occupancy"
   }
 ]
