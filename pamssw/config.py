@@ -7,6 +7,7 @@ from .acquisition import SearchMode
 
 @dataclass(frozen=True)
 class RelaxConfig:
+    """Settings for a true-PES local minimization."""
     fmax: float = 1e-3
     maxiter: int = 200
 
@@ -19,6 +20,7 @@ class RelaxConfig:
 
 @dataclass(frozen=True)
 class SSWConfig:
+    """High-level settings for stochastic surface walking searches."""
     max_trials: int = 12
     max_steps_per_walk: int = 6
     target_uphill_energy: float = 0.6
@@ -30,8 +32,10 @@ class SSWConfig:
     oracle_candidates: int = 12
     proposal_relax_steps: int = 40
     proposal_fmax: float = 2e-2
+    hvp_epsilon: float = 1e-3
     min_step_scale: float = 0.15
     max_step_scale: float = 1.5
+    bias_weight_max: float = 10.0
     proposal_trust_radius: float = 1.5
     walk_trust_radius: float = 4.0
     fragment_guard_factor: float | None = None
@@ -40,7 +44,14 @@ class SSWConfig:
     bond_distance_threshold: float | None = None
     lambda_bond_start: float = 0.1
     lambda_bond_end: float = 1.0
+    proposal_pool_size: int = 1
     use_archive_acquisition: bool = True
+    archive_density_weight: float = 0.5
+    novelty_weight: float = 1.0
+    frontier_weight: float = 0.5
+    bandit_exploration_weight: float = 0.75
+    baseline_selection_probability: float = 0.15
+    bandit_energy_weight: float = 1.0
     search_mode: SearchMode | str = SearchMode.GLOBAL_MINIMUM
     max_prototypes: int = 1000
     max_force_evals: int | None = None
@@ -51,6 +62,7 @@ class SSWConfig:
             "max_steps_per_walk": self.max_steps_per_walk,
             "oracle_candidates": self.oracle_candidates,
             "proposal_relax_steps": self.proposal_relax_steps,
+            "proposal_pool_size": self.proposal_pool_size,
             "max_prototypes": self.max_prototypes,
         }
         for name, value in positive_ints.items():
@@ -67,13 +79,21 @@ class SSWConfig:
             "dedup_rmsd_tol": self.dedup_rmsd_tol,
             "dedup_energy_tol": self.dedup_energy_tol,
             "proposal_fmax": self.proposal_fmax,
+            "hvp_epsilon": self.hvp_epsilon,
             "min_step_scale": self.min_step_scale,
             "max_step_scale": self.max_step_scale,
+            "bias_weight_max": self.bias_weight_max,
             "proposal_trust_radius": self.proposal_trust_radius,
             "walk_trust_radius": self.walk_trust_radius,
             "anchor_weight": self.anchor_weight,
             "lambda_bond_start": self.lambda_bond_start,
             "lambda_bond_end": self.lambda_bond_end,
+            "archive_density_weight": self.archive_density_weight,
+            "novelty_weight": self.novelty_weight,
+            "frontier_weight": self.frontier_weight,
+            "bandit_exploration_weight": self.bandit_exploration_weight,
+            "baseline_selection_probability": self.baseline_selection_probability,
+            "bandit_energy_weight": self.bandit_energy_weight,
         }
         for name, value in positive_floats.items():
             if value <= 0:
@@ -94,6 +114,7 @@ class SSWConfig:
 
 @dataclass(frozen=True)
 class LSSSWConfig(SSWConfig):
+    """Settings for locally softened stochastic surface walking."""
     local_softening_strength: float = 0.6
     local_softening_pairs: list[tuple[int, int]] = field(default_factory=list)
 

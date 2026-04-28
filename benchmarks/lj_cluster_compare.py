@@ -28,6 +28,7 @@ CCD_GLOBAL_MINIMA = {
     38: -173.928427,
     55: -279.248470,
     75: -397.492331,
+    128: -741.332100,
 }
 
 
@@ -56,7 +57,6 @@ class RunSummary:
     direction_selected_soft: int | None = None
     direction_selected_random: int | None = None
     direction_selected_bond: int | None = None
-    direction_selected_cell: int | None = None
     walk_displacement_clips: int | None = None
     fragment_rejections: int | None = None
     true_quench_count: int | None = None
@@ -231,7 +231,6 @@ def run_ssw_trial(
         direction_selected_soft=int(result.stats.get("direction_selected_soft", 0)),
         direction_selected_random=int(result.stats.get("direction_selected_random", 0)),
         direction_selected_bond=int(result.stats.get("direction_selected_bond", 0)),
-        direction_selected_cell=int(result.stats.get("direction_selected_cell", 0)),
         walk_displacement_clips=int(result.stats.get("walk_displacement_clips", 0)),
         fragment_rejections=int(result.stats.get("fragment_rejections", 0)),
         true_quench_count=int(result.stats.get("true_quench_count", 0)),

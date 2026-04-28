@@ -8,6 +8,7 @@ import numpy as np
 
 @dataclass(frozen=True)
 class State:
+    """Atomistic structure used by PAM-SSW calculators and walkers."""
     numbers: np.ndarray
     positions: np.ndarray
     cell: np.ndarray | None = None

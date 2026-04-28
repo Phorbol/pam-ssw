@@ -1,7 +1,9 @@
 import numpy as np
+import pytest
 
 from pamssw import SSWConfig
 from pamssw.archive import MinimaArchive
+from pamssw.bias import GaussianBiasTerm
 from pamssw.calculators import AnalyticCalculator
 from pamssw.potentials import DoubleWell2D
 from pamssw.state import State
@@ -11,6 +13,7 @@ from pamssw.walker import (
     DirectionCandidate,
     DirectionScorer,
     ProposalPotential,
+    GeometryValidator,
     SoftModeOracle,
     StepTargetController,
     SurfaceWalker,
@@ -51,6 +54,57 @@ def test_soft_mode_oracle_returns_best_candidate_without_random_mixing():
     np.testing.assert_allclose(choice.direction, direction)
 
 
+def test_soft_mode_oracle_scores_with_actual_walk_sigma():
+    class Quadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.diag([1.0, 4.0, 9.0])
+            gradient = hessian @ flat_positions
+            energy = 0.5 * float(flat_positions @ gradient)
+            return energy, gradient
+
+    class CapturingScorer(DirectionScorer):
+        def __init__(self):
+            super().__init__()
+            self.sigmas = []
+
+        def score_candidate(self, **kwargs):
+            self.sigmas.append(kwargs["sigma"])
+            return super().score_candidate(**kwargs)
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    oracle = SoftModeOracle(AnalyticCalculator(Quadratic()), np.random.default_rng(0), candidates=1)
+    oracle.scorer = CapturingScorer()
+
+    oracle.choose_direction(
+        state,
+        proposal=ProposalPotential(AnalyticCalculator(Quadratic())),
+        previous_direction=np.array([1.0, 0.0, 0.0]),
+        step_scale_fn=lambda curvature: 0.123,
+    )
+
+    assert oracle.scorer.sigmas
+    assert all(sigma == 0.123 for sigma in oracle.scorer.sigmas)
+
+
+def test_soft_mode_oracle_uses_configured_hvp_epsilon():
+    class Quadratic:
+        def energy_gradient(self, flat_positions, state):
+            gradient = flat_positions.copy()
+            return 0.5 * float(flat_positions @ flat_positions), gradient
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    oracle = SoftModeOracle(AnalyticCalculator(Quadratic()), np.random.default_rng(0), candidates=1, hvp_epsilon=2e-4)
+
+    curvature = oracle._directional_curvature(
+        state,
+        ProposalPotential(AnalyticCalculator(Quadratic())),
+        np.array([1.0, 0.0, 0.0]),
+    )
+
+    assert curvature == pytest.approx(1.0)
+    assert oracle.hvp_epsilon == 2e-4
+
+
 def test_direction_generator_exposes_documented_enabled_and_guarded_kinds():
     state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
     generator = CandidateDirectionGenerator(np.random.default_rng(0), n_random=2)
@@ -60,7 +114,6 @@ def test_direction_generator_exposes_documented_enabled_and_guarded_kinds():
     assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.SOFT) == 1
     assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.RANDOM) == 2
     assert DirectionCandidateKind.BOND not in [candidate.kind for candidate in candidates]
-    assert DirectionCandidateKind.CELL not in [candidate.kind for candidate in candidates]
 
 
 def test_direction_generator_adds_bond_candidate_when_pairs_are_provided():
@@ -100,6 +153,9 @@ def test_direction_generator_adds_random_non_neighbor_bond_candidates():
     candidates = generator.generate(state, previous_direction=None)
 
     assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.BOND) > 0
+    assert generator.last_random_bond_pairs_requested == 3
+    assert generator.last_random_bond_pairs_generated > 0
+    assert generator.last_random_bond_candidates_valid > 0
 
 
 def test_initial_direction_mixes_random_and_bond_components():
@@ -253,6 +309,72 @@ def test_trust_region_controller_shrinks_after_bad_local_model():
     assert update.model_error > controller.error_tolerance
 
 
+def test_bias_weight_is_clipped_by_configured_maximum():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(target_negative_curvature=0.2, bias_weight_max=1.5),
+        softening_enabled=False,
+    )
+
+    assert walker._bias_weight(curvature=100.0, sigma=2.0) == 1.5
+
+
+def test_true_curvature_excludes_accumulated_gaussian_bias():
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+
+    class Quadratic:
+        def energy_gradient(self, flat_positions, state):
+            gradient = flat_positions.copy()
+            return 0.5 * float(flat_positions @ flat_positions), gradient
+
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(max_steps_per_walk=1),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0])
+
+    biased = ProposalPotential(
+        walker.calculator,
+        biases=[GaussianBiasTerm(center=state.flatten_positions(), direction=direction, sigma=0.5, weight=10.0)],
+    )
+
+    biased_curvature = walker.oracle._directional_curvature(state, biased, direction)
+    true_curvature = walker._true_directional_curvature(state, direction)
+
+    assert biased_curvature < 0.0
+    assert true_curvature == pytest.approx(1.0, rel=1e-3)
+
+
+def test_geometry_validator_rejects_nan_positions_and_nonfinite_energy():
+    valid = GeometryValidator(min_distance=0.5)
+    bad_positions = State(numbers=np.array([1]), positions=np.array([[np.nan, 0.0, 0.0]]))
+
+    assert not valid.is_valid_state(bad_positions)
+
+    class NonFinite:
+        def evaluate_flat(self, flat_positions, state):
+            return float("nan"), np.zeros_like(flat_positions)
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+
+    assert not valid.is_valid_evaluation(state, NonFinite())
+
+
+def test_geometry_validator_rejects_nonperiodic_atom_overlap():
+    validator = GeometryValidator(min_distance=0.5)
+    overlapped = State(numbers=np.array([1, 1]), positions=np.array([[0.0, 0.0, 0.0], [0.1, 0.0, 0.0]]))
+    periodic = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [0.1, 0.0, 0.0]]),
+        cell=np.eye(3),
+        pbc=(True, True, True),
+    )
+
+    assert not validator.is_valid_state(overlapped)
+    assert validator.is_valid_state(periodic)
+
+
 def test_trust_region_controller_expands_after_acceptable_local_model():
     controller = TrustRegionBiasController()
 
@@ -397,6 +519,9 @@ def test_surface_walker_reports_direction_acquisition_diagnostics():
     assert result.stats["direction_selected_bond"] >= 0
     assert "walk_displacement_clips" in result.stats
     assert "fragment_rejections" in result.stats
+    assert "direction_bond_pairs_requested" in result.stats
+    assert "direction_bond_pairs_generated" in result.stats
+    assert "direction_bond_candidates_valid" in result.stats
 
 
 def test_standard_surface_walker_generates_bond_candidates():

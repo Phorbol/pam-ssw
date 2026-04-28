@@ -5,7 +5,7 @@ from enum import Enum
 
 import numpy as np
 
-from .acquisition import BanditSelector, ProposalOutcome, ProposalScorer
+from .acquisition import AcquisitionPolicy, BanditSelector, ProposalOutcome, ProposalScorer
 from .accounting import BudgetExceeded, EvalCounter
 from .bias import GaussianBiasTerm
 from .config import LSSSWConfig, RelaxConfig, SSWConfig
@@ -42,6 +42,33 @@ class ProposalPotential:
             total_energy += soft_energy
             total_gradient += soft_gradient
         return float(total_energy), total_gradient
+
+
+@dataclass(frozen=True)
+class GeometryValidator:
+    min_distance: float = 0.5
+
+    def is_valid_state(self, state: State) -> bool:
+        if not np.all(np.isfinite(state.positions)):
+            return False
+        if state.cell is not None and not np.all(np.isfinite(state.cell)):
+            return False
+        if any(state.pbc):
+            return True
+        if state.n_atoms < 2:
+            return True
+        distances = np.linalg.norm(state.positions[:, None, :] - state.positions[None, :, :], axis=2)
+        np.fill_diagonal(distances, np.inf)
+        return bool(np.min(distances) >= self.min_distance)
+
+    def is_valid_evaluation(self, state: State, calculator) -> bool:
+        if not self.is_valid_state(state):
+            return False
+        try:
+            energy, gradient = calculator.evaluate_flat(state.flatten_positions(), state)
+        except Exception:
+            return False
+        return bool(np.isfinite(energy) and np.all(np.isfinite(gradient)))
 
 
 @dataclass
@@ -182,7 +209,6 @@ class DirectionCandidateKind(str, Enum):
     SOFT = "soft"
     RANDOM = "random"
     BOND = "bond"
-    CELL = "cell"
 
 
 @dataclass(frozen=True)
@@ -268,6 +294,9 @@ class CandidateDirectionGenerator:
         self.n_bond_pairs = n_bond_pairs
         self.bond_distance_threshold = bond_distance_threshold
         self.last_initial_bond_pair: tuple[int, int] | None = None
+        self.last_random_bond_pairs_requested = 0
+        self.last_random_bond_pairs_generated = 0
+        self.last_random_bond_candidates_valid = 0
 
     def generate(self, state: State, previous_direction: np.ndarray | None) -> list[DirectionCandidate]:
         coordinates = CartesianCoordinates.from_state(state)
@@ -283,10 +312,14 @@ class CandidateDirectionGenerator:
             n_pairs=self.n_bond_pairs,
             distance_threshold=self.bond_distance_threshold,
         )
+        self.last_random_bond_pairs_requested = self.n_bond_pairs
+        self.last_random_bond_pairs_generated = len(dynamic_pairs)
+        self.last_random_bond_candidates_valid = 0
         for atom_i, atom_j in dynamic_pairs:
             direction = self._bond_direction(state, atom_i, atom_j)
             if direction is not None:
                 candidates.append(self._candidate(state, DirectionCandidateKind.BOND, direction))
+                self.last_random_bond_candidates_valid += 1
         n_random = max(0, self.n_random - len(dynamic_pairs))
         for _ in range(n_random):
             active = self.rng.normal(size=coordinates.active_size)
@@ -430,10 +463,12 @@ class SoftModeOracle:
         n_bond_pairs: int = 0,
         bond_distance_threshold: float | None = None,
         anchor_weight: float = 0.5,
+        hvp_epsilon: float = 1e-3,
     ) -> None:
         self.calculator = calculator
         self.rng = rng
         self.candidates = candidates
+        self.hvp_epsilon = hvp_epsilon
         self.generator = CandidateDirectionGenerator(
             rng,
             candidates,
@@ -449,6 +484,7 @@ class SoftModeOracle:
         proposal: ProposalPotential,
         previous_direction: np.ndarray | None,
         anchor_direction: np.ndarray | None = None,
+        step_scale_fn=None,
         archive=None,
     ) -> DirectionChoice:
         best_direction: np.ndarray | None = None
@@ -462,7 +498,7 @@ class SoftModeOracle:
             rigid_overlap_sum += candidate.rigid_body_overlap
             post_projection_rigid_overlap_sum += candidate.post_projection_rigid_body_overlap
             curvature = self._directional_curvature(state, proposal, candidate.direction)
-            sigma = self._step_scale_from_curvature(curvature)
+            sigma = self._step_scale_from_curvature(curvature) if step_scale_fn is None else step_scale_fn(curvature)
             score = self.scorer.score_candidate(
                 state=state,
                 candidate=candidate,
@@ -493,8 +529,9 @@ class SoftModeOracle:
         state: State,
         proposal: ProposalPotential,
         direction: np.ndarray,
-        epsilon: float = 1e-3,
+        epsilon: float | None = None,
     ) -> float:
+        epsilon = self.hvp_epsilon if epsilon is None else epsilon
         coordinates = CartesianCoordinates.from_state(state)
         tangent = TangentVector(direction)
         plus = coordinates.displace(tangent, epsilon)
@@ -525,19 +562,34 @@ class SurfaceWalker:
             n_bond_pairs=config.n_bond_pairs,
             bond_distance_threshold=config.bond_distance_threshold,
             anchor_weight=config.anchor_weight,
+            hvp_epsilon=config.hvp_epsilon,
         )
         self.proposal_scorer = ProposalScorer.for_mode(config.search_mode)
-        self.selector = BanditSelector()
+        self.selector = BanditSelector(
+            policy=AcquisitionPolicy(
+                archive_density_weight=config.archive_density_weight,
+                novelty_weight=config.novelty_weight,
+                frontier_weight=config.frontier_weight,
+                exploration_weight=config.bandit_exploration_weight,
+                baseline_probability=config.baseline_selection_probability,
+                beta_energy=config.bandit_energy_weight,
+            )
+        )
         self.trust_controller = TrustRegionBiasController()
         self.step_target_controller = StepTargetController(config.target_uphill_energy)
+        self.geometry_validator = GeometryValidator()
         self._reset_trust_stats()
         self._reset_direction_stats()
         self._reset_relax_stats()
 
     def relax_true_minimum(self, state: State) -> RelaxResult:
+        if not self.geometry_validator.is_valid_state(state):
+            raise BudgetExceeded("invalid geometry before true relaxation")
         relaxer = Relaxer(self.calculator.evaluate_flat)
         relax_config = RelaxConfig(fmax=self.config.quench_fmax, maxiter=400)
         result = relaxer.relax(state, fmax=relax_config.fmax, maxiter=relax_config.maxiter)
+        if not self.geometry_validator.is_valid_evaluation(result.state, self.calculator):
+            raise BudgetExceeded("invalid geometry after true relaxation")
         self._record_relax_result("true_quench", result, relax_config.fmax)
         return result
 
@@ -679,7 +731,10 @@ class SurfaceWalker:
         )
 
     def _proposal_pool(self, seed_state: State, archive, trial_index: int, step_target: float | None = None) -> list[CandidateProposal]:
-        return [CandidateProposal("ssw_walk", self._walk_candidate_from_seed(seed_state, archive, step_target))]
+        return [
+            CandidateProposal("ssw_walk", self._walk_candidate_from_seed(seed_state, archive, step_target))
+            for _ in range(self.config.proposal_pool_size)
+        ]
 
     def _walk_candidate_from_seed(self, seed_state: State, archive=None, step_target: float | None = None) -> State:
         current = seed_state
@@ -707,6 +762,11 @@ class SurfaceWalker:
                 proposal,
                 previous_direction,
                 anchor_direction=anchor_direction,
+                step_scale_fn=lambda curvature: self._scaled_step_scale(
+                    curvature,
+                    sigma_scale,
+                    step_target=step_target,
+                ),
                 archive=archive,
             )
             self._record_direction_choice(choice)
@@ -723,6 +783,8 @@ class SurfaceWalker:
             )
             proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
             trial_state = CartesianCoordinates.from_state(current).displace(TangentVector(choice.direction), sigma)
+            if not self.geometry_validator.is_valid_state(trial_state):
+                break
             proposal_relax = Relaxer(proposal.evaluate).relax(
                 trial_state,
                 fmax=self.config.proposal_fmax,
@@ -736,9 +798,14 @@ class SurfaceWalker:
                 max_displacement=self.config.walk_trust_radius,
             )
             self._walk_displacement_clips += int(clipped)
+            if not self.geometry_validator.is_valid_state(current_candidate):
+                break
             true_energy_after = self.calculator.evaluate(current_candidate).energy
+            if not np.isfinite(true_energy_after):
+                break
+            true_curvature = self._true_directional_curvature(current, choice.direction)
             trust_update = self.trust_controller.update(
-                curvature=choice.curvature,
+                curvature=true_curvature,
                 sigma=sigma,
                 true_delta=true_energy_after - true_energy_before,
                 sigma_scale=sigma_scale,
@@ -770,7 +837,12 @@ class SurfaceWalker:
         return float(np.clip(sigma, self.config.min_step_scale, self.config.max_step_scale))
 
     def _bias_weight(self, curvature: float, sigma: float) -> float:
-        return float(sigma * sigma * max(curvature + self.config.target_negative_curvature, 0.0))
+        raw = sigma * sigma * max(curvature + self.config.target_negative_curvature, 0.0)
+        return float(min(raw, self.config.bias_weight_max))
+
+    def _true_directional_curvature(self, state: State, direction: np.ndarray) -> float:
+        proposal = ProposalPotential(self.calculator)
+        return self.oracle._directional_curvature(state, proposal, direction)
 
     def _reset_trust_stats(self) -> None:
         self._trust_steps = 0
@@ -785,6 +857,9 @@ class SurfaceWalker:
         self._direction_selected = {kind: 0 for kind in DirectionCandidateKind}
         self._direction_rigid_overlap_sum = 0.0
         self._direction_post_projection_rigid_overlap_sum = 0.0
+        self._direction_bond_pairs_requested = 0
+        self._direction_bond_pairs_generated = 0
+        self._direction_bond_candidates_valid = 0
         self._walk_displacement_clips = 0
         self._fragment_rejections = 0
 
@@ -807,6 +882,9 @@ class SurfaceWalker:
         self._direction_selected[choice.kind] += 1
         self._direction_rigid_overlap_sum += choice.mean_rigid_body_overlap
         self._direction_post_projection_rigid_overlap_sum += choice.mean_post_projection_rigid_body_overlap
+        self._direction_bond_pairs_requested += self.oracle.generator.last_random_bond_pairs_requested
+        self._direction_bond_pairs_generated += self.oracle.generator.last_random_bond_pairs_generated
+        self._direction_bond_candidates_valid += self.oracle.generator.last_random_bond_candidates_valid
 
     def _record_trust_update(self, update: TrustRegionUpdate) -> None:
         self._trust_steps += 1
@@ -847,7 +925,9 @@ class SurfaceWalker:
             "direction_selected_soft": self._direction_selected[DirectionCandidateKind.SOFT],
             "direction_selected_random": self._direction_selected[DirectionCandidateKind.RANDOM],
             "direction_selected_bond": self._direction_selected[DirectionCandidateKind.BOND],
-            "direction_selected_cell": self._direction_selected[DirectionCandidateKind.CELL],
+            "direction_bond_pairs_requested": self._direction_bond_pairs_requested,
+            "direction_bond_pairs_generated": self._direction_bond_pairs_generated,
+            "direction_bond_candidates_valid": self._direction_bond_candidates_valid,
             "walk_displacement_clips": self._walk_displacement_clips,
             "fragment_rejections": self._fragment_rejections,
         }

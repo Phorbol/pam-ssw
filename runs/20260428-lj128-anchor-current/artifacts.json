@@ -1,0 +1,29 @@
+{
+  "artifacts": [
+    {
+      "path": "runs/20260428-lj128-anchor-current/lj128_seed0_budget60_metric.json",
+      "kind": "metric_json",
+      "description": "LJ128 seed0 budget60 SSW vs ASE-BH/ASE-GA metric comparison."
+    },
+    {
+      "path": "runs/20260428-lj128-anchor-current/lj128_seed0_budget60_traces.json",
+      "kind": "trace_json",
+      "description": "Energy-gap traces for LJ128 seed0 budget60."
+    },
+    {
+      "path": "runs/20260428-lj128-anchor-current/lj128_seed0_budget60_curves.png",
+      "kind": "plot",
+      "description": "Energy-gap curve for LJ128 seed0 budget60."
+    },
+    {
+      "path": "runs/20260428-lj128-anchor-current/lj128_geometry_check.json",
+      "kind": "diagnostic_json",
+      "description": "Nearest-neighbor geometry diagnostics for exported LJ128 minima."
+    },
+    {
+      "path": "runs/20260428-lj128-anchor-current/minima_xyz",
+      "kind": "minima_xyz_dir",
+      "description": "Exported minima for SSW, ASE-BH, and ASE-GA on LJ128."
+    }
+  ]
+}

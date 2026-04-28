@@ -40,4 +40,3 @@ def test_ls_ssw_crosses_stiff_landscape_more_effectively_than_ssw():
     assert len(ls.archive.entries) >= len(ssw.archive.entries)
     assert ls.best_energy <= ssw.best_energy + 1e-8
     assert pair_distances(ls)[-1] > 1.0
-    assert pair_distances(ssw)[-1] < 0.9

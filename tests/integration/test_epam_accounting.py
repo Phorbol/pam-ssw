@@ -61,10 +61,16 @@ def test_force_evaluation_budget_limits_started_trials():
     assert result.stats["n_trials"] < 20
 
 
-def test_default_proposal_pool_uses_only_ssw_walk_for_cluster():
+def test_default_proposal_pool_uses_only_one_ssw_walk_for_cluster():
     state = State(
         numbers=np.full(38, 18),
-        positions=np.random.default_rng(0).normal(size=(38, 3)),
+        positions=np.column_stack(
+            [
+                np.arange(38, dtype=float) * 0.8,
+                np.zeros(38),
+                np.zeros(38),
+            ]
+        ),
     )
     walker = SurfaceWalker(
         calculator=AnalyticCalculator(DoubleWell2D()),
@@ -76,6 +82,29 @@ def test_default_proposal_pool_uses_only_ssw_walk_for_cluster():
     labels = [proposal.label for proposal in walker._proposal_pool(result.archive.entries[0].state, result.archive, 0)]
 
     assert labels == ["ssw_walk"]
+
+
+def test_configured_proposal_pool_uses_multiple_ssw_walks_only():
+    state = State(
+        numbers=np.full(8, 18),
+        positions=np.column_stack(
+            [
+                np.arange(8, dtype=float) * 0.8,
+                np.zeros(8),
+                np.zeros(8),
+            ]
+        ),
+    )
+    result = run_ssw(state, AnalyticCalculator(DoubleWell2D()), SSWConfig(max_trials=1, rng_seed=8))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(max_trials=1, proposal_pool_size=3, rng_seed=8),
+        softening_enabled=False,
+    )
+
+    labels = [proposal.label for proposal in walker._proposal_pool(result.archive.entries[0].state, result.archive, 0)]
+
+    assert labels == ["ssw_walk", "ssw_walk", "ssw_walk"]
 
 
 def test_periodic_state_uses_only_ssw_walk_proposal_by_default():

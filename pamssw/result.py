@@ -8,6 +8,7 @@ from .state import State
 
 @dataclass(frozen=True)
 class RelaxResult:
+    """Result of a local relaxation."""
     state: State
     energy: float
     gradient_norm: float
@@ -16,6 +17,7 @@ class RelaxResult:
 
 @dataclass(frozen=True)
 class WalkRecord:
+    """Archive transition produced by one completed SSW trial."""
     seed_entry_id: int
     discovered_entry_id: int
     energy: float
@@ -24,6 +26,7 @@ class WalkRecord:
 
 @dataclass(frozen=True)
 class SearchResult:
+    """Result bundle returned by SSW search entry points."""
     best_state: State
     best_energy: float
     archive: Any

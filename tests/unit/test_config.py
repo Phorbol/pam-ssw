@@ -9,8 +9,10 @@ def test_configs_keep_high_level_defaults_only():
     assert ssw.max_trials > 0
     assert ssw.target_uphill_energy > 0.0
     assert ssw.max_prototypes > 0
+    assert ssw.proposal_pool_size == 1
+    assert ssw.archive_density_weight == 0.5
+    assert ssw.baseline_selection_probability == 0.15
     assert not hasattr(ssw, "cluster_reseed_interval")
-    assert not hasattr(ssw, "proposal_pool_size")
     assert ls.local_softening_strength > 0.0
     assert ls.local_softening_pairs == [(0, 1)]
 
@@ -25,3 +27,20 @@ def test_config_exposes_only_documented_search_modes():
 def test_config_rejects_empty_archive_prototype_budget():
     with pytest.raises(ValueError):
         SSWConfig(max_prototypes=0)
+
+
+def test_config_rejects_invalid_proposal_pool_size():
+    with pytest.raises(ValueError):
+        SSWConfig(proposal_pool_size=0)
+
+
+def test_config_exposes_hvp_and_bias_safety_controls():
+    config = SSWConfig(hvp_epsilon=1e-4, bias_weight_max=3.0)
+
+    assert config.hvp_epsilon == 1e-4
+    assert config.bias_weight_max == 3.0
+
+    with pytest.raises(ValueError):
+        SSWConfig(hvp_epsilon=0.0)
+    with pytest.raises(ValueError):
+        SSWConfig(bias_weight_max=0.0)
