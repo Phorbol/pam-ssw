@@ -6,6 +6,7 @@ from typing import Protocol
 import numpy as np
 from scipy.optimize import minimize
 
+from .pbc import wrap_positions
 from .result import RelaxResult
 from .state import State
 
@@ -48,6 +49,15 @@ class Relaxer:
             options={"maxiter": maxiter, "gtol": fmax, "ftol": 1e-12, "maxls": 50},
         )
         relaxed = state.with_active_positions(np.asarray(result.x, dtype=float))
+        if relaxed.cell is not None and any(relaxed.pbc):
+            relaxed = State(
+                numbers=relaxed.numbers.copy(),
+                positions=wrap_positions(relaxed.positions, relaxed.cell, relaxed.pbc),
+                cell=relaxed.cell.copy(),
+                pbc=relaxed.pbc,
+                fixed_mask=relaxed.fixed_mask.copy(),
+                metadata=relaxed.metadata.copy(),
+            )
         energy, full_gradient = self.evaluator(relaxed.flatten_positions(), relaxed)
         grad_matrix = full_gradient.reshape(relaxed.n_atoms, 3)
         active_gradient = grad_matrix[relaxed.movable_mask].reshape(-1)
