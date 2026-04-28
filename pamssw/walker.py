@@ -907,6 +907,7 @@ class SurfaceWalker:
                 "unconverged": 0,
                 "max_gradient": 0.0,
                 "n_iter_sum": 0,
+                "n_iter_values": [],
                 "bound_fraction_sum": 0.0,
                 "max_bound_fraction": 0.0,
                 "displacement_rms_sum": 0.0,
@@ -917,6 +918,7 @@ class SurfaceWalker:
                 "unconverged": 0,
                 "max_gradient": 0.0,
                 "n_iter_sum": 0,
+                "n_iter_values": [],
                 "bound_fraction_sum": 0.0,
                 "max_bound_fraction": 0.0,
                 "displacement_rms_sum": 0.0,
@@ -940,6 +942,7 @@ class SurfaceWalker:
         stats = self._relax_stats[label]
         stats["count"] += 1
         stats["n_iter_sum"] += result.n_iter
+        stats["n_iter_values"].append(result.n_iter)
         stats["max_gradient"] = max(float(stats["max_gradient"]), result.gradient_norm)
         stats["unconverged"] += int(result.gradient_norm > fmax)
         stats["bound_fraction_sum"] += result.active_bound_fraction
@@ -1017,6 +1020,11 @@ class SurfaceWalker:
             summary[f"{label}_unconverged"] = int(stats["unconverged"])
             summary[f"{label}_max_gradient"] = float(stats["max_gradient"])
             summary[f"{label}_mean_iterations"] = float(stats["n_iter_sum"] / count) if count else 0.0
+            n_iter_values = np.asarray(stats["n_iter_values"], dtype=float)
+            summary[f"{label}_min_iterations"] = float(np.min(n_iter_values)) if count else 0.0
+            summary[f"{label}_median_iterations"] = float(np.median(n_iter_values)) if count else 0.0
+            summary[f"{label}_p90_iterations"] = float(np.percentile(n_iter_values, 90)) if count else 0.0
+            summary[f"{label}_max_iterations"] = float(np.max(n_iter_values)) if count else 0.0
             summary[f"{label}_active_bound_fraction_mean"] = (
                 float(stats["bound_fraction_sum"] / count) if count else 0.0
             )
