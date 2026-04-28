@@ -13,6 +13,7 @@ from ase.calculators.lj import LennardJones
 from pamssw import SSWConfig, State, relax_minimum, run_ssw
 from pamssw.calculators import ASECalculator
 from pamssw.config import RelaxConfig
+from pamssw.result import RelaxResult
 
 CCD_GLOBAL_MINIMA = {
     13: -44.326801,
@@ -87,6 +88,7 @@ def run_ssw_trial(
     budget: int,
     steps_per_walk: int = 8,
     proposal_relax_steps: int = 40,
+    minima_output_dir: Path | None = None,
 ) -> RunSummary:
     max_trials = max(1, budget - 1)
     calculator = make_calculator()
@@ -105,6 +107,12 @@ def run_ssw_trial(
     )
     target = CCD_GLOBAL_MINIMA[size]
     gap = result.best_energy - target
+    if minima_output_dir is not None:
+        minima = [
+            (entry.state, entry.energy, {"entry_id": entry.entry_id, "visits": entry.visits})
+            for entry in result.archive.entries
+        ]
+        write_minima_xyz(minima_output_dir, "ssw", size, seed, minima)
     return RunSummary(
         algorithm="ssw",
         size=size,
@@ -175,20 +183,21 @@ def run_ssw_trace(
     return EnergyTrace("ssw", size, seed, _pad_trace(points, budget))
 
 
-def run_bh_trial(size: int, seed: int, budget: int) -> RunSummary:
+def run_bh_trial(size: int, seed: int, budget: int, minima_output_dir: Path | None = None) -> RunSummary:
     rng = np.random.default_rng(seed)
     calculator = make_calculator()
     current = quench(random_cluster_state(size, seed), calculator)
+    minima: list[tuple[State, float, dict[str, int | float]]] = [(current.state, current.energy, {"step": 1})]
     best = current
     current_energy = current.energy
-    temperature = 0.8
-    step_scale = 0.35
-    for _ in range(max(0, budget - 1)):
+    temperature, step_scale = bh_parameters(size)
+    for step in range(2, budget + 1):
         displacement = rng.normal(scale=step_scale, size=current.state.positions.shape)
         trial_positions = current.state.positions + displacement
         trial_positions -= trial_positions.mean(axis=0, keepdims=True)
         trial_state = State(numbers=current.state.numbers, positions=trial_positions)
         trial = quench(trial_state, calculator)
+        minima.append((trial.state, trial.energy, {"step": step}))
         delta = trial.energy - current_energy
         if delta <= 0.0 or rng.random() < math.exp(-delta / temperature):
             current = trial
@@ -197,6 +206,8 @@ def run_bh_trial(size: int, seed: int, budget: int) -> RunSummary:
             best = trial
     target = CCD_GLOBAL_MINIMA[size]
     gap = best.energy - target
+    if minima_output_dir is not None:
+        write_minima_xyz(minima_output_dir, "bh", size, seed, minima)
     return RunSummary(
         algorithm="bh",
         size=size,
@@ -216,8 +227,7 @@ def run_bh_trace(size: int, seed: int, budget: int) -> EnergyTrace:
     current_energy = current.energy
     target = CCD_GLOBAL_MINIMA[size]
     points = [_trace_point(1, best.energy, target)]
-    temperature = 0.8
-    step_scale = 0.35
+    temperature, step_scale = bh_parameters(size)
     for step in range(2, budget + 1):
         displacement = rng.normal(scale=step_scale, size=current.state.positions.shape)
         trial_positions = current.state.positions + displacement
@@ -234,15 +244,17 @@ def run_bh_trace(size: int, seed: int, budget: int) -> EnergyTrace:
     return EnergyTrace("bh", size, seed, points)
 
 
-def run_ga_trial(size: int, seed: int, budget: int) -> RunSummary:
+def run_ga_trial(size: int, seed: int, budget: int, minima_output_dir: Path | None = None) -> RunSummary:
     rng = np.random.default_rng(seed)
     calculator = make_calculator()
     population_size = min(budget, 10, max(4, budget // 4))
     population = []
+    minima: list[tuple[State, float, dict[str, int | float]]] = []
     relaxations = 0
     for offset in range(population_size):
         relaxed = quench(random_cluster_state(size, seed * 100 + offset), calculator)
         relaxations += 1
+        minima.append((relaxed.state, relaxed.energy, {"step": relaxations, "initial_offset": offset}))
         population.append(relaxed)
     population.sort(key=lambda item: item.energy)
     best = population[0]
@@ -253,6 +265,7 @@ def run_ga_trial(size: int, seed: int, budget: int) -> RunSummary:
         child_state = cut_and_splice(parent_a.state, parent_b.state, rng)
         child = quench(child_state, calculator)
         relaxations += 1
+        minima.append((child.state, child.energy, {"step": relaxations}))
         population.append(child)
         population.sort(key=lambda item: item.energy)
         population = population[:population_size]
@@ -261,6 +274,8 @@ def run_ga_trial(size: int, seed: int, budget: int) -> RunSummary:
 
     target = CCD_GLOBAL_MINIMA[size]
     gap = best.energy - target
+    if minima_output_dir is not None:
+        write_minima_xyz(minima_output_dir, "ga", size, seed, minima)
     return RunSummary(
         algorithm="ga",
         size=size,
@@ -329,6 +344,34 @@ def run_algorithm_traces(
     return traces
 
 
+def run_all_trials(
+    sizes: list[int],
+    seeds: list[int],
+    budget: int,
+    ssw_steps_per_walk: int = 8,
+    ssw_proposal_relax_steps: int = 40,
+    minima_output_dir: Path | None = None,
+) -> list[RunSummary]:
+    runs: list[RunSummary] = []
+    for size in sizes:
+        if size not in CCD_GLOBAL_MINIMA:
+            raise ValueError(f"No CCD target energy registered for LJ{size}")
+        for seed in seeds:
+            runs.append(
+                run_ssw_trial(
+                    size,
+                    seed,
+                    budget,
+                    steps_per_walk=ssw_steps_per_walk,
+                    proposal_relax_steps=ssw_proposal_relax_steps,
+                    minima_output_dir=minima_output_dir,
+                )
+            )
+            runs.append(run_bh_trial(size, seed, budget, minima_output_dir=minima_output_dir))
+            runs.append(run_ga_trial(size, seed, budget, minima_output_dir=minima_output_dir))
+    return runs
+
+
 def _trace_point(step: int, best_energy: float, target: float) -> dict[str, float | int]:
     return {"step": int(step), "best_energy": float(best_energy), "energy_gap": float(best_energy - target)}
 
@@ -382,6 +425,39 @@ def random_rotate(positions: np.ndarray, rng: np.random.Generator) -> np.ndarray
         ]
     )
     return positions @ rotation.T
+
+
+def bh_parameters(size: int) -> tuple[float, float]:
+    # Conservative lightweight baseline, not literature-tuned basin hopping.
+    return 0.8, 0.35
+
+
+def write_minima_xyz(
+    output_dir: Path,
+    algorithm: str,
+    size: int,
+    seed: int,
+    minima: list[tuple[State, float, dict[str, int | float]]],
+) -> Path:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    path = output_dir / f"{algorithm}_LJ{size}_seed{seed}_minima.xyz"
+    lines: list[str] = []
+    for index, (state, energy, metadata) in enumerate(minima):
+        lines.append(str(state.n_atoms))
+        fields = [
+            f"algorithm={algorithm}",
+            f"size={size}",
+            f"seed={seed}",
+            f"index={index}",
+            f"energy={energy:.16g}",
+        ]
+        fields.extend(f"{key}={value}" for key, value in sorted(metadata.items()))
+        lines.append(" ".join(fields))
+        for number, position in zip(state.numbers, state.positions):
+            symbol = "Ar" if int(number) == 18 else f"X{int(number)}"
+            lines.append(f"{symbol} {position[0]:.16g} {position[1]:.16g} {position[2]:.16g}")
+    path.write_text("\n".join(lines) + "\n")
+    return path
 
 
 def aggregate(runs: list[RunSummary]) -> dict[str, object]:
@@ -442,25 +518,18 @@ def main() -> None:
     parser.add_argument("--ssw-proposal-relax-steps", type=int, default=40)
     parser.add_argument("--trace-output", type=Path, default=None)
     parser.add_argument("--plot-output", type=Path, default=None)
+    parser.add_argument("--minima-output-dir", type=Path, default=None)
     parser.add_argument("--output", type=Path, default=Path("benchmark_results_lj.json"))
     args = parser.parse_args()
 
-    runs: list[RunSummary] = []
-    for size in args.sizes:
-        if size not in CCD_GLOBAL_MINIMA:
-            raise ValueError(f"No CCD target energy registered for LJ{size}")
-        for seed in args.seeds:
-            runs.append(
-                run_ssw_trial(
-                    size,
-                    seed,
-                    args.budget,
-                    steps_per_walk=args.ssw_steps_per_walk,
-                    proposal_relax_steps=args.ssw_proposal_relax_steps,
-                )
-            )
-            runs.append(run_bh_trial(size, seed, args.budget))
-            runs.append(run_ga_trial(size, seed, args.budget))
+    runs = run_all_trials(
+        sizes=args.sizes,
+        seeds=args.seeds,
+        budget=args.budget,
+        ssw_steps_per_walk=args.ssw_steps_per_walk,
+        ssw_proposal_relax_steps=args.ssw_proposal_relax_steps,
+        minima_output_dir=args.minima_output_dir,
+    )
 
     payload = {
         "sizes": args.sizes,
@@ -468,6 +537,7 @@ def main() -> None:
         "budget": args.budget,
         "ssw_steps_per_walk": args.ssw_steps_per_walk,
         "ssw_proposal_relax_steps": args.ssw_proposal_relax_steps,
+        "minima_output_dir": str(args.minima_output_dir) if args.minima_output_dir is not None else None,
         "ccd_global_minima": CCD_GLOBAL_MINIMA,
         "summary": aggregate(runs),
     }

@@ -1,4 +1,4 @@
-from benchmarks.lj_cluster_compare import run_algorithm_traces, run_ssw_trial
+from benchmarks.lj_cluster_compare import run_algorithm_traces, run_all_trials, run_ssw_trial
 
 
 def test_lj_benchmark_reports_ssw_diagnostics():
@@ -50,3 +50,21 @@ def test_lj_benchmark_can_record_energy_traces():
         assert trace.points[-1]["step"] <= 3
         gaps = [point["energy_gap"] for point in trace.points]
         assert gaps[-1] <= gaps[0]
+
+
+def test_lj_benchmark_exports_minima_xyz_files(tmp_path):
+    runs = run_all_trials(
+        sizes=[13],
+        seeds=[0],
+        budget=2,
+        ssw_steps_per_walk=2,
+        ssw_proposal_relax_steps=5,
+        minima_output_dir=tmp_path,
+    )
+
+    assert {run.algorithm for run in runs} == {"ssw", "bh", "ga"}
+    files = sorted(tmp_path.glob("*.xyz"))
+    assert len(files) == 3
+    text = files[0].read_text()
+    assert "energy=" in text
+    assert "algorithm=" in text
