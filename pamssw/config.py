@@ -32,6 +32,9 @@ class SSWConfig:
     proposal_fmax: float = 5e-3
     min_step_scale: float = 0.15
     max_step_scale: float = 1.5
+    proposal_trust_radius: float = 1.5
+    walk_trust_radius: float = 4.0
+    fragment_guard_factor: float | None = None
     use_archive_acquisition: bool = True
     search_mode: SearchMode | str = SearchMode.GLOBAL_MINIMUM
     max_prototypes: int = 1000
@@ -59,10 +62,14 @@ class SSWConfig:
             "proposal_fmax": self.proposal_fmax,
             "min_step_scale": self.min_step_scale,
             "max_step_scale": self.max_step_scale,
+            "proposal_trust_radius": self.proposal_trust_radius,
+            "walk_trust_radius": self.walk_trust_radius,
         }
         for name, value in positive_floats.items():
             if value <= 0:
                 raise ValueError(f"{name} must be positive")
+        if self.fragment_guard_factor is not None and self.fragment_guard_factor <= 0:
+            raise ValueError("fragment_guard_factor must be positive when set")
         if self.min_step_scale > self.max_step_scale:
             raise ValueError("min_step_scale cannot exceed max_step_scale")
         try:

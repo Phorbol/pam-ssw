@@ -1,0 +1,29 @@
+{
+  "artifacts": [
+    {
+      "path": "runs/20260428-115050-lj75-fair-start/LJ75_FAIR_START_AND_OUTLIER_FIX_REPORT.md",
+      "kind": "report",
+      "description": "Root-cause analysis, code changes, validation metrics, and next steps for fair-start traces and LJ75 outlier suppression."
+    },
+    {
+      "path": "runs/20260428-115050-lj75-fair-start/lj13_38_fair_start_budget20_curves.png",
+      "kind": "plot",
+      "description": "Fair-start energy-gap curves for LJ13/LJ38, SSW vs ASE-BH vs ASE-GA."
+    },
+    {
+      "path": "runs/20260428-115050-lj75-fair-start/lj75_seed0_budget60_ase_metric_final.json",
+      "kind": "metric_json",
+      "description": "Final LJ75 seed0 budget60 SSW/ASE-BH/ASE-GA metric comparison after outlier controls."
+    },
+    {
+      "path": "runs/20260428-115050-lj75-fair-start/lj75_final_geometry_check.json",
+      "kind": "diagnostic_json",
+      "description": "Nearest-neighbor geometry check for exported LJ75 minima after outlier controls."
+    },
+    {
+      "path": "runs/20260428-115050-lj75-fair-start/minima_xyz_lj75_final",
+      "kind": "minima_xyz_dir",
+      "description": "Exported minima for SSW, ASE-BH, and ASE-GA on LJ75 seed0 budget60."
+    }
+  ]
+}

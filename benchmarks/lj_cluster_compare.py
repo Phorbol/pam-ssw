@@ -4,6 +4,7 @@ import argparse
 import json
 import math
 import os
+import random
 import signal
 import tempfile
 from dataclasses import asdict, dataclass
@@ -56,6 +57,8 @@ class RunSummary:
     direction_selected_random: int | None = None
     direction_selected_bond: int | None = None
     direction_selected_cell: int | None = None
+    walk_displacement_clips: int | None = None
+    fragment_rejections: int | None = None
     true_quench_count: int | None = None
     true_quench_unconverged: int | None = None
     true_quench_max_gradient: float | None = None
@@ -190,6 +193,7 @@ def run_ssw_trial(
             quench_fmax=1e-3,
             proposal_relax_steps=proposal_relax_steps,
             dedup_rmsd_tol=0.2,
+            fragment_guard_factor=3.2,
             rng_seed=seed,
         ),
     )
@@ -228,6 +232,8 @@ def run_ssw_trial(
         direction_selected_random=int(result.stats.get("direction_selected_random", 0)),
         direction_selected_bond=int(result.stats.get("direction_selected_bond", 0)),
         direction_selected_cell=int(result.stats.get("direction_selected_cell", 0)),
+        walk_displacement_clips=int(result.stats.get("walk_displacement_clips", 0)),
+        fragment_rejections=int(result.stats.get("fragment_rejections", 0)),
         true_quench_count=int(result.stats.get("true_quench_count", 0)),
         true_quench_unconverged=int(result.stats.get("true_quench_unconverged", 0)),
         true_quench_max_gradient=float(result.stats.get("true_quench_max_gradient", 0.0)),
@@ -258,14 +264,15 @@ def run_ssw_trace(
             quench_fmax=1e-3,
             proposal_relax_steps=proposal_relax_steps,
             dedup_rmsd_tol=0.2,
+            fragment_guard_factor=3.2,
             rng_seed=seed,
         ),
     )
     target = CCD_GLOBAL_MINIMA[size]
     initial_energy = result.archive.entries[0].energy if result.archive.entries else result.best_energy
     best = initial_energy
-    points = [_trace_point(1, best, target)]
-    for index, record in enumerate(result.walk_history, start=2):
+    points = [_trace_point(0, best, target)]
+    for index, record in enumerate(result.walk_history, start=1):
         best = min(best, record.energy)
         points.append(_trace_point(index, best, target))
     return EnergyTrace("ssw", size, seed, _pad_trace(points, budget))
@@ -373,8 +380,8 @@ def run_ase_bh_trace(size: int, seed: int, budget: int) -> EnergyTrace:
         )
         bh.run(max(0, budget - 1))
         minima_atoms = _read_traj_atoms(local_minima_path)
-    points: list[dict[str, float | int]] = []
-    best = math.inf
+    best = common_initial_energy(size, seed)
+    points: list[dict[str, float | int]] = [_trace_point(0, best, target)]
     for index, atoms in enumerate(minima_atoms, start=1):
         best = min(best, atoms_energy(atoms))
         points.append(_trace_point(index, best, target))
@@ -388,7 +395,7 @@ def run_bh_trace(size: int, seed: int, budget: int) -> EnergyTrace:
     best = current
     current_energy = current.energy
     target = CCD_GLOBAL_MINIMA[size]
-    points = [_trace_point(1, best.energy, target)]
+    points = [_trace_point(0, best.energy, target)]
     temperature, step_scale = bh_parameters(size)
     for step in range(2, budget + 1):
         displacement = rng.normal(scale=step_scale, size=current.state.positions.shape)
@@ -402,7 +409,7 @@ def run_bh_trace(size: int, seed: int, budget: int) -> EnergyTrace:
             current_energy = trial.energy
         if trial.energy < best.energy:
             best = trial
-        points.append(_trace_point(step, best.energy, target))
+        points.append(_trace_point(step - 1, best.energy, target))
     return EnergyTrace("bh", size, seed, points)
 
 
@@ -474,8 +481,8 @@ def run_ase_ga_trial(size: int, seed: int, budget: int, minima_output_dir: Path 
 def run_ase_ga_trace(size: int, seed: int, budget: int) -> EnergyTrace:
     minima, _, _ = _run_ase_ga(size, seed, budget)
     target = CCD_GLOBAL_MINIMA[size]
-    points: list[dict[str, float | int]] = []
-    best = math.inf
+    best = common_initial_energy(size, seed)
+    points: list[dict[str, float | int]] = [_trace_point(0, best, target)]
     for index, atoms in enumerate(minima, start=1):
         best = min(best, atoms_energy(atoms))
         points.append(_trace_point(index, best, target))
@@ -488,7 +495,8 @@ def run_ga_trace(size: int, seed: int, budget: int) -> EnergyTrace:
     population_size = min(budget, 10, max(4, budget // 4))
     population = []
     target = CCD_GLOBAL_MINIMA[size]
-    points: list[dict[str, float | int]] = []
+    initial_best_energy = common_initial_energy(size, seed)
+    points: list[dict[str, float | int]] = [_trace_point(0, initial_best_energy, target)]
     best = None
     relaxations = 0
     for offset in range(population_size):
@@ -497,7 +505,8 @@ def run_ga_trace(size: int, seed: int, budget: int) -> EnergyTrace:
         population.append(relaxed)
         if best is None or relaxed.energy < best.energy:
             best = relaxed
-        points.append(_trace_point(relaxations, best.energy, target))
+        current_best = min(initial_best_energy, best.energy)
+        points.append(_trace_point(relaxations, current_best, target))
     population.sort(key=lambda item: item.energy)
     assert best is not None
 
@@ -512,7 +521,8 @@ def run_ga_trace(size: int, seed: int, budget: int) -> EnergyTrace:
         population = population[:population_size]
         if child.energy < best.energy:
             best = child
-        points.append(_trace_point(relaxations, best.energy, target))
+        current_best = min(initial_best_energy, best.energy)
+        points.append(_trace_point(relaxations, current_best, target))
     return EnergyTrace("ga", size, seed, _pad_trace(points, budget))
 
 
@@ -579,6 +589,10 @@ def run_all_trials(
 
 def _trace_point(step: int, best_energy: float, target: float) -> dict[str, float | int]:
     return {"step": int(step), "best_energy": float(best_energy), "energy_gap": float(best_energy - target)}
+
+
+def common_initial_energy(size: int, seed: int) -> float:
+    return quench(random_cluster_state(size, seed), make_calculator()).energy
 
 
 def _pad_trace(points: list[dict[str, float | int]], budget: int) -> list[dict[str, float | int]]:
@@ -657,6 +671,24 @@ def _run_ase_ga(size: int, seed: int, budget: int) -> tuple[list[Atoms], Atoms, 
         raise RuntimeError("ASE GA baseline requires the separate `ase-ga` package.") from exc
 
     rng = np.random.RandomState(seed)
+    numpy_state = np.random.get_state()
+    python_state = random.getstate()
+    np.random.seed(seed)
+    random.seed(seed)
+    try:
+        return _run_ase_ga_seeded(size=size, seed=seed, budget=budget, rng=rng)
+    finally:
+        np.random.set_state(numpy_state)
+        random.setstate(python_state)
+
+
+def _run_ase_ga_seeded(size: int, seed: int, budget: int, rng: np.random.RandomState) -> tuple[list[Atoms], Atoms, float]:
+    from ase_ga.cutandsplicepairing import CutAndSplicePairing
+    from ase_ga.data import DataConnection, PrepareDB
+    from ase_ga.population import Population
+    from ase_ga.standard_comparators import InteratomicDistanceComparator
+    from ase_ga.startgenerator import StartGenerator
+
     population_size = min(budget, 10, max(4, budget // 4))
     box_length = 2.4 * size ** (1.0 / 3.0)
     slab = Atoms("", cell=np.eye(3) * box_length, pbc=False)
@@ -697,9 +729,12 @@ def _run_ase_ga(size: int, seed: int, budget: int) -> tuple[list[Atoms], Atoms, 
         db_path = Path(tmp) / "ga.db"
         prep = PrepareDB(str(db_path), simulation_cell=slab)
         for index in range(population_size):
-            candidate = starter.get_new_candidate(maxiter=10000)
-            if candidate is None:
-                candidate = state_to_atoms(random_cluster_state(size, seed * 100 + index))
+            if index == 0:
+                candidate = state_to_atoms(random_cluster_state(size, seed))
+            else:
+                candidate = starter.get_new_candidate(maxiter=10000)
+                if candidate is None:
+                    candidate = state_to_atoms(random_cluster_state(size, seed * 100 + index))
             candidate = set_cluster_cell(candidate, box_length)
             relaxed, energy = repo_relax_atoms(candidate)
             relaxed = set_cluster_cell(relaxed, box_length)
@@ -811,13 +846,15 @@ def write_trace_plot(traces: list[EnergyTrace], output: Path) -> None:
             selected = [trace for trace in traces if trace.size == size and trace.algorithm == algorithm]
             if not selected:
                 continue
+            min_step = min(int(point["step"]) for trace in selected for point in trace.points)
             max_step = max(int(point["step"]) for trace in selected for point in trace.points)
             means = []
-            steps = list(range(1, max_step + 1))
+            steps = list(range(min_step, max_step + 1))
             for step in steps:
                 values = []
                 for trace in selected:
-                    point = trace.points[min(step, len(trace.points)) - 1]
+                    indexed = {int(point["step"]): point for point in trace.points}
+                    point = indexed.get(step, trace.points[-1])
                     values.append(float(point["energy_gap"]))
                 means.append(float(np.mean(values)))
             axis.plot(steps, means, label=algorithm.upper(), color=colors[algorithm], linewidth=2)

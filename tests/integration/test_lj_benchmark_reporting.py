@@ -46,7 +46,7 @@ def test_lj_benchmark_can_record_energy_traces():
 
     assert {trace.algorithm for trace in traces} == {"ssw", "bh", "ga"}
     for trace in traces:
-        assert trace.points[0]["step"] == 1
+        assert trace.points[0]["step"] == 0
         assert trace.points[-1]["step"] <= 3
         gaps = [point["energy_gap"] for point in trace.points]
         assert gaps[-1] <= gaps[0]

@@ -1,0 +1,9 @@
+{"event_id":1,"phase":"plan","kind":"approval_context","status":"completed","detail":"User requested fair-start correction and LJ75 larger-cluster comparison."}
+{"event_id":2,"phase":"implementation","kind":"fair_start_patch","status":"completed","detail":"Added step-0 common initial quench traces and made the first ASE-GA population member match the SSW/BH random cluster seed."}
+{"event_id":3,"phase":"diagnostic","kind":"lj75_outlier_root_cause","status":"completed","detail":"Confirmed pre-fix SSW LJ75 exported minima contained isolated-atom structures with max nearest-neighbor distances above 40 sigma."}
+{"event_id":4,"phase":"implementation","kind":"trust_fragment_controls","status":"completed","detail":"Added proposal coordinate trust bounds, cumulative walk displacement clipping, optional finite-cluster fragment guard, and diagnostics."}
+{"event_id":5,"phase":"verification","kind":"tests","status":"passed","detail":"pytest -q: 68 passed in 4.48 s."}
+{"event_id":6,"phase":"verification","kind":"lj75_final","status":"completed","detail":"LJ75 seed0 budget60 final gaps before deterministic ASE-GA seeding: SSW 15.99438552477784, ASE-GA 20.115680853864887, ASE-BH 24.104957666394967."}
+{"event_id":7,"phase":"implementation","kind":"ase_ga_seed_control","status":"completed","detail":"Saved/restored Python and NumPy global random states around ASE-GA baseline and seeded both inside the call."}
+{"event_id":8,"phase":"verification","kind":"ase_ga_determinism_smoke","status":"passed","detail":"Two LJ13 ASE-GA seed0 budget12 runs both returned best_energy -43.8994049622723."}
+{"event_id":9,"phase":"verification","kind":"lj75_final_deterministic","status":"completed","detail":"LJ75 seed0 budget60 final deterministic gaps: SSW 15.99438552477784, ASE-GA 19.924216191825963, ASE-BH 24.104957666394967; SSW clips 4, fragment rejections 1."}

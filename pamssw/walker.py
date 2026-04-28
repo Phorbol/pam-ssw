@@ -461,6 +461,10 @@ class SurfaceWalker:
                     budget_exhausted = True
                     break
                 local_relaxations += 1
+                if self._is_fragmented_cluster(seed_entry.state, candidate.state):
+                    self._fragment_rejections += 1
+                    duplicate_failures += 1
+                    continue
                 descriptor = structural_descriptor(candidate.state)
                 coverage_gain = archive.coverage_gain(descriptor)
                 before_count = len(archive.entries)
@@ -485,7 +489,15 @@ class SurfaceWalker:
                     best_reward = reward
                     best_discovered = discovered
             if best_discovered is None:
-                break
+                if budget_exhausted:
+                    break
+                self.step_target_controller.record_trial(
+                    escaped=False,
+                    damaged=self._trust_damage_events > damage_events_before,
+                )
+                archive.record_success(seed_entry, 0.0, duplicate_failures=max(1, duplicate_failures))
+                completed_trials += 1
+                continue
             self.step_target_controller.record_trial(
                 escaped=any_new,
                 damaged=self._trust_damage_events > damage_events_before,
@@ -570,9 +582,16 @@ class SurfaceWalker:
                 trial_state,
                 fmax=self.config.proposal_fmax,
                 maxiter=self.config.proposal_relax_steps,
+                coordinate_trust_radius=self.config.proposal_trust_radius,
             )
             self._record_relax_result("proposal_relax", proposal_relax, self.config.proposal_fmax)
-            true_energy_after = self.calculator.evaluate(proposal_relax.state).energy
+            current_candidate, clipped = self._clip_walk_displacement(
+                reference=seed_state,
+                candidate=proposal_relax.state,
+                max_displacement=self.config.walk_trust_radius,
+            )
+            self._walk_displacement_clips += int(clipped)
+            true_energy_after = self.calculator.evaluate(current_candidate).energy
             trust_update = self.trust_controller.update(
                 curvature=choice.curvature,
                 sigma=sigma,
@@ -583,10 +602,12 @@ class SurfaceWalker:
             sigma_scale = trust_update.sigma_scale
             weight_scale = trust_update.weight_scale
             self._record_trust_update(trust_update)
-            displacement = proposal_relax.state.flatten_positions() - current.flatten_positions()
+            displacement = current_candidate.flatten_positions() - current.flatten_positions()
             if np.linalg.norm(displacement) > 1e-8:
                 previous_direction = displacement / np.linalg.norm(displacement)
-            current = proposal_relax.state
+            current = current_candidate
+            if clipped:
+                break
         return current
 
     def _walk_from_seed(self, seed_state: State) -> RelaxResult:
@@ -619,6 +640,8 @@ class SurfaceWalker:
         self._direction_selected = {kind: 0 for kind in DirectionCandidateKind}
         self._direction_rigid_overlap_sum = 0.0
         self._direction_post_projection_rigid_overlap_sum = 0.0
+        self._walk_displacement_clips = 0
+        self._fragment_rejections = 0
 
     def _reset_relax_stats(self) -> None:
         self._relax_stats = {
@@ -680,6 +703,8 @@ class SurfaceWalker:
             "direction_selected_random": self._direction_selected[DirectionCandidateKind.RANDOM],
             "direction_selected_bond": self._direction_selected[DirectionCandidateKind.BOND],
             "direction_selected_cell": self._direction_selected[DirectionCandidateKind.CELL],
+            "walk_displacement_clips": self._walk_displacement_clips,
+            "fragment_rejections": self._fragment_rejections,
         }
 
     def _relax_stats_summary(self) -> dict[str, float | int]:
@@ -702,3 +727,63 @@ class SurfaceWalker:
             pairs=self.config.local_softening_pairs,
             strength=self.config.local_softening_strength,
         )
+
+    @staticmethod
+    def _clip_walk_displacement(reference: State, candidate: State, max_displacement: float) -> tuple[State, bool]:
+        displacement = candidate.positions - reference.positions
+        norms = np.linalg.norm(displacement, axis=1)
+        movable = candidate.movable_mask
+        clipped = movable & (norms > max_displacement)
+        if not np.any(clipped):
+            return candidate, False
+        scale = np.ones(candidate.n_atoms, dtype=float)
+        scale[clipped] = max_displacement / (norms[clipped] + 1e-12)
+        positions = reference.positions + displacement * scale[:, None]
+        if np.any(candidate.fixed_mask):
+            positions[candidate.fixed_mask] = reference.positions[candidate.fixed_mask]
+        return (
+            State(
+                numbers=candidate.numbers.copy(),
+                positions=positions,
+                cell=None if candidate.cell is None else candidate.cell.copy(),
+                pbc=candidate.pbc,
+                fixed_mask=candidate.fixed_mask.copy(),
+                metadata=candidate.metadata.copy(),
+            ),
+            True,
+        )
+
+    def _is_fragmented_cluster(self, reference: State, candidate: State) -> bool:
+        if self.config.fragment_guard_factor is None:
+            return False
+        if any(reference.pbc) or any(candidate.pbc) or candidate.n_atoms < 2:
+            return False
+        reference_scale = self._max_nearest_neighbor_distance(reference)
+        candidate_scale = self._max_nearest_neighbor_distance(candidate)
+        if reference_scale <= 1e-12:
+            return False
+        candidate_median = self._median_nearest_neighbor_distance(candidate)
+        parent_fragmented = candidate_scale > self.config.fragment_guard_factor * reference_scale
+        self_fragmented = (
+            candidate_median > 1e-12
+            and candidate_scale > self.config.fragment_guard_factor * candidate_median
+        )
+        return bool(parent_fragmented or self_fragmented)
+
+    @staticmethod
+    def _max_nearest_neighbor_distance(state: State) -> float:
+        nearest = SurfaceWalker._nearest_neighbor_distances(state)
+        return float(np.max(nearest, initial=0.0))
+
+    @staticmethod
+    def _median_nearest_neighbor_distance(state: State) -> float:
+        nearest = SurfaceWalker._nearest_neighbor_distances(state)
+        return float(np.median(nearest)) if nearest.size else 0.0
+
+    @staticmethod
+    def _nearest_neighbor_distances(state: State) -> np.ndarray:
+        positions = state.positions
+        deltas = positions[:, None, :] - positions[None, :, :]
+        distances = np.linalg.norm(deltas, axis=2)
+        np.fill_diagonal(distances, np.inf)
+        return np.min(distances, axis=1)

@@ -297,3 +297,34 @@ def test_surface_walker_reports_direction_acquisition_diagnostics():
     assert result.stats["direction_selected_random"] >= 1
     assert result.stats["direction_selected_soft"] >= 0
     assert result.stats["direction_selected_bond"] == 0
+    assert "walk_displacement_clips" in result.stats
+    assert "fragment_rejections" in result.stats
+
+
+def test_walk_displacement_clip_limits_per_atom_motion():
+    reference = State(numbers=np.array([1, 1]), positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]))
+    candidate = State(numbers=np.array([1, 1]), positions=np.array([[10.0, 0.0, 0.0], [1.0, 0.5, 0.0]]))
+
+    clipped, did_clip = SurfaceWalker._clip_walk_displacement(reference, candidate, max_displacement=2.0)
+
+    assert did_clip
+    np.testing.assert_allclose(clipped.positions[0], np.array([2.0, 0.0, 0.0]))
+    np.testing.assert_allclose(clipped.positions[1], candidate.positions[1])
+
+
+def test_fragment_guard_rejects_disconnected_nonperiodic_cluster():
+    reference = State(
+        numbers=np.array([1, 1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.5, 0.8, 0.0]]),
+    )
+    fragmented = State(
+        numbers=np.array([1, 1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [12.0, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(fragment_guard_factor=3.0),
+        softening_enabled=False,
+    )
+
+    assert walker._is_fragmented_cluster(reference, fragmented)

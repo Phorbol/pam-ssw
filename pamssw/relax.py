@@ -19,8 +19,19 @@ class FlatEvaluator(Protocol):
 class Relaxer:
     evaluator: FlatEvaluator
 
-    def relax(self, state: State, fmax: float, maxiter: int) -> RelaxResult:
+    def relax(
+        self,
+        state: State,
+        fmax: float,
+        maxiter: int,
+        coordinate_trust_radius: float | None = None,
+    ) -> RelaxResult:
         x0 = state.flatten_active()
+        bounds = None
+        if coordinate_trust_radius is not None:
+            if coordinate_trust_radius <= 0.0:
+                raise ValueError("coordinate_trust_radius must be positive")
+            bounds = [(value - coordinate_trust_radius, value + coordinate_trust_radius) for value in x0]
 
         def objective(active_flat: np.ndarray) -> tuple[float, np.ndarray]:
             candidate = state.with_active_positions(active_flat)
@@ -33,6 +44,7 @@ class Relaxer:
             x0,
             method="L-BFGS-B",
             jac=True,
+            bounds=bounds,
             options={"maxiter": maxiter, "gtol": fmax, "ftol": 1e-12, "maxls": 50},
         )
         relaxed = state.with_active_positions(np.asarray(result.x, dtype=float))

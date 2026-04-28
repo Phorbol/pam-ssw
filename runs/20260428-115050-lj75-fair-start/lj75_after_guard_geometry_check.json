@@ -1,0 +1,29 @@
+{
+  "ase_bh_LJ75_seed0_minima.xyz": {
+    "best_comment": "algorithm=ase_bh size=75 seed=0 index=15 energy=-373.387373333605 step=16",
+    "best_energy": -373.387373333605,
+    "best_max_nn": 1.1035494025102799,
+    "best_median_nn": 1.085366961066965,
+    "worst_comment": "algorithm=ase_bh size=75 seed=0 index=43 energy=-363.6635760363098 step=44",
+    "worst_max_nn": 1.1094171998160216,
+    "worst_median_nn": 1.075792149977204
+  },
+  "ase_ga_LJ75_seed0_minima.xyz": {
+    "best_comment": "algorithm=ase_ga size=75 seed=0 index=55 energy=-377.568114808174 step=56",
+    "best_energy": -377.568114808174,
+    "best_max_nn": 1.104649100176597,
+    "best_median_nn": 1.0948109524943455,
+    "worst_comment": "algorithm=ase_ga size=75 seed=0 index=2 energy=-340.312557529784 step=3",
+    "worst_max_nn": 4.9587934447894275,
+    "worst_median_nn": 1.0720866511627307
+  },
+  "ssw_LJ75_seed0_minima.xyz": {
+    "best_comment": "algorithm=ssw size=75 seed=0 index=24 energy=-378.5605719122056 entry_id=24 visits=6",
+    "best_energy": -378.5605719122056,
+    "best_max_nn": 1.101070417597928,
+    "best_median_nn": 1.0794353388076123,
+    "worst_comment": "algorithm=ssw size=75 seed=0 index=2 energy=-366.7430792273658 entry_id=2 visits=2",
+    "worst_max_nn": 4.235032732457,
+    "worst_median_nn": 1.0760770351557687
+  }
+}
