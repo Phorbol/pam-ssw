@@ -77,6 +77,64 @@ def test_direction_generator_adds_bond_candidate_when_pairs_are_provided():
     np.testing.assert_allclose(candidates[0].direction.reshape(2, 3)[1], np.array([1.0, 0.0, 0.0]) / np.sqrt(2.0))
 
 
+def test_direction_generator_adds_random_non_neighbor_bond_candidates():
+    state = State(
+        numbers=np.full(4, 18),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0],
+                [4.0, 0.0, 0.0],
+                [4.0, 1.0, 0.0],
+            ],
+            dtype=float,
+        ),
+    )
+    generator = CandidateDirectionGenerator(
+        np.random.default_rng(2),
+        n_random=0,
+        n_bond_pairs=3,
+        bond_distance_threshold=2.0,
+    )
+
+    candidates = generator.generate(state, previous_direction=None)
+
+    assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.BOND) > 0
+
+
+def test_initial_direction_mixes_random_and_bond_components():
+    state = State(
+        numbers=np.full(3, 18),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [4.0, 0.0, 0.0]], dtype=float),
+    )
+    generator = CandidateDirectionGenerator(
+        np.random.default_rng(3),
+        n_random=0,
+        n_bond_pairs=2,
+        bond_distance_threshold=1.5,
+    )
+
+    directions = [
+        generator.generate_initial_direction(
+            state,
+            step_index=i,
+            max_steps=6,
+            lambda_start=0.1,
+            lambda_end=1.0,
+            n_bond_pairs=2,
+            bond_distance_threshold=1.5,
+        )
+        for i in range(10)
+    ]
+    cosines = []
+    for i, left in enumerate(directions):
+        for right in directions[i + 1 :]:
+            cosines.append(abs(float(np.dot(left, right))))
+
+    assert float(np.mean(cosines)) < 0.5
+    assert generator.last_initial_bond_pair is not None
+
+
 def test_direction_generator_projects_random_candidates_out_of_rigid_modes():
     state = State(
         numbers=np.full(4, 18),
@@ -104,10 +162,48 @@ def test_direction_scorer_penalizes_damage_risk_and_discontinuity():
     scorer = DirectionScorer(damage_weight=10.0, continuity_weight=1.0)
     previous = np.array([1.0, 0.0, 0.0])
 
-    smooth = scorer.score(curvature=1.0, sigma=0.5, direction=previous, previous_direction=previous, damage_risk=0.0)
-    damaging = scorer.score(curvature=1.0, sigma=0.5, direction=-previous, previous_direction=previous, damage_risk=1.0)
+    smooth = scorer.score(
+        curvature=1.0,
+        sigma=0.5,
+        direction=previous,
+        previous_direction=previous,
+        anchor_direction=None,
+        damage_risk=0.0,
+    )
+    damaging = scorer.score(
+        curvature=1.0,
+        sigma=0.5,
+        direction=-previous,
+        previous_direction=previous,
+        anchor_direction=None,
+        damage_risk=1.0,
+    )
 
     assert smooth > damaging
+
+
+def test_direction_scorer_penalizes_deviation_from_anchor_direction():
+    scorer = DirectionScorer(anchor_weight=2.0, continuity_weight=0.0, damage_weight=0.0)
+    anchor = np.array([1.0, 0.0, 0.0])
+
+    aligned = scorer.score(
+        curvature=0.0,
+        sigma=1.0,
+        direction=anchor,
+        previous_direction=None,
+        anchor_direction=anchor,
+        damage_risk=0.0,
+    )
+    opposite = scorer.score(
+        curvature=0.0,
+        sigma=1.0,
+        direction=-anchor,
+        previous_direction=None,
+        anchor_direction=anchor,
+        damage_risk=0.0,
+    )
+
+    assert aligned > opposite
 
 
 def test_direction_scorer_rewards_score_only_novelty_gain_from_archive():
@@ -124,6 +220,7 @@ def test_direction_scorer_rewards_score_only_novelty_gain_from_archive():
         curvature=0.0,
         sigma=0.2,
         previous_direction=None,
+        anchor_direction=None,
         archive=archive,
     )
     far_score = scorer.score_candidate(
@@ -132,6 +229,7 @@ def test_direction_scorer_rewards_score_only_novelty_gain_from_archive():
         curvature=0.0,
         sigma=2.0,
         previous_direction=None,
+        anchor_direction=None,
         archive=archive,
     )
 
@@ -296,9 +394,33 @@ def test_surface_walker_reports_direction_acquisition_diagnostics():
     assert "direction_post_projection_rigid_body_overlap_mean" in result.stats
     assert result.stats["direction_selected_random"] >= 1
     assert result.stats["direction_selected_soft"] >= 0
-    assert result.stats["direction_selected_bond"] == 0
+    assert result.stats["direction_selected_bond"] >= 0
     assert "walk_displacement_clips" in result.stats
     assert "fragment_rejections" in result.stats
+
+
+def test_standard_surface_walker_generates_bond_candidates():
+    initial = State(
+        numbers=np.full(4, 18),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0],
+                [3.2, 0.0, 0.0],
+                [3.2, 1.0, 0.0],
+            ],
+            dtype=float,
+        ),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(max_trials=1, max_steps_per_walk=1, oracle_candidates=1, n_bond_pairs=2, rng_seed=0),
+        softening_enabled=False,
+    )
+
+    result = walker.run(initial)
+
+    assert result.stats["direction_candidate_evaluations"] > result.stats["direction_choices"]
 
 
 def test_walk_displacement_clip_limits_per_atom_motion():

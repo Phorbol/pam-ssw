@@ -198,6 +198,7 @@ class DirectionCandidate:
 class DirectionScorer:
     damage_weight: float = 1.0
     continuity_weight: float = 0.1
+    anchor_weight: float = 0.5
     novelty_weight: float = 0.5
 
     def score(
@@ -206,6 +207,7 @@ class DirectionScorer:
         sigma: float,
         direction: np.ndarray,
         previous_direction: np.ndarray | None,
+        anchor_direction: np.ndarray | None,
         damage_risk: float,
     ) -> float:
         energy_cost = 0.5 * sigma * sigma * curvature
@@ -214,7 +216,17 @@ class DirectionScorer:
             prev = previous_direction / (np.linalg.norm(previous_direction) + 1e-12)
             cur = direction / (np.linalg.norm(direction) + 1e-12)
             discontinuity = float(np.linalg.norm(cur - prev) ** 2)
-        return float(-energy_cost - self.damage_weight * damage_risk - self.continuity_weight * discontinuity)
+        anchor_penalty = 0.0
+        if anchor_direction is not None:
+            anchor = anchor_direction / (np.linalg.norm(anchor_direction) + 1e-12)
+            cur = direction / (np.linalg.norm(direction) + 1e-12)
+            anchor_penalty = float(np.linalg.norm(cur - anchor) ** 2)
+        return float(
+            -energy_cost
+            - self.damage_weight * damage_risk
+            - self.continuity_weight * discontinuity
+            - self.anchor_weight * anchor_penalty
+        )
 
     def score_candidate(
         self,
@@ -223,6 +235,7 @@ class DirectionScorer:
         curvature: float,
         sigma: float,
         previous_direction: np.ndarray | None,
+        anchor_direction: np.ndarray | None,
         archive,
     ) -> float:
         score = self.score(
@@ -230,6 +243,7 @@ class DirectionScorer:
             sigma=sigma,
             direction=candidate.direction,
             previous_direction=previous_direction,
+            anchor_direction=anchor_direction,
             damage_risk=candidate.damage_risk,
         )
         if archive is None:
@@ -245,10 +259,15 @@ class CandidateDirectionGenerator:
         rng: np.random.Generator,
         n_random: int,
         bond_pairs: list[tuple[int, int]] | None = None,
+        n_bond_pairs: int = 0,
+        bond_distance_threshold: float | None = None,
     ) -> None:
         self.rng = rng
         self.n_random = n_random
         self.bond_pairs = bond_pairs or []
+        self.n_bond_pairs = n_bond_pairs
+        self.bond_distance_threshold = bond_distance_threshold
+        self.last_initial_bond_pair: tuple[int, int] | None = None
 
     def generate(self, state: State, previous_direction: np.ndarray | None) -> list[DirectionCandidate]:
         coordinates = CartesianCoordinates.from_state(state)
@@ -259,12 +278,59 @@ class CandidateDirectionGenerator:
             direction = self._bond_direction(state, atom_i, atom_j)
             if direction is not None:
                 candidates.append(self._candidate(state, DirectionCandidateKind.BOND, direction))
-        for _ in range(self.n_random):
+        dynamic_pairs = self._random_non_neighbor_pairs(
+            state,
+            n_pairs=self.n_bond_pairs,
+            distance_threshold=self.bond_distance_threshold,
+        )
+        for atom_i, atom_j in dynamic_pairs:
+            direction = self._bond_direction(state, atom_i, atom_j)
+            if direction is not None:
+                candidates.append(self._candidate(state, DirectionCandidateKind.BOND, direction))
+        n_random = max(0, self.n_random - len(dynamic_pairs))
+        for _ in range(n_random):
             active = self.rng.normal(size=coordinates.active_size)
             active /= np.linalg.norm(active) + 1e-12
             direction = coordinates.full_tangent_from_active(active).values
             candidates.append(self._candidate(state, DirectionCandidateKind.RANDOM, direction))
         return candidates
+
+    def generate_initial_direction(
+        self,
+        state: State,
+        step_index: int,
+        max_steps: int,
+        lambda_start: float,
+        lambda_end: float,
+        n_bond_pairs: int,
+        bond_distance_threshold: float | None,
+    ) -> np.ndarray:
+        coordinates = CartesianCoordinates.from_state(state)
+        active = self.rng.normal(size=coordinates.active_size)
+        active /= np.linalg.norm(active) + 1e-12
+        random_direction = coordinates.full_tangent_from_active(active).values
+        random_direction = self._candidate(state, DirectionCandidateKind.RANDOM, random_direction).direction
+
+        bond_direction = np.zeros_like(random_direction)
+        self.last_initial_bond_pair = None
+        pairs = self._random_non_neighbor_pairs(
+            state,
+            n_pairs=n_bond_pairs,
+            distance_threshold=bond_distance_threshold,
+        )
+        if pairs:
+            atom_i, atom_j = pairs[int(self.rng.integers(0, len(pairs)))]
+            raw_bond = self._bond_direction(state, atom_i, atom_j)
+            if raw_bond is not None:
+                self.last_initial_bond_pair = (atom_i, atom_j)
+                bond_direction = self._candidate(state, DirectionCandidateKind.BOND, raw_bond).direction
+
+        progress = step_index / max(1, max_steps - 1)
+        lambda_t = lambda_start + (lambda_end - lambda_start) * progress
+        mixed = random_direction + lambda_t * bond_direction
+        if np.linalg.norm(mixed) <= 1e-12:
+            return random_direction
+        return self._normalized(mixed)
 
     def _candidate(self, state: State, kind: DirectionCandidateKind, direction: np.ndarray) -> DirectionCandidate:
         raw = self._normalized(direction)
@@ -304,6 +370,49 @@ class CandidateDirectionGenerator:
             return None
         return self._normalized(flat)
 
+    def _random_non_neighbor_pairs(
+        self,
+        state: State,
+        n_pairs: int,
+        distance_threshold: float | None = None,
+    ) -> list[tuple[int, int]]:
+        if n_pairs <= 0 or any(state.pbc):
+            return []
+        movable_indices = np.where(state.movable_mask)[0]
+        if len(movable_indices) < 2:
+            return []
+        threshold = self._adaptive_non_neighbor_threshold(state, distance_threshold)
+        pairs: list[tuple[int, int]] = []
+        seen: set[tuple[int, int]] = set()
+        attempts = 0
+        max_attempts = max(50, n_pairs * 50)
+        while len(pairs) < n_pairs and attempts < max_attempts:
+            atom_i, atom_j = self.rng.choice(movable_indices, size=2, replace=False)
+            pair = tuple(sorted((int(atom_i), int(atom_j))))
+            if pair not in seen:
+                distance = float(np.linalg.norm(state.positions[pair[1]] - state.positions[pair[0]]))
+                if distance > threshold:
+                    seen.add(pair)
+                    pairs.append(pair)
+            attempts += 1
+        return pairs
+
+    @staticmethod
+    def _adaptive_non_neighbor_threshold(state: State, configured_threshold: float | None) -> float:
+        if configured_threshold is not None:
+            return configured_threshold
+        if state.n_atoms < 2:
+            return 0.0
+        positions = state.positions
+        deltas = positions[:, None, :] - positions[None, :, :]
+        distances = np.linalg.norm(deltas, axis=2)
+        np.fill_diagonal(distances, np.inf)
+        nearest = np.min(distances, axis=1)
+        finite = nearest[np.isfinite(nearest)]
+        if finite.size == 0:
+            return 0.0
+        return float(1.5 * np.median(finite))
+
 
 @dataclass(frozen=True)
 class CandidateProposal:
@@ -318,18 +427,28 @@ class SoftModeOracle:
         rng: np.random.Generator,
         candidates: int,
         bond_pairs: list[tuple[int, int]] | None = None,
+        n_bond_pairs: int = 0,
+        bond_distance_threshold: float | None = None,
+        anchor_weight: float = 0.5,
     ) -> None:
         self.calculator = calculator
         self.rng = rng
         self.candidates = candidates
-        self.generator = CandidateDirectionGenerator(rng, candidates, bond_pairs=bond_pairs)
-        self.scorer = DirectionScorer()
+        self.generator = CandidateDirectionGenerator(
+            rng,
+            candidates,
+            bond_pairs=bond_pairs,
+            n_bond_pairs=n_bond_pairs,
+            bond_distance_threshold=bond_distance_threshold,
+        )
+        self.scorer = DirectionScorer(anchor_weight=anchor_weight)
 
     def choose_direction(
         self,
         state: State,
         proposal: ProposalPotential,
         previous_direction: np.ndarray | None,
+        anchor_direction: np.ndarray | None = None,
         archive=None,
     ) -> DirectionChoice:
         best_direction: np.ndarray | None = None
@@ -350,6 +469,7 @@ class SoftModeOracle:
                 curvature=curvature,
                 sigma=sigma,
                 previous_direction=previous_direction,
+                anchor_direction=anchor_direction,
                 archive=archive,
             )
             if best_score is None or score > best_score:
@@ -397,7 +517,15 @@ class SurfaceWalker:
         self.softening_enabled = softening_enabled
         self.rng = np.random.default_rng(config.rng_seed)
         bond_pairs = config.local_softening_pairs if softening_enabled and isinstance(config, LSSSWConfig) else []
-        self.oracle = SoftModeOracle(calculator, self.rng, config.oracle_candidates, bond_pairs=bond_pairs)
+        self.oracle = SoftModeOracle(
+            calculator,
+            self.rng,
+            config.oracle_candidates,
+            bond_pairs=bond_pairs,
+            n_bond_pairs=config.n_bond_pairs,
+            bond_distance_threshold=config.bond_distance_threshold,
+            anchor_weight=config.anchor_weight,
+        )
         self.proposal_scorer = ProposalScorer.for_mode(config.search_mode)
         self.selector = BanditSelector()
         self.trust_controller = TrustRegionBiasController()
@@ -556,14 +684,31 @@ class SurfaceWalker:
     def _walk_candidate_from_seed(self, seed_state: State, archive=None, step_target: float | None = None) -> State:
         current = seed_state
         previous_direction: np.ndarray | None = None
+        anchor_direction: np.ndarray | None = None
         biases: list[GaussianBiasTerm] = []
         softening = self._build_softening(seed_state)
         sigma_scale = 1.0
         weight_scale = 1.0
 
-        for _ in range(self.config.max_steps_per_walk):
+        for step_index in range(self.config.max_steps_per_walk):
             proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
-            choice = self.oracle.choose_direction(current, proposal, previous_direction, archive=archive)
+            if anchor_direction is None:
+                anchor_direction = self.oracle.generator.generate_initial_direction(
+                    current,
+                    step_index=step_index,
+                    max_steps=self.config.max_steps_per_walk,
+                    lambda_start=self.config.lambda_bond_start,
+                    lambda_end=self.config.lambda_bond_end,
+                    n_bond_pairs=self.config.n_bond_pairs,
+                    bond_distance_threshold=self.config.bond_distance_threshold,
+                )
+            choice = self.oracle.choose_direction(
+                current,
+                proposal,
+                previous_direction,
+                anchor_direction=anchor_direction,
+                archive=archive,
+            )
             self._record_direction_choice(choice)
             sigma = self._scaled_step_scale(choice.curvature, sigma_scale, step_target=step_target)
             weight = self._bias_weight(choice.curvature, sigma) * weight_scale

@@ -1,0 +1,14 @@
+{
+  "artifacts": [
+    {
+      "path": "runs/20260428-ssw-anchor-direction-fix/SSW_ANCHOR_DIRECTION_FIX_REPORT.md",
+      "kind": "report",
+      "description": "Implementation notes, tests, smoke metrics, and remaining relaxation issues for the PAM-SSW anchor direction fix."
+    },
+    {
+      "path": "runs/20260428-ssw-anchor-direction-fix/status.md",
+      "kind": "status",
+      "description": "Current status and next steps."
+    }
+  ]
+}

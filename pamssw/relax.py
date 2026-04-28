@@ -50,7 +50,12 @@ class Relaxer:
         relaxed = state.with_active_positions(np.asarray(result.x, dtype=float))
         energy, full_gradient = self.evaluator(relaxed.flatten_positions(), relaxed)
         grad_matrix = full_gradient.reshape(relaxed.n_atoms, 3)
-        gradient_norm = float(np.max(np.linalg.norm(grad_matrix[relaxed.movable_mask], axis=1, ord=2), initial=0.0))
+        active_gradient = grad_matrix[relaxed.movable_mask].reshape(-1)
+        if bounds is not None:
+            active_gradient = self._projected_gradient(np.asarray(result.x, dtype=float), active_gradient, bounds)
+        gradient_norm = float(
+            np.max(np.linalg.norm(active_gradient.reshape(-1, 3), axis=1, ord=2), initial=0.0)
+        )
         if gradient_norm > fmax * 20.0:
             # Accept imperfect convergence for rugged proposal surfaces but keep the state.
             n_iter = int(result.nit)
@@ -62,3 +67,20 @@ class Relaxer:
             gradient_norm=gradient_norm,
             n_iter=n_iter,
         )
+
+    @staticmethod
+    def _projected_gradient(
+        active_positions: np.ndarray,
+        active_gradient: np.ndarray,
+        bounds: list[tuple[float, float]],
+        atol: float = 1e-10,
+    ) -> np.ndarray:
+        projected = np.asarray(active_gradient, dtype=float).copy()
+        for index, (lower, upper) in enumerate(bounds):
+            value = active_positions[index]
+            grad = projected[index]
+            if value <= lower + atol and grad > 0.0:
+                projected[index] = 0.0
+            elif value >= upper - atol and grad < 0.0:
+                projected[index] = 0.0
+        return projected

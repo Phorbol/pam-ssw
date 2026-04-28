@@ -16,6 +16,7 @@ def test_ls_ssw_crosses_stiff_landscape_more_effectively_than_ssw():
         max_steps_per_walk=2,
         target_uphill_energy=0.05,
         min_step_scale=0.3,
+        n_bond_pairs=0,
         rng_seed=11,
     )
 

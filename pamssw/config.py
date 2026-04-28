@@ -29,12 +29,17 @@ class SSWConfig:
     rng_seed: int = 0
     oracle_candidates: int = 12
     proposal_relax_steps: int = 40
-    proposal_fmax: float = 5e-3
+    proposal_fmax: float = 2e-2
     min_step_scale: float = 0.15
     max_step_scale: float = 1.5
     proposal_trust_radius: float = 1.5
     walk_trust_radius: float = 4.0
     fragment_guard_factor: float | None = None
+    anchor_weight: float = 0.5
+    n_bond_pairs: int = 2
+    bond_distance_threshold: float | None = None
+    lambda_bond_start: float = 0.1
+    lambda_bond_end: float = 1.0
     use_archive_acquisition: bool = True
     search_mode: SearchMode | str = SearchMode.GLOBAL_MINIMUM
     max_prototypes: int = 1000
@@ -51,6 +56,8 @@ class SSWConfig:
         for name, value in positive_ints.items():
             if value <= 0:
                 raise ValueError(f"{name} must be positive")
+        if self.n_bond_pairs < 0:
+            raise ValueError("n_bond_pairs must be non-negative")
         if self.max_force_evals is not None and self.max_force_evals <= 0:
             raise ValueError("max_force_evals must be positive when set")
         positive_floats = {
@@ -64,14 +71,21 @@ class SSWConfig:
             "max_step_scale": self.max_step_scale,
             "proposal_trust_radius": self.proposal_trust_radius,
             "walk_trust_radius": self.walk_trust_radius,
+            "anchor_weight": self.anchor_weight,
+            "lambda_bond_start": self.lambda_bond_start,
+            "lambda_bond_end": self.lambda_bond_end,
         }
         for name, value in positive_floats.items():
             if value <= 0:
                 raise ValueError(f"{name} must be positive")
         if self.fragment_guard_factor is not None and self.fragment_guard_factor <= 0:
             raise ValueError("fragment_guard_factor must be positive when set")
+        if self.bond_distance_threshold is not None and self.bond_distance_threshold <= 0:
+            raise ValueError("bond_distance_threshold must be positive when set")
         if self.min_step_scale > self.max_step_scale:
             raise ValueError("min_step_scale cannot exceed max_step_scale")
+        if self.lambda_bond_start > self.lambda_bond_end:
+            raise ValueError("lambda_bond_start cannot exceed lambda_bond_end")
         try:
             SearchMode(self.search_mode)
         except ValueError as exc:
