@@ -1,0 +1,29 @@
+{
+  "artifacts": [
+    {
+      "path": "runs/20260428-lj75-anchor-current/lj75_seed0_budget60_metric.json",
+      "kind": "metric_json",
+      "description": "Latest anchor-direction SSW vs ASE-BH/ASE-GA LJ75 seed0 budget60 metrics."
+    },
+    {
+      "path": "runs/20260428-lj75-anchor-current/lj75_seed0_budget60_traces.json",
+      "kind": "trace_json",
+      "description": "Energy-gap traces for latest LJ75 seed0 budget60 comparison."
+    },
+    {
+      "path": "runs/20260428-lj75-anchor-current/lj75_seed0_budget60_curves.png",
+      "kind": "plot",
+      "description": "Energy-gap curve for SSW, ASE-BH, and ASE-GA on LJ75 seed0 budget60."
+    },
+    {
+      "path": "runs/20260428-lj75-anchor-current/lj75_geometry_check.json",
+      "kind": "diagnostic_json",
+      "description": "Nearest-neighbor geometry diagnostics for exported LJ75 minima."
+    },
+    {
+      "path": "runs/20260428-lj75-anchor-current/minima_xyz",
+      "kind": "minima_xyz_dir",
+      "description": "All exported minima for latest LJ75 seed0 budget60 comparison."
+    }
+  ]
+}
