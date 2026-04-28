@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from .pbc import mic_displacement
 from .state import State
 
 
@@ -63,10 +64,4 @@ def descriptor_distance(lhs: np.ndarray, rhs: np.ndarray) -> float:
 
 
 def _minimum_image_delta(delta: np.ndarray, state: State) -> np.ndarray:
-    if state.cell is None or not any(state.pbc):
-        return delta
-    fractional = delta @ np.linalg.inv(state.cell)
-    for axis, periodic in enumerate(state.pbc):
-        if periodic:
-            fractional[:, axis] -= np.round(fractional[:, axis])
-    return fractional @ state.cell
+    return mic_displacement(delta, np.zeros_like(delta), state.cell, state.pbc)

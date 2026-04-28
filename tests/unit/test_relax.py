@@ -52,6 +52,33 @@ def test_relaxer_applies_coordinate_trust_radius(monkeypatch):
     assert captured["bounds"] == [(0.25, 0.75), (0.75, 1.25), (-0.75, -0.25)]
 
 
+def test_relaxer_leaves_periodic_axes_unbounded(monkeypatch):
+    captured = {}
+
+    class Result:
+        x = np.array([0.5, 1.0, -0.5])
+        nit = 1
+
+    def fake_minimize(fun, x0, method, jac, bounds=None, options=None):
+        captured["bounds"] = bounds
+        return Result()
+
+    monkeypatch.setattr("pamssw.relax.minimize", fake_minimize)
+
+    def evaluator(flat_positions, template):
+        return 0.0, np.zeros_like(flat_positions)
+
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[0.5, 1.0, -0.5]]),
+        cell=np.eye(3),
+        pbc=(True, True, False),
+    )
+    Relaxer(evaluator).relax(state, fmax=1e-4, maxiter=3, coordinate_trust_radius=0.25)
+
+    assert captured["bounds"] == [(None, None), (None, None), (-0.75, -0.25)]
+
+
 def test_relaxer_reports_projected_gradient_for_bound_constrained_optimum(monkeypatch):
     class Result:
         x = np.array([0.25, 0.0, 0.0])

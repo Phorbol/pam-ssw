@@ -11,6 +11,7 @@ from .bias import GaussianBiasTerm
 from .config import LSSSWConfig, RelaxConfig, SSWConfig
 from .coordinates import CartesianCoordinates, TangentVector
 from .fingerprint import structural_descriptor
+from .pbc import mic_displacement, mic_distance_matrix, wrap_positions
 from .relax import Relaxer
 from .result import RelaxResult, SearchResult, WalkRecord
 from .rigid import project_out_rigid_body_modes, rigid_body_overlap
@@ -388,7 +389,12 @@ class CandidateDirectionGenerator:
     def _bond_direction(self, state: State, atom_i: int, atom_j: int) -> np.ndarray | None:
         if atom_i < 0 or atom_j < 0 or atom_i >= state.n_atoms or atom_j >= state.n_atoms or atom_i == atom_j:
             return None
-        delta = state.positions[atom_j] - state.positions[atom_i]
+        delta = mic_displacement(
+            state.positions[atom_j : atom_j + 1],
+            state.positions[atom_i : atom_i + 1],
+            state.cell,
+            state.pbc,
+        )[0]
         norm = np.linalg.norm(delta)
         if norm <= 1e-12:
             return None
@@ -409,7 +415,7 @@ class CandidateDirectionGenerator:
         n_pairs: int,
         distance_threshold: float | None = None,
     ) -> list[tuple[int, int]]:
-        if n_pairs <= 0 or any(state.pbc):
+        if n_pairs <= 0 or all(state.pbc):
             return []
         movable_indices = np.where(state.movable_mask)[0]
         if len(movable_indices) < 2:
@@ -423,7 +429,16 @@ class CandidateDirectionGenerator:
             atom_i, atom_j = self.rng.choice(movable_indices, size=2, replace=False)
             pair = tuple(sorted((int(atom_i), int(atom_j))))
             if pair not in seen:
-                distance = float(np.linalg.norm(state.positions[pair[1]] - state.positions[pair[0]]))
+                distance = float(
+                    np.linalg.norm(
+                        mic_displacement(
+                            state.positions[pair[1] : pair[1] + 1],
+                            state.positions[pair[0] : pair[0] + 1],
+                            state.cell,
+                            state.pbc,
+                        )[0]
+                    )
+                )
                 if distance > threshold:
                     seen.add(pair)
                     pairs.append(pair)
@@ -436,9 +451,7 @@ class CandidateDirectionGenerator:
             return configured_threshold
         if state.n_atoms < 2:
             return 0.0
-        positions = state.positions
-        deltas = positions[:, None, :] - positions[None, :, :]
-        distances = np.linalg.norm(deltas, axis=2)
+        distances = mic_distance_matrix(state.positions, state.cell, state.pbc)
         np.fill_diagonal(distances, np.inf)
         nearest = np.min(distances, axis=1)
         finite = nearest[np.isfinite(nearest)]
@@ -814,7 +827,12 @@ class SurfaceWalker:
             sigma_scale = trust_update.sigma_scale
             weight_scale = trust_update.weight_scale
             self._record_trust_update(trust_update)
-            displacement = current_candidate.flatten_positions() - current.flatten_positions()
+            displacement = mic_displacement(
+                current_candidate.positions,
+                current.positions,
+                current.cell,
+                current.pbc,
+            ).reshape(-1)
             if np.linalg.norm(displacement) > 1e-8:
                 previous_direction = displacement / np.linalg.norm(displacement)
             current = current_candidate
@@ -955,7 +973,7 @@ class SurfaceWalker:
 
     @staticmethod
     def _clip_walk_displacement(reference: State, candidate: State, max_displacement: float) -> tuple[State, bool]:
-        displacement = candidate.positions - reference.positions
+        displacement = mic_displacement(candidate.positions, reference.positions, reference.cell, reference.pbc)
         norms = np.linalg.norm(displacement, axis=1)
         movable = candidate.movable_mask
         clipped = movable & (norms > max_displacement)
@@ -966,6 +984,7 @@ class SurfaceWalker:
         positions = reference.positions + displacement * scale[:, None]
         if np.any(candidate.fixed_mask):
             positions[candidate.fixed_mask] = reference.positions[candidate.fixed_mask]
+        positions = wrap_positions(positions, candidate.cell, candidate.pbc)
         return (
             State(
                 numbers=candidate.numbers.copy(),
@@ -981,7 +1000,7 @@ class SurfaceWalker:
     def _is_fragmented_cluster(self, reference: State, candidate: State) -> bool:
         if self.config.fragment_guard_factor is None:
             return False
-        if any(reference.pbc) or any(candidate.pbc) or candidate.n_atoms < 2:
+        if all(reference.pbc) or all(candidate.pbc) or candidate.n_atoms < 2:
             return False
         reference_scale = self._max_nearest_neighbor_distance(reference)
         candidate_scale = self._max_nearest_neighbor_distance(candidate)
@@ -1007,8 +1026,6 @@ class SurfaceWalker:
 
     @staticmethod
     def _nearest_neighbor_distances(state: State) -> np.ndarray:
-        positions = state.positions
-        deltas = positions[:, None, :] - positions[None, :, :]
-        distances = np.linalg.norm(deltas, axis=2)
+        distances = mic_distance_matrix(state.positions, state.cell, state.pbc)
         np.fill_diagonal(distances, np.inf)
         return np.min(distances, axis=1)

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from .pbc import wrap_positions
 from .state import State
 
 
@@ -72,6 +73,15 @@ class CartesianCoordinates:
                 numbers=state.numbers.copy(),
                 positions=positions,
                 cell=None if state.cell is None else state.cell.copy(),
+                pbc=state.pbc,
+                fixed_mask=state.fixed_mask.copy(),
+                metadata=state.metadata.copy(),
+            )
+        if state.cell is not None and any(state.pbc):
+            state = State(
+                numbers=state.numbers.copy(),
+                positions=wrap_positions(state.positions, state.cell, state.pbc),
+                cell=state.cell.copy(),
                 pbc=state.pbc,
                 fixed_mask=state.fixed_mask.copy(),
                 metadata=state.metadata.copy(),

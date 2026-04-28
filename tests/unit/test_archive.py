@@ -64,6 +64,29 @@ def test_archive_deduplicates_rigidly_moved_cluster():
     assert len(archive.entries) == 1
 
 
+def test_archive_rmsd_uses_mic_for_periodic_duplicates():
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=0.25)
+    cell = np.diag([5.0, 5.0, 5.0])
+    first = State(
+        numbers=np.array([18, 18]),
+        positions=np.array([[0.2, 0.0, 0.0], [1.2, 0.0, 0.0]]),
+        cell=cell,
+        pbc=(True, True, True),
+    )
+    wrapped_copy = State(
+        numbers=np.array([18, 18]),
+        positions=np.array([[5.2, 0.0, 0.0], [1.2, 0.0, 0.0]]),
+        cell=cell,
+        pbc=(True, True, True),
+    )
+
+    entry = archive.add(first, -1.0, parent_id=None)
+    duplicate = archive.add(wrapped_copy, -1.0, parent_id=None)
+
+    assert duplicate.entry_id == entry.entry_id
+    assert len(archive.entries) == 1
+
+
 def test_archive_keeps_distinct_single_particle_positions():
     archive = MinimaArchive(energy_tol=1e-4, rmsd_tol=1e-2)
     first = archive.add(_state(-1.0), 0.0, parent_id=None)

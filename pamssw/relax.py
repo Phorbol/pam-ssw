@@ -31,7 +31,7 @@ class Relaxer:
         if coordinate_trust_radius is not None:
             if coordinate_trust_radius <= 0.0:
                 raise ValueError("coordinate_trust_radius must be positive")
-            bounds = [(value - coordinate_trust_radius, value + coordinate_trust_radius) for value in x0]
+            bounds = self._coordinate_bounds(state, coordinate_trust_radius)
 
         def objective(active_flat: np.ndarray) -> tuple[float, np.ndarray]:
             candidate = state.with_active_positions(active_flat)
@@ -72,15 +72,26 @@ class Relaxer:
     def _projected_gradient(
         active_positions: np.ndarray,
         active_gradient: np.ndarray,
-        bounds: list[tuple[float, float]],
+        bounds: list[tuple[float | None, float | None]],
         atol: float = 1e-10,
     ) -> np.ndarray:
         projected = np.asarray(active_gradient, dtype=float).copy()
         for index, (lower, upper) in enumerate(bounds):
             value = active_positions[index]
             grad = projected[index]
-            if value <= lower + atol and grad > 0.0:
+            if lower is not None and value <= lower + atol and grad > 0.0:
                 projected[index] = 0.0
-            elif value >= upper - atol and grad < 0.0:
+            elif upper is not None and value >= upper - atol and grad < 0.0:
                 projected[index] = 0.0
         return projected
+
+    @staticmethod
+    def _coordinate_bounds(state: State, coordinate_trust_radius: float) -> list[tuple[float | None, float | None]]:
+        bounds: list[tuple[float | None, float | None]] = []
+        for position in state.positions[state.movable_mask]:
+            for axis, value in enumerate(position):
+                if state.pbc[axis]:
+                    bounds.append((None, None))
+                else:
+                    bounds.append((value - coordinate_trust_radius, value + coordinate_trust_radius))
+        return bounds

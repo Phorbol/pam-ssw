@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from .fingerprint import descriptor_distance, structural_descriptor
+from .pbc import mic_displacement
 from .state import State
 
 
@@ -249,7 +250,10 @@ class MinimaArchive:
         if not np.array_equal(lhs.numbers, rhs.numbers):
             return float("inf")
         if lhs.n_atoms <= 1 or lhs.cell is not None or rhs.cell is not None or any(lhs.pbc) or any(rhs.pbc):
-            diff = lhs.positions - rhs.positions
+            if lhs.cell is not None and rhs.cell is not None and lhs.pbc == rhs.pbc and np.allclose(lhs.cell, rhs.cell):
+                diff = mic_displacement(lhs.positions, rhs.positions, lhs.cell, lhs.pbc)
+            else:
+                diff = lhs.positions - rhs.positions
             return float(np.sqrt(np.mean(np.sum(diff * diff, axis=1))))
         if MinimaArchive._distance_signature_delta(lhs, rhs) > 2.0 * lhs.n_atoms * 1e-1:
             return float("inf")

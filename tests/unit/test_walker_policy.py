@@ -559,6 +559,47 @@ def test_walk_displacement_clip_limits_per_atom_motion():
     np.testing.assert_allclose(clipped.positions[1], candidate.positions[1])
 
 
+def test_walk_displacement_clip_uses_mic_for_periodic_axes():
+    cell = np.diag([5.0, 5.0, 5.0])
+    reference = State(
+        numbers=np.array([1]),
+        positions=np.array([[4.8, 0.0, 0.0]]),
+        cell=cell,
+        pbc=(True, True, True),
+    )
+    candidate = State(
+        numbers=np.array([1]),
+        positions=np.array([[0.2, 0.0, 0.0]]),
+        cell=cell,
+        pbc=(True, True, True),
+    )
+
+    clipped, did_clip = SurfaceWalker._clip_walk_displacement(reference, candidate, max_displacement=1.0)
+
+    assert not did_clip
+    np.testing.assert_allclose(clipped.positions, candidate.positions)
+
+
+def test_direction_generator_samples_slab_non_neighbor_pairs_with_mic():
+    state = State(
+        numbers=np.full(3, 18),
+        positions=np.array([[0.2, 0.0, 0.0], [4.8, 0.0, 0.0], [2.5, 0.0, 3.0]]),
+        cell=np.diag([5.0, 5.0, 10.0]),
+        pbc=(True, True, False),
+    )
+    generator = CandidateDirectionGenerator(
+        np.random.default_rng(4),
+        n_random=0,
+        n_bond_pairs=2,
+        bond_distance_threshold=1.0,
+    )
+
+    pairs = generator._random_non_neighbor_pairs(state, n_pairs=2, distance_threshold=1.0)
+
+    assert pairs
+    assert (0, 1) not in pairs
+
+
 def test_fragment_guard_rejects_disconnected_nonperiodic_cluster():
     reference = State(
         numbers=np.array([1, 1, 1]),

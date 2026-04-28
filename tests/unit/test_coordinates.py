@@ -35,3 +35,16 @@ def test_cartesian_tangent_displaces_only_movable_atoms():
 
     np.testing.assert_allclose(displaced.positions[0], state.positions[0])
     np.testing.assert_allclose(displaced.positions[1], np.array([1.5, 1.0, 1.5]))
+
+
+def test_displace_wraps_periodic_axes_and_preserves_nonperiodic_axis():
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[4.8, 0.2, 9.5]]),
+        cell=np.diag([5.0, 5.0, 10.0]),
+        pbc=(True, True, False),
+    )
+
+    displaced = CartesianCoordinates.from_state(state).displace(TangentVector(np.array([0.5, -0.5, 1.0])), 1.0)
+
+    np.testing.assert_allclose(displaced.positions, np.array([[0.3, 4.7, 10.5]]))

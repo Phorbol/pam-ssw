@@ -27,7 +27,7 @@ def rigid_body_overlap(state: State, direction: np.ndarray) -> float:
 
 def _rigid_body_basis(state: State) -> np.ndarray:
     if state.cell is not None or any(state.pbc):
-        return np.zeros((state.n_atoms * 3, 0), dtype=float)
+        return _periodic_translation_basis(state)
     if state.n_atoms < 3:
         return np.zeros((state.n_atoms * 3, 0), dtype=float)
 
@@ -58,3 +58,23 @@ def _rigid_body_basis(state: State) -> np.ndarray:
     if rank == 0:
         return np.zeros((state.n_atoms * 3, 0), dtype=float)
     return q[:, :rank]
+
+
+def _periodic_translation_basis(state: State) -> np.ndarray:
+    vectors: list[np.ndarray] = []
+    movable = state.movable_mask
+    for axis, periodic in enumerate(state.pbc):
+        if not periodic:
+            continue
+        values = np.zeros((state.n_atoms, 3), dtype=float)
+        values[movable, axis] = 1.0
+        vectors.append(values.reshape(-1))
+    if not vectors:
+        return np.zeros((state.n_atoms * 3, 0), dtype=float)
+    matrix = np.stack(vectors, axis=1)
+    nonzero = np.linalg.norm(matrix, axis=0) > 1e-12
+    if not np.any(nonzero):
+        return np.zeros((state.n_atoms * 3, 0), dtype=float)
+    q, r = np.linalg.qr(matrix[:, nonzero])
+    rank = int(np.count_nonzero(np.abs(np.diag(r)) > 1e-10))
+    return q[:, :rank] if rank else np.zeros((state.n_atoms * 3, 0), dtype=float)

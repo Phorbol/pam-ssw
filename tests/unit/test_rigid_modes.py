@@ -33,15 +33,18 @@ def test_project_out_rigid_body_modes_removes_translation_and_rotation():
     assert np.linalg.norm(projected) > 1e-8
 
 
-def test_rigid_projection_is_disabled_for_periodic_states():
+def test_periodic_state_projects_only_periodic_translations():
     state = State(
         numbers=np.full(4, 18),
         positions=_tetrahedron().positions,
-        cell=np.eye(3) * 10.0,
-        pbc=(True, True, True),
+        cell=np.diag([5.0, 5.0, 10.0]),
+        pbc=(True, True, False),
     )
-    direction = np.arange(state.n_atoms * 3, dtype=float) + 1.0
+    direction = np.tile(np.array([1.0, 1.0, 1.0]), state.n_atoms)
 
     projected = project_out_rigid_body_modes(state, direction)
 
-    np.testing.assert_allclose(projected, direction)
+    projected = projected.reshape(state.n_atoms, 3)
+    np.testing.assert_allclose(projected[:, 0], 0.0, atol=1e-12)
+    np.testing.assert_allclose(projected[:, 1], 0.0, atol=1e-12)
+    np.testing.assert_allclose(projected[:, 2], 1.0)
