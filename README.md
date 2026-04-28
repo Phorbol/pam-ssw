@@ -34,6 +34,30 @@ result = run_ssw(
 )
 ```
 
+LS-SSW local softening defaults to automatic neighbor pairs:
+
+```python
+from pamssw import LSSSWConfig
+
+config = LSSSWConfig(
+    local_softening_mode="neighbor_auto",
+    local_softening_cutoff_scale=1.25,
+    local_softening_strength=0.6,
+)
+```
+
+`manual` mode remains available for legacy workflows that need exact pair control, but `neighbor_auto` is the default because LS-SSW should derive local softening pairs from each walk's seed structure. The current penalty remains a Gaussian well; Buckingham/adaptive-strength variants should be added later as pluggable ablations after the auto-pair baseline is established.
+
+Optional LS-SSW ablation controls are available without changing defaults:
+
+```python
+config = LSSSWConfig(
+    local_softening_penalty="buckingham_repulsive",
+    local_softening_xi=0.5,
+    local_softening_adaptive_strength=True,
+)
+```
+
 ## CLI
 
 ```bash

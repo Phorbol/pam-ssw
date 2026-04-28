@@ -73,6 +73,108 @@ def test_local_softening_model_from_neighbor_auto_builds_terms():
     assert np.isclose(model.terms[0].reference_distance, 1.09)
 
 
+def test_local_softening_model_buckingham_repulsive_pushes_pair_apart_at_reference_distance():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+    )
+
+    model = LocalSofteningModel.from_state(
+        state,
+        pairs=[(0, 1)],
+        strength=0.6,
+        mode="manual",
+        penalty="buckingham_repulsive",
+        xi=0.5,
+        cutoff=3.0,
+    )
+    energy, gradient = model.evaluate(state.flatten_positions())
+
+    assert energy == pytest.approx(0.6)
+    assert gradient[0] == pytest.approx(1.2)
+    assert gradient[3] == pytest.approx(-1.2)
+
+
+def test_local_softening_model_buckingham_repulsive_respects_cutoff():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+    )
+    model = LocalSofteningModel.from_state(
+        state,
+        pairs=[(0, 1)],
+        strength=0.6,
+        mode="manual",
+        penalty="buckingham_repulsive",
+        xi=0.5,
+        cutoff=0.2,
+    )
+    flat = state.flatten_positions()
+    flat[3] = 1.3
+
+    energy, gradient = model.evaluate(flat)
+
+    assert energy == 0.0
+    assert np.allclose(gradient, 0.0)
+
+
+def test_local_softening_model_adaptive_strength_increases_with_deviation():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+    )
+    fixed = LocalSofteningModel.from_state(
+        state,
+        pairs=[(0, 1)],
+        strength=0.6,
+        mode="manual",
+    )
+    adaptive = LocalSofteningModel.from_state(
+        state,
+        pairs=[(0, 1)],
+        strength=0.6,
+        mode="manual",
+        adaptive_strength=True,
+        max_strength_scale=3.0,
+        deviation_scale=0.25,
+    )
+    flat = state.flatten_positions()
+    flat[3] = 1.25
+
+    fixed_energy, _ = fixed.evaluate(flat)
+    adaptive_energy, _ = adaptive.evaluate(flat)
+
+    assert adaptive_energy > fixed_energy
+
+
+def test_local_softening_model_neighbor_auto_preserves_periodic_slab_metadata_and_evaluates():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.1, 0.0, 0.0], [9.8, 0.0, 0.0]]),
+        cell=np.diag([10.0, 10.0, 20.0]),
+        pbc=(True, True, False),
+    )
+
+    model = LocalSofteningModel.from_state(
+        state,
+        pairs=None,
+        strength=0.6,
+        mode="neighbor_auto",
+        cutoff_scale=1.25,
+    )
+    energy, gradient = model.evaluate(state.flatten_positions())
+
+    assert len(model.terms) == 1
+    assert np.isfinite(energy)
+    assert energy > 0.59
+    assert np.isfinite(gradient).all()
+    assert gradient.shape == state.flatten_positions().shape
+    assert model.cell is not None
+    assert model.pbc == state.pbc
+    assert state.cell is not None
+    assert state.pbc == (True, True, False)
+
+
 def test_local_softening_model_manual_mode_preserves_explicit_pairs():
     state = State(
         numbers=np.array([6, 1, 1]),

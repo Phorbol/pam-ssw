@@ -37,6 +37,7 @@ class SSWConfig:
     hvp_epsilon: float = 1e-3
     min_step_scale: float = 0.15
     max_step_scale: float = 1.5
+    bias_weight_min: float = 0.0
     bias_weight_max: float = 10.0
     proposal_trust_radius: float | None = 1.5
     walk_trust_radius: float = 4.0
@@ -84,7 +85,6 @@ class SSWConfig:
             "hvp_epsilon": self.hvp_epsilon,
             "min_step_scale": self.min_step_scale,
             "max_step_scale": self.max_step_scale,
-            "bias_weight_max": self.bias_weight_max,
             "walk_trust_radius": self.walk_trust_radius,
             "anchor_weight": self.anchor_weight,
             "lambda_bond_start": self.lambda_bond_start,
@@ -99,6 +99,12 @@ class SSWConfig:
         for name, value in positive_floats.items():
             if value <= 0:
                 raise ValueError(f"{name} must be positive")
+        if self.bias_weight_min < 0:
+            raise ValueError("bias_weight_min must be non-negative")
+        if self.bias_weight_max <= 0:
+            raise ValueError("bias_weight_max must be positive")
+        if self.bias_weight_min > self.bias_weight_max:
+            raise ValueError("bias_weight_min cannot exceed bias_weight_max")
         if self.proposal_trust_radius is not None and self.proposal_trust_radius <= 0:
             raise ValueError("proposal_trust_radius must be positive when set")
         allowed_optimizers = {"scipy-lbfgsb", "ase-fire", "ase-lbfgs"}
@@ -128,6 +134,12 @@ class LSSSWConfig(SSWConfig):
     local_softening_mode: str = "neighbor_auto"
     local_softening_cutoff_scale: float = 1.25
     local_softening_active_count: int | None = None
+    local_softening_penalty: str = "gaussian_well"
+    local_softening_xi: float = 0.5
+    local_softening_cutoff: float | None = 3.0
+    local_softening_adaptive_strength: bool = False
+    local_softening_max_strength_scale: float = 3.0
+    local_softening_deviation_scale: float = 0.25
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -139,6 +151,16 @@ class LSSSWConfig(SSWConfig):
             raise ValueError("local_softening_cutoff_scale must be positive")
         if self.local_softening_active_count is not None and self.local_softening_active_count <= 0:
             raise ValueError("local_softening_active_count must be positive when set")
+        if self.local_softening_penalty not in {"gaussian_well", "buckingham_repulsive"}:
+            raise ValueError("local_softening_penalty must be gaussian_well or buckingham_repulsive")
+        if self.local_softening_xi <= 0:
+            raise ValueError("local_softening_xi must be positive")
+        if self.local_softening_cutoff is not None and self.local_softening_cutoff <= 0:
+            raise ValueError("local_softening_cutoff must be positive when set")
+        if self.local_softening_max_strength_scale < 1.0:
+            raise ValueError("local_softening_max_strength_scale must be at least 1")
+        if self.local_softening_deviation_scale <= 0:
+            raise ValueError("local_softening_deviation_scale must be positive")
         for pair in self.local_softening_pairs:
             if len(pair) != 2 or pair[0] == pair[1]:
                 raise ValueError("local_softening_pairs must contain distinct atom pairs")

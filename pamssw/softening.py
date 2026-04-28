@@ -24,12 +24,34 @@ class LocalSofteningModel:
         terms: list[PairSofteningTerm],
         cell: np.ndarray | None = None,
         pbc: tuple[bool, bool, bool] = (False, False, False),
+        penalty: str = "gaussian_well",
+        xi: float = 0.5,
+        cutoff: float | None = 3.0,
+        adaptive_strength: bool = False,
+        max_strength_scale: float = 3.0,
+        deviation_scale: float = 0.25,
     ) -> None:
         self.terms = terms
         self.cell = None if cell is None else np.asarray(cell, dtype=float).copy()
         if len(pbc) != 3:
             raise ValueError("pbc must contain three booleans")
         self.pbc = tuple(bool(axis) for axis in pbc)
+        if penalty not in {"gaussian_well", "buckingham_repulsive"}:
+            raise ValueError("penalty must be gaussian_well or buckingham_repulsive")
+        if xi <= 0:
+            raise ValueError("xi must be positive")
+        if cutoff is not None and cutoff <= 0:
+            raise ValueError("cutoff must be positive when set")
+        if max_strength_scale < 1.0:
+            raise ValueError("max_strength_scale must be at least 1")
+        if deviation_scale <= 0:
+            raise ValueError("deviation_scale must be positive")
+        self.penalty = penalty
+        self.xi = float(xi)
+        self.cutoff = None if cutoff is None else float(cutoff)
+        self.adaptive_strength = bool(adaptive_strength)
+        self.max_strength_scale = float(max_strength_scale)
+        self.deviation_scale = float(deviation_scale)
 
     @classmethod
     def from_state(
@@ -40,6 +62,12 @@ class LocalSofteningModel:
         mode: str = "manual",
         cutoff_scale: float = 1.25,
         active_indices: np.ndarray | None = None,
+        penalty: str = "gaussian_well",
+        xi: float = 0.5,
+        cutoff: float | None = 3.0,
+        adaptive_strength: bool = False,
+        max_strength_scale: float = 3.0,
+        deviation_scale: float = 0.25,
     ) -> LocalSofteningModel:
         if mode == "manual":
             selected_pairs = pairs or []
@@ -71,7 +99,17 @@ class LocalSofteningModel:
                     strength=strength,
                 )
             )
-        return cls(terms, cell=state.cell, pbc=state.pbc)
+        return cls(
+            terms,
+            cell=state.cell,
+            pbc=state.pbc,
+            penalty=penalty,
+            xi=xi,
+            cutoff=cutoff,
+            adaptive_strength=adaptive_strength,
+            max_strength_scale=max_strength_scale,
+            deviation_scale=deviation_scale,
+        )
 
     def evaluate(self, flat_positions: np.ndarray) -> tuple[float, np.ndarray]:
         positions = np.asarray(flat_positions, dtype=float).reshape(-1, 3)
@@ -88,9 +126,20 @@ class LocalSofteningModel:
             if distance < 1e-12:
                 continue
             deviation = distance - term.reference_distance
-            exponent = np.exp(-0.5 * (deviation / term.width) ** 2)
-            energy = term.strength * exponent
-            d_energy_d_distance = -(energy * deviation) / (term.width**2)
+            strength, d_strength_d_distance = self._effective_strength(term, deviation)
+            if self.penalty == "gaussian_well":
+                exponent = np.exp(-0.5 * (deviation / term.width) ** 2)
+                energy = strength * exponent
+                d_energy_d_distance = (
+                    d_strength_d_distance * exponent
+                    - strength * exponent * deviation / (term.width**2)
+                )
+            else:
+                if self.cutoff is not None and distance > term.reference_distance + self.cutoff:
+                    continue
+                exponent = np.exp(-deviation / self.xi)
+                energy = strength * exponent
+                d_energy_d_distance = d_strength_d_distance * exponent - strength * exponent / self.xi
             direction = delta / distance
             grad_i = -d_energy_d_distance * direction
             grad_j = -grad_i
@@ -98,6 +147,19 @@ class LocalSofteningModel:
             gradient[term.atom_j] += grad_j
             total_energy += energy
         return float(total_energy), gradient.reshape(-1)
+
+    def _effective_strength(self, term: PairSofteningTerm, deviation: float) -> tuple[float, float]:
+        if not self.adaptive_strength:
+            return term.strength, 0.0
+        denominator = max(self.deviation_scale * term.reference_distance, 1e-12)
+        raw_extra = abs(deviation) / denominator
+        capped_extra = min(self.max_strength_scale - 1.0, raw_extra)
+        scale = 1.0 + capped_extra
+        if raw_extra >= self.max_strength_scale - 1.0 or abs(deviation) <= 1e-12:
+            d_scale_d_distance = 0.0
+        else:
+            d_scale_d_distance = np.sign(deviation) / denominator
+        return term.strength * scale, term.strength * d_scale_d_distance
 
 
 def automatic_neighbor_pairs(

@@ -875,7 +875,7 @@ class SurfaceWalker:
 
     def _bias_weight(self, curvature: float, sigma: float) -> float:
         raw = sigma * sigma * max(curvature + self.config.target_negative_curvature, 0.0)
-        return float(min(raw, self.config.bias_weight_max))
+        return float(np.clip(raw, self.config.bias_weight_min, self.config.bias_weight_max))
 
     def _true_directional_curvature(self, state: State, direction: np.ndarray) -> float:
         proposal = ProposalPotential(self.calculator)
@@ -1048,6 +1048,12 @@ class SurfaceWalker:
             mode=self.config.local_softening_mode,
             cutoff_scale=self.config.local_softening_cutoff_scale,
             active_indices=self._softening_active_indices(seed_state, direction),
+            penalty=self.config.local_softening_penalty,
+            xi=self.config.local_softening_xi,
+            cutoff=self.config.local_softening_cutoff,
+            adaptive_strength=self.config.local_softening_adaptive_strength,
+            max_strength_scale=self.config.local_softening_max_strength_scale,
+            deviation_scale=self.config.local_softening_deviation_scale,
         )
         self._local_softening_terms_last = len(softening.terms)
         if self._local_softening_terms_last == 0:

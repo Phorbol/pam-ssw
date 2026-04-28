@@ -87,13 +87,18 @@ def test_config_rejects_invalid_proposal_pool_size():
 
 
 def test_config_exposes_hvp_and_bias_safety_controls():
-    config = SSWConfig(hvp_epsilon=1e-4, bias_weight_max=3.0)
+    config = SSWConfig(hvp_epsilon=1e-4, bias_weight_min=0.2, bias_weight_max=3.0)
 
     assert config.hvp_epsilon == 1e-4
+    assert config.bias_weight_min == 0.2
     assert config.bias_weight_max == 3.0
 
     with pytest.raises(ValueError):
         SSWConfig(hvp_epsilon=0.0)
+    with pytest.raises(ValueError):
+        SSWConfig(bias_weight_min=-1.0)
+    with pytest.raises(ValueError):
+        SSWConfig(bias_weight_min=2.0, bias_weight_max=1.0)
     with pytest.raises(ValueError):
         SSWConfig(bias_weight_max=0.0)
 
@@ -117,3 +122,32 @@ def test_config_validates_relaxation_optimizers():
         SSWConfig(proposal_optimizer="unknown")
     with pytest.raises(ValueError):
         SSWConfig(quench_optimizer="unknown")
+
+
+def test_ls_ssw_validates_softening_penalty_controls():
+    config = LSSSWConfig(
+        local_softening_penalty="buckingham_repulsive",
+        local_softening_xi=0.4,
+        local_softening_cutoff=2.0,
+        local_softening_adaptive_strength=True,
+        local_softening_max_strength_scale=2.5,
+        local_softening_deviation_scale=0.3,
+    )
+
+    assert config.local_softening_penalty == "buckingham_repulsive"
+    assert config.local_softening_xi == 0.4
+    assert config.local_softening_cutoff == 2.0
+    assert config.local_softening_adaptive_strength
+    assert config.local_softening_max_strength_scale == 2.5
+    assert config.local_softening_deviation_scale == 0.3
+
+    with pytest.raises(ValueError, match="local_softening_penalty"):
+        LSSSWConfig(local_softening_penalty="unknown")
+    with pytest.raises(ValueError, match="local_softening_xi"):
+        LSSSWConfig(local_softening_xi=0.0)
+    with pytest.raises(ValueError, match="local_softening_cutoff"):
+        LSSSWConfig(local_softening_cutoff=0.0)
+    with pytest.raises(ValueError, match="local_softening_max_strength_scale"):
+        LSSSWConfig(local_softening_max_strength_scale=0.5)
+    with pytest.raises(ValueError, match="local_softening_deviation_scale"):
+        LSSSWConfig(local_softening_deviation_scale=0.0)

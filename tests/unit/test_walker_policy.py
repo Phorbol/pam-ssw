@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pamssw import SSWConfig
+from pamssw import LSSSWConfig, SSWConfig
 from pamssw.archive import MinimaArchive
 from pamssw.bias import GaussianBiasTerm
 from pamssw.calculators import AnalyticCalculator
@@ -19,6 +19,13 @@ from pamssw.walker import (
     SurfaceWalker,
     TrustRegionBiasController,
 )
+
+
+class Quadratic:
+    def energy_gradient(self, flat_positions, state):
+        gradient = np.asarray(flat_positions, dtype=float).copy()
+        energy = 0.5 * float(gradient @ gradient)
+        return energy, gradient
 
 
 def test_bias_weight_matches_curvature_inversion_rule():
@@ -343,6 +350,16 @@ def test_bias_weight_is_clipped_by_configured_maximum():
     assert walker._bias_weight(curvature=100.0, sigma=2.0) == 1.5
 
 
+def test_bias_weight_uses_configured_minimum_floor():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(target_negative_curvature=0.2, bias_weight_min=0.05, bias_weight_max=1.5),
+        softening_enabled=False,
+    )
+
+    assert walker._bias_weight(curvature=-0.5, sigma=2.0) == 0.05
+
+
 def test_true_curvature_excludes_accumulated_gaussian_bias():
     state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
 
@@ -643,3 +660,143 @@ def test_fragment_guard_rejects_disconnected_nonperiodic_cluster():
     )
 
     assert walker._is_fragmented_cluster(reference, fragmented)
+
+
+def test_ls_ssw_builds_auto_neighbor_softening_without_manual_pairs():
+    state = State(
+        numbers=np.array([6, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.09, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(local_softening_mode="neighbor_auto"),
+        softening_enabled=True,
+    )
+
+    softening = walker._build_softening(state)
+
+    assert softening is not None
+    assert len(softening.terms) == 1
+
+
+def test_ls_ssw_manual_mode_with_empty_pairs_still_disables_softening():
+    state = State(
+        numbers=np.array([6, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.09, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(local_softening_mode="manual", local_softening_pairs=[]),
+        softening_enabled=True,
+    )
+
+    assert walker._build_softening(state) is None
+
+
+def test_ls_ssw_auto_neighbor_softening_build_stats_increment_predictably():
+    state = State(
+        numbers=np.array([6, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.09, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(local_softening_mode="neighbor_auto"),
+        softening_enabled=True,
+    )
+
+    first = walker._build_softening(state)
+    second = walker._build_softening(state)
+
+    assert first is not None
+    assert second is not None
+    assert walker._local_softening_builds == 2
+    assert walker._local_softening_terms_last == 1
+    assert walker._local_softening_terms_built_total == 2
+    assert walker._local_softening_terms_total == 2
+
+
+def test_ls_ssw_reset_local_softening_stats_resets_all_counters():
+    state = State(
+        numbers=np.array([6, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.09, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(local_softening_mode="neighbor_auto"),
+        softening_enabled=True,
+    )
+    assert walker._build_softening(state) is not None
+
+    walker._reset_local_softening_stats()
+
+    assert walker._local_softening_terms_last == 0
+    assert walker._local_softening_terms_total == 0
+    assert walker._local_softening_builds == 0
+    assert walker._local_softening_terms_built_total == 0
+
+
+def test_ls_ssw_zero_neighbor_auto_softening_does_not_increment_build_stats():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [5.0, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(local_softening_mode="neighbor_auto"),
+        softening_enabled=True,
+    )
+
+    assert walker._build_softening(state) is None
+    assert walker._local_softening_builds == 0
+    assert walker._local_softening_terms_last == 0
+    assert walker._local_softening_terms_built_total == 0
+    assert walker._local_softening_terms_total == 0
+
+
+def test_active_neighbors_select_atoms_from_anchor_direction_displacement():
+    state = State(
+        numbers=np.array([6, 1, 6, 1]),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.09, 0.0, 0.0],
+                [5.0, 0.0, 0.0],
+                [6.09, 0.0, 0.0],
+            ]
+        ),
+    )
+    direction = np.zeros(12)
+    direction[6] = 10.0
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(local_softening_mode="active_neighbors", local_softening_active_count=1),
+        softening_enabled=True,
+    )
+
+    assert walker._softening_active_indices(state, direction).tolist() == [2]
+
+
+def test_active_neighbors_build_softening_from_anchor_direction_displacement():
+    state = State(
+        numbers=np.array([6, 1, 6, 1]),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.09, 0.0, 0.0],
+                [5.0, 0.0, 0.0],
+                [6.09, 0.0, 0.0],
+            ]
+        ),
+    )
+    direction = np.zeros(12)
+    direction[6] = 10.0
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(local_softening_mode="active_neighbors", local_softening_active_count=1),
+        softening_enabled=True,
+    )
+
+    softening = walker._build_softening(state, direction)
+
+    assert softening is not None
+    assert [(term.atom_i, term.atom_j) for term in softening.terms] == [(2, 3)]

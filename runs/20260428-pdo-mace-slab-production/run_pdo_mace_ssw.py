@@ -15,7 +15,7 @@ from ase import Atoms
 from ase.io import read, write
 from mace.calculators import MACECalculator
 
-from pamssw import SSWConfig, State, run_ssw
+from pamssw import LSSSWConfig, SSWConfig, State, run_ls_ssw, run_ssw
 from pamssw.calculators import ASECalculator
 from pamssw.pbc import mic_distance_matrix
 
@@ -25,6 +25,7 @@ def main() -> None:
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--model", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--search-kind", choices=("ls-ssw", "ssw"), default="ls-ssw")
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--dtype", default="float32")
     parser.add_argument("--seed", type=int, default=0)
@@ -45,6 +46,23 @@ def main() -> None:
     parser.add_argument("--dedup-rmsd-tol", type=float, default=0.15)
     parser.add_argument("--fix-bottom-fraction", type=float, default=0.35)
     parser.add_argument("--slab-pbc-z", action="store_true")
+    parser.add_argument("--local-softening-mode", choices=("neighbor_auto", "active_neighbors", "manual"), default="neighbor_auto")
+    parser.add_argument("--local-softening-cutoff-scale", type=float, default=1.25)
+    parser.add_argument("--local-softening-active-count", type=_optional_int, default=None)
+    parser.add_argument("--local-softening-strength", type=float, default=0.6)
+    parser.add_argument("--local-softening-penalty", choices=("gaussian_well", "buckingham_repulsive"), default="gaussian_well")
+    parser.add_argument("--local-softening-xi", type=float, default=0.5)
+    parser.add_argument("--local-softening-cutoff", type=_optional_float, default=3.0)
+    parser.add_argument("--local-softening-adaptive-strength", action="store_true")
+    parser.add_argument("--local-softening-max-strength-scale", type=float, default=3.0)
+    parser.add_argument("--local-softening-deviation-scale", type=float, default=0.25)
+    parser.add_argument(
+        "--local-softening-pair",
+        type=_pair,
+        action="append",
+        default=[],
+        help="Manual LS-SSW pair as i,j; repeat for multiple pairs. Used only with --local-softening-mode manual.",
+    )
     args = parser.parse_args()
 
     if args.device == "cuda" and not torch.cuda.is_available():
@@ -76,7 +94,7 @@ def main() -> None:
         enable_cueq=False,
     )
     calculator = ASECalculator(calc)
-    config = SSWConfig(
+    base_config = dict(
         max_trials=args.trials,
         max_steps_per_walk=args.steps_per_walk,
         target_uphill_energy=args.target_uphill_energy,
@@ -98,8 +116,25 @@ def main() -> None:
         proposal_pool_size=args.proposal_pool_size,
         max_prototypes=500,
     )
-
-    result = run_ssw(state, calculator, config)
+    if args.search_kind == "ls-ssw":
+        config = LSSSWConfig(
+            **base_config,
+            local_softening_mode=args.local_softening_mode,
+            local_softening_cutoff_scale=args.local_softening_cutoff_scale,
+            local_softening_active_count=args.local_softening_active_count,
+            local_softening_strength=args.local_softening_strength,
+            local_softening_pairs=args.local_softening_pair,
+            local_softening_penalty=args.local_softening_penalty,
+            local_softening_xi=args.local_softening_xi,
+            local_softening_cutoff=args.local_softening_cutoff,
+            local_softening_adaptive_strength=args.local_softening_adaptive_strength,
+            local_softening_max_strength_scale=args.local_softening_max_strength_scale,
+            local_softening_deviation_scale=args.local_softening_deviation_scale,
+        )
+        result = run_ls_ssw(state, calculator, config)
+    else:
+        config = SSWConfig(**base_config)
+        result = run_ssw(state, calculator, config)
     trace = _energy_trace(result)
     _write_trace_plot(trace, output_dir / "energy_trace.png")
     (output_dir / "energy_trace.json").write_text(json.dumps(trace, indent=2))
@@ -131,6 +166,7 @@ def main() -> None:
         "cuda_device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
         "dtype": args.dtype,
         "enable_cueq": False,
+        "search_kind": args.search_kind,
         "input_pbc": input_pbc,
         "run_pbc": slab_pbc,
         "cell": state.cell.tolist() if state.cell is not None else None,
@@ -167,6 +203,22 @@ def _optional_float(value: str) -> float | None:
     if value.lower() in {"none", "null", "off"}:
         return None
     return float(value)
+
+
+def _optional_int(value: str) -> int | None:
+    if value.lower() in {"none", "null", "off"}:
+        return None
+    return int(value)
+
+
+def _pair(value: str) -> tuple[int, int]:
+    parts = value.split(",")
+    if len(parts) != 2:
+        raise argparse.ArgumentTypeError("pair must be formatted as i,j")
+    try:
+        return int(parts[0]), int(parts[1])
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("pair indices must be integers") from exc
 
 
 def _state_to_atoms(state: State) -> Atoms:
