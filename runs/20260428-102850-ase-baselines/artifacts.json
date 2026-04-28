@@ -1,0 +1,11 @@
+{
+  "artifacts": [
+    {"artifact_id": "report", "type": "markdown", "path": "runs/20260428-102850-ase-baselines/ASE_BASELINE_REPORT.md"},
+    {"artifact_id": "lj13_metric", "type": "json", "path": "runs/20260428-102850-ase-baselines/lj13_ase_baselines_metric.json"},
+    {"artifact_id": "lj38_metric", "type": "json", "path": "runs/20260428-102850-ase-baselines/lj38_ase_baselines_metric.json"},
+    {"artifact_id": "budget20_traces", "type": "json", "path": "runs/20260428-102850-ase-baselines/lj13_38_ase_budget20_traces.json"},
+    {"artifact_id": "budget20_curves", "type": "png", "path": "runs/20260428-102850-ase-baselines/lj13_38_ase_budget20_curves.png"},
+    {"artifact_id": "lj13_minima", "type": "xyz_directory", "path": "runs/20260428-102850-ase-baselines/minima_xyz_lj13"},
+    {"artifact_id": "lj38_minima", "type": "xyz_directory", "path": "runs/20260428-102850-ase-baselines/minima_xyz_lj38"}
+  ]
+}

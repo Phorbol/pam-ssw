@@ -1,0 +1,12 @@
+{"event_id":1,"phase":"setup","kind":"approval","status":"completed","detail":"User requested ASE BH/GA baselines and literature-comparable plots; prior explicit approval exists in thread."}
+{"event_id":2,"phase":"source-review","kind":"observation","status":"completed","detail":"Local ASE is 3.28.0. BasinHopping is in ase.optimize.basin. ase.ga is a placeholder and requires the separate ase-ga package."}
+{"event_id":3,"phase":"dependency","kind":"command","status":"completed","detail":"Installed ase-ga 1.0.3 after sandbox network failure, using escalated pip install."}
+{"event_id":4,"phase":"implementation","kind":"code_change","status":"completed","detail":"Added --baseline-source ase, ASE BasinHopping baseline, ASE-GA component baseline, trace support, and minima export labels."}
+{"event_id":5,"phase":"benchmark","kind":"command","status":"stopped","detail":"Initial LJ13/LJ38 budget60 command with trace was killed because full ASE trace reran all algorithms and became too expensive."}
+{"event_id":6,"phase":"benchmark","kind":"command","status":"completed","detail":"Completed LJ13 budget60 ASE baseline metric and minima export."}
+{"event_id":7,"phase":"benchmark","kind":"command","status":"completed","detail":"Completed LJ38 budget60 ASE baseline metric and minima export."}
+{"event_id":8,"phase":"benchmark","kind":"command","status":"completed","detail":"Completed LJ13/LJ38 budget20 trace and curve plot."}
+{"event_id":9,"phase":"verification","kind":"command","status":"completed","detail":"pytest -q tests/unit passed: 54 tests."}
+{"event_id":10,"phase":"implementation","kind":"code_change","status":"completed","detail":"Added pyproject optional dependency group benchmarks with ase-ga>=1.0.3."}
+{"event_id":11,"phase":"verification","kind":"command","status":"completed","detail":"pytest -q passed: 65 tests."}
+{"event_id":12,"phase":"verification","kind":"command","status":"completed","detail":"Default internal baseline smoke completed with budget 4."}

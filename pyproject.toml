@@ -18,6 +18,9 @@ dependencies = [
 dev = [
   "pytest>=8.0",
 ]
+benchmarks = [
+  "ase-ga>=1.0.3",
+]
 
 [project.scripts]
 pamssw = "pamssw.cli:main"

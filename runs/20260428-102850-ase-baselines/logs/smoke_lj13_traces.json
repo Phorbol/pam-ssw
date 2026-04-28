@@ -1,0 +1,115 @@
+{
+  "traces": [
+    {
+      "algorithm": "ssw",
+      "size": 13,
+      "seed": 0,
+      "points": [
+        {
+          "step": 1,
+          "best_energy": -40.24277387226225,
+          "energy_gap": 4.084027127737755
+        },
+        {
+          "step": 2,
+          "best_energy": -43.89940496322741,
+          "energy_gap": 0.42739603677259197
+        },
+        {
+          "step": 3,
+          "best_energy": -43.89940496322741,
+          "energy_gap": 0.42739603677259197
+        },
+        {
+          "step": 4,
+          "best_energy": -43.89940496322741,
+          "energy_gap": 0.42739603677259197
+        },
+        {
+          "step": 5,
+          "best_energy": -43.89940496322741,
+          "energy_gap": 0.42739603677259197
+        },
+        {
+          "step": 6,
+          "best_energy": -43.89940496322741,
+          "energy_gap": 0.42739603677259197
+        }
+      ]
+    },
+    {
+      "algorithm": "ase_bh",
+      "size": 13,
+      "seed": 0,
+      "points": [
+        {
+          "step": 1,
+          "best_energy": -39.20814025766405,
+          "energy_gap": 5.118660742335955
+        },
+        {
+          "step": 2,
+          "best_energy": -39.20814025766405,
+          "energy_gap": 5.118660742335955
+        },
+        {
+          "step": 3,
+          "best_energy": -39.20814029862051,
+          "energy_gap": 5.11866070137949
+        },
+        {
+          "step": 4,
+          "best_energy": -39.20814029862051,
+          "energy_gap": 5.11866070137949
+        },
+        {
+          "step": 5,
+          "best_energy": -39.20814029862051,
+          "energy_gap": 5.11866070137949
+        },
+        {
+          "step": 6,
+          "best_energy": -39.22132553953003,
+          "energy_gap": 5.105475460469975
+        }
+      ]
+    },
+    {
+      "algorithm": "ase_ga",
+      "size": 13,
+      "seed": 0,
+      "points": [
+        {
+          "step": 1,
+          "best_energy": -27.698878491255158,
+          "energy_gap": 16.627922508744845
+        },
+        {
+          "step": 2,
+          "best_energy": -29.07106002698915,
+          "energy_gap": 15.255740973010852
+        },
+        {
+          "step": 3,
+          "best_energy": -29.07106002698915,
+          "energy_gap": 15.255740973010852
+        },
+        {
+          "step": 4,
+          "best_energy": -31.339121826679154,
+          "energy_gap": 12.98767917332085
+        },
+        {
+          "step": 5,
+          "best_energy": -37.81124126297954,
+          "energy_gap": 6.51555973702046
+        },
+        {
+          "step": 6,
+          "best_energy": -37.81124126297954,
+          "energy_gap": 6.51555973702046
+        }
+      ]
+    }
+  ]
+}
