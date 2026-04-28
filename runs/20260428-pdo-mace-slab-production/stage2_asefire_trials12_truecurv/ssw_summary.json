@@ -1,0 +1,454 @@
+{
+  "input": "PdO.xyz",
+  "model": "/root/.cache/mace/mace-omat-0-small.model",
+  "device": "cuda",
+  "cuda_available": true,
+  "cuda_device": "NVIDIA GeForce RTX 3060",
+  "dtype": "float32",
+  "enable_cueq": false,
+  "input_pbc": [
+    true,
+    true,
+    true
+  ],
+  "run_pbc": [
+    true,
+    true,
+    false
+  ],
+  "cell": [
+    [
+      13.75323,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      13.75323,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      23.89
+    ]
+  ],
+  "n_atoms": 115,
+  "n_fixed": 40,
+  "fixed_bottom_fraction": 0.35,
+  "config": {
+    "max_trials": 12,
+    "max_steps_per_walk": 8,
+    "target_uphill_energy": 0.8,
+    "target_negative_curvature": 0.05,
+    "quench_fmax": 0.03,
+    "quench_optimizer": "scipy-lbfgsb",
+    "dedup_rmsd_tol": 0.25,
+    "dedup_energy_tol": 0.001,
+    "rng_seed": 0,
+    "oracle_candidates": 8,
+    "proposal_relax_steps": 120,
+    "proposal_fmax": 0.05,
+    "proposal_optimizer": "ase-fire",
+    "hvp_epsilon": 0.001,
+    "min_step_scale": 0.05,
+    "max_step_scale": 1.2,
+    "bias_weight_max": 10.0,
+    "proposal_trust_radius": 1.5,
+    "walk_trust_radius": 4.0,
+    "fragment_guard_factor": 3.0,
+    "anchor_weight": 0.5,
+    "n_bond_pairs": 2,
+    "bond_distance_threshold": null,
+    "lambda_bond_start": 0.1,
+    "lambda_bond_end": 1.0,
+    "proposal_pool_size": 1,
+    "use_archive_acquisition": true,
+    "archive_density_weight": 0.5,
+    "novelty_weight": 1.0,
+    "frontier_weight": 0.5,
+    "bandit_exploration_weight": 0.75,
+    "baseline_selection_probability": 0.15,
+    "bandit_energy_weight": 1.0,
+    "search_mode": "global_minimum",
+    "max_prototypes": 500,
+    "max_force_evals": null
+  },
+  "best_energy": -572.1031494140625,
+  "n_minima": 13,
+  "stats": {
+    "n_trials": 12,
+    "configured_max_trials": 12,
+    "n_minima": 13,
+    "local_relaxations": 13,
+    "force_evaluations": 6035,
+    "energy_evaluations": 6035,
+    "max_force_evals": 0,
+    "budget_exhausted": 0,
+    "duplicate_rate": 0.0,
+    "descriptor_degeneracy_rate": 0.2857142857142857,
+    "archive_prototypes": 13,
+    "archive_max_prototypes": 500,
+    "archive_max_prototype_weight": 1,
+    "archive_mean_prototype_weight": 1.0,
+    "frontier_nodes": 7,
+    "dead_nodes": 0,
+    "mean_frontier_score": 0.35434049355268715,
+    "mean_node_duplicate_failure_rate": 0.0,
+    "max_node_duplicate_failure_rate": 0.0,
+    "coordinate_system": "cartesian_fixed_cell",
+    "variable_cell_supported": 0,
+    "quench_optimizer": "scipy-lbfgsb",
+    "proposal_optimizer": "ase-fire",
+    "trust_region_steps": 96,
+    "trust_model_error_mean": 1.7860579157328835,
+    "trust_shrink_steps": 49,
+    "trust_expand_steps": 47,
+    "trust_damage_events": 0,
+    "direction_choices": 96,
+    "direction_candidate_evaluations": 852,
+    "direction_mean_candidate_pool_size": 8.875,
+    "direction_rigid_body_overlap_mean": 0.009570101483748506,
+    "direction_post_projection_rigid_body_overlap_mean": 2.0285653866433444e-33,
+    "direction_selected_soft": 78,
+    "direction_selected_random": 14,
+    "direction_selected_bond": 4,
+    "direction_bond_pairs_requested": 192,
+    "direction_bond_pairs_generated": 192,
+    "direction_bond_candidates_valid": 192,
+    "walk_displacement_clips": 0,
+    "fragment_rejections": 0,
+    "true_quench_count": 13,
+    "true_quench_unconverged": 6,
+    "true_quench_max_gradient": 0.04000873287909317,
+    "true_quench_mean_iterations": 18.0,
+    "true_quench_active_bound_fraction_mean": 0.0,
+    "true_quench_active_bound_fraction_max": 0.0,
+    "true_quench_displacement_rms_mean": 0.10514955906958659,
+    "true_quench_displacement_max": 1.2902919284218668,
+    "proposal_relax_count": 96,
+    "proposal_relax_unconverged": 70,
+    "proposal_relax_max_gradient": 1.1623452432089016,
+    "proposal_relax_mean_iterations": 36.020833333333336,
+    "proposal_relax_active_bound_fraction_mean": 0.0,
+    "proposal_relax_active_bound_fraction_max": 0.0,
+    "proposal_relax_displacement_rms_mean": 0.11552081813558997,
+    "proposal_relax_displacement_max": 1.777107925707952,
+    "bias_steps": 96,
+    "bias_zero_weight_steps": 17,
+    "bias_zero_weight_fraction": 0.17708333333333334,
+    "bias_weight_mean": 0.2834472947283601,
+    "bias_weight_max": 6.956422893598758,
+    "adaptive_step_target": 0.04000000000000001,
+    "adaptive_step_multiplier": 1.0,
+    "adaptive_escape_rate": 1.0,
+    "adaptive_damage_rate": 0.0
+  },
+  "walk_history": [
+    {
+      "seed_entry_id": 0,
+      "discovered_entry_id": 1,
+      "energy": -570.318359375,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 1,
+      "discovered_entry_id": 2,
+      "energy": -569.76318359375,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 1,
+      "discovered_entry_id": 3,
+      "energy": -571.9635620117188,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 3,
+      "discovered_entry_id": 4,
+      "energy": -571.9994506835938,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 4,
+      "discovered_entry_id": 5,
+      "energy": -572.00634765625,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 5,
+      "discovered_entry_id": 6,
+      "energy": -571.94189453125,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 6,
+      "discovered_entry_id": 7,
+      "energy": -571.8926391601562,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 2,
+      "discovered_entry_id": 8,
+      "energy": -569.76904296875,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 7,
+      "discovered_entry_id": 9,
+      "energy": -572.0982055664062,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 9,
+      "discovered_entry_id": 10,
+      "energy": -572.1031494140625,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 10,
+      "discovered_entry_id": 11,
+      "energy": -572.0999755859375,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 11,
+      "discovered_entry_id": 12,
+      "energy": -572.0934448242188,
+      "accepted_new_basin": true
+    }
+  ],
+  "archive_energies": [
+    -572.1031494140625,
+    -572.0999755859375,
+    -572.0982055664062,
+    -572.0934448242188,
+    -572.00634765625,
+    -571.9994506835938,
+    -571.9635620117188,
+    -571.94189453125,
+    -571.8926391601562,
+    -570.318359375,
+    -569.76904296875,
+    -569.76318359375,
+    -568.3948974609375
+  ],
+  "geometry_diagnostics": [
+    {
+      "entry_id": 10,
+      "energy": -572.1031494140625,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3345460415191148,
+      "nearest_median": 2.679681932761594,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.235181408787977
+    },
+    {
+      "entry_id": 11,
+      "energy": -572.0999755859375,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3361028836484796,
+      "nearest_median": 2.679234745053257,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.222820863165392
+    },
+    {
+      "entry_id": 9,
+      "energy": -572.0982055664062,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3351679049351535,
+      "nearest_median": 2.676518358106555,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.237161462245282
+    },
+    {
+      "entry_id": 12,
+      "energy": -572.0934448242188,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3299522031722044,
+      "nearest_median": 2.6779582629793444,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.218862351532533
+    },
+    {
+      "entry_id": 5,
+      "energy": -572.00634765625,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3183638674851004,
+      "nearest_median": 2.6728049788969703,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.107706428853337
+    },
+    {
+      "entry_id": 4,
+      "energy": -571.9994506835938,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3162714724470541,
+      "nearest_median": 2.6770066999213227,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.20550972954322
+    },
+    {
+      "entry_id": 3,
+      "energy": -571.9635620117188,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.353279302925691,
+      "nearest_median": 2.671281725138831,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.158826070220485
+    },
+    {
+      "entry_id": 6,
+      "energy": -571.94189453125,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3532696365982975,
+      "nearest_median": 2.6786894990493564,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.83516133704263
+    },
+    {
+      "entry_id": 7,
+      "energy": -571.8926391601562,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3598438551891399,
+      "nearest_median": 2.679681932761594,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 19.42204512606179
+    },
+    {
+      "entry_id": 1,
+      "energy": -570.318359375,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3355892782207786,
+      "nearest_median": 2.6505749668620546,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 17.879255059479053
+    },
+    {
+      "entry_id": 8,
+      "energy": -569.76904296875,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3520650875966769,
+      "nearest_median": 2.652238547772813,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.05646619514807
+    },
+    {
+      "entry_id": 2,
+      "energy": -569.76318359375,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.353479558611287,
+      "nearest_median": 2.656109552021509,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.039678830764807
+    },
+    {
+      "entry_id": 0,
+      "energy": -568.3948974609375,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3407510228311286,
+      "nearest_median": 2.6240673434583917,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 17.78027498572044
+    }
+  ],
+  "outputs": {
+    "summary": "runs/20260428-pdo-mace-slab-production/stage2_asefire_trials12_truecurv/ssw_summary.json",
+    "energy_trace_json": "runs/20260428-pdo-mace-slab-production/stage2_asefire_trials12_truecurv/energy_trace.json",
+    "energy_trace_png": "runs/20260428-pdo-mace-slab-production/stage2_asefire_trials12_truecurv/energy_trace.png",
+    "archive_minima_xyz": "runs/20260428-pdo-mace-slab-production/stage2_asefire_trials12_truecurv/archive_minima.xyz",
+    "best_minimum_xyz": "runs/20260428-pdo-mace-slab-production/stage2_asefire_trials12_truecurv/best_minimum.xyz",
+    "minima_dir": "runs/20260428-pdo-mace-slab-production/stage2_asefire_trials12_truecurv/minima_xyz"
+  }
+}

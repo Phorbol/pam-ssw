@@ -143,3 +143,15 @@ def test_relaxer_reports_projected_gradient_for_bound_constrained_optimum(monkey
     result = Relaxer(evaluator).relax(state, fmax=1e-4, maxiter=3, coordinate_trust_radius=0.25)
 
     assert result.gradient_norm == 0.0
+
+
+def test_relaxer_can_use_ase_fire_without_scipy_line_search():
+    def evaluator(flat_positions, template):
+        return 0.5 * float(np.dot(flat_positions, flat_positions)), flat_positions.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(evaluator, optimizer="ase-fire").relax(state, fmax=1e-4, maxiter=200)
+
+    assert result.gradient_norm < 1e-4
+    assert result.energy < 1e-8
+    assert result.n_iter > 0

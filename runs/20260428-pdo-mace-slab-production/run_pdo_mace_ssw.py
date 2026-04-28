@@ -33,7 +33,9 @@ def main() -> None:
     parser.add_argument("--oracle-candidates", type=int, default=6)
     parser.add_argument("--proposal-relax-steps", type=int, default=80)
     parser.add_argument("--proposal-fmax", type=float, default=0.05)
+    parser.add_argument("--proposal-optimizer", default="ase-fire")
     parser.add_argument("--quench-fmax", type=float, default=0.03)
+    parser.add_argument("--quench-optimizer", default="scipy-lbfgsb")
     parser.add_argument("--target-uphill-energy", type=float, default=0.25)
     parser.add_argument("--min-step-scale", type=float, default=0.05)
     parser.add_argument("--max-step-scale", type=float, default=0.6)
@@ -85,6 +87,8 @@ def main() -> None:
         oracle_candidates=args.oracle_candidates,
         proposal_relax_steps=args.proposal_relax_steps,
         proposal_fmax=args.proposal_fmax,
+        proposal_optimizer=args.proposal_optimizer,
+        quench_optimizer=args.quench_optimizer,
         min_step_scale=args.min_step_scale,
         max_step_scale=args.max_step_scale,
         proposal_trust_radius=args.proposal_trust_radius,

@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Literal, Protocol
 
+from ase import Atoms
+from ase.calculators.calculator import Calculator, all_changes
+from ase.constraints import FixAtoms
+from ase.optimize import FIRE, LBFGS
 import numpy as np
 from scipy.optimize import minimize
 
@@ -16,9 +20,38 @@ class FlatEvaluator(Protocol):
         ...
 
 
+RelaxOptimizer = Literal["scipy-lbfgsb", "ase-fire", "ase-lbfgs"]
+
+
+class _EvaluatorCalculator(Calculator):
+    implemented_properties = ["energy", "forces"]
+
+    def __init__(self, evaluator: FlatEvaluator, template: State):
+        super().__init__()
+        self.evaluator = evaluator
+        self.template = template
+
+    def calculate(self, atoms=None, properties=("energy", "forces"), system_changes=all_changes) -> None:
+        super().calculate(atoms, properties, system_changes)
+        if atoms is None:
+            raise ValueError("atoms must be provided")
+        state = State(
+            numbers=self.template.numbers.copy(),
+            positions=np.asarray(atoms.get_positions(), dtype=float),
+            cell=None if self.template.cell is None else self.template.cell.copy(),
+            pbc=self.template.pbc,
+            fixed_mask=self.template.fixed_mask.copy(),
+            metadata=self.template.metadata.copy(),
+        )
+        energy, gradient = self.evaluator(state.flatten_positions(), state)
+        self.results["energy"] = float(energy)
+        self.results["forces"] = -np.asarray(gradient, dtype=float).reshape(state.n_atoms, 3)
+
+
 @dataclass
 class Relaxer:
     evaluator: FlatEvaluator
+    optimizer: RelaxOptimizer = "scipy-lbfgsb"
 
     def relax(
         self,
@@ -32,7 +65,40 @@ class Relaxer:
         if coordinate_trust_radius is not None:
             if coordinate_trust_radius <= 0.0:
                 raise ValueError("coordinate_trust_radius must be positive")
-            bounds = self._coordinate_bounds(state, coordinate_trust_radius)
+            if self.optimizer == "scipy-lbfgsb":
+                bounds = self._coordinate_bounds(state, coordinate_trust_radius)
+
+        if self.optimizer in {"ase-fire", "ase-lbfgs"}:
+            relaxed, n_iter = self._relax_with_ase(state, fmax=fmax, maxiter=maxiter)
+            energy, full_gradient = self.evaluator(relaxed.flatten_positions(), relaxed)
+            grad_matrix = full_gradient.reshape(relaxed.n_atoms, 3)
+            active_gradient = grad_matrix[relaxed.movable_mask].reshape(-1)
+            active_bound_fraction = 0.0
+            displacement_rms, displacement_max = self._displacement_stats(state, relaxed)
+            gradient_norm = float(
+                np.max(np.linalg.norm(active_gradient.reshape(-1, 3), axis=1, ord=2), initial=0.0)
+            )
+            return RelaxResult(
+                state=relaxed,
+                energy=float(energy),
+                gradient_norm=gradient_norm,
+                n_iter=n_iter,
+                active_bound_fraction=active_bound_fraction,
+                displacement_rms=displacement_rms,
+                displacement_max=displacement_max,
+            )
+        if self.optimizer != "scipy-lbfgsb":
+            raise ValueError(f"unsupported relax optimizer: {self.optimizer}")
+        return self._relax_with_scipy(state, fmax=fmax, maxiter=maxiter, bounds=bounds)
+
+    def _relax_with_scipy(
+        self,
+        state: State,
+        fmax: float,
+        maxiter: int,
+        bounds: list[tuple[float | None, float | None]] | None,
+    ) -> RelaxResult:
+        x0 = state.flatten_active()
 
         def objective(active_flat: np.ndarray) -> tuple[float, np.ndarray]:
             candidate = state.with_active_positions(active_flat)
@@ -82,6 +148,39 @@ class Relaxer:
             displacement_rms=displacement_rms,
             displacement_max=displacement_max,
         )
+
+    def _relax_with_ase(self, state: State, fmax: float, maxiter: int) -> tuple[State, int]:
+        atoms = Atoms(
+            numbers=state.numbers,
+            positions=state.positions,
+            cell=None if state.cell is None else state.cell,
+            pbc=state.pbc,
+        )
+        if np.any(state.fixed_mask):
+            atoms.set_constraint(FixAtoms(mask=state.fixed_mask))
+        atoms.calc = _EvaluatorCalculator(self.evaluator, state)
+        optimizer_cls = FIRE if self.optimizer == "ase-fire" else LBFGS
+        optimizer = optimizer_cls(atoms, logfile=None)
+        optimizer.run(fmax=fmax, steps=maxiter)
+        relaxed = State(
+            numbers=state.numbers.copy(),
+            positions=np.asarray(atoms.get_positions(), dtype=float),
+            cell=None if state.cell is None else state.cell.copy(),
+            pbc=state.pbc,
+            fixed_mask=state.fixed_mask.copy(),
+            metadata=state.metadata.copy(),
+        )
+        if relaxed.cell is not None and any(relaxed.pbc):
+            relaxed = State(
+                numbers=relaxed.numbers.copy(),
+                positions=wrap_positions(relaxed.positions, relaxed.cell, relaxed.pbc),
+                cell=relaxed.cell.copy(),
+                pbc=relaxed.pbc,
+                fixed_mask=relaxed.fixed_mask.copy(),
+                metadata=relaxed.metadata.copy(),
+            )
+        n_iter = int(getattr(optimizer, "nsteps", 0))
+        return relaxed, n_iter
 
     @staticmethod
     def _projected_gradient(

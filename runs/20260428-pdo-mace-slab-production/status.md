@@ -217,3 +217,32 @@ Only after the relax diagnostics are stable should the exploration controls be s
 - `max_step_scale`
 - direction-potential choice for oracle curvature
 - optional `weight_min`
+
+## ASE Optimizer Probe
+
+Review hypothesis:
+
+The high proposal-relax unconverged rate may come from SciPy `L-BFGS-B` line-search or termination behavior, because the optimizer often stops with mean iteration counts far below the configured cap while the force is still above `proposal_fmax`.
+
+Implementation:
+
+- `Relaxer` now supports three backends: `scipy-lbfgsb`, `ase-fire`, and `ase-lbfgs`.
+- `SSWConfig` exposes `proposal_optimizer` and `quench_optimizer`.
+- The proposal relax default is now `ase-fire`; true quench remains `scipy-lbfgsb` unless configured.
+- The PdO runner exposes `--proposal-optimizer` and `--quench-optimizer`.
+
+CUDA PdO comparison, all with the same 12-trial true-curvature settings:
+
+| run | proposal optimizer | best energy (eV) | unique minima | force evals | proposal unconverged | max proposal gradient | mean proposal iterations | true quench unconverged | escape rate |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `stage0_diag_trials12_truecurv` | `scipy-lbfgsb` | `-572.5740356445312` | `8` | `4332` | `79/96` | `0.9327116646689173` | `16.239583333333332` | `2/13` | `0.5833333333333334` |
+| `stage2_asefire_trials12_truecurv` | `ase-fire` | `-572.1031494140625` | `13` | `6035` | `70/96` | `1.1623452432089016` | `36.020833333333336` | `6/13` | `1.0` |
+| `stage3_aselbfgs_trials12_truecurv` | `ase-lbfgs` | `-571.4243774414062` | `9` | `5120` | `57/96` | `2.095417583898853` | `26.927083333333332` | `5/13` | `0.6666666666666666` |
+
+Interpretation:
+
+- The line-search hypothesis is partially supported: ASE optimizers reduce the counted proposal-unconverged rate.
+- ASE FIRE improves exploration diagnostics in this small test: unique minima rise from `8` to `13`, and escape rate rises from `0.5833` to `1.0`.
+- ASE FIRE is more expensive and does not improve best energy in this short run.
+- ASE LBFGS lowers the unconverged count most, but its maximum residual proposal gradient is worse and the final best energy is worse.
+- Therefore the next production sweep should use ASE FIRE as the main proposal-relax backend, but it should not be declared solved. The remaining coupled controls are `proposal_fmax`, `proposal_relax_steps`, and step target policy.

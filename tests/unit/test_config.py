@@ -17,6 +17,58 @@ def test_configs_keep_high_level_defaults_only():
     assert ls.local_softening_pairs == [(0, 1)]
 
 
+def test_ls_ssw_defaults_to_neighbor_auto_mode():
+    config = LSSSWConfig()
+
+    assert config.local_softening_mode == "neighbor_auto"
+    assert config.local_softening_cutoff_scale == 1.25
+    assert config.local_softening_active_count is None
+    assert config.local_softening_pairs == []
+
+
+def test_ls_ssw_manual_mode_keeps_legacy_pairs():
+    config = LSSSWConfig(local_softening_mode="manual", local_softening_pairs=[(0, 1)])
+
+    assert config.local_softening_mode == "manual"
+    assert config.local_softening_pairs == [(0, 1)]
+
+
+def test_ls_ssw_active_neighbors_mode_is_accepted():
+    config = LSSSWConfig(local_softening_mode="active_neighbors")
+
+    assert config.local_softening_mode == "active_neighbors"
+
+
+def test_ls_ssw_positive_active_count_is_accepted():
+    config = LSSSWConfig(local_softening_active_count=3)
+
+    assert config.local_softening_active_count == 3
+
+
+def test_ls_ssw_rejects_invalid_softening_mode():
+    with pytest.raises(ValueError, match="local_softening_mode"):
+        LSSSWConfig(local_softening_mode="unknown")
+
+
+def test_ls_ssw_rejects_invalid_neighbor_parameters():
+    with pytest.raises(ValueError, match="local_softening_cutoff_scale"):
+        LSSSWConfig(local_softening_cutoff_scale=0.0)
+    with pytest.raises(ValueError, match="local_softening_active_count"):
+        LSSSWConfig(local_softening_active_count=0)
+
+
+def test_ls_ssw_rejects_invalid_softening_strength():
+    with pytest.raises(ValueError, match="local_softening_strength"):
+        LSSSWConfig(local_softening_strength=0.0)
+
+
+def test_ls_ssw_rejects_invalid_softening_pairs():
+    with pytest.raises(ValueError, match="local_softening_pairs"):
+        LSSSWConfig(local_softening_pairs=[(1, 1)])
+    with pytest.raises(ValueError, match="local_softening_pairs"):
+        LSSSWConfig(local_softening_pairs=[(0, 1, 2)])
+
+
 def test_config_exposes_only_documented_search_modes():
     SSWConfig(search_mode="global_minimum")
 
@@ -53,3 +105,15 @@ def test_config_allows_disabling_proposal_coordinate_box():
 
     with pytest.raises(ValueError):
         SSWConfig(proposal_trust_radius=0.0)
+
+
+def test_config_validates_relaxation_optimizers():
+    config = SSWConfig(proposal_optimizer="ase-fire", quench_optimizer="ase-lbfgs")
+
+    assert config.proposal_optimizer == "ase-fire"
+    assert config.quench_optimizer == "ase-lbfgs"
+
+    with pytest.raises(ValueError):
+        SSWConfig(proposal_optimizer="unknown")
+    with pytest.raises(ValueError):
+        SSWConfig(quench_optimizer="unknown")

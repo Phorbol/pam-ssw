@@ -26,12 +26,14 @@ class SSWConfig:
     target_uphill_energy: float = 0.6
     target_negative_curvature: float = 0.05
     quench_fmax: float = 1e-3
+    quench_optimizer: str = "scipy-lbfgsb"
     dedup_rmsd_tol: float = 0.1
     dedup_energy_tol: float = 1e-3
     rng_seed: int = 0
     oracle_candidates: int = 12
     proposal_relax_steps: int = 40
     proposal_fmax: float = 2e-2
+    proposal_optimizer: str = "ase-fire"
     hvp_epsilon: float = 1e-3
     min_step_scale: float = 0.15
     max_step_scale: float = 1.5
@@ -99,6 +101,11 @@ class SSWConfig:
                 raise ValueError(f"{name} must be positive")
         if self.proposal_trust_radius is not None and self.proposal_trust_radius <= 0:
             raise ValueError("proposal_trust_radius must be positive when set")
+        allowed_optimizers = {"scipy-lbfgsb", "ase-fire", "ase-lbfgs"}
+        if self.quench_optimizer not in allowed_optimizers:
+            raise ValueError("quench_optimizer must be one of scipy-lbfgsb, ase-fire, ase-lbfgs")
+        if self.proposal_optimizer not in allowed_optimizers:
+            raise ValueError("proposal_optimizer must be one of scipy-lbfgsb, ase-fire, ase-lbfgs")
         if self.fragment_guard_factor is not None and self.fragment_guard_factor <= 0:
             raise ValueError("fragment_guard_factor must be positive when set")
         if self.bond_distance_threshold is not None and self.bond_distance_threshold <= 0:
@@ -118,11 +125,20 @@ class LSSSWConfig(SSWConfig):
     """Settings for locally softened stochastic surface walking."""
     local_softening_strength: float = 0.6
     local_softening_pairs: list[tuple[int, int]] = field(default_factory=list)
+    local_softening_mode: str = "neighbor_auto"
+    local_softening_cutoff_scale: float = 1.25
+    local_softening_active_count: int | None = None
 
     def __post_init__(self) -> None:
         super().__post_init__()
         if self.local_softening_strength <= 0:
             raise ValueError("local_softening_strength must be positive")
+        if self.local_softening_mode not in {"manual", "neighbor_auto", "active_neighbors"}:
+            raise ValueError("local_softening_mode must be manual, neighbor_auto, or active_neighbors")
+        if self.local_softening_cutoff_scale <= 0:
+            raise ValueError("local_softening_cutoff_scale must be positive")
+        if self.local_softening_active_count is not None and self.local_softening_active_count <= 0:
+            raise ValueError("local_softening_active_count must be positive when set")
         for pair in self.local_softening_pairs:
             if len(pair) != 2 or pair[0] == pair[1]:
                 raise ValueError("local_softening_pairs must contain distinct atom pairs")

@@ -596,11 +596,12 @@ class SurfaceWalker:
         self._reset_direction_stats()
         self._reset_relax_stats()
         self._reset_bias_stats()
+        self._reset_local_softening_stats()
 
     def relax_true_minimum(self, state: State) -> RelaxResult:
         if not self.geometry_validator.is_valid_state(state):
             raise BudgetExceeded("invalid geometry before true relaxation")
-        relaxer = Relaxer(self.calculator.evaluate_flat)
+        relaxer = Relaxer(self.calculator.evaluate_flat, optimizer=self.config.quench_optimizer)
         relax_config = RelaxConfig(fmax=self.config.quench_fmax, maxiter=400)
         result = relaxer.relax(state, fmax=relax_config.fmax, maxiter=relax_config.maxiter)
         if not self.geometry_validator.is_valid_evaluation(result.state, self.calculator):
@@ -615,6 +616,7 @@ class SurfaceWalker:
         self._reset_direction_stats()
         self._reset_relax_stats()
         self._reset_bias_stats()
+        self._reset_local_softening_stats()
         initial = self.relax_true_minimum(initial_state)
         archive = MinimaArchive(
             energy_tol=self.config.dedup_energy_tol,
@@ -739,6 +741,12 @@ class SurfaceWalker:
                 "max_node_duplicate_failure_rate": frontier_stats["max_node_duplicate_failure_rate"],
                 "coordinate_system": "cartesian_fixed_cell",
                 "variable_cell_supported": 0,
+                "quench_optimizer": self.config.quench_optimizer,
+                "proposal_optimizer": self.config.proposal_optimizer,
+                "local_softening_terms_last": self._local_softening_terms_last,
+                "local_softening_terms_total": self._local_softening_terms_built_total,
+                "local_softening_builds": self._local_softening_builds,
+                "local_softening_terms_built_total": self._local_softening_terms_built_total,
                 **self._trust_stats_summary(),
                 **self._direction_stats_summary(),
                 **self._relax_stats_summary(),
@@ -757,12 +765,12 @@ class SurfaceWalker:
         previous_direction: np.ndarray | None = None
         anchor_direction: np.ndarray | None = None
         biases: list[GaussianBiasTerm] = []
-        softening = self._build_softening(seed_state)
+        softening: LocalSofteningModel | None = None
+        softening_built = False
         sigma_scale = 1.0
         weight_scale = 1.0
 
         for step_index in range(self.config.max_steps_per_walk):
-            proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
             if anchor_direction is None:
                 anchor_direction = self.oracle.generator.generate_initial_direction(
                     current,
@@ -773,6 +781,10 @@ class SurfaceWalker:
                     n_bond_pairs=self.config.n_bond_pairs,
                     bond_distance_threshold=self.config.bond_distance_threshold,
                 )
+            if not softening_built:
+                softening = self._build_softening(seed_state, anchor_direction)
+                softening_built = True
+            proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
             choice = self.oracle.choose_direction(
                 current,
                 proposal,
@@ -805,7 +817,7 @@ class SurfaceWalker:
             trial_state = CartesianCoordinates.from_state(current).displace(TangentVector(choice.direction), sigma)
             if not self.geometry_validator.is_valid_state(trial_state):
                 break
-            proposal_relax = Relaxer(proposal.evaluate).relax(
+            proposal_relax = Relaxer(proposal.evaluate, optimizer=self.config.proposal_optimizer).relax(
                 trial_state,
                 fmax=self.config.proposal_fmax,
                 maxiter=self.config.proposal_relax_steps,
@@ -918,6 +930,12 @@ class SurfaceWalker:
         self._bias_weight_sum = 0.0
         self._bias_weight_max = 0.0
 
+    def _reset_local_softening_stats(self) -> None:
+        self._local_softening_terms_last = 0
+        self._local_softening_terms_total = 0
+        self._local_softening_builds = 0
+        self._local_softening_terms_built_total = 0
+
     def _record_relax_result(self, label: str, result: RelaxResult, fmax: float) -> None:
         stats = self._relax_stats[label]
         stats["count"] += 1
@@ -1016,16 +1034,44 @@ class SurfaceWalker:
         summary["bias_weight_max"] = float(self._bias_weight_max)
         return summary
 
-    def _build_softening(self, seed_state: State) -> LocalSofteningModel | None:
+    def _build_softening(self, seed_state: State, direction: np.ndarray | None = None) -> LocalSofteningModel | None:
         if not self.softening_enabled or not isinstance(self.config, LSSSWConfig):
+            self._local_softening_terms_last = 0
             return None
-        if not self.config.local_softening_pairs:
+        if self.config.local_softening_mode == "manual" and not self.config.local_softening_pairs:
+            self._local_softening_terms_last = 0
             return None
-        return LocalSofteningModel.from_state(
+        softening = LocalSofteningModel.from_state(
             seed_state,
             pairs=self.config.local_softening_pairs,
             strength=self.config.local_softening_strength,
+            mode=self.config.local_softening_mode,
+            cutoff_scale=self.config.local_softening_cutoff_scale,
+            active_indices=self._softening_active_indices(seed_state, direction),
         )
+        self._local_softening_terms_last = len(softening.terms)
+        if self._local_softening_terms_last == 0:
+            return None
+        self._local_softening_builds += 1
+        self._local_softening_terms_built_total += self._local_softening_terms_last
+        self._local_softening_terms_total = self._local_softening_terms_built_total
+        return softening
+
+    def _softening_active_indices(self, seed_state: State, direction: np.ndarray | None = None) -> np.ndarray | None:
+        if not isinstance(self.config, LSSSWConfig) or self.config.local_softening_mode != "active_neighbors":
+            return None
+        movable_indices = np.where(seed_state.movable_mask)[0]
+        active_count = self.config.local_softening_active_count
+        if active_count is None:
+            return movable_indices
+        if direction is None:
+            return movable_indices[:active_count]
+        displacement = np.asarray(direction, dtype=float).reshape(seed_state.n_atoms, 3)
+        scores = np.linalg.norm(displacement, axis=1)
+        movable_scores = scores[movable_indices]
+        selected_positions = np.argsort(-movable_scores, kind="stable")[:active_count]
+        selected = movable_indices[selected_positions]
+        return np.sort(selected)
 
     @staticmethod
     def _clip_walk_displacement(reference: State, candidate: State, max_displacement: float) -> tuple[State, bool]:
