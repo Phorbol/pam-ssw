@@ -246,3 +246,68 @@ Interpretation:
 - ASE FIRE is more expensive and does not improve best energy in this short run.
 - ASE LBFGS lowers the unconverged count most, but its maximum residual proposal gradient is worse and the final best energy is worse.
 - Therefore the next production sweep should use ASE FIRE as the main proposal-relax backend, but it should not be declared solved. The remaining coupled controls are `proposal_fmax`, `proposal_relax_steps`, and step target policy.
+
+## Stage 6 Conservative LS-SSW Trust-Floor Run
+
+Constraint from review:
+
+- Do not change `proposal_fmax`, `quench_fmax`, `proposal_optimizer`, or `quench_optimizer`.
+- Fix the over-strong LS-SSW perturbation and the trust-model near-zero denominator issue first.
+
+Code changes:
+
+- `TrustRegionBiasController.update()` now uses `max(abs(predicted_delta), error_floor) + eps` in the model-error denominator.
+- The SSW walk passes `error_floor = 0.1 * step_target` into the trust update.
+- PdO runner LS-SSW defaults are now conservative: `active_neighbors`, `active_count=5`, `cutoff_scale=1.15`, `strength=0.15`.
+- PdO runner `proposal_relax_steps` default is `300` so FIRE is not prematurely capped, while `proposal_fmax` and optimizer defaults are unchanged.
+
+Validation command:
+
+```bash
+pytest -q tests/unit/test_walker_policy.py tests/unit/test_config.py tests/unit/test_softening.py tests/unit/test_relax.py tests/integration/test_ls_ssw.py
+```
+
+Result: `82 passed in 1.13s`.
+
+CUDA production run:
+
+```bash
+MPLCONFIGDIR=/tmp/mplconfig /root/miniforge3/envs/mace_les/bin/python \
+  runs/20260428-pdo-mace-slab-production/run_pdo_mace_ssw.py \
+  --input PdO.xyz \
+  --model /root/.cache/mace/mace-omat-0-small.model \
+  --output-dir runs/20260428-pdo-mace-slab-production/stage6_lsssw_conservative_trustfix_trials40_prod \
+  --search-kind ls-ssw \
+  --device cuda \
+  --dtype float32 \
+  --seed 0 \
+  --trials 40 \
+  --steps-per-walk 8 \
+  --oracle-candidates 8 \
+  --target-uphill-energy 0.8 \
+  --min-step-scale 0.05 \
+  --max-step-scale 1.2 \
+  --proposal-trust-radius 1.5 \
+  --walk-trust-radius 4.0 \
+  --dedup-rmsd-tol 0.4
+```
+
+Comparison:
+
+| run | best energy (eV) | unique minima | energy span (eV) | median RMSD to best (A) | proposal unconverged | trust error mean | LS terms last |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| ordinary SSW `seed0_trials40_cuda_truecurv` | `-573.0081176757812` | `29` | `4.61328125` | `0.5532448716828537` | `243/318` | `11.081653898024518` | n/a |
+| over-strong LS `stage5_lsssw_active20_asefire_trials40_prod` | `-571.263671875` | `41` | `9.48114013671875` | `2.4065009088081686` | `79/95` | `373.9362808586328` | `125` |
+| conservative LS `stage6_lsssw_conservative_trustfix_trials40_prod` | `-573.54443359375` | `23` | `5.14959716796875` | `0.4994547400871758` | `184/320` | `2.1973554646585445` | `40` |
+
+Interpretation:
+
+- Conservative LS-SSW fixes the main stage5 failure mode: the archive no longer looks like over-dispersed high-energy fragmentation.
+- Best energy improves by `0.53631591796875 eV` relative to the ordinary 40-trial SSW run and by `2.28076171875 eV` relative to the over-strong LS run.
+- Trust-model error drops from `373.936` to `2.197`, consistent with the near-zero denominator fix plus reduced softening scale.
+- The remaining issue is not gone: proposal relaxation still has `184/320` unconverged records. However, the median iterations are `20`, p90 is `52.3`, and max is `278`, so the 300-step cap is being used only in hard cases rather than clipping nearly every proposal.
+- Duplicate rate increases to `0.439`, so the conservative setting improves quality but sacrifices some archive diversity. This is acceptable for this correction step because the target was to stop overdriving LS-SSW, not to maximize novelty.
+
+Current conclusion:
+
+The slab failure was primarily an LS-SSW intensity-control problem, not a `quench_fmax` problem. The production direction should keep conservative local softening as the default and next improve the acquisition/trust policy so duplicate rate comes down without returning to the stage5 high-energy, high-RMSD regime.

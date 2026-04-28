@@ -111,9 +111,10 @@ class TrustRegionBiasController:
         sigma_scale: float,
         weight_scale: float,
         g_parallel: float = 0.0,
+        error_floor: float = 0.0,
     ) -> TrustRegionUpdate:
         predicted_delta = self.predicted_delta(curvature, sigma, g_parallel=g_parallel)
-        denominator = abs(predicted_delta) + self.epsilon
+        denominator = max(abs(predicted_delta), float(error_floor)) + self.epsilon
         model_error = abs(true_delta - predicted_delta) / denominator
         damaged = true_delta > max(1.0, self.damage_ratio * denominator)
         if damaged or model_error > self.error_tolerance:
@@ -842,6 +843,7 @@ class SurfaceWalker:
                 sigma_scale=sigma_scale,
                 weight_scale=weight_scale,
                 g_parallel=g_parallel,
+                error_floor=0.1 * (step_target if step_target is not None else self.config.target_uphill_energy),
             )
             sigma_scale = trust_update.sigma_scale
             weight_scale = trust_update.weight_scale

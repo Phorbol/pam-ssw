@@ -340,6 +340,22 @@ def test_trust_region_accepts_model_when_linear_term_explains_delta():
     assert update.model_error < controller.error_tolerance
 
 
+def test_trust_region_uses_error_floor_for_near_zero_prediction():
+    controller = TrustRegionBiasController()
+
+    update = controller.update(
+        curvature=0.0,
+        sigma=0.5,
+        true_delta=0.03,
+        sigma_scale=1.0,
+        weight_scale=1.0,
+        error_floor=0.06,
+    )
+
+    assert update.action == "expand"
+    assert update.model_error == pytest.approx(0.5, rel=1e-6)
+
+
 def test_bias_weight_is_clipped_by_configured_maximum():
     walker = SurfaceWalker(
         calculator=AnalyticCalculator(DoubleWell2D()),
