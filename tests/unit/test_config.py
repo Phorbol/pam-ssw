@@ -44,3 +44,12 @@ def test_config_exposes_hvp_and_bias_safety_controls():
         SSWConfig(hvp_epsilon=0.0)
     with pytest.raises(ValueError):
         SSWConfig(bias_weight_max=0.0)
+
+
+def test_config_allows_disabling_proposal_coordinate_box():
+    config = SSWConfig(proposal_trust_radius=None)
+
+    assert config.proposal_trust_radius is None
+
+    with pytest.raises(ValueError):
+        SSWConfig(proposal_trust_radius=0.0)

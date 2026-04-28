@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from pamssw.relax import Relaxer
 from pamssw.state import State
@@ -50,6 +51,27 @@ def test_relaxer_applies_coordinate_trust_radius(monkeypatch):
     Relaxer(evaluator).relax(state, fmax=1e-4, maxiter=3, coordinate_trust_radius=0.25)
 
     assert captured["bounds"] == [(0.25, 0.75), (0.75, 1.25), (-0.75, -0.25)]
+
+
+def test_relaxer_reports_bound_fraction_and_displacement(monkeypatch):
+    class Result:
+        x = np.array([0.75, 1.0, -0.25])
+        nit = 1
+
+    def fake_minimize(fun, x0, method, jac, bounds=None, options=None):
+        return Result()
+
+    monkeypatch.setattr("pamssw.relax.minimize", fake_minimize)
+
+    def evaluator(flat_positions, template):
+        return 0.0, np.zeros_like(flat_positions)
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.5, 1.0, -0.5]]))
+    result = Relaxer(evaluator).relax(state, fmax=1e-4, maxiter=3, coordinate_trust_radius=0.25)
+
+    assert result.active_bound_fraction == 2 / 6
+    assert result.displacement_max == pytest.approx(np.sqrt(0.25**2 + 0.25**2))
+    assert result.displacement_rms == pytest.approx(result.displacement_max)
 
 
 def test_relaxer_leaves_periodic_axes_unbounded(monkeypatch):

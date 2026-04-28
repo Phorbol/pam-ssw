@@ -139,3 +139,81 @@ Remaining blocker:
 - Trust model error is still high: `trust_model_error_mean=11.081653898024518`.
 
 Conclusion: the slab path is no longer failing because of PBC/MIC metadata or pure tiny-budget repetition. It can reach substantially different basins when the step scale is allowed to grow. The current production blocker is now the inner proposal relaxation/trust policy, especially for MACE slab force landscapes.
+
+## Relaxation Diagnostics Before Sweeping
+
+The next review split the remaining issue into three possible causes:
+
+- coordinate box bound truncation,
+- insufficient L-BFGS-B iterations,
+- or proposal `fmax` being too strict for the biased PES.
+
+Code changes made for diagnosis, not algorithm retuning:
+
+- `RelaxResult` now records `active_bound_fraction`, `displacement_rms`, and `displacement_max`.
+- `SurfaceWalker` reports these diagnostics separately for true quench and proposal relax.
+- `SurfaceWalker` reports `bias_zero_weight_fraction`, `bias_weight_mean`, and `bias_weight_max`.
+- `SSWConfig(proposal_trust_radius=None)` is allowed, so the coordinate box can be disabled in a controlled sweep.
+- The PdO runner accepts `--proposal-trust-radius none`.
+
+Stage 0 diagnostic run:
+
+`runs/20260428-pdo-mace-slab-production/stage0_diag_trials12_truecurv`
+
+Same exploration settings as the 40-trial true-curvature run, but shortened to 12 trials:
+
+- Best energy: `-572.5740356445312 eV`
+- Unique minima: `8`
+- Proposal relax unconverged: `79/96`
+- Proposal relax mean iterations: `16.239583333333332` of `120`
+- Proposal relax max gradient: `0.9327116646689173 eV/A`
+- Proposal active bound fraction mean/max: `0.0/0.0`
+- Proposal displacement RMS mean: `0.11333869164470123 A`
+- Proposal displacement max: `2.955319038389482 A`
+- Bias zero-weight fraction: `0.21875`
+- Periodic wrapping diagnostics: no bad final minima.
+
+Interpretation:
+
+- The high proposal-unconverged count is not caused by the coordinate box bound in this run: no finite coordinate bound was active at termination.
+- It is also not simply a max-iteration limit: mean iterations are far below the 120-step cap.
+- The likely immediate cause is the optimizer stopping before meeting `proposal_fmax`, on a rugged biased PES where L-BFGS-B termination criteria are not equivalent to a force convergence criterion.
+- Zero-weight bias steps are non-negligible (`21/96`), so `weight_min` remains a candidate, but it is not yet identified as the primary blocker.
+
+Stage 1 fmax-only probe:
+
+`runs/20260428-pdo-mace-slab-production/stage1_fmax010_trials12_truecurv`
+
+Only changed `proposal_fmax` from `0.05` to `0.10`:
+
+- Best energy: `-569.7075805664062 eV`
+- Unique minima: `8`
+- Proposal relax unconverged: `58/96`
+- Proposal relax mean iterations: `5.5`
+- Proposal relax max gradient: `1.1574454173538347 eV/A`
+- Proposal active bound fraction mean/max: `0.0/0.0`
+- Proposal displacement RMS mean: `0.054404413676921136 A`
+- Proposal displacement max: `2.0442236314204076 A`
+- True quench unconverged: `5/13`
+- Bias zero-weight fraction: `0.09375`
+- Periodic wrapping diagnostics: no bad final minima.
+
+Interpretation:
+
+- Relaxing `proposal_fmax` lowers the counted proposal-unconverged rate, but the best energy becomes worse and true-quench unconverged events increase.
+- Therefore `proposal_fmax=0.10` is not a safe default from this evidence. It is a useful ablation point, not a production setting.
+
+Current conclusion:
+
+The sweep should be split exactly as the review argues. First keep exploration fixed and sweep relaxation-quality controls:
+
+- `proposal_fmax`: `0.02`, `0.04`, `0.05`, `0.08`
+- `proposal_relax_steps`: `80`, `120`, `200`
+- `proposal_trust_radius`: `1.5`, `3.0`, `none`
+
+Only after the relax diagnostics are stable should the exploration controls be swept:
+
+- `target_uphill_energy`
+- `max_step_scale`
+- direction-potential choice for oracle curvature
+- optional `weight_min`

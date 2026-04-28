@@ -13,6 +13,9 @@ class RelaxResult:
     energy: float
     gradient_norm: float
     n_iter: int
+    active_bound_fraction: float = 0.0
+    displacement_rms: float = 0.0
+    displacement_max: float = 0.0
 
 
 @dataclass(frozen=True)

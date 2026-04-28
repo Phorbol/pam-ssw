@@ -6,7 +6,7 @@ from typing import Protocol
 import numpy as np
 from scipy.optimize import minimize
 
-from .pbc import wrap_positions
+from .pbc import mic_displacement, wrap_positions
 from .result import RelaxResult
 from .state import State
 
@@ -63,6 +63,8 @@ class Relaxer:
         active_gradient = grad_matrix[relaxed.movable_mask].reshape(-1)
         if bounds is not None:
             active_gradient = self._projected_gradient(np.asarray(result.x, dtype=float), active_gradient, bounds)
+        active_bound_fraction = self._active_bound_fraction(np.asarray(result.x, dtype=float), bounds)
+        displacement_rms, displacement_max = self._displacement_stats(state, relaxed)
         gradient_norm = float(
             np.max(np.linalg.norm(active_gradient.reshape(-1, 3), axis=1, ord=2), initial=0.0)
         )
@@ -76,6 +78,9 @@ class Relaxer:
             energy=float(energy),
             gradient_norm=gradient_norm,
             n_iter=n_iter,
+            active_bound_fraction=active_bound_fraction,
+            displacement_rms=displacement_rms,
+            displacement_max=displacement_max,
         )
 
     @staticmethod
@@ -105,3 +110,34 @@ class Relaxer:
                 else:
                     bounds.append((value - coordinate_trust_radius, value + coordinate_trust_radius))
         return bounds
+
+    @staticmethod
+    def _active_bound_fraction(
+        active_positions: np.ndarray,
+        bounds: list[tuple[float | None, float | None]] | None,
+        atol: float = 1e-4,
+    ) -> float:
+        if not bounds or active_positions.size == 0:
+            return 0.0
+        hits = 0
+        finite_bounds = 0
+        for index, (lower, upper) in enumerate(bounds):
+            value = active_positions[index]
+            if lower is not None:
+                finite_bounds += 1
+                hits += int(abs(value - lower) <= atol)
+            if upper is not None:
+                finite_bounds += 1
+                hits += int(abs(value - upper) <= atol)
+        return float(hits / finite_bounds) if finite_bounds else 0.0
+
+    @staticmethod
+    def _displacement_stats(reference: State, relaxed: State) -> tuple[float, float]:
+        if relaxed.n_atoms == 0:
+            return 0.0, 0.0
+        displacement = mic_displacement(relaxed.positions, reference.positions, relaxed.cell, relaxed.pbc)
+        movable = relaxed.movable_mask
+        if not np.any(movable):
+            return 0.0, 0.0
+        norms = np.linalg.norm(displacement[movable], axis=1)
+        return float(np.sqrt(np.mean(norms * norms))), float(np.max(norms, initial=0.0))

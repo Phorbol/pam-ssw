@@ -505,6 +505,9 @@ def test_surface_walker_reports_relaxation_convergence_diagnostics():
     assert result.stats["proposal_relax_count"] == 1
     assert result.stats["proposal_relax_max_gradient"] >= 0.0
     assert "proposal_relax_unconverged" in result.stats
+    assert "proposal_relax_active_bound_fraction_mean" in result.stats
+    assert "proposal_relax_displacement_max" in result.stats
+    assert "bias_zero_weight_fraction" in result.stats
 
 
 def test_surface_walker_reports_observable_frontier_diagnostics():

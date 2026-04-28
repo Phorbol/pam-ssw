@@ -1,0 +1,365 @@
+{
+  "input": "PdO.xyz",
+  "model": "/root/.cache/mace/mace-omat-0-small.model",
+  "device": "cuda",
+  "cuda_available": true,
+  "cuda_device": "NVIDIA GeForce RTX 3060",
+  "dtype": "float32",
+  "enable_cueq": false,
+  "input_pbc": [
+    true,
+    true,
+    true
+  ],
+  "run_pbc": [
+    true,
+    true,
+    false
+  ],
+  "cell": [
+    [
+      13.75323,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      13.75323,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      23.89
+    ]
+  ],
+  "n_atoms": 115,
+  "n_fixed": 40,
+  "fixed_bottom_fraction": 0.35,
+  "config": {
+    "max_trials": 12,
+    "max_steps_per_walk": 8,
+    "target_uphill_energy": 0.8,
+    "target_negative_curvature": 0.05,
+    "quench_fmax": 0.03,
+    "dedup_rmsd_tol": 0.25,
+    "dedup_energy_tol": 0.001,
+    "rng_seed": 0,
+    "oracle_candidates": 8,
+    "proposal_relax_steps": 120,
+    "proposal_fmax": 0.05,
+    "hvp_epsilon": 0.001,
+    "min_step_scale": 0.05,
+    "max_step_scale": 1.2,
+    "bias_weight_max": 10.0,
+    "proposal_trust_radius": 1.5,
+    "walk_trust_radius": 4.0,
+    "fragment_guard_factor": 3.0,
+    "anchor_weight": 0.5,
+    "n_bond_pairs": 2,
+    "bond_distance_threshold": null,
+    "lambda_bond_start": 0.1,
+    "lambda_bond_end": 1.0,
+    "proposal_pool_size": 1,
+    "use_archive_acquisition": true,
+    "archive_density_weight": 0.5,
+    "novelty_weight": 1.0,
+    "frontier_weight": 0.5,
+    "bandit_exploration_weight": 0.75,
+    "baseline_selection_probability": 0.15,
+    "bandit_energy_weight": 1.0,
+    "search_mode": "global_minimum",
+    "max_prototypes": 500,
+    "max_force_evals": null
+  },
+  "best_energy": -572.5740356445312,
+  "n_minima": 8,
+  "stats": {
+    "n_trials": 12,
+    "configured_max_trials": 12,
+    "n_minima": 8,
+    "local_relaxations": 13,
+    "force_evaluations": 4332,
+    "energy_evaluations": 4332,
+    "max_force_evals": 0,
+    "budget_exhausted": 0,
+    "duplicate_rate": 0.38461538461538464,
+    "descriptor_degeneracy_rate": 0.16666666666666666,
+    "archive_prototypes": 8,
+    "archive_max_prototypes": 500,
+    "archive_max_prototype_weight": 1,
+    "archive_mean_prototype_weight": 1.0,
+    "frontier_nodes": 0,
+    "dead_nodes": 0,
+    "mean_frontier_score": 0.18293117233469744,
+    "mean_node_duplicate_failure_rate": 0.375,
+    "max_node_duplicate_failure_rate": 1.0,
+    "coordinate_system": "cartesian_fixed_cell",
+    "variable_cell_supported": 0,
+    "trust_region_steps": 96,
+    "trust_model_error_mean": 3.061467144687691,
+    "trust_shrink_steps": 62,
+    "trust_expand_steps": 34,
+    "trust_damage_events": 0,
+    "direction_choices": 96,
+    "direction_candidate_evaluations": 852,
+    "direction_mean_candidate_pool_size": 8.875,
+    "direction_rigid_body_overlap_mean": 0.010116933489745341,
+    "direction_post_projection_rigid_body_overlap_mean": 2.3050935477160443e-33,
+    "direction_selected_soft": 77,
+    "direction_selected_random": 14,
+    "direction_selected_bond": 5,
+    "direction_bond_pairs_requested": 192,
+    "direction_bond_pairs_generated": 192,
+    "direction_bond_candidates_valid": 192,
+    "walk_displacement_clips": 0,
+    "fragment_rejections": 0,
+    "true_quench_count": 13,
+    "true_quench_unconverged": 2,
+    "true_quench_max_gradient": 0.04102560288291498,
+    "true_quench_mean_iterations": 19.076923076923077,
+    "true_quench_active_bound_fraction_mean": 0.0,
+    "true_quench_active_bound_fraction_max": 0.0,
+    "true_quench_displacement_rms_mean": 0.12160964732788315,
+    "true_quench_displacement_max": 2.1055031528889123,
+    "proposal_relax_count": 96,
+    "proposal_relax_unconverged": 79,
+    "proposal_relax_max_gradient": 0.9327116646689173,
+    "proposal_relax_mean_iterations": 16.239583333333332,
+    "proposal_relax_active_bound_fraction_mean": 0.0,
+    "proposal_relax_active_bound_fraction_max": 0.0,
+    "proposal_relax_displacement_rms_mean": 0.11333869164470123,
+    "proposal_relax_displacement_max": 2.955319038389482,
+    "bias_steps": 96,
+    "bias_zero_weight_steps": 21,
+    "bias_zero_weight_fraction": 0.21875,
+    "bias_weight_mean": 0.29412929004642596,
+    "bias_weight_max": 3.409617777631897,
+    "adaptive_step_target": 0.04000000000000001,
+    "adaptive_step_multiplier": 1.0,
+    "adaptive_escape_rate": 0.5833333333333334,
+    "adaptive_damage_rate": 0.0
+  },
+  "walk_history": [
+    {
+      "seed_entry_id": 0,
+      "discovered_entry_id": 1,
+      "energy": -571.1220092773438,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 1,
+      "discovered_entry_id": 2,
+      "energy": -571.8642578125,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 2,
+      "discovered_entry_id": 3,
+      "energy": -572.5729370117188,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 3,
+      "discovered_entry_id": 4,
+      "energy": -572.5465087890625,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 4,
+      "discovered_entry_id": 5,
+      "energy": -572.5492553710938,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 3,
+      "discovered_entry_id": 6,
+      "energy": -572.570068359375,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 6,
+      "discovered_entry_id": 3,
+      "energy": -572.5729370117188,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 5,
+      "discovered_entry_id": 3,
+      "energy": -572.5729370117188,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 4,
+      "discovered_entry_id": 3,
+      "energy": -572.5729370117188,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 6,
+      "discovered_entry_id": 5,
+      "energy": -572.5492553710938,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 5,
+      "discovered_entry_id": 7,
+      "energy": -572.5740356445312,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 7,
+      "discovered_entry_id": 3,
+      "energy": -572.5729370117188,
+      "accepted_new_basin": true
+    }
+  ],
+  "archive_energies": [
+    -572.5740356445312,
+    -572.5729370117188,
+    -572.570068359375,
+    -572.5492553710938,
+    -572.5465087890625,
+    -571.8642578125,
+    -571.1220092773438,
+    -568.3948974609375
+  ],
+  "geometry_diagnostics": [
+    {
+      "entry_id": 7,
+      "energy": -572.5740356445312,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3240415311263172,
+      "nearest_median": 2.674383745321873,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.41057226996184
+    },
+    {
+      "entry_id": 3,
+      "energy": -572.5729370117188,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.324813473234995,
+      "nearest_median": 2.679681932761594,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.413458458702355
+    },
+    {
+      "entry_id": 6,
+      "energy": -572.570068359375,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.324195681440621,
+      "nearest_median": 2.679681932761594,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.419817057272088
+    },
+    {
+      "entry_id": 5,
+      "energy": -572.5492553710938,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3282920140008678,
+      "nearest_median": 2.678757134657901,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.45508122596056
+    },
+    {
+      "entry_id": 4,
+      "energy": -572.5465087890625,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3295824773834588,
+      "nearest_median": 2.679681932761594,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.44659391421086
+    },
+    {
+      "entry_id": 2,
+      "energy": -571.8642578125,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3233288174569748,
+      "nearest_median": 2.683174070867899,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.519449928000537
+    },
+    {
+      "entry_id": 1,
+      "energy": -571.1220092773438,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3369369816061178,
+      "nearest_median": 2.6396647276646257,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 17.8683251267074
+    },
+    {
+      "entry_id": 0,
+      "energy": -568.3948974609375,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3407117915567954,
+      "nearest_median": 2.624026446316696,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 17.780254920000093
+    }
+  ],
+  "outputs": {
+    "summary": "runs/20260428-pdo-mace-slab-production/stage0_diag_trials12_truecurv/ssw_summary.json",
+    "energy_trace_json": "runs/20260428-pdo-mace-slab-production/stage0_diag_trials12_truecurv/energy_trace.json",
+    "energy_trace_png": "runs/20260428-pdo-mace-slab-production/stage0_diag_trials12_truecurv/energy_trace.png",
+    "archive_minima_xyz": "runs/20260428-pdo-mace-slab-production/stage0_diag_trials12_truecurv/archive_minima.xyz",
+    "best_minimum_xyz": "runs/20260428-pdo-mace-slab-production/stage0_diag_trials12_truecurv/best_minimum.xyz",
+    "minima_dir": "runs/20260428-pdo-mace-slab-production/stage0_diag_trials12_truecurv/minima_xyz"
+  }
+}

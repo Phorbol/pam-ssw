@@ -595,6 +595,7 @@ class SurfaceWalker:
         self._reset_trust_stats()
         self._reset_direction_stats()
         self._reset_relax_stats()
+        self._reset_bias_stats()
 
     def relax_true_minimum(self, state: State) -> RelaxResult:
         if not self.geometry_validator.is_valid_state(state):
@@ -613,6 +614,7 @@ class SurfaceWalker:
         self._reset_trust_stats()
         self._reset_direction_stats()
         self._reset_relax_stats()
+        self._reset_bias_stats()
         initial = self.relax_true_minimum(initial_state)
         archive = MinimaArchive(
             energy_tol=self.config.dedup_energy_tol,
@@ -787,6 +789,7 @@ class SurfaceWalker:
             true_curvature = self._true_directional_curvature(current, choice.direction)
             sigma = self._scaled_step_scale(true_curvature, sigma_scale, step_target=step_target)
             weight = self._bias_weight(choice.curvature, sigma) * weight_scale
+            self._record_bias_weight(weight)
             true_before = self.calculator.evaluate(current)
             true_energy_before = true_before.energy
             g_parallel = float(np.dot(true_before.gradient.reshape(-1), choice.direction))
@@ -887,9 +890,33 @@ class SurfaceWalker:
 
     def _reset_relax_stats(self) -> None:
         self._relax_stats = {
-            "true_quench": {"count": 0, "unconverged": 0, "max_gradient": 0.0, "n_iter_sum": 0},
-            "proposal_relax": {"count": 0, "unconverged": 0, "max_gradient": 0.0, "n_iter_sum": 0},
+            "true_quench": {
+                "count": 0,
+                "unconverged": 0,
+                "max_gradient": 0.0,
+                "n_iter_sum": 0,
+                "bound_fraction_sum": 0.0,
+                "max_bound_fraction": 0.0,
+                "displacement_rms_sum": 0.0,
+                "max_displacement": 0.0,
+            },
+            "proposal_relax": {
+                "count": 0,
+                "unconverged": 0,
+                "max_gradient": 0.0,
+                "n_iter_sum": 0,
+                "bound_fraction_sum": 0.0,
+                "max_bound_fraction": 0.0,
+                "displacement_rms_sum": 0.0,
+                "max_displacement": 0.0,
+            },
         }
+
+    def _reset_bias_stats(self) -> None:
+        self._bias_steps = 0
+        self._bias_zero_steps = 0
+        self._bias_weight_sum = 0.0
+        self._bias_weight_max = 0.0
 
     def _record_relax_result(self, label: str, result: RelaxResult, fmax: float) -> None:
         stats = self._relax_stats[label]
@@ -897,6 +924,16 @@ class SurfaceWalker:
         stats["n_iter_sum"] += result.n_iter
         stats["max_gradient"] = max(float(stats["max_gradient"]), result.gradient_norm)
         stats["unconverged"] += int(result.gradient_norm > fmax)
+        stats["bound_fraction_sum"] += result.active_bound_fraction
+        stats["max_bound_fraction"] = max(float(stats["max_bound_fraction"]), result.active_bound_fraction)
+        stats["displacement_rms_sum"] += result.displacement_rms
+        stats["max_displacement"] = max(float(stats["max_displacement"]), result.displacement_max)
+
+    def _record_bias_weight(self, weight: float) -> None:
+        self._bias_steps += 1
+        self._bias_zero_steps += int(abs(weight) <= 1e-14)
+        self._bias_weight_sum += float(weight)
+        self._bias_weight_max = max(self._bias_weight_max, float(weight))
 
     def _record_direction_choice(self, choice: DirectionChoice) -> None:
         self._direction_choices += 1
@@ -962,6 +999,21 @@ class SurfaceWalker:
             summary[f"{label}_unconverged"] = int(stats["unconverged"])
             summary[f"{label}_max_gradient"] = float(stats["max_gradient"])
             summary[f"{label}_mean_iterations"] = float(stats["n_iter_sum"] / count) if count else 0.0
+            summary[f"{label}_active_bound_fraction_mean"] = (
+                float(stats["bound_fraction_sum"] / count) if count else 0.0
+            )
+            summary[f"{label}_active_bound_fraction_max"] = float(stats["max_bound_fraction"])
+            summary[f"{label}_displacement_rms_mean"] = (
+                float(stats["displacement_rms_sum"] / count) if count else 0.0
+            )
+            summary[f"{label}_displacement_max"] = float(stats["max_displacement"])
+        summary["bias_steps"] = self._bias_steps
+        summary["bias_zero_weight_steps"] = self._bias_zero_steps
+        summary["bias_zero_weight_fraction"] = (
+            float(self._bias_zero_steps / self._bias_steps) if self._bias_steps else 0.0
+        )
+        summary["bias_weight_mean"] = float(self._bias_weight_sum / self._bias_steps) if self._bias_steps else 0.0
+        summary["bias_weight_max"] = float(self._bias_weight_max)
         return summary
 
     def _build_softening(self, seed_state: State) -> LocalSofteningModel | None:

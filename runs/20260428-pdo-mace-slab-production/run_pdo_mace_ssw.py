@@ -37,7 +37,7 @@ def main() -> None:
     parser.add_argument("--target-uphill-energy", type=float, default=0.25)
     parser.add_argument("--min-step-scale", type=float, default=0.05)
     parser.add_argument("--max-step-scale", type=float, default=0.6)
-    parser.add_argument("--proposal-trust-radius", type=float, default=0.8)
+    parser.add_argument("--proposal-trust-radius", type=_optional_float, default=0.8)
     parser.add_argument("--walk-trust-radius", type=float, default=2.5)
     parser.add_argument("--proposal-pool-size", type=int, default=1)
     parser.add_argument("--dedup-rmsd-tol", type=float, default=0.15)
@@ -157,6 +157,12 @@ def _bottom_fixed_mask(positions: np.ndarray, fraction: float) -> np.ndarray:
         return np.zeros(len(positions), dtype=bool)
     threshold = float(np.quantile(positions[:, 2], min(max(fraction, 0.0), 1.0)))
     return positions[:, 2] <= threshold
+
+
+def _optional_float(value: str) -> float | None:
+    if value.lower() in {"none", "null", "off"}:
+        return None
+    return float(value)
 
 
 def _state_to_atoms(state: State) -> Atoms:

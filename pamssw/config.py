@@ -36,7 +36,7 @@ class SSWConfig:
     min_step_scale: float = 0.15
     max_step_scale: float = 1.5
     bias_weight_max: float = 10.0
-    proposal_trust_radius: float = 1.5
+    proposal_trust_radius: float | None = 1.5
     walk_trust_radius: float = 4.0
     fragment_guard_factor: float | None = None
     anchor_weight: float = 0.5
@@ -83,7 +83,6 @@ class SSWConfig:
             "min_step_scale": self.min_step_scale,
             "max_step_scale": self.max_step_scale,
             "bias_weight_max": self.bias_weight_max,
-            "proposal_trust_radius": self.proposal_trust_radius,
             "walk_trust_radius": self.walk_trust_radius,
             "anchor_weight": self.anchor_weight,
             "lambda_bond_start": self.lambda_bond_start,
@@ -98,6 +97,8 @@ class SSWConfig:
         for name, value in positive_floats.items():
             if value <= 0:
                 raise ValueError(f"{name} must be positive")
+        if self.proposal_trust_radius is not None and self.proposal_trust_radius <= 0:
+            raise ValueError("proposal_trust_radius must be positive when set")
         if self.fragment_guard_factor is not None and self.fragment_guard_factor <= 0:
             raise ValueError("fragment_guard_factor must be positive when set")
         if self.bond_distance_threshold is not None and self.bond_distance_threshold <= 0:

@@ -1,0 +1,365 @@
+{
+  "input": "PdO.xyz",
+  "model": "/root/.cache/mace/mace-omat-0-small.model",
+  "device": "cuda",
+  "cuda_available": true,
+  "cuda_device": "NVIDIA GeForce RTX 3060",
+  "dtype": "float32",
+  "enable_cueq": false,
+  "input_pbc": [
+    true,
+    true,
+    true
+  ],
+  "run_pbc": [
+    true,
+    true,
+    false
+  ],
+  "cell": [
+    [
+      13.75323,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      13.75323,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      23.89
+    ]
+  ],
+  "n_atoms": 115,
+  "n_fixed": 40,
+  "fixed_bottom_fraction": 0.35,
+  "config": {
+    "max_trials": 12,
+    "max_steps_per_walk": 8,
+    "target_uphill_energy": 0.8,
+    "target_negative_curvature": 0.05,
+    "quench_fmax": 0.03,
+    "dedup_rmsd_tol": 0.25,
+    "dedup_energy_tol": 0.001,
+    "rng_seed": 0,
+    "oracle_candidates": 8,
+    "proposal_relax_steps": 120,
+    "proposal_fmax": 0.1,
+    "hvp_epsilon": 0.001,
+    "min_step_scale": 0.05,
+    "max_step_scale": 1.2,
+    "bias_weight_max": 10.0,
+    "proposal_trust_radius": 1.5,
+    "walk_trust_radius": 4.0,
+    "fragment_guard_factor": 3.0,
+    "anchor_weight": 0.5,
+    "n_bond_pairs": 2,
+    "bond_distance_threshold": null,
+    "lambda_bond_start": 0.1,
+    "lambda_bond_end": 1.0,
+    "proposal_pool_size": 1,
+    "use_archive_acquisition": true,
+    "archive_density_weight": 0.5,
+    "novelty_weight": 1.0,
+    "frontier_weight": 0.5,
+    "bandit_exploration_weight": 0.75,
+    "baseline_selection_probability": 0.15,
+    "bandit_energy_weight": 1.0,
+    "search_mode": "global_minimum",
+    "max_prototypes": 500,
+    "max_force_evals": null
+  },
+  "best_energy": -569.7075805664062,
+  "n_minima": 8,
+  "stats": {
+    "n_trials": 12,
+    "configured_max_trials": 12,
+    "n_minima": 8,
+    "local_relaxations": 13,
+    "force_evaluations": 3222,
+    "energy_evaluations": 3222,
+    "max_force_evals": 0,
+    "budget_exhausted": 0,
+    "duplicate_rate": 0.38461538461538464,
+    "descriptor_degeneracy_rate": 0.5,
+    "archive_prototypes": 8,
+    "archive_max_prototypes": 500,
+    "archive_max_prototype_weight": 1,
+    "archive_mean_prototype_weight": 1.0,
+    "frontier_nodes": 0,
+    "dead_nodes": 0,
+    "mean_frontier_score": 0.19094423852856063,
+    "mean_node_duplicate_failure_rate": 0.375,
+    "max_node_duplicate_failure_rate": 1.0,
+    "coordinate_system": "cartesian_fixed_cell",
+    "variable_cell_supported": 0,
+    "trust_region_steps": 96,
+    "trust_model_error_mean": 1.858500086721224,
+    "trust_shrink_steps": 37,
+    "trust_expand_steps": 59,
+    "trust_damage_events": 0,
+    "direction_choices": 96,
+    "direction_candidate_evaluations": 852,
+    "direction_mean_candidate_pool_size": 8.875,
+    "direction_rigid_body_overlap_mean": 0.007280690561558741,
+    "direction_post_projection_rigid_body_overlap_mean": 1.599912789293848e-33,
+    "direction_selected_soft": 76,
+    "direction_selected_random": 13,
+    "direction_selected_bond": 7,
+    "direction_bond_pairs_requested": 192,
+    "direction_bond_pairs_generated": 192,
+    "direction_bond_candidates_valid": 192,
+    "walk_displacement_clips": 0,
+    "fragment_rejections": 0,
+    "true_quench_count": 13,
+    "true_quench_unconverged": 5,
+    "true_quench_max_gradient": 0.040743784914854794,
+    "true_quench_mean_iterations": 18.23076923076923,
+    "true_quench_active_bound_fraction_mean": 0.0,
+    "true_quench_active_bound_fraction_max": 0.0,
+    "true_quench_displacement_rms_mean": 0.14052674956911976,
+    "true_quench_displacement_max": 1.3805790767362862,
+    "proposal_relax_count": 96,
+    "proposal_relax_unconverged": 58,
+    "proposal_relax_max_gradient": 1.1574454173538347,
+    "proposal_relax_mean_iterations": 5.5,
+    "proposal_relax_active_bound_fraction_mean": 0.0,
+    "proposal_relax_active_bound_fraction_max": 0.0,
+    "proposal_relax_displacement_rms_mean": 0.054404413676921136,
+    "proposal_relax_displacement_max": 2.0442236314204076,
+    "bias_steps": 96,
+    "bias_zero_weight_steps": 9,
+    "bias_zero_weight_fraction": 0.09375,
+    "bias_weight_mean": 0.24405695662807403,
+    "bias_weight_max": 4.367435956207851,
+    "adaptive_step_target": 0.05509033203125,
+    "adaptive_step_multiplier": 1.0,
+    "adaptive_escape_rate": 0.5833333333333334,
+    "adaptive_damage_rate": 0.0
+  },
+  "walk_history": [
+    {
+      "seed_entry_id": 0,
+      "discovered_entry_id": 1,
+      "energy": -569.2710571289062,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 1,
+      "discovered_entry_id": 2,
+      "energy": -569.4309692382812,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 2,
+      "discovered_entry_id": 3,
+      "energy": -569.43212890625,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 3,
+      "discovered_entry_id": 4,
+      "energy": -569.4345703125,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 4,
+      "discovered_entry_id": 5,
+      "energy": -569.4331665039062,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 4,
+      "discovered_entry_id": 6,
+      "energy": -569.7055053710938,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 6,
+      "discovered_entry_id": 6,
+      "energy": -569.7055053710938,
+      "accepted_new_basin": false
+    },
+    {
+      "seed_entry_id": 5,
+      "discovered_entry_id": 4,
+      "energy": -569.4345703125,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 6,
+      "discovered_entry_id": 7,
+      "energy": -569.7075805664062,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 7,
+      "discovered_entry_id": 6,
+      "energy": -569.7055053710938,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 7,
+      "discovered_entry_id": 6,
+      "energy": -569.7055053710938,
+      "accepted_new_basin": true
+    },
+    {
+      "seed_entry_id": 3,
+      "discovered_entry_id": 5,
+      "energy": -569.4331665039062,
+      "accepted_new_basin": true
+    }
+  ],
+  "archive_energies": [
+    -569.7075805664062,
+    -569.7055053710938,
+    -569.4345703125,
+    -569.4331665039062,
+    -569.43212890625,
+    -569.4309692382812,
+    -569.2710571289062,
+    -568.3948974609375
+  ],
+  "geometry_diagnostics": [
+    {
+      "entry_id": 7,
+      "energy": -569.7075805664062,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3726669041850557,
+      "nearest_median": 2.608632732663793,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 17.978269849841112
+    },
+    {
+      "entry_id": 6,
+      "energy": -569.7055053710938,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.377072818892043,
+      "nearest_median": 2.6069876547346453,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 17.992266790651346
+    },
+    {
+      "entry_id": 4,
+      "energy": -569.4345703125,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3962677783537152,
+      "nearest_median": 2.601144391876152,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.270570333113977
+    },
+    {
+      "entry_id": 5,
+      "energy": -569.4331665039062,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.396351284923895,
+      "nearest_median": 2.6044496003827233,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.28222212042789
+    },
+    {
+      "entry_id": 3,
+      "energy": -569.43212890625,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3954507050252651,
+      "nearest_median": 2.6072743573843504,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.27490932450693
+    },
+    {
+      "entry_id": 2,
+      "energy": -569.4309692382812,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.3970379694397144,
+      "nearest_median": 2.6043728664328585,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.278463449951698
+    },
+    {
+      "entry_id": 1,
+      "energy": -569.2710571289062,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.392032290812654,
+      "nearest_median": 2.5959198209171856,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 18.255178294299412
+    },
+    {
+      "entry_id": 0,
+      "energy": -568.3948974609375,
+      "cell_present": true,
+      "pbc": [
+        true,
+        true,
+        false
+      ],
+      "periodic_positions_in_cell": true,
+      "nearest_min": 1.340735466439842,
+      "nearest_median": 2.6240538217769016,
+      "nearest_max": 2.75064538,
+      "z_min": 10.0,
+      "z_max": 17.780282114542604
+    }
+  ],
+  "outputs": {
+    "summary": "runs/20260428-pdo-mace-slab-production/stage1_fmax010_trials12_truecurv/ssw_summary.json",
+    "energy_trace_json": "runs/20260428-pdo-mace-slab-production/stage1_fmax010_trials12_truecurv/energy_trace.json",
+    "energy_trace_png": "runs/20260428-pdo-mace-slab-production/stage1_fmax010_trials12_truecurv/energy_trace.png",
+    "archive_minima_xyz": "runs/20260428-pdo-mace-slab-production/stage1_fmax010_trials12_truecurv/archive_minima.xyz",
+    "best_minimum_xyz": "runs/20260428-pdo-mace-slab-production/stage1_fmax010_trials12_truecurv/best_minimum.xyz",
+    "minima_dir": "runs/20260428-pdo-mace-slab-production/stage1_fmax010_trials12_truecurv/minima_xyz"
+  }
+}
