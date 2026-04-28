@@ -110,8 +110,9 @@ class TrustRegionBiasController:
         true_delta: float,
         sigma_scale: float,
         weight_scale: float,
+        g_parallel: float = 0.0,
     ) -> TrustRegionUpdate:
-        predicted_delta = self.predicted_delta(curvature, sigma)
+        predicted_delta = self.predicted_delta(curvature, sigma, g_parallel=g_parallel)
         denominator = abs(predicted_delta) + self.epsilon
         model_error = abs(true_delta - predicted_delta) / denominator
         damaged = true_delta > max(1.0, self.damage_ratio * denominator)
@@ -136,8 +137,8 @@ class TrustRegionBiasController:
         )
 
     @staticmethod
-    def predicted_delta(curvature: float, sigma: float) -> float:
-        return float(0.5 * sigma * sigma * curvature)
+    def predicted_delta(curvature: float, sigma: float, g_parallel: float = 0.0) -> float:
+        return float(sigma * g_parallel + 0.5 * sigma * sigma * curvature)
 
     def _clip(self, value: float) -> float:
         return float(np.clip(value, self.min_scale, self.max_scale))
@@ -783,9 +784,12 @@ class SurfaceWalker:
                 archive=archive,
             )
             self._record_direction_choice(choice)
-            sigma = self._scaled_step_scale(choice.curvature, sigma_scale, step_target=step_target)
+            true_curvature = self._true_directional_curvature(current, choice.direction)
+            sigma = self._scaled_step_scale(true_curvature, sigma_scale, step_target=step_target)
             weight = self._bias_weight(choice.curvature, sigma) * weight_scale
-            true_energy_before = self.calculator.evaluate(current).energy
+            true_before = self.calculator.evaluate(current)
+            true_energy_before = true_before.energy
+            g_parallel = float(np.dot(true_before.gradient.reshape(-1), choice.direction))
             biases.append(
                 GaussianBiasTerm(
                     center=current.flatten_positions(),
@@ -816,13 +820,13 @@ class SurfaceWalker:
             true_energy_after = self.calculator.evaluate(current_candidate).energy
             if not np.isfinite(true_energy_after):
                 break
-            true_curvature = self._true_directional_curvature(current, choice.direction)
             trust_update = self.trust_controller.update(
                 curvature=true_curvature,
                 sigma=sigma,
                 true_delta=true_energy_after - true_energy_before,
                 sigma_scale=sigma_scale,
                 weight_scale=weight_scale,
+                g_parallel=g_parallel,
             )
             sigma_scale = trust_update.sigma_scale
             weight_scale = trust_update.weight_scale

@@ -309,6 +309,30 @@ def test_trust_region_controller_shrinks_after_bad_local_model():
     assert update.model_error > controller.error_tolerance
 
 
+def test_trust_region_prediction_includes_true_gradient_linear_term():
+    controller = TrustRegionBiasController()
+
+    predicted = controller.predicted_delta(curvature=2.0, sigma=0.5, g_parallel=-1.0)
+
+    assert predicted == pytest.approx(-0.25)
+
+
+def test_trust_region_accepts_model_when_linear_term_explains_delta():
+    controller = TrustRegionBiasController()
+
+    update = controller.update(
+        curvature=2.0,
+        sigma=0.5,
+        true_delta=-0.25,
+        g_parallel=-1.0,
+        sigma_scale=1.0,
+        weight_scale=1.0,
+    )
+
+    assert update.action == "expand"
+    assert update.model_error < controller.error_tolerance
+
+
 def test_bias_weight_is_clipped_by_configured_maximum():
     walker = SurfaceWalker(
         calculator=AnalyticCalculator(DoubleWell2D()),

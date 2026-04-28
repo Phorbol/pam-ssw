@@ -18,6 +18,7 @@ def test_ssw_finds_multiple_basins_from_single_seed():
             max_steps_per_walk=8,
             target_uphill_energy=1.2,
             target_negative_curvature=0.4,
+            max_step_scale=2.5,
             rng_seed=7,
         ),
     )

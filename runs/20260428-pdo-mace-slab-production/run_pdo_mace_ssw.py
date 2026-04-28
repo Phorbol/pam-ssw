@@ -35,6 +35,12 @@ def main() -> None:
     parser.add_argument("--proposal-fmax", type=float, default=0.05)
     parser.add_argument("--quench-fmax", type=float, default=0.03)
     parser.add_argument("--target-uphill-energy", type=float, default=0.25)
+    parser.add_argument("--min-step-scale", type=float, default=0.05)
+    parser.add_argument("--max-step-scale", type=float, default=0.6)
+    parser.add_argument("--proposal-trust-radius", type=float, default=0.8)
+    parser.add_argument("--walk-trust-radius", type=float, default=2.5)
+    parser.add_argument("--proposal-pool-size", type=int, default=1)
+    parser.add_argument("--dedup-rmsd-tol", type=float, default=0.15)
     parser.add_argument("--fix-bottom-fraction", type=float, default=0.35)
     parser.add_argument("--slab-pbc-z", action="store_true")
     args = parser.parse_args()
@@ -73,18 +79,19 @@ def main() -> None:
         max_steps_per_walk=args.steps_per_walk,
         target_uphill_energy=args.target_uphill_energy,
         quench_fmax=args.quench_fmax,
-        dedup_rmsd_tol=0.15,
+        dedup_rmsd_tol=args.dedup_rmsd_tol,
         dedup_energy_tol=1e-3,
         rng_seed=args.seed,
         oracle_candidates=args.oracle_candidates,
         proposal_relax_steps=args.proposal_relax_steps,
         proposal_fmax=args.proposal_fmax,
-        min_step_scale=0.05,
-        max_step_scale=0.6,
-        proposal_trust_radius=0.8,
-        walk_trust_radius=2.5,
+        min_step_scale=args.min_step_scale,
+        max_step_scale=args.max_step_scale,
+        proposal_trust_radius=args.proposal_trust_radius,
+        walk_trust_radius=args.walk_trust_radius,
         fragment_guard_factor=3.0,
         n_bond_pairs=2,
+        proposal_pool_size=args.proposal_pool_size,
         max_prototypes=500,
     )
 
