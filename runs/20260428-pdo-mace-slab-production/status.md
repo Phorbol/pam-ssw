@@ -311,3 +311,47 @@ Interpretation:
 Current conclusion:
 
 The slab failure was primarily an LS-SSW intensity-control problem, not a `quench_fmax` problem. The production direction should keep conservative local softening as the default and next improve the acquisition/trust policy so duplicate rate comes down without returning to the stage5 high-energy, high-RMSD regime.
+
+## Stage 7/8 Buckingham Dynamic Softening A/B
+
+Review hypothesis:
+
+- Gaussian well can behave like passive symmetric softening and, with a stale reference distance, can effectively constrain local geometry.
+- Buckingham repulsive softening should actively stretch local neighbor pairs.
+- Rebuilding local softening every micro-step should prevent stale `r0` from pulling the walk back toward the seed geometry.
+- `direction_curvature_source=true` should test whether old Gaussian bias curvature is the main source of soft-direction collapse.
+
+Code state for both runs:
+
+- commit `384866a`
+- LS-SSW, active-neighbor local softening
+- Buckingham penalty: `local_softening_penalty=buckingham_repulsive`
+- dynamic per-micro-step softening rebuild
+- `active_count=5`, `strength=0.15`, `cutoff_scale=1.15`, `xi=0.3`, `cutoff=2.0`
+- `proposal_relax_steps=300`, `proposal_optimizer=ase-fire`, `proposal_fmax=0.05`
+- `quench_fmax=0.03`, `quench_optimizer=scipy-lbfgsb`
+- CUDA, fp32, MACE `mace-omat-0-small.model`
+
+Runs:
+
+- A: `runs/20260428-pdo-mace-slab-production/stage7_lsssw_buckingham_dynamic_inner_trials40`
+- B: `runs/20260428-pdo-mace-slab-production/stage8_lsssw_buckingham_dynamic_true_trials40`
+
+Comparison:
+
+| run | best energy (eV) | unique minima | energy span (eV) | median RMSD to best (A) | z-span range (A) | soft/random/bond direction fraction | duplicate rate | escape rate | trust error mean | proposal unconverged | force evals |
+|---|---:|---:|---:|---:|---|---|---:|---:|---:|---:|---:|
+| stage6 Gaussian/static/inner | `-573.544434` | `23` | `5.150` | `0.499` | `7.452-7.940` | `0.791/0.156/0.053` | `0.439` | `0.550` | `2.197` | `184/320` | `16821` |
+| A Buckingham/dynamic/inner | `-575.396667` | `37` | `7.002` | `1.406` | `7.351-8.233` | `0.781/0.176/0.044` | `0.098` | `0.900` | `2.718` | `219/319` | `23204` |
+| B Buckingham/dynamic/true | `-573.871643` | `35` | `5.477` | `0.635` | `7.508-8.235` | `0.759/0.213/0.028` | `0.146` | `0.850` | `4.989` | `176/320` | `22937` |
+
+Interpretation:
+
+- Buckingham + dynamic `r0` is a clear improvement over stage6: A improves best energy by `1.852 eV`, raises unique minima from `23` to `37`, lowers duplicate rate from `0.439` to `0.098`, and broadens z-span from `0.488 A` to `0.882 A`.
+- The direction-collapse hypothesis is not strongly supported by this A/B. Switching direction scoring from inner curvature to true-PES curvature only lowers soft-direction fraction from `0.781` to `0.759`, while best energy becomes worse by `1.525 eV` relative to A.
+- B does reduce proposal unconverged count (`176/320` vs A's `219/319`) and narrows energy/RMSD spread, but this appears to make the search more conservative rather than better at finding low-energy minima.
+- Current best PdO setting from this batch is A: Buckingham + per-step rebuilding + inner direction curvature.
+
+Current conclusion:
+
+For this PdO slab, the main production gain came from fixing LS-SSW activation semantics (`Buckingham`) and stale softening references (`per-step r0`), not from using true-PES curvature for direction selection. The next controlled experiment should keep `direction_curvature_source=inner` and tune Buckingham activation intensity, especially `xi` and `active_count`, while monitoring proposal relaxation cost.
