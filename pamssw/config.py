@@ -59,6 +59,12 @@ class SSWConfig:
     max_prototypes: int = 1000
     max_force_evals: int | None = None
     accepted_structures_log: str | None = None
+    accepted_structures_dir: str | None = None
+    write_proposal_minima: bool = False
+    proposal_minima_dir: str | None = None
+    write_relaxation_trajectories: bool = False
+    relaxation_trajectory_dir: str | None = None
+    relaxation_trajectory_stride: int = 1
     direction_curvature_source: str = "inner"
 
     def __post_init__(self) -> None:
@@ -116,6 +122,12 @@ class SSWConfig:
             raise ValueError("proposal_optimizer must be one of scipy-lbfgsb, ase-fire, ase-lbfgs")
         if self.direction_curvature_source not in {"inner", "true"}:
             raise ValueError("direction_curvature_source must be inner or true")
+        if self.write_proposal_minima and self.proposal_minima_dir is None:
+            raise ValueError("proposal_minima_dir must be set when write_proposal_minima is enabled")
+        if self.write_relaxation_trajectories and self.relaxation_trajectory_dir is None:
+            raise ValueError("relaxation_trajectory_dir must be set when write_relaxation_trajectories is enabled")
+        if self.relaxation_trajectory_stride <= 0:
+            raise ValueError("relaxation_trajectory_stride must be positive")
         if self.fragment_guard_factor is not None and self.fragment_guard_factor <= 0:
             raise ValueError("fragment_guard_factor must be positive when set")
         if self.bond_distance_threshold is not None and self.bond_distance_threshold <= 0:

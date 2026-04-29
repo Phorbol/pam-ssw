@@ -577,6 +577,7 @@ def test_surface_walker_reports_relaxation_convergence_diagnostics():
 
 def test_surface_walker_writes_accepted_structure_log(tmp_path):
     log_path = tmp_path / "accepted_structures.jsonl"
+    accepted_dir = tmp_path / "accepted_minima"
     initial = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))
     walker = SurfaceWalker(
         calculator=AnalyticCalculator(DoubleWell2D()),
@@ -586,6 +587,7 @@ def test_surface_walker_writes_accepted_structure_log(tmp_path):
             oracle_candidates=2,
             rng_seed=0,
             accepted_structures_log=str(log_path),
+            accepted_structures_dir=str(accepted_dir),
         ),
         softening_enabled=False,
     )
@@ -595,6 +597,7 @@ def test_surface_walker_writes_accepted_structure_log(tmp_path):
     lines = log_path.read_text().splitlines()
     accepted_records = [record for record in result.walk_history if record.accepted_new_basin]
     assert len(lines) == len(accepted_records)
+    assert len(list(accepted_dir.glob("*.xyz"))) == len(accepted_records)
     if accepted_records:
         payload = json.loads(lines[0])
         assert payload["trial_index"] == 1
@@ -602,6 +605,74 @@ def test_surface_walker_writes_accepted_structure_log(tmp_path):
         assert payload["discovered_entry_id"] == accepted_records[0].discovered_entry_id
         assert payload["energy"] == pytest.approx(accepted_records[0].energy)
         assert payload["best_energy"] == pytest.approx(result.best_energy)
+        assert len(payload["descriptor"]) == 20
+
+
+def test_surface_walker_can_write_all_proposal_minima(tmp_path):
+    proposal_dir = tmp_path / "proposal_minima"
+    initial = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(
+            max_trials=1,
+            max_steps_per_walk=1,
+            oracle_candidates=2,
+            rng_seed=0,
+            write_proposal_minima=True,
+            proposal_minima_dir=str(proposal_dir),
+        ),
+        softening_enabled=False,
+    )
+
+    result = walker.run(initial)
+
+    proposal_files = list(proposal_dir.glob("*.xyz"))
+    assert len(proposal_files) == result.stats["local_relaxations"] - 1
+
+
+def test_surface_walker_can_write_relaxation_trajectories(tmp_path):
+    trajectory_dir = tmp_path / "relaxation_trajectories"
+    initial = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(
+            max_trials=1,
+            max_steps_per_walk=1,
+            oracle_candidates=2,
+            rng_seed=0,
+            write_relaxation_trajectories=True,
+            relaxation_trajectory_dir=str(trajectory_dir),
+        ),
+        softening_enabled=False,
+    )
+
+    walker.run(initial)
+
+    assert list(trajectory_dir.glob("*proposal_relax.xyz"))
+    assert list(trajectory_dir.glob("*true_quench.xyz"))
+
+
+def test_surface_walker_warns_once_when_trajectory_context_is_missing(tmp_path, capsys):
+    trajectory_dir = tmp_path / "relaxation_trajectories"
+    initial = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(
+            max_trials=1,
+            max_steps_per_walk=1,
+            oracle_candidates=2,
+            rng_seed=0,
+            write_relaxation_trajectories=True,
+            relaxation_trajectory_dir=str(trajectory_dir),
+        ),
+        softening_enabled=False,
+    )
+
+    walker._walk_candidate_from_seed(initial)
+    walker._walk_candidate_from_seed(initial)
+
+    captured = capsys.readouterr()
+    assert captured.err.count("missing trajectory context") == 1
 
 
 def test_surface_walker_reports_observable_frontier_diagnostics():

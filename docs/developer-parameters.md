@@ -127,6 +127,18 @@ Bandit score(i) = -β·E_norm + w_nov·novelty - w_den·log(1+density) + c·√(
 |------|------|------|
 | `proposal_pool_size` | 1 | 每 trial 的 proposal 并行数 |
 
+### 搜索输出与轨迹
+
+| 参数 | 默认 | 说明 |
+|------|------|------|
+| `accepted_structures_log` | None | JSONL 日志路径。每当 archive 接受一个新的 basin，写入 `trial_index`、`seed_entry_id`、`discovered_entry_id`、`energy`、`best_energy`。 |
+| `accepted_structures_dir` | None | 被接受的新极小值结构输出目录。设置后，每个 accepted basin 立即写一个 `.xyz`。PdO slab runner 默认设为 `output_dir/accepted_minima`。 |
+| `write_proposal_minima` | False | 是否输出每个 trial 的所有 proposal true-minimum，包括 accepted、duplicate、fragment_rejected。默认关闭，避免大量文件。 |
+| `proposal_minima_dir` | None | `write_proposal_minima=True` 时的 `.xyz` 输出目录。 |
+| `write_relaxation_trajectories` | False | 是否输出优化器完整轨迹，包括 bias PES 上的 proposal short relax 和 true PES 上的 quench/long relax。默认关闭，文件量很大。 |
+| `relaxation_trajectory_dir` | None | `write_relaxation_trajectories=True` 时的轨迹 `.xyz` 输出目录。 |
+| `relaxation_trajectory_stride` | 1 | 轨迹采样步长。核心默认每步记录；PdO slab runner 默认 `50`，避免 ASE FIRE 轨迹文件过大。 |
+
 ---
 
 ## `LSSSWConfig` — LS-SSW 额外参数

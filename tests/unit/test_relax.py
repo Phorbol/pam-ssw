@@ -74,6 +74,30 @@ def test_relaxer_reports_bound_fraction_and_displacement(monkeypatch):
     assert result.displacement_rms == pytest.approx(result.displacement_max)
 
 
+def test_relaxer_reports_scipy_trajectory_states(monkeypatch):
+    class Result:
+        x = np.array([0.25, 0.0, 0.0])
+        nit = 1
+
+    def fake_minimize(fun, x0, method, jac, bounds=None, options=None, callback=None):
+        if callback is not None:
+            callback(np.array([0.25, 0.0, 0.0]))
+        return Result()
+
+    monkeypatch.setattr("pamssw.relax.minimize", fake_minimize)
+
+    def evaluator(flat_positions, template):
+        return 0.0, np.zeros_like(flat_positions)
+
+    trajectory = []
+    state = State(numbers=np.array([1]), positions=np.array([[0.5, 0.0, 0.0]]))
+    Relaxer(evaluator).relax(state, fmax=1e-4, maxiter=3, trajectory_callback=trajectory.append)
+
+    assert len(trajectory) >= 2
+    np.testing.assert_allclose(trajectory[0].positions, np.array([[0.5, 0.0, 0.0]]))
+    np.testing.assert_allclose(trajectory[-1].positions, np.array([[0.25, 0.0, 0.0]]))
+
+
 def test_relaxer_leaves_periodic_axes_unbounded(monkeypatch):
     captured = {}
 
@@ -155,3 +179,21 @@ def test_relaxer_can_use_ase_fire_without_scipy_line_search():
     assert result.gradient_norm < 1e-4
     assert result.energy < 1e-8
     assert result.n_iter > 0
+
+
+def test_relaxer_applies_ase_trajectory_stride():
+    def evaluator(flat_positions, template):
+        return 0.5 * float(np.dot(flat_positions, flat_positions)), flat_positions.copy()
+
+    trajectory = []
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    Relaxer(evaluator, optimizer="ase-fire").relax(
+        state,
+        fmax=1e-4,
+        maxiter=20,
+        trajectory_callback=trajectory.append,
+        trajectory_stride=5,
+    )
+
+    assert len(trajectory) < 20
+    assert len(trajectory) >= 2

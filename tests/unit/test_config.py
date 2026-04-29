@@ -135,6 +135,23 @@ def test_config_validates_direction_curvature_source():
         SSWConfig(direction_curvature_source="biased")
 
 
+def test_config_validates_search_output_controls():
+    assert SSWConfig(accepted_structures_dir="accepted").accepted_structures_dir == "accepted"
+    assert SSWConfig(write_proposal_minima=True, proposal_minima_dir="proposals").write_proposal_minima
+    assert SSWConfig(
+        write_relaxation_trajectories=True,
+        relaxation_trajectory_dir="trajectories",
+        relaxation_trajectory_stride=5,
+    ).write_relaxation_trajectories
+
+    with pytest.raises(ValueError, match="proposal_minima_dir"):
+        SSWConfig(write_proposal_minima=True)
+    with pytest.raises(ValueError, match="relaxation_trajectory_dir"):
+        SSWConfig(write_relaxation_trajectories=True)
+    with pytest.raises(ValueError, match="relaxation_trajectory_stride"):
+        SSWConfig(relaxation_trajectory_stride=0)
+
+
 def test_ls_ssw_validates_softening_penalty_controls():
     config = LSSSWConfig(
         local_softening_penalty="buckingham_repulsive",

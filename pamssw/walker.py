@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+import sys
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
+from ase import Atoms
+from ase.io import write
 import numpy as np
 
 from .acquisition import AcquisitionPolicy, BanditSelector, ProposalOutcome, ProposalScorer
@@ -595,18 +598,25 @@ class SurfaceWalker:
         self.trust_controller = TrustRegionBiasController()
         self.step_target_controller = StepTargetController(config.target_uphill_energy)
         self.geometry_validator = GeometryValidator()
+        self._missing_trajectory_context_warned = False
         self._reset_trust_stats()
         self._reset_direction_stats()
         self._reset_relax_stats()
         self._reset_bias_stats()
         self._reset_local_softening_stats()
 
-    def relax_true_minimum(self, state: State) -> RelaxResult:
+    def relax_true_minimum(self, state: State, trajectory_name: str | None = None) -> RelaxResult:
         if not self.geometry_validator.is_valid_state(state):
             raise BudgetExceeded("invalid geometry before true relaxation")
         relaxer = Relaxer(self.calculator.evaluate_flat, optimizer=self.config.quench_optimizer)
         relax_config = RelaxConfig(fmax=self.config.quench_fmax, maxiter=400)
-        result = relaxer.relax(state, fmax=relax_config.fmax, maxiter=relax_config.maxiter)
+        result = relaxer.relax(
+            state,
+            fmax=relax_config.fmax,
+            maxiter=relax_config.maxiter,
+            trajectory_callback=self._relaxation_trajectory_callback(trajectory_name),
+            trajectory_stride=self.config.relaxation_trajectory_stride,
+        )
         if not self.geometry_validator.is_valid_evaluation(result.state, self.calculator):
             raise BudgetExceeded("invalid geometry after true relaxation")
         self._record_relax_result("true_quench", result, relax_config.fmax)
@@ -621,7 +631,8 @@ class SurfaceWalker:
         self._reset_bias_stats()
         self._reset_local_softening_stats()
         self._reset_accepted_structure_log()
-        initial = self.relax_true_minimum(initial_state)
+        self._prepare_structure_output_dirs()
+        initial = self.relax_true_minimum(initial_state, trajectory_name="initial_true_quench")
         archive = MinimaArchive(
             energy_tol=self.config.dedup_energy_tol,
             rmsd_tol=self.config.dedup_rmsd_tol,
@@ -633,6 +644,9 @@ class SurfaceWalker:
 
         completed_trials = 0
         budget_exhausted = False
+        _t0 = __import__("time").time()
+        _p = lambda msg: print(f"[ssw] {msg}", flush=True)
+        _p(f"starting {self.config.max_trials} trials...")
         for trial_index in range(self.config.max_trials):
             if self.calculator.exhausted():
                 budget_exhausted = True
@@ -656,14 +670,27 @@ class SurfaceWalker:
             any_new = False
             duplicate_failures = 0
             previous_best_energy = best_entry.energy
-            for proposal in proposals:
+            for proposal_index, proposal in enumerate(proposals):
                 try:
-                    candidate = self.relax_true_minimum(proposal.state)
+                    candidate = self.relax_true_minimum(
+                        proposal.state,
+                        trajectory_name=(
+                            f"trial{trial_index + 1:04d}_proposal{proposal_index + 1:03d}_true_quench"
+                        ),
+                    )
                 except BudgetExceeded:
                     budget_exhausted = True
                     break
                 local_relaxations += 1
                 if self._is_fragmented_cluster(seed_entry.state, candidate.state):
+                    self._write_proposal_minimum(
+                        trial_index=trial_index + 1,
+                        proposal_index=proposal_index + 1,
+                        state=candidate.state,
+                        energy=candidate.energy,
+                        seed_entry_id=seed_entry.entry_id,
+                        status="fragment_rejected",
+                    )
                     self._fragment_rejections += 1
                     duplicate_failures += 1
                     continue
@@ -675,6 +702,15 @@ class SurfaceWalker:
                 is_duplicate = not is_new
                 duplicate_failures += int(is_duplicate)
                 any_new = any_new or is_new
+                self._write_proposal_minimum(
+                    trial_index=trial_index + 1,
+                    proposal_index=proposal_index + 1,
+                    state=candidate.state,
+                    energy=candidate.energy,
+                    seed_entry_id=seed_entry.entry_id,
+                    discovered_entry_id=discovered.entry_id,
+                    status="accepted" if is_new else "duplicate",
+                )
                 outcome = ProposalOutcome(
                     energy=candidate.energy,
                     previous_best_energy=previous_best_energy,
@@ -691,6 +727,7 @@ class SurfaceWalker:
                         trial_index=trial_index + 1,
                         seed_entry_id=seed_entry.entry_id,
                         discovered_entry_id=discovered.entry_id,
+                        state=discovered.state,
                         energy=discovered.energy,
                         best_energy=best_entry.energy,
                     )
@@ -707,6 +744,8 @@ class SurfaceWalker:
                 )
                 archive.record_success(seed_entry, 0.0, duplicate_failures=max(1, duplicate_failures))
                 completed_trials += 1
+                _el = __import__("time").time() - _t0
+                _p(f"trial {completed_trials}/{self.config.max_trials}  best={best_entry.energy:.3f} eV  minima={len(archive.entries)}  elapsed={_el:.0f}s")
                 continue
             self.step_target_controller.record_trial(
                 escaped=any_new,
@@ -722,7 +761,11 @@ class SurfaceWalker:
                 )
             )
             completed_trials += 1
+            _el = __import__("time").time() - _t0
+            _p(f"trial {completed_trials}/{self.config.max_trials}  best={best_entry.energy:.3f} eV  minima={len(archive.entries)}  elapsed={_el:.0f}s")
 
+        _el = __import__("time").time() - _t0
+        _p(f"done: {completed_trials} trials, {len(archive.entries)} minima, best={best_entry.energy:.3f} eV, elapsed={_el:.0f}s")
         archive.refresh_frontier_status()
         prototype_stats = archive.prototype_occupancy()
         frontier_stats = archive.frontier_diagnostics()
@@ -768,11 +811,27 @@ class SurfaceWalker:
 
     def _proposal_pool(self, seed_state: State, archive, trial_index: int, step_target: float | None = None) -> list[CandidateProposal]:
         return [
-            CandidateProposal("ssw_walk", self._walk_candidate_from_seed(seed_state, archive, step_target))
-            for _ in range(self.config.proposal_pool_size)
+            CandidateProposal(
+                "ssw_walk",
+                self._walk_candidate_from_seed(
+                    seed_state,
+                    archive,
+                    step_target,
+                    trial_index=trial_index,
+                    proposal_index=proposal_index,
+                ),
+            )
+            for proposal_index in range(self.config.proposal_pool_size)
         ]
 
-    def _walk_candidate_from_seed(self, seed_state: State, archive=None, step_target: float | None = None) -> State:
+    def _walk_candidate_from_seed(
+        self,
+        seed_state: State,
+        archive=None,
+        step_target: float | None = None,
+        trial_index: int | None = None,
+        proposal_index: int | None = None,
+    ) -> State:
         current = seed_state
         previous_direction: np.ndarray | None = None
         anchor_direction: np.ndarray | None = None
@@ -836,6 +895,15 @@ class SurfaceWalker:
                 fmax=self.config.proposal_fmax,
                 maxiter=self.config.proposal_relax_steps,
                 coordinate_trust_radius=self.config.proposal_trust_radius,
+                trajectory_callback=self._relaxation_trajectory_callback(
+                    self._trajectory_name(
+                        "proposal_relax",
+                        trial_index=trial_index,
+                        proposal_index=proposal_index,
+                        step_index=step_index,
+                    )
+                ),
+                trajectory_stride=self.config.relaxation_trajectory_stride,
             )
             self._record_relax_result("proposal_relax", proposal_relax, self.config.proposal_fmax)
             current_candidate, clipped = self._clip_walk_displacement(
@@ -969,27 +1037,148 @@ class SurfaceWalker:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("")
 
+    def _prepare_structure_output_dirs(self) -> None:
+        for path_value in (
+            self.config.accepted_structures_dir,
+            self.config.proposal_minima_dir if self.config.write_proposal_minima else None,
+            self.config.relaxation_trajectory_dir if self.config.write_relaxation_trajectories else None,
+        ):
+            if path_value is not None:
+                Path(path_value).mkdir(parents=True, exist_ok=True)
+
     def _record_accepted_structure(
         self,
         *,
         trial_index: int,
         seed_entry_id: int,
         discovered_entry_id: int,
+        state: State,
         energy: float,
         best_energy: float,
     ) -> None:
         path = self._accepted_structure_log_path()
-        if path is None:
+        if path is not None:
+            payload = {
+                "trial_index": int(trial_index),
+                "seed_entry_id": int(seed_entry_id),
+                "discovered_entry_id": int(discovered_entry_id),
+                "energy": float(energy),
+                "best_energy": float(best_energy),
+                "descriptor": structural_descriptor(state).astype(float).tolist(),
+            }
+            with path.open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps(payload, sort_keys=True) + "\n")
+        self._write_accepted_minimum(
+            trial_index=trial_index,
+            state=state,
+            energy=energy,
+            seed_entry_id=seed_entry_id,
+            discovered_entry_id=discovered_entry_id,
+        )
+
+    def _write_accepted_minimum(
+        self,
+        *,
+        trial_index: int,
+        state: State,
+        energy: float,
+        seed_entry_id: int,
+        discovered_entry_id: int,
+    ) -> None:
+        directory = self.config.accepted_structures_dir
+        if directory is None:
             return
-        payload = {
-            "trial_index": int(trial_index),
-            "seed_entry_id": int(seed_entry_id),
-            "discovered_entry_id": int(discovered_entry_id),
-            "energy": float(energy),
-            "best_energy": float(best_energy),
-        }
-        with path.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(payload, sort_keys=True) + "\n")
+        filename = f"trial{trial_index:04d}_entry{discovered_entry_id:04d}_accepted.xyz"
+        self._write_state_xyz(
+            Path(directory) / filename,
+            state,
+            {
+                "trial_index": trial_index,
+                "seed_entry_id": seed_entry_id,
+                "discovered_entry_id": discovered_entry_id,
+                "energy": energy,
+                "status": "accepted",
+            },
+        )
+
+    def _write_proposal_minimum(
+        self,
+        *,
+        trial_index: int,
+        proposal_index: int,
+        state: State,
+        energy: float,
+        seed_entry_id: int,
+        status: str,
+        discovered_entry_id: int | None = None,
+    ) -> None:
+        if not self.config.write_proposal_minima or self.config.proposal_minima_dir is None:
+            return
+        entry_part = "none" if discovered_entry_id is None else f"{discovered_entry_id:04d}"
+        filename = f"trial{trial_index:04d}_proposal{proposal_index:03d}_entry{entry_part}_{status}.xyz"
+        self._write_state_xyz(
+            Path(self.config.proposal_minima_dir) / filename,
+            state,
+            {
+                "trial_index": trial_index,
+                "proposal_index": proposal_index,
+                "seed_entry_id": seed_entry_id,
+                "discovered_entry_id": -1 if discovered_entry_id is None else discovered_entry_id,
+                "energy": energy,
+                "status": status,
+            },
+        )
+
+    def _trajectory_name(
+        self,
+        phase: str,
+        *,
+        trial_index: int | None,
+        proposal_index: int | None,
+        step_index: int | None,
+    ) -> str | None:
+        if trial_index is None or proposal_index is None or step_index is None:
+            return None
+        return (
+            f"trial{trial_index + 1:04d}_proposal{proposal_index + 1:03d}_"
+            f"step{step_index + 1:03d}_{phase}"
+        )
+
+    def _relaxation_trajectory_callback(self, trajectory_name: str | None):
+        if not self.config.write_relaxation_trajectories or self.config.relaxation_trajectory_dir is None:
+            return None
+        if trajectory_name is None:
+            if not self._missing_trajectory_context_warned:
+                print(
+                    "[ssw] warning: missing trajectory context; skipping unnamed relaxation trajectory",
+                    file=sys.stderr,
+                    flush=True,
+                )
+                self._missing_trajectory_context_warned = True
+            return None
+        directory = Path(self.config.relaxation_trajectory_dir)
+        directory.mkdir(parents=True, exist_ok=True)
+        path = directory / f"{trajectory_name}.xyz"
+        counter = {"step": 0}
+
+        def record(state: State) -> None:
+            step = counter["step"]
+            counter["step"] = step + 1
+            self._write_state_xyz(path, state, {"trajectory": trajectory_name, "trajectory_step": step}, append=step > 0)
+
+        return record
+
+    @staticmethod
+    def _write_state_xyz(path: Path, state: State, info: dict[str, object], append: bool = False) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        atoms = Atoms(
+            numbers=state.numbers,
+            positions=state.positions,
+            cell=state.cell,
+            pbc=state.pbc,
+        )
+        atoms.info.update(info)
+        write(path, atoms, append=append)
 
     def _record_relax_result(self, label: str, result: RelaxResult, fmax: float) -> None:
         stats = self._relax_stats[label]

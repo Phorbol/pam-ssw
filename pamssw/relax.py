@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, Protocol
+from typing import Callable, Literal, Protocol
 
 from ase import Atoms
 from ase.calculators.calculator import Calculator, all_changes
@@ -59,8 +59,12 @@ class Relaxer:
         fmax: float,
         maxiter: int,
         coordinate_trust_radius: float | None = None,
+        trajectory_callback: Callable[[State], None] | None = None,
+        trajectory_stride: int = 1,
     ) -> RelaxResult:
         x0 = state.flatten_active()
+        if trajectory_stride <= 0:
+            raise ValueError("trajectory_stride must be positive")
         bounds = None
         if coordinate_trust_radius is not None:
             if coordinate_trust_radius <= 0.0:
@@ -69,7 +73,13 @@ class Relaxer:
                 bounds = self._coordinate_bounds(state, coordinate_trust_radius)
 
         if self.optimizer in {"ase-fire", "ase-lbfgs"}:
-            relaxed, n_iter = self._relax_with_ase(state, fmax=fmax, maxiter=maxiter)
+            relaxed, n_iter = self._relax_with_ase(
+                state,
+                fmax=fmax,
+                maxiter=maxiter,
+                trajectory_callback=trajectory_callback,
+                trajectory_stride=trajectory_stride,
+            )
             energy, full_gradient = self.evaluator(relaxed.flatten_positions(), relaxed)
             grad_matrix = full_gradient.reshape(relaxed.n_atoms, 3)
             active_gradient = grad_matrix[relaxed.movable_mask].reshape(-1)
@@ -89,7 +99,14 @@ class Relaxer:
             )
         if self.optimizer != "scipy-lbfgsb":
             raise ValueError(f"unsupported relax optimizer: {self.optimizer}")
-        return self._relax_with_scipy(state, fmax=fmax, maxiter=maxiter, bounds=bounds)
+        return self._relax_with_scipy(
+            state,
+            fmax=fmax,
+            maxiter=maxiter,
+            bounds=bounds,
+            trajectory_callback=trajectory_callback,
+            trajectory_stride=trajectory_stride,
+        )
 
     def _relax_with_scipy(
         self,
@@ -97,8 +114,12 @@ class Relaxer:
         fmax: float,
         maxiter: int,
         bounds: list[tuple[float | None, float | None]] | None,
+        trajectory_callback: Callable[[State], None] | None,
+        trajectory_stride: int,
     ) -> RelaxResult:
         x0 = state.flatten_active()
+        if trajectory_callback is not None:
+            trajectory_callback(state)
 
         def objective(active_flat: np.ndarray) -> tuple[float, np.ndarray]:
             candidate = state.with_active_positions(active_flat)
@@ -106,6 +127,17 @@ class Relaxer:
             grad_matrix = full_gradient.reshape(candidate.n_atoms, 3)
             return energy, grad_matrix[candidate.movable_mask].reshape(-1)
 
+        def callback(active_flat: np.ndarray) -> None:
+            if trajectory_callback is not None:
+                callback.count += 1
+                if callback.count % trajectory_stride == 0:
+                    trajectory_callback(state.with_active_positions(np.asarray(active_flat, dtype=float)))
+
+        callback.count = 0
+
+        minimize_kwargs = {}
+        if trajectory_callback is not None:
+            minimize_kwargs["callback"] = callback
         result = minimize(
             objective,
             x0,
@@ -113,6 +145,7 @@ class Relaxer:
             jac=True,
             bounds=bounds,
             options={"maxiter": maxiter, "gtol": fmax, "ftol": 1e-12, "maxls": 50},
+            **minimize_kwargs,
         )
         relaxed = state.with_active_positions(np.asarray(result.x, dtype=float))
         if relaxed.cell is not None and any(relaxed.pbc):
@@ -139,6 +172,8 @@ class Relaxer:
             n_iter = int(result.nit)
         else:
             n_iter = int(result.nit)
+        if trajectory_callback is not None:
+            trajectory_callback(relaxed)
         return RelaxResult(
             state=relaxed,
             energy=float(energy),
@@ -149,7 +184,14 @@ class Relaxer:
             displacement_max=displacement_max,
         )
 
-    def _relax_with_ase(self, state: State, fmax: float, maxiter: int) -> tuple[State, int]:
+    def _relax_with_ase(
+        self,
+        state: State,
+        fmax: float,
+        maxiter: int,
+        trajectory_callback: Callable[[State], None] | None = None,
+        trajectory_stride: int = 1,
+    ) -> tuple[State, int]:
         atoms = Atoms(
             numbers=state.numbers,
             positions=state.positions,
@@ -161,6 +203,22 @@ class Relaxer:
         atoms.calc = _EvaluatorCalculator(self.evaluator, state)
         optimizer_cls = FIRE if self.optimizer == "ase-fire" else LBFGS
         optimizer = optimizer_cls(atoms, logfile=None)
+        if trajectory_callback is not None:
+            trajectory_callback(state)
+
+            def record_step() -> None:
+                trajectory_callback(
+                    State(
+                        numbers=state.numbers.copy(),
+                        positions=np.asarray(atoms.get_positions(), dtype=float),
+                        cell=None if state.cell is None else state.cell.copy(),
+                        pbc=state.pbc,
+                        fixed_mask=state.fixed_mask.copy(),
+                        metadata=state.metadata.copy(),
+                    )
+                )
+
+            optimizer.attach(record_step, interval=trajectory_stride)
         optimizer.run(fmax=fmax, steps=maxiter)
         relaxed = State(
             numbers=state.numbers.copy(),
@@ -180,6 +238,8 @@ class Relaxer:
                 metadata=relaxed.metadata.copy(),
             )
         n_iter = int(getattr(optimizer, "nsteps", 0))
+        if trajectory_callback is not None:
+            trajectory_callback(relaxed)
         return relaxed, n_iter
 
     @staticmethod
