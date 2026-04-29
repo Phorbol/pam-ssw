@@ -42,6 +42,10 @@ def main() -> None:
     parser.add_argument("--max-step-scale", type=float, default=0.6)
     parser.add_argument("--proposal-trust-radius", type=_optional_float, default=0.8)
     parser.add_argument("--walk-trust-radius", type=float, default=2.5)
+    parser.add_argument("--continuity-weight", type=float, default=0.1)
+    parser.add_argument("--disable-outcome-gated-continuity", action="store_true")
+    parser.add_argument("--history-push-weight", type=float, default=0.1)
+    parser.add_argument("--disable-momentum-candidate", action="store_true")
     parser.add_argument("--proposal-pool-size", type=int, default=1)
     parser.add_argument("--dedup-rmsd-tol", type=float, default=0.15)
     parser.add_argument("--accepted-structures-log", type=Path, default=None)
@@ -54,6 +58,11 @@ def main() -> None:
     parser.add_argument("--fix-bottom-fraction", type=float, default=0.35)
     parser.add_argument("--slab-pbc-z", action="store_true")
     parser.add_argument("--direction-curvature-source", choices=("inner", "true"), default="inner")
+    parser.add_argument(
+        "--direction-score-sigma-mode",
+        choices=("adaptive", "trust_scaled", "fixed_reference"),
+        default="adaptive",
+    )
     parser.add_argument("--local-softening-mode", choices=("neighbor_auto", "active_neighbors", "manual"), default="active_neighbors")
     parser.add_argument("--local-softening-cutoff-scale", type=float, default=1.15)
     parser.add_argument("--local-softening-active-count", type=_optional_int, default=5)
@@ -123,6 +132,10 @@ def main() -> None:
         max_step_scale=args.max_step_scale,
         proposal_trust_radius=args.proposal_trust_radius,
         walk_trust_radius=args.walk_trust_radius,
+        continuity_weight=args.continuity_weight,
+        enable_outcome_gated_continuity=not args.disable_outcome_gated_continuity,
+        history_push_weight=args.history_push_weight,
+        enable_momentum_candidate=not args.disable_momentum_candidate,
         fragment_guard_factor=3.0,
         n_bond_pairs=2,
         proposal_pool_size=args.proposal_pool_size,
@@ -135,6 +148,7 @@ def main() -> None:
         relaxation_trajectory_dir=str(relaxation_trajectory_dir) if args.write_relaxation_trajectories else None,
         relaxation_trajectory_stride=args.relaxation_trajectory_stride,
         direction_curvature_source=args.direction_curvature_source,
+        direction_score_sigma_mode=args.direction_score_sigma_mode,
     )
     if args.search_kind == "ls-ssw":
         config = LSSSWConfig(

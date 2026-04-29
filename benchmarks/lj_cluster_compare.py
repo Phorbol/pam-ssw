@@ -54,7 +54,7 @@ class RunSummary:
     direction_mean_candidate_pool_size: float | None = None
     direction_rigid_body_overlap_mean: float | None = None
     direction_post_projection_rigid_body_overlap_mean: float | None = None
-    direction_selected_soft: int | None = None
+    direction_selected_momentum: int | None = None
     direction_selected_random: int | None = None
     direction_selected_bond: int | None = None
     walk_displacement_clips: int | None = None
@@ -228,7 +228,7 @@ def run_ssw_trial(
         direction_post_projection_rigid_body_overlap_mean=float(
             result.stats.get("direction_post_projection_rigid_body_overlap_mean", 0.0)
         ),
-        direction_selected_soft=int(result.stats.get("direction_selected_soft", 0)),
+        direction_selected_momentum=int(result.stats.get("direction_selected_momentum", 0)),
         direction_selected_random=int(result.stats.get("direction_selected_random", 0)),
         direction_selected_bond=int(result.stats.get("direction_selected_bond", 0)),
         walk_displacement_clips=int(result.stats.get("walk_displacement_clips", 0)),

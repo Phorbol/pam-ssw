@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from enum import Enum
 from pathlib import Path
 
@@ -18,7 +18,7 @@ from .coordinates import CartesianCoordinates, TangentVector
 from .fingerprint import structural_descriptor
 from .pbc import mic_displacement, mic_distance_matrix, wrap_positions
 from .relax import Relaxer
-from .result import RelaxResult, SearchResult, WalkRecord
+from .result import RelaxOutcomeClass, RelaxResult, SearchResult, WalkRecord
 from .rigid import project_out_rigid_body_modes, rigid_body_overlap
 from .softening import LocalSofteningModel
 from .state import State
@@ -96,17 +96,129 @@ class TrustRegionUpdate:
     sigma_scale: float
     weight_scale: float
     action: str
+    sigma_action: str = "hold"
+    weight_action: str = "hold"
 
 
 @dataclass(frozen=True)
-class TrustRegionBiasController:
+class StepLengthUpdate:
+    predicted_delta: float
+    true_delta: float
+    model_error: float
+    damaged: bool
+    sigma_scale: float
+    action: str
+
+
+@dataclass(frozen=True)
+class BiasStrengthUpdate:
+    post_bias_curvature: float
+    curvature_flipped: bool
+    weight_scale: float
+    action: str
+
+
+@dataclass(frozen=True)
+class StepLengthController:
     error_tolerance: float = 1.0
     gamma_down: float = 0.5
     gamma_up: float = 1.15
     min_scale: float = 0.25
     max_scale: float = 2.0
     damage_ratio: float = 8.0
+    active_bound_tolerance: float = 0.35
     epsilon: float = 1e-8
+
+    def update(
+        self,
+        curvature: float,
+        sigma: float,
+        true_delta: float,
+        sigma_scale: float,
+        g_parallel: float = 0.0,
+        error_floor: float = 0.0,
+        active_bound_fraction: float = 0.0,
+    ) -> StepLengthUpdate:
+        predicted_delta = self.predicted_delta(curvature, sigma, g_parallel=g_parallel)
+        denominator = max(abs(predicted_delta), float(error_floor)) + self.epsilon
+        model_error = abs(true_delta - predicted_delta) / denominator
+        damaged = true_delta > max(1.0, self.damage_ratio * denominator)
+        if damaged or model_error > self.error_tolerance or active_bound_fraction > self.active_bound_tolerance:
+            return StepLengthUpdate(
+                predicted_delta=predicted_delta,
+                true_delta=float(true_delta),
+                model_error=float(model_error),
+                damaged=damaged,
+                sigma_scale=self._clip(sigma_scale * self.gamma_down),
+                action="shrink",
+            )
+        return StepLengthUpdate(
+            predicted_delta=predicted_delta,
+            true_delta=float(true_delta),
+            model_error=float(model_error),
+            damaged=False,
+            sigma_scale=self._clip(sigma_scale * self.gamma_up),
+            action="expand",
+        )
+
+    @staticmethod
+    def predicted_delta(curvature: float, sigma: float, g_parallel: float = 0.0) -> float:
+        return float(sigma * g_parallel + 0.5 * sigma * sigma * curvature)
+
+    def _clip(self, value: float) -> float:
+        return float(np.clip(value, self.min_scale, self.max_scale))
+
+
+@dataclass(frozen=True)
+class BiasStrengthController:
+    gamma_down: float = 0.5
+    gamma_up: float = 1.15
+    min_scale: float = 0.25
+    max_scale: float = 2.0
+
+    def update(
+        self,
+        curvature: float,
+        sigma: float,
+        bias_weight: float,
+        weight_scale: float,
+        bias_induced_damage: bool = False,
+    ) -> BiasStrengthUpdate:
+        post_bias_curvature = float(curvature - bias_weight / max(sigma * sigma, 1e-12))
+        curvature_flipped = post_bias_curvature < 0.0
+        if bias_induced_damage:
+            return BiasStrengthUpdate(
+                post_bias_curvature=post_bias_curvature,
+                curvature_flipped=curvature_flipped,
+                weight_scale=self._clip(weight_scale * self.gamma_down),
+                action="shrink",
+            )
+        if not curvature_flipped:
+            return BiasStrengthUpdate(
+                post_bias_curvature=post_bias_curvature,
+                curvature_flipped=False,
+                weight_scale=self._clip(weight_scale * self.gamma_up),
+                action="expand",
+            )
+        return BiasStrengthUpdate(
+            post_bias_curvature=post_bias_curvature,
+            curvature_flipped=True,
+            weight_scale=self._clip(weight_scale),
+            action="hold",
+        )
+
+    def _clip(self, value: float) -> float:
+        return float(np.clip(value, self.min_scale, self.max_scale))
+
+
+@dataclass(frozen=True)
+class TrustRegionBiasController:
+    step_length: StepLengthController = field(default_factory=StepLengthController)
+    bias_strength: BiasStrengthController = field(default_factory=BiasStrengthController)
+
+    @property
+    def error_tolerance(self) -> float:
+        return self.step_length.error_tolerance
 
     def update(
         self,
@@ -117,37 +229,49 @@ class TrustRegionBiasController:
         weight_scale: float,
         g_parallel: float = 0.0,
         error_floor: float = 0.0,
+        active_bound_fraction: float = 0.0,
+        bias_weight: float = 0.0,
+        bias_induced_damage: bool = False,
     ) -> TrustRegionUpdate:
-        predicted_delta = self.predicted_delta(curvature, sigma, g_parallel=g_parallel)
-        denominator = max(abs(predicted_delta), float(error_floor)) + self.epsilon
-        model_error = abs(true_delta - predicted_delta) / denominator
-        damaged = true_delta > max(1.0, self.damage_ratio * denominator)
-        if damaged or model_error > self.error_tolerance:
-            return TrustRegionUpdate(
-                predicted_delta=predicted_delta,
-                true_delta=float(true_delta),
-                model_error=float(model_error),
-                damaged=damaged,
-                sigma_scale=self._clip(sigma_scale * self.gamma_down),
-                weight_scale=self._clip(weight_scale * self.gamma_down),
-                action="shrink",
+        sigma_update = self.step_length.update(
+            curvature=curvature,
+            sigma=sigma,
+            true_delta=true_delta,
+            sigma_scale=sigma_scale,
+            g_parallel=g_parallel,
+            error_floor=error_floor,
+            active_bound_fraction=active_bound_fraction,
+        )
+        weight_update = self.bias_strength.update(
+            curvature=curvature,
+            sigma=sigma,
+            bias_weight=bias_weight,
+            weight_scale=weight_scale,
+            bias_induced_damage=bias_induced_damage,
+        )
+        if sigma_update.action == "shrink" and weight_update.action == "expand":
+            weight_update = BiasStrengthUpdate(
+                post_bias_curvature=weight_update.post_bias_curvature,
+                curvature_flipped=weight_update.curvature_flipped,
+                weight_scale=weight_scale,
+                action="hold",
             )
+        action = sigma_update.action if sigma_update.action != "expand" else weight_update.action
         return TrustRegionUpdate(
-            predicted_delta=predicted_delta,
-            true_delta=float(true_delta),
-            model_error=float(model_error),
-            damaged=False,
-            sigma_scale=self._clip(sigma_scale * self.gamma_up),
-            weight_scale=self._clip(weight_scale * self.gamma_up),
-            action="expand",
+            predicted_delta=sigma_update.predicted_delta,
+            true_delta=sigma_update.true_delta,
+            model_error=sigma_update.model_error,
+            damaged=sigma_update.damaged,
+            sigma_scale=sigma_update.sigma_scale,
+            weight_scale=weight_update.weight_scale,
+            action=action,
+            sigma_action=sigma_update.action,
+            weight_action=weight_update.action,
         )
 
     @staticmethod
     def predicted_delta(curvature: float, sigma: float, g_parallel: float = 0.0) -> float:
-        return float(sigma * g_parallel + 0.5 * sigma * sigma * curvature)
-
-    def _clip(self, value: float) -> float:
-        return float(np.clip(value, self.min_scale, self.max_scale))
+        return StepLengthController.predicted_delta(curvature, sigma, g_parallel=g_parallel)
 
 
 @dataclass
@@ -184,9 +308,7 @@ class StepTargetController:
         self.damage_events += int(damaged)
         escape_rate = self.escapes / self.trials
         damage_rate = self.damage_events / self.trials
-        if self.trials >= self.feedback_warmup_trials and damage_rate > self.damage_tolerance:
-            self.multiplier = float(np.clip(self.multiplier * self.gamma_down, 0.75, 4.0))
-        elif escape_rate < self.target_escape_rate:
+        if escape_rate < self.target_escape_rate:
             self.multiplier = float(np.clip(self.multiplier * self.gamma_up, 0.75, 4.0))
 
     def stats(self) -> dict[str, float | int]:
@@ -197,6 +319,7 @@ class StepTargetController:
             "adaptive_step_multiplier": float(self.multiplier),
             "adaptive_escape_rate": float(escape_rate),
             "adaptive_damage_rate": float(damage_rate),
+            "adaptive_damage_warning": int(self.trials >= self.feedback_warmup_trials and damage_rate > self.damage_tolerance),
         }
 
     def _archive_target(self, archive) -> float:
@@ -214,7 +337,7 @@ class StepTargetController:
 
 
 class DirectionCandidateKind(str, Enum):
-    SOFT = "soft"
+    MOMENTUM = "momentum"
     RANDOM = "random"
     BOND = "bond"
 
@@ -234,6 +357,7 @@ class DirectionScorer:
     continuity_weight: float = 0.1
     anchor_weight: float = 0.5
     novelty_weight: float = 0.5
+    history_push_weight: float = 0.1
 
     def score(
         self,
@@ -243,7 +367,10 @@ class DirectionScorer:
         previous_direction: np.ndarray | None,
         anchor_direction: np.ndarray | None,
         damage_risk: float,
+        history_push: float = 0.0,
+        continuity_weight: float | None = None,
     ) -> float:
+        continuity = self.continuity_weight if continuity_weight is None else continuity_weight
         energy_cost = 0.5 * sigma * sigma * curvature
         discontinuity = 0.0
         if previous_direction is not None:
@@ -258,8 +385,9 @@ class DirectionScorer:
         return float(
             -energy_cost
             - self.damage_weight * damage_risk
-            - self.continuity_weight * discontinuity
+            - continuity * discontinuity
             - self.anchor_weight * anchor_penalty
+            + self.history_push_weight * history_push
         )
 
     def score_candidate(
@@ -271,6 +399,8 @@ class DirectionScorer:
         previous_direction: np.ndarray | None,
         anchor_direction: np.ndarray | None,
         archive,
+        history_push: float = 0.0,
+        continuity_weight: float | None = None,
     ) -> float:
         score = self.score(
             curvature=curvature,
@@ -279,6 +409,8 @@ class DirectionScorer:
             previous_direction=previous_direction,
             anchor_direction=anchor_direction,
             damage_risk=candidate.damage_risk,
+            history_push=history_push,
+            continuity_weight=continuity_weight,
         )
         if archive is None:
             return score
@@ -295,12 +427,14 @@ class CandidateDirectionGenerator:
         bond_pairs: list[tuple[int, int]] | None = None,
         n_bond_pairs: int = 0,
         bond_distance_threshold: float | None = None,
+        enable_momentum_candidate: bool = True,
     ) -> None:
         self.rng = rng
         self.n_random = n_random
         self.bond_pairs = bond_pairs or []
         self.n_bond_pairs = n_bond_pairs
         self.bond_distance_threshold = bond_distance_threshold
+        self.enable_momentum_candidate = enable_momentum_candidate
         self.last_initial_bond_pair: tuple[int, int] | None = None
         self.last_random_bond_pairs_requested = 0
         self.last_random_bond_pairs_generated = 0
@@ -309,8 +443,8 @@ class CandidateDirectionGenerator:
     def generate(self, state: State, previous_direction: np.ndarray | None) -> list[DirectionCandidate]:
         coordinates = CartesianCoordinates.from_state(state)
         candidates: list[DirectionCandidate] = []
-        if previous_direction is not None:
-            candidates.append(self._candidate(state, DirectionCandidateKind.SOFT, previous_direction))
+        if self.enable_momentum_candidate and previous_direction is not None:
+            candidates.append(self._candidate(state, DirectionCandidateKind.MOMENTUM, previous_direction))
         for atom_i, atom_j in self.bond_pairs:
             direction = self._bond_direction(state, atom_i, atom_j)
             if direction is not None:
@@ -483,6 +617,9 @@ class SoftModeOracle:
         n_bond_pairs: int = 0,
         bond_distance_threshold: float | None = None,
         anchor_weight: float = 0.5,
+        continuity_weight: float = 0.1,
+        history_push_weight: float = 0.1,
+        enable_momentum_candidate: bool = True,
         hvp_epsilon: float = 1e-3,
     ) -> None:
         self.calculator = calculator
@@ -495,8 +632,13 @@ class SoftModeOracle:
             bond_pairs=bond_pairs,
             n_bond_pairs=n_bond_pairs,
             bond_distance_threshold=bond_distance_threshold,
+            enable_momentum_candidate=enable_momentum_candidate,
         )
-        self.scorer = DirectionScorer(anchor_weight=anchor_weight)
+        self.scorer = DirectionScorer(
+            anchor_weight=anchor_weight,
+            continuity_weight=continuity_weight,
+            history_push_weight=history_push_weight,
+        )
 
     def choose_direction(
         self,
@@ -506,6 +648,10 @@ class SoftModeOracle:
         anchor_direction: np.ndarray | None = None,
         step_scale_fn=None,
         archive=None,
+        history_gradient: np.ndarray | None = None,
+        continuity_weight: float | None = None,
+        score_sigma: float | None = None,
+        score_sigma_fn=None,
     ) -> DirectionChoice:
         best_direction: np.ndarray | None = None
         best_curvature: float | None = None
@@ -518,15 +664,23 @@ class SoftModeOracle:
             rigid_overlap_sum += candidate.rigid_body_overlap
             post_projection_rigid_overlap_sum += candidate.post_projection_rigid_body_overlap
             curvature = self._directional_curvature(state, proposal, candidate.direction)
-            sigma = self._step_scale_from_curvature(curvature) if step_scale_fn is None else step_scale_fn(curvature)
+            candidate_score_sigma = self._candidate_score_sigma(
+                curvature=curvature,
+                score_sigma=score_sigma,
+                score_sigma_fn=score_sigma_fn,
+                step_scale_fn=step_scale_fn,
+            )
+            history_push = 0.0 if history_gradient is None else -float(np.dot(history_gradient, candidate.direction))
             score = self.scorer.score_candidate(
                 state=state,
                 candidate=candidate,
                 curvature=curvature,
-                sigma=sigma,
+                sigma=candidate_score_sigma,
                 previous_direction=previous_direction,
                 anchor_direction=anchor_direction,
                 archive=archive,
+                history_push=history_push,
+                continuity_weight=continuity_weight,
             )
             if best_score is None or score > best_score:
                 best_score = score
@@ -543,6 +697,15 @@ class SoftModeOracle:
             rigid_overlap_sum / len(candidates),
             post_projection_rigid_overlap_sum / len(candidates),
         )
+
+    def _candidate_score_sigma(self, curvature: float, score_sigma: float | None, score_sigma_fn, step_scale_fn) -> float:
+        if score_sigma is not None:
+            return float(score_sigma)
+        if score_sigma_fn is not None:
+            return float(score_sigma_fn(curvature))
+        if step_scale_fn is not None:
+            return float(step_scale_fn(1.0))
+        return self._step_scale_from_curvature(1.0)
 
     def _directional_curvature(
         self,
@@ -582,6 +745,9 @@ class SurfaceWalker:
             n_bond_pairs=config.n_bond_pairs,
             bond_distance_threshold=config.bond_distance_threshold,
             anchor_weight=config.anchor_weight,
+            continuity_weight=config.continuity_weight,
+            history_push_weight=config.history_push_weight,
+            enable_momentum_candidate=config.enable_momentum_candidate,
             hvp_epsilon=config.hvp_epsilon,
         )
         self.proposal_scorer = ProposalScorer.for_mode(config.search_mode)
@@ -835,6 +1001,7 @@ class SurfaceWalker:
         current = seed_state
         previous_direction: np.ndarray | None = None
         anchor_direction: np.ndarray | None = None
+        previous_relax_outcome: RelaxOutcomeClass | None = None
         biases: list[GaussianBiasTerm] = []
         sigma_scale = 1.0
         weight_scale = 1.0
@@ -853,6 +1020,7 @@ class SurfaceWalker:
             softening = self._build_softening(current, anchor_direction)
             proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
             scoring_proposal = self._direction_scoring_proposal(proposal)
+            score_sigma_fn = self._direction_score_sigma_fn(sigma_scale, step_target=step_target)
             choice = self.oracle.choose_direction(
                 current,
                 scoring_proposal,
@@ -864,6 +1032,14 @@ class SurfaceWalker:
                     step_target=step_target,
                 ),
                 archive=archive,
+                history_gradient=self._history_bias_gradient(current, biases),
+                continuity_weight=self._continuity_weight_for_outcome(previous_relax_outcome),
+                score_sigma=(
+                    None
+                    if score_sigma_fn is not None
+                    else self._direction_score_sigma(sigma_scale, step_target=step_target)
+                ),
+                score_sigma_fn=score_sigma_fn,
             )
             self._record_direction_choice(choice)
             true_curvature = self._true_directional_curvature(current, choice.direction)
@@ -905,7 +1081,6 @@ class SurfaceWalker:
                 ),
                 trajectory_stride=self.config.relaxation_trajectory_stride,
             )
-            self._record_relax_result("proposal_relax", proposal_relax, self.config.proposal_fmax)
             current_candidate, clipped = self._clip_walk_displacement(
                 reference=seed_state,
                 candidate=proposal_relax.state,
@@ -917,6 +1092,21 @@ class SurfaceWalker:
             true_energy_after = self.calculator.evaluate(current_candidate).energy
             if not np.isfinite(true_energy_after):
                 break
+            proposal_relax = replace(
+                proposal_relax,
+                outcome_class=Relaxer.classify_outcome(
+                    initial_energy=true_energy_before,
+                    final_energy=proposal_relax.energy,
+                    gradient_norm=proposal_relax.gradient_norm,
+                    fmax=self.config.proposal_fmax,
+                    displacement_rms=proposal_relax.displacement_rms,
+                    displacement_max=proposal_relax.displacement_max,
+                    active_bound_fraction=proposal_relax.active_bound_fraction,
+                    true_delta=true_energy_after - true_energy_before,
+                ),
+            )
+            self._record_relax_result("proposal_relax", proposal_relax, self.config.proposal_fmax)
+            previous_relax_outcome = proposal_relax.outcome_class
             trust_update = self.trust_controller.update(
                 curvature=true_curvature,
                 sigma=sigma,
@@ -925,6 +1115,8 @@ class SurfaceWalker:
                 weight_scale=weight_scale,
                 g_parallel=g_parallel,
                 error_floor=0.1 * (step_target if step_target is not None else self.config.target_uphill_energy),
+                active_bound_fraction=proposal_relax.active_bound_fraction,
+                bias_weight=weight,
             )
             sigma_scale = trust_update.sigma_scale
             weight_scale = trust_update.weight_scale
@@ -956,6 +1148,19 @@ class SurfaceWalker:
         sigma = np.sqrt(2.0 * target / effective) * sigma_scale
         return float(np.clip(sigma, self.config.min_step_scale, self.config.max_step_scale))
 
+    def _direction_score_sigma(self, sigma_scale: float, step_target: float | None = None) -> float:
+        if self.config.direction_score_sigma_mode == "fixed_reference":
+            sigma = np.sqrt(2.0 * self.config.target_uphill_energy)
+            return float(np.clip(sigma, self.config.min_step_scale, self.config.max_step_scale))
+        if self.config.direction_score_sigma_mode == "adaptive":
+            raise ValueError("adaptive direction scoring uses per-candidate score_sigma_fn")
+        return self._scaled_step_scale(1.0, sigma_scale, step_target=step_target)
+
+    def _direction_score_sigma_fn(self, sigma_scale: float, step_target: float | None = None):
+        if self.config.direction_score_sigma_mode != "adaptive":
+            return None
+        return lambda curvature: self._scaled_step_scale(curvature, sigma_scale, step_target=step_target)
+
     def _bias_weight(self, curvature: float, sigma: float) -> float:
         raw = sigma * sigma * max(curvature + self.config.target_negative_curvature, 0.0)
         return float(np.clip(raw, self.config.bias_weight_min, self.config.bias_weight_max))
@@ -964,10 +1169,30 @@ class SurfaceWalker:
         proposal = ProposalPotential(self.calculator)
         return self.oracle._directional_curvature(state, proposal, direction)
 
+    @staticmethod
+    def _history_bias_gradient(state: State, biases: list[GaussianBiasTerm]) -> np.ndarray | None:
+        if not biases:
+            return None
+        flat_positions = state.flatten_positions()
+        gradient = np.zeros_like(flat_positions)
+        for bias in biases:
+            _, bias_gradient = bias.evaluate(flat_positions)
+            gradient += bias_gradient
+        return gradient
+
     def _direction_scoring_proposal(self, inner_proposal: ProposalPotential) -> ProposalPotential:
         if self.config.direction_curvature_source == "true":
             return ProposalPotential(self.calculator)
         return inner_proposal
+
+    def _continuity_weight_for_outcome(self, outcome: RelaxOutcomeClass | None) -> float:
+        if not self.config.enable_outcome_gated_continuity:
+            return self.config.continuity_weight
+        if outcome in {RelaxOutcomeClass.STAGNATED, RelaxOutcomeClass.CONVERGED_UNPRODUCTIVE}:
+            return 0.0
+        if outcome in {RelaxOutcomeClass.DAMAGED, RelaxOutcomeClass.ENERGY_EXPLODED, RelaxOutcomeClass.GEOMETRY_INVALID}:
+            return 0.5 * self.config.continuity_weight
+        return self.config.continuity_weight
 
     def _reset_trust_stats(self) -> None:
         self._trust_steps = 0
@@ -1000,6 +1225,7 @@ class SurfaceWalker:
                 "max_bound_fraction": 0.0,
                 "displacement_rms_sum": 0.0,
                 "max_displacement": 0.0,
+                "outcome_counts": {outcome.value: 0 for outcome in RelaxOutcomeClass},
             },
             "proposal_relax": {
                 "count": 0,
@@ -1011,6 +1237,7 @@ class SurfaceWalker:
                 "max_bound_fraction": 0.0,
                 "displacement_rms_sum": 0.0,
                 "max_displacement": 0.0,
+                "outcome_counts": {outcome.value: 0 for outcome in RelaxOutcomeClass},
             },
         }
 
@@ -1191,6 +1418,7 @@ class SurfaceWalker:
         stats["max_bound_fraction"] = max(float(stats["max_bound_fraction"]), result.active_bound_fraction)
         stats["displacement_rms_sum"] += result.displacement_rms
         stats["max_displacement"] = max(float(stats["max_displacement"]), result.displacement_max)
+        stats["outcome_counts"][result.outcome_class.value] += 1
 
     def _record_bias_weight(self, weight: float) -> None:
         self._bias_steps += 1
@@ -1244,7 +1472,7 @@ class SurfaceWalker:
             "direction_mean_candidate_pool_size": float(mean_pool_size),
             "direction_rigid_body_overlap_mean": float(mean_rigid_overlap),
             "direction_post_projection_rigid_body_overlap_mean": float(mean_post_projection_overlap),
-            "direction_selected_soft": self._direction_selected[DirectionCandidateKind.SOFT],
+            "direction_selected_momentum": self._direction_selected[DirectionCandidateKind.MOMENTUM],
             "direction_selected_random": self._direction_selected[DirectionCandidateKind.RANDOM],
             "direction_selected_bond": self._direction_selected[DirectionCandidateKind.BOND],
             "direction_bond_pairs_requested": self._direction_bond_pairs_requested,
@@ -1275,6 +1503,12 @@ class SurfaceWalker:
                 float(stats["displacement_rms_sum"] / count) if count else 0.0
             )
             summary[f"{label}_displacement_max"] = float(stats["max_displacement"])
+            for outcome in RelaxOutcomeClass:
+                outcome_count = int(stats["outcome_counts"][outcome.value])
+                summary[f"{label}_outcome_{outcome.value}"] = outcome_count
+                summary[f"{label}_outcome_{outcome.value}_rate"] = (
+                    float(outcome_count / count) if count else 0.0
+                )
         summary["bias_steps"] = self._bias_steps
         summary["bias_zero_weight_steps"] = self._bias_zero_steps
         summary["bias_zero_weight_fraction"] = (

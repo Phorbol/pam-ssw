@@ -11,7 +11,7 @@ import numpy as np
 from scipy.optimize import minimize
 
 from .pbc import mic_displacement, wrap_positions
-from .result import RelaxResult
+from .result import RelaxOutcomeClass, RelaxResult
 from .state import State
 
 
@@ -88,6 +88,7 @@ class Relaxer:
             gradient_norm = float(
                 np.max(np.linalg.norm(active_gradient.reshape(-1, 3), axis=1, ord=2), initial=0.0)
             )
+            initial_energy, _ = self.evaluator(state.flatten_positions(), state)
             return RelaxResult(
                 state=relaxed,
                 energy=float(energy),
@@ -96,6 +97,15 @@ class Relaxer:
                 active_bound_fraction=active_bound_fraction,
                 displacement_rms=displacement_rms,
                 displacement_max=displacement_max,
+                outcome_class=self.classify_outcome(
+                    initial_energy=initial_energy,
+                    final_energy=energy,
+                    gradient_norm=gradient_norm,
+                    fmax=fmax,
+                    displacement_rms=displacement_rms,
+                    displacement_max=displacement_max,
+                    active_bound_fraction=active_bound_fraction,
+                ),
             )
         if self.optimizer != "scipy-lbfgsb":
             raise ValueError(f"unsupported relax optimizer: {self.optimizer}")
@@ -182,6 +192,15 @@ class Relaxer:
             active_bound_fraction=active_bound_fraction,
             displacement_rms=displacement_rms,
             displacement_max=displacement_max,
+            outcome_class=self.classify_outcome(
+                initial_energy=objective(x0)[0],
+                final_energy=energy,
+                gradient_norm=gradient_norm,
+                fmax=fmax,
+                displacement_rms=displacement_rms,
+                displacement_max=displacement_max,
+                active_bound_fraction=active_bound_fraction,
+            ),
         )
 
     def _relax_with_ase(
@@ -289,6 +308,39 @@ class Relaxer:
                 finite_bounds += 1
                 hits += int(abs(value - upper) <= atol)
         return float(hits / finite_bounds) if finite_bounds else 0.0
+
+    @staticmethod
+    def classify_outcome(
+        initial_energy: float,
+        final_energy: float,
+        gradient_norm: float,
+        fmax: float,
+        displacement_rms: float,
+        displacement_max: float,
+        active_bound_fraction: float,
+        geometry_valid: bool = True,
+        energy_explosion_threshold: float = 5.0,
+        displacement_threshold: float = 1e-4,
+        true_delta: float | None = None,
+        true_delta_stagnation_threshold: float = 0.05,
+        bound_damage_threshold: float = 0.5,
+    ) -> RelaxOutcomeClass:
+        if active_bound_fraction >= bound_damage_threshold:
+            return RelaxOutcomeClass.DAMAGED
+        energy_delta = final_energy - initial_energy if true_delta is None else true_delta
+        if not np.isfinite(final_energy) or not np.isfinite(energy_delta) or energy_delta > energy_explosion_threshold:
+            return RelaxOutcomeClass.ENERGY_EXPLODED
+        if not geometry_valid:
+            return RelaxOutcomeClass.GEOMETRY_INVALID
+        converged = gradient_norm <= fmax
+        moved = max(displacement_rms, displacement_max) >= displacement_threshold
+        if true_delta is not None and abs(true_delta) < true_delta_stagnation_threshold:
+            return RelaxOutcomeClass.CONVERGED_UNPRODUCTIVE if converged else RelaxOutcomeClass.STAGNATED
+        if not moved:
+            return RelaxOutcomeClass.CONVERGED_UNPRODUCTIVE if converged else RelaxOutcomeClass.STAGNATED
+        if converged:
+            return RelaxOutcomeClass.CONVERGED_PRODUCTIVE
+        return RelaxOutcomeClass.USEFUL_PROGRESS
 
     @staticmethod
     def _displacement_stats(reference: State, relaxed: State) -> tuple[float, float]:

@@ -135,6 +135,16 @@ def test_config_validates_direction_curvature_source():
         SSWConfig(direction_curvature_source="biased")
 
 
+def test_config_validates_direction_score_sigma_mode():
+    assert SSWConfig().direction_score_sigma_mode == "adaptive"
+    assert SSWConfig(direction_score_sigma_mode="adaptive").direction_score_sigma_mode == "adaptive"
+    assert SSWConfig(direction_score_sigma_mode="trust_scaled").direction_score_sigma_mode == "trust_scaled"
+    assert SSWConfig(direction_score_sigma_mode="fixed_reference").direction_score_sigma_mode == "fixed_reference"
+
+    with pytest.raises(ValueError, match="direction_score_sigma_mode"):
+        SSWConfig(direction_score_sigma_mode="unknown")
+
+
 def test_config_validates_search_output_controls():
     assert SSWConfig(accepted_structures_dir="accepted").accepted_structures_dir == "accepted"
     assert SSWConfig(write_proposal_minima=True, proposal_minima_dir="proposals").write_proposal_minima

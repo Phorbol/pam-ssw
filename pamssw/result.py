@@ -1,9 +1,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any
 
 from .state import State
+
+
+class RelaxOutcomeClass(str, Enum):
+    DAMAGED = "damaged"
+    ENERGY_EXPLODED = "energy_exploded"
+    GEOMETRY_INVALID = "geometry_invalid"
+    STAGNATED = "stagnated"
+    USEFUL_PROGRESS = "useful_progress"
+    CONVERGED_PRODUCTIVE = "converged_productive"
+    CONVERGED_UNPRODUCTIVE = "converged_unproductive"
 
 
 @dataclass(frozen=True)
@@ -16,6 +27,7 @@ class RelaxResult:
     active_bound_fraction: float = 0.0
     displacement_rms: float = 0.0
     displacement_max: float = 0.0
+    outcome_class: RelaxOutcomeClass = RelaxOutcomeClass.USEFUL_PROGRESS
 
 
 @dataclass(frozen=True)

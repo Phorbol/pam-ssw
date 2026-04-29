@@ -40,7 +40,7 @@ n* = argmin_{‖n‖=1} [ ρ(n) + μ_anchor·‖n - N_i^0‖² ]
 
 **缺陷 1：无初始方向混合公式**
 
-当前代码（`SoftModeOracle.choose_direction`，walker.py:328-369）生成独立候选（RANDOM、BOND、SOFT），对每个独立打分后选最高分，不做混合。
+当前代码（`SoftModeOracle.choose_direction`，walker.py:328-369）生成独立候选（RANDOM、BOND、MOMENTUM），对每个独立打分后选最高分，不做混合。
 
 **缺陷 2：无 anchor 项，continuity 权重仅 0.1**
 

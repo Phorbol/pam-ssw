@@ -43,6 +43,10 @@ class SSWConfig:
     walk_trust_radius: float = 4.0
     fragment_guard_factor: float | None = None
     anchor_weight: float = 0.5
+    continuity_weight: float = 0.1
+    enable_outcome_gated_continuity: bool = True
+    history_push_weight: float = 0.1
+    enable_momentum_candidate: bool = True
     n_bond_pairs: int = 2
     bond_distance_threshold: float | None = None
     lambda_bond_start: float = 0.1
@@ -66,6 +70,7 @@ class SSWConfig:
     relaxation_trajectory_dir: str | None = None
     relaxation_trajectory_stride: int = 1
     direction_curvature_source: str = "inner"
+    direction_score_sigma_mode: str = "adaptive"
 
     def __post_init__(self) -> None:
         positive_ints = {
@@ -113,6 +118,10 @@ class SSWConfig:
             raise ValueError("bias_weight_max must be positive")
         if self.bias_weight_min > self.bias_weight_max:
             raise ValueError("bias_weight_min cannot exceed bias_weight_max")
+        if self.history_push_weight < 0:
+            raise ValueError("history_push_weight must be non-negative")
+        if self.continuity_weight < 0:
+            raise ValueError("continuity_weight must be non-negative")
         if self.proposal_trust_radius is not None and self.proposal_trust_radius <= 0:
             raise ValueError("proposal_trust_radius must be positive when set")
         allowed_optimizers = {"scipy-lbfgsb", "ase-fire", "ase-lbfgs"}
@@ -122,6 +131,8 @@ class SSWConfig:
             raise ValueError("proposal_optimizer must be one of scipy-lbfgsb, ase-fire, ase-lbfgs")
         if self.direction_curvature_source not in {"inner", "true"}:
             raise ValueError("direction_curvature_source must be inner or true")
+        if self.direction_score_sigma_mode not in {"adaptive", "trust_scaled", "fixed_reference"}:
+            raise ValueError("direction_score_sigma_mode must be adaptive, trust_scaled, or fixed_reference")
         if self.write_proposal_minima and self.proposal_minima_dir is None:
             raise ValueError("proposal_minima_dir must be set when write_proposal_minima is enabled")
         if self.write_relaxation_trajectories and self.relaxation_trajectory_dir is None:

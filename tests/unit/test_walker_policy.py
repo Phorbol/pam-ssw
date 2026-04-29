@@ -8,6 +8,7 @@ from pamssw.archive import MinimaArchive
 from pamssw.bias import GaussianBiasTerm
 from pamssw.calculators import AnalyticCalculator
 from pamssw.potentials import DoubleWell2D
+from pamssw.result import RelaxOutcomeClass
 from pamssw.state import State
 from pamssw.walker import (
     CandidateDirectionGenerator,
@@ -16,7 +17,9 @@ from pamssw.walker import (
     DirectionScorer,
     ProposalPotential,
     GeometryValidator,
+    BiasStrengthController,
     SoftModeOracle,
+    StepLengthController,
     StepTargetController,
     SurfaceWalker,
     TrustRegionBiasController,
@@ -90,7 +93,42 @@ def test_soft_mode_oracle_returns_best_candidate_without_random_mixing():
     np.testing.assert_allclose(choice.direction, direction)
 
 
-def test_soft_mode_oracle_scores_with_actual_walk_sigma():
+def test_soft_mode_oracle_scores_all_candidates_with_fixed_reference_sigma():
+    class Quadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.diag([1.0, 4.0, 9.0])
+            gradient = hessian @ flat_positions
+            energy = 0.5 * float(flat_positions @ gradient)
+            return energy, gradient
+
+    class CapturingScorer(DirectionScorer):
+        def __init__(self):
+            super().__init__()
+            self.sigmas = []
+            self.curvatures = []
+
+        def score_candidate(self, **kwargs):
+            self.sigmas.append(kwargs["sigma"])
+            self.curvatures.append(kwargs["curvature"])
+            return super().score_candidate(**kwargs)
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    oracle = SoftModeOracle(AnalyticCalculator(Quadratic()), np.random.default_rng(0), candidates=1)
+    oracle.scorer = CapturingScorer()
+
+    oracle.choose_direction(
+        state,
+        proposal=ProposalPotential(AnalyticCalculator(Quadratic())),
+        previous_direction=np.array([1.0, 0.0, 0.0]),
+        step_scale_fn=lambda curvature: 10.0 + curvature,
+    )
+
+    assert len(oracle.scorer.sigmas) >= 2
+    assert len({round(curvature, 6) for curvature in oracle.scorer.curvatures}) >= 2
+    assert all(sigma == pytest.approx(11.0) for sigma in oracle.scorer.sigmas)
+
+
+def test_soft_mode_oracle_allows_explicit_score_sigma_override():
     class Quadratic:
         def energy_gradient(self, flat_positions, state):
             hessian = np.diag([1.0, 4.0, 9.0])
@@ -115,11 +153,108 @@ def test_soft_mode_oracle_scores_with_actual_walk_sigma():
         state,
         proposal=ProposalPotential(AnalyticCalculator(Quadratic())),
         previous_direction=np.array([1.0, 0.0, 0.0]),
-        step_scale_fn=lambda curvature: 0.123,
+        step_scale_fn=lambda curvature: 10.0 + curvature,
+        score_sigma=3.5,
     )
 
-    assert oracle.scorer.sigmas
-    assert all(sigma == 0.123 for sigma in oracle.scorer.sigmas)
+    assert len(oracle.scorer.sigmas) >= 2
+    assert all(sigma == pytest.approx(3.5) for sigma in oracle.scorer.sigmas)
+
+
+def test_soft_mode_oracle_can_score_candidates_with_adaptive_sigma():
+    class Quadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.diag([1.0, 4.0, 9.0])
+            gradient = hessian @ flat_positions
+            energy = 0.5 * float(flat_positions @ gradient)
+            return energy, gradient
+
+    class CapturingScorer(DirectionScorer):
+        def __init__(self):
+            super().__init__()
+            self.sigmas = []
+            self.curvatures = []
+
+        def score_candidate(self, **kwargs):
+            self.sigmas.append(kwargs["sigma"])
+            self.curvatures.append(kwargs["curvature"])
+            return super().score_candidate(**kwargs)
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    oracle = SoftModeOracle(AnalyticCalculator(Quadratic()), np.random.default_rng(0), candidates=1)
+    oracle.scorer = CapturingScorer()
+
+    oracle.choose_direction(
+        state,
+        proposal=ProposalPotential(AnalyticCalculator(Quadratic())),
+        previous_direction=np.array([1.0, 0.0, 0.0]),
+        score_sigma_fn=lambda curvature: 10.0 + curvature,
+    )
+
+    assert len(oracle.scorer.sigmas) >= 2
+    assert len({round(curvature, 6) for curvature in oracle.scorer.curvatures}) >= 2
+    assert len({round(sigma, 6) for sigma in oracle.scorer.sigmas}) >= 2
+    for curvature, sigma in zip(oracle.scorer.curvatures, oracle.scorer.sigmas):
+        assert sigma == pytest.approx(10.0 + curvature)
+
+
+def test_surface_walker_can_use_fixed_reference_direction_score_sigma():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(target_uphill_energy=0.8, direction_score_sigma_mode="fixed_reference"),
+        softening_enabled=False,
+    )
+    trust_scaled = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(target_uphill_energy=0.8, direction_score_sigma_mode="trust_scaled"),
+        softening_enabled=False,
+    )
+
+    assert walker._direction_score_sigma(sigma_scale=0.25, step_target=0.8) == pytest.approx(np.sqrt(1.6))
+    assert trust_scaled._direction_score_sigma(sigma_scale=0.25, step_target=0.8) == pytest.approx(np.sqrt(1.6) * 0.25)
+
+
+def test_surface_walker_defaults_to_adaptive_direction_score_sigma():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(target_uphill_energy=0.8),
+        softening_enabled=False,
+    )
+    score_sigma_fn = walker._direction_score_sigma_fn(sigma_scale=1.0, step_target=0.8)
+
+    assert score_sigma_fn is not None
+    assert score_sigma_fn(1.0) == pytest.approx(np.sqrt(1.6))
+    assert score_sigma_fn(4.0) == pytest.approx(np.sqrt(0.4))
+
+
+def test_direction_scorer_rewards_independent_history_push():
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    scorer = DirectionScorer(history_push_weight=0.5)
+    with_push = DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([1.0, 0.0, 0.0]))
+    against_push = DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([-1.0, 0.0, 0.0]))
+
+    pushed_score = scorer.score_candidate(
+        state=state,
+        candidate=with_push,
+        curvature=1.0,
+        sigma=1.0,
+        previous_direction=None,
+        anchor_direction=None,
+        archive=None,
+        history_push=2.0,
+    )
+    opposed_score = scorer.score_candidate(
+        state=state,
+        candidate=against_push,
+        curvature=1.0,
+        sigma=1.0,
+        previous_direction=None,
+        anchor_direction=None,
+        archive=None,
+        history_push=-2.0,
+    )
+
+    assert pushed_score - opposed_score == pytest.approx(2.0)
 
 
 def test_soft_mode_oracle_uses_configured_hvp_epsilon():
@@ -147,9 +282,31 @@ def test_direction_generator_exposes_documented_enabled_and_guarded_kinds():
 
     candidates = generator.generate(state, previous_direction=np.array([1.0, 0.0, 0.0]))
 
-    assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.SOFT) == 1
+    assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.MOMENTUM) == 1
     assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.RANDOM) == 2
     assert DirectionCandidateKind.BOND not in [candidate.kind for candidate in candidates]
+
+
+def test_direction_generator_can_disable_momentum_candidate():
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    generator = CandidateDirectionGenerator(np.random.default_rng(0), n_random=2, enable_momentum_candidate=False)
+
+    candidates = generator.generate(state, previous_direction=np.array([1.0, 0.0, 0.0]))
+
+    assert DirectionCandidateKind.MOMENTUM not in [candidate.kind for candidate in candidates]
+    assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.RANDOM) == 2
+
+
+def test_surface_walker_applies_direction_scorer_weights_from_config():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(continuity_weight=0.0, history_push_weight=0.3, enable_momentum_candidate=False),
+        softening_enabled=False,
+    )
+
+    assert walker.oracle.scorer.continuity_weight == 0.0
+    assert walker.oracle.scorer.history_push_weight == 0.3
+    assert walker.oracle.generator.enable_momentum_candidate is False
 
 
 def test_direction_generator_adds_bond_candidate_when_pairs_are_provided():
@@ -274,6 +431,57 @@ def test_direction_scorer_penalizes_damage_risk_and_discontinuity():
     assert smooth > damaging
 
 
+def test_direction_scorer_allows_continuity_weight_override():
+    scorer = DirectionScorer(damage_weight=0.0, continuity_weight=1.0)
+    previous = np.array([1.0, 0.0, 0.0])
+
+    default_score = scorer.score(
+        curvature=0.0,
+        sigma=1.0,
+        direction=-previous,
+        previous_direction=previous,
+        anchor_direction=None,
+        damage_risk=0.0,
+    )
+    overridden_score = scorer.score(
+        curvature=0.0,
+        sigma=1.0,
+        direction=-previous,
+        previous_direction=previous,
+        anchor_direction=None,
+        damage_risk=0.0,
+        continuity_weight=0.0,
+    )
+
+    assert overridden_score > default_score
+
+
+def test_surface_walker_gates_continuity_from_previous_relax_outcome():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(continuity_weight=0.1),
+        softening_enabled=False,
+    )
+
+    assert walker._continuity_weight_for_outcome(None) == pytest.approx(0.1)
+    assert walker._continuity_weight_for_outcome(RelaxOutcomeClass.USEFUL_PROGRESS) == pytest.approx(0.1)
+    assert walker._continuity_weight_for_outcome(RelaxOutcomeClass.CONVERGED_PRODUCTIVE) == pytest.approx(0.1)
+    assert walker._continuity_weight_for_outcome(RelaxOutcomeClass.STAGNATED) == pytest.approx(0.0)
+    assert walker._continuity_weight_for_outcome(RelaxOutcomeClass.CONVERGED_UNPRODUCTIVE) == pytest.approx(0.0)
+    assert walker._continuity_weight_for_outcome(RelaxOutcomeClass.DAMAGED) == pytest.approx(0.05)
+
+
+def test_surface_walker_can_disable_outcome_gated_continuity():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(continuity_weight=0.1, enable_outcome_gated_continuity=False),
+        softening_enabled=False,
+    )
+
+    assert walker._continuity_weight_for_outcome(RelaxOutcomeClass.STAGNATED) == pytest.approx(0.1)
+    assert walker._continuity_weight_for_outcome(RelaxOutcomeClass.CONVERGED_UNPRODUCTIVE) == pytest.approx(0.1)
+
+
 def test_direction_scorer_penalizes_deviation_from_anchor_direction():
     scorer = DirectionScorer(anchor_weight=2.0, continuity_weight=0.0, damage_weight=0.0)
     anchor = np.array([1.0, 0.0, 0.0])
@@ -328,7 +536,7 @@ def test_direction_scorer_rewards_score_only_novelty_gain_from_archive():
     assert far_score > near_score
 
 
-def test_trust_region_controller_shrinks_after_bad_local_model():
+def test_trust_region_controller_shrinks_step_length_after_bad_local_model_without_weakening_bias():
     controller = TrustRegionBiasController()
 
     update = controller.update(
@@ -337,16 +545,46 @@ def test_trust_region_controller_shrinks_after_bad_local_model():
         true_delta=2.0,
         sigma_scale=1.0,
         weight_scale=1.0,
+        bias_weight=0.5,
     )
 
     assert update.action == "shrink"
     assert update.sigma_scale < 1.0
-    assert update.weight_scale < 1.0
+    assert update.weight_scale == 1.0
     assert update.model_error > controller.error_tolerance
 
 
+def test_bias_strength_controller_drops_on_bias_induced_damage():
+    controller = BiasStrengthController()
+
+    update = controller.update(
+        curvature=1.0,
+        sigma=1.0,
+        bias_weight=2.0,
+        weight_scale=1.0,
+        bias_induced_damage=True,
+    )
+
+    assert update.action == "shrink"
+    assert update.weight_scale < 1.0
+
+
+def test_bias_strength_controller_increases_when_bias_does_not_flip_curvature():
+    controller = BiasStrengthController()
+
+    update = controller.update(
+        curvature=10.0,
+        sigma=1.0,
+        bias_weight=1.0,
+        weight_scale=1.0,
+    )
+
+    assert update.action == "expand"
+    assert update.weight_scale > 1.0
+
+
 def test_trust_region_prediction_includes_true_gradient_linear_term():
-    controller = TrustRegionBiasController()
+    controller = StepLengthController()
 
     predicted = controller.predicted_delta(curvature=2.0, sigma=0.5, g_parallel=-1.0)
 
@@ -534,7 +772,18 @@ def test_step_target_controller_feedback_increases_on_low_escape_and_decreases_o
     decreased = controller.target(archive)
 
     assert increased > base
-    assert decreased < increased
+    assert decreased >= increased
+
+
+def test_step_target_controller_ignores_damage_rate_for_multiplier():
+    controller = StepTargetController(fallback_target=0.6)
+    base_multiplier = controller.multiplier
+
+    for _ in range(controller.feedback_warmup_trials):
+        controller.record_trial(escaped=True, damaged=True)
+
+    assert controller.multiplier == base_multiplier
+    assert controller.stats()["adaptive_damage_warning"] == 1
 
 
 def test_surface_walker_reports_adaptive_step_target_diagnostics():
@@ -707,7 +956,7 @@ def test_surface_walker_reports_direction_acquisition_diagnostics():
     assert "direction_rigid_body_overlap_mean" in result.stats
     assert "direction_post_projection_rigid_body_overlap_mean" in result.stats
     assert result.stats["direction_selected_random"] >= 1
-    assert result.stats["direction_selected_soft"] >= 0
+    assert result.stats["direction_selected_momentum"] >= 0
     assert result.stats["direction_selected_bond"] >= 0
     assert "walk_displacement_clips" in result.stats
     assert "fragment_rejections" in result.stats

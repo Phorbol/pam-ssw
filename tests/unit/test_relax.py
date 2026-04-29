@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from pamssw.relax import Relaxer
+from pamssw.result import RelaxOutcomeClass
 from pamssw.state import State
 
 
@@ -72,6 +73,64 @@ def test_relaxer_reports_bound_fraction_and_displacement(monkeypatch):
     assert result.active_bound_fraction == 2 / 6
     assert result.displacement_max == pytest.approx(np.sqrt(0.25**2 + 0.25**2))
     assert result.displacement_rms == pytest.approx(result.displacement_max)
+
+
+def test_relax_outcome_classifies_stagnated():
+    outcome = Relaxer.classify_outcome(
+        initial_energy=0.0,
+        final_energy=0.0,
+        gradient_norm=1.0,
+        fmax=0.1,
+        displacement_rms=0.0,
+        displacement_max=0.0,
+        active_bound_fraction=0.0,
+    )
+
+    assert outcome == RelaxOutcomeClass.STAGNATED
+
+
+def test_relax_outcome_fmax_converged_but_unproductive():
+    outcome = Relaxer.classify_outcome(
+        initial_energy=0.0,
+        final_energy=0.0,
+        gradient_norm=0.01,
+        fmax=0.1,
+        displacement_rms=0.0,
+        displacement_max=0.0,
+        active_bound_fraction=0.0,
+    )
+
+    assert outcome == RelaxOutcomeClass.CONVERGED_UNPRODUCTIVE
+
+
+def test_relax_outcome_true_delta_overrides_biased_displacement_as_stagnated():
+    outcome = Relaxer.classify_outcome(
+        initial_energy=0.0,
+        final_energy=-1.0,
+        gradient_norm=1.0,
+        fmax=0.1,
+        displacement_rms=0.2,
+        displacement_max=0.3,
+        active_bound_fraction=0.0,
+        true_delta=0.01,
+    )
+
+    assert outcome == RelaxOutcomeClass.STAGNATED
+
+
+def test_relax_outcome_true_delta_converged_but_unproductive():
+    outcome = Relaxer.classify_outcome(
+        initial_energy=0.0,
+        final_energy=-1.0,
+        gradient_norm=0.01,
+        fmax=0.1,
+        displacement_rms=0.2,
+        displacement_max=0.3,
+        active_bound_fraction=0.0,
+        true_delta=0.01,
+    )
+
+    assert outcome == RelaxOutcomeClass.CONVERGED_UNPRODUCTIVE
 
 
 def test_relaxer_reports_scipy_trajectory_states(monkeypatch):
