@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 
 import numpy as np
 
@@ -618,6 +620,7 @@ class SurfaceWalker:
         self._reset_relax_stats()
         self._reset_bias_stats()
         self._reset_local_softening_stats()
+        self._reset_accepted_structure_log()
         initial = self.relax_true_minimum(initial_state)
         archive = MinimaArchive(
             energy_tol=self.config.dedup_energy_tol,
@@ -683,6 +686,14 @@ class SurfaceWalker:
                 rank_key = self.proposal_scorer.rank_key(outcome)
                 if discovered.energy < best_entry.energy:
                     best_entry = discovered
+                if is_new:
+                    self._record_accepted_structure(
+                        trial_index=trial_index + 1,
+                        seed_entry_id=seed_entry.entry_id,
+                        discovered_entry_id=discovered.entry_id,
+                        energy=discovered.energy,
+                        best_energy=best_entry.energy,
+                    )
                 if best_rank_key is None or rank_key > best_rank_key:
                     best_rank_key = rank_key
                     best_reward = reward
@@ -939,6 +950,39 @@ class SurfaceWalker:
         self._local_softening_terms_total = 0
         self._local_softening_builds = 0
         self._local_softening_terms_built_total = 0
+
+    def _accepted_structure_log_path(self) -> Path | None:
+        path = self.config.accepted_structures_log
+        return Path(path) if path is not None else None
+
+    def _reset_accepted_structure_log(self) -> None:
+        path = self._accepted_structure_log_path()
+        if path is None:
+            return
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("")
+
+    def _record_accepted_structure(
+        self,
+        *,
+        trial_index: int,
+        seed_entry_id: int,
+        discovered_entry_id: int,
+        energy: float,
+        best_energy: float,
+    ) -> None:
+        path = self._accepted_structure_log_path()
+        if path is None:
+            return
+        payload = {
+            "trial_index": int(trial_index),
+            "seed_entry_id": int(seed_entry_id),
+            "discovered_entry_id": int(discovered_entry_id),
+            "energy": float(energy),
+            "best_energy": float(best_energy),
+        }
+        with path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(payload, sort_keys=True) + "\n")
 
     def _record_relax_result(self, label: str, result: RelaxResult, fmax: float) -> None:
         stats = self._relax_stats[label]

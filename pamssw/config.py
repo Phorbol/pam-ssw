@@ -58,6 +58,7 @@ class SSWConfig:
     search_mode: SearchMode | str = SearchMode.GLOBAL_MINIMUM
     max_prototypes: int = 1000
     max_force_evals: int | None = None
+    accepted_structures_log: str | None = None
 
     def __post_init__(self) -> None:
         positive_ints = {

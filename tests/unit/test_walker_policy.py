@@ -1,3 +1,5 @@
+import json
+
 import numpy as np
 import pytest
 
@@ -544,6 +546,35 @@ def test_surface_walker_reports_relaxation_convergence_diagnostics():
     assert "proposal_relax_active_bound_fraction_mean" in result.stats
     assert "proposal_relax_displacement_max" in result.stats
     assert "bias_zero_weight_fraction" in result.stats
+
+
+def test_surface_walker_writes_accepted_structure_log(tmp_path):
+    log_path = tmp_path / "accepted_structures.jsonl"
+    initial = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(
+            max_trials=1,
+            max_steps_per_walk=1,
+            oracle_candidates=2,
+            rng_seed=0,
+            accepted_structures_log=str(log_path),
+        ),
+        softening_enabled=False,
+    )
+
+    result = walker.run(initial)
+
+    lines = log_path.read_text().splitlines()
+    accepted_records = [record for record in result.walk_history if record.accepted_new_basin]
+    assert len(lines) == len(accepted_records)
+    if accepted_records:
+        payload = json.loads(lines[0])
+        assert payload["trial_index"] == 1
+        assert payload["seed_entry_id"] == accepted_records[0].seed_entry_id
+        assert payload["discovered_entry_id"] == accepted_records[0].discovered_entry_id
+        assert payload["energy"] == pytest.approx(accepted_records[0].energy)
+        assert payload["best_energy"] == pytest.approx(result.best_energy)
 
 
 def test_surface_walker_reports_observable_frontier_diagnostics():

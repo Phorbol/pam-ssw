@@ -44,6 +44,7 @@ def main() -> None:
     parser.add_argument("--walk-trust-radius", type=float, default=2.5)
     parser.add_argument("--proposal-pool-size", type=int, default=1)
     parser.add_argument("--dedup-rmsd-tol", type=float, default=0.15)
+    parser.add_argument("--accepted-structures-log", type=Path, default=None)
     parser.add_argument("--fix-bottom-fraction", type=float, default=0.35)
     parser.add_argument("--slab-pbc-z", action="store_true")
     parser.add_argument("--local-softening-mode", choices=("neighbor_auto", "active_neighbors", "manual"), default="active_neighbors")
@@ -71,6 +72,7 @@ def main() -> None:
     output_dir = args.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "minima_xyz").mkdir(exist_ok=True)
+    accepted_structures_log = args.accepted_structures_log or output_dir / "accepted_structures.jsonl"
 
     atoms = read(args.input)
     input_pbc = tuple(bool(x) for x in atoms.pbc.tolist())
@@ -115,6 +117,7 @@ def main() -> None:
         n_bond_pairs=2,
         proposal_pool_size=args.proposal_pool_size,
         max_prototypes=500,
+        accepted_structures_log=str(accepted_structures_log),
     )
     if args.search_kind == "ls-ssw":
         config = LSSSWConfig(
@@ -184,6 +187,7 @@ def main() -> None:
             "summary": str(output_dir / "ssw_summary.json"),
             "energy_trace_json": str(output_dir / "energy_trace.json"),
             "energy_trace_png": str(output_dir / "energy_trace.png"),
+            "accepted_structures_log": str(accepted_structures_log),
             "archive_minima_xyz": str(output_dir / "archive_minima.xyz"),
             "best_minimum_xyz": str(output_dir / "best_minimum.xyz"),
             "minima_dir": str(output_dir / "minima_xyz"),
