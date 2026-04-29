@@ -98,6 +98,16 @@ def test_config_validates_seed_diversity_limit():
         SSWConfig(same_seed_max_consecutive=0)
 
 
+def test_config_validates_anchor_mixing_alpha():
+    assert SSWConfig().anchor_mixing_alpha is None
+    assert SSWConfig(anchor_mixing_alpha=0.3).anchor_mixing_alpha == 0.3
+
+    with pytest.raises(ValueError, match="anchor_mixing_alpha"):
+        SSWConfig(anchor_mixing_alpha=-0.1)
+    with pytest.raises(ValueError, match="anchor_mixing_alpha"):
+        SSWConfig(anchor_mixing_alpha=1.1)
+
+
 def test_config_exposes_hvp_and_bias_safety_controls():
     config = SSWConfig(hvp_epsilon=1e-4, bias_weight_min=0.2, bias_weight_max=3.0)
 

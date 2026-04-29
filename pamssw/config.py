@@ -43,6 +43,7 @@ class SSWConfig:
     walk_trust_radius: float = 4.0
     fragment_guard_factor: float | None = None
     anchor_weight: float = 0.5
+    anchor_mixing_alpha: float | None = None
     continuity_weight: float = 0.1
     enable_outcome_gated_continuity: bool = True
     history_push_weight: float = 0.1
@@ -127,6 +128,8 @@ class SSWConfig:
             raise ValueError("continuity_weight must be non-negative")
         if self.proposal_trust_radius is not None and self.proposal_trust_radius <= 0:
             raise ValueError("proposal_trust_radius must be positive when set")
+        if self.anchor_mixing_alpha is not None and not 0.0 <= self.anchor_mixing_alpha <= 1.0:
+            raise ValueError("anchor_mixing_alpha must be between 0 and 1 when set")
         allowed_optimizers = {"scipy-lbfgsb", "ase-fire", "ase-lbfgs"}
         if self.quench_optimizer not in allowed_optimizers:
             raise ValueError("quench_optimizer must be one of scipy-lbfgsb, ase-fire, ase-lbfgs")

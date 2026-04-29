@@ -440,11 +440,18 @@ class CandidateDirectionGenerator:
         self.last_random_bond_pairs_generated = 0
         self.last_random_bond_candidates_valid = 0
 
-    def generate(self, state: State, previous_direction: np.ndarray | None) -> list[DirectionCandidate]:
+    def generate(
+        self,
+        state: State,
+        previous_direction: np.ndarray | None,
+        anchor_direction: np.ndarray | None = None,
+        anchor_mixing_alpha: float | None = None,
+    ) -> list[DirectionCandidate]:
         coordinates = CartesianCoordinates.from_state(state)
         candidates: list[DirectionCandidate] = []
         if self.enable_momentum_candidate and previous_direction is not None:
-            candidates.append(self._candidate(state, DirectionCandidateKind.MOMENTUM, previous_direction))
+            momentum_direction = self._anchor_mixed_direction(previous_direction, anchor_direction, anchor_mixing_alpha)
+            candidates.append(self._candidate(state, DirectionCandidateKind.MOMENTUM, momentum_direction))
         for atom_i, atom_j in self.bond_pairs:
             direction = self._bond_direction(state, atom_i, atom_j)
             if direction is not None:
@@ -521,6 +528,24 @@ class CandidateDirectionGenerator:
             rigid_body_overlap=overlap,
             post_projection_rigid_body_overlap=post_overlap,
         )
+
+    def _anchor_mixed_direction(
+        self,
+        direction: np.ndarray,
+        anchor_direction: np.ndarray | None,
+        alpha: float | None,
+    ) -> np.ndarray:
+        if anchor_direction is None or alpha is None:
+            return direction
+        alpha = float(np.clip(alpha, 0.0, 1.0))
+        anchor = self._normalized(anchor_direction)
+        base = self._normalized(direction)
+        perpendicular = base - float(np.dot(base, anchor)) * anchor
+        if np.linalg.norm(perpendicular) <= 1e-12:
+            return anchor
+        perpendicular = self._normalized(perpendicular)
+        mixed = alpha * anchor + np.sqrt(max(0.0, 1.0 - alpha * alpha)) * perpendicular
+        return self._normalized(mixed)
 
     @staticmethod
     def _normalized(direction: np.ndarray) -> np.ndarray:
@@ -620,12 +645,14 @@ class SoftModeOracle:
         continuity_weight: float = 0.1,
         history_push_weight: float = 0.1,
         enable_momentum_candidate: bool = True,
+        anchor_mixing_alpha: float | None = None,
         hvp_epsilon: float = 1e-3,
     ) -> None:
         self.calculator = calculator
         self.rng = rng
         self.candidates = candidates
         self.hvp_epsilon = hvp_epsilon
+        self.anchor_mixing_alpha = anchor_mixing_alpha
         self.generator = CandidateDirectionGenerator(
             rng,
             candidates,
@@ -656,7 +683,13 @@ class SoftModeOracle:
         best_direction: np.ndarray | None = None
         best_curvature: float | None = None
         best_score: float | None = None
-        candidates = self.generator.generate(state, previous_direction)
+        candidates = self.generator.generate(
+            state,
+            previous_direction,
+            anchor_direction=anchor_direction,
+            anchor_mixing_alpha=self.anchor_mixing_alpha,
+        )
+        scoring_anchor_direction = None if self.anchor_mixing_alpha is not None else anchor_direction
         best_kind: DirectionCandidateKind | None = None
         rigid_overlap_sum = 0.0
         post_projection_rigid_overlap_sum = 0.0
@@ -677,7 +710,7 @@ class SoftModeOracle:
                 curvature=curvature,
                 sigma=candidate_score_sigma,
                 previous_direction=previous_direction,
-                anchor_direction=anchor_direction,
+                anchor_direction=scoring_anchor_direction,
                 archive=archive,
                 history_push=history_push,
                 continuity_weight=continuity_weight,
@@ -748,6 +781,7 @@ class SurfaceWalker:
             continuity_weight=config.continuity_weight,
             history_push_weight=config.history_push_weight,
             enable_momentum_candidate=config.enable_momentum_candidate,
+            anchor_mixing_alpha=config.anchor_mixing_alpha,
             hvp_epsilon=config.hvp_epsilon,
         )
         self.proposal_scorer = ProposalScorer.for_mode(config.search_mode)

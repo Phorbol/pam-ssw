@@ -297,6 +297,60 @@ def test_direction_generator_can_disable_momentum_candidate():
     assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.RANDOM) == 2
 
 
+def test_direction_generator_anchor_mixing_only_changes_momentum_candidate():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+    )
+    previous = np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+    anchor = np.array([0.0, 1.0, 0.0, 0.0, 0.0, 0.0])
+    generator = CandidateDirectionGenerator(np.random.default_rng(0), n_random=0, bond_pairs=[(0, 1)])
+
+    candidates = generator.generate(state, previous_direction=previous, anchor_direction=anchor, anchor_mixing_alpha=0.6)
+
+    momentum = next(candidate for candidate in candidates if candidate.kind == DirectionCandidateKind.MOMENTUM)
+    bond = next(candidate for candidate in candidates if candidate.kind == DirectionCandidateKind.BOND)
+    anchor_unit = anchor / np.linalg.norm(anchor)
+
+    assert float(np.dot(momentum.direction, anchor_unit)) == pytest.approx(0.6)
+    np.testing.assert_allclose(bond.direction.reshape(2, 3)[0], np.array([-1.0, 0.0, 0.0]) / np.sqrt(2.0))
+
+
+def test_anchor_mixing_replaces_score_layer_anchor_penalty():
+    class Quadratic:
+        def energy_gradient(self, flat_positions, state):
+            gradient = np.asarray(flat_positions, dtype=float).copy()
+            return 0.5 * float(gradient @ gradient), gradient
+
+    class CapturingScorer(DirectionScorer):
+        def __init__(self):
+            super().__init__(anchor_weight=10.0)
+            self.anchor_directions = []
+
+        def score_candidate(self, **kwargs):
+            self.anchor_directions.append(kwargs["anchor_direction"])
+            return super().score_candidate(**kwargs)
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    oracle = SoftModeOracle(
+        AnalyticCalculator(Quadratic()),
+        np.random.default_rng(0),
+        candidates=1,
+        anchor_mixing_alpha=0.6,
+    )
+    oracle.scorer = CapturingScorer()
+
+    oracle.choose_direction(
+        state,
+        proposal=ProposalPotential(AnalyticCalculator(Quadratic())),
+        previous_direction=np.array([1.0, 0.0, 0.0]),
+        anchor_direction=np.array([0.0, 1.0, 0.0]),
+    )
+
+    assert oracle.scorer.anchor_directions
+    assert all(anchor_direction is None for anchor_direction in oracle.scorer.anchor_directions)
+
+
 def test_surface_walker_applies_direction_scorer_weights_from_config():
     walker = SurfaceWalker(
         calculator=AnalyticCalculator(DoubleWell2D()),

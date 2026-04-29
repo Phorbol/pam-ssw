@@ -42,6 +42,7 @@ def main() -> None:
     parser.add_argument("--max-step-scale", type=float, default=0.6)
     parser.add_argument("--proposal-trust-radius", type=_optional_float, default=0.8)
     parser.add_argument("--walk-trust-radius", type=float, default=2.5)
+    parser.add_argument("--anchor-mixing-alpha", type=_optional_float, default=None)
     parser.add_argument("--continuity-weight", type=float, default=0.1)
     parser.add_argument("--disable-outcome-gated-continuity", action="store_true")
     parser.add_argument("--history-push-weight", type=float, default=0.1)
@@ -133,6 +134,7 @@ def main() -> None:
         max_step_scale=args.max_step_scale,
         proposal_trust_radius=args.proposal_trust_radius,
         walk_trust_radius=args.walk_trust_radius,
+        anchor_mixing_alpha=args.anchor_mixing_alpha,
         continuity_weight=args.continuity_weight,
         enable_outcome_gated_continuity=not args.disable_outcome_gated_continuity,
         history_push_weight=args.history_push_weight,
