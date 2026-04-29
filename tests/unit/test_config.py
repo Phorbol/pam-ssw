@@ -89,6 +89,15 @@ def test_config_rejects_invalid_proposal_pool_size():
         SSWConfig(proposal_pool_size=0)
 
 
+def test_config_validates_seed_diversity_limit():
+    assert SSWConfig().same_seed_max_consecutive == 3
+    assert SSWConfig(same_seed_max_consecutive=None).same_seed_max_consecutive is None
+    assert SSWConfig(same_seed_max_consecutive=2).same_seed_max_consecutive == 2
+
+    with pytest.raises(ValueError, match="same_seed_max_consecutive"):
+        SSWConfig(same_seed_max_consecutive=0)
+
+
 def test_config_exposes_hvp_and_bias_safety_controls():
     config = SSWConfig(hvp_epsilon=1e-4, bias_weight_min=0.2, bias_weight_max=3.0)
 

@@ -47,6 +47,7 @@ def main() -> None:
     parser.add_argument("--history-push-weight", type=float, default=0.1)
     parser.add_argument("--disable-momentum-candidate", action="store_true")
     parser.add_argument("--proposal-pool-size", type=int, default=1)
+    parser.add_argument("--same-seed-max-consecutive", type=_optional_int, default=3)
     parser.add_argument("--dedup-rmsd-tol", type=float, default=0.15)
     parser.add_argument("--accepted-structures-log", type=Path, default=None)
     parser.add_argument("--accepted-structures-dir", type=Path, default=None)
@@ -139,6 +140,7 @@ def main() -> None:
         fragment_guard_factor=3.0,
         n_bond_pairs=2,
         proposal_pool_size=args.proposal_pool_size,
+        same_seed_max_consecutive=args.same_seed_max_consecutive,
         max_prototypes=500,
         accepted_structures_log=str(accepted_structures_log),
         accepted_structures_dir=str(accepted_structures_dir),

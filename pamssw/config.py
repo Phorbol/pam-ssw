@@ -52,6 +52,7 @@ class SSWConfig:
     lambda_bond_start: float = 0.1
     lambda_bond_end: float = 1.0
     proposal_pool_size: int = 1
+    same_seed_max_consecutive: int | None = 3
     use_archive_acquisition: bool = True
     archive_density_weight: float = 0.5
     novelty_weight: float = 1.0
@@ -88,6 +89,8 @@ class SSWConfig:
             raise ValueError("n_bond_pairs must be non-negative")
         if self.max_force_evals is not None and self.max_force_evals <= 0:
             raise ValueError("max_force_evals must be positive when set")
+        if self.same_seed_max_consecutive is not None and self.same_seed_max_consecutive <= 0:
+            raise ValueError("same_seed_max_consecutive must be positive when set")
         positive_floats = {
             "target_uphill_energy": self.target_uphill_energy,
             "target_negative_curvature": self.target_negative_curvature,

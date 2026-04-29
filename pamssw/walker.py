@@ -770,6 +770,7 @@ class SurfaceWalker:
         self._reset_relax_stats()
         self._reset_bias_stats()
         self._reset_local_softening_stats()
+        self._reset_seed_diversity_stats()
 
     def relax_true_minimum(self, state: State, trajectory_name: str | None = None) -> RelaxResult:
         if not self.geometry_validator.is_valid_state(state):
@@ -796,6 +797,7 @@ class SurfaceWalker:
         self._reset_relax_stats()
         self._reset_bias_stats()
         self._reset_local_softening_stats()
+        self._reset_seed_diversity_stats()
         self._reset_accepted_structure_log()
         self._prepare_structure_output_dirs()
         initial = self.relax_true_minimum(initial_state, trajectory_name="initial_true_quench")
@@ -819,12 +821,7 @@ class SurfaceWalker:
                 break
             step_target = self.step_target_controller.target(archive)
             damage_events_before = self._trust_damage_events
-            if self.config.use_archive_acquisition:
-                seed_entry = archive.select_seed(self.selector, self.rng)
-            else:
-                seed_entry = archive.next_seed()
-                seed_entry.visits += 1
-                seed_entry.node_trials += 1
+            seed_entry = self._select_seed_entry(archive)
             try:
                 proposals = self._proposal_pool(seed_entry.state, archive, trial_index, step_target)
             except BudgetExceeded:
@@ -1137,6 +1134,55 @@ class SurfaceWalker:
     def _walk_from_seed(self, seed_state: State) -> RelaxResult:
         return self.relax_true_minimum(self._walk_candidate_from_seed(seed_state))
 
+    def _select_seed_entry(self, archive):
+        if self.config.use_archive_acquisition:
+            primary = archive.select_seed(self.selector, self.rng)
+        else:
+            primary = archive.next_seed()
+            primary.visits += 1
+            primary.node_trials += 1
+        selected = self._seed_diversity_override(archive, primary)
+        self._record_seed_selection(selected)
+        return selected
+
+    def _seed_diversity_override(self, archive, primary):
+        limit = self.config.same_seed_max_consecutive
+        if limit is None or self._last_seed_entry_id != primary.entry_id or self._same_seed_consecutive < limit:
+            return primary
+        alternatives = [
+            entry
+            for entry in archive.entries
+            if entry.entry_id != primary.entry_id and entry.is_frontier and not entry.is_dead
+        ]
+        if not alternatives:
+            alternatives = [
+                entry
+                for entry in archive.entries
+                if entry.entry_id != primary.entry_id and not entry.is_dead
+            ]
+        if not alternatives:
+            return primary
+        replacement = max(
+            alternatives,
+            key=lambda entry: (
+                self.selector.score_entry(archive, entry),
+                -entry.entry_id,
+            ),
+        )
+        primary.visits = max(0, primary.visits - 1)
+        primary.node_trials = max(0, primary.node_trials - 1)
+        replacement.visits += 1
+        replacement.node_trials += 1
+        self._seed_diversity_reseeds += 1
+        return replacement
+
+    def _record_seed_selection(self, entry) -> None:
+        if self._last_seed_entry_id == entry.entry_id:
+            self._same_seed_consecutive += 1
+        else:
+            self._last_seed_entry_id = entry.entry_id
+            self._same_seed_consecutive = 1
+
     def _step_scale(self, curvature: float) -> float:
         effective = max(abs(curvature), 1e-4)
         sigma = np.sqrt(2.0 * self.config.target_uphill_energy / effective)
@@ -1212,6 +1258,11 @@ class SurfaceWalker:
         self._direction_bond_candidates_valid = 0
         self._walk_displacement_clips = 0
         self._fragment_rejections = 0
+
+    def _reset_seed_diversity_stats(self) -> None:
+        self._last_seed_entry_id: int | None = None
+        self._same_seed_consecutive = 0
+        self._seed_diversity_reseeds = 0
 
     def _reset_relax_stats(self) -> None:
         self._relax_stats = {
@@ -1480,6 +1531,7 @@ class SurfaceWalker:
             "direction_bond_candidates_valid": self._direction_bond_candidates_valid,
             "walk_displacement_clips": self._walk_displacement_clips,
             "fragment_rejections": self._fragment_rejections,
+            "seed_diversity_reseeds": self._seed_diversity_reseeds,
         }
 
     def _relax_stats_summary(self) -> dict[str, float | int]:

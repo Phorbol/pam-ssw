@@ -941,6 +941,37 @@ def test_surface_walker_reports_observable_frontier_diagnostics():
     assert "max_node_duplicate_failure_rate" in result.stats
 
 
+def test_surface_walker_reseeds_from_frontier_after_consecutive_seed_limit():
+    class AlwaysFirstSelector:
+        def select(self, archive, rng):
+            return archive.entries[0]
+
+        def score_entry(self, archive, entry, total_trials=None, policy=None):
+            return 1.0 / (1.0 + entry.entry_id)
+
+    from pamssw.archive import MinimaArchive
+
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=0.01)
+    first = archive.add(State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]])), -2.0, None)
+    second = archive.add(State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]])), -1.9, None)
+    first.is_frontier = True
+    second.is_frontier = True
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(max_trials=1, same_seed_max_consecutive=2),
+        softening_enabled=False,
+    )
+    walker.selector = AlwaysFirstSelector()
+
+    assert walker._select_seed_entry(archive).entry_id == first.entry_id
+    assert walker._select_seed_entry(archive).entry_id == first.entry_id
+    reseeded = walker._select_seed_entry(archive)
+
+    assert reseeded.entry_id == second.entry_id
+    assert walker._seed_diversity_reseeds == 1
+    assert second.node_trials == 1
+
+
 def test_surface_walker_reports_direction_acquisition_diagnostics():
     initial = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))
     walker = SurfaceWalker(
