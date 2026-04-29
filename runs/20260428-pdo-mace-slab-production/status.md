@@ -355,3 +355,34 @@ Interpretation:
 Current conclusion:
 
 For this PdO slab, the main production gain came from fixing LS-SSW activation semantics (`Buckingham`) and stale softening references (`per-step r0`), not from using true-PES curvature for direction selection. The next controlled experiment should keep `direction_curvature_source=inner` and tune Buckingham activation intensity, especially `xi` and `active_count`, while monitoring proposal relaxation cost.
+
+## Stage 9 Buckingham Xi Probe
+
+Question:
+
+- Is the stage7 improvement driven by stronger force at the reference bond length, or by a longer-ranged Buckingham activation?
+- Keep `direction_curvature_source=inner`, `active_count=5`, `strength=0.15`, dynamic per-micro-step softening rebuild, and change only `local_softening_xi`.
+
+Runs:
+
+- `xi=0.2`: `runs/20260428-pdo-mace-slab-production/stage9_lsssw_buckingham_dynamic_inner_xi02_ac5_trials40`
+- `xi=0.5`: `runs/20260428-pdo-mace-slab-production/stage9_lsssw_buckingham_dynamic_inner_xi05_ac5_trials40`
+- Interrupted/non-comparable: `runs/20260428-pdo-mace-slab-production/stage9_lsssw_buckingham_dynamic_inner_xi03_ac8_trials40` was stopped after 3 accepted records because the first two complete xi probes were already negative relative to stage7.
+
+Comparison:
+
+| run | xi | active_count | best energy (eV) | unique minima | energy span (eV) | median RMSD to best (A) | z-span range (A) | soft/random/bond direction fraction | duplicate rate | escape rate | trust error mean | proposal unconverged | force evals |
+|---|---:|---:|---:|---:|---:|---:|---|---|---:|---:|---:|---:|---:|
+| stage7 reference | `0.3` | `5` | `-575.396667` | `37` | `7.002` | `1.406` | `7.351-8.233` | `0.781/0.176/0.044` | `0.098` | `0.900` | `2.718` | `219/319` | `23204` |
+| stage9 short/strong | `0.2` | `5` | `-573.741455` | `35` | `5.347` | `0.761` | `7.400-8.482` | `0.771/0.182/0.047` | `0.146` | `0.850` | `3.738` | `217/319` | `24844` |
+| stage9 long/weak | `0.5` | `5` | `-573.391541` | `16` | `4.997` | `0.135` | `7.663-7.780` | `0.785/0.158/0.057` | `0.610` | `0.375` | `3.846` | `105/316` | `16388` |
+
+Interpretation:
+
+- `xi=0.2` is not better. It gives stronger short-range force and broadens z-span up to `8.482 A`, but best energy is `1.655 eV` worse than stage7 and force evaluations rise to `24844`. This looks like more expensive activation without better low-energy search.
+- `xi=0.5` is also not better. It lowers proposal unconverged count, but duplicate rate jumps to `0.610`, unique minima drop to `16`, median RMSD collapses to `0.135 A`, and z-span range narrows to only `0.117 A`. This is consistent with a too-gentle long-range repulsion that does not activate enough structural change.
+- The stage7 value `xi=0.3` is currently the best balance among the tested `active_count=5` settings. It keeps enough activation to escape local traps without either overcosting the walk (`xi=0.2`) or collapsing back to near-duplicate minima (`xi=0.5`).
+
+Current conclusion:
+
+Do not move the default `xi` away from `0.3` based on this sweep. The next meaningful axis is coverage, not range: keep `xi=0.3`, keep `strength=0.15`, and test `active_count=8` or `12` in a shorter pilot first before committing another 40-trial production run.
