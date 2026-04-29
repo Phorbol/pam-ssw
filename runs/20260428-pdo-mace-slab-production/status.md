@@ -386,3 +386,36 @@ Interpretation:
 Current conclusion:
 
 Do not move the default `xi` away from `0.3` based on this sweep. The next meaningful axis is coverage, not range: keep `xi=0.3`, keep `strength=0.15`, and test `active_count=8` or `12` in a shorter pilot first before committing another 40-trial production run.
+
+## Stage 10/11 Active-Count Coverage Probe
+
+Question:
+
+- With the best current Buckingham range (`xi=0.3`) and strength (`0.15`), does increasing `active_count` improve productive exploration?
+- First run a short 12-trial pilot for `active_count=8` and `12`; then only promote a promising setting to 40 trials.
+
+Runs:
+
+- `active_count=8` pilot: `runs/20260428-pdo-mace-slab-production/stage10_lsssw_buckingham_dynamic_inner_xi03_ac8_pilot12`
+- `active_count=12` pilot: `runs/20260428-pdo-mace-slab-production/stage10_lsssw_buckingham_dynamic_inner_xi03_ac12_pilot12`
+- `active_count=8` production: `runs/20260428-pdo-mace-slab-production/stage11_lsssw_buckingham_dynamic_inner_xi03_ac8_trials40`
+
+Comparison:
+
+| run | trials | active_count | best energy (eV) | unique minima | energy span (eV) | median RMSD to best (A) | z-span range (A) | soft/random/bond direction fraction | duplicate rate | escape rate | trust error mean | proposal unconverged | force evals |
+|---|---:|---:|---:|---:|---:|---:|---|---|---:|---:|---:|---:|---:|
+| stage7 reference | `40` | `5` | `-575.396667` | `37` | `7.002` | `1.406` | `7.351-8.233` | `0.781/0.176/0.044` | `0.098` | `0.900` | `2.718` | `219/319` | `23204` |
+| stage10 pilot | `12` | `8` | `-573.020569` | `12` | `4.626` | `0.177` | `7.444-7.780` | `0.763/0.183/0.054` | `0.077` | `0.917` | `9.006` | `51/93` | `7860` |
+| stage10 pilot | `12` | `12` | `-572.756714` | `13` | `4.362` | `0.719` | `7.550-9.595` | `0.778/0.189/0.033` | `0.000` | `1.000` | `4.529` | `64/90` | `9946` |
+| stage11 production | `40` | `8` | `-573.013306` | `35` | `4.618` | `0.237` | `7.725-8.860` | `0.748/0.191/0.061` | `0.146` | `0.850` | `8.763` | `137/314` | `27639` |
+
+Interpretation:
+
+- The 12-trial `active_count=8` pilot initially looked worth promoting because it reached `-573.021 eV`, better than stage7's 12-step trace (`-572.017 eV`). The full 40-trial run did not continue improving and ended at only `-573.013 eV`.
+- `active_count=12` is not worth promoting. It has high escape and zero duplicates in the pilot, but the best energy is worse and the z-span outlier (`9.595 A`) suggests too much broad structural activation.
+- `active_count=8` reduces the soft-direction fraction slightly (`0.748` vs `0.781`) and reduces proposal unconverged count (`137/314` vs `219/319`), but this comes with a much higher trust error (`8.763`), higher force cost (`27639`), and much worse best energy.
+- The productive stage7 behavior is not reproduced by simply increasing LS coverage. More softening coverage appears to spread the walk over many minima without guiding it into the low-energy channel found by `active_count=5`.
+
+Current conclusion:
+
+Keep `active_count=5`, `xi=0.3`, `strength=0.15`, `direction_curvature_source=inner` as the current PdO production setting. The next bottleneck is no longer softening strength/range/coverage; it is seed/acquisition control and trust-policy reliability. Further LS-SSW tuning should not increase coverage until the outer-loop selection can preferentially revisit productive low-energy/frontier basins.

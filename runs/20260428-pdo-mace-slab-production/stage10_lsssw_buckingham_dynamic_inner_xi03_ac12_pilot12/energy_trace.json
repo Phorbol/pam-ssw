@@ -1,0 +1,104 @@
+[
+  {
+    "step": 0,
+    "energy": -568.39501953125,
+    "best_energy": -568.39501953125,
+    "accepted_new_basin": true
+  },
+  {
+    "step": 1,
+    "energy": -570.677001953125,
+    "best_energy": -570.677001953125,
+    "accepted_new_basin": true,
+    "seed_entry_id": 0,
+    "discovered_entry_id": 1
+  },
+  {
+    "step": 2,
+    "energy": -569.897705078125,
+    "best_energy": -570.677001953125,
+    "accepted_new_basin": true,
+    "seed_entry_id": 1,
+    "discovered_entry_id": 2
+  },
+  {
+    "step": 3,
+    "energy": -572.6923828125,
+    "best_energy": -572.6923828125,
+    "accepted_new_basin": true,
+    "seed_entry_id": 1,
+    "discovered_entry_id": 3
+  },
+  {
+    "step": 4,
+    "energy": -572.279296875,
+    "best_energy": -572.6923828125,
+    "accepted_new_basin": true,
+    "seed_entry_id": 3,
+    "discovered_entry_id": 4
+  },
+  {
+    "step": 5,
+    "energy": -572.130615234375,
+    "best_energy": -572.6923828125,
+    "accepted_new_basin": true,
+    "seed_entry_id": 4,
+    "discovered_entry_id": 5
+  },
+  {
+    "step": 6,
+    "energy": -572.6288452148438,
+    "best_energy": -572.6923828125,
+    "accepted_new_basin": true,
+    "seed_entry_id": 5,
+    "discovered_entry_id": 6
+  },
+  {
+    "step": 7,
+    "energy": -572.7567138671875,
+    "best_energy": -572.7567138671875,
+    "accepted_new_basin": true,
+    "seed_entry_id": 6,
+    "discovered_entry_id": 7
+  },
+  {
+    "step": 8,
+    "energy": -572.7232666015625,
+    "best_energy": -572.7567138671875,
+    "accepted_new_basin": true,
+    "seed_entry_id": 7,
+    "discovered_entry_id": 8
+  },
+  {
+    "step": 9,
+    "energy": -572.6307373046875,
+    "best_energy": -572.7567138671875,
+    "accepted_new_basin": true,
+    "seed_entry_id": 8,
+    "discovered_entry_id": 9
+  },
+  {
+    "step": 10,
+    "energy": -572.2772216796875,
+    "best_energy": -572.7567138671875,
+    "accepted_new_basin": true,
+    "seed_entry_id": 9,
+    "discovered_entry_id": 10
+  },
+  {
+    "step": 11,
+    "energy": -571.9320068359375,
+    "best_energy": -572.7567138671875,
+    "accepted_new_basin": true,
+    "seed_entry_id": 10,
+    "discovered_entry_id": 11
+  },
+  {
+    "step": 12,
+    "energy": -571.9259033203125,
+    "best_energy": -572.7567138671875,
+    "accepted_new_basin": true,
+    "seed_entry_id": 11,
+    "discovered_entry_id": 12
+  }
+]
