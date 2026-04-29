@@ -633,6 +633,9 @@ class SurfaceWalker:
 
         completed_trials = 0
         budget_exhausted = False
+        _t0 = __import__("time").time()
+        _print = lambda msg: print(f"[ssw] {msg}", flush=True)
+        _print(f"starting {self.config.max_trials} trials...")
         for trial_index in range(self.config.max_trials):
             if self.calculator.exhausted():
                 budget_exhausted = True
@@ -707,6 +710,8 @@ class SurfaceWalker:
                 )
                 archive.record_success(seed_entry, 0.0, duplicate_failures=max(1, duplicate_failures))
                 completed_trials += 1
+                _elapsed = __import__("time").time() - _t0
+                _print(f"trial {completed_trials}/{self.config.max_trials}  (no new min)  best={best_entry.energy:.3f} eV  minima={len(archive.entries)}  elapsed={_elapsed:.0f}s")
                 continue
             self.step_target_controller.record_trial(
                 escaped=any_new,
@@ -722,7 +727,11 @@ class SurfaceWalker:
                 )
             )
             completed_trials += 1
+            _elapsed = __import__("time").time() - _t0
+            _print(f"trial {completed_trials}/{self.config.max_trials}  best={best_entry.energy:.3f} eV  minima={len(archive.entries)}  elapsed={_elapsed:.0f}s")
 
+        _elapsed = __import__("time").time() - _t0
+        _print(f"done: {completed_trials} trials, {len(archive.entries)} minima, best={best_entry.energy:.3f} eV, elapsed={_elapsed:.0f}s")
         archive.refresh_frontier_status()
         prototype_stats = archive.prototype_occupancy()
         frontier_stats = archive.frontier_diagnostics()
