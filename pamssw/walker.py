@@ -633,9 +633,6 @@ class SurfaceWalker:
 
         completed_trials = 0
         budget_exhausted = False
-        _t0 = __import__("time").time()
-        _print = lambda msg: print(f"[ssw] {msg}", flush=True)
-        _print(f"starting {self.config.max_trials} trials...")
         for trial_index in range(self.config.max_trials):
             if self.calculator.exhausted():
                 budget_exhausted = True
@@ -710,8 +707,6 @@ class SurfaceWalker:
                 )
                 archive.record_success(seed_entry, 0.0, duplicate_failures=max(1, duplicate_failures))
                 completed_trials += 1
-                _elapsed = __import__("time").time() - _t0
-                _print(f"trial {completed_trials}/{self.config.max_trials}  (no new min)  best={best_entry.energy:.3f} eV  minima={len(archive.entries)}  elapsed={_elapsed:.0f}s")
                 continue
             self.step_target_controller.record_trial(
                 escaped=any_new,
@@ -727,11 +722,7 @@ class SurfaceWalker:
                 )
             )
             completed_trials += 1
-            _elapsed = __import__("time").time() - _t0
-            _print(f"trial {completed_trials}/{self.config.max_trials}  best={best_entry.energy:.3f} eV  minima={len(archive.entries)}  elapsed={_elapsed:.0f}s")
 
-        _elapsed = __import__("time").time() - _t0
-        _print(f"done: {completed_trials} trials, {len(archive.entries)} minima, best={best_entry.energy:.3f} eV, elapsed={_elapsed:.0f}s")
         archive.refresh_frontier_status()
         prototype_stats = archive.prototype_occupancy()
         frontier_stats = archive.frontier_diagnostics()
@@ -786,8 +777,6 @@ class SurfaceWalker:
         previous_direction: np.ndarray | None = None
         anchor_direction: np.ndarray | None = None
         biases: list[GaussianBiasTerm] = []
-        softening: LocalSofteningModel | None = None
-        softening_built = False
         sigma_scale = 1.0
         weight_scale = 1.0
 
@@ -802,13 +791,12 @@ class SurfaceWalker:
                     n_bond_pairs=self.config.n_bond_pairs,
                     bond_distance_threshold=self.config.bond_distance_threshold,
                 )
-            if not softening_built:
-                softening = self._build_softening(seed_state, anchor_direction)
-                softening_built = True
+            softening = self._build_softening(current, anchor_direction)
             proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
+            scoring_proposal = self._direction_scoring_proposal(proposal)
             choice = self.oracle.choose_direction(
                 current,
-                proposal,
+                scoring_proposal,
                 previous_direction,
                 anchor_direction=anchor_direction,
                 step_scale_fn=lambda curvature: self._scaled_step_scale(
@@ -820,8 +808,13 @@ class SurfaceWalker:
             )
             self._record_direction_choice(choice)
             true_curvature = self._true_directional_curvature(current, choice.direction)
+            inner_curvature = (
+                choice.curvature
+                if self.config.direction_curvature_source == "inner"
+                else self.oracle._directional_curvature(current, proposal, choice.direction)
+            )
             sigma = self._scaled_step_scale(true_curvature, sigma_scale, step_target=step_target)
-            weight = self._bias_weight(choice.curvature, sigma) * weight_scale
+            weight = self._bias_weight(inner_curvature, sigma) * weight_scale
             self._record_bias_weight(weight)
             true_before = self.calculator.evaluate(current)
             true_energy_before = true_before.energy
@@ -902,6 +895,11 @@ class SurfaceWalker:
     def _true_directional_curvature(self, state: State, direction: np.ndarray) -> float:
         proposal = ProposalPotential(self.calculator)
         return self.oracle._directional_curvature(state, proposal, direction)
+
+    def _direction_scoring_proposal(self, inner_proposal: ProposalPotential) -> ProposalPotential:
+        if self.config.direction_curvature_source == "true":
+            return ProposalPotential(self.calculator)
+        return inner_proposal
 
     def _reset_trust_stats(self) -> None:
         self._trust_steps = 0

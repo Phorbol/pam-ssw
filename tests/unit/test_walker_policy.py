@@ -41,6 +41,33 @@ def test_bias_weight_matches_curvature_inversion_rule():
     assert walker._bias_weight(curvature=-0.5, sigma=2.0) == 0.0
 
 
+def test_direction_scoring_proposal_can_ignore_inner_bias_curvature():
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    calculator = AnalyticCalculator(Quadratic())
+    direction = np.array([1.0, 0.0, 0.0])
+    inner = ProposalPotential(
+        calculator,
+        biases=[
+            GaussianBiasTerm(
+                center=state.flatten_positions(),
+                direction=direction,
+                sigma=1.0,
+                weight=2.0,
+            )
+        ],
+    )
+    walker = SurfaceWalker(
+        calculator=calculator,
+        config=SSWConfig(direction_curvature_source="true"),
+        softening_enabled=False,
+    )
+
+    true_scoring = walker._direction_scoring_proposal(inner)
+
+    assert walker.oracle._directional_curvature(state, true_scoring, direction) == pytest.approx(1.0)
+    assert walker.oracle._directional_curvature(state, inner, direction) == pytest.approx(-1.0)
+
+
 def test_soft_mode_oracle_returns_best_candidate_without_random_mixing():
     class Quadratic:
         def energy_gradient(self, flat_positions, state):
@@ -763,6 +790,35 @@ def test_ls_ssw_auto_neighbor_softening_build_stats_increment_predictably():
     assert walker._local_softening_terms_last == 1
     assert walker._local_softening_terms_built_total == 2
     assert walker._local_softening_terms_total == 2
+
+
+def test_walk_rebuilds_local_softening_for_each_micro_step():
+    state = State(numbers=np.array([1]), positions=np.array([[0.1, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(
+            max_steps_per_walk=3,
+            oracle_candidates=1,
+            n_bond_pairs=0,
+            proposal_relax_steps=1,
+            proposal_fmax=100.0,
+            proposal_trust_radius=None,
+            walk_trust_radius=100.0,
+        ),
+        softening_enabled=True,
+    )
+    build_positions = []
+
+    def record_build(current_state, direction=None):
+        build_positions.append(current_state.positions.copy())
+        return None
+
+    walker._build_softening = record_build
+
+    walker._walk_candidate_from_seed(state)
+
+    assert len(build_positions) == 3
+    assert any(not np.allclose(build_positions[0], positions) for positions in build_positions[1:])
 
 
 def test_ls_ssw_reset_local_softening_stats_resets_all_counters():

@@ -47,13 +47,14 @@ def main() -> None:
     parser.add_argument("--accepted-structures-log", type=Path, default=None)
     parser.add_argument("--fix-bottom-fraction", type=float, default=0.35)
     parser.add_argument("--slab-pbc-z", action="store_true")
+    parser.add_argument("--direction-curvature-source", choices=("inner", "true"), default="inner")
     parser.add_argument("--local-softening-mode", choices=("neighbor_auto", "active_neighbors", "manual"), default="active_neighbors")
     parser.add_argument("--local-softening-cutoff-scale", type=float, default=1.15)
     parser.add_argument("--local-softening-active-count", type=_optional_int, default=5)
     parser.add_argument("--local-softening-strength", type=float, default=0.15)
-    parser.add_argument("--local-softening-penalty", choices=("gaussian_well", "buckingham_repulsive"), default="gaussian_well")
-    parser.add_argument("--local-softening-xi", type=float, default=0.5)
-    parser.add_argument("--local-softening-cutoff", type=_optional_float, default=3.0)
+    parser.add_argument("--local-softening-penalty", choices=("gaussian_well", "buckingham_repulsive"), default="buckingham_repulsive")
+    parser.add_argument("--local-softening-xi", type=float, default=0.3)
+    parser.add_argument("--local-softening-cutoff", type=_optional_float, default=2.0)
     parser.add_argument("--local-softening-adaptive-strength", action="store_true")
     parser.add_argument("--local-softening-max-strength-scale", type=float, default=3.0)
     parser.add_argument("--local-softening-deviation-scale", type=float, default=0.25)
@@ -118,6 +119,7 @@ def main() -> None:
         proposal_pool_size=args.proposal_pool_size,
         max_prototypes=500,
         accepted_structures_log=str(accepted_structures_log),
+        direction_curvature_source=args.direction_curvature_source,
     )
     if args.search_kind == "ls-ssw":
         config = LSSSWConfig(

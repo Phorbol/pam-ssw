@@ -23,6 +23,9 @@ def test_ls_ssw_defaults_to_neighbor_auto_mode():
     assert config.local_softening_mode == "neighbor_auto"
     assert config.local_softening_cutoff_scale == 1.25
     assert config.local_softening_active_count is None
+    assert config.local_softening_penalty == "buckingham_repulsive"
+    assert config.local_softening_xi == 0.3
+    assert config.local_softening_cutoff == 2.0
     assert config.local_softening_pairs == []
 
 
@@ -122,6 +125,14 @@ def test_config_validates_relaxation_optimizers():
         SSWConfig(proposal_optimizer="unknown")
     with pytest.raises(ValueError):
         SSWConfig(quench_optimizer="unknown")
+
+
+def test_config_validates_direction_curvature_source():
+    assert SSWConfig(direction_curvature_source="inner").direction_curvature_source == "inner"
+    assert SSWConfig(direction_curvature_source="true").direction_curvature_source == "true"
+
+    with pytest.raises(ValueError, match="direction_curvature_source"):
+        SSWConfig(direction_curvature_source="biased")
 
 
 def test_ls_ssw_validates_softening_penalty_controls():

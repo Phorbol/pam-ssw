@@ -59,6 +59,7 @@ class SSWConfig:
     max_prototypes: int = 1000
     max_force_evals: int | None = None
     accepted_structures_log: str | None = None
+    direction_curvature_source: str = "inner"
 
     def __post_init__(self) -> None:
         positive_ints = {
@@ -113,6 +114,8 @@ class SSWConfig:
             raise ValueError("quench_optimizer must be one of scipy-lbfgsb, ase-fire, ase-lbfgs")
         if self.proposal_optimizer not in allowed_optimizers:
             raise ValueError("proposal_optimizer must be one of scipy-lbfgsb, ase-fire, ase-lbfgs")
+        if self.direction_curvature_source not in {"inner", "true"}:
+            raise ValueError("direction_curvature_source must be inner or true")
         if self.fragment_guard_factor is not None and self.fragment_guard_factor <= 0:
             raise ValueError("fragment_guard_factor must be positive when set")
         if self.bond_distance_threshold is not None and self.bond_distance_threshold <= 0:
@@ -135,9 +138,9 @@ class LSSSWConfig(SSWConfig):
     local_softening_mode: str = "neighbor_auto"
     local_softening_cutoff_scale: float = 1.25
     local_softening_active_count: int | None = None
-    local_softening_penalty: str = "gaussian_well"
-    local_softening_xi: float = 0.5
-    local_softening_cutoff: float | None = 3.0
+    local_softening_penalty: str = "buckingham_repulsive"
+    local_softening_xi: float = 0.3
+    local_softening_cutoff: float | None = 2.0
     local_softening_adaptive_strength: bool = False
     local_softening_max_strength_scale: float = 3.0
     local_softening_deviation_scale: float = 0.25
