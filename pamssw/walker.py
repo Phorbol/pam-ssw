@@ -15,7 +15,7 @@ from .accounting import BudgetExceeded, EvalCounter
 from .bias import GaussianBiasTerm
 from .config import LSSSWConfig, RelaxConfig, SSWConfig
 from .coordinates import CartesianCoordinates, TangentVector
-from .fingerprint import structural_descriptor
+from .fingerprint import descriptor_distance, structural_descriptor
 from .pbc import mic_displacement, mic_distance_matrix, wrap_positions
 from .relax import Relaxer
 from .result import RelaxOutcomeClass, RelaxResult, SearchResult, WalkRecord
@@ -40,7 +40,7 @@ class ProposalPotential:
         total_gradient = gradient.copy()
         total_energy = energy
         for bias in self.biases:
-            bias_energy, bias_gradient = bias.evaluate(flat_positions)
+            bias_energy, bias_gradient = bias.evaluate(flat_positions, cell=template.cell, pbc=template.pbc)
             total_energy += bias_energy
             total_gradient += bias_gradient
         if self.softening is not None:
@@ -284,7 +284,9 @@ class StepTargetController:
     damage_tolerance: float = 0.3
     feedback_warmup_trials: int = 4
     gamma_up: float = 1.1
-    gamma_down: float = 0.7
+    min_escape_energy_delta: float = 0.1
+    min_escape_descriptor_delta: float = 0.1
+    min_escape_novelty: float = 1.01
 
     def __post_init__(self) -> None:
         if self.fallback_target <= 0.0:
@@ -294,31 +296,93 @@ class StepTargetController:
         self.multiplier = 1.0
         self.trials = 0
         self.escapes = 0
+        self.raw_escapes = 0
         self.damage_events = 0
         self.last_target = self.fallback_target
+        self.max_escape_energy_delta_seen = 0.0
+        self.max_escape_descriptor_delta_seen = 0.0
+        self.max_escape_novelty_seen = 0.0
 
     def target(self, archive=None) -> float:
         raw_target = self._archive_target(archive)
         self.last_target = float(np.clip(raw_target * self.multiplier, self.min_target, self.max_target))
         return self.last_target
 
-    def record_trial(self, escaped: bool, damaged: bool) -> None:
+    def record_trial(
+        self,
+        escaped: bool,
+        damaged: bool,
+        seed_energy: float | None = None,
+        new_energy: float | None = None,
+        energy_delta: float | None = None,
+        descriptor_delta: float | None = None,
+        novelty_gain: float | None = None,
+    ) -> None:
         self.trials += 1
-        self.escapes += int(escaped)
+        self.raw_escapes += int(escaped)
+        meaningful_escape = self._meaningful_escape(
+            escaped=escaped,
+            seed_energy=seed_energy,
+            new_energy=new_energy,
+            energy_delta=energy_delta,
+            descriptor_delta=descriptor_delta,
+            novelty_gain=novelty_gain,
+        )
+        self.escapes += int(meaningful_escape)
         self.damage_events += int(damaged)
+        if energy_delta is None and seed_energy is not None and new_energy is not None:
+            energy_delta = float(new_energy) - float(seed_energy)
+        if energy_delta is not None:
+            self.max_escape_energy_delta_seen = max(self.max_escape_energy_delta_seen, abs(float(energy_delta)))
+        if descriptor_delta is not None:
+            self.max_escape_descriptor_delta_seen = max(
+                self.max_escape_descriptor_delta_seen,
+                float(descriptor_delta),
+            )
+        if novelty_gain is not None:
+            self.max_escape_novelty_seen = max(self.max_escape_novelty_seen, float(novelty_gain))
         escape_rate = self.escapes / self.trials
         damage_rate = self.damage_events / self.trials
         if escape_rate < self.target_escape_rate:
             self.multiplier = float(np.clip(self.multiplier * self.gamma_up, 0.75, 4.0))
 
+    def _meaningful_escape(
+        self,
+        *,
+        escaped: bool,
+        seed_energy: float | None,
+        new_energy: float | None,
+        energy_delta: float | None,
+        descriptor_delta: float | None,
+        novelty_gain: float | None,
+    ) -> bool:
+        if not escaped:
+            return False
+        if energy_delta is None and seed_energy is not None and new_energy is not None:
+            energy_delta = float(new_energy) - float(seed_energy)
+        has_evidence = energy_delta is not None or descriptor_delta is not None or novelty_gain is not None
+        if not has_evidence:
+            return True
+        energy_ok = energy_delta is not None and abs(float(energy_delta)) >= self.min_escape_energy_delta
+        descriptor_ok = (
+            descriptor_delta is not None and float(descriptor_delta) >= self.min_escape_descriptor_delta
+        )
+        novelty_ok = novelty_gain is not None and float(novelty_gain) >= self.min_escape_novelty
+        return bool(energy_ok or descriptor_ok or novelty_ok)
+
     def stats(self) -> dict[str, float | int]:
         escape_rate = self.escapes / self.trials if self.trials else 0.0
+        raw_escape_rate = self.raw_escapes / self.trials if self.trials else 0.0
         damage_rate = self.damage_events / self.trials if self.trials else 0.0
         return {
             "adaptive_step_target": float(self.last_target),
             "adaptive_step_multiplier": float(self.multiplier),
             "adaptive_escape_rate": float(escape_rate),
+            "adaptive_raw_escape_rate": float(raw_escape_rate),
             "adaptive_damage_rate": float(damage_rate),
+            "adaptive_max_escape_energy_delta": float(self.max_escape_energy_delta_seen),
+            "adaptive_max_escape_descriptor_delta": float(self.max_escape_descriptor_delta_seen),
+            "adaptive_max_escape_novelty": float(self.max_escape_novelty_seen),
             "adaptive_damage_warning": int(self.trials >= self.feedback_warmup_trials and damage_rate > self.damage_tolerance),
         }
 
@@ -358,6 +422,7 @@ class DirectionScorer:
     anchor_weight: float = 0.5
     novelty_weight: float = 0.5
     history_push_weight: float = 0.1
+    novelty_probe_scales: tuple[float, ...] = (1.0,)
 
     def score(
         self,
@@ -414,8 +479,13 @@ class DirectionScorer:
         )
         if archive is None:
             return score
-        probe = CartesianCoordinates.from_state(state).displace(TangentVector(candidate.direction), sigma)
-        novelty_gain = archive.coverage_gain(structural_descriptor(probe))
+        coordinates = CartesianCoordinates.from_state(state)
+        novelty_gain = max(
+            archive.coverage_gain(
+                structural_descriptor(coordinates.displace(TangentVector(candidate.direction), scale * sigma))
+            )
+            for scale in self.novelty_probe_scales
+        )
         return float(score + self.novelty_weight * novelty_gain)
 
 
@@ -438,6 +508,7 @@ class CandidateDirectionGenerator:
         self.last_initial_bond_pair: tuple[int, int] | None = None
         self.last_random_bond_pairs_requested = 0
         self.last_random_bond_pairs_generated = 0
+        self.last_fallback_bond_pairs_generated = 0
         self.last_random_bond_candidates_valid = 0
 
     def generate(
@@ -446,6 +517,7 @@ class CandidateDirectionGenerator:
         previous_direction: np.ndarray | None,
         anchor_direction: np.ndarray | None = None,
         anchor_mixing_alpha: float | None = None,
+        n_bond_pairs: int | None = None,
     ) -> list[DirectionCandidate]:
         coordinates = CartesianCoordinates.from_state(state)
         candidates: list[DirectionCandidate] = []
@@ -458,10 +530,10 @@ class CandidateDirectionGenerator:
                 candidates.append(self._candidate(state, DirectionCandidateKind.BOND, direction))
         dynamic_pairs = self._random_non_neighbor_pairs(
             state,
-            n_pairs=self.n_bond_pairs,
+            n_pairs=self.n_bond_pairs if n_bond_pairs is None else n_bond_pairs,
             distance_threshold=self.bond_distance_threshold,
         )
-        self.last_random_bond_pairs_requested = self.n_bond_pairs
+        self.last_random_bond_pairs_requested = self.n_bond_pairs if n_bond_pairs is None else n_bond_pairs
         self.last_random_bond_pairs_generated = len(dynamic_pairs)
         self.last_random_bond_candidates_valid = 0
         for atom_i, atom_j in dynamic_pairs:
@@ -581,7 +653,8 @@ class CandidateDirectionGenerator:
         n_pairs: int,
         distance_threshold: float | None = None,
     ) -> list[tuple[int, int]]:
-        if n_pairs <= 0 or all(state.pbc):
+        self.last_fallback_bond_pairs_generated = 0
+        if n_pairs <= 0:
             return []
         movable_indices = np.where(state.movable_mask)[0]
         if len(movable_indices) < 2:
@@ -609,7 +682,45 @@ class CandidateDirectionGenerator:
                     seen.add(pair)
                     pairs.append(pair)
             attempts += 1
+        if len(pairs) < max(1, n_pairs // 2):
+            fallback_pairs = self._closest_mic_pairs(
+                state,
+                n_pairs=n_pairs - len(pairs),
+                exclude=set(pairs),
+            )
+            pairs.extend(fallback_pairs)
+            self.last_fallback_bond_pairs_generated = len(fallback_pairs)
         return pairs
+
+    def _closest_mic_pairs(
+        self,
+        state: State,
+        n_pairs: int,
+        exclude: set[tuple[int, int]] | None = None,
+    ) -> list[tuple[int, int]]:
+        if n_pairs <= 0:
+            return []
+        exclude = exclude or set()
+        movable_indices = np.where(state.movable_mask)[0]
+        ranked: list[tuple[float, tuple[int, int]]] = []
+        for left_index, atom_i in enumerate(movable_indices):
+            for atom_j in movable_indices[left_index + 1 :]:
+                pair = tuple(sorted((int(atom_i), int(atom_j))))
+                if pair in exclude:
+                    continue
+                distance = float(
+                    np.linalg.norm(
+                        mic_displacement(
+                            state.positions[pair[1] : pair[1] + 1],
+                            state.positions[pair[0] : pair[0] + 1],
+                            state.cell,
+                            state.pbc,
+                        )[0]
+                    )
+                )
+                ranked.append((distance, pair))
+        ranked.sort(key=lambda item: item[0])
+        return [pair for _, pair in ranked[:n_pairs]]
 
     @staticmethod
     def _adaptive_non_neighbor_threshold(state: State, configured_threshold: float | None) -> float:
@@ -644,6 +755,7 @@ class SoftModeOracle:
         anchor_weight: float = 0.5,
         continuity_weight: float = 0.1,
         history_push_weight: float = 0.1,
+        novelty_probe_scales: tuple[float, ...] = (1.0,),
         enable_momentum_candidate: bool = True,
         anchor_mixing_alpha: float | None = None,
         hvp_epsilon: float = 1e-3,
@@ -665,6 +777,7 @@ class SoftModeOracle:
             anchor_weight=anchor_weight,
             continuity_weight=continuity_weight,
             history_push_weight=history_push_weight,
+            novelty_probe_scales=novelty_probe_scales,
         )
 
     def choose_direction(
@@ -677,6 +790,7 @@ class SoftModeOracle:
         archive=None,
         history_gradient: np.ndarray | None = None,
         continuity_weight: float | None = None,
+        n_bond_pairs: int | None = None,
         score_sigma: float | None = None,
         score_sigma_fn=None,
     ) -> DirectionChoice:
@@ -688,6 +802,7 @@ class SoftModeOracle:
             previous_direction,
             anchor_direction=anchor_direction,
             anchor_mixing_alpha=self.anchor_mixing_alpha,
+            n_bond_pairs=n_bond_pairs,
         )
         scoring_anchor_direction = None if self.anchor_mixing_alpha is not None else anchor_direction
         best_kind: DirectionCandidateKind | None = None
@@ -780,6 +895,7 @@ class SurfaceWalker:
             anchor_weight=config.anchor_weight,
             continuity_weight=config.continuity_weight,
             history_push_weight=config.history_push_weight,
+            novelty_probe_scales=tuple(config.novelty_probe_scales),
             enable_momentum_candidate=config.enable_momentum_candidate,
             anchor_mixing_alpha=config.anchor_mixing_alpha,
             hvp_epsilon=config.hvp_epsilon,
@@ -795,8 +911,19 @@ class SurfaceWalker:
                 beta_energy=config.bandit_energy_weight,
             )
         )
-        self.trust_controller = TrustRegionBiasController()
-        self.step_target_controller = StepTargetController(config.target_uphill_energy)
+        self.trust_controller = TrustRegionBiasController(
+            step_length=StepLengthController(
+                error_tolerance=config.step_error_tolerance,
+                gamma_down=config.step_gamma_down,
+                gamma_up=config.step_gamma_up,
+            )
+        )
+        self.step_target_controller = StepTargetController(
+            config.target_uphill_energy,
+            min_escape_energy_delta=config.min_escape_energy_delta,
+            min_escape_descriptor_delta=config.min_escape_descriptor_delta,
+            min_escape_novelty=config.min_escape_novelty,
+        )
         self.geometry_validator = GeometryValidator()
         self._missing_trajectory_context_warned = False
         self._reset_trust_stats()
@@ -805,12 +932,13 @@ class SurfaceWalker:
         self._reset_bias_stats()
         self._reset_local_softening_stats()
         self._reset_seed_diversity_stats()
+        self._proposal_optimizer_alt_steps = 0
 
     def relax_true_minimum(self, state: State, trajectory_name: str | None = None) -> RelaxResult:
         if not self.geometry_validator.is_valid_state(state):
             raise BudgetExceeded("invalid geometry before true relaxation")
         relaxer = Relaxer(self.calculator.evaluate_flat, optimizer=self.config.quench_optimizer)
-        relax_config = RelaxConfig(fmax=self.config.quench_fmax, maxiter=400)
+        relax_config = RelaxConfig(fmax=self.config.quench_fmax, maxiter=self.config.quench_maxiter)
         result = relaxer.relax(
             state,
             fmax=relax_config.fmax,
@@ -832,6 +960,7 @@ class SurfaceWalker:
         self._reset_bias_stats()
         self._reset_local_softening_stats()
         self._reset_seed_diversity_stats()
+        self._proposal_optimizer_alt_steps = 0
         self._reset_accepted_structure_log()
         self._prepare_structure_output_dirs()
         initial = self.relax_true_minimum(initial_state, trajectory_name="initial_true_quench")
@@ -865,6 +994,9 @@ class SurfaceWalker:
             best_rank_key: tuple[float, ...] | None = None
             best_reward = 0.0
             any_new = False
+            max_escape_energy_delta = 0.0
+            max_escape_descriptor_delta = 0.0
+            max_escape_novelty = 0.0
             duplicate_failures = 0
             previous_best_energy = best_entry.energy
             for proposal_index, proposal in enumerate(proposals):
@@ -899,6 +1031,17 @@ class SurfaceWalker:
                 is_duplicate = not is_new
                 duplicate_failures += int(is_duplicate)
                 any_new = any_new or is_new
+                if is_new:
+                    max_escape_energy_delta = max(
+                        max_escape_energy_delta,
+                        abs(float(candidate.energy) - float(seed_entry.energy)),
+                    )
+                    if seed_entry.descriptor is not None:
+                        max_escape_descriptor_delta = max(
+                            max_escape_descriptor_delta,
+                            descriptor_distance(descriptor, seed_entry.descriptor),
+                        )
+                    max_escape_novelty = max(max_escape_novelty, float(coverage_gain))
                 self._write_proposal_minimum(
                     trial_index=trial_index + 1,
                     proposal_index=proposal_index + 1,
@@ -947,6 +1090,11 @@ class SurfaceWalker:
             self.step_target_controller.record_trial(
                 escaped=any_new,
                 damaged=self._trust_damage_events > damage_events_before,
+                seed_energy=seed_entry.energy,
+                new_energy=best_discovered.energy,
+                energy_delta=max_escape_energy_delta,
+                descriptor_delta=max_escape_descriptor_delta,
+                novelty_gain=max_escape_novelty,
             )
             archive.record_success(seed_entry, best_reward, duplicate_failures=duplicate_failures)
             walk_history.append(
@@ -995,6 +1143,8 @@ class SurfaceWalker:
                 "variable_cell_supported": 0,
                 "quench_optimizer": self.config.quench_optimizer,
                 "proposal_optimizer": self.config.proposal_optimizer,
+                "proposal_optimizer_alt": self.config.proposal_optimizer_alt,
+                "proposal_optimizer_alt_steps": self._proposal_optimizer_alt_steps,
                 "local_softening_terms_last": self._local_softening_terms_last,
                 "local_softening_terms_total": self._local_softening_terms_built_total,
                 "local_softening_builds": self._local_softening_builds,
@@ -1039,10 +1189,11 @@ class SurfaceWalker:
 
         for step_index in range(self.config.max_steps_per_walk):
             if anchor_direction is None:
+                anchor_progress_index = 0 if trial_index is None else max(0, min(trial_index, self.config.max_trials - 1))
                 anchor_direction = self.oracle.generator.generate_initial_direction(
                     current,
-                    step_index=step_index,
-                    max_steps=self.config.max_steps_per_walk,
+                    step_index=anchor_progress_index,
+                    max_steps=self.config.max_trials,
                     lambda_start=self.config.lambda_bond_start,
                     lambda_end=self.config.lambda_bond_end,
                     n_bond_pairs=self.config.n_bond_pairs,
@@ -1065,6 +1216,7 @@ class SurfaceWalker:
                 archive=archive,
                 history_gradient=self._history_bias_gradient(current, biases),
                 continuity_weight=self._continuity_weight_for_outcome(previous_relax_outcome),
+                n_bond_pairs=self._n_bond_pairs_for_outcome(previous_relax_outcome),
                 score_sigma=(
                     None
                     if score_sigma_fn is not None
@@ -1097,7 +1249,10 @@ class SurfaceWalker:
             trial_state = CartesianCoordinates.from_state(current).displace(TangentVector(choice.direction), sigma)
             if not self.geometry_validator.is_valid_state(trial_state):
                 break
-            proposal_relax = Relaxer(proposal.evaluate, optimizer=self.config.proposal_optimizer).relax(
+            proposal_optimizer = self._proposal_optimizer_for_outcome(previous_relax_outcome)
+            if proposal_optimizer != self.config.proposal_optimizer:
+                self._proposal_optimizer_alt_steps += 1
+            proposal_relax = Relaxer(proposal.evaluate, optimizer=proposal_optimizer).relax(
                 trial_state,
                 fmax=self.config.proposal_fmax,
                 maxiter=self.config.proposal_relax_steps,
@@ -1256,7 +1411,7 @@ class SurfaceWalker:
         flat_positions = state.flatten_positions()
         gradient = np.zeros_like(flat_positions)
         for bias in biases:
-            _, bias_gradient = bias.evaluate(flat_positions)
+            _, bias_gradient = bias.evaluate(flat_positions, cell=state.cell, pbc=state.pbc)
             gradient += bias_gradient
         return gradient
 
@@ -1274,6 +1429,22 @@ class SurfaceWalker:
             return 0.5 * self.config.continuity_weight
         return self.config.continuity_weight
 
+    def _n_bond_pairs_for_outcome(self, outcome: RelaxOutcomeClass | None) -> int:
+        n_pairs = self.config.n_bond_pairs
+        if outcome in {RelaxOutcomeClass.STAGNATED, RelaxOutcomeClass.CONVERGED_UNPRODUCTIVE}:
+            n_pairs += self.config.stagnation_bond_pair_boost
+            if self.config.max_stagnation_bond_pairs is not None:
+                n_pairs = min(n_pairs, self.config.max_stagnation_bond_pairs)
+        return n_pairs
+
+    def _proposal_optimizer_for_outcome(self, outcome: RelaxOutcomeClass | None) -> str:
+        if self.config.proposal_optimizer_alt is not None and outcome in {
+            RelaxOutcomeClass.STAGNATED,
+            RelaxOutcomeClass.CONVERGED_UNPRODUCTIVE,
+        }:
+            return self.config.proposal_optimizer_alt
+        return self.config.proposal_optimizer
+
     def _reset_trust_stats(self) -> None:
         self._trust_steps = 0
         self._trust_model_error_sum = 0.0
@@ -1289,6 +1460,7 @@ class SurfaceWalker:
         self._direction_post_projection_rigid_overlap_sum = 0.0
         self._direction_bond_pairs_requested = 0
         self._direction_bond_pairs_generated = 0
+        self._direction_fallback_bond_pairs_generated = 0
         self._direction_bond_candidates_valid = 0
         self._walk_displacement_clips = 0
         self._fragment_rejections = 0
@@ -1519,6 +1691,7 @@ class SurfaceWalker:
         self._direction_post_projection_rigid_overlap_sum += choice.mean_post_projection_rigid_body_overlap
         self._direction_bond_pairs_requested += self.oracle.generator.last_random_bond_pairs_requested
         self._direction_bond_pairs_generated += self.oracle.generator.last_random_bond_pairs_generated
+        self._direction_fallback_bond_pairs_generated += self.oracle.generator.last_fallback_bond_pairs_generated
         self._direction_bond_candidates_valid += self.oracle.generator.last_random_bond_candidates_valid
 
     def _record_trust_update(self, update: TrustRegionUpdate) -> None:
@@ -1562,6 +1735,7 @@ class SurfaceWalker:
             "direction_selected_bond": self._direction_selected[DirectionCandidateKind.BOND],
             "direction_bond_pairs_requested": self._direction_bond_pairs_requested,
             "direction_bond_pairs_generated": self._direction_bond_pairs_generated,
+            "direction_fallback_bond_pairs_generated": self._direction_fallback_bond_pairs_generated,
             "direction_bond_candidates_valid": self._direction_bond_candidates_valid,
             "walk_displacement_clips": self._walk_displacement_clips,
             "fragment_rejections": self._fragment_rejections,

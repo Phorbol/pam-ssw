@@ -26,6 +26,7 @@ class SSWConfig:
     target_uphill_energy: float = 0.6
     target_negative_curvature: float = 0.05
     quench_fmax: float = 1e-3
+    quench_maxiter: int = 400
     quench_optimizer: str = "scipy-lbfgsb"
     dedup_rmsd_tol: float = 0.1
     dedup_energy_tol: float = 1e-3
@@ -49,6 +50,8 @@ class SSWConfig:
     history_push_weight: float = 0.1
     enable_momentum_candidate: bool = True
     n_bond_pairs: int = 2
+    stagnation_bond_pair_boost: int = 2
+    max_stagnation_bond_pairs: int | None = 10
     bond_distance_threshold: float | None = None
     lambda_bond_start: float = 0.1
     lambda_bond_end: float = 1.0
@@ -57,6 +60,7 @@ class SSWConfig:
     use_archive_acquisition: bool = True
     archive_density_weight: float = 0.5
     novelty_weight: float = 1.0
+    novelty_probe_scales: tuple[float, ...] = (1.0,)
     frontier_weight: float = 0.5
     bandit_exploration_weight: float = 0.75
     baseline_selection_probability: float = 0.15
@@ -73,6 +77,14 @@ class SSWConfig:
     relaxation_trajectory_stride: int = 1
     direction_curvature_source: str = "inner"
     direction_score_sigma_mode: str = "adaptive"
+    step_error_tolerance: float = 1.0
+    step_gamma_down: float = 0.5
+    step_gamma_up: float = 1.15
+    min_escape_energy_delta: float = 0.1
+    min_escape_descriptor_delta: float = 0.1
+    # coverage_gain is bounded by 1.0; 1.01 disables novelty-only escape by default.
+    min_escape_novelty: float = 1.01
+    proposal_optimizer_alt: str | None = None
 
     def __post_init__(self) -> None:
         positive_ints = {
@@ -80,6 +92,7 @@ class SSWConfig:
             "max_steps_per_walk": self.max_steps_per_walk,
             "oracle_candidates": self.oracle_candidates,
             "proposal_relax_steps": self.proposal_relax_steps,
+            "quench_maxiter": self.quench_maxiter,
             "proposal_pool_size": self.proposal_pool_size,
             "max_prototypes": self.max_prototypes,
         }
@@ -88,6 +101,10 @@ class SSWConfig:
                 raise ValueError(f"{name} must be positive")
         if self.n_bond_pairs < 0:
             raise ValueError("n_bond_pairs must be non-negative")
+        if self.stagnation_bond_pair_boost < 0:
+            raise ValueError("stagnation_bond_pair_boost must be non-negative")
+        if self.max_stagnation_bond_pairs is not None and self.max_stagnation_bond_pairs <= 0:
+            raise ValueError("max_stagnation_bond_pairs must be positive when set")
         if self.max_force_evals is not None and self.max_force_evals <= 0:
             raise ValueError("max_force_evals must be positive when set")
         if self.same_seed_max_consecutive is not None and self.same_seed_max_consecutive <= 0:
@@ -112,6 +129,9 @@ class SSWConfig:
             "bandit_exploration_weight": self.bandit_exploration_weight,
             "baseline_selection_probability": self.baseline_selection_probability,
             "bandit_energy_weight": self.bandit_energy_weight,
+            "step_error_tolerance": self.step_error_tolerance,
+            "step_gamma_down": self.step_gamma_down,
+            "step_gamma_up": self.step_gamma_up,
         }
         for name, value in positive_floats.items():
             if value <= 0:
@@ -126,6 +146,14 @@ class SSWConfig:
             raise ValueError("history_push_weight must be non-negative")
         if self.continuity_weight < 0:
             raise ValueError("continuity_weight must be non-negative")
+        if self.min_escape_energy_delta < 0:
+            raise ValueError("min_escape_energy_delta must be non-negative")
+        if self.min_escape_descriptor_delta < 0:
+            raise ValueError("min_escape_descriptor_delta must be non-negative")
+        if self.min_escape_novelty < 0:
+            raise ValueError("min_escape_novelty must be non-negative")
+        if not self.novelty_probe_scales or any(scale <= 0 for scale in self.novelty_probe_scales):
+            raise ValueError("novelty_probe_scales must contain positive values")
         if self.proposal_trust_radius is not None and self.proposal_trust_radius <= 0:
             raise ValueError("proposal_trust_radius must be positive when set")
         if self.anchor_mixing_alpha is not None and not 0.0 <= self.anchor_mixing_alpha <= 1.0:
@@ -135,6 +163,8 @@ class SSWConfig:
             raise ValueError("quench_optimizer must be one of scipy-lbfgsb, ase-fire, ase-lbfgs")
         if self.proposal_optimizer not in allowed_optimizers:
             raise ValueError("proposal_optimizer must be one of scipy-lbfgsb, ase-fire, ase-lbfgs")
+        if self.proposal_optimizer_alt is not None and self.proposal_optimizer_alt not in allowed_optimizers:
+            raise ValueError("proposal_optimizer_alt must be one of scipy-lbfgsb, ase-fire, ase-lbfgs when set")
         if self.direction_curvature_source not in {"inner", "true"}:
             raise ValueError("direction_curvature_source must be inner or true")
         if self.direction_score_sigma_mode not in {"adaptive", "trust_scaled", "fixed_reference"}:

@@ -249,7 +249,7 @@ class MinimaArchive:
             return float("inf")
         if not np.array_equal(lhs.numbers, rhs.numbers):
             return float("inf")
-        if lhs.n_atoms <= 1 or lhs.cell is not None or rhs.cell is not None or any(lhs.pbc) or any(rhs.pbc):
+        if lhs.n_atoms <= 1 or any(lhs.pbc) or any(rhs.pbc):
             if lhs.cell is not None and rhs.cell is not None and lhs.pbc == rhs.pbc and np.allclose(lhs.cell, rhs.cell):
                 diff = mic_displacement(lhs.positions, rhs.positions, lhs.cell, lhs.pbc)
             else:

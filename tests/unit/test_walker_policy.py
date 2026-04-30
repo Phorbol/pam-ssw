@@ -8,7 +8,7 @@ from pamssw.archive import MinimaArchive
 from pamssw.bias import GaussianBiasTerm
 from pamssw.calculators import AnalyticCalculator
 from pamssw.potentials import DoubleWell2D
-from pamssw.result import RelaxOutcomeClass
+from pamssw.result import RelaxOutcomeClass, RelaxResult
 from pamssw.state import State
 from pamssw.walker import (
     CandidateDirectionGenerator,
@@ -42,6 +42,80 @@ def test_bias_weight_matches_curvature_inversion_rule():
 
     assert walker._bias_weight(curvature=0.3, sigma=2.0) == 2.0
     assert walker._bias_weight(curvature=-0.5, sigma=2.0) == 0.0
+
+
+def test_gaussian_bias_uses_minimum_image_displacement_for_periodic_centers():
+    bias = GaussianBiasTerm(
+        center=np.array([9.5, 0.0, 0.0]),
+        direction=np.array([1.0, 0.0, 0.0]),
+        sigma=0.5,
+        weight=2.0,
+    )
+    cell = np.diag([10.0, 10.0, 10.0])
+
+    energy_inside, gradient_inside = bias.evaluate(
+        np.array([9.8, 0.0, 0.0]),
+        cell=cell,
+        pbc=(True, True, True),
+    )
+    energy_wrapped, gradient_wrapped = bias.evaluate(
+        np.array([-0.2, 0.0, 0.0]),
+        cell=cell,
+        pbc=(True, True, True),
+    )
+
+    assert energy_wrapped == pytest.approx(energy_inside)
+    np.testing.assert_allclose(gradient_wrapped, gradient_inside)
+
+
+def test_gaussian_bias_rejects_mismatched_position_shape():
+    bias = GaussianBiasTerm(
+        center=np.zeros(6),
+        direction=np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+        sigma=0.5,
+        weight=2.0,
+    )
+
+    with pytest.raises(ValueError, match="same shape"):
+        bias.evaluate(np.zeros(3))
+
+
+def test_surface_walker_uses_configured_step_length_controller_controls():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(step_error_tolerance=2.0, step_gamma_down=0.7, step_gamma_up=1.3),
+        softening_enabled=False,
+    )
+
+    controller = walker.trust_controller.step_length
+    assert controller.error_tolerance == pytest.approx(2.0)
+    assert controller.gamma_down == pytest.approx(0.7)
+    assert controller.gamma_up == pytest.approx(1.3)
+
+
+def test_relax_true_minimum_uses_configured_quench_maxiter(monkeypatch):
+    recorded: dict[str, int] = {}
+
+    class RecordingRelaxer:
+        def __init__(self, evaluator, optimizer):
+            self.evaluator = evaluator
+            self.optimizer = optimizer
+
+        def relax(self, state, fmax, maxiter, trajectory_callback=None, trajectory_stride=1):
+            recorded["maxiter"] = maxiter
+            return RelaxResult(state=state, energy=0.0, gradient_norm=0.0, n_iter=0)
+
+    monkeypatch.setattr("pamssw.walker.Relaxer", RecordingRelaxer)
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(quench_maxiter=123),
+        softening_enabled=False,
+    )
+
+    walker.relax_true_minimum(state)
+
+    assert recorded["maxiter"] == 123
 
 
 def test_direction_scoring_proposal_can_ignore_inner_bias_curvature():
@@ -405,6 +479,116 @@ def test_direction_generator_adds_random_non_neighbor_bond_candidates():
     assert generator.last_random_bond_candidates_valid > 0
 
 
+def test_direction_generator_allows_per_call_bond_pair_override():
+    state = State(
+        numbers=np.full(4, 18),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0],
+                [4.0, 0.0, 0.0],
+                [4.0, 1.0, 0.0],
+            ],
+            dtype=float,
+        ),
+    )
+    generator = CandidateDirectionGenerator(
+        np.random.default_rng(2),
+        n_random=0,
+        n_bond_pairs=1,
+        bond_distance_threshold=2.0,
+    )
+
+    generator.generate(state, previous_direction=None, n_bond_pairs=3)
+
+    assert generator.n_bond_pairs == 1
+    assert generator.last_random_bond_pairs_requested == 3
+
+
+def test_direction_generator_adds_periodic_random_bond_candidates_with_mic_direction():
+    state = State(
+        numbers=np.full(2, 18),
+        positions=np.array([[2.0, 0.0, 0.0], [8.0, 0.0, 0.0]], dtype=float),
+        cell=np.diag([10.0, 10.0, 10.0]),
+        pbc=(True, True, True),
+    )
+    generator = CandidateDirectionGenerator(
+        np.random.default_rng(0),
+        n_random=0,
+        n_bond_pairs=1,
+        bond_distance_threshold=3.0,
+    )
+
+    candidates = generator.generate(state, previous_direction=None)
+
+    assert [candidate.kind for candidate in candidates] == [DirectionCandidateKind.BOND]
+    assert generator.last_random_bond_pairs_generated == 1
+    direction = candidates[0].direction.reshape(2, 3)
+    trial_positions = state.positions + 0.5 * direction
+    delta = trial_positions[1] - trial_positions[0]
+    delta[0] -= round(delta[0] / 10.0) * 10.0
+    assert np.linalg.norm(delta) > 4.0
+
+
+def test_direction_generator_falls_back_to_closest_mic_pairs_when_non_neighbors_are_sparse():
+    state = State(
+        numbers=np.full(4, 18),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0],
+                [1.0, 1.0, 0.0],
+            ],
+            dtype=float,
+        ),
+        cell=np.diag([10.0, 10.0, 10.0]),
+        pbc=(True, True, True),
+    )
+    generator = CandidateDirectionGenerator(
+        np.random.default_rng(0),
+        n_random=0,
+        n_bond_pairs=3,
+        bond_distance_threshold=20.0,
+    )
+
+    candidates = generator.generate(state, previous_direction=None)
+
+    assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.BOND) == 3
+    assert generator.last_random_bond_pairs_requested == 3
+    assert generator.last_random_bond_pairs_generated == 3
+    assert generator.last_fallback_bond_pairs_generated == 3
+    assert generator.last_random_bond_candidates_valid == 3
+
+
+def test_direction_generator_resets_public_fallback_counter_without_generate_wrapper():
+    state = State(
+        numbers=np.full(4, 18),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0],
+                [1.0, 1.0, 0.0],
+            ],
+            dtype=float,
+        ),
+        cell=np.diag([10.0, 10.0, 10.0]),
+        pbc=(True, True, True),
+    )
+    generator = CandidateDirectionGenerator(
+        np.random.default_rng(0),
+        n_random=0,
+        n_bond_pairs=3,
+        bond_distance_threshold=20.0,
+    )
+
+    generator._random_non_neighbor_pairs(state, n_pairs=3, distance_threshold=20.0)
+    assert generator.last_fallback_bond_pairs_generated == 3
+    generator._random_non_neighbor_pairs(state, n_pairs=0, distance_threshold=20.0)
+    assert generator.last_fallback_bond_pairs_generated == 0
+
+
 def test_initial_direction_mixes_random_and_bond_components():
     state = State(
         numbers=np.full(3, 18),
@@ -436,6 +620,36 @@ def test_initial_direction_mixes_random_and_bond_components():
 
     assert float(np.mean(cosines)) < 0.5
     assert generator.last_initial_bond_pair is not None
+
+
+def test_walk_initial_anchor_uses_trial_progress_for_bond_mixing():
+    state = State(numbers=np.array([1]), positions=np.array([[0.1, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(max_trials=5, max_steps_per_walk=1),
+        softening_enabled=False,
+    )
+    observed: dict[str, int] = {}
+
+    def record_initial_direction(
+        current,
+        step_index,
+        max_steps,
+        lambda_start,
+        lambda_end,
+        n_bond_pairs,
+        bond_distance_threshold,
+    ):
+        observed["step_index"] = step_index
+        observed["max_steps"] = max_steps
+        raise RuntimeError("stop after anchor")
+
+    walker.oracle.generator.generate_initial_direction = record_initial_direction
+
+    with pytest.raises(RuntimeError, match="stop after anchor"):
+        walker._walk_candidate_from_seed(state, trial_index=4)
+
+    assert observed == {"step_index": 4, "max_steps": 5}
 
 
 def test_direction_generator_projects_random_candidates_out_of_rigid_modes():
@@ -536,6 +750,44 @@ def test_surface_walker_can_disable_outcome_gated_continuity():
     assert walker._continuity_weight_for_outcome(RelaxOutcomeClass.CONVERGED_UNPRODUCTIVE) == pytest.approx(0.1)
 
 
+def test_surface_walker_boosts_bond_pairs_after_stagnated_outcome():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(n_bond_pairs=2, stagnation_bond_pair_boost=3, max_stagnation_bond_pairs=4),
+        softening_enabled=False,
+    )
+
+    assert walker._n_bond_pairs_for_outcome(None) == 2
+    assert walker._n_bond_pairs_for_outcome(RelaxOutcomeClass.USEFUL_PROGRESS) == 2
+    assert walker._n_bond_pairs_for_outcome(RelaxOutcomeClass.STAGNATED) == 4
+    assert walker._n_bond_pairs_for_outcome(RelaxOutcomeClass.CONVERGED_UNPRODUCTIVE) == 4
+
+
+def test_stagnation_bond_pair_cap_only_applies_after_stagnation():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(n_bond_pairs=12, stagnation_bond_pair_boost=3, max_stagnation_bond_pairs=10),
+        softening_enabled=False,
+    )
+
+    assert walker._n_bond_pairs_for_outcome(None) == 12
+    assert walker._n_bond_pairs_for_outcome(RelaxOutcomeClass.USEFUL_PROGRESS) == 12
+    assert walker._n_bond_pairs_for_outcome(RelaxOutcomeClass.STAGNATED) == 10
+
+
+def test_surface_walker_uses_rescue_optimizer_only_after_unproductive_outcome():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(proposal_optimizer="ase-fire", proposal_optimizer_alt="ase-lbfgs"),
+        softening_enabled=False,
+    )
+
+    assert walker._proposal_optimizer_for_outcome(None) == "ase-fire"
+    assert walker._proposal_optimizer_for_outcome(RelaxOutcomeClass.USEFUL_PROGRESS) == "ase-fire"
+    assert walker._proposal_optimizer_for_outcome(RelaxOutcomeClass.STAGNATED) == "ase-lbfgs"
+    assert walker._proposal_optimizer_for_outcome(RelaxOutcomeClass.CONVERGED_UNPRODUCTIVE) == "ase-lbfgs"
+
+
 def test_direction_scorer_penalizes_deviation_from_anchor_direction():
     scorer = DirectionScorer(anchor_weight=2.0, continuity_weight=0.0, damage_weight=0.0)
     anchor = np.array([1.0, 0.0, 0.0])
@@ -588,6 +840,34 @@ def test_direction_scorer_rewards_score_only_novelty_gain_from_archive():
     )
 
     assert far_score > near_score
+
+
+def test_direction_scorer_uses_best_multiscale_novelty_gain():
+    class RecordingArchive:
+        def __init__(self):
+            self.calls = 0
+
+        def coverage_gain(self, descriptor):
+            self.calls += 1
+            return {1: 0.1, 2: 0.9}[self.calls]
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    candidate = DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([1.0, 0.0, 0.0]))
+    archive = RecordingArchive()
+    scorer = DirectionScorer(novelty_weight=2.0, novelty_probe_scales=(0.5, 1.5))
+
+    score = scorer.score_candidate(
+        state=state,
+        candidate=candidate,
+        curvature=0.0,
+        sigma=1.0,
+        previous_direction=None,
+        anchor_direction=None,
+        archive=archive,
+    )
+
+    assert archive.calls == 2
+    assert score == pytest.approx(1.8)
 
 
 def test_trust_region_controller_shrinks_step_length_after_bad_local_model_without_weakening_bias():
@@ -838,6 +1118,93 @@ def test_step_target_controller_ignores_damage_rate_for_multiplier():
 
     assert controller.multiplier == base_multiplier
     assert controller.stats()["adaptive_damage_warning"] == 1
+
+
+def test_step_target_controller_filters_tiny_fake_escapes_when_evidence_is_available():
+    controller = StepTargetController(
+        fallback_target=0.6,
+        min_escape_energy_delta=0.1,
+        min_escape_descriptor_delta=0.1,
+        min_escape_novelty=0.2,
+    )
+
+    controller.record_trial(
+        escaped=True,
+        damaged=False,
+        seed_energy=-10.0,
+        new_energy=-9.99,
+        descriptor_delta=0.02,
+        novelty_gain=0.05,
+    )
+
+    assert controller.escapes == 0
+    assert controller.raw_escapes == 1
+    assert controller.multiplier > 1.0
+
+
+def test_step_target_controller_counts_uphill_or_novel_escapes_as_meaningful():
+    controller = StepTargetController(
+        fallback_target=0.6,
+        min_escape_energy_delta=0.1,
+        min_escape_descriptor_delta=0.1,
+        min_escape_novelty=0.2,
+    )
+
+    controller.record_trial(
+        escaped=True,
+        damaged=False,
+        seed_energy=-10.0,
+        new_energy=-9.85,
+        descriptor_delta=0.0,
+        novelty_gain=0.0,
+    )
+    controller.record_trial(
+        escaped=True,
+        damaged=False,
+        seed_energy=-10.0,
+        new_energy=-9.99,
+        descriptor_delta=0.0,
+        novelty_gain=0.3,
+    )
+
+    assert controller.escapes == 2
+    assert controller.stats()["adaptive_escape_rate"] == pytest.approx(1.0)
+
+
+def test_step_target_controller_counts_structurally_distant_escape_as_meaningful():
+    controller = StepTargetController(
+        fallback_target=0.6,
+        min_escape_energy_delta=0.1,
+        min_escape_descriptor_delta=0.1,
+        min_escape_novelty=1.01,
+    )
+
+    controller.record_trial(
+        escaped=True,
+        damaged=False,
+        seed_energy=-10.0,
+        new_energy=-9.99,
+        descriptor_delta=0.2,
+        novelty_gain=0.0,
+    )
+
+    assert controller.escapes == 1
+
+
+def test_step_target_controller_default_disables_novelty_only_escape():
+    controller = StepTargetController(fallback_target=0.6)
+
+    controller.record_trial(
+        escaped=True,
+        damaged=False,
+        seed_energy=-10.0,
+        new_energy=-9.99,
+        descriptor_delta=0.0,
+        novelty_gain=1.0,
+    )
+
+    assert controller.escapes == 0
+    assert controller.raw_escapes == 1
 
 
 def test_surface_walker_reports_adaptive_step_target_diagnostics():

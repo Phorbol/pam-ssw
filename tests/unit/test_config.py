@@ -135,13 +135,16 @@ def test_config_allows_disabling_proposal_coordinate_box():
 
 
 def test_config_validates_relaxation_optimizers():
-    config = SSWConfig(proposal_optimizer="ase-fire", quench_optimizer="ase-lbfgs")
+    config = SSWConfig(proposal_optimizer="ase-fire", proposal_optimizer_alt="ase-lbfgs", quench_optimizer="ase-lbfgs")
 
     assert config.proposal_optimizer == "ase-fire"
+    assert config.proposal_optimizer_alt == "ase-lbfgs"
     assert config.quench_optimizer == "ase-lbfgs"
 
     with pytest.raises(ValueError):
         SSWConfig(proposal_optimizer="unknown")
+    with pytest.raises(ValueError):
+        SSWConfig(proposal_optimizer_alt="unknown")
     with pytest.raises(ValueError):
         SSWConfig(quench_optimizer="unknown")
 
@@ -162,6 +165,72 @@ def test_config_validates_direction_score_sigma_mode():
 
     with pytest.raises(ValueError, match="direction_score_sigma_mode"):
         SSWConfig(direction_score_sigma_mode="unknown")
+
+
+def test_config_validates_step_length_controller_controls():
+    config = SSWConfig(step_error_tolerance=2.0, step_gamma_down=0.7, step_gamma_up=1.3)
+    assert config.step_error_tolerance == 2.0
+    assert config.step_gamma_down == 0.7
+    assert config.step_gamma_up == 1.3
+
+    with pytest.raises(ValueError, match="step_error_tolerance"):
+        SSWConfig(step_error_tolerance=0.0)
+    with pytest.raises(ValueError, match="step_gamma_down"):
+        SSWConfig(step_gamma_down=0.0)
+    with pytest.raises(ValueError, match="step_gamma_up"):
+        SSWConfig(step_gamma_up=0.0)
+
+
+def test_config_validates_quench_maxiter():
+    config = SSWConfig(quench_maxiter=123)
+    assert config.quench_maxiter == 123
+
+    with pytest.raises(ValueError, match="quench_maxiter"):
+        SSWConfig(quench_maxiter=0)
+
+
+def test_config_validates_meaningful_escape_controls():
+    config = SSWConfig(min_escape_energy_delta=0.2, min_escape_descriptor_delta=0.4, min_escape_novelty=0.3)
+    assert config.min_escape_energy_delta == 0.2
+    assert config.min_escape_descriptor_delta == 0.4
+    assert config.min_escape_novelty == 0.3
+
+    with pytest.raises(ValueError, match="min_escape_energy_delta"):
+        SSWConfig(min_escape_energy_delta=-0.1)
+    with pytest.raises(ValueError, match="min_escape_descriptor_delta"):
+        SSWConfig(min_escape_descriptor_delta=-0.1)
+    with pytest.raises(ValueError, match="min_escape_novelty"):
+        SSWConfig(min_escape_novelty=-0.1)
+
+
+def test_config_validates_novelty_probe_scales():
+    config = SSWConfig(novelty_probe_scales=(0.5, 1.0, 1.5))
+    assert config.novelty_probe_scales == (0.5, 1.0, 1.5)
+
+    with pytest.raises(ValueError, match="novelty_probe_scales"):
+        SSWConfig(novelty_probe_scales=())
+    with pytest.raises(ValueError, match="novelty_probe_scales"):
+        SSWConfig(novelty_probe_scales=(0.5, 0.0, 1.5))
+
+
+def test_config_validates_stagnation_bond_pair_boost_controls():
+    config = SSWConfig(stagnation_bond_pair_boost=3, max_stagnation_bond_pairs=8)
+    assert config.stagnation_bond_pair_boost == 3
+    assert config.max_stagnation_bond_pairs == 8
+
+    with pytest.raises(ValueError, match="stagnation_bond_pair_boost"):
+        SSWConfig(stagnation_bond_pair_boost=-1)
+    with pytest.raises(ValueError, match="max_stagnation_bond_pairs"):
+        SSWConfig(max_stagnation_bond_pairs=0)
+
+
+def test_config_validates_proposal_optimizer_alt():
+    config = SSWConfig(proposal_optimizer_alt="ase-lbfgs")
+    assert config.proposal_optimizer_alt == "ase-lbfgs"
+    assert SSWConfig(proposal_optimizer_alt=None).proposal_optimizer_alt is None
+
+    with pytest.raises(ValueError, match="proposal_optimizer_alt"):
+        SSWConfig(proposal_optimizer_alt="unknown")
 
 
 def test_config_validates_search_output_controls():
