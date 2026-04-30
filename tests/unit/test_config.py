@@ -271,6 +271,15 @@ def test_config_validates_proposal_duplicate_rescue_optimizer():
         SSWConfig(proposal_duplicate_rescue_optimizer="unknown")
 
 
+def test_config_validates_energy_sanity_guard():
+    assert SSWConfig().max_energy_drop_per_atom == 5.0
+    assert SSWConfig(max_energy_drop_per_atom=None).max_energy_drop_per_atom is None
+    assert SSWConfig(max_energy_drop_per_atom=2.5).max_energy_drop_per_atom == 2.5
+
+    with pytest.raises(ValueError, match="max_energy_drop_per_atom"):
+        SSWConfig(max_energy_drop_per_atom=0.0)
+
+
 def test_config_validates_search_output_controls():
     assert SSWConfig(accepted_structures_dir="accepted").accepted_structures_dir == "accepted"
     assert SSWConfig(write_proposal_minima=True, proposal_minima_dir="proposals").write_proposal_minima

@@ -1498,6 +1498,43 @@ def test_surface_walker_reports_direction_acquisition_diagnostics():
     assert "direction_bond_candidates_valid" in result.stats
 
 
+def test_surface_walker_rejects_unphysical_energy_drop_before_archive(monkeypatch):
+    initial = State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.4, 0.0, 0.0]], dtype=float),
+    )
+    collapsed = State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.4, 0.1, 0.0]], dtype=float),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(max_trials=1, max_energy_drop_per_atom=5.0),
+        softening_enabled=False,
+    )
+    relax_calls = 0
+
+    def fake_relax_true_minimum(state, trajectory_name=None):
+        nonlocal relax_calls
+        relax_calls += 1
+        if relax_calls == 1:
+            return RelaxResult(initial, energy=-10.0, gradient_norm=0.0, n_iter=0)
+        return RelaxResult(collapsed, energy=-20.1, gradient_norm=0.0, n_iter=0)
+
+    monkeypatch.setattr(walker, "relax_true_minimum", fake_relax_true_minimum)
+    monkeypatch.setattr(
+        walker,
+        "_proposal_pool",
+        lambda seed_state, archive, trial_index, step_target: [CandidateProposal("test", collapsed)],
+    )
+
+    result = walker.run(initial)
+
+    assert result.best_energy == pytest.approx(-10.0)
+    assert result.stats["n_minima"] == 1
+    assert result.stats["energy_sanity_rejections"] == 1
+
+
 def test_standard_surface_walker_generates_bond_candidates():
     initial = State(
         numbers=np.full(4, 18),

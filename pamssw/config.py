@@ -90,6 +90,7 @@ class SSWConfig:
     trial_progress_duplicate_tolerance: float = 0.75
     proposal_optimizer_alt: str | None = None
     proposal_duplicate_rescue_optimizer: str | None = None
+    max_energy_drop_per_atom: float | None = 5.0
 
     def __post_init__(self) -> None:
         positive_ints = {
@@ -115,6 +116,8 @@ class SSWConfig:
             raise ValueError("max_stagnation_bond_pairs must be positive when set")
         if self.max_force_evals is not None and self.max_force_evals <= 0:
             raise ValueError("max_force_evals must be positive when set")
+        if self.max_energy_drop_per_atom is not None and self.max_energy_drop_per_atom <= 0:
+            raise ValueError("max_energy_drop_per_atom must be positive when set")
         if self.same_seed_max_consecutive is not None and self.same_seed_max_consecutive <= 0:
             raise ValueError("same_seed_max_consecutive must be positive when set")
         positive_floats = {

@@ -1009,6 +1009,7 @@ class SurfaceWalker:
         self._proposal_optimizer_alt_steps = 0
         self._proposal_duplicate_rescue_attempts = 0
         self._proposal_duplicate_rescue_successes = 0
+        self._energy_sanity_rejections = 0
 
     def relax_true_minimum(self, state: State, trajectory_name: str | None = None) -> RelaxResult:
         if not self.geometry_validator.is_valid_state(state):
@@ -1101,6 +1102,19 @@ class SurfaceWalker:
                         status="fragment_rejected",
                     )
                     self._fragment_rejections += 1
+                    duplicate_failures += 1
+                    proposal_index += 1
+                    continue
+                if self._is_unphysical_energy_drop(candidate.energy, best_entry.energy, candidate.state.n_atoms):
+                    self._write_proposal_minimum(
+                        trial_index=trial_index + 1,
+                        proposal_index=proposal_index + 1,
+                        state=candidate.state,
+                        energy=candidate.energy,
+                        seed_entry_id=seed_entry.entry_id,
+                        status="energy_sanity_rejected",
+                    )
+                    self._energy_sanity_rejections += 1
                     duplicate_failures += 1
                     proposal_index += 1
                     continue
@@ -1264,6 +1278,7 @@ class SurfaceWalker:
                 "proposal_duplicate_rescue_optimizer": self.config.proposal_duplicate_rescue_optimizer,
                 "proposal_duplicate_rescue_attempts": self._proposal_duplicate_rescue_attempts,
                 "proposal_duplicate_rescue_successes": self._proposal_duplicate_rescue_successes,
+                "energy_sanity_rejections": self._energy_sanity_rejections,
                 "local_softening_terms_last": self._local_softening_terms_last,
                 "local_softening_terms_total": self._local_softening_terms_built_total,
                 "local_softening_builds": self._local_softening_builds,
@@ -1300,6 +1315,16 @@ class SurfaceWalker:
             )
             for proposal_index in range(self.config.proposal_pool_size)
         ]
+
+    def _is_unphysical_energy_drop(self, energy: float, reference_energy: float, n_atoms: int) -> bool:
+        limit = self.config.max_energy_drop_per_atom
+        if limit is None:
+            return False
+        if n_atoms <= 0:
+            return False
+        if not np.isfinite(energy) or not np.isfinite(reference_energy):
+            return True
+        return bool((float(reference_energy) - float(energy)) > float(limit) * float(n_atoms))
 
     def _walk_candidate_from_seed(
         self,
