@@ -18,6 +18,7 @@ from pamssw.walker import (
     ProposalPotential,
     GeometryValidator,
     BiasStrengthController,
+    CandidateProposal,
     SoftModeOracle,
     StepLengthController,
     StepTargetController,
@@ -788,6 +789,27 @@ def test_surface_walker_uses_rescue_optimizer_only_after_unproductive_outcome():
     assert walker._proposal_optimizer_for_outcome(RelaxOutcomeClass.CONVERGED_UNPRODUCTIVE) == "ase-lbfgs"
 
 
+def test_surface_walker_duplicate_rescue_optimizer_override_takes_precedence():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(proposal_optimizer="ase-fire", proposal_optimizer_alt="ase-lbfgs"),
+        softening_enabled=False,
+    )
+
+    assert walker._proposal_optimizer_for_outcome(None, override="ase-lbfgs") == "ase-lbfgs"
+    assert walker._proposal_optimizer_for_outcome(RelaxOutcomeClass.STAGNATED, override="ase-fire") == "ase-fire"
+
+
+def test_candidate_proposal_disables_recursive_duplicate_rescue():
+    state = State(numbers=np.array([1]), positions=np.zeros((1, 3)))
+
+    normal = CandidateProposal("ssw_walk", state)
+    rescue = CandidateProposal("duplicate_rescue", state, allow_duplicate_rescue=False)
+
+    assert normal.allow_duplicate_rescue
+    assert not rescue.allow_duplicate_rescue
+
+
 def test_direction_scorer_penalizes_deviation_from_anchor_direction():
     scorer = DirectionScorer(anchor_weight=2.0, continuity_weight=0.0, damage_weight=0.0)
     anchor = np.array([1.0, 0.0, 0.0])
@@ -1019,7 +1041,7 @@ def test_geometry_validator_rejects_nan_positions_and_nonfinite_energy():
     assert not valid.is_valid_evaluation(state, NonFinite())
 
 
-def test_geometry_validator_rejects_nonperiodic_atom_overlap():
+def test_geometry_validator_rejects_atom_overlap_with_or_without_pbc():
     validator = GeometryValidator(min_distance=0.5)
     overlapped = State(numbers=np.array([1, 1]), positions=np.array([[0.0, 0.0, 0.0], [0.1, 0.0, 0.0]]))
     periodic = State(
@@ -1030,7 +1052,16 @@ def test_geometry_validator_rejects_nonperiodic_atom_overlap():
     )
 
     assert not validator.is_valid_state(overlapped)
-    assert validator.is_valid_state(periodic)
+    assert not validator.is_valid_state(periodic)
+
+
+def test_geometry_validator_rejects_covalent_radius_collisions_but_allows_hydrogen_bonds():
+    validator = GeometryValidator(min_distance=0.5)
+    compressed_carbon = State(numbers=np.array([6, 6]), positions=np.array([[0.0, 0.0, 0.0], [0.8, 0.0, 0.0]]))
+    hydrogen_bond = State(numbers=np.array([1, 1]), positions=np.array([[0.0, 0.0, 0.0], [0.74, 0.0, 0.0]]))
+
+    assert not validator.is_valid_state(compressed_carbon)
+    assert validator.is_valid_state(hydrogen_bond)
 
 
 def test_trust_region_controller_expands_after_acceptable_local_model():
@@ -1205,6 +1236,56 @@ def test_step_target_controller_default_disables_novelty_only_escape():
 
     assert controller.escapes == 0
     assert controller.raw_escapes == 1
+
+
+def test_step_target_controller_boosts_after_global_progress_stalls():
+    controller = StepTargetController(
+        fallback_target=0.6,
+        progress_patience=2,
+        progress_boost_factor=1.5,
+        progress_max_boost=2.0,
+    )
+    base = controller.target()
+
+    controller.record_trial(
+        escaped=True,
+        damaged=False,
+        energy_delta=0.5,
+        descriptor_delta=0.2,
+        global_improved=False,
+    )
+    assert controller.target() == pytest.approx(base)
+
+    controller.record_trial(
+        escaped=True,
+        damaged=False,
+        energy_delta=0.5,
+        descriptor_delta=0.2,
+        global_improved=False,
+    )
+
+    assert controller.target() == pytest.approx(base * 1.5)
+    assert controller.stats()["adaptive_no_global_progress_trials"] == 2
+    assert controller.stats()["adaptive_progress_boost"] == pytest.approx(1.5)
+
+
+def test_step_target_controller_progress_boost_recovers_on_unsafe_trial():
+    controller = StepTargetController(
+        fallback_target=0.6,
+        progress_patience=1,
+        progress_boost_factor=1.5,
+        progress_max_boost=2.0,
+        progress_duplicate_tolerance=0.75,
+    )
+    base = controller.target()
+    controller.record_trial(escaped=True, damaged=False, energy_delta=0.5, global_improved=False)
+    assert controller.target() > base
+
+    controller.record_trial(escaped=True, damaged=False, energy_delta=0.5, global_improved=False, duplicate_rate=1.0)
+
+    assert controller.target() == pytest.approx(base)
+    assert controller.stats()["adaptive_no_global_progress_trials"] == 0
+    assert controller.stats()["adaptive_progress_boost"] == pytest.approx(1.0)
 
 
 def test_surface_walker_reports_adaptive_step_target_diagnostics():

@@ -89,6 +89,13 @@ def test_config_rejects_invalid_proposal_pool_size():
         SSWConfig(proposal_pool_size=0)
 
 
+def test_config_allows_zero_proposal_relax_steps_only_for_no_relax_ablation():
+    assert SSWConfig(proposal_relax_steps=0).proposal_relax_steps == 0
+
+    with pytest.raises(ValueError, match="proposal_relax_steps"):
+        SSWConfig(proposal_relax_steps=-1)
+
+
 def test_config_validates_seed_diversity_limit():
     assert SSWConfig().same_seed_max_consecutive == 3
     assert SSWConfig(same_seed_max_consecutive=None).same_seed_max_consecutive is None
@@ -213,6 +220,28 @@ def test_config_validates_novelty_probe_scales():
         SSWConfig(novelty_probe_scales=(0.5, 0.0, 1.5))
 
 
+def test_config_validates_trial_progress_feedback_controls():
+    config = SSWConfig(
+        trial_progress_patience=3,
+        trial_progress_boost_factor=1.5,
+        trial_progress_max_boost=2.0,
+        trial_progress_duplicate_tolerance=0.8,
+    )
+    assert config.trial_progress_patience == 3
+    assert config.trial_progress_boost_factor == 1.5
+    assert config.trial_progress_max_boost == 2.0
+    assert config.trial_progress_duplicate_tolerance == 0.8
+
+    with pytest.raises(ValueError, match="trial_progress_patience"):
+        SSWConfig(trial_progress_patience=-1)
+    with pytest.raises(ValueError, match="trial_progress_boost_factor"):
+        SSWConfig(trial_progress_boost_factor=1.0)
+    with pytest.raises(ValueError, match="trial_progress_max_boost"):
+        SSWConfig(trial_progress_max_boost=0.9)
+    with pytest.raises(ValueError, match="trial_progress_duplicate_tolerance"):
+        SSWConfig(trial_progress_duplicate_tolerance=1.5)
+
+
 def test_config_validates_stagnation_bond_pair_boost_controls():
     config = SSWConfig(stagnation_bond_pair_boost=3, max_stagnation_bond_pairs=8)
     assert config.stagnation_bond_pair_boost == 3
@@ -231,6 +260,15 @@ def test_config_validates_proposal_optimizer_alt():
 
     with pytest.raises(ValueError, match="proposal_optimizer_alt"):
         SSWConfig(proposal_optimizer_alt="unknown")
+
+
+def test_config_validates_proposal_duplicate_rescue_optimizer():
+    config = SSWConfig(proposal_duplicate_rescue_optimizer="ase-lbfgs")
+    assert config.proposal_duplicate_rescue_optimizer == "ase-lbfgs"
+    assert SSWConfig(proposal_duplicate_rescue_optimizer=None).proposal_duplicate_rescue_optimizer is None
+
+    with pytest.raises(ValueError, match="proposal_duplicate_rescue_optimizer"):
+        SSWConfig(proposal_duplicate_rescue_optimizer="unknown")
 
 
 def test_config_validates_search_output_controls():

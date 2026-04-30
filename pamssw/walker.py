@@ -53,19 +53,43 @@ class ProposalPotential:
 @dataclass(frozen=True)
 class GeometryValidator:
     min_distance: float = 0.5
+    covalent_collision_scale: float = 0.65
 
     def is_valid_state(self, state: State) -> bool:
         if not np.all(np.isfinite(state.positions)):
             return False
         if state.cell is not None and not np.all(np.isfinite(state.cell)):
             return False
-        if any(state.pbc):
-            return True
         if state.n_atoms < 2:
             return True
-        distances = np.linalg.norm(state.positions[:, None, :] - state.positions[None, :, :], axis=2)
+        if any(state.pbc) and state.cell is not None:
+            distances = mic_distance_matrix(state.positions, state.cell, state.pbc)
+        else:
+            distances = np.linalg.norm(state.positions[:, None, :] - state.positions[None, :, :], axis=2)
         np.fill_diagonal(distances, np.inf)
-        return bool(np.min(distances) >= self.min_distance)
+        thresholds = self._pair_distance_thresholds(state.numbers)
+        return bool(np.all(distances >= thresholds))
+
+    def _pair_distance_thresholds(self, numbers: np.ndarray) -> np.ndarray:
+        radii = np.asarray([self._covalent_radius(int(number)) for number in numbers], dtype=float)
+        thresholds = self.covalent_collision_scale * (radii[:, None] + radii[None, :])
+        thresholds = np.maximum(thresholds, self.min_distance)
+        np.fill_diagonal(thresholds, -np.inf)
+        return thresholds
+
+    @staticmethod
+    def _covalent_radius(number: int) -> float:
+        return {
+            1: 0.31,
+            5: 0.84,
+            6: 0.76,
+            7: 0.71,
+            8: 0.66,
+            14: 1.11,
+            15: 1.07,
+            16: 1.05,
+            46: 1.39,
+        }.get(number, 0.4)
 
     def is_valid_evaluation(self, state: State, calculator) -> bool:
         if not self.is_valid_state(state):
@@ -287,6 +311,10 @@ class StepTargetController:
     min_escape_energy_delta: float = 0.1
     min_escape_descriptor_delta: float = 0.1
     min_escape_novelty: float = 1.01
+    progress_patience: int = 0
+    progress_boost_factor: float = 1.5
+    progress_max_boost: float = 2.0
+    progress_duplicate_tolerance: float = 0.75
 
     def __post_init__(self) -> None:
         if self.fallback_target <= 0.0:
@@ -302,10 +330,12 @@ class StepTargetController:
         self.max_escape_energy_delta_seen = 0.0
         self.max_escape_descriptor_delta_seen = 0.0
         self.max_escape_novelty_seen = 0.0
+        self.progress_boost = 1.0
+        self.no_global_progress_trials = 0
 
     def target(self, archive=None) -> float:
         raw_target = self._archive_target(archive)
-        self.last_target = float(np.clip(raw_target * self.multiplier, self.min_target, self.max_target))
+        self.last_target = float(np.clip(raw_target * self.multiplier * self.progress_boost, self.min_target, self.max_target))
         return self.last_target
 
     def record_trial(
@@ -317,6 +347,8 @@ class StepTargetController:
         energy_delta: float | None = None,
         descriptor_delta: float | None = None,
         novelty_gain: float | None = None,
+        global_improved: bool | None = None,
+        duplicate_rate: float | None = None,
     ) -> None:
         self.trials += 1
         self.raw_escapes += int(escaped)
@@ -345,6 +377,41 @@ class StepTargetController:
         damage_rate = self.damage_events / self.trials
         if escape_rate < self.target_escape_rate:
             self.multiplier = float(np.clip(self.multiplier * self.gamma_up, 0.75, 4.0))
+        self._update_progress_boost(
+            meaningful_escape=meaningful_escape,
+            damaged=damaged,
+            global_improved=global_improved,
+            duplicate_rate=duplicate_rate,
+        )
+
+    def _update_progress_boost(
+        self,
+        *,
+        meaningful_escape: bool,
+        damaged: bool,
+        global_improved: bool | None,
+        duplicate_rate: float | None,
+    ) -> None:
+        if self.progress_patience <= 0:
+            return
+        duplicate_spike = (
+            duplicate_rate is not None
+            and float(duplicate_rate) >= self.progress_duplicate_tolerance
+        )
+        if damaged or duplicate_spike:
+            self.no_global_progress_trials = 0
+            self.progress_boost = 1.0
+            return
+        improved = meaningful_escape if global_improved is None else bool(global_improved)
+        if improved and meaningful_escape:
+            self.no_global_progress_trials = 0
+            self.progress_boost = 1.0
+            return
+        self.no_global_progress_trials += 1
+        if self.no_global_progress_trials >= self.progress_patience:
+            self.progress_boost = float(
+                np.clip(self.progress_boost * self.progress_boost_factor, 1.0, self.progress_max_boost)
+            )
 
     def _meaningful_escape(
         self,
@@ -377,6 +444,8 @@ class StepTargetController:
         return {
             "adaptive_step_target": float(self.last_target),
             "adaptive_step_multiplier": float(self.multiplier),
+            "adaptive_progress_boost": float(self.progress_boost),
+            "adaptive_no_global_progress_trials": int(self.no_global_progress_trials),
             "adaptive_escape_rate": float(escape_rate),
             "adaptive_raw_escape_rate": float(raw_escape_rate),
             "adaptive_damage_rate": float(damage_rate),
@@ -741,6 +810,7 @@ class CandidateDirectionGenerator:
 class CandidateProposal:
     label: str
     state: State
+    allow_duplicate_rescue: bool = True
 
 
 class SoftModeOracle:
@@ -923,6 +993,10 @@ class SurfaceWalker:
             min_escape_energy_delta=config.min_escape_energy_delta,
             min_escape_descriptor_delta=config.min_escape_descriptor_delta,
             min_escape_novelty=config.min_escape_novelty,
+            progress_patience=config.trial_progress_patience,
+            progress_boost_factor=config.trial_progress_boost_factor,
+            progress_max_boost=config.trial_progress_max_boost,
+            progress_duplicate_tolerance=config.trial_progress_duplicate_tolerance,
         )
         self.geometry_validator = GeometryValidator()
         self._missing_trajectory_context_warned = False
@@ -933,6 +1007,8 @@ class SurfaceWalker:
         self._reset_local_softening_stats()
         self._reset_seed_diversity_stats()
         self._proposal_optimizer_alt_steps = 0
+        self._proposal_duplicate_rescue_attempts = 0
+        self._proposal_duplicate_rescue_successes = 0
 
     def relax_true_minimum(self, state: State, trajectory_name: str | None = None) -> RelaxResult:
         if not self.geometry_validator.is_valid_state(state):
@@ -961,6 +1037,8 @@ class SurfaceWalker:
         self._reset_local_softening_stats()
         self._reset_seed_diversity_stats()
         self._proposal_optimizer_alt_steps = 0
+        self._proposal_duplicate_rescue_attempts = 0
+        self._proposal_duplicate_rescue_successes = 0
         self._reset_accepted_structure_log()
         self._prepare_structure_output_dirs()
         initial = self.relax_true_minimum(initial_state, trajectory_name="initial_true_quench")
@@ -999,7 +1077,9 @@ class SurfaceWalker:
             max_escape_novelty = 0.0
             duplicate_failures = 0
             previous_best_energy = best_entry.energy
-            for proposal_index, proposal in enumerate(proposals):
+            proposal_index = 0
+            while proposal_index < len(proposals):
+                proposal = proposals[proposal_index]
                 try:
                     candidate = self.relax_true_minimum(
                         proposal.state,
@@ -1022,6 +1102,7 @@ class SurfaceWalker:
                     )
                     self._fragment_rejections += 1
                     duplicate_failures += 1
+                    proposal_index += 1
                     continue
                 descriptor = structural_descriptor(candidate.state)
                 coverage_gain = archive.coverage_gain(descriptor)
@@ -1075,18 +1156,51 @@ class SurfaceWalker:
                     best_rank_key = rank_key
                     best_reward = reward
                     best_discovered = discovered
+                if (
+                    is_duplicate
+                    and proposal.allow_duplicate_rescue
+                    and self.config.proposal_duplicate_rescue_optimizer is not None
+                    and not self.calculator.exhausted()
+                ):
+                    self._proposal_duplicate_rescue_attempts += 1
+                    try:
+                        rescue_state = self._walk_candidate_from_seed(
+                            seed_entry.state,
+                            archive,
+                            step_target,
+                            trial_index=trial_index,
+                            proposal_index=len(proposals),
+                            proposal_optimizer_override=self.config.proposal_duplicate_rescue_optimizer,
+                        )
+                    except BudgetExceeded:
+                        budget_exhausted = True
+                        break
+                    proposals.append(
+                        CandidateProposal(
+                            "duplicate_rescue",
+                            rescue_state,
+                            allow_duplicate_rescue=False,
+                        )
+                    )
+                if proposal.label == "duplicate_rescue" and is_new:
+                    self._proposal_duplicate_rescue_successes += 1
+                proposal_index += 1
             if best_discovered is None:
                 if budget_exhausted:
                     break
+                trial_duplicate_rate = min(1.0, duplicate_failures / max(1, len(proposals)))
                 self.step_target_controller.record_trial(
                     escaped=False,
                     damaged=self._trust_damage_events > damage_events_before,
+                    global_improved=False,
+                    duplicate_rate=trial_duplicate_rate,
                 )
                 archive.record_success(seed_entry, 0.0, duplicate_failures=max(1, duplicate_failures))
                 completed_trials += 1
                 _el = __import__("time").time() - _t0
                 _p(f"trial {completed_trials}/{self.config.max_trials}  best={best_entry.energy:.3f} eV  minima={len(archive.entries)}  elapsed={_el:.0f}s")
                 continue
+            trial_duplicate_rate = min(1.0, duplicate_failures / max(1, len(proposals)))
             self.step_target_controller.record_trial(
                 escaped=any_new,
                 damaged=self._trust_damage_events > damage_events_before,
@@ -1095,6 +1209,8 @@ class SurfaceWalker:
                 energy_delta=max_escape_energy_delta,
                 descriptor_delta=max_escape_descriptor_delta,
                 novelty_gain=max_escape_novelty,
+                global_improved=best_entry.energy < previous_best_energy - 1e-12,
+                duplicate_rate=trial_duplicate_rate,
             )
             archive.record_success(seed_entry, best_reward, duplicate_failures=duplicate_failures)
             walk_history.append(
@@ -1145,6 +1261,9 @@ class SurfaceWalker:
                 "proposal_optimizer": self.config.proposal_optimizer,
                 "proposal_optimizer_alt": self.config.proposal_optimizer_alt,
                 "proposal_optimizer_alt_steps": self._proposal_optimizer_alt_steps,
+                "proposal_duplicate_rescue_optimizer": self.config.proposal_duplicate_rescue_optimizer,
+                "proposal_duplicate_rescue_attempts": self._proposal_duplicate_rescue_attempts,
+                "proposal_duplicate_rescue_successes": self._proposal_duplicate_rescue_successes,
                 "local_softening_terms_last": self._local_softening_terms_last,
                 "local_softening_terms_total": self._local_softening_terms_built_total,
                 "local_softening_builds": self._local_softening_builds,
@@ -1156,17 +1275,28 @@ class SurfaceWalker:
             },
         )
 
-    def _proposal_pool(self, seed_state: State, archive, trial_index: int, step_target: float | None = None) -> list[CandidateProposal]:
+    def _proposal_pool(
+        self,
+        seed_state: State,
+        archive,
+        trial_index: int,
+        step_target: float | None = None,
+        proposal_optimizer_override: str | None = None,
+        label: str = "ssw_walk",
+        allow_duplicate_rescue: bool = True,
+    ) -> list[CandidateProposal]:
         return [
             CandidateProposal(
-                "ssw_walk",
+                label,
                 self._walk_candidate_from_seed(
                     seed_state,
                     archive,
                     step_target,
                     trial_index=trial_index,
                     proposal_index=proposal_index,
+                    proposal_optimizer_override=proposal_optimizer_override,
                 ),
+                allow_duplicate_rescue=allow_duplicate_rescue,
             )
             for proposal_index in range(self.config.proposal_pool_size)
         ]
@@ -1178,6 +1308,7 @@ class SurfaceWalker:
         step_target: float | None = None,
         trial_index: int | None = None,
         proposal_index: int | None = None,
+        proposal_optimizer_override: str | None = None,
     ) -> State:
         current = seed_state
         previous_direction: np.ndarray | None = None
@@ -1249,7 +1380,10 @@ class SurfaceWalker:
             trial_state = CartesianCoordinates.from_state(current).displace(TangentVector(choice.direction), sigma)
             if not self.geometry_validator.is_valid_state(trial_state):
                 break
-            proposal_optimizer = self._proposal_optimizer_for_outcome(previous_relax_outcome)
+            proposal_optimizer = self._proposal_optimizer_for_outcome(
+                previous_relax_outcome,
+                override=proposal_optimizer_override,
+            )
             if proposal_optimizer != self.config.proposal_optimizer:
                 self._proposal_optimizer_alt_steps += 1
             proposal_relax = Relaxer(proposal.evaluate, optimizer=proposal_optimizer).relax(
@@ -1437,7 +1571,13 @@ class SurfaceWalker:
                 n_pairs = min(n_pairs, self.config.max_stagnation_bond_pairs)
         return n_pairs
 
-    def _proposal_optimizer_for_outcome(self, outcome: RelaxOutcomeClass | None) -> str:
+    def _proposal_optimizer_for_outcome(
+        self,
+        outcome: RelaxOutcomeClass | None,
+        override: str | None = None,
+    ) -> str:
+        if override is not None:
+            return override
         if self.config.proposal_optimizer_alt is not None and outcome in {
             RelaxOutcomeClass.STAGNATED,
             RelaxOutcomeClass.CONVERGED_UNPRODUCTIVE,

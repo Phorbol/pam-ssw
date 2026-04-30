@@ -84,14 +84,18 @@ class SSWConfig:
     min_escape_descriptor_delta: float = 0.1
     # coverage_gain is bounded by 1.0; 1.01 disables novelty-only escape by default.
     min_escape_novelty: float = 1.01
+    trial_progress_patience: int = 0
+    trial_progress_boost_factor: float = 1.5
+    trial_progress_max_boost: float = 2.0
+    trial_progress_duplicate_tolerance: float = 0.75
     proposal_optimizer_alt: str | None = None
+    proposal_duplicate_rescue_optimizer: str | None = None
 
     def __post_init__(self) -> None:
         positive_ints = {
             "max_trials": self.max_trials,
             "max_steps_per_walk": self.max_steps_per_walk,
             "oracle_candidates": self.oracle_candidates,
-            "proposal_relax_steps": self.proposal_relax_steps,
             "quench_maxiter": self.quench_maxiter,
             "proposal_pool_size": self.proposal_pool_size,
             "max_prototypes": self.max_prototypes,
@@ -99,8 +103,12 @@ class SSWConfig:
         for name, value in positive_ints.items():
             if value <= 0:
                 raise ValueError(f"{name} must be positive")
+        if self.proposal_relax_steps < 0:
+            raise ValueError("proposal_relax_steps must be non-negative")
         if self.n_bond_pairs < 0:
             raise ValueError("n_bond_pairs must be non-negative")
+        if self.trial_progress_patience < 0:
+            raise ValueError("trial_progress_patience must be non-negative")
         if self.stagnation_bond_pair_boost < 0:
             raise ValueError("stagnation_bond_pair_boost must be non-negative")
         if self.max_stagnation_bond_pairs is not None and self.max_stagnation_bond_pairs <= 0:
@@ -132,6 +140,8 @@ class SSWConfig:
             "step_error_tolerance": self.step_error_tolerance,
             "step_gamma_down": self.step_gamma_down,
             "step_gamma_up": self.step_gamma_up,
+            "trial_progress_boost_factor": self.trial_progress_boost_factor,
+            "trial_progress_max_boost": self.trial_progress_max_boost,
         }
         for name, value in positive_floats.items():
             if value <= 0:
@@ -152,6 +162,12 @@ class SSWConfig:
             raise ValueError("min_escape_descriptor_delta must be non-negative")
         if self.min_escape_novelty < 0:
             raise ValueError("min_escape_novelty must be non-negative")
+        if self.trial_progress_boost_factor <= 1.0:
+            raise ValueError("trial_progress_boost_factor must be greater than 1")
+        if self.trial_progress_max_boost < 1.0:
+            raise ValueError("trial_progress_max_boost must be at least 1")
+        if not 0.0 <= self.trial_progress_duplicate_tolerance <= 1.0:
+            raise ValueError("trial_progress_duplicate_tolerance must be between 0 and 1")
         if not self.novelty_probe_scales or any(scale <= 0 for scale in self.novelty_probe_scales):
             raise ValueError("novelty_probe_scales must contain positive values")
         if self.proposal_trust_radius is not None and self.proposal_trust_radius <= 0:
@@ -165,6 +181,13 @@ class SSWConfig:
             raise ValueError("proposal_optimizer must be one of scipy-lbfgsb, ase-fire, ase-lbfgs")
         if self.proposal_optimizer_alt is not None and self.proposal_optimizer_alt not in allowed_optimizers:
             raise ValueError("proposal_optimizer_alt must be one of scipy-lbfgsb, ase-fire, ase-lbfgs when set")
+        if (
+            self.proposal_duplicate_rescue_optimizer is not None
+            and self.proposal_duplicate_rescue_optimizer not in allowed_optimizers
+        ):
+            raise ValueError(
+                "proposal_duplicate_rescue_optimizer must be one of scipy-lbfgsb, ase-fire, ase-lbfgs when set"
+            )
         if self.direction_curvature_source not in {"inner", "true"}:
             raise ValueError("direction_curvature_source must be inner or true")
         if self.direction_score_sigma_mode not in {"adaptive", "trust_scaled", "fixed_reference"}:
