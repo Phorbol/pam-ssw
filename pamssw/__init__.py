@@ -1,5 +1,7 @@
 from .acquisition import SearchMode
 from .config import LSSSWConfig, RelaxConfig, SSWConfig
+from .generalized_coordinates import CellDOFMask, GeneralizedCoordinates, GeneralizedMetric
+from .generalized_evaluator import CalculatorGeneralizedEvaluator, verify_stress_gradient
 from .io import read_state, state_from_atoms, state_to_atoms, write_state
 from .result import RelaxOutcomeClass, RelaxResult, SearchResult
 from .runner import relax_minimum, run_ls_ssw, run_ssw
@@ -7,6 +9,10 @@ from .state import State
 
 __all__ = [
     "LSSSWConfig",
+    "CalculatorGeneralizedEvaluator",
+    "CellDOFMask",
+    "GeneralizedCoordinates",
+    "GeneralizedMetric",
     "RelaxConfig",
     "RelaxOutcomeClass",
     "RelaxResult",
@@ -21,4 +27,5 @@ __all__ = [
     "state_from_atoms",
     "state_to_atoms",
     "write_state",
+    "verify_stress_gradient",
 ]

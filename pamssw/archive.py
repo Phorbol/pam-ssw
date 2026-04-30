@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from .fingerprint import descriptor_distance, structural_descriptor
+from .fingerprint import descriptor_distance, structural_descriptor, variable_cell_structural_descriptor
 from .pbc import mic_displacement
 from .state import State
 
@@ -40,12 +40,23 @@ class ArchivePrototype:
 
 
 class MinimaArchive:
-    def __init__(self, energy_tol: float, rmsd_tol: float, max_prototypes: int = 1000) -> None:
+    def __init__(
+        self,
+        energy_tol: float,
+        rmsd_tol: float,
+        max_prototypes: int = 1000,
+        variable_cell: bool = False,
+        cell_tol: float = 0.1,
+        lattice_descriptor_weight: float = 1.0,
+    ) -> None:
         if max_prototypes <= 0:
             raise ValueError("max_prototypes must be positive")
         self.energy_tol = energy_tol
         self.rmsd_tol = rmsd_tol
         self.max_prototypes = max_prototypes
+        self.variable_cell = bool(variable_cell)
+        self.cell_tol = float(cell_tol)
+        self.lattice_descriptor_weight = float(lattice_descriptor_weight)
         self.entries: list[MinimaEntry] = []
         self.prototypes: list[ArchivePrototype] = []
 
@@ -53,7 +64,7 @@ class MinimaArchive:
         for entry in self.entries:
             if abs(entry.energy - energy) > self.energy_tol:
                 continue
-            if self._rmsd(entry.state, state) <= self.rmsd_tol:
+            if self._is_duplicate(entry.state, state):
                 entry.visits += 1
                 entry.duplicate_hits += 1
                 return entry
@@ -64,7 +75,7 @@ class MinimaArchive:
             energy=float(energy),
             parent_id=parent_id,
             visits=1,
-            descriptor=structural_descriptor(state),
+            descriptor=self._descriptor(state),
         )
         self.entries.append(entry)
         self._update_prototypes(entry)
@@ -99,8 +110,10 @@ class MinimaArchive:
             ],
             dtype=float,
         )
-        if distances.size == 0:
+        finite_mask = np.isfinite(distances)
+        if distances.size == 0 or not np.any(finite_mask):
             return 0.0
+        distances = distances[finite_mask]
         weights = np.asarray(
             [
                 prototype.weight
@@ -109,6 +122,7 @@ class MinimaArchive:
             ],
             dtype=float,
         )
+        weights = weights[finite_mask]
         bandwidth = max(0.25, float(np.median(distances)) + 1e-6)
         return float((weights * np.exp(-0.5 * (distances / bandwidth) ** 2)).sum())
 
@@ -117,6 +131,9 @@ class MinimaArchive:
 
     def coverage_gain(self, descriptor: np.ndarray) -> float:
         return self.novelty(descriptor)
+
+    def descriptor_for(self, state: State) -> np.ndarray:
+        return self._descriptor(state)
 
     def duplicate_rate(self) -> float:
         hits = sum(entry.duplicate_hits for entry in self.entries)
@@ -290,3 +307,23 @@ class MinimaArchive:
         determinant = np.linalg.det(right_t.T @ left.T)
         correction = np.diag([1.0, 1.0, np.sign(determinant) if determinant != 0.0 else 1.0])
         return left @ correction @ right_t
+
+    def _descriptor(self, state: State) -> np.ndarray:
+        if self.variable_cell:
+            return variable_cell_structural_descriptor(state, lattice_weight=self.lattice_descriptor_weight)
+        return structural_descriptor(state)
+
+    def _is_duplicate(self, lhs: State, rhs: State) -> bool:
+        if not self.variable_cell:
+            return self._rmsd(lhs, rhs) <= self.rmsd_tol
+        lhs_descriptor = variable_cell_structural_descriptor(lhs, lattice_weight=self.lattice_descriptor_weight)
+        rhs_descriptor = variable_cell_structural_descriptor(rhs, lattice_weight=self.lattice_descriptor_weight)
+        lattice_delta = descriptor_distance(lhs_descriptor[-7:], rhs_descriptor[-7:])
+        if lattice_delta > self.cell_tol:
+            return False
+        atomic_delta = descriptor_distance(lhs_descriptor[:-7], rhs_descriptor[:-7])
+        if atomic_delta > max(self.rmsd_tol, 0.25):
+            return False
+        if lhs.cell is not None and rhs.cell is not None and np.allclose(lhs.cell, rhs.cell, atol=self.cell_tol):
+            return self._rmsd(lhs, rhs) <= self.rmsd_tol
+        return True

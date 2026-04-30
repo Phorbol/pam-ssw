@@ -90,6 +90,23 @@ class SSWConfig:
     trial_progress_duplicate_tolerance: float = 0.75
     proposal_optimizer_alt: str | None = None
     proposal_duplicate_rescue_optimizer: str | None = None
+    coordinate_mode: str = "fixed_cell"
+    cell_dof_mode: str = "fixed_cell"
+    external_pressure: float = 0.0
+    cell_metric_weight: float | None = None
+    atom_metric_weight: float | None = None
+    max_cell_strain_step: float = 0.5
+    max_volume_change_per_step: float = 0.3
+    min_cell_length: float = 0.5
+    min_volume: float = 1e-6
+    variable_cell_requires_stress: bool = True
+    finite_diff_cell_gradient: bool = False
+    fixed_atom_cell_semantics: str = "fixed_fractional"
+    lattice_descriptor_weight: float = 1.0
+    n_cell_random_candidates: int = 2
+    n_coupled_random_candidates: int = 2
+    cell_soft_mode_enabled: bool = True
+    coupled_soft_mode_enabled: bool = True
 
     def __post_init__(self) -> None:
         positive_ints = {
@@ -206,6 +223,35 @@ class SSWConfig:
             raise ValueError("min_step_scale cannot exceed max_step_scale")
         if self.lambda_bond_start > self.lambda_bond_end:
             raise ValueError("lambda_bond_start cannot exceed lambda_bond_end")
+        if self.coordinate_mode not in {"fixed_cell", "variable_cell"}:
+            raise ValueError("coordinate_mode must be fixed_cell or variable_cell")
+        allowed_cell_modes = {"fixed_cell", "volume_only", "shape_6", "full_9", "slab_xy"}
+        if self.cell_dof_mode not in allowed_cell_modes:
+            raise ValueError("cell_dof_mode must be fixed_cell, volume_only, shape_6, full_9, or slab_xy")
+        if self.coordinate_mode == "fixed_cell" and self.cell_dof_mode != "fixed_cell":
+            raise ValueError("cell_dof_mode must be fixed_cell when coordinate_mode is fixed_cell")
+        if self.coordinate_mode == "variable_cell" and self.cell_dof_mode == "fixed_cell":
+            raise ValueError("variable_cell coordinate_mode requires a non-fixed cell_dof_mode")
+        if self.cell_metric_weight is not None and self.cell_metric_weight <= 0:
+            raise ValueError("cell_metric_weight must be positive when set")
+        if self.atom_metric_weight is not None and self.atom_metric_weight <= 0:
+            raise ValueError("atom_metric_weight must be positive when set")
+        if self.max_cell_strain_step <= 0:
+            raise ValueError("max_cell_strain_step must be positive")
+        if self.max_volume_change_per_step <= 0:
+            raise ValueError("max_volume_change_per_step must be positive")
+        if self.min_cell_length <= 0:
+            raise ValueError("min_cell_length must be positive")
+        if self.min_volume <= 0:
+            raise ValueError("min_volume must be positive")
+        if self.fixed_atom_cell_semantics not in {"fixed_fractional", "fixed_cartesian"}:
+            raise ValueError("fixed_atom_cell_semantics must be fixed_fractional or fixed_cartesian")
+        if self.lattice_descriptor_weight <= 0:
+            raise ValueError("lattice_descriptor_weight must be positive")
+        if self.n_cell_random_candidates < 0:
+            raise ValueError("n_cell_random_candidates must be non-negative")
+        if self.n_coupled_random_candidates < 0:
+            raise ValueError("n_coupled_random_candidates must be non-negative")
         try:
             SearchMode(self.search_mode)
         except ValueError as exc:

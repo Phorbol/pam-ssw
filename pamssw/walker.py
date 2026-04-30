@@ -15,7 +15,16 @@ from .accounting import BudgetExceeded, EvalCounter
 from .bias import GaussianBiasTerm
 from .config import LSSSWConfig, RelaxConfig, SSWConfig
 from .coordinates import CartesianCoordinates, TangentVector
-from .fingerprint import descriptor_distance, structural_descriptor
+from .fingerprint import descriptor_distance, structural_descriptor, variable_cell_structural_descriptor
+from .generalized_bias import GeneralizedGaussianBiasTerm, GeneralizedProposalPotential
+from .generalized_coordinates import GeneralizedCoordinates, GeneralizedTangentVector
+from .generalized_directions import (
+    GeneralizedDirectionCandidateKind,
+    GeneralizedSoftModeOracle,
+    generalized_directional_curvature,
+)
+from .generalized_evaluator import CalculatorGeneralizedEvaluator, verify_stress_gradient
+from .generalized_relax import VariableCellRelaxer
 from .pbc import mic_displacement, mic_distance_matrix, wrap_positions
 from .relax import Relaxer
 from .result import RelaxOutcomeClass, RelaxResult, SearchResult, WalkRecord
@@ -1028,6 +1037,8 @@ class SurfaceWalker:
         return result
 
     def run(self, initial_state: State):
+        if self.config.coordinate_mode == "variable_cell":
+            return self._run_variable_cell(initial_state)
         from .archive import MinimaArchive
 
         self._reset_trust_stats()
@@ -1274,6 +1285,406 @@ class SurfaceWalker:
                 **self.step_target_controller.stats(),
             },
         )
+
+    def _run_variable_cell(self, initial_state: State):
+        from .archive import MinimaArchive
+
+        if initial_state.cell is None or not any(initial_state.pbc):
+            raise ValueError("variable-cell SSW requires a periodic state with a cell")
+        self._reset_trust_stats()
+        self._reset_direction_stats()
+        self._reset_relax_stats()
+        self._reset_bias_stats()
+        self._reset_local_softening_stats()
+        self._reset_seed_diversity_stats()
+        self._reset_accepted_structure_log()
+        self._prepare_structure_output_dirs()
+
+        gcoord = GeneralizedCoordinates.from_state(
+            initial_state,
+            self.config.cell_dof_mode,
+            atom_metric_weight=self.config.atom_metric_weight,
+            cell_metric_weight=self.config.cell_metric_weight,
+            fixed_atom_cell_semantics=self.config.fixed_atom_cell_semantics,
+        )
+        evaluator = CalculatorGeneralizedEvaluator(
+            self.calculator,
+            pressure_gpa=self.config.external_pressure,
+            requires_stress=self.config.variable_cell_requires_stress,
+            finite_diff_cell_gradient=self.config.finite_diff_cell_gradient,
+        )
+        stress_check: dict[str, float | bool] = {}
+        if self.config.variable_cell_requires_stress and not self.config.finite_diff_cell_gradient:
+            stress_check = verify_stress_gradient(
+                self.calculator,
+                initial_state,
+                cell_dof_mode=self.config.cell_dof_mode,
+                pressure_gpa=self.config.external_pressure,
+                relative_tol=5e-2,
+            )
+            if not stress_check["components_match"]:
+                raise RuntimeError(f"stress gradient verification failed: {stress_check}")
+
+        true_relaxer = self._variable_cell_relaxer(evaluator, gcoord)
+        initial = true_relaxer.relax(
+            initial_state,
+            fmax=self.config.quench_fmax,
+            maxiter=self.config.quench_maxiter,
+            trajectory_callback=self._relaxation_trajectory_callback("initial_true_quench"),
+            trajectory_stride=self.config.relaxation_trajectory_stride,
+        )
+        self._record_relax_result("true_quench", initial, self.config.quench_fmax)
+        archive = MinimaArchive(
+            energy_tol=self.config.dedup_energy_tol,
+            rmsd_tol=self.config.dedup_rmsd_tol,
+            max_prototypes=self.config.max_prototypes,
+            variable_cell=True,
+            cell_tol=self.config.dedup_rmsd_tol,
+            lattice_descriptor_weight=self.config.lattice_descriptor_weight,
+        )
+        best_entry = archive.add(initial.state, initial.energy, parent_id=None)
+        walk_history: list[WalkRecord] = []
+        local_relaxations = 1
+        completed_trials = 0
+        budget_exhausted = False
+        direction_selected = {kind: 0 for kind in GeneralizedDirectionCandidateKind}
+
+        _t0 = __import__("time").time()
+        _p = lambda msg: print(f"[vc-ssw] {msg}", flush=True)
+        _p(f"starting {self.config.max_trials} variable-cell trials...")
+        for trial_index in range(self.config.max_trials):
+            if self.calculator.exhausted():
+                budget_exhausted = True
+                break
+            step_target = self.step_target_controller.target(archive)
+            damage_events_before = self._trust_damage_events
+            seed_entry = self._select_seed_entry(archive)
+            try:
+                candidate_state, step_counts = self._variable_cell_walk_candidate_from_seed(
+                    seed_entry.state,
+                    gcoord,
+                    evaluator,
+                    archive=archive,
+                    step_target=step_target,
+                    trial_index=trial_index,
+                )
+            except BudgetExceeded:
+                budget_exhausted = True
+                break
+            for kind, count in step_counts.items():
+                direction_selected[kind] += count
+            try:
+                candidate = true_relaxer.relax(
+                    candidate_state,
+                    fmax=self.config.quench_fmax,
+                    maxiter=self.config.quench_maxiter,
+                    trajectory_callback=self._relaxation_trajectory_callback(
+                        f"trial{trial_index + 1:04d}_proposal001_true_quench"
+                    ),
+                    trajectory_stride=self.config.relaxation_trajectory_stride,
+                )
+            except BudgetExceeded:
+                budget_exhausted = True
+                break
+            local_relaxations += 1
+            self._record_relax_result("true_quench", candidate, self.config.quench_fmax)
+            descriptor = variable_cell_structural_descriptor(
+                candidate.state,
+                lattice_weight=self.config.lattice_descriptor_weight,
+            )
+            coverage_gain = archive.coverage_gain(descriptor)
+            before_count = len(archive.entries)
+            previous_best_energy = best_entry.energy
+            discovered = archive.add(candidate.state, candidate.energy, parent_id=seed_entry.entry_id)
+            is_new = len(archive.entries) > before_count
+            if discovered.energy < best_entry.energy:
+                best_entry = discovered
+            if is_new:
+                self._record_accepted_structure(
+                    trial_index=trial_index + 1,
+                    seed_entry_id=seed_entry.entry_id,
+                    discovered_entry_id=discovered.entry_id,
+                    state=discovered.state,
+                    energy=discovered.energy,
+                    best_energy=best_entry.energy,
+                )
+            outcome = ProposalOutcome(
+                energy=candidate.energy,
+                previous_best_energy=previous_best_energy,
+                is_new_minimum=is_new,
+                is_duplicate=not is_new,
+                descriptor_coverage_gain=coverage_gain,
+            )
+            reward = self.proposal_scorer.score(outcome)
+            archive.record_success(seed_entry, reward, duplicate_failures=int(not is_new))
+            self.step_target_controller.record_trial(
+                escaped=is_new,
+                damaged=self._trust_damage_events > damage_events_before,
+                seed_energy=seed_entry.energy,
+                new_energy=discovered.energy,
+                energy_delta=abs(float(discovered.energy) - float(seed_entry.energy)),
+                descriptor_delta=0.0 if seed_entry.descriptor is None else descriptor_distance(discovered.descriptor, seed_entry.descriptor),
+                novelty_gain=float(coverage_gain),
+                global_improved=best_entry.energy < previous_best_energy - 1e-12,
+                duplicate_rate=0.0 if is_new else 1.0,
+            )
+            walk_history.append(
+                WalkRecord(
+                    seed_entry_id=seed_entry.entry_id,
+                    discovered_entry_id=discovered.entry_id,
+                    energy=discovered.energy,
+                    accepted_new_basin=is_new,
+                )
+            )
+            completed_trials += 1
+            _el = __import__("time").time() - _t0
+            _p(f"trial {completed_trials}/{self.config.max_trials}  best={best_entry.energy:.3f} eV  minima={len(archive.entries)}  elapsed={_el:.0f}s")
+
+        archive.refresh_frontier_status()
+        prototype_stats = archive.prototype_occupancy()
+        frontier_stats = archive.frontier_diagnostics()
+        volumes = np.asarray([abs(np.linalg.det(entry.state.cell)) for entry in archive.entries if entry.state.cell is not None], dtype=float)
+        lengths = np.asarray(
+            [np.linalg.norm(entry.state.cell, axis=1) for entry in archive.entries if entry.state.cell is not None],
+            dtype=float,
+        )
+        stats = {
+            "n_trials": completed_trials,
+            "configured_max_trials": self.config.max_trials,
+            "n_minima": len(archive.entries),
+            "local_relaxations": local_relaxations,
+            "force_evaluations": self.calculator.force_evaluations,
+            "energy_evaluations": self.calculator.energy_evaluations,
+            "max_force_evals": self.config.max_force_evals if self.config.max_force_evals is not None else 0,
+            "budget_exhausted": int(budget_exhausted or self.calculator.exhausted()),
+            "duplicate_rate": archive.duplicate_rate(),
+            "descriptor_degeneracy_rate": archive.descriptor_degeneracy_rate(),
+            "archive_prototypes": prototype_stats["n_prototypes"],
+            "archive_max_prototypes": prototype_stats["max_prototypes"],
+            "archive_max_prototype_weight": prototype_stats["max_prototype_weight"],
+            "archive_mean_prototype_weight": prototype_stats["mean_prototype_weight"],
+            "frontier_nodes": frontier_stats["frontier_nodes"],
+            "dead_nodes": frontier_stats["dead_nodes"],
+            "mean_frontier_score": frontier_stats["mean_frontier_score"],
+            "mean_node_duplicate_failure_rate": frontier_stats["mean_node_duplicate_failure_rate"],
+            "max_node_duplicate_failure_rate": frontier_stats["max_node_duplicate_failure_rate"],
+            "coordinate_system": "generalized_fractional_log_deformation",
+            "variable_cell_supported": 1,
+            "cell_dof_mode": self.config.cell_dof_mode,
+            "cell_dof": gcoord.cell_dof,
+            "cell_volume_min": float(np.min(volumes)) if volumes.size else 0.0,
+            "cell_volume_max": float(np.max(volumes)) if volumes.size else 0.0,
+            "cell_length_min": float(np.min(lengths)) if lengths.size else 0.0,
+            "cell_length_max": float(np.max(lengths)) if lengths.size else 0.0,
+            "stress_gradient_max_relative_error": float(stress_check.get("max_relative_error", 0.0)),
+            "stress_gradient_components_match": int(bool(stress_check.get("components_match", True))),
+            "quench_optimizer": "variable-cell-lbfgsb",
+            "proposal_optimizer": "variable-cell-lbfgsb",
+            "local_softening_terms_last": self._local_softening_terms_last,
+            "local_softening_terms_total": self._local_softening_terms_built_total,
+            "local_softening_builds": self._local_softening_builds,
+            "local_softening_terms_built_total": self._local_softening_terms_built_total,
+            **self._trust_stats_summary(),
+            **self._relax_stats_summary(),
+            **self.step_target_controller.stats(),
+        }
+        for kind, count in direction_selected.items():
+            stats[f"direction_selected_{kind.value}"] = count
+        return SearchResult(
+            best_state=best_entry.state,
+            best_energy=best_entry.energy,
+            archive=archive,
+            walk_history=walk_history,
+            stats=stats,
+        )
+
+    def _variable_cell_relaxer(
+        self,
+        evaluator,
+        gcoord: GeneralizedCoordinates,
+    ) -> VariableCellRelaxer:
+        return VariableCellRelaxer(
+            evaluator,
+            gcoord,
+            max_atom_step=self.config.proposal_trust_radius or self.config.walk_trust_radius,
+            max_cell_strain=self.config.max_cell_strain_step,
+            min_volume=self.config.min_volume,
+            min_cell_length=self.config.min_cell_length,
+        )
+
+    def _variable_cell_walk_candidate_from_seed(
+        self,
+        seed_state: State,
+        gcoord: GeneralizedCoordinates,
+        evaluator: CalculatorGeneralizedEvaluator,
+        *,
+        archive=None,
+        step_target: float | None = None,
+        trial_index: int | None = None,
+    ) -> tuple[State, dict[GeneralizedDirectionCandidateKind, int]]:
+        current = seed_state
+        q_current = gcoord.to_q(current)
+        previous_direction: np.ndarray | None = None
+        anchor_direction: np.ndarray | None = None
+        previous_relax_outcome: RelaxOutcomeClass | None = None
+        biases: list[GeneralizedGaussianBiasTerm] = []
+        sigma_scale = 1.0
+        weight_scale = 1.0
+        selected: dict[GeneralizedDirectionCandidateKind, int] = {kind: 0 for kind in GeneralizedDirectionCandidateKind}
+
+        for step_index in range(self.config.max_steps_per_walk):
+            softening = self._build_softening(current, None)
+            proposal = GeneralizedProposalPotential(evaluator, gcoord, biases=biases, softening=softening)
+            oracle = GeneralizedSoftModeOracle(
+                proposal,
+                self.rng,
+                gcoord,
+                self.config.oracle_candidates,
+                bond_pairs=self.config.local_softening_pairs if self.softening_enabled and isinstance(self.config, LSSSWConfig) else [],
+                n_bond_pairs=self._n_bond_pairs_for_outcome(previous_relax_outcome),
+                bond_distance_threshold=self.config.bond_distance_threshold,
+                anchor_weight=self.config.anchor_weight,
+                continuity_weight=self.config.continuity_weight,
+                history_push_weight=self.config.history_push_weight,
+                novelty_probe_scales=tuple(self.config.novelty_probe_scales),
+                enable_momentum_candidate=self.config.enable_momentum_candidate,
+                anchor_mixing_alpha=self.config.anchor_mixing_alpha,
+                hvp_epsilon=self.config.hvp_epsilon,
+                n_cell_random=self.config.n_cell_random_candidates,
+                n_coupled_random=self.config.n_coupled_random_candidates,
+                cell_soft_mode_enabled=self.config.cell_soft_mode_enabled,
+                coupled_soft_mode_enabled=self.config.coupled_soft_mode_enabled,
+            )
+            if anchor_direction is None:
+                anchor_progress_index = 0 if trial_index is None else max(0, min(trial_index, self.config.max_trials - 1))
+                anchor_direction = oracle.generator.generate_initial_direction(
+                    current,
+                    step_index=anchor_progress_index,
+                    max_steps=self.config.max_trials,
+                    lambda_start=self.config.lambda_bond_start,
+                    lambda_end=self.config.lambda_bond_end,
+                    n_bond_pairs=self.config.n_bond_pairs,
+                    bond_distance_threshold=self.config.bond_distance_threshold,
+                )
+            score_sigma_fn = self._direction_score_sigma_fn(sigma_scale, step_target=step_target)
+            choice = oracle.choose_direction(
+                current,
+                q_current,
+                previous_direction,
+                anchor_direction=anchor_direction,
+                archive=archive,
+                history_gradient=self._generalized_history_bias_gradient(q_current, biases, gcoord),
+                continuity_weight=self._continuity_weight_for_outcome(previous_relax_outcome),
+                n_bond_pairs=self._n_bond_pairs_for_outcome(previous_relax_outcome),
+                score_sigma=(
+                    None
+                    if score_sigma_fn is not None
+                    else self._direction_score_sigma(sigma_scale, step_target=step_target)
+                ),
+                score_sigma_fn=score_sigma_fn,
+            )
+            selected[choice.kind] += 1
+            true_curvature = generalized_directional_curvature(
+                evaluator,
+                gcoord,
+                q_current,
+                choice.direction,
+                self.config.hvp_epsilon,
+            )
+            inner_curvature = (
+                choice.curvature
+                if self.config.direction_curvature_source == "inner"
+                else generalized_directional_curvature(proposal, gcoord, q_current, choice.direction, self.config.hvp_epsilon)
+            )
+            sigma = self._scaled_step_scale(true_curvature, sigma_scale, step_target=step_target)
+            weight = self._bias_weight(inner_curvature, sigma) * weight_scale
+            self._record_bias_weight(weight)
+            true_energy_before, true_gradient_before = evaluator.evaluate_q(q_current, gcoord)
+            g_parallel = gcoord.metric.dot(true_gradient_before, choice.direction)
+            biases.append(
+                GeneralizedGaussianBiasTerm(
+                    center_q=q_current,
+                    direction_q=choice.direction,
+                    sigma=sigma,
+                    weight=weight,
+                    gcoord=gcoord,
+                )
+            )
+            q_trial = gcoord.fractional_wrap(q_current + sigma * choice.direction)
+            trial_state = gcoord.to_state(q_trial)
+            if not self.geometry_validator.is_valid_state(trial_state):
+                break
+            proposal = GeneralizedProposalPotential(evaluator, gcoord, biases=biases, softening=softening)
+            proposal_relax = self._variable_cell_relaxer(proposal, gcoord).relax(
+                q_trial,
+                fmax=self.config.proposal_fmax,
+                maxiter=self.config.proposal_relax_steps,
+                trajectory_callback=self._relaxation_trajectory_callback(
+                    self._trajectory_name(
+                        "proposal_relax",
+                        trial_index=trial_index,
+                        proposal_index=0,
+                        step_index=step_index,
+                    )
+                ),
+                trajectory_stride=self.config.relaxation_trajectory_stride,
+            )
+            current_candidate = proposal_relax.state
+            if not self.geometry_validator.is_valid_state(current_candidate):
+                break
+            q_candidate = gcoord.to_q(current_candidate)
+            true_energy_after, _ = evaluator.evaluate_q(q_candidate, gcoord)
+            if not np.isfinite(true_energy_after):
+                break
+            proposal_relax = replace(
+                proposal_relax,
+                outcome_class=Relaxer.classify_outcome(
+                    initial_energy=true_energy_before,
+                    final_energy=proposal_relax.energy,
+                    gradient_norm=proposal_relax.gradient_norm,
+                    fmax=self.config.proposal_fmax,
+                    displacement_rms=proposal_relax.displacement_rms,
+                    displacement_max=proposal_relax.displacement_max,
+                    active_bound_fraction=proposal_relax.active_bound_fraction,
+                    true_delta=true_energy_after - true_energy_before,
+                ),
+            )
+            self._record_relax_result("proposal_relax", proposal_relax, self.config.proposal_fmax)
+            previous_relax_outcome = proposal_relax.outcome_class
+            trust_update = self.trust_controller.update(
+                curvature=true_curvature,
+                sigma=sigma,
+                true_delta=true_energy_after - true_energy_before,
+                sigma_scale=sigma_scale,
+                weight_scale=weight_scale,
+                g_parallel=g_parallel,
+                error_floor=0.1 * (step_target if step_target is not None else self.config.target_uphill_energy),
+                active_bound_fraction=proposal_relax.active_bound_fraction,
+                bias_weight=weight,
+            )
+            sigma_scale = trust_update.sigma_scale
+            weight_scale = trust_update.weight_scale
+            self._record_trust_update(trust_update)
+            delta_q = gcoord.delta_q(q_candidate, q_current)
+            if gcoord.metric.norm(delta_q) > 1e-8:
+                previous_direction = gcoord.metric.normalized(delta_q)
+            q_current = q_candidate
+            current = current_candidate
+        return current, selected
+
+    @staticmethod
+    def _generalized_history_bias_gradient(
+        q: np.ndarray,
+        biases: list[GeneralizedGaussianBiasTerm],
+        gcoord: GeneralizedCoordinates,
+    ) -> np.ndarray | None:
+        if not biases:
+            return None
+        gradient = np.zeros(gcoord.size, dtype=float)
+        for bias in biases:
+            _, bias_gradient = bias.evaluate_q(q)
+            gradient += bias_gradient
+        return gradient
 
     def _proposal_pool(
         self,

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+from ase.geometry import cell_to_cellpar
 
 from .pbc import mic_displacement
 from .state import State
@@ -55,6 +56,21 @@ def structural_descriptor(state: State) -> np.ndarray:
             dtype=float,
         )
     return np.concatenate([rdf_histogram_fingerprint(state), stats])
+
+
+def cell_descriptor(state: State) -> np.ndarray:
+    if state.cell is None:
+        return np.zeros(7, dtype=float)
+    cell = np.asarray(state.cell, dtype=float)
+    volume = abs(float(np.linalg.det(cell)))
+    volume_per_atom = volume / max(1, state.n_atoms)
+    cellpar = cell_to_cellpar(cell)
+    return np.asarray([volume_per_atom, *cellpar[:3], *cellpar[3:]], dtype=float)
+
+
+def variable_cell_structural_descriptor(state: State, lattice_weight: float = 1.0) -> np.ndarray:
+    lattice = cell_descriptor(state) * float(lattice_weight)
+    return np.concatenate([structural_descriptor(state), lattice])
 
 
 def descriptor_distance(lhs: np.ndarray, rhs: np.ndarray) -> float:
