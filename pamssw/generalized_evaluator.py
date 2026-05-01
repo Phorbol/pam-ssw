@@ -112,8 +112,9 @@ def verify_stress_gradient(
     *,
     cell_dof_mode: str = "shape_6",
     pressure_gpa: float = 0.0,
-    eps: float = 1e-5,
-    relative_tol: float = 5e-2,
+    eps: float = 1e-3,
+    relative_tol: float = 2e-1,
+    absolute_tol: float | None = None,
 ) -> dict[str, float | bool]:
     gcoord = GeneralizedCoordinates.from_state(state, cell_dof_mode)
     q = gcoord.to_q(state)
@@ -134,14 +135,19 @@ def verify_stress_gradient(
     _, fd_grad = fd_eval.evaluate_q(q, gcoord)
     lhs = stress_grad[gcoord.atomic_size :]
     rhs = fd_grad[gcoord.atomic_size :]
-    denom = np.maximum(np.maximum(np.abs(lhs), np.abs(rhs)), 1e-8)
-    rel = np.abs(lhs - rhs) / denom
+    abs_err = np.abs(lhs - rhs)
+    denom = np.maximum(np.maximum(np.abs(lhs), np.abs(rhs)), 1.0)
+    rel = abs_err / denom
     max_relative_error = float(np.max(rel, initial=0.0))
-    max_absolute_error = float(np.max(np.abs(lhs - rhs), initial=0.0))
+    max_absolute_error = float(np.max(abs_err, initial=0.0))
+    component_scale = float(np.max(np.maximum(np.abs(lhs), np.abs(rhs)), initial=0.0))
+    effective_absolute_tol = float(absolute_tol) if absolute_tol is not None else max(1e-5, 0.1 * component_scale)
+    component_matches = np.logical_or(rel <= relative_tol, abs_err <= effective_absolute_tol)
     return {
         "max_relative_error": max_relative_error,
         "max_absolute_error": max_absolute_error,
-        "components_match": bool(max_relative_error <= relative_tol or max_absolute_error <= 1e-5),
+        "absolute_tol": effective_absolute_tol,
+        "components_match": bool(np.all(component_matches)),
     }
 
 

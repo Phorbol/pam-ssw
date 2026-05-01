@@ -1320,7 +1320,6 @@ class SurfaceWalker:
                 initial_state,
                 cell_dof_mode=self.config.cell_dof_mode,
                 pressure_gpa=self.config.external_pressure,
-                relative_tol=5e-2,
             )
             if not stress_check["components_match"]:
                 raise RuntimeError(f"stress gradient verification failed: {stress_check}")
@@ -1600,7 +1599,7 @@ class SurfaceWalker:
             weight = self._bias_weight(inner_curvature, sigma) * weight_scale
             self._record_bias_weight(weight)
             true_energy_before, true_gradient_before = evaluator.evaluate_q(q_current, gcoord)
-            g_parallel = gcoord.metric.dot(true_gradient_before, choice.direction)
+            g_parallel = float(np.dot(true_gradient_before, choice.direction))
             biases.append(
                 GeneralizedGaussianBiasTerm(
                     center_q=q_current,

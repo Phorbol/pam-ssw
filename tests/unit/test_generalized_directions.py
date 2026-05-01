@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
+import pytest
 
 from pamssw.calculators import EnergyResult
 from pamssw.generalized_coordinates import GeneralizedCoordinates
@@ -66,6 +67,44 @@ def test_bond_direction_has_zero_cell_component() -> None:
     bond = [candidate for candidate in candidates if candidate.kind == GeneralizedDirectionCandidateKind.BOND][0]
     assert np.linalg.norm(bond.direction[gcoord.atomic_size :]) == 0.0
     assert abs(gcoord.metric.norm(bond.direction) - 1.0) < 1e-10
+
+
+def test_bond_candidates_do_not_consume_atomic_random_budget() -> None:
+    initial = state()
+    gcoord = GeneralizedCoordinates.from_state(initial, "shape_6")
+    generator = GeneralizedCandidateDirectionGenerator(
+        np.random.default_rng(1),
+        gcoord,
+        n_atomic_random=3,
+        n_cell_random=0,
+        n_coupled_random=0,
+        n_bond_pairs=4,
+        bond_distance_threshold=0.0,
+    )
+
+    candidates = generator.generate(initial, None)
+
+    assert sum(candidate.kind == GeneralizedDirectionCandidateKind.BOND for candidate in candidates) >= 1
+    assert sum(candidate.kind == GeneralizedDirectionCandidateKind.ATOMIC_RANDOM for candidate in candidates) == 3
+
+
+class IdentityQEvaluator:
+    def evaluate_q(self, q: np.ndarray, gcoord: GeneralizedCoordinates) -> tuple[float, np.ndarray]:
+        return 0.5 * float(np.dot(q, q)), np.asarray(q, dtype=float)
+
+
+def test_generalized_curvature_pairs_covector_gradient_with_tangent_not_metric_dot() -> None:
+    initial = state()
+    gcoord = GeneralizedCoordinates.from_state(initial, "shape_6", cell_metric_weight=100.0)
+    q = gcoord.to_q(initial)
+    direction = np.zeros(gcoord.size)
+    direction[gcoord.atomic_size] = 1.0
+    tangent = gcoord.metric.normalized(direction)
+
+    curvature = generalized_directional_curvature(IdentityQEvaluator(), gcoord, q, direction, 1e-4)
+
+    assert curvature == pytest.approx(float(np.dot(tangent, tangent)), rel=1e-5)
+    assert curvature != pytest.approx(gcoord.metric.norm_sq(tangent))
 
 
 def test_generalized_curvature_is_finite() -> None:

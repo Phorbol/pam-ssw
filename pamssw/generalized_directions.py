@@ -136,7 +136,7 @@ class GeneralizedCandidateDirectionGenerator:
             if direction is not None:
                 candidates.append(self._candidate(GeneralizedDirectionCandidateKind.BOND, direction))
                 self.last_random_bond_candidates_valid += 1
-        for _ in range(max(0, self.n_atomic_random - len(pairs))):
+        for _ in range(max(0, self.n_atomic_random)):
             direction = np.zeros(self.gcoord.size, dtype=float)
             direction[: self.gcoord.atomic_size] = self.rng.normal(size=self.gcoord.atomic_size)
             candidates.append(self._candidate(GeneralizedDirectionCandidateKind.ATOMIC_RANDOM, direction))
@@ -419,7 +419,7 @@ class GeneralizedSoftModeOracle:
         for candidate in candidates:
             curvature = generalized_directional_curvature(self.evaluator, self.gcoord, q, candidate.direction, self.hvp_epsilon)
             sigma = float(score_sigma_fn(curvature)) if score_sigma_fn is not None else float(score_sigma or 1.0)
-            history_push = 0.0 if history_gradient is None else -self.gcoord.metric.dot(history_gradient, candidate.direction)
+            history_push = 0.0 if history_gradient is None else -float(np.dot(history_gradient, candidate.direction))
             score = self.scorer.score(
                 curvature=curvature,
                 sigma=sigma,
@@ -460,7 +460,7 @@ def generalized_directional_curvature(
     _, grad_plus = evaluator.evaluate_q(q_plus, gcoord)
     _, grad_minus = evaluator.evaluate_q(q_minus, gcoord)
     hvp = (grad_plus - grad_minus) / (2.0 * epsilon)
-    return float(gcoord.metric.dot(hvp, tangent))
+    return float(np.dot(hvp, tangent))
 
 
 def _normalized(values: np.ndarray, metric) -> np.ndarray:

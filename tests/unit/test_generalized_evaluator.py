@@ -79,3 +79,48 @@ def test_missing_stress_fails_closed() -> None:
 def test_verify_stress_gradient_reports_match() -> None:
     result = verify_stress_gradient(FractionalAndVolumeCalculator(), state(), cell_dof_mode="volume_only")
     assert result["components_match"] is True
+
+
+def test_verify_stress_gradient_uses_noise_robust_default_eps_and_denominator_floor(monkeypatch) -> None:
+    observed: dict[str, float] = {}
+
+    def fake_evaluate_q(
+        self: CalculatorGeneralizedEvaluator,
+        q: np.ndarray,
+        gcoord: GeneralizedCoordinates,
+    ) -> tuple[float, np.ndarray]:
+        grad = np.zeros(gcoord.size, dtype=float)
+        if self.finite_diff_cell_gradient:
+            observed["eps"] = self.finite_diff_eps
+            grad[gcoord.atomic_size :] = 0.02
+        return 0.0, grad
+
+    monkeypatch.setattr(CalculatorGeneralizedEvaluator, "evaluate_q", fake_evaluate_q)
+
+    result = verify_stress_gradient(FractionalAndVolumeCalculator(), state(), cell_dof_mode="volume_only")
+
+    assert observed["eps"] == pytest.approx(1e-3)
+    assert result["max_relative_error"] == pytest.approx(0.02)
+    assert result["components_match"] is True
+
+
+def test_verify_stress_gradient_allows_small_noisy_components_against_global_scale(monkeypatch) -> None:
+    lhs = np.array([10.0, 10.0, 20.0, 10.0, 27.0, 2.0])
+    rhs = np.array([9.0, 9.0, 19.0, 9.0, 27.0, -0.2])
+
+    def fake_evaluate_q(
+        self: CalculatorGeneralizedEvaluator,
+        q: np.ndarray,
+        gcoord: GeneralizedCoordinates,
+    ) -> tuple[float, np.ndarray]:
+        grad = np.zeros(gcoord.size, dtype=float)
+        grad[gcoord.atomic_size :] = rhs if self.finite_diff_cell_gradient else lhs
+        return 0.0, grad
+
+    monkeypatch.setattr(CalculatorGeneralizedEvaluator, "evaluate_q", fake_evaluate_q)
+
+    result = verify_stress_gradient(FractionalAndVolumeCalculator(), state(), cell_dof_mode="shape_6")
+
+    assert result["max_relative_error"] > 1.0
+    assert result["absolute_tol"] == pytest.approx(2.7)
+    assert result["components_match"] is True
