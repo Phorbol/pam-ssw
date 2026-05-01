@@ -473,6 +473,7 @@ class DirectionCandidateKind(str, Enum):
     MOMENTUM = "momentum"
     RANDOM = "random"
     BOND = "bond"
+    RITZ = "ritz"
 
 
 @dataclass(frozen=True)
@@ -829,12 +830,14 @@ class SoftModeOracle:
         enable_momentum_candidate: bool = True,
         anchor_mixing_alpha: float | None = None,
         hvp_epsilon: float = 1e-3,
+        direction_selection_mode: str = "discrete",
     ) -> None:
         self.calculator = calculator
         self.rng = rng
         self.candidates = candidates
         self.hvp_epsilon = hvp_epsilon
         self.anchor_mixing_alpha = anchor_mixing_alpha
+        self.direction_selection_mode = direction_selection_mode
         self.generator = CandidateDirectionGenerator(
             rng,
             candidates,
@@ -878,10 +881,13 @@ class SoftModeOracle:
         best_kind: DirectionCandidateKind | None = None
         rigid_overlap_sum = 0.0
         post_projection_rigid_overlap_sum = 0.0
+        candidate_hvps: list[np.ndarray] = []
         for candidate in candidates:
             rigid_overlap_sum += candidate.rigid_body_overlap
             post_projection_rigid_overlap_sum += candidate.post_projection_rigid_body_overlap
-            curvature = self._directional_curvature(state, proposal, candidate.direction)
+            hvp = self._directional_hvp(state, proposal, candidate.direction)
+            candidate_hvps.append(hvp)
+            curvature = float(np.dot(hvp, candidate.direction))
             candidate_score_sigma = self._candidate_score_sigma(
                 curvature=curvature,
                 score_sigma=score_sigma,
@@ -905,6 +911,34 @@ class SoftModeOracle:
                 best_curvature = curvature
                 best_direction = candidate.direction
                 best_kind = candidate.kind
+        if self.direction_selection_mode == "rayleigh_ritz":
+            ritz = self._rayleigh_ritz_candidate(candidates, candidate_hvps)
+            if ritz is not None:
+                ritz_direction, ritz_curvature = ritz
+                ritz_candidate = DirectionCandidate(DirectionCandidateKind.RITZ, ritz_direction)
+                ritz_score_sigma = self._candidate_score_sigma(
+                    curvature=ritz_curvature,
+                    score_sigma=score_sigma,
+                    score_sigma_fn=score_sigma_fn,
+                    step_scale_fn=step_scale_fn,
+                )
+                ritz_history_push = 0.0 if history_gradient is None else -float(np.dot(history_gradient, ritz_direction))
+                ritz_score = self.scorer.score_candidate(
+                    state=state,
+                    candidate=ritz_candidate,
+                    curvature=ritz_curvature,
+                    sigma=ritz_score_sigma,
+                    previous_direction=previous_direction,
+                    anchor_direction=scoring_anchor_direction,
+                    archive=archive,
+                    history_push=ritz_history_push,
+                    continuity_weight=continuity_weight,
+                )
+                if best_score is None or ritz_score > best_score:
+                    best_score = ritz_score
+                    best_curvature = ritz_curvature
+                    best_direction = ritz_direction
+                    best_kind = DirectionCandidateKind.RITZ
         assert best_direction is not None and best_curvature is not None and best_kind is not None
 
         return DirectionChoice(
@@ -925,6 +959,42 @@ class SoftModeOracle:
             return float(step_scale_fn(1.0))
         return self._step_scale_from_curvature(1.0)
 
+    def _rayleigh_ritz_candidate(
+        self,
+        candidates: list[DirectionCandidate],
+        hvps: list[np.ndarray],
+    ) -> tuple[np.ndarray, float] | None:
+        if len(candidates) < 2 or len(candidates) != len(hvps):
+            return None
+        directions = np.column_stack([candidate.direction for candidate in candidates])
+        h_directions = np.column_stack(hvps)
+        try:
+            u, singular_values, vt = np.linalg.svd(directions, full_matrices=False)
+        except np.linalg.LinAlgError:
+            return None
+        if singular_values.size == 0:
+            return None
+        tol = max(directions.shape) * np.finfo(float).eps * float(singular_values[0])
+        rank = int(np.count_nonzero(singular_values > tol))
+        if rank < 2:
+            return None
+        q = u[:, :rank]
+        coeffs = vt[:rank, :].T / singular_values[:rank]
+        hq = h_directions @ coeffs
+        projected = q.T @ hq
+        projected = 0.5 * (projected + projected.T)
+        try:
+            eigenvalues, eigenvectors = np.linalg.eigh(projected)
+        except np.linalg.LinAlgError:
+            return None
+        direction = q @ eigenvectors[:, int(np.argmin(eigenvalues))]
+        norm = float(np.linalg.norm(direction))
+        if norm <= 1e-12:
+            return None
+        direction = direction / norm
+        curvature = float(eigenvalues[int(np.argmin(eigenvalues))])
+        return direction, curvature
+
     def _directional_curvature(
         self,
         state: State,
@@ -932,6 +1002,16 @@ class SoftModeOracle:
         direction: np.ndarray,
         epsilon: float | None = None,
     ) -> float:
+        hvp = self._directional_hvp(state, proposal, direction, epsilon=epsilon)
+        return float(np.dot(hvp, direction))
+
+    def _directional_hvp(
+        self,
+        state: State,
+        proposal: ProposalPotential,
+        direction: np.ndarray,
+        epsilon: float | None = None,
+    ) -> np.ndarray:
         epsilon = self.hvp_epsilon if epsilon is None else epsilon
         coordinates = CartesianCoordinates.from_state(state)
         tangent = TangentVector(direction)
@@ -939,8 +1019,7 @@ class SoftModeOracle:
         minus = coordinates.displace(tangent, -epsilon)
         _, grad_plus = proposal.evaluate(plus.flatten_positions(), plus)
         _, grad_minus = proposal.evaluate(minus.flatten_positions(), minus)
-        hvp = (grad_plus - grad_minus) / (2.0 * epsilon)
-        return float(np.dot(hvp, direction))
+        return (grad_plus - grad_minus) / (2.0 * epsilon)
 
     @staticmethod
     def _step_scale_from_curvature(curvature: float) -> float:
@@ -969,6 +1048,7 @@ class SurfaceWalker:
             enable_momentum_candidate=config.enable_momentum_candidate,
             anchor_mixing_alpha=config.anchor_mixing_alpha,
             hvp_epsilon=config.hvp_epsilon,
+            direction_selection_mode=config.direction_selection_mode,
         )
         self.proposal_scorer = ProposalScorer.for_mode(config.search_mode)
         self.selector = BanditSelector(
@@ -1968,6 +2048,7 @@ class SurfaceWalker:
             "direction_selected_momentum": self._direction_selected[DirectionCandidateKind.MOMENTUM],
             "direction_selected_random": self._direction_selected[DirectionCandidateKind.RANDOM],
             "direction_selected_bond": self._direction_selected[DirectionCandidateKind.BOND],
+            "direction_selected_ritz": self._direction_selected[DirectionCandidateKind.RITZ],
             "direction_bond_pairs_requested": self._direction_bond_pairs_requested,
             "direction_bond_pairs_generated": self._direction_bond_pairs_generated,
             "direction_fallback_bond_pairs_generated": self._direction_fallback_bond_pairs_generated,

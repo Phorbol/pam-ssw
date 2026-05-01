@@ -273,6 +273,47 @@ def test_soft_mode_oracle_can_score_candidates_with_adaptive_sigma():
         assert sigma == pytest.approx(10.0 + curvature)
 
 
+def test_soft_mode_oracle_can_select_rayleigh_ritz_subspace_direction():
+    class CoupledQuadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.array(
+                [
+                    [1.0, -0.8, 0.0],
+                    [-0.8, 1.0, 0.0],
+                    [0.0, 0.0, 5.0],
+                ]
+            )
+            gradient = hessian @ flat_positions
+            energy = 0.5 * float(flat_positions @ gradient)
+            return energy, gradient
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    oracle = SoftModeOracle(
+        AnalyticCalculator(CoupledQuadratic()),
+        np.random.default_rng(0),
+        candidates=0,
+        direction_selection_mode="rayleigh_ritz",
+    )
+
+    def fixed_candidates(*args, **kwargs):
+        return [
+            DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([1.0, 0.0, 0.0])),
+            DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([0.0, 1.0, 0.0])),
+        ]
+
+    oracle.generator.generate = fixed_candidates
+    choice = oracle.choose_direction(
+        state,
+        proposal=ProposalPotential(AnalyticCalculator(CoupledQuadratic())),
+        previous_direction=None,
+        score_sigma=1.0,
+    )
+
+    assert choice.kind == DirectionCandidateKind.RITZ
+    assert choice.curvature == pytest.approx(0.2, rel=1e-5)
+    assert abs(float(np.dot(choice.direction, np.array([1.0, 1.0, 0.0]) / np.sqrt(2.0)))) == pytest.approx(1.0)
+
+
 def test_surface_walker_can_use_fixed_reference_direction_score_sigma():
     walker = SurfaceWalker(
         calculator=AnalyticCalculator(DoubleWell2D()),

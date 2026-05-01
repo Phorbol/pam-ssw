@@ -174,6 +174,15 @@ def test_config_validates_direction_curvature_source():
         SSWConfig(direction_curvature_source="biased")
 
 
+def test_config_validates_direction_selection_mode():
+    assert SSWConfig().direction_selection_mode == "discrete"
+    assert SSWConfig(direction_selection_mode="discrete").direction_selection_mode == "discrete"
+    assert SSWConfig(direction_selection_mode="rayleigh_ritz").direction_selection_mode == "rayleigh_ritz"
+
+    with pytest.raises(ValueError, match="direction_selection_mode"):
+        SSWConfig(direction_selection_mode="unknown")
+
+
 def test_config_validates_direction_score_sigma_mode():
     assert SSWConfig().direction_score_sigma_mode == "adaptive"
     assert SSWConfig(direction_score_sigma_mode="adaptive").direction_score_sigma_mode == "adaptive"

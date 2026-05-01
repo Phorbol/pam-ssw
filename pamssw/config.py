@@ -78,6 +78,7 @@ class SSWConfig:
     relaxation_trajectory_dir: str | None = None
     relaxation_trajectory_stride: int = 1
     direction_curvature_source: str = "inner"
+    direction_selection_mode: str = "discrete"
     direction_score_sigma_mode: str = "adaptive"
     step_error_tolerance: float = 1.0
     step_gamma_down: float = 0.5
@@ -198,6 +199,8 @@ class SSWConfig:
             )
         if self.direction_curvature_source not in {"inner", "true"}:
             raise ValueError("direction_curvature_source must be inner or true")
+        if self.direction_selection_mode not in {"discrete", "rayleigh_ritz"}:
+            raise ValueError("direction_selection_mode must be discrete or rayleigh_ritz")
         if self.direction_score_sigma_mode not in {"adaptive", "trust_scaled", "fixed_reference"}:
             raise ValueError("direction_score_sigma_mode must be adaptive, trust_scaled, or fixed_reference")
         if self.write_proposal_minima and self.proposal_minima_dir is None:
