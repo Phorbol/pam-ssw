@@ -105,6 +105,16 @@ def test_config_validates_seed_diversity_limit():
         SSWConfig(same_seed_max_consecutive=0)
 
 
+def test_config_validates_seed_selection_mode():
+    assert SSWConfig().seed_selection_mode == "archive_ucb"
+    assert SSWConfig(seed_selection_mode="metropolis_chain").metropolis_temperature == 0.26
+
+    with pytest.raises(ValueError, match="seed_selection_mode"):
+        SSWConfig(seed_selection_mode="unknown")
+    with pytest.raises(ValueError, match="metropolis_temperature"):
+        SSWConfig(metropolis_temperature=0.0)
+
+
 def test_config_validates_anchor_mixing_alpha():
     assert SSWConfig().anchor_mixing_alpha is None
     assert SSWConfig(anchor_mixing_alpha=0.3).anchor_mixing_alpha == 0.3

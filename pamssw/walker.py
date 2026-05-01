@@ -1010,6 +1010,7 @@ class SurfaceWalker:
         self._proposal_duplicate_rescue_attempts = 0
         self._proposal_duplicate_rescue_successes = 0
         self._energy_sanity_rejections = 0
+        self._reset_metropolis_stats()
 
     def relax_true_minimum(self, state: State, trajectory_name: str | None = None) -> RelaxResult:
         if not self.geometry_validator.is_valid_state(state):
@@ -1040,6 +1041,8 @@ class SurfaceWalker:
         self._proposal_optimizer_alt_steps = 0
         self._proposal_duplicate_rescue_attempts = 0
         self._proposal_duplicate_rescue_successes = 0
+        self._energy_sanity_rejections = 0
+        self._reset_metropolis_stats()
         self._reset_accepted_structure_log()
         self._prepare_structure_output_dirs()
         initial = self.relax_true_minimum(initial_state, trajectory_name="initial_true_quench")
@@ -1049,6 +1052,7 @@ class SurfaceWalker:
             max_prototypes=self.config.max_prototypes,
         )
         best_entry = archive.add(initial.state, initial.energy, parent_id=None)
+        metropolis_entry = best_entry
         walk_history: list[WalkRecord] = []
         local_relaxations = 1
 
@@ -1063,13 +1067,17 @@ class SurfaceWalker:
                 break
             step_target = self.step_target_controller.target(archive)
             damage_events_before = self._trust_damage_events
-            seed_entry = self._select_seed_entry(archive)
+            if self.config.seed_selection_mode == "metropolis_chain":
+                seed_entry = self._select_metropolis_seed_entry(metropolis_entry)
+            else:
+                seed_entry = self._select_seed_entry(archive)
             try:
                 proposals = self._proposal_pool(seed_entry.state, archive, trial_index, step_target)
             except BudgetExceeded:
                 budget_exhausted = True
                 break
             best_discovered = None
+            best_discovered_is_new = False
             best_rank_key: tuple[float, ...] | None = None
             best_reward = 0.0
             any_new = False
@@ -1170,6 +1178,7 @@ class SurfaceWalker:
                     best_rank_key = rank_key
                     best_reward = reward
                     best_discovered = discovered
+                    best_discovered_is_new = is_new
                 if (
                     is_duplicate
                     and proposal.allow_duplicate_rescue
@@ -1210,6 +1219,8 @@ class SurfaceWalker:
                     duplicate_rate=trial_duplicate_rate,
                 )
                 archive.record_success(seed_entry, 0.0, duplicate_failures=max(1, duplicate_failures))
+                if self.config.seed_selection_mode == "metropolis_chain":
+                    self._metropolis_rejects += 1
                 completed_trials += 1
                 _el = __import__("time").time() - _t0
                 _p(f"trial {completed_trials}/{self.config.max_trials}  best={best_entry.energy:.3f} eV  minima={len(archive.entries)}  elapsed={_el:.0f}s")
@@ -1227,6 +1238,12 @@ class SurfaceWalker:
                 duplicate_rate=trial_duplicate_rate,
             )
             archive.record_success(seed_entry, best_reward, duplicate_failures=duplicate_failures)
+            if self.config.seed_selection_mode == "metropolis_chain":
+                metropolis_entry = self._update_metropolis_chain(
+                    current_entry=metropolis_entry,
+                    candidate_entry=best_discovered,
+                    is_new=best_discovered_is_new,
+                )
             walk_history.append(
                 WalkRecord(
                     seed_entry_id=seed_entry.entry_id,
@@ -1279,6 +1296,7 @@ class SurfaceWalker:
                 "proposal_duplicate_rescue_attempts": self._proposal_duplicate_rescue_attempts,
                 "proposal_duplicate_rescue_successes": self._proposal_duplicate_rescue_successes,
                 "energy_sanity_rejections": self._energy_sanity_rejections,
+                **self._metropolis_stats_summary(metropolis_entry),
                 "local_softening_terms_last": self._local_softening_terms_last,
                 "local_softening_terms_total": self._local_softening_terms_built_total,
                 "local_softening_builds": self._local_softening_builds,
@@ -1493,6 +1511,32 @@ class SurfaceWalker:
         self._record_seed_selection(selected)
         return selected
 
+    def _select_metropolis_seed_entry(self, entry):
+        entry.visits += 1
+        entry.node_trials += 1
+        self._record_seed_selection(entry)
+        return entry
+
+    def _update_metropolis_chain(self, current_entry, candidate_entry, is_new: bool):
+        self._metropolis_trials += 1
+        if not is_new:
+            self._metropolis_duplicate_rejects += 1
+            self._metropolis_rejects += 1
+            return current_entry
+        delta = float(candidate_entry.energy) - float(current_entry.energy)
+        if delta <= 0.0:
+            self._metropolis_downhill_accepts += 1
+            self._metropolis_accepts += 1
+            return candidate_entry
+        probability = float(np.exp(-delta / self.config.metropolis_temperature))
+        if self.rng.random() < probability:
+            self._metropolis_uphill_accepts += 1
+            self._metropolis_accepts += 1
+            return candidate_entry
+        self._metropolis_uphill_rejects += 1
+        self._metropolis_rejects += 1
+        return current_entry
+
     def _seed_diversity_override(self, archive, primary):
         limit = self.config.same_seed_max_consecutive
         if limit is None or self._last_seed_entry_id != primary.entry_id or self._same_seed_consecutive < limit:
@@ -1674,6 +1718,32 @@ class SurfaceWalker:
         self._local_softening_terms_total = 0
         self._local_softening_builds = 0
         self._local_softening_terms_built_total = 0
+
+    def _reset_metropolis_stats(self) -> None:
+        self._metropolis_trials = 0
+        self._metropolis_accepts = 0
+        self._metropolis_rejects = 0
+        self._metropolis_downhill_accepts = 0
+        self._metropolis_uphill_accepts = 0
+        self._metropolis_uphill_rejects = 0
+        self._metropolis_duplicate_rejects = 0
+
+    def _metropolis_stats_summary(self, current_entry) -> dict[str, float | int | str]:
+        total = self._metropolis_accepts + self._metropolis_rejects
+        return {
+            "seed_selection_mode": self.config.seed_selection_mode,
+            "metropolis_temperature": float(self.config.metropolis_temperature),
+            "metropolis_trials": self._metropolis_trials,
+            "metropolis_accepts": self._metropolis_accepts,
+            "metropolis_rejects": self._metropolis_rejects,
+            "metropolis_downhill_accepts": self._metropolis_downhill_accepts,
+            "metropolis_uphill_accepts": self._metropolis_uphill_accepts,
+            "metropolis_uphill_rejects": self._metropolis_uphill_rejects,
+            "metropolis_duplicate_rejects": self._metropolis_duplicate_rejects,
+            "metropolis_acceptance_rate": float(self._metropolis_accepts / total) if total else 0.0,
+            "metropolis_current_entry_id": int(current_entry.entry_id),
+            "metropolis_current_energy": float(current_entry.energy),
+        }
 
     def _accepted_structure_log_path(self) -> Path | None:
         path = self.config.accepted_structures_log

@@ -1474,6 +1474,45 @@ def test_surface_walker_reseeds_from_frontier_after_consecutive_seed_limit():
     assert second.node_trials == 1
 
 
+def test_metropolis_chain_updates_only_through_acceptance_rule():
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=0.01)
+    current = archive.add(State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]])), -2.0, None)
+    lower = archive.add(State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]])), -3.0, current.entry_id)
+    higher = archive.add(State(numbers=np.array([1]), positions=np.array([[2.0, 0.0, 0.0]])), -1.0, current.entry_id)
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(seed_selection_mode="metropolis_chain", metropolis_temperature=0.01, rng_seed=0),
+        softening_enabled=False,
+    )
+
+    assert walker._update_metropolis_chain(current, lower, is_new=True).entry_id == lower.entry_id
+    assert walker._update_metropolis_chain(lower, higher, is_new=True).entry_id == lower.entry_id
+    assert walker._update_metropolis_chain(lower, lower, is_new=False).entry_id == lower.entry_id
+    stats = walker._metropolis_stats_summary(lower)
+
+    assert stats["metropolis_downhill_accepts"] == 1
+    assert stats["metropolis_uphill_rejects"] == 1
+    assert stats["metropolis_duplicate_rejects"] == 1
+    assert stats["metropolis_acceptance_rate"] == pytest.approx(1.0 / 3.0)
+
+
+def test_metropolis_seed_selection_counts_visits_without_bandit_selector():
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=0.01)
+    entry = archive.add(State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]])), -2.0, None)
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(seed_selection_mode="metropolis_chain"),
+        softening_enabled=False,
+    )
+
+    selected = walker._select_metropolis_seed_entry(entry)
+
+    assert selected.entry_id == entry.entry_id
+    assert entry.visits == 2
+    assert entry.node_trials == 1
+    assert walker._same_seed_consecutive == 1
+
+
 def test_surface_walker_reports_direction_acquisition_diagnostics():
     initial = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))
     walker = SurfaceWalker(

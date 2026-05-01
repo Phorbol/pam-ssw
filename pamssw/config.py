@@ -58,6 +58,8 @@ class SSWConfig:
     proposal_pool_size: int = 1
     same_seed_max_consecutive: int | None = 3
     use_archive_acquisition: bool = True
+    seed_selection_mode: str = "archive_ucb"
+    metropolis_temperature: float = 0.26
     archive_density_weight: float = 0.5
     novelty_weight: float = 1.0
     novelty_probe_scales: tuple[float, ...] = (1.0,)
@@ -140,6 +142,7 @@ class SSWConfig:
             "bandit_exploration_weight": self.bandit_exploration_weight,
             "baseline_selection_probability": self.baseline_selection_probability,
             "bandit_energy_weight": self.bandit_energy_weight,
+            "metropolis_temperature": self.metropolis_temperature,
             "step_error_tolerance": self.step_error_tolerance,
             "step_gamma_down": self.step_gamma_down,
             "step_gamma_up": self.step_gamma_up,
@@ -175,6 +178,8 @@ class SSWConfig:
             raise ValueError("novelty_probe_scales must contain positive values")
         if self.proposal_trust_radius is not None and self.proposal_trust_radius <= 0:
             raise ValueError("proposal_trust_radius must be positive when set")
+        if self.seed_selection_mode not in {"archive_ucb", "metropolis_chain"}:
+            raise ValueError("seed_selection_mode must be archive_ucb or metropolis_chain")
         if self.anchor_mixing_alpha is not None and not 0.0 <= self.anchor_mixing_alpha <= 1.0:
             raise ValueError("anchor_mixing_alpha must be between 0 and 1 when set")
         allowed_optimizers = {"scipy-lbfgsb", "ase-fire", "ase-lbfgs"}
