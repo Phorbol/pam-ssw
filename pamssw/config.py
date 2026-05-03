@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from math import isfinite
 
 from .acquisition import SearchMode
 
@@ -49,7 +50,14 @@ class SSWConfig:
     enable_outcome_gated_continuity: bool = True
     history_push_weight: float = 0.1
     enable_momentum_candidate: bool = True
+    enable_anchor_candidate: bool = False
     n_bond_pairs: int = 2
+    random_direction_distribution: str = "unit_gaussian"
+    enable_bond_form_break_split: bool = False
+    n_bond_formation_pairs: int = 2
+    n_bond_breaking_pairs: int = 1
+    bond_formation_max_distance: float = 4.0
+    bond_breaking_max_distance: float = 2.0
     stagnation_bond_pair_boost: int = 2
     max_stagnation_bond_pairs: int | None = 10
     bond_distance_threshold: float | None = None
@@ -79,7 +87,38 @@ class SSWConfig:
     relaxation_trajectory_stride: int = 1
     direction_curvature_source: str = "inner"
     direction_selection_mode: str = "discrete"
+    direction_synthesis_mode: str = "none"
+    regularized_ritz_top_k: int = 5
     direction_score_sigma_mode: str = "adaptive"
+    direction_type_ucb_enabled: bool = False
+    direction_type_success_weight: float = 0.0
+    direction_type_exploration_weight: float = 0.1
+    direction_type_ucb_window: int = 40
+    direction_archive_enabled: bool = False
+    direction_archive_max_records: int = 10000
+    direction_archive_success_only: bool = False
+    direction_archive_path: str | None = None
+    direction_probe_enabled: bool = False
+    direction_probe_top_k: int = 5
+    direction_probe_ds_scale: float = 0.5
+    direction_probe_uphill_low: float = 0.05
+    direction_probe_uphill_high: float = 1.0
+    direction_probe_collision_distance: float = 0.5
+    plateau_evolution_enabled: bool = False
+    plateau_patience_trials: int = 20
+    plateau_evolution_children: int = 5
+    plateau_evolution_crossover_pairs: int = 3
+    plateau_evolution_mutation_count: int = 2
+    plateau_evolution_history_limit: int = 10
+    archive_escape_momentum_enabled: bool = False
+    archive_escape_momentum_limit: int = 2
+    archive_escape_momentum_history_limit: int = 16
+    archive_escape_momentum_same_seed_first: bool = True
+    step_length_mode: str = "per_atom_rms"
+    target_step_rms: float = 0.15
+    max_step_rms: float = 0.35
+    step_rms_scope: str = "all_atoms"
+    step_active_threshold: float = 1e-4
     step_error_tolerance: float = 1.0
     step_gamma_down: float = 0.5
     step_gamma_up: float = 1.15
@@ -94,6 +133,8 @@ class SSWConfig:
     proposal_optimizer_alt: str | None = None
     proposal_duplicate_rescue_optimizer: str | None = None
     max_energy_drop_per_atom: float | None = 5.0
+    direction_diagnostics_enabled: bool = False
+    direction_diagnostics_path: str | None = None
 
     def __post_init__(self) -> None:
         positive_ints = {
@@ -111,8 +152,56 @@ class SSWConfig:
             raise ValueError("proposal_relax_steps must be non-negative")
         if self.n_bond_pairs < 0:
             raise ValueError("n_bond_pairs must be non-negative")
+        if self.random_direction_distribution not in {"unit_gaussian", "mass_weighted"}:
+            raise ValueError("random_direction_distribution must be unit_gaussian or mass_weighted")
+        if not isinstance(self.enable_bond_form_break_split, bool):
+            raise ValueError("enable_bond_form_break_split must be a boolean")
+        for name in ("n_bond_formation_pairs", "n_bond_breaking_pairs"):
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                raise ValueError(f"{name} must be a non-negative integer")
         if self.trial_progress_patience < 0:
             raise ValueError("trial_progress_patience must be non-negative")
+        if not isinstance(self.plateau_evolution_enabled, bool):
+            raise ValueError("plateau_evolution_enabled must be a boolean")
+        if not isinstance(self.archive_escape_momentum_enabled, bool):
+            raise ValueError("archive_escape_momentum_enabled must be a boolean")
+        if not isinstance(self.archive_escape_momentum_same_seed_first, bool):
+            raise ValueError("archive_escape_momentum_same_seed_first must be a boolean")
+        for name in (
+            "plateau_patience_trials",
+            "plateau_evolution_children",
+            "plateau_evolution_crossover_pairs",
+            "plateau_evolution_mutation_count",
+            "plateau_evolution_history_limit",
+            "archive_escape_momentum_limit",
+            "archive_escape_momentum_history_limit",
+        ):
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+                raise ValueError(f"{name} must be a positive integer")
+        if isinstance(self.regularized_ritz_top_k, bool) or not isinstance(self.regularized_ritz_top_k, int):
+            raise ValueError("regularized_ritz_top_k must be a positive integer")
+        if self.regularized_ritz_top_k <= 0:
+            raise ValueError("regularized_ritz_top_k must be a positive integer")
+        if isinstance(self.direction_type_ucb_window, bool) or not isinstance(self.direction_type_ucb_window, int):
+            raise ValueError("direction_type_ucb_window must be a positive integer")
+        if self.direction_type_ucb_window <= 0:
+            raise ValueError("direction_type_ucb_window must be a positive integer")
+        if not isinstance(self.direction_type_ucb_enabled, bool):
+            raise ValueError("direction_type_ucb_enabled must be a boolean")
+        if not isinstance(self.direction_archive_enabled, bool):
+            raise ValueError("direction_archive_enabled must be a boolean")
+        if not isinstance(self.direction_archive_success_only, bool):
+            raise ValueError("direction_archive_success_only must be a boolean")
+        if isinstance(self.direction_archive_max_records, bool) or not isinstance(self.direction_archive_max_records, int):
+            raise ValueError("direction_archive_max_records must be a positive integer")
+        if self.direction_archive_max_records <= 0:
+            raise ValueError("direction_archive_max_records must be a positive integer")
+        if self.direction_archive_path is not None and (
+            not isinstance(self.direction_archive_path, str) or self.direction_archive_path == ""
+        ):
+            raise ValueError("direction_archive_path must be None or a non-empty string")
         if self.stagnation_bond_pair_boost < 0:
             raise ValueError("stagnation_bond_pair_boost must be non-negative")
         if self.max_stagnation_bond_pairs is not None and self.max_stagnation_bond_pairs <= 0:
@@ -163,6 +252,10 @@ class SSWConfig:
             raise ValueError("history_push_weight must be non-negative")
         if self.continuity_weight < 0:
             raise ValueError("continuity_weight must be non-negative")
+        if not isfinite(self.direction_type_success_weight) or self.direction_type_success_weight < 0:
+            raise ValueError("direction_type_success_weight must be finite and non-negative")
+        if not isfinite(self.direction_type_exploration_weight) or self.direction_type_exploration_weight < 0:
+            raise ValueError("direction_type_exploration_weight must be finite and non-negative")
         if self.min_escape_energy_delta < 0:
             raise ValueError("min_escape_energy_delta must be non-negative")
         if self.min_escape_descriptor_delta < 0:
@@ -201,8 +294,26 @@ class SSWConfig:
             raise ValueError("direction_curvature_source must be inner or true")
         if self.direction_selection_mode not in {"discrete", "rayleigh_ritz"}:
             raise ValueError("direction_selection_mode must be discrete or rayleigh_ritz")
+        if self.direction_synthesis_mode not in {"none", "regularized_ritz"}:
+            raise ValueError("direction_synthesis_mode must be none or regularized_ritz")
+        if self.direction_selection_mode == "rayleigh_ritz" and self.direction_synthesis_mode == "regularized_ritz":
+            raise ValueError("direction_selection_mode rayleigh_ritz cannot be combined with regularized_ritz synthesis")
         if self.direction_score_sigma_mode not in {"adaptive", "trust_scaled", "fixed_reference"}:
             raise ValueError("direction_score_sigma_mode must be adaptive, trust_scaled, or fixed_reference")
+        if self.step_length_mode not in {"curvature_adaptive", "per_atom_rms"}:
+            raise ValueError("step_length_mode must be curvature_adaptive or per_atom_rms")
+        if self.step_rms_scope not in {"all_atoms", "active_atoms"}:
+            raise ValueError("step_rms_scope must be all_atoms or active_atoms")
+        if not isfinite(self.target_step_rms) or self.target_step_rms <= 0:
+            raise ValueError("target_step_rms must be positive")
+        if not isfinite(self.max_step_rms) or self.max_step_rms <= 0:
+            raise ValueError("max_step_rms must be positive")
+        if self.target_step_rms > self.max_step_rms:
+            raise ValueError("target_step_rms cannot exceed max_step_rms")
+        if not isfinite(self.step_active_threshold) or self.step_active_threshold <= 0:
+            raise ValueError("step_active_threshold must be positive")
+        if self.direction_diagnostics_enabled and self.direction_diagnostics_path is None:
+            raise ValueError("direction_diagnostics_path must be set when direction diagnostics are enabled")
         if self.write_proposal_minima and self.proposal_minima_dir is None:
             raise ValueError("proposal_minima_dir must be set when write_proposal_minima is enabled")
         if self.write_relaxation_trajectories and self.relaxation_trajectory_dir is None:
@@ -213,6 +324,10 @@ class SSWConfig:
             raise ValueError("fragment_guard_factor must be positive when set")
         if self.bond_distance_threshold is not None and self.bond_distance_threshold <= 0:
             raise ValueError("bond_distance_threshold must be positive when set")
+        if not isfinite(self.bond_formation_max_distance) or self.bond_formation_max_distance <= 0:
+            raise ValueError("bond_formation_max_distance must be finite and positive")
+        if not isfinite(self.bond_breaking_max_distance) or self.bond_breaking_max_distance <= 0:
+            raise ValueError("bond_breaking_max_distance must be finite and positive")
         if self.min_step_scale > self.max_step_scale:
             raise ValueError("min_step_scale cannot exceed max_step_scale")
         if self.lambda_bond_start > self.lambda_bond_end:
@@ -237,6 +352,8 @@ class LSSSWConfig(SSWConfig):
     local_softening_adaptive_strength: bool = False
     local_softening_max_strength_scale: float = 3.0
     local_softening_deviation_scale: float = 0.25
+    choice_aligned_softening_enabled: bool = False
+    choice_aligned_softening_cos_threshold: float = 0.3
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -258,6 +375,10 @@ class LSSSWConfig(SSWConfig):
             raise ValueError("local_softening_max_strength_scale must be at least 1")
         if self.local_softening_deviation_scale <= 0:
             raise ValueError("local_softening_deviation_scale must be positive")
+        if not isinstance(self.choice_aligned_softening_enabled, bool):
+            raise ValueError("choice_aligned_softening_enabled must be a boolean")
+        if not -1.0 <= self.choice_aligned_softening_cos_threshold <= 1.0:
+            raise ValueError("choice_aligned_softening_cos_threshold must be between -1 and 1")
         for pair in self.local_softening_pairs:
             if len(pair) != 2 or pair[0] == pair[1]:
                 raise ValueError("local_softening_pairs must contain distinct atom pairs")

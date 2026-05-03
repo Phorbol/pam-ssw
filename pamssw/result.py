@@ -6,6 +6,8 @@ from typing import Any
 
 from .state import State
 
+StatsValue = float | int | str | None
+
 
 class RelaxOutcomeClass(str, Enum):
     DAMAGED = "damaged"
@@ -46,4 +48,4 @@ class SearchResult:
     best_energy: float
     archive: Any
     walk_history: list[WalkRecord] = field(default_factory=list)
-    stats: dict[str, float | int] = field(default_factory=dict)
+    stats: dict[str, StatsValue] = field(default_factory=dict)

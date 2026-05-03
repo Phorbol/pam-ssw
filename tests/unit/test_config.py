@@ -125,6 +125,11 @@ def test_config_validates_anchor_mixing_alpha():
         SSWConfig(anchor_mixing_alpha=1.1)
 
 
+def test_config_accepts_deprecated_anchor_candidate_flag_for_compatibility():
+    assert SSWConfig().enable_anchor_candidate is False
+    assert SSWConfig(enable_anchor_candidate=True).enable_anchor_candidate is True
+
+
 def test_config_exposes_hvp_and_bias_safety_controls():
     config = SSWConfig(hvp_epsilon=1e-4, bias_weight_min=0.2, bias_weight_max=3.0)
 
@@ -140,6 +145,40 @@ def test_config_exposes_hvp_and_bias_safety_controls():
         SSWConfig(bias_weight_min=2.0, bias_weight_max=1.0)
     with pytest.raises(ValueError):
         SSWConfig(bias_weight_max=0.0)
+
+
+def test_config_defaults_to_per_atom_rms_step_length_controls():
+    config = SSWConfig()
+
+    assert config.step_length_mode == "per_atom_rms"
+    assert config.target_step_rms == pytest.approx(0.15)
+    assert config.max_step_rms == pytest.approx(0.35)
+    assert config.step_rms_scope == "all_atoms"
+    assert config.step_active_threshold == pytest.approx(1e-4)
+
+
+def test_config_validates_step_length_controls():
+    assert SSWConfig(step_length_mode="per_atom_rms").step_length_mode == "per_atom_rms"
+    assert SSWConfig(step_length_mode="curvature_adaptive").step_length_mode == "curvature_adaptive"
+
+    with pytest.raises(ValueError, match="step_length_mode"):
+        SSWConfig(step_length_mode="unknown")
+    with pytest.raises(ValueError, match="target_step_rms"):
+        SSWConfig(target_step_rms=0.0)
+    with pytest.raises(ValueError, match="max_step_rms"):
+        SSWConfig(max_step_rms=0.0)
+    with pytest.raises(ValueError, match="target_step_rms"):
+        SSWConfig(target_step_rms=0.4, max_step_rms=0.3)
+    with pytest.raises(ValueError, match="target_step_rms"):
+        SSWConfig(target_step_rms=float("nan"))
+    with pytest.raises(ValueError, match="max_step_rms"):
+        SSWConfig(max_step_rms=float("inf"))
+    with pytest.raises(ValueError, match="step_rms_scope"):
+        SSWConfig(step_rms_scope="surface")
+    with pytest.raises(ValueError, match="step_active_threshold"):
+        SSWConfig(step_active_threshold=0.0)
+    with pytest.raises(ValueError, match="step_active_threshold"):
+        SSWConfig(step_active_threshold=float("nan"))
 
 
 def test_config_allows_disabling_proposal_coordinate_box():
@@ -174,6 +213,145 @@ def test_config_validates_direction_curvature_source():
         SSWConfig(direction_curvature_source="biased")
 
 
+def test_config_accepts_default_off_choice_aligned_softening():
+    config = LSSSWConfig()
+    assert config.choice_aligned_softening_enabled is False
+    assert config.choice_aligned_softening_cos_threshold == pytest.approx(0.3)
+
+
+def test_config_accepts_default_off_direction_type_ucb():
+    config = SSWConfig()
+
+    assert config.direction_type_ucb_enabled is False
+    assert config.direction_type_success_weight == pytest.approx(0.0)
+    assert config.direction_type_exploration_weight == pytest.approx(0.1)
+    assert config.direction_type_ucb_window == 40
+
+
+def test_config_accepts_custom_direction_type_ucb_controls():
+    config = SSWConfig(
+        direction_type_ucb_enabled=True,
+        direction_type_success_weight=0.5,
+        direction_type_exploration_weight=0.25,
+        direction_type_ucb_window=7,
+    )
+
+    assert config.direction_type_ucb_enabled is True
+    assert config.direction_type_success_weight == pytest.approx(0.5)
+    assert config.direction_type_exploration_weight == pytest.approx(0.25)
+    assert config.direction_type_ucb_window == 7
+
+
+def test_config_accepts_default_off_direction_archive_controls():
+    config = SSWConfig()
+
+    assert config.direction_archive_enabled is False
+    assert config.direction_archive_max_records == 10000
+    assert config.direction_archive_success_only is False
+    assert config.direction_archive_path is None
+
+
+def test_config_accepts_default_off_physical_direction_priors():
+    config = SSWConfig()
+
+    assert config.random_direction_distribution == "unit_gaussian"
+    assert config.enable_bond_form_break_split is False
+    assert config.n_bond_formation_pairs == 2
+    assert config.n_bond_breaking_pairs == 1
+    assert config.bond_formation_max_distance == pytest.approx(4.0)
+    assert config.bond_breaking_max_distance == pytest.approx(2.0)
+
+
+def test_config_validates_physical_direction_priors():
+    assert SSWConfig(random_direction_distribution="mass_weighted").random_direction_distribution == "mass_weighted"
+
+    with pytest.raises(ValueError, match="random_direction_distribution"):
+        SSWConfig(random_direction_distribution="unknown")
+    with pytest.raises(ValueError, match="enable_bond_form_break_split"):
+        SSWConfig(enable_bond_form_break_split="yes")
+    for field_name in ("n_bond_formation_pairs", "n_bond_breaking_pairs"):
+        with pytest.raises(ValueError, match=field_name):
+            SSWConfig(**{field_name: -1})
+        with pytest.raises(ValueError, match=field_name):
+            SSWConfig(**{field_name: True})
+    for field_name in ("bond_formation_max_distance", "bond_breaking_max_distance"):
+        for value in (0.0, float("nan")):
+            with pytest.raises(ValueError, match=field_name):
+                SSWConfig(**{field_name: value})
+
+
+def test_ls_config_validates_choice_aligned_softening_enabled_type():
+    with pytest.raises(ValueError, match="choice_aligned_softening_enabled"):
+        LSSSWConfig(choice_aligned_softening_enabled="false")
+
+
+def test_config_accepts_custom_direction_archive_controls():
+    config = SSWConfig(
+        direction_archive_enabled=True,
+        direction_archive_max_records=25,
+        direction_archive_success_only=True,
+        direction_archive_path="directions.jsonl",
+    )
+
+    assert config.direction_archive_enabled is True
+    assert config.direction_archive_max_records == 25
+    assert config.direction_archive_success_only is True
+    assert config.direction_archive_path == "directions.jsonl"
+
+
+def test_config_rejects_non_bool_direction_archive_flags():
+    for field_name in ("direction_archive_enabled", "direction_archive_success_only"):
+        for value in (0, 1, "false"):
+            with pytest.raises(ValueError, match=field_name):
+                SSWConfig(**{field_name: value})
+
+
+def test_config_rejects_invalid_direction_archive_max_records():
+    for value in (0, -1, 1.5, True):
+        with pytest.raises(ValueError, match="direction_archive_max_records"):
+            SSWConfig(direction_archive_max_records=value)
+
+
+def test_config_rejects_invalid_direction_archive_path():
+    for value in ("", 1):
+        with pytest.raises(ValueError, match="direction_archive_path"):
+            SSWConfig(direction_archive_path=value)
+
+
+def test_config_rejects_negative_direction_type_ucb_weights():
+    with pytest.raises(ValueError, match="direction_type_success_weight"):
+        SSWConfig(direction_type_success_weight=-0.1)
+    with pytest.raises(ValueError, match="direction_type_exploration_weight"):
+        SSWConfig(direction_type_exploration_weight=-0.1)
+
+
+def test_config_rejects_nonfinite_direction_type_ucb_weights():
+    for value in (float("nan"), float("inf"), -float("inf")):
+        with pytest.raises(ValueError, match="direction_type_success_weight"):
+            SSWConfig(direction_type_success_weight=value)
+        with pytest.raises(ValueError, match="direction_type_exploration_weight"):
+            SSWConfig(direction_type_exploration_weight=value)
+
+
+def test_config_rejects_non_bool_direction_type_ucb_enabled():
+    for value in (0, 1, "false"):
+        with pytest.raises(ValueError, match="direction_type_ucb_enabled"):
+            SSWConfig(direction_type_ucb_enabled=value)
+
+
+def test_config_rejects_invalid_direction_type_ucb_window():
+    for value in (0, -1, 1.5, True):
+        with pytest.raises(ValueError, match="direction_type_ucb_window"):
+            SSWConfig(direction_type_ucb_window=value)
+
+
+def test_config_validates_choice_aligned_softening_threshold():
+    with pytest.raises(ValueError, match="choice_aligned_softening_cos_threshold"):
+        LSSSWConfig(choice_aligned_softening_cos_threshold=-1.1)
+    with pytest.raises(ValueError, match="choice_aligned_softening_cos_threshold"):
+        LSSSWConfig(choice_aligned_softening_cos_threshold=1.1)
+
+
 def test_config_validates_direction_selection_mode():
     assert SSWConfig().direction_selection_mode == "discrete"
     assert SSWConfig(direction_selection_mode="discrete").direction_selection_mode == "discrete"
@@ -181,6 +359,80 @@ def test_config_validates_direction_selection_mode():
 
     with pytest.raises(ValueError, match="direction_selection_mode"):
         SSWConfig(direction_selection_mode="unknown")
+
+
+def test_config_accepts_regularized_ritz_synthesis_mode():
+    assert SSWConfig().direction_synthesis_mode == "none"
+    assert SSWConfig(direction_synthesis_mode="regularized_ritz").direction_synthesis_mode == "regularized_ritz"
+    assert SSWConfig(regularized_ritz_top_k=3).regularized_ritz_top_k == 3
+
+
+def test_config_rejects_unimplemented_direction_synthesis_modes():
+    with pytest.raises(ValueError, match="direction_synthesis_mode"):
+        SSWConfig(direction_synthesis_mode="unknown")
+    with pytest.raises(ValueError, match="direction_synthesis_mode"):
+        SSWConfig(direction_synthesis_mode="evolution_on_plateau")
+
+
+def test_config_rejects_ambiguous_ritz_selector_and_synthesis_combo():
+    with pytest.raises(ValueError, match="direction_selection_mode"):
+        SSWConfig(direction_selection_mode="rayleigh_ritz", direction_synthesis_mode="regularized_ritz")
+
+
+def test_config_validates_regularized_ritz_top_k():
+    for value in (0, -1, 1.5, True):
+        with pytest.raises(ValueError, match="regularized_ritz_top_k"):
+            SSWConfig(regularized_ritz_top_k=value)
+
+
+def test_config_accepts_default_off_plateau_evolution_controls():
+    config = SSWConfig()
+
+    assert config.plateau_evolution_enabled is False
+    assert config.plateau_patience_trials == 20
+    assert config.plateau_evolution_children == 5
+    assert config.plateau_evolution_crossover_pairs == 3
+    assert config.plateau_evolution_mutation_count == 2
+    assert config.plateau_evolution_history_limit == 10
+
+
+def test_config_validates_plateau_evolution_controls():
+    assert SSWConfig(plateau_evolution_enabled=True).plateau_evolution_enabled is True
+    for field_name in (
+        "plateau_patience_trials",
+        "plateau_evolution_children",
+        "plateau_evolution_crossover_pairs",
+        "plateau_evolution_mutation_count",
+        "plateau_evolution_history_limit",
+    ):
+        with pytest.raises(ValueError, match=field_name):
+            SSWConfig(**{field_name: 0})
+        with pytest.raises(ValueError, match=field_name):
+            SSWConfig(**{field_name: 1.5})
+    with pytest.raises(ValueError, match="plateau_evolution_enabled"):
+        SSWConfig(plateau_evolution_enabled="yes")
+
+
+def test_config_accepts_default_off_archive_escape_momentum_controls():
+    config = SSWConfig()
+
+    assert config.archive_escape_momentum_enabled is False
+    assert config.archive_escape_momentum_limit == 2
+    assert config.archive_escape_momentum_history_limit == 16
+    assert config.archive_escape_momentum_same_seed_first is True
+
+
+def test_config_validates_archive_escape_momentum_controls():
+    assert SSWConfig(archive_escape_momentum_enabled=True).archive_escape_momentum_enabled is True
+    with pytest.raises(ValueError, match="archive_escape_momentum_enabled"):
+        SSWConfig(archive_escape_momentum_enabled="yes")
+    with pytest.raises(ValueError, match="archive_escape_momentum_same_seed_first"):
+        SSWConfig(archive_escape_momentum_same_seed_first="yes")
+    for field_name in ("archive_escape_momentum_limit", "archive_escape_momentum_history_limit"):
+        with pytest.raises(ValueError, match=field_name):
+            SSWConfig(**{field_name: 0})
+        with pytest.raises(ValueError, match=field_name):
+            SSWConfig(**{field_name: 1.5})
 
 
 def test_config_validates_direction_score_sigma_mode():
@@ -191,6 +443,23 @@ def test_config_validates_direction_score_sigma_mode():
 
     with pytest.raises(ValueError, match="direction_score_sigma_mode"):
         SSWConfig(direction_score_sigma_mode="unknown")
+    with pytest.raises(ValueError, match="direction_score_sigma_mode"):
+        SSWConfig(direction_score_sigma_mode="curvature_adaptive")
+
+
+def test_config_accepts_default_off_direction_diagnostics():
+    config = SSWConfig(direction_diagnostics_enabled=False)
+    assert config.direction_diagnostics_enabled is False
+    assert config.direction_diagnostics_path is None
+
+
+def test_config_requires_path_when_direction_diagnostics_enabled():
+    config = SSWConfig(direction_diagnostics_enabled=True, direction_diagnostics_path="trace.jsonl")
+    assert config.direction_diagnostics_enabled is True
+    assert config.direction_diagnostics_path == "trace.jsonl"
+
+    with pytest.raises(ValueError, match="direction_diagnostics_path"):
+        SSWConfig(direction_diagnostics_enabled=True)
 
 
 def test_config_validates_step_length_controller_controls():
@@ -205,6 +474,17 @@ def test_config_validates_step_length_controller_controls():
         SSWConfig(step_gamma_down=0.0)
     with pytest.raises(ValueError, match="step_gamma_up"):
         SSWConfig(step_gamma_up=0.0)
+
+
+def test_config_rejects_unimplemented_direction_synthesis_controls():
+    with pytest.raises(TypeError):
+        SSWConfig(soft_mode_lanczos_enabled=True)
+    with pytest.raises(TypeError):
+        SSWConfig(walk_trace_enabled=True, walk_trace_dir="trace")
+    with pytest.raises(TypeError):
+        SSWConfig(early_exit_enabled=True)
+    with pytest.raises(TypeError):
+        SSWConfig(direction_true_curvature_guard_enabled=True)
 
 
 def test_config_validates_quench_maxiter():
