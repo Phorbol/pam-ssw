@@ -1,0 +1,12 @@
+task: reference_dimer_component_ablation
+date: 2026-06-01
+approved_scope: design approved; implementation and benchmark plan pending explicit execution approval
+repo_worktree: /tmp/SSW-worktrees/direct-qp-ssw
+reference_repo: /tmp/ssw-reference
+systems:
+  phase1: [c60]
+  phase2: [cuo, pdo]
+seeds: [0, 1, 2]
+trials_per_seed: 40
+device: cuda
+model_default: /root/.cache/mace/mace-omat-0-small.model

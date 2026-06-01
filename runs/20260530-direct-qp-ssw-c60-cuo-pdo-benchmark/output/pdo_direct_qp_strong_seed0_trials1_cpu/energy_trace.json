@@ -1,0 +1,16 @@
+[
+  {
+    "accepted_new_basin": true,
+    "best_energy": -568.3695068359375,
+    "energy": -568.3695068359375,
+    "step": 0
+  },
+  {
+    "accepted_new_basin": true,
+    "best_energy": -568.3721313476562,
+    "discovered_entry_id": 1,
+    "energy": -568.3721313476562,
+    "seed_entry_id": 0,
+    "step": 1
+  }
+]

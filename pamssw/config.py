@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from math import isfinite
+from numbers import Real
 
 from .acquisition import SearchMode
 
@@ -42,6 +43,32 @@ class SSWConfig:
     bias_weight_min: float = 0.0
     bias_weight_max: float = 10.0
     proposal_trust_radius: float | None = 1.5
+    proposal_step_mode: str = "bias_relax"
+    direct_qp_hessian: str = "scalar"
+    direct_qp_gamma: float = 1.0
+    direct_qp_gamma_mode: str = "constant"
+    direct_qp_gamma_history_quantile: float = 0.25
+    direct_qp_gamma_history_min_samples: int = 4
+    direct_qp_gamma_history_maxlen: int = 128
+    direct_qp_gamma_model_error_threshold: float = 2.0
+    direct_qp_gamma_model_error_streak: int = 2
+    direct_qp_kappa: float = 4.0
+    direct_qp_kappa_mode: str = "constant"
+    direct_qp_kappa_curvature_ratio: float = 15.0
+    direct_qp_kappa_max: float = 240.0
+    direct_qp_micro_steps: int = 0
+    direct_qp_micro_mode: str = "always"
+    direct_qp_micro_max_steps: int = 20
+    direct_qp_micro_model_error_threshold: float = 2.0
+    direct_qp_micro_model_error_high: float = 10.0
+    direct_qp_micro_optimizer: str = "scipy-lbfgsb"
+    direct_qp_micro_fmax: float = 0.2
+    direct_qp_micro_trust_radius: float = 0.25
+    direct_qp_min_trust_radius: float = 0.05
+    direct_qp_shrink_factor: float = 0.5
+    direct_qp_expand_factor: float = 1.2
+    direct_qp_accept_model_error: float = 2.0
+    direct_qp_accept_min_progress_fraction: float = -0.25
     walk_trust_radius: float = 4.0
     fragment_guard_factor: float | None = None
     anchor_weight: float = 0.5
@@ -85,6 +112,15 @@ class SSWConfig:
     write_relaxation_trajectories: bool = False
     relaxation_trajectory_dir: str | None = None
     relaxation_trajectory_stride: int = 1
+    direction_engine: str = "scored_pool"
+    reference_dimer_delta: float = 0.005
+    reference_dimer_bias_strength: float = 500.0
+    reference_dimer_max_steps: int = 15
+    reference_dimer_rotation_tol: float = 0.03
+    reference_dimer_angular_step: float = 0.05
+    reference_dimer_lambda_min: float = 0.1
+    reference_dimer_lambda_max: float = 1.5
+    reference_dimer_min_pair_distance: float = 3.0
     direction_curvature_source: str = "inner"
     direction_selection_mode: str = "discrete"
     direction_synthesis_mode: str = "none"
@@ -94,6 +130,7 @@ class SSWConfig:
     direction_type_success_weight: float = 0.0
     direction_type_exploration_weight: float = 0.1
     direction_type_ucb_window: int = 40
+    direction_pool_disable_momentum: bool = False
     direction_archive_enabled: bool = False
     direction_archive_max_records: int = 10000
     direction_archive_success_only: bool = False
@@ -133,6 +170,8 @@ class SSWConfig:
     proposal_optimizer_alt: str | None = None
     proposal_duplicate_rescue_optimizer: str | None = None
     max_energy_drop_per_atom: float | None = 5.0
+    early_exit_enabled: bool = True
+    early_exit_energy_tol: float = 1e-6
     direction_diagnostics_enabled: bool = False
     direction_diagnostics_path: str | None = None
 
@@ -190,6 +229,10 @@ class SSWConfig:
             raise ValueError("direction_type_ucb_window must be a positive integer")
         if not isinstance(self.direction_type_ucb_enabled, bool):
             raise ValueError("direction_type_ucb_enabled must be a boolean")
+        if not isinstance(self.direction_pool_disable_momentum, bool):
+            raise ValueError("direction_pool_disable_momentum must be a boolean")
+        if not isinstance(self.early_exit_enabled, bool):
+            raise ValueError("early_exit_enabled must be a boolean")
         if not isinstance(self.direction_archive_enabled, bool):
             raise ValueError("direction_archive_enabled must be a boolean")
         if not isinstance(self.direction_archive_success_only, bool):
@@ -202,6 +245,38 @@ class SSWConfig:
             not isinstance(self.direction_archive_path, str) or self.direction_archive_path == ""
         ):
             raise ValueError("direction_archive_path must be None or a non-empty string")
+        if self.direction_engine not in {"scored_pool", "reference_dimer"}:
+            raise ValueError("direction_engine must be scored_pool or reference_dimer")
+        for name in (
+            "reference_dimer_delta",
+            "reference_dimer_bias_strength",
+            "reference_dimer_rotation_tol",
+            "reference_dimer_angular_step",
+            "reference_dimer_min_pair_distance",
+        ):
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, Real) or not isfinite(value) or value <= 0:
+                raise ValueError(f"{name} must be positive")
+        if isinstance(self.reference_dimer_max_steps, bool) or not isinstance(self.reference_dimer_max_steps, int):
+            raise ValueError("reference_dimer_max_steps must be a positive integer")
+        if self.reference_dimer_max_steps <= 0:
+            raise ValueError("reference_dimer_max_steps must be a positive integer")
+        if (
+            isinstance(self.reference_dimer_lambda_min, bool)
+            or not isinstance(self.reference_dimer_lambda_min, Real)
+            or not isfinite(self.reference_dimer_lambda_min)
+            or self.reference_dimer_lambda_min < 0
+        ):
+            raise ValueError("reference_dimer_lambda_min must be finite and non-negative")
+        if (
+            isinstance(self.reference_dimer_lambda_max, bool)
+            or not isinstance(self.reference_dimer_lambda_max, Real)
+            or not isfinite(self.reference_dimer_lambda_max)
+            or self.reference_dimer_lambda_max < 0
+        ):
+            raise ValueError("reference_dimer_lambda_max must be finite and non-negative")
+        if self.reference_dimer_lambda_min > self.reference_dimer_lambda_max:
+            raise ValueError("reference_dimer_lambda_min cannot exceed reference_dimer_lambda_max")
         if self.stagnation_bond_pair_boost < 0:
             raise ValueError("stagnation_bond_pair_boost must be non-negative")
         if self.max_stagnation_bond_pairs is not None and self.max_stagnation_bond_pairs <= 0:
@@ -210,6 +285,13 @@ class SSWConfig:
             raise ValueError("max_force_evals must be positive when set")
         if self.max_energy_drop_per_atom is not None and self.max_energy_drop_per_atom <= 0:
             raise ValueError("max_energy_drop_per_atom must be positive when set")
+        if (
+            isinstance(self.early_exit_energy_tol, bool)
+            or not isinstance(self.early_exit_energy_tol, Real)
+            or not isfinite(self.early_exit_energy_tol)
+            or self.early_exit_energy_tol < 0.0
+        ):
+            raise ValueError("early_exit_energy_tol must be finite and non-negative")
         if self.same_seed_max_consecutive is not None and self.same_seed_max_consecutive <= 0:
             raise ValueError("same_seed_max_consecutive must be positive when set")
         positive_floats = {
@@ -272,6 +354,65 @@ class SSWConfig:
             raise ValueError("novelty_probe_scales must contain positive values")
         if self.proposal_trust_radius is not None and self.proposal_trust_radius <= 0:
             raise ValueError("proposal_trust_radius must be positive when set")
+        if self.proposal_step_mode not in {"bias_relax", "direct_qp"}:
+            raise ValueError("proposal_step_mode must be bias_relax or direct_qp")
+        if self.direct_qp_hessian not in {"scalar", "rank1"}:
+            raise ValueError("direct_qp_hessian must be scalar or rank1")
+        if self.direct_qp_gamma_mode not in {"constant", "curvature_history", "model_error_gated_history"}:
+            raise ValueError("direct_qp_gamma_mode must be constant, curvature_history, or model_error_gated_history")
+        for name in (
+            "direct_qp_gamma_history_min_samples",
+            "direct_qp_gamma_history_maxlen",
+            "direct_qp_gamma_model_error_streak",
+        ):
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+                raise ValueError(f"{name} must be a positive integer")
+        if isinstance(self.direct_qp_micro_steps, bool) or not isinstance(self.direct_qp_micro_steps, int):
+            raise ValueError("direct_qp_micro_steps must be a non-negative integer")
+        if self.direct_qp_micro_steps < 0:
+            raise ValueError("direct_qp_micro_steps must be a non-negative integer")
+        if isinstance(self.direct_qp_micro_max_steps, bool) or not isinstance(self.direct_qp_micro_max_steps, int):
+            raise ValueError("direct_qp_micro_max_steps must be a non-negative integer")
+        if self.direct_qp_micro_max_steps < 0:
+            raise ValueError("direct_qp_micro_max_steps must be a non-negative integer")
+        if self.direct_qp_micro_mode not in {"off", "always", "model_error", "adaptive_model_error"}:
+            raise ValueError("direct_qp_micro_mode must be off, always, model_error, or adaptive_model_error")
+        if not isfinite(self.direct_qp_gamma_model_error_threshold) or self.direct_qp_gamma_model_error_threshold <= 0.0:
+            raise ValueError("direct_qp_gamma_model_error_threshold must be positive")
+        if (
+            not isfinite(self.direct_qp_gamma_history_quantile)
+            or not 0.0 < self.direct_qp_gamma_history_quantile < 1.0
+        ):
+            raise ValueError("direct_qp_gamma_history_quantile must be between 0 and 1")
+        if self.direct_qp_kappa_mode not in {"constant", "adaptive_curvature"}:
+            raise ValueError("direct_qp_kappa_mode must be constant or adaptive_curvature")
+        for name in (
+            "direct_qp_gamma",
+            "direct_qp_kappa",
+            "direct_qp_kappa_curvature_ratio",
+            "direct_qp_kappa_max",
+            "direct_qp_micro_model_error_threshold",
+            "direct_qp_micro_model_error_high",
+            "direct_qp_micro_fmax",
+            "direct_qp_micro_trust_radius",
+            "direct_qp_min_trust_radius",
+        ):
+            value = getattr(self, name)
+            if not isfinite(value) or value <= 0:
+                raise ValueError(f"{name} must be positive")
+        if self.direct_qp_micro_model_error_high < self.direct_qp_micro_model_error_threshold:
+            raise ValueError("direct_qp_micro_model_error_high cannot be below direct_qp_micro_model_error_threshold")
+        if self.direct_qp_micro_optimizer not in {"scipy-lbfgsb", "ase-fire", "ase-lbfgs"}:
+            raise ValueError("direct_qp_micro_optimizer must be scipy-lbfgsb, ase-fire, or ase-lbfgs")
+        if not isfinite(self.direct_qp_shrink_factor) or not 0.0 < self.direct_qp_shrink_factor < 1.0:
+            raise ValueError("direct_qp_shrink_factor must be between 0 and 1")
+        if not isfinite(self.direct_qp_expand_factor) or self.direct_qp_expand_factor <= 1.0:
+            raise ValueError("direct_qp_expand_factor must be greater than 1")
+        if not isfinite(self.direct_qp_accept_model_error) or self.direct_qp_accept_model_error <= 0.0:
+            raise ValueError("direct_qp_accept_model_error must be positive")
+        if not isfinite(self.direct_qp_accept_min_progress_fraction):
+            raise ValueError("direct_qp_accept_min_progress_fraction must be finite")
         if self.seed_selection_mode not in {"archive_ucb", "metropolis_chain"}:
             raise ValueError("seed_selection_mode must be archive_ucb or metropolis_chain")
         if self.anchor_mixing_alpha is not None and not 0.0 <= self.anchor_mixing_alpha <= 1.0:

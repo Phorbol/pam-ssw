@@ -1,0 +1,24 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "results_csv",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-c60-curvature-diagnostics/results.csv",
+      "type": "csv"
+    },
+    {
+      "artifact_id": "results_json",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-c60-curvature-diagnostics/results.json",
+      "type": "json"
+    },
+    {
+      "artifact_id": "summary_md",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-c60-curvature-diagnostics/summary.md",
+      "type": "markdown"
+    },
+    {
+      "artifact_id": "case_outputs",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-c60-curvature-diagnostics/output",
+      "type": "directory"
+    }
+  ]
+}

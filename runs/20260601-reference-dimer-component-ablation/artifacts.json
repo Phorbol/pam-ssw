@@ -1,0 +1,34 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "results_csv",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-reference-dimer-component-ablation/results.csv",
+      "type": "csv"
+    },
+    {
+      "artifact_id": "results_json",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-reference-dimer-component-ablation/results.json",
+      "type": "json"
+    },
+    {
+      "artifact_id": "summary_md",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-reference-dimer-component-ablation/summary.md",
+      "type": "markdown"
+    },
+    {
+      "artifact_id": "event_log",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-reference-dimer-component-ablation/event_log.jsonl",
+      "type": "jsonl"
+    },
+    {
+      "artifact_id": "status_md",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-reference-dimer-component-ablation/status.md",
+      "type": "markdown"
+    },
+    {
+      "artifact_id": "phase1_output_dir",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-reference-dimer-component-ablation/output",
+      "type": "directory"
+    }
+  ]
+}

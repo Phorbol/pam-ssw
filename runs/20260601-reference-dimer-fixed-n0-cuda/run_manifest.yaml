@@ -1,0 +1,19 @@
+task: reference_dimer_fixed_n0_cuda_validation
+date: 2026-06-01
+approval_text: user requested "修正这个问题然后开启新的测试"
+repo_worktree: /tmp/SSW-worktrees/direct-qp-ssw
+fix_under_test:
+  description: reuse one sampled reference-dimer initial mode N0 across all internal climb steps in a single walk
+  files:
+    - pamssw/walker.py
+    - tests/unit/test_walker_policy.py
+systems: [c60]
+variants:
+  - paw_ucb_reference_dimer_bias_relax
+  - paw_ucb_reference_dimer_direct_qp_adaptive50
+seeds: [0, 1, 2]
+trials_per_seed: 40
+steps_per_walk: 8
+device: cuda
+model_default: /root/.cache/mace/mace-omat-0-small.model
+reference_previous_ledger: runs/20260601-reference-dimer-component-ablation

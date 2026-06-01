@@ -1,0 +1,22 @@
+{
+  "rows": [
+    {
+      "best_energy": -495.8002014160156,
+      "bias_steps": 145,
+      "device": "cuda",
+      "direct_qp_rejected": 0,
+      "direct_qp_steps": 0,
+      "duplicate_rate": 0.36585365853658536,
+      "energy_evaluations": 16432,
+      "force_evaluations": 16432,
+      "n_minima": 26,
+      "reference_dimer_converged": 0,
+      "reference_dimer_steps": 145,
+      "seed": 0,
+      "summary_path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-reference-dimer-hybrid-curvature-c60/output/c60_paw_ucb_reference_dimer_bias_relax_seed0_trials40_cuda/ssw_summary.json",
+      "system": "c60",
+      "variant": "paw_ucb_reference_dimer_bias_relax",
+      "wall_time_s": 329.78496646881104
+    }
+  ]
+}

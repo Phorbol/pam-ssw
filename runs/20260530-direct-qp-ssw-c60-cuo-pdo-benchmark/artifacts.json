@@ -1,0 +1,19 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "results_csv",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260530-direct-qp-ssw-c60-cuo-pdo-benchmark/results.csv",
+      "type": "csv"
+    },
+    {
+      "artifact_id": "results_json",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260530-direct-qp-ssw-c60-cuo-pdo-benchmark/results.json",
+      "type": "json"
+    },
+    {
+      "artifact_id": "summary_md",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260530-direct-qp-ssw-c60-cuo-pdo-benchmark/summary.md",
+      "type": "markdown"
+    }
+  ]
+}

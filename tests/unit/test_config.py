@@ -17,6 +17,12 @@ def test_configs_keep_high_level_defaults_only():
     assert ls.local_softening_pairs == [(0, 1)]
 
 
+def test_config_accepts_direction_pool_disable_momentum():
+    config = SSWConfig(direction_pool_disable_momentum=True)
+
+    assert config.direction_pool_disable_momentum is True
+
+
 def test_ls_ssw_defaults_to_neighbor_auto_mode():
     config = LSSSWConfig()
 
@@ -94,6 +100,164 @@ def test_config_allows_zero_proposal_relax_steps_only_for_no_relax_ablation():
 
     with pytest.raises(ValueError, match="proposal_relax_steps"):
         SSWConfig(proposal_relax_steps=-1)
+
+
+def test_direct_qp_config_defaults_keep_bias_relax_mode():
+    config = SSWConfig()
+
+    assert config.proposal_step_mode == "bias_relax"
+    assert config.direct_qp_hessian == "scalar"
+    assert config.direct_qp_gamma > 0.0
+    assert config.direct_qp_kappa > 0.0
+
+
+def test_direct_qp_config_accepts_scalar_and_rank1_modes():
+    config = SSWConfig(
+        proposal_step_mode="direct_qp",
+        direct_qp_hessian="rank1",
+        direct_qp_gamma=2.0,
+        direct_qp_kappa=8.0,
+        direct_qp_gamma_mode="curvature_history",
+        direct_qp_gamma_history_quantile=0.5,
+        direct_qp_gamma_history_min_samples=3,
+        direct_qp_gamma_history_maxlen=64,
+        direct_qp_gamma_model_error_threshold=3.0,
+        direct_qp_gamma_model_error_streak=2,
+        direct_qp_micro_steps=3,
+        direct_qp_micro_mode="adaptive_model_error",
+        direct_qp_micro_max_steps=18,
+        direct_qp_micro_model_error_threshold=2.5,
+        direct_qp_micro_model_error_high=8.0,
+        direct_qp_micro_optimizer="ase-fire",
+        direct_qp_micro_fmax=0.2,
+        direct_qp_micro_trust_radius=0.25,
+        direct_qp_kappa_mode="adaptive_curvature",
+        direct_qp_kappa_curvature_ratio=12.0,
+        direct_qp_kappa_max=240.0,
+        direct_qp_min_trust_radius=0.02,
+    )
+
+    assert config.proposal_step_mode == "direct_qp"
+    assert config.direct_qp_hessian == "rank1"
+    assert config.direct_qp_gamma == pytest.approx(2.0)
+    assert config.direct_qp_gamma_mode == "curvature_history"
+    assert config.direct_qp_gamma_history_quantile == pytest.approx(0.5)
+    assert config.direct_qp_gamma_history_min_samples == 3
+    assert config.direct_qp_gamma_history_maxlen == 64
+    assert config.direct_qp_gamma_model_error_threshold == pytest.approx(3.0)
+    assert config.direct_qp_gamma_model_error_streak == 2
+    assert config.direct_qp_micro_steps == 3
+    assert config.direct_qp_micro_mode == "adaptive_model_error"
+    assert config.direct_qp_micro_max_steps == 18
+    assert config.direct_qp_micro_model_error_threshold == pytest.approx(2.5)
+    assert config.direct_qp_micro_model_error_high == pytest.approx(8.0)
+    assert config.direct_qp_micro_optimizer == "ase-fire"
+    assert config.direct_qp_micro_fmax == pytest.approx(0.2)
+    assert config.direct_qp_micro_trust_radius == pytest.approx(0.25)
+    assert config.direct_qp_kappa == pytest.approx(8.0)
+    assert config.direct_qp_kappa_mode == "adaptive_curvature"
+    assert config.direct_qp_kappa_curvature_ratio == pytest.approx(12.0)
+    assert config.direct_qp_kappa_max == pytest.approx(240.0)
+
+
+@pytest.mark.parametrize("mode", ["qp", "lbfgs", "", "bias"])
+def test_direct_qp_config_rejects_unknown_step_mode(mode):
+    with pytest.raises(ValueError, match="proposal_step_mode"):
+        SSWConfig(proposal_step_mode=mode)
+
+
+def test_direct_qp_config_rejects_unknown_micro_optimizer():
+    with pytest.raises(ValueError, match="direct_qp_micro_optimizer"):
+        SSWConfig(proposal_step_mode="direct_qp", direct_qp_micro_optimizer="cg")
+
+
+def test_direct_qp_config_rejects_unknown_micro_mode():
+    with pytest.raises(ValueError, match="direct_qp_micro_mode"):
+        SSWConfig(proposal_step_mode="direct_qp", direct_qp_micro_mode="sometimes")
+
+
+def test_direct_qp_config_rejects_non_scalar_hessian_for_mvp():
+    with pytest.raises(ValueError, match="direct_qp_hessian"):
+        SSWConfig(proposal_step_mode="direct_qp", direct_qp_hessian="lbfgs")
+
+
+def test_direct_qp_config_rejects_unknown_kappa_mode():
+    with pytest.raises(ValueError, match="direct_qp_kappa_mode"):
+        SSWConfig(proposal_step_mode="direct_qp", direct_qp_kappa_mode="unknown")
+
+
+def test_direct_qp_config_rejects_unknown_gamma_mode():
+    with pytest.raises(ValueError, match="direct_qp_gamma_mode"):
+        SSWConfig(proposal_step_mode="direct_qp", direct_qp_gamma_mode="unknown")
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "direct_qp_gamma",
+        "direct_qp_gamma_model_error_threshold",
+        "direct_qp_kappa",
+        "direct_qp_kappa_curvature_ratio",
+        "direct_qp_kappa_max",
+        "direct_qp_micro_model_error_threshold",
+        "direct_qp_micro_model_error_high",
+        "direct_qp_micro_fmax",
+        "direct_qp_micro_trust_radius",
+        "direct_qp_min_trust_radius",
+    ],
+)
+def test_direct_qp_config_rejects_nonpositive_positive_fields(field):
+    with pytest.raises(ValueError, match=field):
+        SSWConfig(**{field: 0.0})
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "direct_qp_gamma_history_min_samples",
+        "direct_qp_gamma_history_maxlen",
+        "direct_qp_gamma_model_error_streak",
+    ],
+)
+def test_direct_qp_config_rejects_nonpositive_integer_fields(field):
+    with pytest.raises(ValueError, match=field):
+        SSWConfig(**{field: 0})
+
+
+def test_direct_qp_config_allows_zero_micro_steps_and_rejects_negative():
+    assert SSWConfig(direct_qp_micro_steps=0).direct_qp_micro_steps == 0
+    with pytest.raises(ValueError, match="direct_qp_micro_steps"):
+        SSWConfig(direct_qp_micro_steps=-1)
+
+
+def test_direct_qp_config_allows_zero_micro_max_steps_and_rejects_negative():
+    assert SSWConfig(direct_qp_micro_max_steps=0).direct_qp_micro_max_steps == 0
+    with pytest.raises(ValueError, match="direct_qp_micro_max_steps"):
+        SSWConfig(direct_qp_micro_max_steps=-1)
+
+
+def test_direct_qp_config_rejects_micro_high_below_threshold():
+    with pytest.raises(ValueError, match="direct_qp_micro_model_error_high"):
+        SSWConfig(direct_qp_micro_model_error_threshold=3.0, direct_qp_micro_model_error_high=2.0)
+
+
+def test_direct_qp_config_rejects_invalid_gamma_history_quantile():
+    with pytest.raises(ValueError, match="direct_qp_gamma_history_quantile"):
+        SSWConfig(direct_qp_gamma_history_quantile=0.0)
+    with pytest.raises(ValueError, match="direct_qp_gamma_history_quantile"):
+        SSWConfig(direct_qp_gamma_history_quantile=1.0)
+
+
+def test_direct_qp_config_validates_trust_update_controls():
+    assert SSWConfig(direct_qp_shrink_factor=0.2).direct_qp_shrink_factor == pytest.approx(0.2)
+    assert SSWConfig(direct_qp_expand_factor=1.5).direct_qp_expand_factor == pytest.approx(1.5)
+
+    with pytest.raises(ValueError, match="direct_qp_shrink_factor"):
+        SSWConfig(direct_qp_shrink_factor=1.0)
+    with pytest.raises(ValueError, match="direct_qp_expand_factor"):
+        SSWConfig(direct_qp_expand_factor=1.0)
+    with pytest.raises(ValueError, match="direct_qp_accept_model_error"):
+        SSWConfig(direct_qp_accept_model_error=0.0)
 
 
 def test_config_validates_seed_diversity_limit():
@@ -211,6 +375,64 @@ def test_config_validates_direction_curvature_source():
 
     with pytest.raises(ValueError, match="direction_curvature_source"):
         SSWConfig(direction_curvature_source="biased")
+
+
+def test_config_accepts_reference_dimer_direction_engine_defaults():
+    config = SSWConfig(direction_engine="reference_dimer")
+
+    assert config.direction_engine == "reference_dimer"
+    assert config.reference_dimer_delta == pytest.approx(0.005)
+    assert config.reference_dimer_bias_strength == pytest.approx(500.0)
+    assert config.reference_dimer_max_steps == 15
+    assert config.reference_dimer_rotation_tol == pytest.approx(0.03)
+    assert config.reference_dimer_angular_step == pytest.approx(0.05)
+    assert config.reference_dimer_lambda_min == pytest.approx(0.1)
+    assert config.reference_dimer_lambda_max == pytest.approx(1.5)
+    assert config.reference_dimer_min_pair_distance == pytest.approx(3.0)
+
+
+def test_config_rejects_invalid_reference_dimer_controls():
+    with pytest.raises(ValueError, match="direction_engine"):
+        SSWConfig(direction_engine="unknown")
+    with pytest.raises(ValueError, match="reference_dimer_delta"):
+        SSWConfig(reference_dimer_delta=0.0)
+    with pytest.raises(ValueError, match="reference_dimer_bias_strength"):
+        SSWConfig(reference_dimer_bias_strength=0.0)
+    with pytest.raises(ValueError, match="reference_dimer_max_steps"):
+        SSWConfig(reference_dimer_max_steps=0)
+    with pytest.raises(ValueError, match="reference_dimer_rotation_tol"):
+        SSWConfig(reference_dimer_rotation_tol=0.0)
+    with pytest.raises(ValueError, match="reference_dimer_angular_step"):
+        SSWConfig(reference_dimer_angular_step=0.0)
+    with pytest.raises(ValueError, match="reference_dimer_lambda_min"):
+        SSWConfig(reference_dimer_lambda_min=-0.1)
+    with pytest.raises(ValueError, match="reference_dimer_lambda"):
+        SSWConfig(reference_dimer_lambda_min=2.0, reference_dimer_lambda_max=1.0)
+    with pytest.raises(ValueError, match="reference_dimer_min_pair_distance"):
+        SSWConfig(reference_dimer_min_pair_distance=0.0)
+
+
+def test_config_rejects_non_real_reference_dimer_float_controls():
+    with pytest.raises(ValueError, match="reference_dimer_delta"):
+        SSWConfig(reference_dimer_delta=True)
+    with pytest.raises(ValueError, match="reference_dimer_delta"):
+        SSWConfig(reference_dimer_delta="1.0")
+    with pytest.raises(ValueError, match="reference_dimer_lambda_min"):
+        SSWConfig(reference_dimer_lambda_min=True)
+    with pytest.raises(ValueError, match="reference_dimer_lambda_max"):
+        SSWConfig(reference_dimer_lambda_max="1.0")
+    with pytest.raises(ValueError, match="reference_dimer_delta"):
+        SSWConfig(reference_dimer_delta=float("nan"))
+    with pytest.raises(ValueError, match="reference_dimer_delta"):
+        SSWConfig(reference_dimer_delta=float("inf"))
+    with pytest.raises(ValueError, match="reference_dimer_lambda_min"):
+        SSWConfig(reference_dimer_lambda_min=float("nan"))
+    with pytest.raises(ValueError, match="reference_dimer_lambda_min"):
+        SSWConfig(reference_dimer_lambda_min=float("inf"))
+    with pytest.raises(ValueError, match="reference_dimer_lambda_max"):
+        SSWConfig(reference_dimer_lambda_max=float("nan"))
+    with pytest.raises(ValueError, match="reference_dimer_lambda_max"):
+        SSWConfig(reference_dimer_lambda_max=float("inf"))
 
 
 def test_config_accepts_default_off_choice_aligned_softening():
@@ -482,9 +704,21 @@ def test_config_rejects_unimplemented_direction_synthesis_controls():
     with pytest.raises(TypeError):
         SSWConfig(walk_trace_enabled=True, walk_trace_dir="trace")
     with pytest.raises(TypeError):
-        SSWConfig(early_exit_enabled=True)
-    with pytest.raises(TypeError):
         SSWConfig(direction_true_curvature_guard_enabled=True)
+
+
+def test_config_enables_reference_style_early_exit_by_default():
+    config = SSWConfig()
+    assert config.early_exit_enabled is True
+    assert config.early_exit_energy_tol == pytest.approx(1e-6)
+
+    disabled = SSWConfig(early_exit_enabled=False)
+    assert disabled.early_exit_enabled is False
+
+    with pytest.raises(ValueError, match="early_exit_enabled"):
+        SSWConfig(early_exit_enabled=1)
+    with pytest.raises(ValueError, match="early_exit_energy_tol"):
+        SSWConfig(early_exit_energy_tol=-1.0)
 
 
 def test_config_validates_quench_maxiter():

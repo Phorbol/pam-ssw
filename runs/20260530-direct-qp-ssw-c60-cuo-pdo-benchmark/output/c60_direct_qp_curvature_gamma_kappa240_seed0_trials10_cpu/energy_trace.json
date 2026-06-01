@@ -1,0 +1,88 @@
+[
+  {
+    "accepted_new_basin": true,
+    "best_energy": -474.6690673828125,
+    "energy": -474.6690673828125,
+    "step": 0
+  },
+  {
+    "accepted_new_basin": true,
+    "best_energy": -476.1226501464844,
+    "discovered_entry_id": 1,
+    "energy": -476.1226501464844,
+    "seed_entry_id": 0,
+    "step": 1
+  },
+  {
+    "accepted_new_basin": false,
+    "best_energy": -476.1226501464844,
+    "discovered_entry_id": 1,
+    "energy": -476.1226501464844,
+    "seed_entry_id": 1,
+    "step": 2
+  },
+  {
+    "accepted_new_basin": true,
+    "best_energy": -477.9382629394531,
+    "discovered_entry_id": 2,
+    "energy": -477.9382629394531,
+    "seed_entry_id": 1,
+    "step": 3
+  },
+  {
+    "accepted_new_basin": true,
+    "best_energy": -477.9382629394531,
+    "discovered_entry_id": 3,
+    "energy": -474.2319641113281,
+    "seed_entry_id": 2,
+    "step": 4
+  },
+  {
+    "accepted_new_basin": true,
+    "best_energy": -479.7520446777344,
+    "discovered_entry_id": 4,
+    "energy": -479.7520446777344,
+    "seed_entry_id": 2,
+    "step": 5
+  },
+  {
+    "accepted_new_basin": true,
+    "best_energy": -481.80535888671875,
+    "discovered_entry_id": 5,
+    "energy": -481.80535888671875,
+    "seed_entry_id": 4,
+    "step": 6
+  },
+  {
+    "accepted_new_basin": true,
+    "best_energy": -481.80535888671875,
+    "discovered_entry_id": 6,
+    "energy": -469.7069091796875,
+    "seed_entry_id": 5,
+    "step": 7
+  },
+  {
+    "accepted_new_basin": false,
+    "best_energy": -481.80535888671875,
+    "discovered_entry_id": 5,
+    "energy": -481.80535888671875,
+    "seed_entry_id": 5,
+    "step": 8
+  },
+  {
+    "accepted_new_basin": true,
+    "best_energy": -481.80535888671875,
+    "discovered_entry_id": 7,
+    "energy": -479.7530822753906,
+    "seed_entry_id": 4,
+    "step": 9
+  },
+  {
+    "accepted_new_basin": false,
+    "best_energy": -481.80535888671875,
+    "discovered_entry_id": 7,
+    "energy": -479.7530822753906,
+    "seed_entry_id": 7,
+    "step": 10
+  }
+]

@@ -1,0 +1,3 @@
+system,variant,seed,device,best_energy,n_minima,force_evaluations,energy_evaluations,duplicate_rate,bias_steps,reference_dimer_steps,reference_dimer_converged,direct_qp_steps,direct_qp_rejected,wall_time_s,summary_path
+c60,paw_current_bias_relax,0,cuda,-500.46673583984375,36,19144,19144,0.12195121951219512,162,0,0,0,0,358.55067896842957,/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-c60-curvature-diagnostics/output/c60_paw_current_bias_relax_seed0_trials40_cuda/ssw_summary.json
+c60,paw_ucb_reference_dimer_bias_relax,0,cuda,-474.66937255859375,2,20900,20900,0.9512195121951219,278,278,0,0,0,346.4745600223541,/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-c60-curvature-diagnostics/output/c60_paw_ucb_reference_dimer_bias_relax_seed0_trials40_cuda/ssw_summary.json

@@ -7,9 +7,10 @@ from pamssw import LSSSWConfig, SSWConfig
 from pamssw.accounting import BudgetExceeded
 from pamssw.archive import MinimaArchive
 from pamssw.bias import GaussianBiasTerm
-from pamssw.calculators import AnalyticCalculator
+from pamssw.calculators import AnalyticCalculator, EnergyResult
 from pamssw.potentials import DoubleWell2D
 from pamssw.result import RelaxOutcomeClass, RelaxResult
+from pamssw.reference_dimer import ReferenceDimerResult, ReferenceDimerRotator, sample_global_mode, sample_mixed_mode
 from pamssw.state import State
 from pamssw.walker import (
     CandidateDirectionGenerator,
@@ -28,6 +29,7 @@ from pamssw.walker import (
     DirectionChoice,
     SurfaceWalker,
     TrustRegionBiasController,
+    TrustRegionUpdate,
 )
 
 
@@ -36,6 +38,10 @@ class Quadratic:
         gradient = np.asarray(flat_positions, dtype=float).copy()
         energy = 0.5 * float(gradient @ gradient)
         return energy, gradient
+
+
+def test_direction_candidate_kind_includes_reference_dimer():
+    assert DirectionCandidateKind.REFERENCE_DIMER.value == "reference_dimer"
 
 
 def test_bias_weight_matches_curvature_inversion_rule():
@@ -98,6 +104,733 @@ def test_surface_walker_uses_configured_step_length_controller_controls():
     assert controller.gamma_up == pytest.approx(1.3)
 
 
+def test_direct_qp_scalar_step_matches_closed_form_unconstrained():
+    gradient = np.array([2.0, 0.0, 0.0])
+    direction = np.array([1.0, 0.0, 0.0])
+
+    step = SurfaceWalker._solve_direct_qp_scalar_step(
+        gradient=gradient,
+        direction=direction,
+        sigma=1.0,
+        gamma=2.0,
+        kappa=8.0,
+        trust_radius=10.0,
+    )
+
+    np.testing.assert_allclose(step, np.array([0.6, 0.0, 0.0]))
+
+
+def test_direct_qp_scalar_step_clips_to_trust_radius():
+    gradient = np.array([-10.0, 0.0, 0.0])
+    direction = np.array([1.0, 0.0, 0.0])
+
+    step = SurfaceWalker._solve_direct_qp_scalar_step(
+        gradient=gradient,
+        direction=direction,
+        sigma=1.0,
+        gamma=1.0,
+        kappa=1.0,
+        trust_radius=0.25,
+    )
+
+    assert np.linalg.norm(step) == pytest.approx(0.25)
+    np.testing.assert_allclose(step, np.array([0.25, 0.0, 0.0]))
+
+
+def test_direct_qp_scalar_step_normalizes_direction():
+    gradient = np.array([0.0, 0.0, 0.0])
+    direction = np.array([2.0, 0.0, 0.0])
+
+    step = SurfaceWalker._solve_direct_qp_scalar_step(
+        gradient=gradient,
+        direction=direction,
+        sigma=1.0,
+        gamma=1.0,
+        kappa=3.0,
+        trust_radius=10.0,
+    )
+
+    np.testing.assert_allclose(step, np.array([0.75, 0.0, 0.0]))
+
+
+def test_direct_qp_rank1_step_uses_directional_and_floor_curvatures():
+    gradient = np.array([10.0, 4.0, 0.0])
+    direction = np.array([1.0, 0.0, 0.0])
+
+    step = SurfaceWalker._solve_direct_qp_rank1_step(
+        gradient=gradient,
+        direction=direction,
+        sigma=1.0,
+        gamma_floor=2.0,
+        directional_curvature=18.0,
+        kappa=6.0,
+        trust_radius=10.0,
+    )
+
+    np.testing.assert_allclose(step, np.array([-1.0 / 6.0, -0.5, 0.0]))
+
+
+def test_direct_qp_rank1_step_clips_to_trust_radius():
+    gradient = np.array([-10.0, -10.0, 0.0])
+    direction = np.array([1.0, 0.0, 0.0])
+
+    step = SurfaceWalker._solve_direct_qp_rank1_step(
+        gradient=gradient,
+        direction=direction,
+        sigma=1.0,
+        gamma_floor=1.0,
+        directional_curvature=1.0,
+        kappa=1.0,
+        trust_radius=0.25,
+    )
+
+    assert np.linalg.norm(step) == pytest.approx(0.25)
+
+
+def test_direct_qp_stats_summary_records_step_quality():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(proposal_step_mode="direct_qp"),
+        softening_enabled=False,
+    )
+
+    walker._record_direct_qp_result(
+        step_norm=0.5,
+        progress=0.4,
+        target_error=0.1,
+        predicted_delta=0.2,
+        true_delta=0.3,
+        model_error=0.5,
+        gamma=1.0,
+        kappa=4.0,
+        action="expand",
+        rejected=False,
+    )
+
+    summary = walker._direct_qp_stats_summary()
+
+    assert summary["direct_qp_steps"] == 1
+    assert summary["direct_qp_rejected"] == 0
+    assert summary["direct_qp_mean_step_norm"] == pytest.approx(0.5)
+    assert summary["direct_qp_mean_progress"] == pytest.approx(0.4)
+    assert summary["direct_qp_mean_target_error"] == pytest.approx(0.1)
+    assert summary["direct_qp_mean_model_error"] == pytest.approx(0.5)
+    assert summary["direct_qp_trust_expand_steps"] == 1
+    assert summary["direct_qp_gamma_mean"] == pytest.approx(1.0)
+    assert summary["direct_qp_kappa_mean"] == pytest.approx(4.0)
+
+
+def test_direct_qp_walk_step_moves_without_calling_proposal_relax(monkeypatch):
+    class RaisingRelaxer:
+        def __init__(self, evaluator, optimizer):
+            pass
+
+        def relax(self, *args, **kwargs):
+            raise AssertionError("proposal relax should not be called in direct_qp mode")
+
+    monkeypatch.setattr("pamssw.walker.Relaxer", RaisingRelaxer)
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            proposal_step_mode="direct_qp",
+            max_steps_per_walk=1,
+            proposal_trust_radius=0.5,
+            direct_qp_gamma=1.0,
+            direct_qp_kappa=4.0,
+        ),
+        softening_enabled=False,
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=np.array([1.0, 0.0, 0.0]),
+            curvature=1.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+
+    candidate = walker._walk_candidate_from_seed(state)
+
+    assert candidate.positions[0, 0] > state.positions[0, 0]
+    assert walker._direct_qp_steps == 1
+    assert walker._relax_stats["proposal_relax"]["count"] == 0
+    assert walker._bias_steps == 0
+
+
+def test_direct_qp_walk_step_can_run_bare_pes_micro_corrector(monkeypatch):
+    calls = []
+
+    class RecordingRelaxer:
+        def __init__(self, evaluator, optimizer):
+            self.evaluator = evaluator
+            self.optimizer = optimizer
+
+        def relax(self, state, fmax, maxiter, coordinate_trust_radius=None, **kwargs):
+            calls.append(
+                {
+                    "optimizer": self.optimizer,
+                    "fmax": fmax,
+                    "maxiter": maxiter,
+                    "coordinate_trust_radius": coordinate_trust_radius,
+                    "energy_before": self.evaluator(state.flatten_positions(), state)[0],
+                }
+            )
+            corrected = State(
+                numbers=state.numbers.copy(),
+                positions=state.positions * 0.5,
+                cell=None if state.cell is None else state.cell.copy(),
+                pbc=state.pbc,
+                fixed_mask=state.fixed_mask.copy(),
+                metadata=state.metadata.copy(),
+            )
+            return RelaxResult(
+                state=corrected,
+                energy=0.5,
+                gradient_norm=0.1,
+                n_iter=maxiter,
+                displacement_rms=0.25,
+                displacement_max=0.5,
+            )
+
+    monkeypatch.setattr("pamssw.walker.Relaxer", RecordingRelaxer)
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            proposal_step_mode="direct_qp",
+            max_steps_per_walk=1,
+            proposal_trust_radius=10.0,
+            direct_qp_gamma=1.0,
+            direct_qp_kappa=4.0,
+            direct_qp_micro_steps=3,
+            direct_qp_micro_optimizer="scipy-lbfgsb",
+            direct_qp_micro_fmax=0.2,
+            direct_qp_micro_trust_radius=0.3,
+            target_step_rms=0.15,
+            max_step_rms=0.15,
+        ),
+        softening_enabled=False,
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=np.array([1.0, 0.0, 0.0]),
+            curvature=1.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+
+    candidate = walker._walk_candidate_from_seed(state)
+    summary = walker._direct_qp_stats_summary()
+
+    assert len(calls) == 1
+    assert calls[0]["optimizer"] == "scipy-lbfgsb"
+    assert calls[0]["maxiter"] == 3
+    assert calls[0]["fmax"] == pytest.approx(0.2)
+    assert calls[0]["coordinate_trust_radius"] == pytest.approx(0.3)
+    assert calls[0]["energy_before"] > 0.0
+    assert candidate.positions[0, 0] == pytest.approx((4.0 * 0.15 / 5.0) * 0.5)
+    assert summary["direct_qp_micro_count"] == 1
+    assert summary["direct_qp_micro_mean_iterations"] == pytest.approx(3.0)
+    assert summary["direct_qp_micro_displacement_rms_mean"] == pytest.approx(0.25)
+
+
+def test_direct_qp_micro_steps_can_follow_model_error():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            direct_qp_micro_steps=2,
+            direct_qp_micro_max_steps=20,
+            direct_qp_micro_mode="adaptive_model_error",
+            direct_qp_micro_model_error_threshold=2.0,
+            direct_qp_micro_model_error_high=10.0,
+        ),
+        softening_enabled=False,
+    )
+
+    assert walker._direct_qp_micro_steps_for_model_error(0.5) == 2
+    assert walker._direct_qp_micro_steps_for_model_error(2.0) == 2
+    assert walker._direct_qp_micro_steps_for_model_error(6.0) == 11
+    assert walker._direct_qp_micro_steps_for_model_error(12.0) == 20
+
+
+def test_direct_qp_micro_steps_model_error_gate_can_skip_low_error():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            direct_qp_micro_steps=2,
+            direct_qp_micro_max_steps=18,
+            direct_qp_micro_mode="model_error",
+            direct_qp_micro_model_error_threshold=2.0,
+        ),
+        softening_enabled=False,
+    )
+
+    assert walker._direct_qp_micro_steps_for_model_error(1.9) == 0
+    assert walker._direct_qp_micro_steps_for_model_error(2.1) == 18
+
+
+def test_direct_qp_micro_corrector_uses_adaptive_model_error_steps(monkeypatch):
+    calls = []
+
+    class RecordingRelaxer:
+        def __init__(self, evaluator, optimizer):
+            self.evaluator = evaluator
+            self.optimizer = optimizer
+
+        def relax(self, state, *, fmax, maxiter, coordinate_trust_radius):
+            calls.append(maxiter)
+            return RelaxResult(
+                state=state,
+                energy=0.0,
+                gradient_norm=0.1,
+                n_iter=maxiter,
+                displacement_rms=0.0,
+                displacement_max=0.0,
+            )
+
+    monkeypatch.setattr("pamssw.walker.Relaxer", RecordingRelaxer)
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            direct_qp_micro_steps=2,
+            direct_qp_micro_max_steps=20,
+            direct_qp_micro_mode="adaptive_model_error",
+            direct_qp_micro_model_error_threshold=2.0,
+            direct_qp_micro_model_error_high=10.0,
+        ),
+        softening_enabled=False,
+    )
+
+    result = walker._direct_qp_micro_correct(state, model_error=6.0)
+
+    assert result is not None
+    assert calls == [11]
+
+
+def test_direct_qp_walk_step_uses_true_directional_curvature_as_scalar_gamma(monkeypatch):
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            proposal_step_mode="direct_qp",
+            max_steps_per_walk=1,
+            proposal_trust_radius=10.0,
+            direct_qp_gamma=1.0,
+            direct_qp_kappa=4.0,
+            target_step_rms=0.15,
+            max_step_rms=0.15,
+        ),
+        softening_enabled=False,
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=np.array([1.0, 0.0, 0.0]),
+            curvature=1.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+    monkeypatch.setattr(walker, "_true_directional_curvature", lambda state, direction: 12.0)
+
+    candidate = walker._walk_candidate_from_seed(state)
+
+    assert walker._direct_qp_gamma_sum == pytest.approx(12.0)
+    assert candidate.positions[0, 0] == pytest.approx((4.0 * 0.15) / (12.0 + 4.0))
+
+
+def test_direct_qp_walk_step_can_scale_kappa_from_directional_curvature(monkeypatch):
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            proposal_step_mode="direct_qp",
+            max_steps_per_walk=1,
+            proposal_trust_radius=10.0,
+            direct_qp_gamma=1.0,
+            direct_qp_kappa=4.0,
+            direct_qp_kappa_mode="adaptive_curvature",
+            direct_qp_kappa_curvature_ratio=15.0,
+            target_step_rms=0.15,
+            max_step_rms=0.15,
+        ),
+        softening_enabled=False,
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=np.array([1.0, 0.0, 0.0]),
+            curvature=1.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+    monkeypatch.setattr(walker, "_true_directional_curvature", lambda state, direction: 12.0)
+
+    candidate = walker._walk_candidate_from_seed(state)
+
+    assert walker._direct_qp_gamma_sum == pytest.approx(12.0)
+    assert walker._direct_qp_kappa_sum == pytest.approx(180.0)
+    assert candidate.positions[0, 0] == pytest.approx((180.0 * 0.15) / (12.0 + 180.0))
+
+
+def test_direct_qp_walk_step_uses_rank1_directional_hessian(monkeypatch):
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            proposal_step_mode="direct_qp",
+            direct_qp_hessian="rank1",
+            max_steps_per_walk=1,
+            proposal_trust_radius=10.0,
+            direct_qp_gamma=1.0,
+            direct_qp_kappa=4.0,
+            target_step_rms=0.15,
+            max_step_rms=0.15,
+        ),
+        softening_enabled=False,
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=np.array([1.0, 0.0, 0.0]),
+            curvature=1.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+    monkeypatch.setattr(walker, "_true_directional_curvature", lambda state, direction: 12.0)
+
+    candidate = walker._walk_candidate_from_seed(state)
+
+    assert walker._direct_qp_gamma_sum == pytest.approx(1.0)
+    assert candidate.positions[0, 0] == pytest.approx((4.0 * 0.15) / (12.0 + 4.0))
+
+
+def test_direct_qp_rank1_floor_can_use_previous_curvature_history(monkeypatch):
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            proposal_step_mode="direct_qp",
+            direct_qp_hessian="rank1",
+            direct_qp_gamma=1.0,
+            direct_qp_gamma_mode="curvature_history",
+            direct_qp_gamma_history_quantile=0.5,
+            direct_qp_gamma_history_min_samples=3,
+            max_steps_per_walk=1,
+            proposal_trust_radius=10.0,
+            direct_qp_kappa=4.0,
+            target_step_rms=0.15,
+            max_step_rms=0.15,
+        ),
+        softening_enabled=False,
+    )
+    walker._direct_qp_curvature_history.extend([4.0, 8.0, 12.0])
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=np.array([1.0, 0.0, 0.0]),
+            curvature=1.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+    monkeypatch.setattr(walker, "_true_directional_curvature", lambda state, direction: 40.0)
+
+    candidate = walker._walk_candidate_from_seed(state)
+
+    assert walker._direct_qp_gamma_sum == pytest.approx(8.0)
+    assert candidate.positions[0, 0] == pytest.approx((4.0 * 0.15) / (40.0 + 4.0))
+    assert walker._direct_qp_curvature_history[-1] == pytest.approx(40.0)
+
+
+def test_direct_qp_rank1_floor_uses_history_only_after_model_error_gate():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            proposal_step_mode="direct_qp",
+            direct_qp_hessian="rank1",
+            direct_qp_gamma=1.0,
+            direct_qp_gamma_mode="model_error_gated_history",
+            direct_qp_gamma_history_quantile=0.5,
+            direct_qp_gamma_history_min_samples=3,
+            direct_qp_gamma_model_error_threshold=2.0,
+            direct_qp_gamma_model_error_streak=2,
+        ),
+        softening_enabled=False,
+    )
+    walker._direct_qp_curvature_history.extend([4.0, 8.0, 12.0])
+
+    assert walker._direct_qp_rank1_gamma_floor() == pytest.approx(1.0)
+
+    walker._record_direct_qp_result(
+        step_norm=1.0,
+        progress=0.5,
+        target_error=0.1,
+        predicted_delta=0.0,
+        true_delta=0.0,
+        model_error=3.0,
+        gamma=1.0,
+        kappa=4.0,
+        action="expand",
+        rejected=False,
+    )
+    assert walker._direct_qp_rank1_gamma_floor() == pytest.approx(1.0)
+
+    walker._record_direct_qp_result(
+        step_norm=1.0,
+        progress=0.5,
+        target_error=0.1,
+        predicted_delta=0.0,
+        true_delta=0.0,
+        model_error=3.0,
+        gamma=1.0,
+        kappa=4.0,
+        action="expand",
+        rejected=False,
+    )
+    assert walker._direct_qp_rank1_gamma_floor() == pytest.approx(8.0)
+
+    walker._record_direct_qp_result(
+        step_norm=1.0,
+        progress=0.5,
+        target_error=0.1,
+        predicted_delta=0.0,
+        true_delta=0.0,
+        model_error=0.5,
+        gamma=1.0,
+        kappa=4.0,
+        action="expand",
+        rejected=False,
+    )
+    assert walker._direct_qp_rank1_gamma_floor() == pytest.approx(1.0)
+
+
+def test_direct_qp_walk_step_caps_adaptive_kappa(monkeypatch):
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            proposal_step_mode="direct_qp",
+            max_steps_per_walk=1,
+            proposal_trust_radius=10.0,
+            direct_qp_gamma=1.0,
+            direct_qp_kappa=4.0,
+            direct_qp_kappa_mode="adaptive_curvature",
+            direct_qp_kappa_curvature_ratio=15.0,
+            direct_qp_kappa_max=240.0,
+            target_step_rms=0.15,
+            max_step_rms=0.15,
+        ),
+        softening_enabled=False,
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=np.array([1.0, 0.0, 0.0]),
+            curvature=1.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+    monkeypatch.setattr(walker, "_true_directional_curvature", lambda state, direction: 40.0)
+
+    candidate = walker._walk_candidate_from_seed(state)
+
+    assert walker._direct_qp_gamma_sum == pytest.approx(40.0)
+    assert walker._direct_qp_kappa_sum == pytest.approx(240.0)
+    assert candidate.positions[0, 0] == pytest.approx((240.0 * 0.15) / (40.0 + 240.0))
+
+
+def test_direct_qp_walk_step_rejects_invalid_geometry(monkeypatch):
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(proposal_step_mode="direct_qp", max_steps_per_walk=1),
+        softening_enabled=False,
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=np.array([1.0, 0.0, 0.0]),
+            curvature=1.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+    monkeypatch.setattr(GeometryValidator, "is_valid_state", lambda self, candidate: False)
+
+    candidate = walker._walk_candidate_from_seed(state)
+
+    np.testing.assert_allclose(candidate.positions, state.positions)
+    assert walker._direct_qp_rejected == 1
+
+
+def test_bias_relax_default_still_calls_proposal_relax(monkeypatch):
+    calls = {"count": 0}
+
+    class RecordingRelaxer:
+        def __init__(self, evaluator, optimizer):
+            self.evaluator = evaluator
+            self.optimizer = optimizer
+
+        def relax(self, state, fmax, maxiter, coordinate_trust_radius=None, trajectory_callback=None, trajectory_stride=1):
+            calls["count"] += 1
+            energy, gradient = self.evaluator(state.flatten_positions(), state)
+            return RelaxResult(
+                state=state,
+                energy=energy,
+                gradient_norm=float(np.linalg.norm(gradient)),
+                n_iter=1,
+            )
+
+        @staticmethod
+        def classify_outcome(**kwargs):
+            return RelaxOutcomeClass.USEFUL_PROGRESS
+
+    monkeypatch.setattr("pamssw.walker.Relaxer", RecordingRelaxer)
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(max_steps_per_walk=1),
+        softening_enabled=False,
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=np.array([1.0, 0.0, 0.0]),
+            curvature=1.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    assert calls["count"] == 1
+    assert walker._bias_steps == 1
+
+
+def test_walk_early_exit_default_stops_when_real_energy_drops_below_seed(monkeypatch):
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(max_steps_per_walk=3, proposal_relax_steps=0, walk_trust_radius=10.0),
+        softening_enabled=False,
+    )
+    choose_calls = {"count": 0}
+
+    walker.oracle.generator.generate_initial_direction = lambda *args, **kwargs: np.array([-1.0, 0.0, 0.0])
+
+    def choose_direction(*args, **kwargs):
+        choose_calls["count"] += 1
+        return DirectionChoice(
+            direction=np.array([-1.0, 0.0, 0.0]),
+            curvature=1.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        )
+
+    class LoweringRelaxer:
+        def __init__(self, evaluator, optimizer):
+            self.evaluator = evaluator
+
+        @staticmethod
+        def classify_outcome(**kwargs):
+            return RelaxOutcomeClass.USEFUL_PROGRESS
+
+        def relax(self, state, **kwargs):
+            lowered = State(numbers=state.numbers, positions=np.array([[0.0, 0.0, 0.0]]))
+            return RelaxResult(state=lowered, energy=0.0, gradient_norm=0.0, n_iter=0)
+
+    import pamssw.walker as walker_module
+
+    monkeypatch.setattr(walker_module, "Relaxer", LoweringRelaxer)
+    monkeypatch.setattr(walker, "_build_softening", lambda *args, **kwargs: None)
+    monkeypatch.setattr(walker, "_execution_step_scale", lambda *args, **kwargs: 0.2)
+    monkeypatch.setattr(walker, "_bias_weight", lambda *args, **kwargs: 0.0)
+    monkeypatch.setattr(walker.oracle, "choose_direction", choose_direction)
+    monkeypatch.setattr(walker, "_true_directional_curvature", lambda *args, **kwargs: 1.0)
+    monkeypatch.setattr(walker.oracle, "_directional_curvature", lambda *args, **kwargs: 1.0)
+
+    result = walker._walk_candidate_from_seed(state)
+
+    assert choose_calls["count"] == 1
+    assert walker._walk_early_stops == 1
+    np.testing.assert_allclose(result.positions, [[0.0, 0.0, 0.0]])
+
+
+def test_walk_early_exit_can_be_disabled(monkeypatch):
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            max_steps_per_walk=3,
+            proposal_relax_steps=0,
+            walk_trust_radius=10.0,
+            early_exit_enabled=False,
+        ),
+        softening_enabled=False,
+    )
+    choose_calls = {"count": 0}
+
+    walker.oracle.generator.generate_initial_direction = lambda *args, **kwargs: np.array([-1.0, 0.0, 0.0])
+
+    def choose_direction(*args, **kwargs):
+        choose_calls["count"] += 1
+        return DirectionChoice(
+            direction=np.array([-1.0, 0.0, 0.0]),
+            curvature=1.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        )
+
+    class LoweringRelaxer:
+        def __init__(self, evaluator, optimizer):
+            self.evaluator = evaluator
+
+        @staticmethod
+        def classify_outcome(**kwargs):
+            return RelaxOutcomeClass.USEFUL_PROGRESS
+
+        def relax(self, state, **kwargs):
+            lowered = State(numbers=state.numbers, positions=np.array([[0.0, 0.0, 0.0]]))
+            return RelaxResult(state=lowered, energy=0.0, gradient_norm=0.0, n_iter=0)
+
+    import pamssw.walker as walker_module
+
+    monkeypatch.setattr(walker_module, "Relaxer", LoweringRelaxer)
+    monkeypatch.setattr(walker, "_build_softening", lambda *args, **kwargs: None)
+    monkeypatch.setattr(walker, "_execution_step_scale", lambda *args, **kwargs: 0.2)
+    monkeypatch.setattr(walker, "_bias_weight", lambda *args, **kwargs: 0.0)
+    monkeypatch.setattr(walker.oracle, "choose_direction", choose_direction)
+    monkeypatch.setattr(walker, "_true_directional_curvature", lambda *args, **kwargs: 1.0)
+    monkeypatch.setattr(walker.oracle, "_directional_curvature", lambda *args, **kwargs: 1.0)
+
+    walker._walk_candidate_from_seed(state)
+
+    assert choose_calls["count"] == 3
+    assert walker._walk_early_stops == 0
+
+
 def test_relax_true_minimum_uses_configured_quench_maxiter(monkeypatch):
     recorded: dict[str, int] = {}
 
@@ -148,6 +881,457 @@ def test_direction_scoring_proposal_can_ignore_inner_bias_curvature():
 
     assert walker.oracle._directional_curvature(state, true_scoring, direction) == pytest.approx(1.0)
     assert walker.oracle._directional_curvature(state, inner, direction) == pytest.approx(-1.0)
+
+
+def test_reference_dimer_sample_mixed_mode_returns_normalized_direction():
+    rng = np.random.default_rng(7)
+    positions = np.array(
+        [
+            [0.0, 0.0, 0.0],
+            [4.0, 0.0, 0.0],
+            [0.0, 4.0, 0.0],
+        ],
+        dtype=float,
+    )
+
+    direction, info = sample_mixed_mode(
+        positions,
+        rng=rng,
+        lam=0.5,
+        min_distance=3.0,
+    )
+
+    assert direction.shape == positions.shape
+    assert np.linalg.norm(direction) == pytest.approx(1.0)
+    assert info["lambda"] == pytest.approx(0.5)
+    assert info["pair"] in {(0, 1), (0, 2), (1, 2)}
+
+
+def test_reference_dimer_sample_mixed_mode_zero_norm_falls_back_to_global_mode(monkeypatch):
+    global_mode = np.array([[1.0, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype=float)
+    local_mode = -global_mode
+
+    monkeypatch.setattr(
+        "pamssw.reference_dimer.sample_global_mode",
+        lambda positions, masses=None, T_rand=300.0, rng=None: global_mode.copy(),
+    )
+    monkeypatch.setattr(
+        "pamssw.reference_dimer.sample_local_bond_mode",
+        lambda positions, min_distance=3.0, cell=None, pbc=None, rng=None: (local_mode.copy(), (0, 1)),
+    )
+
+    direction, info = sample_mixed_mode(np.zeros((2, 3), dtype=float), rng=np.random.default_rng(11), lam=1.0)
+
+    np.testing.assert_allclose(direction, global_mode)
+    assert info["lambda"] == pytest.approx(1.0)
+    assert info["pair"] == (0, 1)
+
+
+def test_reference_dimer_mode_samplers_accept_reference_t_rand_keyword():
+    positions = np.array(
+        [
+            [0.0, 0.0, 0.0],
+            [4.0, 0.0, 0.0],
+            [0.0, 4.0, 0.0],
+        ],
+        dtype=float,
+    )
+
+    global_direction = sample_global_mode(positions, rng=np.random.default_rng(3), T_rand=300.0)
+    mixed_direction, _ = sample_mixed_mode(positions, rng=np.random.default_rng(5), lam=0.5, T_rand=300.0)
+
+    assert global_direction.shape == positions.shape
+    assert mixed_direction.shape == positions.shape
+    assert np.linalg.norm(global_direction) == pytest.approx(1.0)
+    assert np.linalg.norm(mixed_direction) == pytest.approx(1.0)
+
+
+def test_reference_dimer_sample_mixed_mode_rejects_nonfinite_positions():
+    positions = np.array([[0.0, 0.0, 0.0], [np.nan, 0.0, 0.0]], dtype=float)
+
+    with pytest.raises(ValueError, match="positions"):
+        sample_mixed_mode(positions, rng=np.random.default_rng(13), lam=0.5)
+
+
+def test_reference_dimer_rotator_returns_direction_and_curvature():
+    class HarmonicSurface:
+        def __init__(self):
+            self.calls = 0
+            self.hessian = np.diag([2.0, 6.0, 10.0, 2.0, 6.0, 10.0])
+
+        def evaluate(self, positions):
+            assert positions.shape == (2, 3)
+            self.calls += 1
+            flat_positions = positions.reshape(-1)
+            gradient = self.hessian @ flat_positions
+            energy = 0.5 * float(flat_positions @ gradient)
+            force = -gradient.reshape(2, 3)
+            return energy, force
+
+    surface = HarmonicSurface()
+    rotator = ReferenceDimerRotator(
+        delta=1e-3,
+        bias_strength=0.01,
+        max_steps=4,
+        rotation_tol=1e-12,
+        angular_step=0.05,
+    )
+    positions = np.zeros((2, 3), dtype=float)
+    initial = np.array([[1.0, 0.0, 0.0], [-1.0, 0.0, 0.0]], dtype=float)
+    initial /= np.linalg.norm(initial)
+
+    result = rotator.rotate(positions, initial, surface.evaluate)
+
+    assert result.direction.shape == positions.shape
+    assert np.linalg.norm(result.direction) == pytest.approx(1.0)
+    assert np.isfinite(result.curvature)
+    assert result.curvature < 0.0
+    assert result.rotations >= 1
+    assert surface.calls >= 2
+
+
+def test_reference_dimer_rotator_reports_true_and_biased_curvature_separately():
+    class FlatSurface:
+        def evaluate(self, positions):
+            return 0.0, np.zeros_like(positions)
+
+    rotator = ReferenceDimerRotator(
+        delta=0.005,
+        bias_strength=500.0,
+        max_steps=1,
+        rotation_tol=1e9,
+        angular_step=0.05,
+    )
+    positions = np.zeros((2, 3), dtype=float)
+    initial = np.array([[1.0, 0.0, 0.0], [-1.0, 0.0, 0.0]], dtype=float)
+    initial /= np.linalg.norm(initial)
+
+    result = rotator.rotate(positions, initial, FlatSurface().evaluate)
+
+    assert result.curvature_true == pytest.approx(0.0)
+    assert result.curvature_biased == pytest.approx(2000.0)
+    assert result.curvature == pytest.approx(result.curvature_biased)
+
+
+def test_reference_dimer_direction_engine_bypasses_scored_pool(monkeypatch):
+    state = State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.4, 0.0, 0.0]], dtype=float),
+    )
+    config = LSSSWConfig(
+        direction_engine="reference_dimer",
+        max_steps_per_walk=1,
+        proposal_step_mode="bias_relax",
+        reference_dimer_max_steps=1,
+    )
+    walker = SurfaceWalker(calculator=AnalyticCalculator(Quadratic()), config=config, softening_enabled=False)
+
+    def forbidden_choose_direction(*args, **kwargs):
+        raise AssertionError("scored pool should not be called")
+
+    monkeypatch.setattr(walker.oracle, "choose_direction", forbidden_choose_direction)
+    choice = walker._choose_walk_direction(
+        current=state,
+        proposal=ProposalPotential(walker.calculator),
+        scoring_proposal=ProposalPotential(walker.calculator),
+        previous_direction=None,
+        anchor_direction=np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0]) / np.sqrt(2.0),
+        archive=None,
+        step_target=None,
+        sigma_scale=1.0,
+        previous_relax_outcome=None,
+        trial_index=0,
+        proposal_index=0,
+        seed_entry_id=0,
+        step_index=0,
+        plateau_evolution_active=False,
+    )
+
+    assert choice.kind == DirectionCandidateKind.REFERENCE_DIMER
+    assert np.linalg.norm(choice.direction) == pytest.approx(1.0)
+    assert np.isfinite(choice.curvature)
+
+
+def test_reference_dimer_direction_masks_fixed_atoms():
+    state = State(
+        numbers=np.array([6, 6, 6]),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.4, 0.0, 0.0],
+                [0.0, 1.4, 0.0],
+            ],
+            dtype=float,
+        ),
+        fixed_mask=np.array([True, False, False]),
+    )
+    config = LSSSWConfig(
+        direction_engine="reference_dimer",
+        max_steps_per_walk=1,
+        reference_dimer_max_steps=2,
+    )
+    walker = SurfaceWalker(calculator=AnalyticCalculator(Quadratic()), config=config, softening_enabled=False)
+
+    choice = walker._choose_reference_dimer_direction(state)
+
+    direction = choice.direction.reshape(-1, 3)
+    np.testing.assert_allclose(direction[0], np.zeros(3), atol=1e-12)
+    assert np.linalg.norm(choice.direction) == pytest.approx(1.0)
+
+
+def test_reference_dimer_force_callback_preserves_fixed_positions_and_forces(monkeypatch):
+    state = State(
+        numbers=np.array([6, 6, 6]),
+        positions=np.array(
+            [
+                [10.0, 0.0, 0.0],
+                [1.4, 0.0, 0.0],
+                [0.0, 1.4, 0.0],
+            ],
+            dtype=float,
+        ),
+        fixed_mask=np.array([True, False, False]),
+    )
+    evaluated_positions: list[np.ndarray] = []
+
+    class RecordingCalculator:
+        def evaluate(self, trial_state):
+            evaluated_positions.append(trial_state.positions.copy())
+            gradient = np.array(
+                [
+                    [100.0, 200.0, 300.0],
+                    [1.0, 2.0, 3.0],
+                    [4.0, 5.0, 6.0],
+                ],
+                dtype=float,
+            )
+            return EnergyResult(energy=0.0, gradient=gradient)
+
+        def evaluate_flat(self, flat_positions, template):
+            trial_state = template.with_flat_positions(flat_positions)
+            result = self.evaluate(trial_state)
+            return result.energy, result.gradient.reshape(-1)
+
+    class FakeReferenceDimerRotator:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def rotate(
+            self,
+            positions,
+            initial_direction,
+            evaluate_forces,
+            *,
+            initial_forces=None,
+            lambda_value=0.0,
+            local_pair=(0, 0),
+        ):
+            np.testing.assert_allclose(initial_direction[0], np.zeros(3), atol=1e-12)
+            moved_positions = np.asarray(positions, dtype=float).copy()
+            moved_positions[0] = np.array([99.0, 99.0, 99.0])
+            moved_positions[1] += np.array([0.1, 0.2, 0.3])
+
+            _, forces = evaluate_forces(moved_positions)
+
+            np.testing.assert_allclose(forces[0], np.zeros(3), atol=1e-12)
+            np.testing.assert_allclose(evaluated_positions[-1][0], state.positions[0], atol=1e-12)
+            direction = np.array(
+                [
+                    [0.0, 0.0, 0.0],
+                    [1.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0],
+                ],
+                dtype=float,
+            )
+            return ReferenceDimerResult(
+                direction=direction,
+                curvature=-1.0,
+                rotations=1,
+                dot_initial=1.0,
+                converged=True,
+                lambda_value=lambda_value,
+                local_pair=local_pair,
+            )
+
+    monkeypatch.setattr("pamssw.walker.ReferenceDimerRotator", FakeReferenceDimerRotator)
+    walker = SurfaceWalker(
+        calculator=RecordingCalculator(),
+        config=LSSSWConfig(direction_engine="reference_dimer", reference_dimer_max_steps=1),
+        softening_enabled=False,
+    )
+
+    choice = walker._choose_reference_dimer_direction(state)
+
+    assert evaluated_positions
+    assert choice.kind == DirectionCandidateKind.REFERENCE_DIMER
+    np.testing.assert_allclose(choice.direction.reshape(-1, 3)[0], np.zeros(3), atol=1e-12)
+
+
+def test_reference_dimer_walk_reuses_returned_curvature(monkeypatch):
+    state = State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.4, 0.0, 0.0]], dtype=float),
+    )
+    config = LSSSWConfig(
+        direction_engine="reference_dimer",
+        proposal_step_mode="bias_relax",
+        max_steps_per_walk=1,
+        reference_dimer_max_steps=1,
+    )
+    walker = SurfaceWalker(calculator=AnalyticCalculator(Quadratic()), config=config, softening_enabled=False)
+
+    monkeypatch.setattr(
+        walker,
+        "_true_directional_curvature",
+        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("true curvature probe should not be called")),
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "_directional_curvature",
+        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("inner curvature probe should not be called")),
+    )
+
+    candidate = walker._walk_candidate_from_seed(state)
+
+    assert isinstance(candidate, State)
+
+
+def test_reference_dimer_direct_qp_uses_choice_curvature_without_true_hvp(monkeypatch):
+    state = State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.4, 0.0, 0.0]], dtype=float),
+    )
+    config = LSSSWConfig(
+        direction_engine="reference_dimer",
+        proposal_step_mode="direct_qp",
+        direct_qp_hessian="rank1",
+        direct_qp_kappa=240.0,
+        max_steps_per_walk=1,
+        reference_dimer_max_steps=1,
+    )
+    walker = SurfaceWalker(calculator=AnalyticCalculator(Quadratic()), config=config, softening_enabled=False)
+
+    def fail_true_hvp(*args, **kwargs):
+        raise AssertionError("reference dimer curvature should be reused for Direct-QP")
+
+    monkeypatch.setattr(walker, "_true_directional_curvature", fail_true_hvp)
+    monkeypatch.setattr(walker.oracle, "_directional_curvature", fail_true_hvp)
+
+    result = walker._walk_candidate_from_seed(state)
+
+    assert isinstance(result, State)
+    assert walker._direct_qp_stats_summary()["direct_qp_steps"] == 1
+    assert walker._reference_dimer_steps == 1
+
+
+def test_reference_dimer_walk_records_selection_and_stats():
+    state = State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.4, 0.0, 0.0]], dtype=float),
+    )
+    config = LSSSWConfig(
+        direction_engine="reference_dimer",
+        max_steps_per_walk=1,
+        reference_dimer_max_steps=1,
+    )
+    walker = SurfaceWalker(calculator=AnalyticCalculator(Quadratic()), config=config, softening_enabled=False)
+
+    walker._walk_candidate_from_seed(state)
+    summary = walker._reference_dimer_stats_summary()
+
+    assert walker._reference_dimer_steps >= 1
+    assert walker._direction_selected[DirectionCandidateKind.REFERENCE_DIMER] >= 1
+    assert walker._direction_stats_summary()["direction_selected_reference_dimer"] >= 1
+    assert summary["reference_dimer_steps"] >= 1
+    assert np.isfinite(summary["reference_dimer_mean_rotations"])
+    assert np.isfinite(summary["reference_dimer_converged_fraction"])
+    assert np.isfinite(summary["reference_dimer_mean_curvature"])
+    assert np.isfinite(summary["reference_dimer_mean_abs_dot_initial"])
+
+
+def test_reference_dimer_walk_reuses_one_initial_mode_across_climb_steps(monkeypatch):
+    state = State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[0.0, 0.0, 0.0], [3.0, 0.0, 0.0]], dtype=float),
+    )
+    config = LSSSWConfig(
+        direction_engine="reference_dimer",
+        proposal_step_mode="bias_relax",
+        max_steps_per_walk=3,
+        proposal_relax_steps=0,
+        walk_trust_radius=10.0,
+        reference_dimer_max_steps=1,
+    )
+    walker = SurfaceWalker(calculator=AnalyticCalculator(Quadratic()), config=config, softening_enabled=False)
+
+    sampled_initial = np.array([[0.0, 1.0, 0.0], [0.0, -1.0, 0.0]], dtype=float)
+    sampled_initial /= np.linalg.norm(sampled_initial)
+    sample_calls = {"count": 0}
+    rotate_initials: list[np.ndarray] = []
+
+    def fake_sample_mixed_mode(*args, **kwargs):
+        sample_calls["count"] += 1
+        return sampled_initial.copy(), {"pair": (0, 1), "lambda": kwargs.get("lam", 0.0)}
+
+    class FakeReferenceDimerRotator:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def rotate(self, positions, initial_direction, evaluate_forces, *, lambda_value=0.0, local_pair=None):
+            rotate_initials.append(np.asarray(initial_direction, dtype=float).copy())
+            return ReferenceDimerResult(
+                direction=np.asarray(initial_direction, dtype=float),
+                curvature=1.0,
+                rotations=1,
+                dot_initial=1.0,
+                converged=True,
+                lambda_value=lambda_value,
+                local_pair=local_pair,
+            )
+
+    class NoRelaxer:
+        def __init__(self, evaluator, optimizer):
+            self.evaluator = evaluator
+
+        @staticmethod
+        def classify_outcome(**kwargs):
+            return RelaxOutcomeClass.USEFUL_PROGRESS
+
+        def relax(self, state, **kwargs):
+            energy, gradient = self.evaluator(state.flatten_positions(), state)
+            return RelaxResult(
+                state=state,
+                energy=energy,
+                gradient_norm=float(np.linalg.norm(gradient)),
+                n_iter=0,
+            )
+
+    import pamssw.walker as walker_module
+
+    monkeypatch.setattr(walker_module, "sample_mixed_mode", fake_sample_mixed_mode)
+    monkeypatch.setattr(walker_module, "ReferenceDimerRotator", FakeReferenceDimerRotator)
+    monkeypatch.setattr(walker_module, "Relaxer", NoRelaxer)
+    monkeypatch.setattr(walker, "_build_softening", lambda *args, **kwargs: None)
+    monkeypatch.setattr(walker, "_execution_step_scale", lambda *args, **kwargs: 0.05)
+    monkeypatch.setattr(walker, "_bias_weight", lambda *args, **kwargs: 0.0)
+
+    walker._walk_candidate_from_seed(state)
+
+    assert walker._reference_dimer_steps == 3
+    assert sample_calls["count"] == 1
+    assert len(rotate_initials) == 3
+    for initial in rotate_initials:
+        np.testing.assert_allclose(initial, sampled_initial)
+
+
+def test_reference_dimer_rotator_rejects_nonfinite_positions():
+    rotator = ReferenceDimerRotator()
+    positions = np.array([[0.0, 0.0, 0.0], [np.nan, 0.0, 0.0]], dtype=float)
+    initial = np.array([[1.0, 0.0, 0.0], [-1.0, 0.0, 0.0]], dtype=float)
+    initial /= np.linalg.norm(initial)
+
+    with pytest.raises(ValueError, match="positions"):
+        rotator.rotate(positions, initial, lambda matrix: (0.0, np.zeros((2, 3), dtype=float)))
 
 
 def test_soft_mode_oracle_returns_best_candidate_without_random_mixing():
@@ -1972,6 +3156,43 @@ def test_direction_stats_summary_counts_selected_regularized_ritz_candidate():
     assert summary["plateau_evolution_candidates_generated"] == 2
 
 
+def test_direction_stats_summary_tracks_curvature_by_kind():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(),
+        softening_enabled=False,
+    )
+    walker._record_direction_curvatures(
+        DirectionCandidateKind.RANDOM,
+        choice_curvature=-2.0,
+        true_curvature=-1.5,
+        inner_curvature=-1.0,
+    )
+    walker._record_direction_curvatures(
+        DirectionCandidateKind.RANDOM,
+        choice_curvature=4.0,
+        true_curvature=3.0,
+        inner_curvature=2.0,
+    )
+    walker._record_direction_curvatures(
+        DirectionCandidateKind.BOND,
+        choice_curvature=-8.0,
+        true_curvature=-6.0,
+        inner_curvature=-5.0,
+    )
+
+    summary = walker._direction_stats_summary()
+
+    assert summary["direction_curvature_random_count"] == 2
+    assert summary["direction_curvature_random_mean"] == pytest.approx(1.0)
+    assert summary["direction_curvature_random_min"] == pytest.approx(-2.0)
+    assert summary["direction_curvature_random_max"] == pytest.approx(4.0)
+    assert summary["direction_true_curvature_random_mean"] == pytest.approx(0.75)
+    assert summary["direction_inner_curvature_random_mean"] == pytest.approx(0.5)
+    assert summary["direction_curvature_bond_count"] == 1
+    assert summary["direction_true_curvature_bond_mean"] == pytest.approx(-6.0)
+
+
 def test_surface_walker_plumbs_regularized_ritz_synthesis_config_to_oracle():
     walker = SurfaceWalker(
         calculator=AnalyticCalculator(DoubleWell2D()),
@@ -2080,6 +3301,23 @@ def test_direction_generator_can_disable_momentum_candidate():
 
     assert DirectionCandidateKind.MOMENTUM not in [candidate.kind for candidate in candidates]
     assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.RANDOM) == 2
+
+
+def test_direction_pool_disable_momentum_filters_momentum_candidates():
+    state = State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.4, 0.0, 0.0]], dtype=float),
+    )
+    config = LSSSWConfig(direction_pool_disable_momentum=True)
+    walker = SurfaceWalker(calculator=AnalyticCalculator(Quadratic()), config=config, softening_enabled=False)
+    previous = np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0])
+    previous /= np.linalg.norm(previous)
+
+    candidates = walker.oracle.generator.generate(state, previous)
+    filtered = walker._filter_direction_candidates(candidates)
+
+    assert DirectionCandidateKind.MOMENTUM in {candidate.kind for candidate in candidates}
+    assert DirectionCandidateKind.MOMENTUM not in {candidate.kind for candidate in filtered}
 
 
 def test_anchor_candidate_disabled_preserves_candidate_pool_size():
@@ -2539,6 +3777,82 @@ def test_choice_aligned_softening_recomputes_inner_curvature(monkeypatch):
 
     assert calls == {"curvature": 1, "build": 2}
     assert captured_bias_curvatures == [pytest.approx(1.0)]
+
+
+def test_reference_dimer_bias_relax_uses_biased_curvature_for_gaussian_weight(monkeypatch):
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(
+            direction_engine="reference_dimer",
+            proposal_step_mode="bias_relax",
+            max_steps_per_walk=1,
+            proposal_relax_steps=0,
+        ),
+        softening_enabled=False,
+    )
+    captured_bias_curvatures = []
+    captured_trust_curvatures = []
+
+    monkeypatch.setattr(
+        walker,
+        "_choose_reference_dimer_direction",
+        lambda current, **kwargs: DirectionChoice(
+            direction=np.array([1.0, 0.0, 0.0]),
+            curvature=2000.0,
+            kind=DirectionCandidateKind.REFERENCE_DIMER,
+            candidate_count=1,
+            true_curvature=-25.0,
+            biased_curvature=2000.0,
+        ),
+    )
+    monkeypatch.setattr(walker, "_build_softening", lambda *args, **kwargs: None)
+    monkeypatch.setattr(walker, "_execution_step_scale", lambda *args, **kwargs: 0.1)
+
+    def fake_bias_weight(curvature, sigma):
+        captured_bias_curvatures.append(curvature)
+        return 0.5
+
+    class RecordingTrust:
+        def update(self, *, curvature, **kwargs):
+            captured_trust_curvatures.append(curvature)
+            return TrustRegionUpdate(
+                predicted_delta=0.0,
+                true_delta=0.0,
+                model_error=0.0,
+                damaged=False,
+                sigma_scale=1.0,
+                weight_scale=1.0,
+                action="hold",
+            )
+
+    class NoRelaxer:
+        def __init__(self, evaluator, optimizer):
+            self.evaluator = evaluator
+
+        @staticmethod
+        def classify_outcome(**kwargs):
+            return RelaxOutcomeClass.USEFUL_PROGRESS
+
+        def relax(self, state, **kwargs):
+            energy, gradient = self.evaluator(state.flatten_positions(), state)
+            return RelaxResult(
+                state=state,
+                energy=energy,
+                gradient_norm=float(np.linalg.norm(gradient)),
+                n_iter=0,
+            )
+
+    import pamssw.walker as walker_module
+
+    monkeypatch.setattr(walker_module, "Relaxer", NoRelaxer)
+    monkeypatch.setattr(walker, "_bias_weight", fake_bias_weight)
+    walker.trust_controller = RecordingTrust()
+
+    walker._walk_candidate_from_seed(state)
+
+    assert captured_bias_curvatures == [pytest.approx(2000.0)]
+    assert captured_trust_curvatures == [pytest.approx(-25.0)]
 
 
 def test_direction_generator_adds_bond_candidate_when_pairs_are_provided():

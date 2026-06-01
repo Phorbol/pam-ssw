@@ -1,0 +1,24 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "results_csv",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-reference-dimer-hybrid-curvature-c60/results.csv",
+      "type": "csv"
+    },
+    {
+      "artifact_id": "results_json",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-reference-dimer-hybrid-curvature-c60/results.json",
+      "type": "json"
+    },
+    {
+      "artifact_id": "summary_md",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-reference-dimer-hybrid-curvature-c60/summary.md",
+      "type": "markdown"
+    },
+    {
+      "artifact_id": "case_outputs",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-reference-dimer-hybrid-curvature-c60/output",
+      "type": "directory"
+    }
+  ]
+}

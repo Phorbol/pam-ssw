@@ -1,0 +1,2 @@
+system,variant,seed,device,best_energy,n_minima,force_evaluations,energy_evaluations,duplicate_rate,bias_steps,reference_dimer_steps,reference_dimer_converged,direct_qp_steps,direct_qp_rejected,wall_time_s,summary_path
+c60,paw_ucb_reference_dimer_bias_relax,0,cuda,-495.8002014160156,26,16432,16432,0.36585365853658536,145,145,0,0,0,329.78496646881104,/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-reference-dimer-hybrid-curvature-c60/output/c60_paw_ucb_reference_dimer_bias_relax_seed0_trials40_cuda/ssw_summary.json

@@ -1,0 +1,16 @@
+task: c60_direction_curvature_diagnostics
+date: 2026-06-01
+approval_text: user requested continuation to compare reference dimer soft-mode curvature against scored_pool curvature
+repo_worktree: /tmp/SSW-worktrees/direct-qp-ssw
+systems: [c60]
+variants:
+  - paw_current_bias_relax
+  - paw_ucb_reference_dimer_bias_relax
+seeds: [0]
+trials_per_seed: 40
+steps_per_walk: 8
+device: cuda
+purpose:
+  - compare selected direction curvature by kind for scored_pool
+  - compare reference_dimer true curvature vs biased effective curvature
+  - evaluate impact of default reference-style early exit

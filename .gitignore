@@ -8,3 +8,4 @@ build/
 dist/
 run.log
 results.tsv
+runs/*/mplconfig/

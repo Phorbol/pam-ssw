@@ -1,0 +1,29 @@
+[
+  {
+    "method": "ssw",
+    "best_energy": -488.68365478515625,
+    "final_energy": -488.683349609375,
+    "elapsed_s": 2222.342240333557,
+    "force_calls": 120691,
+    "output": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-reference-dimer-component-ablation/output/c60_reference_original_seed1_trials40_cuda/ssw/ssw_best.xyz",
+    "extra": {
+      "accepted": 36,
+      "steps": 40,
+      "avg_climb_calls": 2782.85,
+      "avg_relax_calls": 228.1,
+      "adaptive": false,
+      "adaptive_modes": [],
+      "adaptive_n_aggressive": 0,
+      "adaptive_n_mild": 0,
+      "adaptive_n_resample": 0,
+      "adaptive_n_hard": 0,
+      "adaptive_n_cooldown": 0,
+      "adaptive_n_normal": 0,
+      "collapsed": false,
+      "collapsed_step": -1,
+      "collapsed_energy": 0.0,
+      "trajectory": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-reference-dimer-component-ablation/output/c60_reference_original_seed1_trials40_cuda/ssw/ssw_current_minima.traj",
+      "energy_history": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260601-reference-dimer-component-ablation/output/c60_reference_original_seed1_trials40_cuda/ssw/ssw_energy_history.json"
+    }
+  }
+]

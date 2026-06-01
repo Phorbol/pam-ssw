@@ -1,0 +1,14 @@
+task: reference_dimer_hybrid_curvature_c60
+date: 2026-06-01
+approval_text: user requested reference_dimer hybrid split: QP/trust use C_true, Gaussian height uses C_eff
+repo_worktree: /tmp/SSW-worktrees/direct-qp-ssw
+systems: [c60]
+variants: [paw_ucb_reference_dimer_bias_relax]
+seeds: [0]
+trials_per_seed: 40
+steps_per_walk: 8
+device: cuda
+code_under_test:
+  - reference_dimer direction uses C_true for trust/step/QP
+  - reference_dimer Gaussian bias weight uses C_eff when available
+  - early_exit_enabled default true

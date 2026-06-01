@@ -22,6 +22,7 @@ from .config import LSSSWConfig, RelaxConfig, SSWConfig
 from .coordinates import CartesianCoordinates, TangentVector
 from .fingerprint import descriptor_distance, structural_descriptor
 from .pbc import mic_displacement, mic_distance_matrix, wrap_positions
+from .reference_dimer import ReferenceDimerResult, ReferenceDimerRotator, sample_mixed_mode
 from .relax import Relaxer
 from .result import RelaxOutcomeClass, RelaxResult, SearchResult, StatsValue, WalkRecord
 from .rigid import project_out_rigid_body_modes, rigid_body_overlap
@@ -117,6 +118,8 @@ class DirectionChoice:
     score: float | None = None
     evolved_candidate_count: int = 0
     archive_momentum_candidate_count: int = 0
+    true_curvature: float | None = None
+    biased_curvature: float | None = None
 
 
 @dataclass(frozen=True)
@@ -130,6 +133,23 @@ class TrustRegionUpdate:
     action: str
     sigma_action: str = "hold"
     weight_action: str = "hold"
+
+
+@dataclass(frozen=True)
+class DirectQPStepResult:
+    state: State
+    step: np.ndarray
+    energy_before: float
+    energy_after: float
+    predicted_delta: float
+    true_delta: float
+    model_error: float
+    progress: float
+    target_error: float
+    gamma: float
+    kappa: float
+    action: str
+    rejected: bool = False
 
 
 @dataclass(frozen=True)
@@ -488,6 +508,7 @@ class DirectionCandidateKind(str, Enum):
     RITZ_REG = "ritz_reg"
     EVOLVED = "evolved"
     ARCHIVE_MOMENTUM = "archive_momentum"
+    REFERENCE_DIMER = "reference_dimer"
 
 
 @dataclass(frozen=True, eq=False)
@@ -1150,6 +1171,7 @@ class SoftModeOracle:
         plateau_evolution_mutation_count: int = 0,
         archive_momentum_history: list[DirectionRecord] | None = None,
         archive_momentum_limit: int = 0,
+        candidate_filter: Callable[[list[DirectionCandidate]], list[DirectionCandidate]] | None = None,
     ) -> DirectionChoice:
         best_direction: np.ndarray | None = None
         best_curvature: float | None = None
@@ -1167,6 +1189,8 @@ class SoftModeOracle:
             archive_momentum_limit,
         )
         candidates.extend(archive_momentum_candidates)
+        if candidate_filter is not None:
+            candidates = candidate_filter(candidates)
         scoring_anchor_direction = None if self.anchor_mixing_alpha is not None else anchor_direction
         best_kind: DirectionCandidateKind | None = None
         rigid_overlap_sum = 0.0
@@ -1806,8 +1830,10 @@ class SurfaceWalker:
         self._reset_direction_stats()
         self._reset_relax_stats()
         self._reset_bias_stats()
+        self._reset_direct_qp_stats()
         self._reset_local_softening_stats()
         self._reset_seed_diversity_stats()
+        self._reset_reference_dimer_stats()
         self._proposal_optimizer_alt_steps = 0
         self._proposal_duplicate_rescue_attempts = 0
         self._proposal_duplicate_rescue_successes = 0
@@ -2110,8 +2136,10 @@ class SurfaceWalker:
         self._reset_direction_stats()
         self._reset_relax_stats()
         self._reset_bias_stats()
+        self._reset_direct_qp_stats()
         self._reset_local_softening_stats()
         self._reset_seed_diversity_stats()
+        self._reset_reference_dimer_stats()
         self._proposal_optimizer_alt_steps = 0
         self._proposal_duplicate_rescue_attempts = 0
         self._proposal_duplicate_rescue_successes = 0
@@ -2443,7 +2471,9 @@ class SurfaceWalker:
                 **self._trust_stats_summary(),
                 **self._direction_stats_summary(),
                 **self._direction_archive_stats_summary(),
+                **self._reference_dimer_stats_summary(),
                 **self._relax_stats_summary(),
+                **self._direct_qp_stats_summary(),
                 **self.step_target_controller.stats(),
             },
         )
@@ -2494,6 +2524,206 @@ class SurfaceWalker:
             return True
         return bool((float(reference_energy) - float(energy)) > float(limit) * float(n_atoms))
 
+    def _choose_walk_direction(
+        self,
+        *,
+        current: State,
+        proposal: ProposalPotential,
+        scoring_proposal: ProposalPotential,
+        previous_direction: np.ndarray | None,
+        anchor_direction: np.ndarray,
+        archive,
+        step_target: float | None,
+        sigma_scale: float,
+        previous_relax_outcome: RelaxOutcomeClass | None,
+        trial_index: int | None,
+        proposal_index: int | None,
+        seed_entry_id: int | None,
+        step_index: int,
+        plateau_evolution_active: bool,
+        reference_dimer_initial_direction: np.ndarray | None = None,
+        reference_dimer_initial_info: dict[str, object] | None = None,
+    ) -> DirectionChoice:
+        if self.config.direction_engine == "reference_dimer":
+            return self._choose_reference_dimer_direction(
+                current,
+                initial_direction=reference_dimer_initial_direction,
+                initial_info=reference_dimer_initial_info,
+            )
+
+        score_sigma_fn = self._direction_score_sigma_fn(sigma_scale, step_target=step_target)
+        return self.oracle.choose_direction(
+            current,
+            scoring_proposal,
+            previous_direction,
+            anchor_direction=anchor_direction,
+            step_scale_fn=lambda curvature: self._scaled_step_scale(
+                curvature,
+                sigma_scale,
+                step_target=step_target,
+            ),
+            archive=archive,
+            history_gradient=self._history_bias_gradient(current, proposal.biases),
+            continuity_weight=self._continuity_weight_for_outcome(previous_relax_outcome),
+            n_bond_pairs=self._n_bond_pairs_for_outcome(previous_relax_outcome),
+            score_sigma=(
+                None
+                if score_sigma_fn is not None
+                else self._direction_score_sigma(sigma_scale, step_target=step_target)
+            ),
+            score_sigma_fn=score_sigma_fn,
+            direction_type_bonus_fn=(
+                self.direction_type_memory.bonus if self.config.direction_type_ucb_enabled else None
+            ),
+            plateau_evolution_active=plateau_evolution_active,
+            plateau_history=(
+                self.successful_records(
+                    seed_entry_id=seed_entry_id,
+                    limit=self.config.plateau_evolution_history_limit,
+                )
+                if plateau_evolution_active
+                else []
+            ),
+            plateau_evolution_children=self.config.plateau_evolution_children,
+            plateau_evolution_crossover_pairs=self.config.plateau_evolution_crossover_pairs,
+            plateau_evolution_mutation_count=self.config.plateau_evolution_mutation_count,
+            archive_momentum_history=self._archive_momentum_history_for_seed(seed_entry_id),
+            archive_momentum_limit=self.config.archive_escape_momentum_limit,
+            candidate_filter=self._filter_direction_candidates,
+        )
+
+    def _filter_direction_candidates(self, candidates: list[DirectionCandidate]) -> list[DirectionCandidate]:
+        if not self.config.direction_pool_disable_momentum:
+            return candidates
+        filtered = [
+            candidate
+            for candidate in candidates
+            if candidate.kind not in {DirectionCandidateKind.MOMENTUM, DirectionCandidateKind.ARCHIVE_MOMENTUM}
+        ]
+        return filtered if filtered else candidates
+
+    def _sample_reference_dimer_initial_mode(self, current: State) -> tuple[np.ndarray, dict[str, object]]:
+        lam = float(
+            self.rng.uniform(
+                self.config.reference_dimer_lambda_min,
+                self.config.reference_dimer_lambda_max,
+            )
+        )
+        initial_direction, info = sample_mixed_mode(
+            current.positions,
+            min_distance=self.config.reference_dimer_min_pair_distance,
+            cell=current.cell,
+            pbc=current.pbc,
+            rng=self.rng,
+            lam=lam,
+        )
+        info = dict(info)
+        info["lambda"] = lam
+        return initial_direction, info
+
+    def _choose_reference_dimer_direction(
+        self,
+        current: State,
+        *,
+        initial_direction: np.ndarray | None = None,
+        initial_info: dict[str, object] | None = None,
+    ) -> DirectionChoice:
+        if initial_direction is None:
+            initial_direction, info = self._sample_reference_dimer_initial_mode(current)
+        else:
+            info = dict(initial_info or {})
+        initial_direction = self._mask_fixed_direction(current, initial_direction)
+        lam = float(info.get("lambda", 0.0))
+
+        def evaluate_forces(positions: np.ndarray) -> tuple[float, np.ndarray]:
+            trial_positions = np.asarray(positions, dtype=float).copy()
+            if np.any(current.fixed_mask):
+                trial_positions[current.fixed_mask] = current.positions[current.fixed_mask]
+            trial_state = replace(current, positions=trial_positions)
+            result = self.calculator.evaluate(trial_state)
+            forces = -np.asarray(result.gradient, dtype=float)
+            if np.any(current.fixed_mask):
+                forces = forces.copy()
+                forces[current.fixed_mask] = 0.0
+            return float(result.energy), forces
+
+        rotator = ReferenceDimerRotator(
+            delta=self.config.reference_dimer_delta,
+            bias_strength=self.config.reference_dimer_bias_strength,
+            max_steps=self.config.reference_dimer_max_steps,
+            rotation_tol=self.config.reference_dimer_rotation_tol,
+            angular_step=self.config.reference_dimer_angular_step,
+        )
+        pair = info.get("pair", (0, 0))
+        result = rotator.rotate(
+            current.positions,
+            initial_direction,
+            evaluate_forces,
+            lambda_value=lam,
+            local_pair=pair,
+        )
+        self._record_reference_dimer_result(result)
+
+        direction = self._mask_fixed_direction(current, result.direction).reshape(-1)
+        return DirectionChoice(
+            direction=direction,
+            curvature=float(result.curvature),
+            kind=DirectionCandidateKind.REFERENCE_DIMER,
+            candidate_count=1,
+            score=None,
+            true_curvature=(
+                float(result.curvature_true)
+                if result.curvature_true is not None
+                else float(result.curvature)
+            ),
+            biased_curvature=(
+                float(result.curvature_biased)
+                if result.curvature_biased is not None
+                else float(result.curvature)
+            ),
+        )
+
+    @staticmethod
+    def _mask_fixed_direction(state: State, direction: np.ndarray) -> np.ndarray:
+        direction_matrix = np.asarray(direction, dtype=float).copy()
+        if direction_matrix.shape != state.positions.shape:
+            raise ValueError("reference dimer direction must match positions shape")
+        if not np.any(state.fixed_mask):
+            direction_norm = float(np.linalg.norm(direction_matrix))
+            if direction_norm <= 1e-15 or not np.isfinite(direction_norm):
+                raise ValueError("reference dimer direction cannot be zero")
+            return direction_matrix / direction_norm
+
+        direction_matrix[state.fixed_mask] = 0.0
+        if not np.any(~state.fixed_mask):
+            raise ValueError("reference dimer requires at least one movable atom")
+        direction_norm = float(np.linalg.norm(direction_matrix))
+        if direction_norm <= 1e-15 or not np.isfinite(direction_norm):
+            raise ValueError("reference dimer requires at least one movable atom")
+        return direction_matrix / direction_norm
+
+    def _curvatures_for_choice(
+        self,
+        current: State,
+        proposal: ProposalPotential,
+        choice: DirectionChoice,
+        rebuild_softening_for_choice: bool,
+    ) -> tuple[float, float]:
+        if self.config.direction_engine == "reference_dimer":
+            true_curvature = (
+                float(choice.true_curvature)
+                if choice.true_curvature is not None
+                else float(choice.curvature)
+            )
+            return true_curvature, true_curvature
+        true_curvature = self._true_directional_curvature(current, choice.direction)
+        inner_curvature = (
+            choice.curvature
+            if self.config.direction_curvature_source == "inner" and not rebuild_softening_for_choice
+            else self.oracle._directional_curvature(current, proposal, choice.direction)
+        )
+        return true_curvature, inner_curvature
+
     def _walk_candidate_from_seed(
         self,
         seed_state: State,
@@ -2513,6 +2743,14 @@ class SurfaceWalker:
         biases: list[GaussianBiasTerm] = []
         sigma_scale = 1.0
         weight_scale = 1.0
+        direct_qp_trust_radius = self._direct_qp_initial_trust_radius()
+        seed_energy = self.calculator.evaluate(seed_state).energy if self.config.early_exit_enabled else None
+        reference_dimer_initial_direction: np.ndarray | None = None
+        reference_dimer_initial_info: dict[str, object] | None = None
+        if self.config.direction_engine == "reference_dimer":
+            reference_dimer_initial_direction, reference_dimer_initial_info = (
+                self._sample_reference_dimer_initial_mode(seed_state)
+            )
 
         for step_index in range(self.config.max_steps_per_walk):
             if anchor_direction is None:
@@ -2529,46 +2767,25 @@ class SurfaceWalker:
             softening = self._build_softening(current, anchor_direction)
             proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
             scoring_proposal = self._direction_scoring_proposal(proposal)
-            score_sigma_fn = self._direction_score_sigma_fn(sigma_scale, step_target=step_target)
             if plateau_evolution_active:
                 self._plateau_evolution_active_steps += 1
-            choice = self.oracle.choose_direction(
-                current,
-                scoring_proposal,
-                previous_direction,
+            choice = self._choose_walk_direction(
+                current=current,
+                proposal=proposal,
+                scoring_proposal=scoring_proposal,
+                previous_direction=previous_direction,
                 anchor_direction=anchor_direction,
-                step_scale_fn=lambda curvature: self._scaled_step_scale(
-                    curvature,
-                    sigma_scale,
-                    step_target=step_target,
-                ),
                 archive=archive,
-                history_gradient=self._history_bias_gradient(current, biases),
-                continuity_weight=self._continuity_weight_for_outcome(previous_relax_outcome),
-                n_bond_pairs=self._n_bond_pairs_for_outcome(previous_relax_outcome),
-                score_sigma=(
-                    None
-                    if score_sigma_fn is not None
-                    else self._direction_score_sigma(sigma_scale, step_target=step_target)
-                ),
-                score_sigma_fn=score_sigma_fn,
-                direction_type_bonus_fn=(
-                    self.direction_type_memory.bonus if self.config.direction_type_ucb_enabled else None
-                ),
+                step_target=step_target,
+                sigma_scale=sigma_scale,
+                previous_relax_outcome=previous_relax_outcome,
+                trial_index=trial_index,
+                proposal_index=proposal_index,
+                seed_entry_id=seed_entry_id,
+                step_index=step_index,
                 plateau_evolution_active=plateau_evolution_active,
-                plateau_history=(
-                    self.successful_records(
-                        seed_entry_id=seed_entry_id,
-                        limit=self.config.plateau_evolution_history_limit,
-                    )
-                    if plateau_evolution_active
-                    else []
-                ),
-                plateau_evolution_children=self.config.plateau_evolution_children,
-                plateau_evolution_crossover_pairs=self.config.plateau_evolution_crossover_pairs,
-                plateau_evolution_mutation_count=self.config.plateau_evolution_mutation_count,
-                archive_momentum_history=self._archive_momentum_history_for_seed(seed_entry_id),
-                archive_momentum_limit=self.config.archive_escape_momentum_limit,
+                reference_dimer_initial_direction=reference_dimer_initial_direction,
+                reference_dimer_initial_info=reference_dimer_initial_info,
             )
             if selected_direction_kinds is not None:
                 selected_direction_kinds.add(choice.kind)
@@ -2592,11 +2809,17 @@ class SurfaceWalker:
             if rebuild_softening_for_choice:
                 softening = self._build_softening(current, choice.direction)
                 proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
-            true_curvature = self._true_directional_curvature(current, choice.direction)
-            inner_curvature = (
-                choice.curvature
-                if self.config.direction_curvature_source == "inner" and not rebuild_softening_for_choice
-                else self.oracle._directional_curvature(current, proposal, choice.direction)
+            true_curvature, inner_curvature = self._curvatures_for_choice(
+                current,
+                proposal,
+                choice,
+                rebuild_softening_for_choice,
+            )
+            self._record_direction_curvatures(
+                choice.kind,
+                choice_curvature=choice.curvature,
+                true_curvature=true_curvature,
+                inner_curvature=inner_curvature,
             )
             sigma = self._execution_step_scale(
                 current,
@@ -2606,11 +2829,111 @@ class SurfaceWalker:
                 step_target=step_target,
             )
             self._record_step_displacement_metrics(current, choice.direction, sigma)
-            weight = self._bias_weight(inner_curvature, sigma) * weight_scale
-            self._record_bias_weight(weight)
             true_before = self.calculator.evaluate(current)
             true_energy_before = true_before.energy
             g_parallel = float(np.dot(true_before.gradient.reshape(-1), choice.direction))
+            if self.config.proposal_step_mode == "direct_qp":
+                direct_qp_gamma = self._direct_qp_scalar_gamma(true_curvature)
+                if self.config.direct_qp_hessian == "rank1":
+                    direct_qp_gamma = self._direct_qp_rank1_gamma_floor()
+                result = self._execute_direct_qp_step(
+                    current=current,
+                    choice=choice,
+                    sigma=sigma,
+                    true_before=true_before,
+                    trust_radius=direct_qp_trust_radius,
+                    gamma=direct_qp_gamma,
+                    kappa=self._direct_qp_scalar_kappa(direct_qp_gamma),
+                    directional_curvature=true_curvature,
+                )
+                self._record_direct_qp_curvature(true_curvature)
+                if result is None:
+                    break
+                current_candidate, clipped = self._clip_walk_displacement(
+                    reference=seed_state,
+                    candidate=result.state,
+                    max_displacement=self.config.walk_trust_radius,
+                )
+                self._walk_displacement_clips += int(clipped)
+                if not self.geometry_validator.is_valid_state(current_candidate):
+                    self._record_direct_qp_result(
+                        step_norm=float(np.linalg.norm(result.step)),
+                        progress=result.progress,
+                        target_error=result.target_error,
+                        predicted_delta=result.predicted_delta,
+                        true_delta=result.true_delta,
+                        model_error=result.model_error,
+                        gamma=result.gamma,
+                        kappa=result.kappa,
+                        action="reject",
+                        rejected=True,
+                    )
+                    break
+                true_energy_after = result.energy_after
+                if current_candidate is not result.state:
+                    true_energy_after = self.calculator.evaluate(current_candidate).energy
+                if not np.isfinite(true_energy_after):
+                    self._record_direct_qp_result(
+                        step_norm=float(np.linalg.norm(result.step)),
+                        progress=result.progress,
+                        target_error=result.target_error,
+                        predicted_delta=result.predicted_delta,
+                        true_delta=result.true_delta,
+                        model_error=result.model_error,
+                        gamma=result.gamma,
+                        kappa=result.kappa,
+                        action="reject",
+                        rejected=True,
+                    )
+                    break
+                micro_result = self._direct_qp_micro_correct(current_candidate, model_error=result.model_error)
+                if micro_result is not None:
+                    current_candidate = micro_result.state
+                    true_energy_after = micro_result.energy
+                    self._record_direct_qp_micro_result(micro_result)
+                    if not self.geometry_validator.is_valid_state(current_candidate) or not np.isfinite(true_energy_after):
+                        self._record_direct_qp_result(
+                            step_norm=float(np.linalg.norm(result.step)),
+                            progress=result.progress,
+                            target_error=result.target_error,
+                            predicted_delta=result.predicted_delta,
+                            true_delta=result.true_delta,
+                            model_error=result.model_error,
+                            gamma=result.gamma,
+                            kappa=result.kappa,
+                            action="reject",
+                            rejected=True,
+                        )
+                        break
+                if result.action == "shrink":
+                    direct_qp_trust_radius = max(
+                        self.config.direct_qp_min_trust_radius,
+                        direct_qp_trust_radius * self.config.direct_qp_shrink_factor,
+                    )
+                elif result.action == "expand":
+                    direct_qp_trust_radius = min(
+                        self.config.walk_trust_radius,
+                        direct_qp_trust_radius * self.config.direct_qp_expand_factor,
+                    )
+                displacement = mic_displacement(
+                    current_candidate.positions,
+                    current.positions,
+                    current.cell,
+                    current.pbc,
+                ).reshape(-1)
+                if np.linalg.norm(displacement) > 1e-8:
+                    previous_direction = displacement / np.linalg.norm(displacement)
+                previous_relax_outcome = None
+                current = current_candidate
+                if self._should_early_exit_walk(seed_energy, true_energy_after):
+                    self._walk_early_stops += 1
+                    break
+                if clipped:
+                    break
+                continue
+            weight_curvature = self._bias_weight_curvature_for_choice(choice, inner_curvature)
+            weight = self._bias_weight(weight_curvature, sigma) * weight_scale
+            self._record_bias_weight(weight)
             biases.append(
                 GaussianBiasTerm(
                     center=current.flatten_positions(),
@@ -2693,9 +3016,17 @@ class SurfaceWalker:
             if np.linalg.norm(displacement) > 1e-8:
                 previous_direction = displacement / np.linalg.norm(displacement)
             current = current_candidate
+            if self._should_early_exit_walk(seed_energy, true_energy_after):
+                self._walk_early_stops += 1
+                break
             if clipped:
                 break
         return current
+
+    def _should_early_exit_walk(self, seed_energy: float | None, true_energy_after: float) -> bool:
+        if seed_energy is None:
+            return False
+        return bool(true_energy_after < seed_energy - self.config.early_exit_energy_tol)
 
     def _walk_from_seed(self, seed_state: State) -> RelaxResult:
         return self.relax_true_minimum(self._walk_candidate_from_seed(seed_state))
@@ -2828,6 +3159,15 @@ class SurfaceWalker:
         raw = sigma * sigma * max(curvature + self.config.target_negative_curvature, 0.0)
         return float(np.clip(raw, self.config.bias_weight_min, self.config.bias_weight_max))
 
+    @staticmethod
+    def _bias_weight_curvature_for_choice(choice: DirectionChoice, inner_curvature: float) -> float:
+        if (
+            choice.kind is DirectionCandidateKind.REFERENCE_DIMER
+            and choice.biased_curvature is not None
+        ):
+            return float(choice.biased_curvature)
+        return float(inner_curvature)
+
     def _true_directional_curvature(self, state: State, direction: np.ndarray) -> float:
         proposal = ProposalPotential(self.calculator)
         return self.oracle._directional_curvature(state, proposal, direction)
@@ -2940,6 +3280,9 @@ class SurfaceWalker:
         self._direction_choices = 0
         self._direction_candidate_evaluations = 0
         self._direction_selected = {kind: 0 for kind in DirectionCandidateKind}
+        self._direction_curvature_stats = {kind: self._new_curvature_stats() for kind in DirectionCandidateKind}
+        self._direction_true_curvature_stats = {kind: self._new_curvature_stats() for kind in DirectionCandidateKind}
+        self._direction_inner_curvature_stats = {kind: self._new_curvature_stats() for kind in DirectionCandidateKind}
         self._direction_rigid_overlap_sum = 0.0
         self._direction_post_projection_rigid_overlap_sum = 0.0
         self._step_displacement_records = 0
@@ -2957,7 +3300,12 @@ class SurfaceWalker:
         self._archive_escape_momentum_candidate_steps = 0
         self._archive_escape_momentum_candidates_generated = 0
         self._walk_displacement_clips = 0
+        self._walk_early_stops = 0
         self._fragment_rejections = 0
+
+    @staticmethod
+    def _new_curvature_stats() -> dict[str, float | int | None]:
+        return {"count": 0, "sum": 0.0, "min": None, "max": None}
 
     def _new_direction_type_memory(self) -> DirectionTypeMemory:
         return DirectionTypeMemory(
@@ -2971,6 +3319,15 @@ class SurfaceWalker:
         self._last_seed_entry_id: int | None = None
         self._same_seed_consecutive = 0
         self._seed_diversity_reseeds = 0
+
+    def _reset_reference_dimer_stats(self) -> None:
+        self._reference_dimer_steps = 0
+        self._reference_dimer_rotation_sum = 0
+        self._reference_dimer_converged = 0
+        self._reference_dimer_curvature_sum = 0.0
+        self._reference_dimer_true_curvature_sum = 0.0
+        self._reference_dimer_biased_curvature_sum = 0.0
+        self._reference_dimer_abs_dot_sum = 0.0
 
     def _reset_relax_stats(self) -> None:
         self._relax_stats = {
@@ -3005,6 +3362,25 @@ class SurfaceWalker:
         self._bias_zero_steps = 0
         self._bias_weight_sum = 0.0
         self._bias_weight_max = 0.0
+
+    def _reset_direct_qp_stats(self) -> None:
+        self._direct_qp_steps = 0
+        self._direct_qp_rejected = 0
+        self._direct_qp_step_norm_sum = 0.0
+        self._direct_qp_progress_sum = 0.0
+        self._direct_qp_target_error_sum = 0.0
+        self._direct_qp_model_error_sum = 0.0
+        self._direct_qp_shrink_steps = 0
+        self._direct_qp_expand_steps = 0
+        self._direct_qp_gamma_sum = 0.0
+        self._direct_qp_kappa_sum = 0.0
+        self._direct_qp_curvature_history: list[float] = []
+        self._direct_qp_high_model_error_streak = 0
+        self._direct_qp_high_model_error_streak_max = 0
+        self._direct_qp_micro_count = 0
+        self._direct_qp_micro_iteration_sum = 0
+        self._direct_qp_micro_displacement_rms_sum = 0.0
+        self._direct_qp_micro_displacement_max = 0.0
 
     def _reset_local_softening_stats(self) -> None:
         self._local_softening_terms_last = 0
@@ -3252,6 +3628,83 @@ class SurfaceWalker:
         self._bias_weight_sum += float(weight)
         self._bias_weight_max = max(self._bias_weight_max, float(weight))
 
+    def _record_direct_qp_result(
+        self,
+        *,
+        step_norm: float,
+        progress: float,
+        target_error: float,
+        predicted_delta: float,
+        true_delta: float,
+        model_error: float,
+        gamma: float,
+        kappa: float,
+        action: str,
+        rejected: bool,
+    ) -> None:
+        self._direct_qp_steps += 1
+        self._direct_qp_rejected += int(rejected)
+        self._direct_qp_step_norm_sum += float(step_norm)
+        self._direct_qp_progress_sum += float(progress)
+        self._direct_qp_target_error_sum += float(target_error)
+        self._direct_qp_model_error_sum += float(model_error)
+        self._direct_qp_gamma_sum += float(gamma)
+        self._direct_qp_kappa_sum += float(kappa)
+        if model_error > self.config.direct_qp_gamma_model_error_threshold:
+            self._direct_qp_high_model_error_streak += 1
+            self._direct_qp_high_model_error_streak_max = max(
+                self._direct_qp_high_model_error_streak_max,
+                self._direct_qp_high_model_error_streak,
+            )
+        else:
+            self._direct_qp_high_model_error_streak = 0
+        if action == "shrink":
+            self._direct_qp_shrink_steps += 1
+        if action == "expand":
+            self._direct_qp_expand_steps += 1
+
+    def _record_direct_qp_micro_result(self, result: RelaxResult) -> None:
+        self._direct_qp_micro_count += 1
+        self._direct_qp_micro_iteration_sum += int(result.n_iter)
+        self._direct_qp_micro_displacement_rms_sum += float(result.displacement_rms)
+        self._direct_qp_micro_displacement_max = max(
+            self._direct_qp_micro_displacement_max,
+            float(result.displacement_max),
+        )
+
+    def _record_reference_dimer_result(self, result: ReferenceDimerResult) -> None:
+        self._reference_dimer_steps += 1
+        self._reference_dimer_rotation_sum += int(result.rotations)
+        self._reference_dimer_converged += int(result.converged)
+        self._reference_dimer_curvature_sum += float(result.curvature)
+        if result.curvature_true is not None:
+            self._reference_dimer_true_curvature_sum += float(result.curvature_true)
+        if result.curvature_biased is not None:
+            self._reference_dimer_biased_curvature_sum += float(result.curvature_biased)
+        self._reference_dimer_abs_dot_sum += abs(float(result.dot_initial))
+
+    def _record_direction_curvatures(
+        self,
+        kind: DirectionCandidateKind,
+        *,
+        choice_curvature: float,
+        true_curvature: float,
+        inner_curvature: float,
+    ) -> None:
+        self._update_curvature_stats(self._direction_curvature_stats[kind], choice_curvature)
+        self._update_curvature_stats(self._direction_true_curvature_stats[kind], true_curvature)
+        self._update_curvature_stats(self._direction_inner_curvature_stats[kind], inner_curvature)
+
+    @staticmethod
+    def _update_curvature_stats(stats: dict[str, float | int | None], value: float) -> None:
+        value = float(value)
+        if not np.isfinite(value):
+            return
+        stats["count"] = int(stats["count"]) + 1
+        stats["sum"] = float(stats["sum"]) + value
+        stats["min"] = value if stats["min"] is None else min(float(stats["min"]), value)
+        stats["max"] = value if stats["max"] is None else max(float(stats["max"]), value)
+
     def _record_direction_choice(self, choice: DirectionChoice) -> None:
         self._direction_choices += 1
         self._direction_candidate_evaluations += choice.candidate_count
@@ -3289,6 +3742,30 @@ class SurfaceWalker:
             "trust_shrink_steps": self._trust_shrink_steps,
             "trust_expand_steps": self._trust_expand_steps,
             "trust_damage_events": self._trust_damage_events,
+        }
+
+    def _reference_dimer_stats_summary(self) -> dict[str, float | int]:
+        steps = self._reference_dimer_steps
+        return {
+            "reference_dimer_steps": steps,
+            "reference_dimer_mean_rotations": (
+                float(self._reference_dimer_rotation_sum / steps) if steps else 0.0
+            ),
+            "reference_dimer_converged_fraction": (
+                float(self._reference_dimer_converged / steps) if steps else 0.0
+            ),
+            "reference_dimer_mean_curvature": (
+                float(self._reference_dimer_curvature_sum / steps) if steps else 0.0
+            ),
+            "reference_dimer_mean_true_curvature": (
+                float(self._reference_dimer_true_curvature_sum / steps) if steps else 0.0
+            ),
+            "reference_dimer_mean_biased_curvature": (
+                float(self._reference_dimer_biased_curvature_sum / steps) if steps else 0.0
+            ),
+            "reference_dimer_mean_abs_dot_initial": (
+                float(self._reference_dimer_abs_dot_sum / steps) if steps else 0.0
+            ),
         }
 
     def _direction_stats_summary(self) -> dict[str, StatsValue]:
@@ -3333,6 +3810,7 @@ class SurfaceWalker:
             "direction_selected_ritz_reg": self._direction_selected[DirectionCandidateKind.RITZ_REG],
             "direction_selected_evolved": self._direction_selected[DirectionCandidateKind.EVOLVED],
             "direction_selected_archive_momentum": self._direction_selected[DirectionCandidateKind.ARCHIVE_MOMENTUM],
+            "direction_selected_reference_dimer": self._direction_selected[DirectionCandidateKind.REFERENCE_DIMER],
             "plateau_evolution_enabled": int(self.config.plateau_evolution_enabled),
             "plateau_evolution_active_steps": self._plateau_evolution_active_steps,
             "plateau_evolution_candidate_steps": self._plateau_evolution_candidate_steps,
@@ -3345,6 +3823,7 @@ class SurfaceWalker:
             "direction_fallback_bond_pairs_generated": self._direction_fallback_bond_pairs_generated,
             "direction_bond_candidates_valid": self._direction_bond_candidates_valid,
             "walk_displacement_clips": self._walk_displacement_clips,
+            "walk_early_stops": self._walk_early_stops,
             "fragment_rejections": self._fragment_rejections,
             "seed_diversity_reseeds": self._seed_diversity_reseeds,
         }
@@ -3352,7 +3831,34 @@ class SurfaceWalker:
         for kind in DirectionCandidateKind:
             summary[f"direction_type_selected_{kind.value}"] = self.direction_type_memory.selected_counts.get(kind, 0)
             summary[f"direction_type_productive_{kind.value}"] = self.direction_type_memory.productive_counts.get(kind, 0)
+            self._add_curvature_summary(
+                summary,
+                f"direction_curvature_{kind.value}",
+                self._direction_curvature_stats[kind],
+            )
+            self._add_curvature_summary(
+                summary,
+                f"direction_true_curvature_{kind.value}",
+                self._direction_true_curvature_stats[kind],
+            )
+            self._add_curvature_summary(
+                summary,
+                f"direction_inner_curvature_{kind.value}",
+                self._direction_inner_curvature_stats[kind],
+            )
         return summary
+
+    @staticmethod
+    def _add_curvature_summary(
+        summary: dict[str, StatsValue],
+        prefix: str,
+        stats: dict[str, float | int | None],
+    ) -> None:
+        count = int(stats["count"])
+        summary[f"{prefix}_count"] = count
+        summary[f"{prefix}_mean"] = float(float(stats["sum"]) / count) if count else 0.0
+        summary[f"{prefix}_min"] = float(stats["min"]) if stats["min"] is not None else 0.0
+        summary[f"{prefix}_max"] = float(stats["max"]) if stats["max"] is not None else 0.0
 
     def _relax_stats_summary(self) -> dict[str, float | int]:
         summary: dict[str, float | int] = {}
@@ -3389,6 +3895,34 @@ class SurfaceWalker:
         summary["bias_weight_mean"] = float(self._bias_weight_sum / self._bias_steps) if self._bias_steps else 0.0
         summary["bias_weight_max"] = float(self._bias_weight_max)
         return summary
+
+    def _direct_qp_stats_summary(self) -> dict[str, float | int]:
+        count = self._direct_qp_steps
+        return {
+            "direct_qp_steps": count,
+            "direct_qp_rejected": self._direct_qp_rejected,
+            "direct_qp_mean_step_norm": float(self._direct_qp_step_norm_sum / count) if count else 0.0,
+            "direct_qp_mean_progress": float(self._direct_qp_progress_sum / count) if count else 0.0,
+            "direct_qp_mean_target_error": float(self._direct_qp_target_error_sum / count) if count else 0.0,
+            "direct_qp_mean_model_error": float(self._direct_qp_model_error_sum / count) if count else 0.0,
+            "direct_qp_trust_shrink_steps": self._direct_qp_shrink_steps,
+            "direct_qp_trust_expand_steps": self._direct_qp_expand_steps,
+            "direct_qp_gamma_mean": float(self._direct_qp_gamma_sum / count) if count else 0.0,
+            "direct_qp_kappa_mean": float(self._direct_qp_kappa_sum / count) if count else 0.0,
+            "direct_qp_high_model_error_streak_max": self._direct_qp_high_model_error_streak_max,
+            "direct_qp_micro_count": self._direct_qp_micro_count,
+            "direct_qp_micro_mean_iterations": (
+                float(self._direct_qp_micro_iteration_sum / self._direct_qp_micro_count)
+                if self._direct_qp_micro_count
+                else 0.0
+            ),
+            "direct_qp_micro_displacement_rms_mean": (
+                float(self._direct_qp_micro_displacement_rms_sum / self._direct_qp_micro_count)
+                if self._direct_qp_micro_count
+                else 0.0
+            ),
+            "direct_qp_micro_displacement_max": float(self._direct_qp_micro_displacement_max),
+        }
 
     def _build_softening(self, seed_state: State, direction: np.ndarray | None = None) -> LocalSofteningModel | None:
         if not self.softening_enabled or not isinstance(self.config, LSSSWConfig):
@@ -3459,6 +3993,257 @@ class SurfaceWalker:
                 metadata=candidate.metadata.copy(),
             ),
             True,
+        )
+
+    @staticmethod
+    def _solve_direct_qp_scalar_step(
+        *,
+        gradient: np.ndarray,
+        direction: np.ndarray,
+        sigma: float,
+        gamma: float,
+        kappa: float,
+        trust_radius: float,
+    ) -> np.ndarray:
+        gradient = np.asarray(gradient, dtype=float).reshape(-1)
+        direction = np.asarray(direction, dtype=float).reshape(-1)
+        if gradient.shape != direction.shape:
+            raise ValueError("gradient and direction must have the same shape")
+        direction_norm = float(np.linalg.norm(direction))
+        if direction_norm <= 1e-12:
+            return np.zeros_like(gradient)
+        direction = direction / direction_norm
+        denominator = float(gamma) + float(kappa)
+        if denominator <= 0.0 or not np.isfinite(denominator):
+            raise ValueError("direct-QP scalar denominator must be positive and finite")
+        radius = float(trust_radius)
+        if radius <= 0.0 or not np.isfinite(radius):
+            raise ValueError("direct-QP trust radius must be positive and finite")
+        step = -(gradient - float(kappa) * float(sigma) * direction) / denominator
+        step_norm = float(np.linalg.norm(step))
+        if step_norm > radius and step_norm > 1e-12:
+            step = step * (radius / step_norm)
+        return step
+
+    @staticmethod
+    def _solve_direct_qp_rank1_step(
+        *,
+        gradient: np.ndarray,
+        direction: np.ndarray,
+        sigma: float,
+        gamma_floor: float,
+        directional_curvature: float,
+        kappa: float,
+        trust_radius: float,
+    ) -> np.ndarray:
+        gradient = np.asarray(gradient, dtype=float).reshape(-1)
+        direction = np.asarray(direction, dtype=float).reshape(-1)
+        if gradient.shape != direction.shape:
+            raise ValueError("gradient and direction must have the same shape")
+        direction_norm = float(np.linalg.norm(direction))
+        if direction_norm <= 1e-12:
+            return np.zeros_like(gradient)
+        direction = direction / direction_norm
+        gamma_floor = float(gamma_floor)
+        directional_curvature = float(directional_curvature)
+        if not np.isfinite(directional_curvature):
+            directional_curvature = gamma_floor
+        directional_curvature = max(directional_curvature, gamma_floor)
+        kappa = float(kappa)
+        parallel_denominator = directional_curvature + kappa
+        perpendicular_denominator = gamma_floor + kappa
+        if (
+            parallel_denominator <= 0.0
+            or perpendicular_denominator <= 0.0
+            or not np.isfinite(parallel_denominator)
+            or not np.isfinite(perpendicular_denominator)
+        ):
+            raise ValueError("direct-QP rank1 denominators must be positive and finite")
+        radius = float(trust_radius)
+        if radius <= 0.0 or not np.isfinite(radius):
+            raise ValueError("direct-QP trust radius must be positive and finite")
+        g_parallel = float(np.dot(gradient, direction))
+        gradient_parallel = g_parallel * direction
+        gradient_perpendicular = gradient - gradient_parallel
+        step = -gradient_perpendicular / perpendicular_denominator
+        step += -((g_parallel - kappa * float(sigma)) / parallel_denominator) * direction
+        step_norm = float(np.linalg.norm(step))
+        if step_norm > radius and step_norm > 1e-12:
+            step = step * (radius / step_norm)
+        return step
+
+    def _direct_qp_initial_trust_radius(self) -> float:
+        radius = self.config.proposal_trust_radius
+        if radius is None:
+            radius = self.config.walk_trust_radius
+        return max(float(radius), float(self.config.direct_qp_min_trust_radius))
+
+    def _direct_qp_trust_action(self, *, model_error: float, progress: float, sigma: float) -> str:
+        min_progress = self.config.direct_qp_accept_min_progress_fraction * max(float(sigma), 1e-12)
+        if model_error > self.config.direct_qp_accept_model_error or progress < min_progress:
+            return "shrink"
+        return "expand"
+
+    def _direct_qp_scalar_gamma(self, curvature: float) -> float:
+        if not np.isfinite(curvature):
+            return float(self.config.direct_qp_gamma)
+        return float(max(curvature, self.config.direct_qp_gamma))
+
+    def _direct_qp_rank1_gamma_floor(self) -> float:
+        floor = float(self.config.direct_qp_gamma)
+        if self.config.direct_qp_gamma_mode == "constant":
+            return floor
+        if (
+            self.config.direct_qp_gamma_mode == "model_error_gated_history"
+            and self._direct_qp_high_model_error_streak < int(self.config.direct_qp_gamma_model_error_streak)
+        ):
+            return floor
+        history = np.asarray(self._direct_qp_curvature_history, dtype=float)
+        history = history[np.isfinite(history) & (history > 0.0)]
+        if history.size < int(self.config.direct_qp_gamma_history_min_samples):
+            return floor
+        quantile = float(np.quantile(history, float(self.config.direct_qp_gamma_history_quantile)))
+        if not np.isfinite(quantile):
+            return floor
+        return float(max(floor, quantile))
+
+    def _record_direct_qp_curvature(self, curvature: float) -> None:
+        if not np.isfinite(curvature) or curvature <= 0.0:
+            return
+        self._direct_qp_curvature_history.append(float(curvature))
+        maxlen = int(self.config.direct_qp_gamma_history_maxlen)
+        if len(self._direct_qp_curvature_history) > maxlen:
+            del self._direct_qp_curvature_history[: len(self._direct_qp_curvature_history) - maxlen]
+
+    def _direct_qp_scalar_kappa(self, gamma: float) -> float:
+        kappa = float(self.config.direct_qp_kappa)
+        if self.config.direct_qp_kappa_mode == "adaptive_curvature" and np.isfinite(gamma):
+            kappa = max(kappa, float(self.config.direct_qp_kappa_curvature_ratio) * float(gamma))
+            kappa = min(kappa, float(self.config.direct_qp_kappa_max))
+        return kappa
+
+    def _direct_qp_micro_steps_for_model_error(self, model_error: float) -> int:
+        if self.config.direct_qp_micro_mode == "off":
+            return 0
+        base_steps = int(self.config.direct_qp_micro_steps)
+        max_steps = int(self.config.direct_qp_micro_max_steps)
+        if self.config.direct_qp_micro_mode == "always":
+            return base_steps
+        if not np.isfinite(model_error):
+            model_error = float("inf")
+        threshold = float(self.config.direct_qp_micro_model_error_threshold)
+        if self.config.direct_qp_micro_mode == "model_error":
+            return max_steps if model_error > threshold else 0
+        if model_error <= threshold:
+            return base_steps
+        high = float(self.config.direct_qp_micro_model_error_high)
+        if high <= threshold:
+            return max_steps
+        fraction = min(1.0, max(0.0, (float(model_error) - threshold) / (high - threshold)))
+        return int(round(base_steps + fraction * (max_steps - base_steps)))
+
+    def _direct_qp_micro_correct(self, state: State, *, model_error: float) -> RelaxResult | None:
+        maxiter = self._direct_qp_micro_steps_for_model_error(model_error)
+        if maxiter <= 0:
+            return None
+        return Relaxer(self.calculator.evaluate_flat, optimizer=self.config.direct_qp_micro_optimizer).relax(
+            state,
+            fmax=self.config.direct_qp_micro_fmax,
+            maxiter=maxiter,
+            coordinate_trust_radius=self.config.direct_qp_micro_trust_radius,
+        )
+
+    def _execute_direct_qp_step(
+        self,
+        *,
+        current: State,
+        choice: DirectionChoice,
+        sigma: float,
+        true_before,
+        trust_radius: float,
+        gamma: float,
+        kappa: float,
+        directional_curvature: float | None = None,
+    ) -> DirectQPStepResult | None:
+        gradient = true_before.gradient.reshape(-1)
+        if self.config.direct_qp_hessian == "rank1":
+            step = self._solve_direct_qp_rank1_step(
+                gradient=gradient,
+                direction=choice.direction,
+                sigma=sigma,
+                gamma_floor=gamma,
+                directional_curvature=gamma if directional_curvature is None else directional_curvature,
+                kappa=kappa,
+                trust_radius=trust_radius,
+            )
+        else:
+            step = self._solve_direct_qp_scalar_step(
+                gradient=gradient,
+                direction=choice.direction,
+                sigma=sigma,
+                gamma=gamma,
+                kappa=kappa,
+                trust_radius=trust_radius,
+            )
+        direction = np.asarray(choice.direction, dtype=float).reshape(-1)
+        direction_norm = float(np.linalg.norm(direction))
+        if direction_norm > 1e-12:
+            direction = direction / direction_norm
+        progress = float(np.dot(direction, step))
+        target_error = float(np.linalg.norm(step - float(sigma) * direction))
+
+        def record_reject() -> None:
+            self._record_direct_qp_result(
+                step_norm=float(np.linalg.norm(step)),
+                progress=progress,
+                target_error=target_error,
+                predicted_delta=0.0,
+                true_delta=0.0,
+                model_error=0.0,
+                gamma=gamma,
+                kappa=kappa,
+                action="reject",
+                rejected=True,
+            )
+
+        candidate = CartesianCoordinates.from_state(current).displace(TangentVector(step), 1.0)
+        if not self.geometry_validator.is_valid_state(candidate):
+            record_reject()
+            return None
+        after = self.calculator.evaluate(candidate)
+        if not np.isfinite(after.energy):
+            record_reject()
+            return None
+        predicted_delta = float(gradient @ step + 0.5 * float(gamma) * (step @ step))
+        true_delta = float(after.energy - true_before.energy)
+        model_error = float(abs(true_delta - predicted_delta) / max(abs(predicted_delta), 1e-8))
+        action = self._direct_qp_trust_action(model_error=model_error, progress=progress, sigma=sigma)
+        self._record_direct_qp_result(
+            step_norm=float(np.linalg.norm(step)),
+            progress=progress,
+            target_error=target_error,
+            predicted_delta=predicted_delta,
+            true_delta=true_delta,
+            model_error=model_error,
+            gamma=gamma,
+            kappa=kappa,
+            action=action,
+            rejected=False,
+        )
+        return DirectQPStepResult(
+            state=candidate,
+            step=step,
+            energy_before=float(true_before.energy),
+            energy_after=float(after.energy),
+            predicted_delta=predicted_delta,
+            true_delta=true_delta,
+            model_error=model_error,
+            progress=progress,
+            target_error=target_error,
+            gamma=float(gamma),
+            kappa=float(kappa),
+            action=action,
+            rejected=False,
         )
 
     def _is_fragmented_cluster(self, reference: State, candidate: State) -> bool:

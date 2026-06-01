@@ -1,0 +1,54 @@
+{
+  "rows": [
+    {
+      "best_energy": -505.60693359375,
+      "bias_steps": 0,
+      "device": "cuda",
+      "direct_qp_gamma_mean": 1.0037967106221442,
+      "direct_qp_kappa_mean": 240.0,
+      "direct_qp_mean_model_error": 6.947797285756211,
+      "direct_qp_mean_progress": 0.9584260454107171,
+      "direct_qp_mean_step_norm": 0.9585792861663468,
+      "direct_qp_mean_target_error": 0.20809190125642005,
+      "direct_qp_micro_count": 2058,
+      "direct_qp_micro_displacement_max": 1.8301522889408037,
+      "direct_qp_micro_displacement_rms_mean": 0.05274468554999874,
+      "direct_qp_micro_mean_iterations": 10.727891156462585,
+      "direct_qp_rejected": 27,
+      "direct_qp_steps": 2085,
+      "direct_qp_trust_expand_steps": 1658,
+      "direct_qp_trust_shrink_steps": 400,
+      "duplicate_rate": 0.4311594202898551,
+      "energy_evaluations": 108187,
+      "force_evaluations": 108187,
+      "n_minima": 157,
+      "nearest_median": 1.4159707830206796,
+      "nearest_min": 1.384709438700997,
+      "proposal_relax_count": 0,
+      "proposal_relax_mean_iterations": 0.0,
+      "seed": 42,
+      "summary_path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260530-direct-qp-ssw-c60-cuo-pdo-benchmark/output/c60_direct_qp_rank1_gated_q25_micro_adaptive50_dup_rescue_seed42_trials200_cuda/ssw_summary.json",
+      "system": "c60",
+      "true_quench_count": 276,
+      "true_quench_mean_iterations": 49.333333333333336,
+      "variant": "direct_qp_rank1_gated_q25_micro_adaptive50_dup_rescue",
+      "wall_time_s": 2044.3010697364807
+    }
+  ],
+  "summary": [
+    {
+      "best_energy_min": -505.60693359375,
+      "mean_best_energy": -505.60693359375,
+      "mean_direct_qp_micro_count": 2058.0,
+      "mean_direct_qp_micro_iterations": 10.727891156462585,
+      "mean_direct_qp_rejected": 27.0,
+      "mean_direct_qp_steps": 2085.0,
+      "mean_duplicate_rate": 0.4311594202898551,
+      "mean_force_evaluations": 108187.0,
+      "mean_wall_time_s": 2044.3010697364807,
+      "n": 1,
+      "system": "c60",
+      "variant": "direct_qp_rank1_gated_q25_micro_adaptive50_dup_rescue"
+    }
+  ]
+}
