@@ -2672,7 +2672,7 @@ class SurfaceWalker:
             candidate_count=1,
             score=None,
             true_curvature=(
-                float(result.curvature_true)
+                -float(result.curvature_true)
                 if result.curvature_true is not None
                 else float(result.curvature)
             ),

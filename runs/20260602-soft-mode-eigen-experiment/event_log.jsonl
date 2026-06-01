@@ -1,0 +1,2 @@
+{"event":"approval","text":"Approve execution: soft-mode eigen experiment","status":"recorded"}
+{"event":"runner_updated","status":"py_compile_passed_and_mace_les_help_passed","methods_added":["penalized_lanczos","constrained_ritz"],"full_cuda_run":"deferred_until_500t_job_has_capacity"}

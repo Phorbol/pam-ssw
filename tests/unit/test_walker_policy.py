@@ -1167,6 +1167,29 @@ def test_reference_dimer_force_callback_preserves_fixed_positions_and_forces(mon
     np.testing.assert_allclose(choice.direction.reshape(-1, 3)[0], np.zeros(3), atol=1e-12)
 
 
+def test_reference_dimer_choice_reports_standard_hessian_curvature():
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(
+            direction_engine="reference_dimer",
+            reference_dimer_max_steps=1,
+            reference_dimer_bias_strength=500.0,
+        ),
+        softening_enabled=False,
+    )
+
+    direction = np.array([[1.0, 0.0, 0.0]])
+    choice = walker._choose_reference_dimer_direction(
+        state,
+        initial_direction=direction,
+        initial_info={"lambda": 0.0, "pair": (0, 0)},
+    )
+
+    assert choice.true_curvature == pytest.approx(1.0)
+    assert choice.biased_curvature == pytest.approx(1999.0)
+
+
 def test_reference_dimer_walk_reuses_returned_curvature(monkeypatch):
     state = State(
         numbers=np.array([6, 6]),
@@ -3802,7 +3825,7 @@ def test_reference_dimer_bias_relax_uses_biased_curvature_for_gaussian_weight(mo
             curvature=2000.0,
             kind=DirectionCandidateKind.REFERENCE_DIMER,
             candidate_count=1,
-            true_curvature=-25.0,
+            true_curvature=25.0,
             biased_curvature=2000.0,
         ),
     )
@@ -3852,7 +3875,7 @@ def test_reference_dimer_bias_relax_uses_biased_curvature_for_gaussian_weight(mo
     walker._walk_candidate_from_seed(state)
 
     assert captured_bias_curvatures == [pytest.approx(2000.0)]
-    assert captured_trust_curvatures == [pytest.approx(-25.0)]
+    assert captured_trust_curvatures == [pytest.approx(25.0)]
 
 
 def test_direction_generator_adds_bond_candidate_when_pairs_are_provided():
