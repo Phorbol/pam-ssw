@@ -1,3 +1,29 @@
 {
-  "artifacts": []
+  "artifacts": [
+    {
+      "artifact_id": "results_csv",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260602-soft-mode-eigen-experiment/results.csv",
+      "type": "csv"
+    },
+    {
+      "artifact_id": "results_json",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260602-soft-mode-eigen-experiment/results.json",
+      "type": "json"
+    },
+    {
+      "artifact_id": "summary_md",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260602-soft-mode-eigen-experiment/summary.md",
+      "type": "markdown"
+    },
+    {
+      "artifact_id": "status_md",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260602-soft-mode-eigen-experiment/status.md",
+      "type": "markdown"
+    },
+    {
+      "artifact_id": "event_log",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260602-soft-mode-eigen-experiment/event_log.jsonl",
+      "type": "jsonl"
+    }
+  ]
 }

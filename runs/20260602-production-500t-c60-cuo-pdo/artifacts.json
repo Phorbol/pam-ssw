@@ -1,0 +1,34 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "results_csv",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260602-production-500t-c60-cuo-pdo/results.csv",
+      "type": "csv"
+    },
+    {
+      "artifact_id": "results_json",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260602-production-500t-c60-cuo-pdo/results.json",
+      "type": "json"
+    },
+    {
+      "artifact_id": "summary_md",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260602-production-500t-c60-cuo-pdo/summary.md",
+      "type": "markdown"
+    },
+    {
+      "artifact_id": "status_md",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260602-production-500t-c60-cuo-pdo/status.md",
+      "type": "markdown"
+    },
+    {
+      "artifact_id": "event_log",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260602-production-500t-c60-cuo-pdo/event_log.jsonl",
+      "type": "jsonl"
+    },
+    {
+      "artifact_id": "production_log",
+      "path": "/tmp/SSW-worktrees/direct-qp-ssw/runs/20260602-production-500t-c60-cuo-pdo/production500.log",
+      "type": "log"
+    }
+  ]
+}

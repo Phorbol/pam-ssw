@@ -1,9 +1,29 @@
 # Status
 
-- Phase: running
-- Completed cases: 0/9
-- Active case: `c60_bias_relax_current_seed42_trials500_cuda`
-- Latest observed progress: trial 147/500, best `-505.9082946777344` eV, minima 123
+- Phase: completed
+- Completed cases: 9/9
+- Completed case: `c60_bias_relax_current_seed42_trials500_cuda`
+- Completed result: best `-507.7607421875` eV, minima 420, force evals 245444, duplicate rate 0.16
+- Completed case: `c60_direct_qp_rank1_gated_q25_micro_adaptive50_seed42_trials500_cuda`
+- Completed result: best `-507.78228759765625` eV, minima 287, force evals 213279, duplicate rate 0.42714570858283435
+- Completed case: `c60_direct_qp_curvature_gamma_kappa240_seed42_trials500_cuda`
+- Completed result: best `-488.3553466796875` eV, minima 392, force evals 219746, duplicate rate 0.2
+- Completed case: `cuo_bias_relax_current_seed42_trials500_cuda`
+- Completed result: best `-202.26119995117188` eV, minima 500, force evals 489168, duplicate rate 0.001996007984031936
+- Completed case: `cuo_direct_qp_rank1_gated_q25_micro_adaptive50_seed42_trials500_cuda`
+- Completed result: best `-202.13876342773438` eV, minima 326, force evals 154939, duplicate rate 0.34930139720558884
+- Completed case: `cuo_direct_qp_curvature_gamma_kappa240_seed42_trials500_cuda`
+- Completed result: best `-202.59031677246094` eV, minima 474, force evals 122836, duplicate rate 0.05389221556886228
+- Completed case: `pdo_bias_relax_current_seed42_trials500_cuda`
+- Completed result: best `-575.30810546875` eV, minima 449, force evals 174158, duplicate rate 0.10379241516966067
+- Completed case: `pdo_direct_qp_rank1_gated_q25_micro_adaptive50_seed42_trials500_cuda`
+- Completed result: best `-576.8526611328125` eV, minima 409, force evals 146393, duplicate rate 0.18363273453093812
+- Completed case: `pdo_direct_qp_curvature_gamma_kappa240_seed42_trials500_cuda`
+- Completed result: best `-575.6696166992188` eV, minima 373, force evals 80151, duplicate rate 0.2554890219560878
+- Active case: none
+- Latest observed progress: all 9 cases completed; `results.csv` has 10 lines including header
+- Current read: C60 adaptive50 matched/slightly beat bias-relax best while cheaper, but with lower coverage and higher duplicate rate; C60 fixed-kappa failed badly. CuO fixed-kappa is the best CuO result and is much cheaper than bias-relax; CuO adaptive50 is cheaper but shallower. PdO adaptive50 is the best PdO result and cheaper than bias-relax; PdO fixed-kappa is cheapest and beats bias-relax on best, but is much shallower than adaptive50.
+- Method note for follow-up soft-mode study: Lanczos will be evaluated as a constrained soft-mode generator, not as a one-to-one CBD replacement. Planned levels are plain lowest mode, penalized direction-preserving mode, and multi-candidate Rayleigh-Ritz scoring.
 - Command: `runs/20260602-production-500t-c60-cuo-pdo/run_500t.sh`
 - PID: 524
 - Started: 2026-06-02T01:04:52+08:00
