@@ -1,0 +1,31 @@
+task: Ritz CUDA 40t ablation
+approval_text: "Approve execution: Ritz CUDA 40t ablation"
+created_at: "2026-06-02T00:00:00+08:00"
+branch: feature/direct-qp-ssw
+scope:
+  systems:
+    - c60
+    - cuo
+    - pdo
+  seeds:
+    - 42
+  trials: 40
+  steps_per_walk: 8
+  device: cuda
+  variants:
+    - direct_qp_system_baseline
+    - direct_qp_system_baseline_regularized_ritz
+    - direct_qp_system_baseline_rayleigh_ritz
+baseline_mapping:
+  c60: direct_qp_rank1_gated_q25_micro_adaptive50
+  cuo: direct_qp_curvature_gamma_kappa240
+  pdo: direct_qp_rank1_gated_q25_micro_adaptive50
+deliverables:
+  - results.csv
+  - results.json
+  - summary.md
+  - artifacts.json
+  - output/*/ssw_summary.json
+constraints:
+  - Do not run additional long CUDA cases without explicit approval.
+  - Do not delete existing 500t raw outputs.

@@ -1,0 +1,41 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "run_matrix",
+      "path": "runs/20260602-ritz-cuda-40t-ablation/run_matrix.py",
+      "type": "python"
+    },
+    {
+      "artifact_id": "results_csv",
+      "path": "runs/20260602-ritz-cuda-40t-ablation/results.csv",
+      "rows": 9,
+      "type": "csv"
+    },
+    {
+      "artifact_id": "results_json",
+      "path": "runs/20260602-ritz-cuda-40t-ablation/results.json",
+      "type": "json"
+    },
+    {
+      "artifact_id": "summary_md",
+      "path": "runs/20260602-ritz-cuda-40t-ablation/summary.md",
+      "type": "markdown"
+    },
+    {
+      "artifact_id": "run_stdout",
+      "path": "runs/20260602-ritz-cuda-40t-ablation/logs/run.out",
+      "type": "log"
+    },
+    {
+      "artifact_id": "run_stderr",
+      "path": "runs/20260602-ritz-cuda-40t-ablation/logs/run.err",
+      "type": "log"
+    },
+    {
+      "artifact_id": "case_summaries",
+      "count": 9,
+      "path": "runs/20260602-ritz-cuda-40t-ablation/output/*/ssw_summary.json",
+      "type": "json_collection"
+    }
+  ]
+}
