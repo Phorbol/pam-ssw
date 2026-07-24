@@ -265,7 +265,6 @@ def test_invalid_worker_returns_abort_without_state_or_log_mutation(
 
     assert _controller_fingerprint(controller) == before
     assert not event_path.exists()
-    assert not controller.has_pending_commit
 
 
 def test_log_failure_rolls_back_entries_nested_archive_data_posterior_and_versions() -> None:
@@ -323,7 +322,6 @@ def test_postwrite_log_error_retries_exact_pending_batch_without_reexecuting_wor
             controller.run_batch(executor, nondeterministic_worker, batch_size=1, force_budget=None)
 
         assert worker_calls == [0]
-        assert controller.has_pending_commit
         assert _controller_fingerprint(controller) == before
         rows_before_retry = event_path.read_text(encoding="utf-8")
 
@@ -334,7 +332,6 @@ def test_postwrite_log_error_retries_exact_pending_batch_without_reexecuting_wor
 
     assert worker_calls == [0]
     assert event_log.calls == 2
-    assert not controller.has_pending_commit
     assert event_path.read_text(encoding="utf-8") == rows_before_retry
     assert outcomes[0].landing_energy == pytest.approx(-11.0)
     assert controller.posterior.completed_attempts == 1
@@ -342,6 +339,45 @@ def test_postwrite_log_error_retries_exact_pending_batch_without_reexecuting_wor
         1,
         0,
     )
+
+
+def test_controller_exposes_no_locking_pending_status_property(tmp_path: Path) -> None:
+    controller = ExplorationController(
+        _archive(), "uniform", 23, ExplorationEventLog(tmp_path / "events.jsonl")
+    )
+
+    assert not hasattr(controller, "has_pending_commit")
+
+
+def test_worker_and_batch_log_callback_can_inspect_public_counters_during_batch(tmp_path: Path) -> None:
+    observed_by_worker: list[tuple[int, int, int]] = []
+    observed_by_log: list[tuple[int, int, int]] = []
+
+    class CounterInspectingLog:
+        def __init__(self, path: Path) -> None:
+            self._log = ExplorationEventLog(path)
+
+        def append_batch(self, snapshot, actions, outcomes) -> None:
+            observed_by_log.append(
+                (controller.policy_version, controller.archive_version, controller.batch_id)
+            )
+            self._log.append_batch(snapshot, actions, outcomes)
+
+    event_log = CounterInspectingLog(tmp_path / "events.jsonl")
+    controller = ExplorationController(_archive(), "uniform", 28, event_log)
+
+    def worker(action: StarterAction, starter_state: State) -> AttemptResult:
+        observed_by_worker.append(
+            (controller.policy_version, controller.archive_version, controller.batch_id)
+        )
+        return _completed(action, 9.0, -9.0)
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        controller.run_batch(executor, worker, batch_size=1, force_budget=None)
+
+    assert observed_by_worker == [(0, 0, 0)]
+    assert observed_by_log == [(0, 0, 0)]
+    assert (controller.policy_version, controller.archive_version, controller.batch_id) == (1, 1, 1)
 
 
 def test_completed_landing_state_is_owned_by_archive_after_worker_returns(tmp_path: Path) -> None:

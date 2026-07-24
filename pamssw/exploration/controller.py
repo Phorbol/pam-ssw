@@ -100,12 +100,6 @@ class ExplorationController:
         self._run_lock = threading.Lock()
         self._pending_commit: _PendingCommit | None = None
 
-    @property
-    def has_pending_commit(self) -> bool:
-        """Whether a finalized batch still needs an exact append retry."""
-        with self._run_lock:
-            return self._pending_commit is not None
-
     def run_batch(
         self,
         executor: Executor,
