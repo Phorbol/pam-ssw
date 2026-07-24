@@ -194,3 +194,27 @@ def test_duplicate_hits_on_target_basin_do_not_make_that_target_a_dead_seed():
     archive.refresh_frontier_status()
 
     assert not target.is_dead
+
+
+def test_archive_find_match_does_not_mutate_visits_or_duplicates():
+    archive = MinimaArchive(energy_tol=1e-3, rmsd_tol=0.05)
+    entry = archive.add(_state(-1.0), -1.0, parent_id=None)
+
+    match = archive.find_match(_state(-1.02), -1.0005)
+
+    assert match is entry
+    assert entry.visits == 1
+    assert entry.duplicate_hits == 0
+
+
+def test_archive_clone_is_independent_of_source_mutations():
+    archive = MinimaArchive(energy_tol=1e-3, rmsd_tol=0.05)
+    archive.add(_state(-1.0), -1.0, parent_id=None)
+    cloned = archive.clone()
+
+    cloned.add(_state(1.0), -0.8, parent_id=0)
+    cloned.entries[0].node_trials = 7
+
+    assert len(archive.entries) == 1
+    assert archive.entries[0].node_trials == 0
+    assert len(cloned.entries) == 2
