@@ -370,31 +370,44 @@ class _ParsedEventLog:
     batches: dict[int, _CommittedBatch]
 
 
-def _fsync_parent_directory(path: Path) -> None:
-    """Fsync ``path``'s parent on POSIX, or fail rather than overclaim durability."""
+def _fsync_held_parent_directory(directory_fd: int, phase: str) -> None:
+    """Fsync an already opened parent directory, preserving a clear phase error."""
+    try:
+        os.fsync(directory_fd)
+    except OSError as exc:
+        raise OSError(f"parent directory {phase} fsync is unsupported or failed") from exc
+
+
+def _open_preflight_fsynced_parent_directory(path: Path) -> int:
+    """Open and capability-check an existing POSIX parent directory without mutation."""
+    parent = path.parent
+    if not parent.exists():
+        raise FileNotFoundError(f"event-log parent directory does not exist: {parent}")
+    if not parent.is_dir():
+        raise ValueError(f"event-log parent path must be a directory: {parent}")
     if os.name != "posix":
         raise OSError("parent directory fsync is supported only on POSIX platforms")
-    directory_flag = getattr(os, "O_DIRECTORY", None)
-    if directory_flag is None:
-        raise OSError("parent directory fsync requires os.O_DIRECTORY support")
     try:
-        directory_fd = os.open(os.fspath(path.parent), os.O_RDONLY | directory_flag)
+        directory_fd = os.open(
+            os.fspath(parent), os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+        )
     except OSError as exc:
         raise OSError("could not open parent directory for fsync") from exc
     try:
+        _fsync_held_parent_directory(directory_fd, "preflight")
+    except BaseException:
         try:
-            os.fsync(directory_fd)
-        except OSError as exc:
-            raise OSError("parent directory fsync is unsupported or failed") from exc
-    finally:
-        os.close(directory_fd)
+            os.close(directory_fd)
+        except OSError:
+            pass
+        raise
+    return directory_fd
 
 
-def _fsync_existing_file_and_parent(path: Path) -> None:
-    """Finish durability work for a previously written idempotent retry."""
+def _fsync_existing_file(path: Path) -> None:
+    """Fsync a previously written idempotent retry without reopening its directory."""
     with path.open("rb") as handle:
         os.fsync(handle.fileno())
-    _fsync_parent_directory(path)
 
 
 def _parse_committed_log(path: Path) -> _ParsedEventLog:
@@ -494,12 +507,12 @@ def _parse_committed_log(path: Path) -> _ParsedEventLog:
 class ExplorationEventLog:
     """Append and replay committed exploration facts from a JSONL file.
 
-    On POSIX, appending fsyncs the file and then its parent directory; platforms
-    without directory fsync support fail clearly rather than claiming durable
-    commits.  Appends preflight the entire log for sequential idempotency, so
-    they are O(total log size), a deliberate phase-1 scaling boundary.  This
-    append-only log has no locking or checksum and does not reconstruct archive
-    geometry.
+    The parent directory must already exist. On POSIX, each append holds a
+    parent-directory FD after a capability fsync preflight; a preflight failure
+    occurs before file mutation. It then fsyncs that FD after the file. Appends
+    preflight the entire log for sequential idempotency, so they are O(total log
+    size), a deliberate phase-1 scaling boundary. This append-only log has no
+    locking or checksum and does not reconstruct archive geometry.
     """
 
     def __init__(self, path: str | os.PathLike[str]) -> None:
@@ -516,31 +529,35 @@ class ExplorationEventLog:
         batch_id = actions[0].batch_id
         action_ids = tuple(action.action_id for action in actions)
         candidate = _CommittedBatch(snapshot, actions, outcomes)
-        existing = _parse_committed_log(self.path)
-        existing_batch = existing.batches.get(batch_id)
-        if existing_batch is not None:
-            if existing_batch == candidate:
-                _fsync_existing_file_and_parent(self.path)
-                return
-            raise _EventLogError("batch_id already exists in event log")
-        if set(action_ids) & existing.action_ids:
-            raise _EventLogError("action_id already exists in event log")
-        rows = [_snapshot_row(snapshot, batch_id)]
-        rows.extend(_attempt_row(action, outcome) for action, outcome in zip(actions, outcomes))
-        rows.append(_commit_row(batch_id, action_ids))
-        payload = "".join(
-            json.dumps(row, sort_keys=True, separators=(",", ":"), allow_nan=False) + "\n"
-            for row in rows
-        )
+        directory_fd = _open_preflight_fsynced_parent_directory(self.path)
+        try:
+            existing = _parse_committed_log(self.path)
+            existing_batch = existing.batches.get(batch_id)
+            if existing_batch is not None:
+                if existing_batch == candidate:
+                    _fsync_existing_file(self.path)
+                    _fsync_held_parent_directory(directory_fd, "post-retry")
+                    return
+                raise _EventLogError("batch_id already exists in event log")
+            if set(action_ids) & existing.action_ids:
+                raise _EventLogError("action_id already exists in event log")
+            rows = [_snapshot_row(snapshot, batch_id)]
+            rows.extend(_attempt_row(action, outcome) for action, outcome in zip(actions, outcomes))
+            rows.append(_commit_row(batch_id, action_ids))
+            payload = "".join(
+                json.dumps(row, sort_keys=True, separators=(",", ":"), allow_nan=False) + "\n"
+                for row in rows
+            )
 
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self.path.open("a", encoding="utf-8") as handle:
-            written = handle.write(payload)
-            if written != len(payload):
-                raise OSError("short event-log write")
-            handle.flush()
-            os.fsync(handle.fileno())
-        _fsync_parent_directory(self.path)
+            with self.path.open("a", encoding="utf-8") as handle:
+                written = handle.write(payload)
+                if written != len(payload):
+                    raise OSError("short event-log write")
+                handle.flush()
+                os.fsync(handle.fileno())
+            _fsync_held_parent_directory(directory_fd, "post-write")
+        finally:
+            os.close(directory_fd)
 
     def reconstruct_posterior(self) -> StarterProductivityPosterior:
         """Return a posterior rebuilt only from fully committed attempt facts.

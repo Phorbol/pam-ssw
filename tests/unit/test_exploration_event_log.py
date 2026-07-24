@@ -98,7 +98,7 @@ def _write_valid_batch(path, *, batch_id: int = 4):
 
 
 def test_append_writes_one_sorted_jsonl_payload_in_policy_attempt_commit_order(tmp_path):
-    path = tmp_path / "nested" / "events.jsonl"
+    path = tmp_path / "events.jsonl"
     snapshot = _snapshot()
     actions = (
         _action(slot_id=0, starter_id=8, selection_probability=0.8),
@@ -135,6 +135,29 @@ def test_append_writes_one_sorted_jsonl_payload_in_policy_attempt_commit_order(t
     assert rows[2]["failure_reason"] == "exact remote OOM"
     assert rows[3]["action_ids"] == [action.action_id for action in actions]
     assert all(line == json.dumps(row, sort_keys=True, separators=(",", ":")) for line, row in zip(raw_lines, rows))
+
+
+def test_append_requires_an_existing_parent_directory_without_creating_it(tmp_path):
+    path = tmp_path / "not-created" / "events.jsonl"
+    action = _action()
+
+    with pytest.raises(FileNotFoundError, match="parent directory"):
+        ExplorationEventLog(path).append_batch(_snapshot(), (action,), (_outcome(action),))
+
+    assert not path.parent.exists()
+
+
+def test_append_rejects_a_non_directory_parent_without_mutating_it(tmp_path):
+    parent = tmp_path / "not-a-directory"
+    parent.write_text("keep this file", encoding="utf-8")
+    action = _action()
+
+    with pytest.raises(ValueError, match="parent path must be a directory"):
+        ExplorationEventLog(parent / "events.jsonl").append_batch(
+            _snapshot(), (action,), (_outcome(action),)
+        )
+
+    assert parent.read_text(encoding="utf-8") == "keep this file"
 
 
 def test_reconstructs_committed_attempt_facts_once_per_action(tmp_path):
@@ -370,7 +393,9 @@ def test_reconstruction_rejects_a_handcrafted_duplicate_action_id_across_batches
 
 
 @pytest.mark.skipif(event_log.os.name != "posix", reason="parent-directory fsync is POSIX-only")
-def test_append_fsyncs_file_before_the_parent_directory_with_a_closed_directory_fd(tmp_path, monkeypatch):
+def test_append_and_idempotent_retry_preflight_and_refsync_a_held_parent_directory_fd(
+    tmp_path, monkeypatch
+):
     path = tmp_path / "events.jsonl"
     directory_fd = 991
     fsync_fds = []
@@ -386,14 +411,15 @@ def test_append_fsyncs_file_before_the_parent_directory_with_a_closed_directory_
     monkeypatch.setattr(event_log.os, "fsync", fsync_fds.append)
 
     action = _action()
-    ExplorationEventLog(path).append_batch(_snapshot(), (action,), (_outcome(action),))
+    log = ExplorationEventLog(path)
+    log.append_batch(_snapshot(), (action,), (_outcome(action),))
+    log.append_batch(_snapshot(), (action,), (_outcome(action),))
 
     expected_flags = event_log.os.O_RDONLY | getattr(event_log.os, "O_DIRECTORY", 0)
-    assert len(fsync_fds) == 2
-    assert fsync_fds[0] != directory_fd
-    assert fsync_fds[1] == directory_fd
-    assert directory_opens == [(str(path.parent), expected_flags)]
-    assert closed_fds == [directory_fd]
+    assert len(fsync_fds) == 6
+    assert [fd == directory_fd for fd in fsync_fds] == [True, False, True, True, False, True]
+    assert directory_opens == [(str(path.parent), expected_flags)] * 2
+    assert closed_fds == [directory_fd, directory_fd]
 
 
 @pytest.mark.skipif(event_log.os.name != "posix", reason="parent-directory fsync is POSIX-only")
@@ -407,17 +433,19 @@ def test_exact_retry_after_a_file_fsync_error_does_not_append_or_double_count(tm
     monkeypatch.setattr(event_log.os, "open", lambda directory, flags: directory_fd)
     monkeypatch.setattr(event_log.os, "close", lambda fd: None)
 
-    def fail_first_fsync(fd):
+    def fail_file_fsync_after_directory_preflight(fd):
         fsync_fds.append(fd)
-        if len(fsync_fds) == 1:
+        if len(fsync_fds) == 2:
             raise OSError("injected file fsync failure")
 
-    monkeypatch.setattr(event_log.os, "fsync", fail_first_fsync)
+    monkeypatch.setattr(event_log.os, "fsync", fail_file_fsync_after_directory_preflight)
     with pytest.raises(OSError, match="injected file fsync failure"):
         log.append_batch(_snapshot(), (action,), (_outcome(action),))
 
     bytes_after_failed_fsync = path.read_bytes()
     assert len(bytes_after_failed_fsync.splitlines()) == 3
+    assert fsync_fds[0] == directory_fd
+    assert fsync_fds[1] != directory_fd
 
     monkeypatch.setattr(event_log.os, "fsync", fsync_fds.append)
     log.append_batch(_snapshot(), (action,), (_outcome(action),))
@@ -426,6 +454,36 @@ def test_exact_retry_after_a_file_fsync_error_does_not_append_or_double_count(tm
     posterior = log.reconstruct_posterior()
     assert posterior.counts(action.starter_id) == (1, 0)
     assert posterior.completed_attempts == 1
+
+
+@pytest.mark.skipif(event_log.os.name != "posix", reason="parent-directory fsync is POSIX-only")
+@pytest.mark.parametrize("already_exists", [False, True])
+def test_parent_directory_preflight_fsync_failure_never_mutates_the_log(
+    tmp_path, monkeypatch, already_exists
+):
+    path = tmp_path / "events.jsonl"
+    if already_exists:
+        _write_valid_batch(path, batch_id=4)
+        action = _action(batch_id=5)
+        before = path.read_bytes()
+    else:
+        action = _action()
+        before = None
+
+    monkeypatch.setattr(event_log.os, "open", lambda directory, flags: 993)
+    monkeypatch.setattr(event_log.os, "close", lambda fd: None)
+
+    def fail_preflight_directory_fsync(fd):
+        raise OSError("injected directory fsync failure")
+
+    monkeypatch.setattr(event_log.os, "fsync", fail_preflight_directory_fsync)
+    with pytest.raises(OSError, match="parent directory preflight fsync"):
+        ExplorationEventLog(path).append_batch(_snapshot(), (action,), (_outcome(action),))
+
+    if before is None:
+        assert not path.exists()
+    else:
+        assert path.read_bytes() == before
 
 
 def test_reconstruction_rejects_duplicate_json_keys_at_any_object_depth(tmp_path):
