@@ -342,6 +342,24 @@ def _reject_json_constant(token: str) -> object:
     raise _EventLogError(f"invalid JSON constant: {token}")
 
 
+def _reject_duplicate_json_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    row: dict[str, object] = {}
+    for key, value in pairs:
+        if key in row:
+            raise _EventLogError(f"duplicate JSON object key: {key!r}")
+        row[key] = value
+    return row
+
+
+@dataclass(frozen=True)
+class _CommittedBatch:
+    """Canonical policy, action, and outcome facts for one committed batch."""
+
+    snapshot: PolicySnapshot
+    actions: tuple[StarterAction, ...]
+    outcomes: tuple[CreditedOutcome, ...]
+
+
 @dataclass(frozen=True)
 class _ParsedEventLog:
     """Committed attempt facts and identities recovered from one valid file."""
@@ -349,28 +367,64 @@ class _ParsedEventLog:
     outcomes: tuple[CreditedOutcome, ...]
     batch_ids: frozenset[int]
     action_ids: frozenset[str]
+    batches: dict[int, _CommittedBatch]
+
+
+def _fsync_parent_directory(path: Path) -> None:
+    """Fsync ``path``'s parent on POSIX, or fail rather than overclaim durability."""
+    if os.name != "posix":
+        raise OSError("parent directory fsync is supported only on POSIX platforms")
+    directory_flag = getattr(os, "O_DIRECTORY", None)
+    if directory_flag is None:
+        raise OSError("parent directory fsync requires os.O_DIRECTORY support")
+    try:
+        directory_fd = os.open(os.fspath(path.parent), os.O_RDONLY | directory_flag)
+    except OSError as exc:
+        raise OSError("could not open parent directory for fsync") from exc
+    try:
+        try:
+            os.fsync(directory_fd)
+        except OSError as exc:
+            raise OSError("parent directory fsync is unsupported or failed") from exc
+    finally:
+        os.close(directory_fd)
+
+
+def _fsync_existing_file_and_parent(path: Path) -> None:
+    """Finish durability work for a previously written idempotent retry."""
+    with path.open("rb") as handle:
+        os.fsync(handle.fileno())
+    _fsync_parent_directory(path)
 
 
 def _parse_committed_log(path: Path) -> _ParsedEventLog:
     """Strictly validate a complete log before exposing any committed facts."""
     if not path.exists():
-        return _ParsedEventLog((), frozenset(), frozenset())
+        return _ParsedEventLog((), frozenset(), frozenset(), {})
 
     active_snapshot: PolicySnapshot | None = None
     active_batch_id: int | None = None
     active_action_ids: list[str] = []
+    active_actions: list[StarterAction] = []
     active_slot_ids: set[int] = set()
     active_outcomes: list[CreditedOutcome] = []
     seen_batch_ids: set[int] = set()
     seen_action_ids: set[str] = set()
     committed_outcomes: list[CreditedOutcome] = []
+    committed_batches: dict[int, _CommittedBatch] = {}
 
     with path.open("r", encoding="utf-8") as handle:
         for line_number, line in enumerate(handle, start=1):
             try:
-                row = json.loads(line, parse_constant=_reject_json_constant)
-            except (json.JSONDecodeError, _EventLogError) as exc:
+                row = json.loads(
+                    line,
+                    parse_constant=_reject_json_constant,
+                    object_pairs_hook=_reject_duplicate_json_keys,
+                )
+            except json.JSONDecodeError as exc:
                 raise _EventLogError(f"line {line_number}: invalid JSON") from exc
+            except _EventLogError as exc:
+                raise _EventLogError(f"line {line_number}: {exc}") from exc
             if not isinstance(row, dict):
                 raise _EventLogError(f"line {line_number}: event-log row must be an object")
             record_type = row.get("record_type")
@@ -382,6 +436,7 @@ def _parse_committed_log(path: Path) -> _ParsedEventLog:
                     raise _EventLogError(f"line {line_number}: duplicate batch_id")
                 seen_batch_ids.add(active_batch_id)
                 active_action_ids = []
+                active_actions = []
                 active_slot_ids = set()
                 active_outcomes = []
                 continue
@@ -395,6 +450,7 @@ def _parse_committed_log(path: Path) -> _ParsedEventLog:
                     raise _EventLogError(f"line {line_number}: duplicate slot_id")
                 seen_action_ids.add(action.action_id)
                 active_action_ids.append(action.action_id)
+                active_actions.append(action)
                 active_slot_ids.add(action.slot_id)
                 active_outcomes.append(outcome)
                 continue
@@ -409,9 +465,15 @@ def _parse_committed_log(path: Path) -> _ParsedEventLog:
                 if not active_outcomes:
                     raise _EventLogError(f"line {line_number}: batch_commit requires attempts")
                 committed_outcomes.extend(active_outcomes)
+                committed_batches[active_batch_id] = _CommittedBatch(
+                    snapshot=active_snapshot,
+                    actions=tuple(active_actions),
+                    outcomes=tuple(active_outcomes),
+                )
                 active_snapshot = None
                 active_batch_id = None
                 active_action_ids = []
+                active_actions = []
                 active_slot_ids = set()
                 active_outcomes = []
                 continue
@@ -425,16 +487,19 @@ def _parse_committed_log(path: Path) -> _ParsedEventLog:
         outcomes=tuple(committed_outcomes),
         batch_ids=frozenset(seen_batch_ids),
         action_ids=frozenset(seen_action_ids),
+        batches=committed_batches,
     )
 
 
 class ExplorationEventLog:
     """Append and replay committed exploration facts from a JSONL file.
 
-    Appending serializes an entire batch before writing it and fsyncs the file,
-    but it is not a filesystem transaction.  An interrupted partial write is
-    rejected during later replay.  This sequential append-only log has no
-    locking or checksum and does not reconstruct archive geometry.
+    On POSIX, appending fsyncs the file and then its parent directory; platforms
+    without directory fsync support fail clearly rather than claiming durable
+    commits.  Appends preflight the entire log for sequential idempotency, so
+    they are O(total log size), a deliberate phase-1 scaling boundary.  This
+    append-only log has no locking or checksum and does not reconstruct archive
+    geometry.
     """
 
     def __init__(self, path: str | os.PathLike[str]) -> None:
@@ -450,8 +515,13 @@ class ExplorationEventLog:
         snapshot, actions, outcomes = _validate_append_inputs(snapshot, actions, outcomes)
         batch_id = actions[0].batch_id
         action_ids = tuple(action.action_id for action in actions)
+        candidate = _CommittedBatch(snapshot, actions, outcomes)
         existing = _parse_committed_log(self.path)
-        if batch_id in existing.batch_ids:
+        existing_batch = existing.batches.get(batch_id)
+        if existing_batch is not None:
+            if existing_batch == candidate:
+                _fsync_existing_file_and_parent(self.path)
+                return
             raise _EventLogError("batch_id already exists in event log")
         if set(action_ids) & existing.action_ids:
             raise _EventLogError("action_id already exists in event log")
@@ -470,6 +540,7 @@ class ExplorationEventLog:
                 raise OSError("short event-log write")
             handle.flush()
             os.fsync(handle.fileno())
+        _fsync_parent_directory(self.path)
 
     def reconstruct_posterior(self) -> StarterProductivityPosterior:
         """Return a posterior rebuilt only from fully committed attempt facts.

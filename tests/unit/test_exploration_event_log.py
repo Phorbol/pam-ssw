@@ -3,6 +3,7 @@ from dataclasses import replace
 
 import pytest
 
+import pamssw.exploration.event_log as event_log
 from pamssw.exploration.actions import (
     AttemptStatus,
     CreditedOutcome,
@@ -318,15 +319,17 @@ def test_append_rejects_an_existing_action_id_under_a_different_batch_without_ch
     assert path.read_bytes() == before
 
 
-def test_append_rejects_reappending_an_identical_batch_without_changing_file(tmp_path):
+def test_append_treats_reappending_an_identical_batch_as_a_durable_idempotent_retry(tmp_path):
     path = tmp_path / "events.jsonl"
     actions, outcomes = _write_valid_batch(path, batch_id=4)
     before = path.read_bytes()
+    before_line_count = len(before.splitlines())
 
-    with pytest.raises(ValueError, match="batch_id"):
-        ExplorationEventLog(path).append_batch(_snapshot(), actions, outcomes)
+    ExplorationEventLog(path).append_batch(_snapshot(), actions, outcomes)
 
     assert path.read_bytes() == before
+    assert len(path.read_bytes().splitlines()) == before_line_count
+    assert ExplorationEventLog(path).reconstruct_posterior().completed_attempts == 2
 
 
 def test_reconstruction_rejects_a_handcrafted_duplicate_batch_id_with_different_actions(tmp_path):
@@ -363,4 +366,78 @@ def test_reconstruction_rejects_a_handcrafted_duplicate_action_id_across_batches
     )
 
     with pytest.raises(ValueError, match="duplicate action_id"):
+        ExplorationEventLog(path).reconstruct_posterior()
+
+
+@pytest.mark.skipif(event_log.os.name != "posix", reason="parent-directory fsync is POSIX-only")
+def test_append_fsyncs_file_before_the_parent_directory_with_a_closed_directory_fd(tmp_path, monkeypatch):
+    path = tmp_path / "events.jsonl"
+    directory_fd = 991
+    fsync_fds = []
+    directory_opens = []
+    closed_fds = []
+
+    def open_directory(directory, flags):
+        directory_opens.append((directory, flags))
+        return directory_fd
+
+    monkeypatch.setattr(event_log.os, "open", open_directory)
+    monkeypatch.setattr(event_log.os, "close", closed_fds.append)
+    monkeypatch.setattr(event_log.os, "fsync", fsync_fds.append)
+
+    action = _action()
+    ExplorationEventLog(path).append_batch(_snapshot(), (action,), (_outcome(action),))
+
+    expected_flags = event_log.os.O_RDONLY | getattr(event_log.os, "O_DIRECTORY", 0)
+    assert len(fsync_fds) == 2
+    assert fsync_fds[0] != directory_fd
+    assert fsync_fds[1] == directory_fd
+    assert directory_opens == [(str(path.parent), expected_flags)]
+    assert closed_fds == [directory_fd]
+
+
+@pytest.mark.skipif(event_log.os.name != "posix", reason="parent-directory fsync is POSIX-only")
+def test_exact_retry_after_a_file_fsync_error_does_not_append_or_double_count(tmp_path, monkeypatch):
+    path = tmp_path / "events.jsonl"
+    action = _action()
+    log = ExplorationEventLog(path)
+    directory_fd = 992
+    fsync_fds = []
+
+    monkeypatch.setattr(event_log.os, "open", lambda directory, flags: directory_fd)
+    monkeypatch.setattr(event_log.os, "close", lambda fd: None)
+
+    def fail_first_fsync(fd):
+        fsync_fds.append(fd)
+        if len(fsync_fds) == 1:
+            raise OSError("injected file fsync failure")
+
+    monkeypatch.setattr(event_log.os, "fsync", fail_first_fsync)
+    with pytest.raises(OSError, match="injected file fsync failure"):
+        log.append_batch(_snapshot(), (action,), (_outcome(action),))
+
+    bytes_after_failed_fsync = path.read_bytes()
+    assert len(bytes_after_failed_fsync.splitlines()) == 3
+
+    monkeypatch.setattr(event_log.os, "fsync", fsync_fds.append)
+    log.append_batch(_snapshot(), (action,), (_outcome(action),))
+
+    assert path.read_bytes() == bytes_after_failed_fsync
+    posterior = log.reconstruct_posterior()
+    assert posterior.counts(action.starter_id) == (1, 0)
+    assert posterior.completed_attempts == 1
+
+
+def test_reconstruction_rejects_duplicate_json_keys_at_any_object_depth(tmp_path):
+    path = tmp_path / "events.jsonl"
+    _write_valid_batch(path)
+    raw_lines = path.read_text(encoding="utf-8").splitlines()
+    snapshot = json.loads(raw_lines[0])
+    raw_lines[0] = (
+        json.dumps(snapshot, sort_keys=True, separators=(",", ":"))[:-1]
+        + ',"ignored":{"key":1,"key":2}}'
+    )
+    path.write_text("\n".join(raw_lines) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="duplicate JSON object key"):
         ExplorationEventLog(path).reconstruct_posterior()
