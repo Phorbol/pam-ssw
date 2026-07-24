@@ -254,3 +254,19 @@ def test_archive_clone_is_independent_of_source_mutations():
     assert len(archive.entries) == 1
     assert archive.entries[0].node_trials == 0
     assert len(cloned.entries) == 2
+
+
+def test_archive_clone_does_not_share_prototype_list_or_descriptor_arrays():
+    archive = MinimaArchive(energy_tol=1e-3, rmsd_tol=0.05)
+    archive.add(_state(-1.0), -1.0, parent_id=None)
+    source_prototype = copy.deepcopy(archive.prototypes[0])
+    cloned = archive.clone()
+
+    cloned.prototypes[0].descriptor[0] += 1.0
+    cloned.prototypes.append(copy.deepcopy(cloned.prototypes[0]))
+
+    assert len(archive.prototypes) == 1
+    np.testing.assert_array_equal(archive.prototypes[0].descriptor, source_prototype.descriptor)
+    assert archive.prototypes[0].representative_entry_id == source_prototype.representative_entry_id
+    assert archive.prototypes[0].weight == source_prototype.weight
+    assert len(cloned.prototypes) == 2
