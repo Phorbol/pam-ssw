@@ -1,6 +1,5 @@
 from dataclasses import FrozenInstanceError
 
-import numpy as np
 import pytest
 
 import pamssw.exploration as exploration
@@ -25,16 +24,31 @@ def _snapshot(
     )
 
 
-def test_derive_action_seed_matches_its_stable_uint32_seed_sequence():
-    expected = int(
-        np.random.SeedSequence([19, 4, 2, 0x535357]).generate_state(1, dtype=np.uint32)[0]
-    )
-
+def test_derive_action_seed_uses_injective_nested_cantor_pairing():
     seed = derive_action_seed(19, 4, 2)
 
-    assert seed == expected
+    assert seed == 39905
     assert isinstance(seed, int)
-    assert 0 <= seed <= np.iinfo(np.uint32).max
+    assert seed >= 0
+
+
+def test_derive_action_seed_separates_the_reviewer_collision_pair():
+    first = derive_action_seed(0, 1984, 4)
+    second = derive_action_seed(0, 5013, 9)
+
+    assert first != second
+
+
+def test_derive_action_seed_is_unique_across_a_small_action_identity_grid():
+    identities = [
+        (master_seed, batch_id, slot_id)
+        for master_seed in range(3)
+        for batch_id in range(8)
+        for slot_id in range(8)
+    ]
+    seeds = [derive_action_seed(*identity) for identity in identities]
+
+    assert len(set(seeds)) == len(identities)
 
 
 @pytest.mark.parametrize(
@@ -86,22 +100,27 @@ def test_plan_batch_is_reproducible_and_copies_snapshot_metadata_exactly():
             action.slot_id = 9
 
 
-def test_plan_batch_uses_the_snapshot_probability_vector_without_adjustment():
+def test_plan_batch_uses_the_pinned_pcg64_golden_starter_sequence():
     snapshot = _snapshot(starter_ids=(2, 5, 9), probabilities=(0.1, 0.3, 0.6))
-    expected_starters = np.random.default_rng(
-        np.random.SeedSequence([17, 3, 0x42415443])
-    ).choice(
-        snapshot.eligible_starter_ids,
-        size=12,
-        replace=True,
-        p=snapshot.probabilities,
-    )
 
     actions = plan_batch(snapshot, batch_id=3, batch_size=12, master_seed=17, force_budget=None)
 
-    assert tuple(action.starter_id for action in actions) == tuple(expected_starters)
+    assert tuple(action.starter_id for action in actions) == (
+        9,
+        5,
+        9,
+        9,
+        9,
+        5,
+        2,
+        9,
+        9,
+        5,
+        9,
+        2,
+    )
     assert tuple(action.selection_probability for action in actions) == tuple(
-        snapshot.probability_for(int(starter_id)) for starter_id in expected_starters
+        snapshot.probability_for(action.starter_id) for action in actions
     )
 
 

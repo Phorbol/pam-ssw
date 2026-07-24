@@ -1,4 +1,8 @@
-"""Deterministic, side-effect-free starter action planning for one batch."""
+"""Deterministic, side-effect-free starter action planning for one batch.
+
+Regenerating a batch is tied to the explicit PCG64 construction below. Durable
+replay uses recorded ``StarterAction`` values rather than regeneration.
+"""
 
 from __future__ import annotations
 
@@ -21,13 +25,22 @@ def _positive_int(name: str, value: object) -> int:
     return int(value)
 
 
+def _cantor_pair(left: int, right: int) -> int:
+    """Encode two nonnegative integers injectively with the Cantor pairing function."""
+    total = left + right
+    return total * (total + 1) // 2 + right
+
+
 def derive_action_seed(master_seed: int, batch_id: int, slot_id: int) -> int:
-    """Derive the independent uint32-compatible seed for a batch action slot."""
+    """Derive an injective nonnegative seed from one action identity.
+
+    This returns ``pi(pi(master_seed, batch_id), slot_id)``, where
+    ``pi(a, b) = (a + b) * (a + b + 1) // 2 + b`` is Cantor pairing.
+    """
     master_seed = _nonnegative_int("master_seed", master_seed)
     batch_id = _nonnegative_int("batch_id", batch_id)
     slot_id = _nonnegative_int("slot_id", slot_id)
-    seed_sequence = np.random.SeedSequence([master_seed, batch_id, slot_id, 0x535357])
-    return int(seed_sequence.generate_state(1, dtype=np.uint32)[0])
+    return _cantor_pair(_cantor_pair(master_seed, batch_id), slot_id)
 
 
 def plan_batch(
@@ -37,7 +50,11 @@ def plan_batch(
     master_seed: int,
     force_budget: int | None,
 ) -> tuple[StarterAction, ...]:
-    """Plan one reproducible batch from an immutable policy snapshot."""
+    """Plan one reproducible batch from an immutable policy snapshot.
+
+    Regeneration is pinned to the explicit PCG64 generator below; durable
+    replay consumes the recorded action metadata instead.
+    """
     if not isinstance(snapshot, PolicySnapshot):
         raise ValueError("snapshot must be a PolicySnapshot")
     batch_id = _nonnegative_int("batch_id", batch_id)
@@ -46,8 +63,8 @@ def plan_batch(
     if force_budget is not None:
         force_budget = _positive_int("force_budget", force_budget)
 
-    batch_rng = np.random.default_rng(
-        np.random.SeedSequence([master_seed, batch_id, 0x42415443])
+    batch_rng = np.random.Generator(
+        np.random.PCG64(np.random.SeedSequence([master_seed, batch_id, 0x42415443]))
     )
     selected_starter_ids = batch_rng.choice(
         snapshot.eligible_starter_ids,
