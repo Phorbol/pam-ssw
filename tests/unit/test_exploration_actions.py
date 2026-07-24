@@ -1,4 +1,4 @@
-from dataclasses import FrozenInstanceError
+from dataclasses import FrozenInstanceError, fields, replace
 
 import numpy as np
 import pytest
@@ -157,7 +157,7 @@ def test_completed_attempt_requires_finite_landing_data_within_budget():
     assert result.status is AttemptStatus.COMPLETED
 
 
-def test_attempt_result_captures_landing_state_by_copy_on_access():
+def test_attempt_result_captures_an_independent_landing_state_snapshot():
     landing_state = State(
         numbers=np.array([1]),
         positions=np.array([[1.0, 0.0, 0.0]]),
@@ -175,18 +175,15 @@ def test_attempt_result_captures_landing_state_by_copy_on_access():
     landing_state.positions[0, 0] = 9.0
     landing_state.metadata["labels"].append("mutated")
 
-    returned_state = result.landing_state
-    assert returned_state is not None
-    assert returned_state.positions[0, 0] == pytest.approx(1.0)
-    assert returned_state.metadata["labels"] == ["landing"]
+    assert result.landing_state is not None
+    assert result.landing_state.positions[0, 0] == pytest.approx(1.0)
+    assert result.landing_state.metadata["labels"] == ["landing"]
 
-    returned_state.positions[0, 0] = 3.0
-    returned_state.metadata["labels"].append("returned mutation")
+    result.landing_state.positions[0, 0] = 3.0
+    result.landing_state.metadata["labels"].append("record mutation")
 
-    later_state = result.landing_state
-    assert later_state is not None
-    assert later_state.positions[0, 0] == pytest.approx(1.0)
-    assert later_state.metadata["labels"] == ["landing"]
+    assert result.landing_state.positions[0, 0] == pytest.approx(3.0)
+    assert result.landing_state.metadata["labels"] == ["landing", "record mutation"]
 
 
 def test_attempt_result_deepcopies_cyclic_landing_metadata():
@@ -205,10 +202,65 @@ def test_attempt_result_deepcopies_cyclic_landing_metadata():
         failure_reason=None,
     )
 
-    returned_state = result.landing_state
+    assert result.landing_state is not None
+    assert result.landing_state.metadata["cycle"]["self"] is result.landing_state.metadata["cycle"]
 
-    assert returned_state is not None
-    assert returned_state.metadata["cycle"]["self"] is returned_state.metadata["cycle"]
+
+def test_attempt_result_keeps_normal_dataclass_fields_and_replace_behavior():
+    result = AttemptResult(
+        action=_action(),
+        landing_state=State(
+            numbers=np.array([1]),
+            positions=np.array([[1.0, 0.0, 0.0]]),
+            metadata={"labels": ["landing"]},
+        ),
+        landing_energy=-1.0,
+        force_evaluations=1,
+        status=AttemptStatus.COMPLETED,
+        failure_reason=None,
+    )
+
+    assert [item.name for item in fields(result)] == [
+        "action",
+        "landing_state",
+        "landing_energy",
+        "force_evaluations",
+        "status",
+        "failure_reason",
+    ]
+    replaced = replace(result, force_evaluations=2)
+    assert replaced.force_evaluations == 2
+    assert replaced.landing_state is not result.landing_state
+
+    assert result.landing_state is not None
+    result.landing_state.positions[0, 0] = 4.0
+    result.landing_state.metadata["labels"].append("result mutation")
+
+    assert replaced.landing_state is not None
+    assert replaced.landing_state.positions[0, 0] == pytest.approx(1.0)
+    assert replaced.landing_state.metadata["labels"] == ["landing"]
+
+
+def test_attempt_result_rejects_non_deepcopyable_landing_metadata():
+    class NonDeepcopyable:
+        def __deepcopy__(self, memo):
+            raise RuntimeError("cannot copy")
+
+    with pytest.raises(ValueError, match="landing_state must be deepcopyable") as error:
+        AttemptResult(
+            action=_action(),
+            landing_state=State(
+                numbers=np.array([1]),
+                positions=np.array([[1.0, 0.0, 0.0]]),
+                metadata={"uncopyable": NonDeepcopyable()},
+            ),
+            landing_energy=-1.0,
+            force_evaluations=1,
+            status=AttemptStatus.COMPLETED,
+            failure_reason=None,
+        )
+
+    assert isinstance(error.value.__cause__, RuntimeError)
 
 
 @pytest.mark.parametrize(

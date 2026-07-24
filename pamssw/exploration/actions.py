@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from math import fsum, isfinite
 from numbers import Integral
@@ -145,62 +145,47 @@ class StarterAction:
             object.__setattr__(self, "force_budget", _positive_int("force_budget", self.force_budget))
 
 
-@dataclass(frozen=True, init=False)
+@dataclass(frozen=True)
 class AttemptResult:
-    """Worker result for one action before archive credit is assigned."""
+    """Field-frozen worker result that captures an independent State snapshot.
+
+    The captured State remains mutable internally; only this record's fields are frozen.
+    """
 
     action: StarterAction
+    landing_state: State | None
     landing_energy: float | None
     force_evaluations: int
     status: AttemptStatus
     failure_reason: str | None
-    _landing_state_snapshot: State | None = field(init=False, repr=False, compare=False)
 
-    def __init__(
-        self,
-        action: StarterAction,
-        landing_state: State | None,
-        landing_energy: float | None,
-        force_evaluations: int,
-        status: AttemptStatus,
-        failure_reason: str | None,
-    ) -> None:
-        if not isinstance(action, StarterAction):
+    def __post_init__(self) -> None:
+        if not isinstance(self.action, StarterAction):
             raise ValueError("action must be a StarterAction")
-        force_evaluations = _nonnegative_int("force_evaluations", force_evaluations)
-        if action.force_budget is not None and force_evaluations > action.force_budget:
+        force_evaluations = _nonnegative_int("force_evaluations", self.force_evaluations)
+        if self.action.force_budget is not None and force_evaluations > self.action.force_budget:
             raise ValueError("force_evaluations cannot exceed action force_budget")
-        _status(status)
-
-        if status is AttemptStatus.COMPLETED:
-            if not isinstance(landing_state, State):
-                raise ValueError("completed attempts require landing_state")
-            if landing_energy is None:
-                raise ValueError("completed attempts require landing_energy")
-            landing_energy = _finite_float("landing_energy", landing_energy)
-            if failure_reason is not None:
-                raise ValueError("completed attempts cannot have failure_reason")
-            landing_snapshot = deepcopy(landing_state)
-        else:
-            if landing_state is not None or landing_energy is not None:
-                raise ValueError("failed attempts cannot carry landing data")
-            failure_reason = _failure_reason("failure_reason", failure_reason)
-            landing_snapshot = None
-
-        object.__setattr__(self, "action", action)
-        object.__setattr__(self, "landing_energy", landing_energy)
         object.__setattr__(self, "force_evaluations", force_evaluations)
-        object.__setattr__(self, "status", status)
-        object.__setattr__(self, "failure_reason", failure_reason)
-        object.__setattr__(self, "_landing_state_snapshot", landing_snapshot)
+        _status(self.status)
 
-    @property
-    def landing_state(self) -> State | None:
-        """Return a fresh mutable copy of the captured worker landing state."""
+        if self.status is AttemptStatus.COMPLETED:
+            if not isinstance(self.landing_state, State):
+                raise ValueError("completed attempts require landing_state")
+            if self.landing_energy is None:
+                raise ValueError("completed attempts require landing_energy")
+            object.__setattr__(self, "landing_energy", _finite_float("landing_energy", self.landing_energy))
+            if self.failure_reason is not None:
+                raise ValueError("completed attempts cannot have failure_reason")
+            try:
+                landing_snapshot = deepcopy(self.landing_state)
+            except Exception as exc:
+                raise ValueError("landing_state must be deepcopyable to capture a snapshot") from exc
+            object.__setattr__(self, "landing_state", landing_snapshot)
+            return
 
-        if self._landing_state_snapshot is None:
-            return None
-        return deepcopy(self._landing_state_snapshot)
+        if self.landing_state is not None or self.landing_energy is not None:
+            raise ValueError("failed attempts cannot carry landing data")
+        object.__setattr__(self, "failure_reason", _failure_reason("failure_reason", self.failure_reason))
 
 
 @dataclass(frozen=True)
