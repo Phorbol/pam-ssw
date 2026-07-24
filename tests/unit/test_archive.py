@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 
 from pamssw.archive import MinimaArchive
@@ -196,15 +198,49 @@ def test_duplicate_hits_on_target_basin_do_not_make_that_target_a_dead_seed():
     assert not target.is_dead
 
 
-def test_archive_find_match_does_not_mutate_visits_or_duplicates():
+def test_find_match_is_read_only():
     archive = MinimaArchive(energy_tol=1e-3, rmsd_tol=0.05)
     entry = archive.add(_state(-1.0), -1.0, parent_id=None)
+    archive.add(_state(1.0), -0.8, parent_id=entry.entry_id)
+    entries_before = copy.deepcopy(archive.entries)
+    prototypes_before = copy.deepcopy(archive.prototypes)
 
     match = archive.find_match(_state(-1.02), -1.0005)
 
     assert match is entry
     assert entry.visits == 1
     assert entry.duplicate_hits == 0
+    assert len(archive.entries) == len(entries_before)
+    for after, before in zip(archive.entries, entries_before, strict=True):
+        assert after.entry_id == before.entry_id
+        assert after.energy == before.energy
+        assert after.parent_id == before.parent_id
+        assert after.visits == before.visits
+        assert after.node_trials == before.node_trials
+        assert after.node_successes == before.node_successes
+        assert after.frontier_value == before.frontier_value
+        assert after.duplicate_hits == before.duplicate_hits
+        assert after.node_duplicate_failures == before.node_duplicate_failures
+        assert after.frontier_score == before.frontier_score
+        assert after.is_frontier == before.is_frontier
+        assert after.is_dead == before.is_dead
+        np.testing.assert_array_equal(after.state.numbers, before.state.numbers)
+        np.testing.assert_array_equal(after.state.positions, before.state.positions)
+        assert after.state.pbc == before.state.pbc
+        assert after.state.metadata == before.state.metadata
+        np.testing.assert_array_equal(after.state.fixed_mask, before.state.fixed_mask)
+        assert (after.state.cell is None) == (before.state.cell is None)
+        if after.state.cell is not None:
+            np.testing.assert_array_equal(after.state.cell, before.state.cell)
+        assert (after.descriptor is None) == (before.descriptor is None)
+        if after.descriptor is not None:
+            np.testing.assert_array_equal(after.descriptor, before.descriptor)
+
+    assert len(archive.prototypes) == len(prototypes_before)
+    for after, before in zip(archive.prototypes, prototypes_before, strict=True):
+        np.testing.assert_array_equal(after.descriptor, before.descriptor)
+        assert after.representative_entry_id == before.representative_entry_id
+        assert after.weight == before.weight
 
 
 def test_archive_clone_is_independent_of_source_mutations():
