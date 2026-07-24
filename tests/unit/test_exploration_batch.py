@@ -185,3 +185,16 @@ def test_plan_batch_changes_batch_identity_and_master_seed_streams():
         action.random_seed for action in changed_seed
     )
 
+
+def test_plan_batch_is_independent_from_batch_scheduling_and_interleaving_order():
+    snapshot = _snapshot()
+
+    a_then_b_a = plan_batch(snapshot, batch_id=4, batch_size=6, master_seed=19, force_budget=8)
+    a_then_b_b = plan_batch(snapshot, batch_id=12, batch_size=6, master_seed=19, force_budget=8)
+    b_then_a_b = plan_batch(snapshot, batch_id=12, batch_size=6, master_seed=19, force_budget=8)
+    b_then_a_a = plan_batch(snapshot, batch_id=4, batch_size=6, master_seed=19, force_budget=8)
+    plan_batch(snapshot, batch_id=99, batch_size=3, master_seed=19, force_budget=8)
+    interleaved_a = plan_batch(snapshot, batch_id=4, batch_size=6, master_seed=19, force_budget=8)
+
+    assert a_then_b_a == b_then_a_a == interleaved_a
+    assert a_then_b_b == b_then_a_b
