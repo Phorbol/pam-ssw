@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import math
 import os
+from dataclasses import dataclass
 from pathlib import Path
 
 from .actions import AttemptStatus, CreditedOutcome, PolicySnapshot, StarterAction
@@ -341,6 +342,92 @@ def _reject_json_constant(token: str) -> object:
     raise _EventLogError(f"invalid JSON constant: {token}")
 
 
+@dataclass(frozen=True)
+class _ParsedEventLog:
+    """Committed attempt facts and identities recovered from one valid file."""
+
+    outcomes: tuple[CreditedOutcome, ...]
+    batch_ids: frozenset[int]
+    action_ids: frozenset[str]
+
+
+def _parse_committed_log(path: Path) -> _ParsedEventLog:
+    """Strictly validate a complete log before exposing any committed facts."""
+    if not path.exists():
+        return _ParsedEventLog((), frozenset(), frozenset())
+
+    active_snapshot: PolicySnapshot | None = None
+    active_batch_id: int | None = None
+    active_action_ids: list[str] = []
+    active_slot_ids: set[int] = set()
+    active_outcomes: list[CreditedOutcome] = []
+    seen_batch_ids: set[int] = set()
+    seen_action_ids: set[str] = set()
+    committed_outcomes: list[CreditedOutcome] = []
+
+    with path.open("r", encoding="utf-8") as handle:
+        for line_number, line in enumerate(handle, start=1):
+            try:
+                row = json.loads(line, parse_constant=_reject_json_constant)
+            except (json.JSONDecodeError, _EventLogError) as exc:
+                raise _EventLogError(f"line {line_number}: invalid JSON") from exc
+            if not isinstance(row, dict):
+                raise _EventLogError(f"line {line_number}: event-log row must be an object")
+            record_type = row.get("record_type")
+            if record_type == "policy_snapshot":
+                if active_snapshot is not None:
+                    raise _EventLogError(f"line {line_number}: nested policy_snapshot before batch_commit")
+                active_snapshot, active_batch_id = _parse_snapshot(row, line_number)
+                if active_batch_id in seen_batch_ids:
+                    raise _EventLogError(f"line {line_number}: duplicate batch_id")
+                seen_batch_ids.add(active_batch_id)
+                active_action_ids = []
+                active_slot_ids = set()
+                active_outcomes = []
+                continue
+            if record_type == "attempt":
+                if active_snapshot is None or active_batch_id is None:
+                    raise _EventLogError(f"line {line_number}: attempt outside policy_snapshot")
+                action, outcome = _parse_attempt(row, line_number, active_snapshot, active_batch_id)
+                if action.action_id in seen_action_ids:
+                    raise _EventLogError(f"line {line_number}: duplicate action_id")
+                if action.slot_id in active_slot_ids:
+                    raise _EventLogError(f"line {line_number}: duplicate slot_id")
+                seen_action_ids.add(action.action_id)
+                active_action_ids.append(action.action_id)
+                active_slot_ids.add(action.slot_id)
+                active_outcomes.append(outcome)
+                continue
+            if record_type == "batch_commit":
+                if active_snapshot is None or active_batch_id is None:
+                    raise _EventLogError(f"line {line_number}: batch_commit outside policy_snapshot")
+                committed_action_ids = _parse_commit(row, line_number, active_batch_id)
+                if tuple(active_action_ids) != committed_action_ids:
+                    raise _EventLogError(
+                        f"line {line_number}: batch_commit action_ids do not match attempt order"
+                    )
+                if not active_outcomes:
+                    raise _EventLogError(f"line {line_number}: batch_commit requires attempts")
+                committed_outcomes.extend(active_outcomes)
+                active_snapshot = None
+                active_batch_id = None
+                active_action_ids = []
+                active_slot_ids = set()
+                active_outcomes = []
+                continue
+            if not isinstance(record_type, str):
+                raise _EventLogError(f"line {line_number}: record_type must be a string")
+            raise _EventLogError(f"line {line_number}: unknown record_type {record_type!r}")
+
+    if active_snapshot is not None:
+        raise _EventLogError("incomplete final batch without batch_commit")
+    return _ParsedEventLog(
+        outcomes=tuple(committed_outcomes),
+        batch_ids=frozenset(seen_batch_ids),
+        action_ids=frozenset(seen_action_ids),
+    )
+
+
 class ExplorationEventLog:
     """Append and replay committed exploration facts from a JSONL file.
 
@@ -363,6 +450,11 @@ class ExplorationEventLog:
         snapshot, actions, outcomes = _validate_append_inputs(snapshot, actions, outcomes)
         batch_id = actions[0].batch_id
         action_ids = tuple(action.action_id for action in actions)
+        existing = _parse_committed_log(self.path)
+        if batch_id in existing.batch_ids:
+            raise _EventLogError("batch_id already exists in event log")
+        if set(action_ids) & existing.action_ids:
+            raise _EventLogError("action_id already exists in event log")
         rows = [_snapshot_row(snapshot, batch_id)]
         rows.extend(_attempt_row(action, outcome) for action, outcome in zip(actions, outcomes))
         rows.append(_commit_row(batch_id, action_ids))
@@ -385,71 +477,10 @@ class ExplorationEventLog:
         A malformed, interleaved, or incomplete log is rejected rather than
         returning counts from any valid prefix.
         """
+        parsed = _parse_committed_log(self.path)
         posterior = StarterProductivityPosterior()
-        if not self.path.exists():
-            return posterior
-
-        active_snapshot: PolicySnapshot | None = None
-        active_batch_id: int | None = None
-        active_action_ids: list[str] = []
-        active_slot_ids: set[int] = set()
-        active_outcomes: list[CreditedOutcome] = []
-
-        with self.path.open("r", encoding="utf-8") as handle:
-            for line_number, line in enumerate(handle, start=1):
-                try:
-                    row = json.loads(line, parse_constant=_reject_json_constant)
-                except (json.JSONDecodeError, _EventLogError) as exc:
-                    raise _EventLogError(f"line {line_number}: invalid JSON") from exc
-                if not isinstance(row, dict):
-                    raise _EventLogError(f"line {line_number}: event-log row must be an object")
-                record_type = row.get("record_type")
-                if record_type == "policy_snapshot":
-                    if active_snapshot is not None:
-                        raise _EventLogError(f"line {line_number}: nested policy_snapshot before batch_commit")
-                    active_snapshot, active_batch_id = _parse_snapshot(row, line_number)
-                    active_action_ids = []
-                    active_slot_ids = set()
-                    active_outcomes = []
-                    continue
-                if record_type == "attempt":
-                    if active_snapshot is None or active_batch_id is None:
-                        raise _EventLogError(f"line {line_number}: attempt outside policy_snapshot")
-                    action, outcome = _parse_attempt(
-                        row, line_number, active_snapshot, active_batch_id
-                    )
-                    if action.action_id in active_action_ids:
-                        raise _EventLogError(f"line {line_number}: duplicate action_id")
-                    if action.slot_id in active_slot_ids:
-                        raise _EventLogError(f"line {line_number}: duplicate slot_id")
-                    active_action_ids.append(action.action_id)
-                    active_slot_ids.add(action.slot_id)
-                    active_outcomes.append(outcome)
-                    continue
-                if record_type == "batch_commit":
-                    if active_snapshot is None or active_batch_id is None:
-                        raise _EventLogError(f"line {line_number}: batch_commit outside policy_snapshot")
-                    committed_action_ids = _parse_commit(row, line_number, active_batch_id)
-                    if tuple(active_action_ids) != committed_action_ids:
-                        raise _EventLogError(
-                            f"line {line_number}: batch_commit action_ids do not match attempt order"
-                        )
-                    if not active_outcomes:
-                        raise _EventLogError(f"line {line_number}: batch_commit requires attempts")
-                    for outcome in active_outcomes:
-                        posterior.update(outcome.starter_id, outcome.discovered_against_snapshot)
-                    active_snapshot = None
-                    active_batch_id = None
-                    active_action_ids = []
-                    active_slot_ids = set()
-                    active_outcomes = []
-                    continue
-                if not isinstance(record_type, str):
-                    raise _EventLogError(f"line {line_number}: record_type must be a string")
-                raise _EventLogError(f"line {line_number}: unknown record_type {record_type!r}")
-
-        if active_snapshot is not None:
-            raise _EventLogError("incomplete final batch without batch_commit")
+        for outcome in parsed.outcomes:
+            posterior.update(outcome.starter_id, outcome.discovered_against_snapshot)
         return posterior
 
 

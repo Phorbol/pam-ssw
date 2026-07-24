@@ -282,3 +282,85 @@ def test_reconstruction_rejects_invalid_status_or_failure_data(tmp_path):
 
     with pytest.raises(ValueError):
         ExplorationEventLog(path).reconstruct_posterior()
+
+
+def test_append_rejects_a_duplicate_batch_id_with_different_actions_without_changing_file(tmp_path):
+    path = tmp_path / "events.jsonl"
+    _write_valid_batch(path, batch_id=4)
+    replacement_action = replace(
+        _action(batch_id=4, slot_id=0, starter_id=8, selection_probability=0.8),
+        action_id="replacement-action-for-existing-batch",
+    )
+    before = path.read_bytes()
+
+    with pytest.raises(ValueError, match="batch_id"):
+        ExplorationEventLog(path).append_batch(
+            _snapshot(), (replacement_action,), (_outcome(replacement_action),)
+        )
+
+    assert path.read_bytes() == before
+
+
+def test_append_rejects_an_existing_action_id_under_a_different_batch_without_changing_file(tmp_path):
+    path = tmp_path / "events.jsonl"
+    existing_actions, _ = _write_valid_batch(path, batch_id=4)
+    duplicate_action = replace(
+        _action(batch_id=5, slot_id=0, starter_id=8, selection_probability=0.8),
+        action_id=existing_actions[0].action_id,
+    )
+    before = path.read_bytes()
+
+    with pytest.raises(ValueError, match="action_id"):
+        ExplorationEventLog(path).append_batch(
+            _snapshot(), (duplicate_action,), (_outcome(duplicate_action),)
+        )
+
+    assert path.read_bytes() == before
+
+
+def test_append_rejects_reappending_an_identical_batch_without_changing_file(tmp_path):
+    path = tmp_path / "events.jsonl"
+    actions, outcomes = _write_valid_batch(path, batch_id=4)
+    before = path.read_bytes()
+
+    with pytest.raises(ValueError, match="batch_id"):
+        ExplorationEventLog(path).append_batch(_snapshot(), actions, outcomes)
+
+    assert path.read_bytes() == before
+
+
+def test_reconstruction_rejects_a_handcrafted_duplicate_batch_id_with_different_actions(tmp_path):
+    path = tmp_path / "events.jsonl"
+    other_path = tmp_path / "other.jsonl"
+    _write_valid_batch(path, batch_id=4)
+    _write_valid_batch(other_path, batch_id=5)
+    duplicate_batch_rows = _read_rows(other_path)
+    for row in duplicate_batch_rows:
+        row["batch_id"] = 4
+    path.write_text(
+        path.read_text(encoding="utf-8")
+        + "".join(json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n" for row in duplicate_batch_rows),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="duplicate batch_id"):
+        ExplorationEventLog(path).reconstruct_posterior()
+
+
+def test_reconstruction_rejects_a_handcrafted_duplicate_action_id_across_batches(tmp_path):
+    path = tmp_path / "events.jsonl"
+    other_path = tmp_path / "other.jsonl"
+    _write_valid_batch(path, batch_id=4)
+    _write_valid_batch(other_path, batch_id=5)
+    first_rows = _read_rows(path)
+    duplicate_action_rows = _read_rows(other_path)
+    duplicate_action_rows[1]["action_id"] = first_rows[1]["action_id"]
+    duplicate_action_rows[-1]["action_ids"][0] = first_rows[1]["action_id"]
+    path.write_text(
+        path.read_text(encoding="utf-8")
+        + "".join(json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n" for row in duplicate_action_rows),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="duplicate action_id"):
+        ExplorationEventLog(path).reconstruct_posterior()
