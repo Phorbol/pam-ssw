@@ -20,7 +20,25 @@ def test_package_root_exports_only_the_public_posterior_exploration_types():
 
     assert pamssw.ExplorationController is ExplorationController
     assert pamssw.StarterProductivityPosterior is StarterProductivityPosterior
-    assert {"ExplorationController", "StarterProductivityPosterior"} <= set(pamssw.__all__)
+    assert set(pamssw.__all__) == {
+        "ExplorationController",
+        "LSSSWConfig",
+        "RelaxConfig",
+        "RelaxOutcomeClass",
+        "RelaxResult",
+        "SSWConfig",
+        "SearchMode",
+        "SearchResult",
+        "StarterProductivityPosterior",
+        "State",
+        "read_state",
+        "relax_minimum",
+        "run_ls_ssw",
+        "run_ssw",
+        "state_from_atoms",
+        "state_to_atoms",
+        "write_state",
+    }
 
     internal_exports = {
         "AttemptResult",
