@@ -203,6 +203,44 @@ def test_completed_attempt_requires_finite_landing_data_within_budget():
     assert result.status is AttemptStatus.COMPLETED
 
 
+@pytest.mark.parametrize(
+    ("geometry_field", "nonfinite_value"),
+    [
+        ("positions", float("nan")),
+        ("positions", float("inf")),
+        ("positions", float("-inf")),
+        ("cell", float("nan")),
+        ("cell", float("inf")),
+        ("cell", float("-inf")),
+    ],
+    ids=[
+        "positions-nan",
+        "positions-posinf",
+        "positions-neginf",
+        "cell-nan",
+        "cell-posinf",
+        "cell-neginf",
+    ],
+)
+def test_completed_attempt_rejects_nonfinite_landing_geometry(geometry_field, nonfinite_value):
+    positions = np.array([[1.0, 0.0, 0.0]])
+    cell = np.eye(3)
+    if geometry_field == "positions":
+        positions[0, 0] = nonfinite_value
+    else:
+        cell[0, 0] = nonfinite_value
+
+    with pytest.raises(ValueError, match="finite landing geometry"):
+        AttemptResult(
+            action=_action(),
+            landing_state=State(numbers=np.array([1]), positions=positions, cell=cell),
+            landing_energy=-1.0,
+            force_evaluations=1,
+            status=AttemptStatus.COMPLETED,
+            failure_reason=None,
+        )
+
+
 def test_attempt_result_captures_an_independent_landing_state_snapshot():
     landing_state = State(
         numbers=np.array([1]),

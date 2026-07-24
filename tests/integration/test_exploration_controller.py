@@ -238,6 +238,42 @@ def test_worker_reported_and_unexpected_failures_are_each_credited_once(tmp_path
     assert sum(controller.posterior.counts(entry.entry_id)[1] for entry in controller.archive.entries) == 2
 
 
+def test_nonfinite_completed_worker_result_is_caught_and_committed_as_worker_error(tmp_path: Path) -> None:
+    event_path = tmp_path / "events.jsonl"
+    controller = ExplorationController(_archive(), "uniform", 11, ExplorationEventLog(event_path))
+    archive_before = _archive_fingerprint(controller.archive)
+
+    def worker(action: StarterAction, starter_state: State) -> AttemptResult:
+        invalid_landing = _state(3.0)
+        invalid_landing.positions[0, 0] = float("nan")
+        return AttemptResult(
+            action=action,
+            landing_state=invalid_landing,
+            landing_energy=-2.0,
+            force_evaluations=1,
+            status=AttemptStatus.COMPLETED,
+            failure_reason=None,
+        )
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        (outcome,) = controller.run_batch(executor, worker, batch_size=1, force_budget=5)
+
+    assert outcome.status is AttemptStatus.WORKER_ERROR
+    assert outcome.failure_reason == "ValueError: completed attempts require finite landing geometry"
+    assert outcome.discovered_against_snapshot is False
+    assert outcome.inserted_into_archive is False
+    assert outcome.within_batch_collision is False
+    assert outcome.landing_entry_id is None
+    assert outcome.landing_energy is None
+    assert _archive_fingerprint(controller.archive) == archive_before
+    assert controller.posterior.counts(outcome.starter_id) == (0, 1)
+    assert controller.posterior.completed_attempts == 1
+
+    rows = [json.loads(line) for line in event_path.read_text(encoding="utf-8").splitlines()]
+    assert [row["record_type"] for row in rows] == ["policy_snapshot", "attempt", "batch_commit"]
+    assert rows[1]["status"] == "worker_error"
+
+
 @pytest.mark.parametrize(
     ("worker_factory", "message"),
     [

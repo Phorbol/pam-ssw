@@ -6,6 +6,8 @@ from enum import Enum
 from math import fsum, isfinite
 from numbers import Integral
 
+import numpy as np
+
 from ..state import State
 
 
@@ -180,6 +182,10 @@ class AttemptResult:
                 landing_snapshot = deepcopy(self.landing_state)
             except Exception as exc:
                 raise ValueError("landing_state must be deepcopyable to capture a snapshot") from exc
+            if not np.isfinite(landing_snapshot.positions).all() or (
+                landing_snapshot.cell is not None and not np.isfinite(landing_snapshot.cell).all()
+            ):
+                raise ValueError("completed attempts require finite landing geometry")
             object.__setattr__(self, "landing_state", landing_snapshot)
             return
 
