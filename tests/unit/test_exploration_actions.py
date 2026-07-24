@@ -157,7 +157,7 @@ def test_completed_attempt_requires_finite_landing_data_within_budget():
     assert result.status is AttemptStatus.COMPLETED
 
 
-def test_attempt_result_captures_an_immutable_landing_state_snapshot():
+def test_attempt_result_captures_landing_state_by_copy_on_access():
     landing_state = State(
         numbers=np.array([1]),
         positions=np.array([[1.0, 0.0, 0.0]]),
@@ -175,13 +175,40 @@ def test_attempt_result_captures_an_immutable_landing_state_snapshot():
     landing_state.positions[0, 0] = 9.0
     landing_state.metadata["labels"].append("mutated")
 
-    assert result.landing_state is not None
-    assert result.landing_state.positions[0, 0] == pytest.approx(1.0)
-    assert result.landing_state.metadata["labels"] == ("landing",)
-    with pytest.raises(ValueError):
-        result.landing_state.positions[0, 0] = 3.0
-    with pytest.raises(TypeError):
-        result.landing_state.metadata["labels"] = ("other",)
+    returned_state = result.landing_state
+    assert returned_state is not None
+    assert returned_state.positions[0, 0] == pytest.approx(1.0)
+    assert returned_state.metadata["labels"] == ["landing"]
+
+    returned_state.positions[0, 0] = 3.0
+    returned_state.metadata["labels"].append("returned mutation")
+
+    later_state = result.landing_state
+    assert later_state is not None
+    assert later_state.positions[0, 0] == pytest.approx(1.0)
+    assert later_state.metadata["labels"] == ["landing"]
+
+
+def test_attempt_result_deepcopies_cyclic_landing_metadata():
+    cycle: dict[str, object] = {}
+    cycle["self"] = cycle
+    result = AttemptResult(
+        action=_action(),
+        landing_state=State(
+            numbers=np.array([1]),
+            positions=np.array([[1.0, 0.0, 0.0]]),
+            metadata={"cycle": cycle},
+        ),
+        landing_energy=-1.0,
+        force_evaluations=1,
+        status=AttemptStatus.COMPLETED,
+        failure_reason=None,
+    )
+
+    returned_state = result.landing_state
+
+    assert returned_state is not None
+    assert returned_state.metadata["cycle"]["self"] is returned_state.metadata["cycle"]
 
 
 @pytest.mark.parametrize(

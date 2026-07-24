@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from math import fsum, isfinite
 from numbers import Integral
-
-import numpy as np
 
 from ..state import State
 
@@ -59,82 +57,6 @@ def _status(value: object) -> AttemptStatus:
     if not isinstance(value, AttemptStatus):
         raise ValueError("status must be an AttemptStatus")
     return value
-
-
-class _FrozenMetadata(dict):
-    """Dictionary that keeps a captured State metadata snapshot immutable."""
-
-    def __init__(self, values: dict[object, object]) -> None:
-        dict.__init__(self, values)
-
-    @staticmethod
-    def _immutable(*args: object, **kwargs: object) -> None:
-        raise TypeError("landing state metadata is immutable")
-
-    __setitem__ = _immutable
-    __delitem__ = _immutable
-    __ior__ = _immutable
-    clear = _immutable
-    pop = _immutable
-    popitem = _immutable
-    setdefault = _immutable
-    update = _immutable
-
-    def __copy__(self) -> _FrozenMetadata:
-        return self
-
-    def __deepcopy__(self, memo: dict[int, object]) -> _FrozenMetadata:
-        return self
-
-    def copy(self) -> dict[object, object]:
-        return _thaw_metadata(self)
-
-
-def _readonly_array(values: np.ndarray) -> np.ndarray:
-    copied = values.copy()
-    copied.setflags(write=False)
-    return copied
-
-
-def _freeze_metadata(value: object) -> object:
-    if isinstance(value, dict):
-        return _FrozenMetadata({deepcopy(key): _freeze_metadata(item) for key, item in value.items()})
-    if isinstance(value, list):
-        return tuple(_freeze_metadata(item) for item in value)
-    if isinstance(value, tuple):
-        return tuple(_freeze_metadata(item) for item in value)
-    if isinstance(value, set):
-        return frozenset(_freeze_metadata(item) for item in value)
-    if isinstance(value, np.ndarray):
-        return _readonly_array(value)
-    return deepcopy(value)
-
-
-def _thaw_metadata(value: object) -> object:
-    if isinstance(value, _FrozenMetadata):
-        return {deepcopy(key): _thaw_metadata(item) for key, item in value.items()}
-    if isinstance(value, tuple):
-        return [_thaw_metadata(item) for item in value]
-    if isinstance(value, frozenset):
-        return {_thaw_metadata(item) for item in value}
-    if isinstance(value, np.ndarray):
-        return value.copy()
-    return deepcopy(value)
-
-
-def _snapshot_state(state: State) -> State:
-    """Copy a State into an immutable landing snapshot without changing State globally."""
-
-    snapshot = State(
-        numbers=_readonly_array(state.numbers),
-        positions=_readonly_array(state.positions),
-        cell=None if state.cell is None else _readonly_array(state.cell),
-        pbc=state.pbc,
-        fixed_mask=_readonly_array(state.fixed_mask),
-        metadata={},
-    )
-    object.__setattr__(snapshot, "metadata", _freeze_metadata(state.metadata))
-    return snapshot
 
 
 @dataclass(frozen=True)
@@ -223,40 +145,62 @@ class StarterAction:
             object.__setattr__(self, "force_budget", _positive_int("force_budget", self.force_budget))
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, init=False)
 class AttemptResult:
     """Worker result for one action before archive credit is assigned."""
 
     action: StarterAction
-    landing_state: State | None
     landing_energy: float | None
     force_evaluations: int
     status: AttemptStatus
     failure_reason: str | None
+    _landing_state_snapshot: State | None = field(init=False, repr=False, compare=False)
 
-    def __post_init__(self) -> None:
-        if not isinstance(self.action, StarterAction):
+    def __init__(
+        self,
+        action: StarterAction,
+        landing_state: State | None,
+        landing_energy: float | None,
+        force_evaluations: int,
+        status: AttemptStatus,
+        failure_reason: str | None,
+    ) -> None:
+        if not isinstance(action, StarterAction):
             raise ValueError("action must be a StarterAction")
-        force_evaluations = _nonnegative_int("force_evaluations", self.force_evaluations)
-        if self.action.force_budget is not None and force_evaluations > self.action.force_budget:
+        force_evaluations = _nonnegative_int("force_evaluations", force_evaluations)
+        if action.force_budget is not None and force_evaluations > action.force_budget:
             raise ValueError("force_evaluations cannot exceed action force_budget")
-        object.__setattr__(self, "force_evaluations", force_evaluations)
-        _status(self.status)
+        _status(status)
 
-        if self.status is AttemptStatus.COMPLETED:
-            if not isinstance(self.landing_state, State):
+        if status is AttemptStatus.COMPLETED:
+            if not isinstance(landing_state, State):
                 raise ValueError("completed attempts require landing_state")
-            if self.landing_energy is None:
+            if landing_energy is None:
                 raise ValueError("completed attempts require landing_energy")
-            object.__setattr__(self, "landing_state", _snapshot_state(self.landing_state))
-            object.__setattr__(self, "landing_energy", _finite_float("landing_energy", self.landing_energy))
-            if self.failure_reason is not None:
+            landing_energy = _finite_float("landing_energy", landing_energy)
+            if failure_reason is not None:
                 raise ValueError("completed attempts cannot have failure_reason")
-            return
+            landing_snapshot = deepcopy(landing_state)
+        else:
+            if landing_state is not None or landing_energy is not None:
+                raise ValueError("failed attempts cannot carry landing data")
+            failure_reason = _failure_reason("failure_reason", failure_reason)
+            landing_snapshot = None
 
-        if self.landing_state is not None or self.landing_energy is not None:
-            raise ValueError("failed attempts cannot carry landing data")
-        object.__setattr__(self, "failure_reason", _failure_reason("failure_reason", self.failure_reason))
+        object.__setattr__(self, "action", action)
+        object.__setattr__(self, "landing_energy", landing_energy)
+        object.__setattr__(self, "force_evaluations", force_evaluations)
+        object.__setattr__(self, "status", status)
+        object.__setattr__(self, "failure_reason", failure_reason)
+        object.__setattr__(self, "_landing_state_snapshot", landing_snapshot)
+
+    @property
+    def landing_state(self) -> State | None:
+        """Return a fresh mutable copy of the captured worker landing state."""
+
+        if self._landing_state_snapshot is None:
+            return None
+        return deepcopy(self._landing_state_snapshot)
 
 
 @dataclass(frozen=True)
