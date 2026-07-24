@@ -1,4 +1,5 @@
 from .actions import AttemptResult, AttemptStatus, CreditedOutcome, PolicySnapshot, StarterAction
+from .batch import derive_action_seed, plan_batch
 from .posterior import StarterProductivityPosterior
 from .policies import SUPPORTED_POLICIES, build_policy_snapshot
 
@@ -11,4 +12,6 @@ __all__ = [
     "StarterProductivityPosterior",
     "StarterAction",
     "build_policy_snapshot",
+    "derive_action_seed",
+    "plan_batch",
 ]
