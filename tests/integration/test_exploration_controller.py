@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import threading
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Executor, ThreadPoolExecutor
 from dataclasses import replace
 from pathlib import Path
 from typing import Callable
@@ -265,6 +265,7 @@ def test_invalid_worker_returns_abort_without_state_or_log_mutation(
 
     assert _controller_fingerprint(controller) == before
     assert not event_path.exists()
+    assert not controller.has_pending_commit
 
 
 def test_log_failure_rolls_back_entries_nested_archive_data_posterior_and_versions() -> None:
@@ -291,6 +292,191 @@ def test_log_failure_rolls_back_entries_nested_archive_data_posterior_and_versio
 
     assert event_log.calls == 1
     assert _controller_fingerprint(controller) == before
+
+
+def test_postwrite_log_error_retries_exact_pending_batch_without_reexecuting_worker(tmp_path: Path) -> None:
+    class PostWriteFsyncErrorLog:
+        def __init__(self, path: Path) -> None:
+            self._log = ExplorationEventLog(path)
+            self.calls = 0
+            self.raise_once = True
+
+        def append_batch(self, snapshot, actions, outcomes) -> None:
+            self.calls += 1
+            self._log.append_batch(snapshot, actions, outcomes)
+            if self.raise_once:
+                self.raise_once = False
+                raise OSError("post-write fsync acknowledgement failed")
+
+    event_path = tmp_path / "events.jsonl"
+    event_log = PostWriteFsyncErrorLog(event_path)
+    controller = ExplorationController(_archive(), "uniform", 23, event_log)
+    before = _controller_fingerprint(controller)
+    worker_calls: list[int] = []
+
+    def nondeterministic_worker(action: StarterAction, starter_state: State) -> AttemptResult:
+        worker_calls.append(action.slot_id)
+        return _completed(action, 10.0 + len(worker_calls), -10.0 - len(worker_calls))
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        with pytest.raises(OSError, match="post-write fsync"):
+            controller.run_batch(executor, nondeterministic_worker, batch_size=1, force_budget=None)
+
+        assert worker_calls == [0]
+        assert controller.has_pending_commit
+        assert _controller_fingerprint(controller) == before
+        rows_before_retry = event_path.read_text(encoding="utf-8")
+
+        def must_not_run(action: StarterAction, starter_state: State) -> AttemptResult:
+            pytest.fail("pending commit reconciliation must not dispatch a worker")
+
+        outcomes = controller.run_batch(executor, must_not_run, batch_size=9, force_budget=1)
+
+    assert worker_calls == [0]
+    assert event_log.calls == 2
+    assert not controller.has_pending_commit
+    assert event_path.read_text(encoding="utf-8") == rows_before_retry
+    assert outcomes[0].landing_energy == pytest.approx(-11.0)
+    assert controller.posterior.completed_attempts == 1
+    assert ExplorationEventLog(event_path).reconstruct_posterior().counts(outcomes[0].starter_id) == (
+        1,
+        0,
+    )
+
+
+def test_completed_landing_state_is_owned_by_archive_after_worker_returns(tmp_path: Path) -> None:
+    retained: dict[str, object] = {}
+
+    def worker(action: StarterAction, starter_state: State) -> AttemptResult:
+        original_landing = _state(6.0, label="worker-original")
+        result = AttemptResult(
+            action=action,
+            landing_state=original_landing,
+            landing_energy=-6.0,
+            force_evaluations=2,
+            status=AttemptStatus.COMPLETED,
+            failure_reason=None,
+        )
+        retained["original_landing"] = original_landing
+        retained["result"] = result
+        return result
+
+    controller = ExplorationController(_archive(), "uniform", 3, ExplorationEventLog(tmp_path / "events.jsonl"))
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        (outcome,) = controller.run_batch(executor, worker, batch_size=1, force_budget=None)
+
+    landing = controller.archive.entries[outcome.landing_entry_id]
+    assert landing.descriptor is not None
+    descriptor_before = landing.descriptor.copy()
+    original_landing = retained["original_landing"]
+    result = retained["result"]
+    assert isinstance(original_landing, State)
+    assert isinstance(result, AttemptResult)
+    original_landing.positions[0, 0] = 60.0
+    result.landing_state.positions[0, 0] = 600.0
+
+    assert landing.state.positions[0, 0] == pytest.approx(6.0)
+    np.testing.assert_allclose(landing.descriptor, descriptor_before)
+
+
+def test_partial_executor_submission_failure_finalizes_every_planned_slot(tmp_path: Path) -> None:
+    class FailsOnSecondSubmit(Executor):
+        def __init__(self) -> None:
+            self._inner = ThreadPoolExecutor(max_workers=1)
+            self.submit_calls = 0
+
+        def submit(self, fn, /, *args, **kwargs):
+            self.submit_calls += 1
+            if self.submit_calls == 2:
+                raise RuntimeError("submit transport failed")
+            return self._inner.submit(fn, *args, **kwargs)
+
+        def shutdown(self, wait: bool = True, *, cancel_futures: bool = False) -> None:
+            self._inner.shutdown(wait=wait, cancel_futures=cancel_futures)
+
+    event_path = tmp_path / "events.jsonl"
+    controller = ExplorationController(_archive(), "uniform", 12, ExplorationEventLog(event_path))
+    worker_slots: list[int] = []
+
+    def worker(action: StarterAction, starter_state: State) -> AttemptResult:
+        worker_slots.append(action.slot_id)
+        return _completed(action, 8.0, -8.0)
+
+    executor = FailsOnSecondSubmit()
+    try:
+        outcomes = controller.run_batch(executor, worker, batch_size=3, force_budget=5)
+    finally:
+        executor.shutdown()
+
+    assert executor.submit_calls == 2
+    assert worker_slots == [0]
+    assert [outcome.status for outcome in outcomes] == [
+        AttemptStatus.COMPLETED,
+        AttemptStatus.WORKER_ERROR,
+        AttemptStatus.WORKER_ERROR,
+    ]
+    assert [outcome.force_evaluations for outcome in outcomes] == [3, 0, 0]
+    assert [outcome.failure_reason for outcome in outcomes[1:]] == [
+        "RuntimeError: submit transport failed",
+        "RuntimeError: submit transport failed",
+    ]
+    rows = [json.loads(line) for line in event_path.read_text(encoding="utf-8").splitlines()]
+    assert [row["slot_id"] for row in rows[1:-1]] == [0, 1, 2]
+    assert [row["status"] for row in rows[1:-1]] == ["completed", "worker_error", "worker_error"]
+    assert controller.posterior.completed_attempts == 3
+    assert ExplorationEventLog(event_path).reconstruct_posterior().completed_attempts == 3
+
+
+def test_simultaneous_controller_calls_are_serialized_into_sequential_batches(tmp_path: Path) -> None:
+    class BlockingFirstAppendLog:
+        def __init__(self, path: Path) -> None:
+            self._log = ExplorationEventLog(path)
+            self._lock = threading.Lock()
+            self._calls = 0
+            self.first_append_entered = threading.Event()
+            self.second_append_entered = threading.Event()
+            self.release_first_append = threading.Event()
+
+        def append_batch(self, snapshot, actions, outcomes) -> None:
+            with self._lock:
+                self._calls += 1
+                call_number = self._calls
+            if call_number == 1:
+                self.first_append_entered.set()
+                assert self.release_first_append.wait(timeout=2)
+            else:
+                self.second_append_entered.set()
+            self._log.append_batch(snapshot, actions, outcomes)
+
+    event_path = tmp_path / "events.jsonl"
+    event_log = BlockingFirstAppendLog(event_path)
+    controller = ExplorationController(_archive(), "uniform", 31, event_log)
+    callers_ready = threading.Barrier(3)
+
+    def worker(action: StarterAction, starter_state: State) -> AttemptResult:
+        return _completed(action, 20.0 + action.batch_id, -20.0 - action.batch_id)
+
+    def caller():
+        callers_ready.wait(timeout=2)
+        return controller.run_batch(action_executor, worker, batch_size=1, force_budget=None)
+
+    with ThreadPoolExecutor(max_workers=2) as action_executor:
+        with ThreadPoolExecutor(max_workers=2) as caller_executor:
+            first = caller_executor.submit(caller)
+            second = caller_executor.submit(caller)
+            callers_ready.wait(timeout=2)
+            assert event_log.first_append_entered.wait(timeout=2)
+            assert not event_log.second_append_entered.wait(timeout=0.25)
+            event_log.release_first_append.set()
+            outcomes = (first.result(timeout=5), second.result(timeout=5))
+
+    action_ids = sorted(outcome[0].action_id for outcome in outcomes)
+    assert action_ids == ["batch-00000000-slot-0000", "batch-00000001-slot-0000"]
+    rows = [json.loads(line) for line in event_path.read_text(encoding="utf-8").splitlines()]
+    assert [row["batch_id"] for row in rows if row["record_type"] == "policy_snapshot"] == [0, 1]
+    assert sum(row["record_type"] == "attempt" for row in rows) == 2
+    assert controller.posterior.completed_attempts == 2
+    assert ExplorationEventLog(event_path).reconstruct_posterior().completed_attempts == 2
 
 
 @pytest.mark.parametrize("policy_name", ["uniform", "posterior_proportional", "minimal_ucb"])

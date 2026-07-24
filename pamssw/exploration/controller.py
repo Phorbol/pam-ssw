@@ -9,7 +9,9 @@ from __future__ import annotations
 
 from concurrent.futures import Executor, as_completed
 from copy import deepcopy
+from dataclasses import dataclass
 from numbers import Integral
+import threading
 from typing import Callable, Protocol
 
 from ..archive import MinimaArchive, MinimaEntry
@@ -34,6 +36,20 @@ class BatchLog(Protocol):
 Worker = Callable[[StarterAction, State], AttemptResult]
 
 
+@dataclass(frozen=True)
+class _PendingCommit:
+    """One finalized batch whose audit write may have completed indeterminately."""
+
+    snapshot: PolicySnapshot
+    actions: tuple[StarterAction, ...]
+    outcomes: tuple[CreditedOutcome, ...]
+    shadow_archive: MinimaArchive
+    shadow_posterior: StarterProductivityPosterior
+    next_policy_version: int
+    next_archive_version: int
+    next_batch_id: int
+
+
 def _nonnegative_int(name: str, value: object) -> int:
     if isinstance(value, bool) or not isinstance(value, Integral) or value < 0:
         raise ValueError(f"{name} must be a non-negative integer")
@@ -56,6 +72,9 @@ class ExplorationController:
     Phase 1 always starts from the supplied archive clone and an empty
     productivity posterior.  It intentionally neither resumes an existing log
     nor changes the archive object passed to the constructor.
+
+    Calls to :meth:`run_batch` on one controller are serialized. A shared event
+    log therefore requires a single controller/writer in this phase.
     """
 
     def __init__(
@@ -78,6 +97,14 @@ class ExplorationController:
         self.policy_version = 0
         self.archive_version = 0
         self.batch_id = 0
+        self._run_lock = threading.Lock()
+        self._pending_commit: _PendingCommit | None = None
+
+    @property
+    def has_pending_commit(self) -> bool:
+        """Whether a finalized batch still needs an exact append retry."""
+        with self._run_lock:
+            return self._pending_commit is not None
 
     def run_batch(
         self,
@@ -93,62 +120,88 @@ class ExplorationController:
         must catch its own exception and return that explicit ``AttemptResult``
         so the exact cost is recorded.
         """
-        if not isinstance(executor, Executor):
-            raise ValueError("executor must be a concurrent.futures.Executor")
-        if not callable(worker):
-            raise ValueError("worker must be callable")
+        with self._run_lock:
+            if self._pending_commit is not None:
+                return self._reconcile_pending_commit()
+            if not isinstance(executor, Executor):
+                raise ValueError("executor must be a concurrent.futures.Executor")
+            if not callable(worker):
+                raise ValueError("worker must be callable")
 
-        planning_posterior = self.posterior.clone()
-        snapshot = build_policy_snapshot(
-            self.policy_name,
-            tuple(entry.entry_id for entry in self.archive.entries),
-            planning_posterior,
-            self.policy_version,
-            self.archive_version,
-        )
-        actions = plan_batch(snapshot, self.batch_id, batch_size, self.master_seed, force_budget)
-        dispatch_archive = self.archive.clone()
-        dispatch_entries = _entries_by_id(dispatch_archive)
+            planning_posterior = self.posterior.clone()
+            snapshot = build_policy_snapshot(
+                self.policy_name,
+                tuple(entry.entry_id for entry in self.archive.entries),
+                planning_posterior,
+                self.policy_version,
+                self.archive_version,
+            )
+            actions = plan_batch(snapshot, self.batch_id, batch_size, self.master_seed, force_budget)
+            dispatch_archive = self.archive.clone()
+            dispatch_entries = _entries_by_id(dispatch_archive)
 
-        futures = {
-            executor.submit(worker, action, deepcopy(dispatch_entries[action.starter_id].state)): action
-            for action in actions
-        }
-        result_by_slot: dict[int, AttemptResult] = {}
-        for future in as_completed(futures):
-            action = futures[future]
-            try:
-                result = future.result()
-            except Exception as exc:
-                result = AttemptResult(
-                    action=action,
-                    landing_state=None,
-                    landing_energy=None,
-                    force_evaluations=0,
-                    status=AttemptStatus.WORKER_ERROR,
-                    failure_reason=f"{type(exc).__name__}: {exc}",
-                )
-            if not isinstance(result, AttemptResult):
-                raise ValueError("worker must return an AttemptResult")
-            if result.action != action:
-                raise ValueError("worker returned a result for the wrong action")
-            result_by_slot[action.slot_id] = result
+            futures = {}
+            result_by_slot: dict[int, AttemptResult] = {}
+            for index, action in enumerate(actions):
+                try:
+                    future = executor.submit(
+                        worker,
+                        action,
+                        deepcopy(dispatch_entries[action.starter_id].state),
+                    )
+                except Exception as exc:
+                    for undispatched_action in actions[index:]:
+                        result_by_slot[undispatched_action.slot_id] = _worker_error_result(
+                            undispatched_action,
+                            exc,
+                        )
+                    break
+                futures[future] = action
 
-        ordered_results = tuple(result_by_slot[action.slot_id] for action in actions)
-        shadow_archive = self.archive.clone()
-        shadow_posterior = self.posterior.clone()
-        outcomes = tuple(
-            _credit_result(result, dispatch_archive, shadow_archive, shadow_posterior)
-            for result in ordered_results
-        )
+            for future in as_completed(futures):
+                action = futures[future]
+                try:
+                    result = future.result()
+                except Exception as exc:
+                    result = _worker_error_result(action, exc)
+                if not isinstance(result, AttemptResult):
+                    raise ValueError("worker must return an AttemptResult")
+                if result.action != action:
+                    raise ValueError("worker returned a result for the wrong action")
+                result_by_slot[action.slot_id] = result
 
-        self.event_log.append_batch(snapshot, actions, outcomes)
-        self.archive = shadow_archive
-        self.posterior = shadow_posterior
-        self.policy_version += 1
-        self.archive_version += 1
-        self.batch_id += 1
-        return outcomes
+            ordered_results = tuple(result_by_slot[action.slot_id] for action in actions)
+            shadow_archive = self.archive.clone()
+            shadow_posterior = self.posterior.clone()
+            outcomes = tuple(
+                _credit_result(result, dispatch_archive, shadow_archive, shadow_posterior)
+                for result in ordered_results
+            )
+            self._pending_commit = _PendingCommit(
+                snapshot=snapshot,
+                actions=actions,
+                outcomes=outcomes,
+                shadow_archive=shadow_archive,
+                shadow_posterior=shadow_posterior,
+                next_policy_version=self.policy_version + 1,
+                next_archive_version=self.archive_version + 1,
+                next_batch_id=self.batch_id + 1,
+            )
+            return self._reconcile_pending_commit()
+
+    def _reconcile_pending_commit(self) -> tuple[CreditedOutcome, ...]:
+        """Append and install the exact finalized batch currently pending."""
+        pending = self._pending_commit
+        if pending is None:
+            raise RuntimeError("no pending exploration batch to reconcile")
+        self.event_log.append_batch(pending.snapshot, pending.actions, pending.outcomes)
+        self.archive = pending.shadow_archive
+        self.posterior = pending.shadow_posterior
+        self.policy_version = pending.next_policy_version
+        self.archive_version = pending.next_archive_version
+        self.batch_id = pending.next_batch_id
+        self._pending_commit = None
+        return pending.outcomes
 
 
 def _entries_by_id(archive: MinimaArchive) -> dict[int, MinimaEntry]:
@@ -156,6 +209,17 @@ def _entries_by_id(archive: MinimaArchive) -> dict[int, MinimaEntry]:
     if len(entries) != len(archive.entries):
         raise ValueError("archive entry IDs must be unique")
     return entries
+
+
+def _worker_error_result(action: StarterAction, exc: Exception) -> AttemptResult:
+    return AttemptResult(
+        action=action,
+        landing_state=None,
+        landing_energy=None,
+        force_evaluations=0,
+        status=AttemptStatus.WORKER_ERROR,
+        failure_reason=f"{type(exc).__name__}: {exc}",
+    )
 
 
 def _credit_result(
@@ -176,7 +240,7 @@ def _credit_result(
         discovered = dispatch_archive.find_match(result.landing_state, result.landing_energy) is None
         before = len(shadow_archive.entries)
         landing = shadow_archive.add(
-            result.landing_state,
+            deepcopy(result.landing_state),
             result.landing_energy,
             parent_id=result.action.starter_id,
         )
