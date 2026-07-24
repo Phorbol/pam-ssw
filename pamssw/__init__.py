@@ -1,11 +1,14 @@
 from .acquisition import SearchMode
 from .config import LSSSWConfig, RelaxConfig, SSWConfig
+from .exploration.controller import ExplorationController
+from .exploration.posterior import StarterProductivityPosterior
 from .io import read_state, state_from_atoms, state_to_atoms, write_state
 from .result import RelaxOutcomeClass, RelaxResult, SearchResult
 from .runner import relax_minimum, run_ls_ssw, run_ssw
 from .state import State
 
 __all__ = [
+    "ExplorationController",
     "LSSSWConfig",
     "RelaxConfig",
     "RelaxOutcomeClass",
@@ -13,6 +16,7 @@ __all__ = [
     "SSWConfig",
     "SearchMode",
     "SearchResult",
+    "StarterProductivityPosterior",
     "State",
     "read_state",
     "relax_minimum",

@@ -40,6 +40,35 @@ For periodic slabs, treat the current implementation as fixed-cell SSW/LS-SSW.
 It can evaluate periodic energies and forces, but the workflow does not optimize
 the cell.
 
+## Experimental posterior-driven exploration core
+
+`ExplorationController` is a generic, walker-independent synchronous batch
+controller with `uniform`, `posterior_proportional`, and `minimal_ucb`
+policies. Here, **strategy-unbiased** has only an operational meaning:
+`uniform` and `posterior_proportional` give every eligible starter strictly
+positive probability and log each action's exact selection propensity. It does
+not mean thermodynamic, kinetic, or detailed-balance unbiasedness. `minimal_ucb`
+is a deterministic, non-full-support comparator. The current legacy composite
+UCB remains the external/default SSW comparator; it is not silently
+reimplemented or replaced.
+
+The fixed Beta(1,1) posterior models the probability that an action lands in a
+basin absent from the dispatch archive snapshot. Every planned action receives a
+terminal record, and failed attempts count as false. Batches sample with
+replacement; repeated landings in the same novel basin receive success credit
+for every action but produce one archive insertion. The controller commits exact
+JSONL facts synchronously in slot order. Phase 1 has one controller/writer, a
+POSIX durability path with a pre-existing parent directory, and an O(total log
+size) append preflight.
+
+Phase-1 boundaries are explicit: generic workers only; no `run_parallel_ssw` or
+`SurfaceWalker` adapter; no default SSW-path change; no aggregate force-budget
+manager; no MACE or multiprocess runtime validation; uncaught worker exceptions
+record zero cost; no cross-process restart/resume or archive-geometry replay;
+and no asynchronous racing, transition-state, or reaction-network objective.
+These are experimental controls for clean ablation, not evidence of improved
+search performance.
+
 ## Install
 
 ```bash

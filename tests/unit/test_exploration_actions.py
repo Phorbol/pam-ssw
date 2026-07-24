@@ -3,6 +3,7 @@ from dataclasses import FrozenInstanceError, fields, replace
 import numpy as np
 import pytest
 
+import pamssw
 from pamssw.exploration.actions import (
     AttemptResult,
     AttemptStatus,
@@ -11,6 +12,33 @@ from pamssw.exploration.actions import (
     StarterAction,
 )
 from pamssw.state import State
+
+
+def test_package_root_exports_only_the_public_posterior_exploration_types():
+    from pamssw.exploration.controller import ExplorationController
+    from pamssw.exploration.posterior import StarterProductivityPosterior
+
+    assert pamssw.ExplorationController is ExplorationController
+    assert pamssw.StarterProductivityPosterior is StarterProductivityPosterior
+    assert {"ExplorationController", "StarterProductivityPosterior"} <= set(pamssw.__all__)
+
+    internal_exports = {
+        "AttemptResult",
+        "AttemptStatus",
+        "BatchLog",
+        "CreditedOutcome",
+        "ExplorationEventLog",
+        "PolicySnapshot",
+        "SCHEMA_VERSION",
+        "SUPPORTED_POLICIES",
+        "StarterAction",
+        "Worker",
+        "build_policy_snapshot",
+        "derive_action_seed",
+        "plan_batch",
+    }
+    assert not (internal_exports & set(pamssw.__all__))
+    assert all(not hasattr(pamssw, name) for name in internal_exports)
 
 
 def _state(x: float = 1.0) -> State:
