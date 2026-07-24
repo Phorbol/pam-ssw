@@ -157,6 +157,33 @@ def test_completed_attempt_requires_finite_landing_data_within_budget():
     assert result.status is AttemptStatus.COMPLETED
 
 
+def test_attempt_result_captures_an_immutable_landing_state_snapshot():
+    landing_state = State(
+        numbers=np.array([1]),
+        positions=np.array([[1.0, 0.0, 0.0]]),
+        metadata={"labels": ["landing"]},
+    )
+    result = AttemptResult(
+        action=_action(),
+        landing_state=landing_state,
+        landing_energy=-1.0,
+        force_evaluations=1,
+        status=AttemptStatus.COMPLETED,
+        failure_reason=None,
+    )
+
+    landing_state.positions[0, 0] = 9.0
+    landing_state.metadata["labels"].append("mutated")
+
+    assert result.landing_state is not None
+    assert result.landing_state.positions[0, 0] == pytest.approx(1.0)
+    assert result.landing_state.metadata["labels"] == ("landing",)
+    with pytest.raises(ValueError):
+        result.landing_state.positions[0, 0] = 3.0
+    with pytest.raises(TypeError):
+        result.landing_state.metadata["labels"] = ("other",)
+
+
 @pytest.mark.parametrize(
     ("landing_state", "landing_energy", "force_evaluations", "failure_reason"),
     [
