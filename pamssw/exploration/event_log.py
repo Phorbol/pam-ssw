@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import stat
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -410,8 +411,44 @@ def _fsync_existing_file(path: Path) -> None:
         os.fsync(handle.fileno())
 
 
+def _reject_final_path_symlink(path: Path) -> None:
+    """Reject a symlink at the event log's final path component only."""
+    try:
+        mode = path.lstat().st_mode
+    except FileNotFoundError:
+        return
+    except NotADirectoryError:
+        return
+    except OSError as exc:
+        raise OSError("could not inspect final event-log path") from exc
+    if stat.S_ISLNK(mode):
+        raise ValueError("final event-log path must not be a symlink")
+
+
+def _require_no_follow_append_support() -> int:
+    """Return the POSIX no-follow flag needed for race-safe final-path writes."""
+    if os.name != "posix" or not hasattr(os, "O_NOFOLLOW"):
+        raise OSError("race-safe event-log append requires POSIX os.O_NOFOLLOW support")
+    return os.O_NOFOLLOW
+
+
+def _open_append_text_file(path: Path, parent_fd: int):
+    """Open only ``path.name`` beneath ``parent_fd`` without following a final symlink."""
+    flags = os.O_WRONLY | os.O_APPEND | os.O_CREAT | _require_no_follow_append_support()
+    try:
+        file_fd = os.open(path.name, flags, 0o666, dir_fd=parent_fd)
+    except OSError as exc:
+        raise OSError("could not open final event-log path without following symlinks") from exc
+    try:
+        return os.fdopen(file_fd, "a", encoding="utf-8")
+    except BaseException:
+        os.close(file_fd)
+        raise
+
+
 def _parse_committed_log(path: Path) -> _ParsedEventLog:
     """Strictly validate a complete log before exposing any committed facts."""
+    _reject_final_path_symlink(path)
     if not path.exists():
         return _ParsedEventLog((), frozenset(), frozenset(), {})
 
@@ -507,12 +544,14 @@ def _parse_committed_log(path: Path) -> _ParsedEventLog:
 class ExplorationEventLog:
     """Append and replay committed exploration facts from a JSONL file.
 
-    The parent directory must already exist. On POSIX, each append holds a
-    parent-directory FD after a capability fsync preflight; a preflight failure
-    occurs before file mutation. It then fsyncs that FD after the file. Appends
-    preflight the entire log for sequential idempotency, so they are O(total log
-    size), a deliberate phase-1 scaling boundary. This append-only log has no
-    locking or checksum and does not reconstruct archive geometry.
+    The parent directory must already exist and the final path component cannot
+    be a symlink. On POSIX, each append holds a parent-directory FD after a
+    capability fsync preflight; a preflight failure occurs before file mutation.
+    It opens the final component with ``O_NOFOLLOW`` and fsyncs the held parent
+    FD after the file. Appends preflight the entire log for sequential
+    idempotency, so they are O(total log size), a deliberate phase-1 scaling
+    boundary. This append-only log has no locking or checksum and does not
+    reconstruct archive geometry.
     """
 
     def __init__(self, path: str | os.PathLike[str]) -> None:
@@ -529,6 +568,8 @@ class ExplorationEventLog:
         batch_id = actions[0].batch_id
         action_ids = tuple(action.action_id for action in actions)
         candidate = _CommittedBatch(snapshot, actions, outcomes)
+        _reject_final_path_symlink(self.path)
+        _require_no_follow_append_support()
         directory_fd = _open_preflight_fsynced_parent_directory(self.path)
         try:
             existing = _parse_committed_log(self.path)
@@ -549,7 +590,7 @@ class ExplorationEventLog:
                 for row in rows
             )
 
-            with self.path.open("a", encoding="utf-8") as handle:
+            with _open_append_text_file(self.path, directory_fd) as handle:
                 written = handle.write(payload)
                 if written != len(payload):
                     raise OSError("short event-log write")

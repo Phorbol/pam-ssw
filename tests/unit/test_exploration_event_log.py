@@ -1,4 +1,6 @@
 import json
+import os
+import stat
 from dataclasses import replace
 
 import pytest
@@ -158,6 +160,47 @@ def test_append_rejects_a_non_directory_parent_without_mutating_it(tmp_path):
         )
 
     assert parent.read_text(encoding="utf-8") == "keep this file"
+
+
+@pytest.mark.skipif(not hasattr(os, "symlink"), reason="symlink support is unavailable")
+def test_existing_final_symlink_is_rejected_without_mutating_its_target(tmp_path):
+    target = tmp_path / "target.jsonl"
+    target.write_text("target stays unchanged\n", encoding="utf-8")
+    path = tmp_path / "events.jsonl"
+    path.symlink_to(target)
+    action = _action()
+
+    with pytest.raises(ValueError, match="final event-log path.*symlink"):
+        ExplorationEventLog(path).append_batch(_snapshot(), (action,), (_outcome(action),))
+    with pytest.raises(ValueError, match="final event-log path.*symlink"):
+        ExplorationEventLog(path).reconstruct_posterior()
+
+    assert path.is_symlink()
+    assert target.read_text(encoding="utf-8") == "target stays unchanged\n"
+
+
+@pytest.mark.skipif(not hasattr(os, "symlink"), reason="symlink support is unavailable")
+def test_dangling_final_symlink_is_rejected_without_creating_its_target(tmp_path):
+    target = tmp_path / "missing-target.jsonl"
+    path = tmp_path / "events.jsonl"
+    path.symlink_to(target)
+    action = _action()
+
+    with pytest.raises(ValueError, match="final event-log path.*symlink"):
+        ExplorationEventLog(path).append_batch(_snapshot(), (action,), (_outcome(action),))
+    with pytest.raises(ValueError, match="final event-log path.*symlink"):
+        ExplorationEventLog(path).reconstruct_posterior()
+
+    assert path.is_symlink()
+    assert not target.exists()
+
+
+def test_ordinary_final_file_remains_appendable_and_replayable(tmp_path):
+    path = tmp_path / "events.jsonl"
+    _write_valid_batch(path)
+
+    assert not path.is_symlink()
+    assert ExplorationEventLog(path).reconstruct_posterior().completed_attempts == 2
 
 
 def test_reconstructs_committed_attempt_facts_once_per_action(tmp_path):
@@ -397,29 +440,19 @@ def test_append_and_idempotent_retry_preflight_and_refsync_a_held_parent_directo
     tmp_path, monkeypatch
 ):
     path = tmp_path / "events.jsonl"
-    directory_fd = 991
-    fsync_fds = []
-    directory_opens = []
-    closed_fds = []
+    fsync_kinds = []
 
-    def open_directory(directory, flags):
-        directory_opens.append((directory, flags))
-        return directory_fd
+    def record_fsync_kind(fd):
+        fsync_kinds.append("directory" if stat.S_ISDIR(os.fstat(fd).st_mode) else "file")
 
-    monkeypatch.setattr(event_log.os, "open", open_directory)
-    monkeypatch.setattr(event_log.os, "close", closed_fds.append)
-    monkeypatch.setattr(event_log.os, "fsync", fsync_fds.append)
+    monkeypatch.setattr(event_log.os, "fsync", record_fsync_kind)
 
     action = _action()
     log = ExplorationEventLog(path)
     log.append_batch(_snapshot(), (action,), (_outcome(action),))
     log.append_batch(_snapshot(), (action,), (_outcome(action),))
 
-    expected_flags = event_log.os.O_RDONLY | getattr(event_log.os, "O_DIRECTORY", 0)
-    assert len(fsync_fds) == 6
-    assert [fd == directory_fd for fd in fsync_fds] == [True, False, True, True, False, True]
-    assert directory_opens == [(str(path.parent), expected_flags)] * 2
-    assert closed_fds == [directory_fd, directory_fd]
+    assert fsync_kinds == ["directory", "file", "directory", "directory", "file", "directory"]
 
 
 @pytest.mark.skipif(event_log.os.name != "posix", reason="parent-directory fsync is POSIX-only")
@@ -427,15 +460,11 @@ def test_exact_retry_after_a_file_fsync_error_does_not_append_or_double_count(tm
     path = tmp_path / "events.jsonl"
     action = _action()
     log = ExplorationEventLog(path)
-    directory_fd = 992
-    fsync_fds = []
-
-    monkeypatch.setattr(event_log.os, "open", lambda directory, flags: directory_fd)
-    monkeypatch.setattr(event_log.os, "close", lambda fd: None)
+    fsync_kinds = []
 
     def fail_file_fsync_after_directory_preflight(fd):
-        fsync_fds.append(fd)
-        if len(fsync_fds) == 2:
+        fsync_kinds.append("directory" if stat.S_ISDIR(os.fstat(fd).st_mode) else "file")
+        if fsync_kinds == ["directory", "file"]:
             raise OSError("injected file fsync failure")
 
     monkeypatch.setattr(event_log.os, "fsync", fail_file_fsync_after_directory_preflight)
@@ -444,10 +473,9 @@ def test_exact_retry_after_a_file_fsync_error_does_not_append_or_double_count(tm
 
     bytes_after_failed_fsync = path.read_bytes()
     assert len(bytes_after_failed_fsync.splitlines()) == 3
-    assert fsync_fds[0] == directory_fd
-    assert fsync_fds[1] != directory_fd
+    assert fsync_kinds == ["directory", "file"]
 
-    monkeypatch.setattr(event_log.os, "fsync", fsync_fds.append)
+    monkeypatch.setattr(event_log.os, "fsync", lambda fd: None)
     log.append_batch(_snapshot(), (action,), (_outcome(action),))
 
     assert path.read_bytes() == bytes_after_failed_fsync
@@ -470,9 +498,6 @@ def test_parent_directory_preflight_fsync_failure_never_mutates_the_log(
         action = _action()
         before = None
 
-    monkeypatch.setattr(event_log.os, "open", lambda directory, flags: 993)
-    monkeypatch.setattr(event_log.os, "close", lambda fd: None)
-
     def fail_preflight_directory_fsync(fd):
         raise OSError("injected directory fsync failure")
 
@@ -484,6 +509,35 @@ def test_parent_directory_preflight_fsync_failure_never_mutates_the_log(
         assert not path.exists()
     else:
         assert path.read_bytes() == before
+
+
+@pytest.mark.skipif(
+    event_log.os.name != "posix" or not hasattr(event_log.os, "O_NOFOLLOW"),
+    reason="race-safe final-component opening requires POSIX O_NOFOLLOW",
+)
+def test_append_opens_only_the_final_component_relative_to_the_held_parent_fd(tmp_path, monkeypatch):
+    path = tmp_path / "events.jsonl"
+    action = _action()
+    real_open = event_log.os.open
+    open_calls = []
+
+    def record_open(name, flags, mode=0o777, *, dir_fd=None):
+        open_calls.append((name, flags, mode, dir_fd))
+        return real_open(name, flags, mode, dir_fd=dir_fd)
+
+    monkeypatch.setattr(event_log.os, "open", record_open)
+    ExplorationEventLog(path).append_batch(_snapshot(), (action,), (_outcome(action),))
+
+    final_component_calls = [call for call in open_calls if call[3] is not None]
+    assert len(final_component_calls) == 1
+    name, flags, mode, parent_fd = final_component_calls[0]
+    assert name == path.name
+    assert flags & event_log.os.O_WRONLY
+    assert flags & event_log.os.O_APPEND
+    assert flags & event_log.os.O_CREAT
+    assert flags & event_log.os.O_NOFOLLOW
+    assert mode == 0o666
+    assert isinstance(parent_fd, int)
 
 
 def test_reconstruction_rejects_duplicate_json_keys_at_any_object_depth(tmp_path):
