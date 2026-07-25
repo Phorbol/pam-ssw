@@ -14,11 +14,18 @@ import stat
 from dataclasses import dataclass
 from pathlib import Path
 
-from .actions import AttemptStatus, CreditedOutcome, PolicySnapshot, StarterAction
+from ..accounting import EvaluationCounts, EvaluationPurpose
+from .actions import (
+    AttemptStatus,
+    CreditedOutcome,
+    PolicySnapshot,
+    StarterAction,
+    should_observe_posterior,
+)
 from .posterior import StarterProductivityPosterior
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 _POLICY_SNAPSHOT_FIELDS = frozenset(
     {
@@ -39,6 +46,7 @@ _ATTEMPT_FIELDS = frozenset(
         "archive_version",
         "batch_id",
         "discovered_against_snapshot",
+        "evaluation_counts",
         "failure_reason",
         "force_budget",
         "force_evaluations",
@@ -55,6 +63,8 @@ _ATTEMPT_FIELDS = frozenset(
         "starter_id",
         "status",
         "within_batch_collision",
+        "cost_is_exact",
+        "posterior_observed",
     }
 )
 _BATCH_COMMIT_FIELDS = frozenset(
@@ -124,6 +134,29 @@ def _optional_failure_reason(value: object) -> str | None:
     return _nonempty_string("failure_reason", value)
 
 
+def _evaluation_counts_row(evaluation_counts: EvaluationCounts) -> dict[str, int]:
+    if not isinstance(evaluation_counts, EvaluationCounts):
+        raise _EventLogError("evaluation_counts must be an EvaluationCounts")
+    return {
+        purpose.value: evaluation_counts.count(purpose) for purpose in EvaluationPurpose
+    }
+
+
+def _parse_evaluation_counts(value: object) -> EvaluationCounts:
+    if not isinstance(value, dict):
+        raise _EventLogError("evaluation_counts must be a JSON object")
+    expected_purposes = tuple(purpose.value for purpose in EvaluationPurpose)
+    if set(value) != set(expected_purposes):
+        missing = sorted(set(expected_purposes) - set(value))
+        unknown = sorted(set(value) - set(expected_purposes))
+        raise _EventLogError(
+            f"evaluation_counts must include every purpose exactly once; missing={missing!r}, unknown={unknown!r}"
+        )
+    return EvaluationCounts(
+        tuple(_nonnegative_int(f"evaluation_counts.{purpose}", value[purpose]) for purpose in expected_purposes)
+    )
+
+
 def _require_fields(row: dict[str, object], expected: frozenset[str], line_number: int) -> None:
     if set(row) != expected:
         missing = sorted(expected - set(row))
@@ -169,6 +202,9 @@ def _attempt_row(action: StarterAction, outcome: CreditedOutcome) -> dict[str, o
         "status": outcome.status.value,
         "failure_reason": outcome.failure_reason,
         "force_evaluations": outcome.force_evaluations,
+        "evaluation_counts": _evaluation_counts_row(outcome.evaluation_counts),
+        "cost_is_exact": outcome.cost_is_exact,
+        "posterior_observed": outcome.posterior_observed,
         "discovered_against_snapshot": outcome.discovered_against_snapshot,
         "inserted_into_archive": outcome.inserted_into_archive,
         "within_batch_collision": outcome.within_batch_collision,
@@ -234,6 +270,10 @@ def _validate_append_inputs(
             raise _EventLogError("starter_id must agree with outcome")
         if action.force_budget is not None and outcome.force_evaluations > action.force_budget:
             raise _EventLogError("force_evaluations cannot exceed action force_budget")
+        if outcome.posterior_observed != should_observe_posterior(
+            outcome.status, outcome.evaluation_counts
+        ):
+            raise _EventLogError("posterior_observed must match terminal observation predicate")
         if action.action_id in action_ids:
             raise _EventLogError("action IDs must be unique")
         if action.slot_id in slot_ids:
@@ -313,6 +353,9 @@ def _parse_attempt(
         inserted_into_archive=_boolean("inserted_into_archive", row["inserted_into_archive"]),
         within_batch_collision=_boolean("within_batch_collision", row["within_batch_collision"]),
         force_evaluations=_nonnegative_int("force_evaluations", row["force_evaluations"]),
+        evaluation_counts=_parse_evaluation_counts(row["evaluation_counts"]),
+        cost_is_exact=_boolean("cost_is_exact", row["cost_is_exact"]),
+        posterior_observed=_boolean("posterior_observed", row["posterior_observed"]),
         status=status,
         landing_entry_id=_optional_nonnegative_int("landing_entry_id", row["landing_entry_id"]),
         landing_energy=_optional_finite_number("landing_energy", row["landing_energy"]),
@@ -320,6 +363,10 @@ def _parse_attempt(
     )
     if action.force_budget is not None and outcome.force_evaluations > action.force_budget:
         raise _EventLogError("force_evaluations cannot exceed action force_budget")
+    if outcome.posterior_observed != should_observe_posterior(
+        outcome.status, outcome.evaluation_counts
+    ):
+        raise _EventLogError("posterior_observed must match terminal observation predicate")
     return action, outcome
 
 
@@ -350,6 +397,12 @@ def _reject_duplicate_json_keys(pairs: list[tuple[str, object]]) -> dict[str, ob
             raise _EventLogError(f"duplicate JSON object key: {key!r}")
         row[key] = value
     return row
+
+
+def _canonical_json_line(row: dict[str, object]) -> str:
+    """Keep top-level rows sorted while preserving enum order inside count objects."""
+    sorted_row = {key: row[key] for key in sorted(row)}
+    return json.dumps(sorted_row, separators=(",", ":"), allow_nan=False)
 
 
 @dataclass(frozen=True)
@@ -586,7 +639,7 @@ class ExplorationEventLog:
             rows.extend(_attempt_row(action, outcome) for action, outcome in zip(actions, outcomes))
             rows.append(_commit_row(batch_id, action_ids))
             payload = "".join(
-                json.dumps(row, sort_keys=True, separators=(",", ":"), allow_nan=False) + "\n"
+                _canonical_json_line(row) + "\n"
                 for row in rows
             )
 
@@ -609,7 +662,13 @@ class ExplorationEventLog:
         parsed = _parse_committed_log(self.path)
         posterior = StarterProductivityPosterior()
         for outcome in parsed.outcomes:
-            posterior.update(outcome.starter_id, outcome.discovered_against_snapshot)
+            posterior_observed = should_observe_posterior(
+                outcome.status, outcome.evaluation_counts
+            )
+            if outcome.posterior_observed != posterior_observed:
+                raise _EventLogError("posterior_observed must match terminal observation predicate")
+            if posterior_observed:
+                posterior.update(outcome.starter_id, outcome.discovered_against_snapshot)
         return posterior
 
 

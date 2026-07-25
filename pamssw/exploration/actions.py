@@ -8,6 +8,7 @@ from numbers import Integral
 
 import numpy as np
 
+from ..accounting import EvaluationCounts
 from ..state import State
 
 
@@ -59,6 +60,40 @@ def _status(value: object) -> AttemptStatus:
     if not isinstance(value, AttemptStatus):
         raise ValueError("status must be an AttemptStatus")
     return value
+
+
+def _terminal_evaluation_counts(
+    force_evaluations: int, evaluation_counts: EvaluationCounts | None
+) -> EvaluationCounts:
+    if evaluation_counts is None:
+        return EvaluationCounts.unattributed(force_evaluations)
+    if not isinstance(evaluation_counts, EvaluationCounts):
+        raise ValueError("evaluation_counts must be an EvaluationCounts")
+    canonical_counts = EvaluationCounts(tuple(evaluation_counts.values))
+    if canonical_counts.total != force_evaluations:
+        raise ValueError("evaluation_counts total must equal force_evaluations")
+    return canonical_counts
+
+
+def _strict_boolean(name: str, value: object) -> bool:
+    if not isinstance(value, bool):
+        raise ValueError(f"{name} must be a boolean")
+    return value
+
+
+def should_observe_posterior(status: AttemptStatus, evaluation_counts: EvaluationCounts) -> bool:
+    """Return whether one terminal attempt is a valid posterior observation."""
+    _status(status)
+    if not isinstance(evaluation_counts, EvaluationCounts):
+        raise ValueError("evaluation_counts must be an EvaluationCounts")
+    if status is AttemptStatus.WORKER_ERROR or evaluation_counts.total == 0:
+        return False
+    return status in {
+        AttemptStatus.COMPLETED,
+        AttemptStatus.BUDGET_EXHAUSTED,
+        AttemptStatus.FRAGMENTED,
+        AttemptStatus.INVALID,
+    }
 
 
 @dataclass(frozen=True)
@@ -160,6 +195,8 @@ class AttemptResult:
     force_evaluations: int
     status: AttemptStatus
     failure_reason: str | None
+    evaluation_counts: EvaluationCounts | None = None
+    cost_is_exact: bool = True
 
     def __post_init__(self) -> None:
         if not isinstance(self.action, StarterAction):
@@ -168,6 +205,12 @@ class AttemptResult:
         if self.action.force_budget is not None and force_evaluations > self.action.force_budget:
             raise ValueError("force_evaluations cannot exceed action force_budget")
         object.__setattr__(self, "force_evaluations", force_evaluations)
+        object.__setattr__(
+            self,
+            "evaluation_counts",
+            _terminal_evaluation_counts(force_evaluations, self.evaluation_counts),
+        )
+        object.__setattr__(self, "cost_is_exact", _strict_boolean("cost_is_exact", self.cost_is_exact))
         _status(self.status)
 
         if self.status is AttemptStatus.COMPLETED:
@@ -208,11 +251,26 @@ class CreditedOutcome:
     landing_entry_id: int | None
     landing_energy: float | None
     failure_reason: str | None
+    evaluation_counts: EvaluationCounts | None = None
+    cost_is_exact: bool = True
+    posterior_observed: bool = True
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "action_id", _nonempty_string("action_id", self.action_id))
         object.__setattr__(self, "starter_id", _nonnegative_int("starter_id", self.starter_id))
-        object.__setattr__(self, "force_evaluations", _nonnegative_int("force_evaluations", self.force_evaluations))
+        force_evaluations = _nonnegative_int("force_evaluations", self.force_evaluations)
+        object.__setattr__(self, "force_evaluations", force_evaluations)
+        object.__setattr__(
+            self,
+            "evaluation_counts",
+            _terminal_evaluation_counts(force_evaluations, self.evaluation_counts),
+        )
+        object.__setattr__(self, "cost_is_exact", _strict_boolean("cost_is_exact", self.cost_is_exact))
+        object.__setattr__(
+            self,
+            "posterior_observed",
+            _strict_boolean("posterior_observed", self.posterior_observed),
+        )
         _status(self.status)
         for name in (
             "discovered_against_snapshot",
@@ -254,4 +312,5 @@ __all__ = [
     "CreditedOutcome",
     "PolicySnapshot",
     "StarterAction",
+    "should_observe_posterior",
 ]

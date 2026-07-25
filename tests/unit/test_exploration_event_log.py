@@ -5,6 +5,7 @@ from dataclasses import replace
 
 import pytest
 
+from pamssw.accounting import EvaluationCounts, EvaluationPurpose
 import pamssw.exploration.event_log as event_log
 from pamssw.exploration.actions import (
     AttemptStatus,
@@ -78,6 +79,7 @@ def _outcome(
         landing_entry_id=None,
         landing_energy=None,
         failure_reason=failure_reason or "worker reported exact failure: OOM",
+        posterior_observed=False,
     )
 
 
@@ -136,7 +138,7 @@ def test_append_writes_one_sorted_jsonl_payload_in_policy_attempt_commit_order(t
     assert rows[2]["selection_probability"] == 0.2
     assert rows[2]["failure_reason"] == "exact remote OOM"
     assert rows[3]["action_ids"] == [action.action_id for action in actions]
-    assert all(line == json.dumps(row, sort_keys=True, separators=(",", ":")) for line, row in zip(raw_lines, rows))
+    assert all(line == event_log._canonical_json_line(row) for line, row in zip(raw_lines, rows))
 
 
 def test_append_requires_an_existing_parent_directory_without_creating_it(tmp_path):
@@ -200,7 +202,7 @@ def test_ordinary_final_file_remains_appendable_and_replayable(tmp_path):
     _write_valid_batch(path)
 
     assert not path.is_symlink()
-    assert ExplorationEventLog(path).reconstruct_posterior().completed_attempts == 2
+    assert ExplorationEventLog(path).reconstruct_posterior().completed_attempts == 1
 
 
 def test_reconstructs_committed_attempt_facts_once_per_action(tmp_path):
@@ -210,8 +212,8 @@ def test_reconstructs_committed_attempt_facts_once_per_action(tmp_path):
     posterior = ExplorationEventLog(path).reconstruct_posterior()
 
     assert posterior.counts(8) == (1, 0)
-    assert posterior.counts(3) == (0, 1)
-    assert posterior.completed_attempts == 2
+    assert posterior.counts(3) == (0, 0)
+    assert posterior.completed_attempts == 1
 
 
 def test_reconstructs_multiple_committed_batches_in_append_order(tmp_path):
@@ -222,8 +224,8 @@ def test_reconstructs_multiple_committed_batches_in_append_order(tmp_path):
     posterior = ExplorationEventLog(path).reconstruct_posterior()
 
     assert posterior.counts(8) == (2, 0)
-    assert posterior.counts(3) == (0, 2)
-    assert posterior.completed_attempts == 4
+    assert posterior.counts(3) == (0, 0)
+    assert posterior.completed_attempts == 2
 
 
 def test_missing_event_log_reconstructs_an_empty_posterior(tmp_path):
@@ -395,7 +397,7 @@ def test_append_treats_reappending_an_identical_batch_as_a_durable_idempotent_re
 
     assert path.read_bytes() == before
     assert len(path.read_bytes().splitlines()) == before_line_count
-    assert ExplorationEventLog(path).reconstruct_posterior().completed_attempts == 2
+    assert ExplorationEventLog(path).reconstruct_posterior().completed_attempts == 1
 
 
 def test_reconstruction_rejects_a_handcrafted_duplicate_batch_id_with_different_actions(tmp_path):
@@ -553,3 +555,108 @@ def test_reconstruction_rejects_duplicate_json_keys_at_any_object_depth(tmp_path
 
     with pytest.raises(ValueError, match="duplicate JSON object key"):
         ExplorationEventLog(path).reconstruct_posterior()
+
+
+def test_schema_v2_round_trips_exact_terminal_accounting_and_flags_in_canonical_order(tmp_path):
+    path = tmp_path / "events.jsonl"
+    action = _action()
+    exact_counts = EvaluationCounts.from_mapping(
+        {
+            EvaluationPurpose.STARTER_TRUE_QUENCH: 1,
+            EvaluationPurpose.DIRECTION_ORACLE: 2,
+            EvaluationPurpose.LANDING_TRUE_QUENCH: 1,
+        }
+    )
+    outcome = replace(
+        _outcome(action),
+        force_evaluations=exact_counts.total,
+        evaluation_counts=exact_counts,
+        cost_is_exact=True,
+        posterior_observed=True,
+    )
+
+    ExplorationEventLog(path).append_batch(_snapshot(), (action,), (outcome,))
+
+    rows = _read_rows(path)
+    assert SCHEMA_VERSION == 2
+    assert rows[1]["evaluation_counts"] == {
+        purpose.value: exact_counts.count(purpose) for purpose in EvaluationPurpose
+    }
+    assert list(rows[1]["evaluation_counts"]) == [purpose.value for purpose in EvaluationPurpose]
+    assert rows[1]["cost_is_exact"] is True
+    assert rows[1]["posterior_observed"] is True
+    parsed_outcome = event_log._parse_committed_log(path).outcomes[0]
+    assert parsed_outcome.evaluation_counts == exact_counts
+    assert parsed_outcome.cost_is_exact is True
+    assert parsed_outcome.posterior_observed is True
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda rows: rows[0].__setitem__("schema_version", 1),
+        lambda rows: rows[1]["evaluation_counts"].pop("direction_oracle"),
+        lambda rows: rows[1]["evaluation_counts"].__setitem__("unknown_purpose", 0),
+        lambda rows: rows[1]["evaluation_counts"].__setitem__("direction_oracle", 99),
+        lambda rows: rows[1].__setitem__("cost_is_exact", 1),
+        lambda rows: rows[1].__setitem__("posterior_observed", 1),
+    ],
+)
+def test_schema_v2_decoder_rejects_lossy_or_invalid_terminal_accounting(tmp_path, mutate):
+    path = tmp_path / "events.jsonl"
+    _write_valid_batch(path)
+    rows = _read_rows(path)
+    mutate(rows)
+    path.write_text(
+        "\n".join(json.dumps(row, sort_keys=True, separators=(",", ":")) for row in rows) + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError):
+        ExplorationEventLog(path).reconstruct_posterior()
+
+
+def test_schema_v2_reconstruction_recomputes_observation_and_idempotent_retry_preserves_fields(tmp_path):
+    path = tmp_path / "events.jsonl"
+    first = _action(slot_id=0, starter_id=8, selection_probability=0.8)
+    second = _action(slot_id=1, starter_id=3, selection_probability=0.2)
+    first_counts = EvaluationCounts.from_mapping({EvaluationPurpose.DIRECTION_ORACLE: 2})
+    outcomes = (
+        replace(
+            _outcome(first),
+            force_evaluations=first_counts.total,
+            evaluation_counts=first_counts,
+            posterior_observed=True,
+        ),
+        CreditedOutcome(
+            action_id=second.action_id,
+            starter_id=second.starter_id,
+            discovered_against_snapshot=False,
+            inserted_into_archive=False,
+            within_batch_collision=False,
+            force_evaluations=0,
+            status=AttemptStatus.INVALID,
+            landing_entry_id=None,
+            landing_energy=None,
+            failure_reason="zero physical evaluations",
+            evaluation_counts=EvaluationCounts.zero(),
+            cost_is_exact=True,
+            posterior_observed=False,
+        ),
+    )
+    log = ExplorationEventLog(path)
+
+    log.append_batch(_snapshot(), (first, second), outcomes)
+    before = path.read_bytes()
+    log.append_batch(_snapshot(), (first, second), outcomes)
+
+    parsed_outcomes = event_log._parse_committed_log(path).outcomes
+    assert path.read_bytes() == before
+    assert [(item.evaluation_counts, item.cost_is_exact, item.posterior_observed) for item in parsed_outcomes] == [
+        (outcome.evaluation_counts, outcome.cost_is_exact, outcome.posterior_observed)
+        for outcome in outcomes
+    ]
+    posterior = log.reconstruct_posterior()
+    assert posterior.counts(first.starter_id) == (1, 0)
+    assert posterior.counts(second.starter_id) == (0, 0)
+    assert posterior.completed_attempts == 1

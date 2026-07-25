@@ -7,7 +7,7 @@ from dataclasses import replace
 from numbers import Integral
 from typing import Callable
 
-from ..accounting import BudgetExceeded
+from ..accounting import BudgetExceeded, EvaluationCounts
 from ..config import LSSSWConfig, SSWConfig
 from ..result import SearchResult
 from ..state import State
@@ -51,17 +51,22 @@ class SSWAttemptWorker:
         if not isinstance(starter_state, State):
             raise ValueError("starter_state must be a State")
         if not self.geometry_validator.is_valid_state(starter_state):
-            return _failed_result(action, AttemptStatus.INVALID, 0, "invalid_starter_geometry")
+            return _failed_result(
+                action,
+                AttemptStatus.INVALID,
+                EvaluationCounts.zero(),
+                "invalid_starter_geometry",
+            )
 
         try:
             calculator = self.calculator_factory()
         except Exception as exc:
-            return _worker_error(action, 0, "factory_error", exc)
+            return _worker_error(action, EvaluationCounts.zero(), "factory_error", exc)
         if not _is_calculator(calculator):
             return _failed_result(
                 action,
                 AttemptStatus.WORKER_ERROR,
-                0,
+                EvaluationCounts.zero(),
                 "calculator_error: missing callable evaluate and evaluate_flat",
             )
 
@@ -74,32 +79,38 @@ class SSWAttemptWorker:
         try:
             walker = SurfaceWalker(calculator, action_config, self.softening_enabled)
         except Exception as exc:
-            return _worker_error(action, 0, "constructor_error", exc)
+            return _worker_error(action, EvaluationCounts.zero(), "constructor_error", exc)
 
         try:
             result = walker.run(deepcopy(starter_state))
         except BudgetExceeded:
-            force_evaluations = _counter_force_evaluations(walker)
+            evaluation_counts = _calculator_snapshot(walker)
             if _counter_exhausted(walker):
                 return _failed_result(
                     action,
                     AttemptStatus.BUDGET_EXHAUSTED,
-                    force_evaluations,
+                    evaluation_counts,
                     "budget_exhausted",
                 )
             return _failed_result(
                 action,
                 AttemptStatus.INVALID,
-                force_evaluations,
+                evaluation_counts,
                 "budget_exception_without_exhaustion",
             )
         except Exception as exc:
-            return _worker_error(action, _counter_force_evaluations(walker), "run_error", exc)
+            return _worker_error(action, _calculator_snapshot(walker), "run_error", exc)
 
         try:
-            return _map_search_result(action, result)
+            evaluation_counts = _calculator_snapshot(walker)
+            return _map_search_result(action, result, evaluation_counts)
         except Exception as exc:
-            return _worker_error(action, _counter_force_evaluations(walker), "result_mapping_error", exc)
+            return _worker_error(
+                action,
+                _calculator_snapshot(walker),
+                "result_mapping_error",
+                exc,
+            )
 
 
 def _has_shared_filesystem_output(config: SSWConfig) -> bool:
@@ -119,11 +130,14 @@ def _is_calculator(calculator: object) -> bool:
     )
 
 
-def _counter_force_evaluations(walker: SurfaceWalker) -> int:
-    value = getattr(walker.calculator, "force_evaluations", 0)
-    if isinstance(value, bool) or not isinstance(value, Integral) or value < 0:
-        raise ValueError("walker calculator force_evaluations must be a non-negative integer")
-    return int(value)
+def _calculator_snapshot(walker: SurfaceWalker) -> EvaluationCounts:
+    snapshot = getattr(walker.calculator, "snapshot", None)
+    if not callable(snapshot):
+        raise ValueError("walker calculator must provide a callable snapshot")
+    evaluation_counts = snapshot()
+    if not isinstance(evaluation_counts, EvaluationCounts):
+        raise ValueError("walker calculator snapshot must return EvaluationCounts")
+    return EvaluationCounts(tuple(evaluation_counts.values))
 
 
 def _counter_exhausted(walker: SurfaceWalker) -> bool:
@@ -133,10 +147,19 @@ def _counter_exhausted(walker: SurfaceWalker) -> bool:
     return bool(exhausted())
 
 
-def _map_search_result(action: StarterAction, result: object) -> AttemptResult:
+def _map_search_result(
+    action: StarterAction,
+    result: object,
+    evaluation_counts: EvaluationCounts,
+) -> AttemptResult:
     if not isinstance(result, SearchResult):
         raise ValueError("walker must return a SearchResult")
-    force_evaluations = _required_nonnegative_stat(result.stats, "force_evaluations")
+    if not isinstance(evaluation_counts, EvaluationCounts):
+        raise ValueError("evaluation_counts must be an EvaluationCounts")
+    force_evaluations = evaluation_counts.total
+    reported_force_evaluations = _required_nonnegative_stat(result.stats, "force_evaluations")
+    if reported_force_evaluations != force_evaluations:
+        raise ValueError("search result force_evaluations must equal calculator snapshot")
     budget_exhausted = _required_nonnegative_stat(result.stats, "budget_exhausted")
     fragment_rejections = _required_nonnegative_stat(result.stats, "fragment_rejections")
 
@@ -159,22 +182,24 @@ def _map_search_result(action: StarterAction, result: object) -> AttemptResult:
             force_evaluations=force_evaluations,
             status=AttemptStatus.COMPLETED,
             failure_reason=None,
+            evaluation_counts=evaluation_counts,
+            cost_is_exact=True,
         )
     if budget_exhausted > 0:
         return _failed_result(
             action,
             AttemptStatus.BUDGET_EXHAUSTED,
-            force_evaluations,
+            evaluation_counts,
             "budget_exhausted_without_landing",
         )
     if fragment_rejections > 0:
         return _failed_result(
             action,
             AttemptStatus.FRAGMENTED,
-            force_evaluations,
+            evaluation_counts,
             "fragment_rejections_without_landing",
         )
-    return _failed_result(action, AttemptStatus.INVALID, force_evaluations, "no_landing_minimum")
+    return _failed_result(action, AttemptStatus.INVALID, evaluation_counts, "no_landing_minimum")
 
 
 def _required_nonnegative_stat(stats: object, name: str) -> int:
@@ -203,29 +228,31 @@ def _resolve_discovered_entry(archive: object, discovered_entry_id: int):
 def _failed_result(
     action: StarterAction,
     status: AttemptStatus,
-    force_evaluations: int,
+    evaluation_counts: EvaluationCounts,
     reason: str,
 ) -> AttemptResult:
     return AttemptResult(
         action=action,
         landing_state=None,
         landing_energy=None,
-        force_evaluations=force_evaluations,
+        force_evaluations=evaluation_counts.total,
         status=status,
         failure_reason=reason,
+        evaluation_counts=evaluation_counts,
+        cost_is_exact=True,
     )
 
 
 def _worker_error(
     action: StarterAction,
-    force_evaluations: int,
+    evaluation_counts: EvaluationCounts,
     stage: str,
     exc: Exception,
 ) -> AttemptResult:
     return _failed_result(
         action,
         AttemptStatus.WORKER_ERROR,
-        force_evaluations,
+        evaluation_counts,
         f"{stage}: {type(exc).__name__}: {exc}",
     )
 

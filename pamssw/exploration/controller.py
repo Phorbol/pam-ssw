@@ -14,9 +14,17 @@ from numbers import Integral
 import threading
 from typing import Callable, Protocol
 
+from ..accounting import EvaluationCounts
 from ..archive import MinimaArchive, MinimaEntry
 from ..state import State
-from .actions import AttemptResult, AttemptStatus, CreditedOutcome, PolicySnapshot, StarterAction
+from .actions import (
+    AttemptResult,
+    AttemptStatus,
+    CreditedOutcome,
+    PolicySnapshot,
+    StarterAction,
+    should_observe_posterior,
+)
 from .batch import plan_batch
 from .policies import SUPPORTED_POLICIES, build_policy_snapshot
 from .posterior import StarterProductivityPosterior
@@ -213,6 +221,8 @@ def _worker_error_result(action: StarterAction, exc: Exception) -> AttemptResult
         force_evaluations=0,
         status=AttemptStatus.WORKER_ERROR,
         failure_reason=f"{type(exc).__name__}: {exc}",
+        evaluation_counts=EvaluationCounts.zero(),
+        cost_is_exact=False,
     )
 
 
@@ -243,7 +253,9 @@ def _credit_result(
         landing_entry_id = landing.entry_id
         landing_energy = result.landing_energy
 
-    shadow_posterior.update(result.action.starter_id, discovered=discovered)
+    posterior_observed = should_observe_posterior(result.status, result.evaluation_counts)
+    if posterior_observed:
+        shadow_posterior.update(result.action.starter_id, discovered=discovered)
     return CreditedOutcome(
         action_id=result.action.action_id,
         starter_id=result.action.starter_id,
@@ -255,6 +267,9 @@ def _credit_result(
         landing_entry_id=landing_entry_id,
         landing_energy=landing_energy,
         failure_reason=result.failure_reason,
+        evaluation_counts=result.evaluation_counts,
+        cost_is_exact=result.cost_is_exact,
+        posterior_observed=posterior_observed,
     )
 
 

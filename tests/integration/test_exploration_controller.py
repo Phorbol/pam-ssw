@@ -11,6 +11,7 @@ from typing import Callable
 import numpy as np
 import pytest
 
+from pamssw.accounting import EvaluationCounts, EvaluationPurpose
 from pamssw.archive import MinimaArchive
 from pamssw.calculators import AnalyticCalculator
 from pamssw.config import SSWConfig
@@ -334,9 +335,13 @@ def test_worker_reported_and_unexpected_failures_are_each_credited_once(tmp_path
     assert outcomes[0].failure_reason == "worker rejected geometry"
     assert outcomes[1].force_evaluations == 0
     assert outcomes[1].failure_reason == "RuntimeError: boom"
+    assert outcomes[0].posterior_observed is True
+    assert outcomes[1].evaluation_counts == EvaluationCounts.zero()
+    assert outcomes[1].cost_is_exact is False
+    assert outcomes[1].posterior_observed is False
     assert all(not outcome.discovered_against_snapshot for outcome in outcomes)
-    assert controller.posterior.completed_attempts == 2
-    assert sum(controller.posterior.counts(entry.entry_id)[1] for entry in controller.archive.entries) == 2
+    assert controller.posterior.completed_attempts == 1
+    assert sum(controller.posterior.counts(entry.entry_id)[1] for entry in controller.archive.entries) == 1
 
 
 def test_nonfinite_completed_worker_result_is_caught_and_committed_as_worker_error(tmp_path: Path) -> None:
@@ -366,9 +371,12 @@ def test_nonfinite_completed_worker_result_is_caught_and_committed_as_worker_err
     assert outcome.within_batch_collision is False
     assert outcome.landing_entry_id is None
     assert outcome.landing_energy is None
+    assert outcome.evaluation_counts == EvaluationCounts.zero()
+    assert outcome.cost_is_exact is False
+    assert outcome.posterior_observed is False
     assert _archive_fingerprint(controller.archive) == archive_before
-    assert controller.posterior.counts(outcome.starter_id) == (0, 1)
-    assert controller.posterior.completed_attempts == 1
+    assert controller.posterior.counts(outcome.starter_id) == (0, 0)
+    assert controller.posterior.completed_attempts == 0
 
     rows = [json.loads(line) for line in event_path.read_text(encoding="utf-8").splitlines()]
     assert [row["record_type"] for row in rows] == ["policy_snapshot", "attempt", "batch_commit"]
@@ -593,11 +601,65 @@ def test_partial_executor_submission_failure_finalizes_every_planned_slot(tmp_pa
         "RuntimeError: submit transport failed",
         "RuntimeError: submit transport failed",
     ]
+    assert [outcome.cost_is_exact for outcome in outcomes] == [True, False, False]
+    assert [outcome.evaluation_counts for outcome in outcomes[1:]] == [
+        EvaluationCounts.zero(),
+        EvaluationCounts.zero(),
+    ]
+    assert [outcome.posterior_observed for outcome in outcomes] == [True, False, False]
     rows = [json.loads(line) for line in event_path.read_text(encoding="utf-8").splitlines()]
     assert [row["slot_id"] for row in rows[1:-1]] == [0, 1, 2]
     assert [row["status"] for row in rows[1:-1]] == ["completed", "worker_error", "worker_error"]
-    assert controller.posterior.completed_attempts == 3
-    assert ExplorationEventLog(event_path).reconstruct_posterior().completed_attempts == 3
+    assert controller.posterior.completed_attempts == 1
+    assert ExplorationEventLog(event_path).reconstruct_posterior().completed_attempts == 1
+
+
+def test_mixed_terminal_observation_matches_compact_log_reconstruction(tmp_path: Path) -> None:
+    event_path = tmp_path / "events.jsonl"
+    controller = ExplorationController(_archive(), "uniform", 12, ExplorationEventLog(event_path))
+    exact_counts = EvaluationCounts.from_mapping(
+        {EvaluationPurpose.DIRECTION_ORACLE: 2, EvaluationPurpose.LANDING_TRUE_QUENCH: 1}
+    )
+
+    def worker(action: StarterAction, starter_state: State) -> AttemptResult:
+        if action.slot_id == 0:
+            return AttemptResult(
+                action=action,
+                landing_state=_state(8.0),
+                landing_energy=-8.0,
+                force_evaluations=exact_counts.total,
+                status=AttemptStatus.COMPLETED,
+                failure_reason=None,
+                evaluation_counts=exact_counts,
+            )
+        if action.slot_id == 1:
+            return AttemptResult(
+                action=action,
+                landing_state=None,
+                landing_energy=None,
+                force_evaluations=0,
+                status=AttemptStatus.INVALID,
+                failure_reason="pre-calculator invalid",
+                evaluation_counts=EvaluationCounts.zero(),
+            )
+        return AttemptResult(
+            action=action,
+            landing_state=None,
+            landing_energy=None,
+            force_evaluations=1,
+            status=AttemptStatus.BUDGET_EXHAUSTED,
+            failure_reason="exact budget exhaustion",
+            evaluation_counts=EvaluationCounts.unattributed(1),
+        )
+
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        outcomes = controller.run_batch(executor, worker, batch_size=3, force_budget=5)
+
+    replayed = ExplorationEventLog(event_path).reconstruct_posterior()
+    assert [outcome.posterior_observed for outcome in outcomes] == [True, False, True]
+    assert replayed.completed_attempts == controller.posterior.completed_attempts == 2
+    for entry in controller.archive.entries:
+        assert replayed.counts(entry.entry_id) == controller.posterior.counts(entry.entry_id)
 
 
 def test_simultaneous_controller_calls_are_serialized_into_sequential_batches(tmp_path: Path) -> None:
