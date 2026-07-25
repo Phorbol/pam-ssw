@@ -1532,6 +1532,8 @@ class SoftModeOracle:
             trial_state = CartesianCoordinates.from_state(state).displace(TangentVector(candidate.direction), ds)
             try:
                 probe_energy = self.calculator.evaluate(trial_state).energy
+            except BudgetExceeded:
+                raise
             except Exception:
                 continue
             delta_e = probe_energy - state_energy

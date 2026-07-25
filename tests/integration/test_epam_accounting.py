@@ -1,6 +1,8 @@
 import numpy as np
+import pytest
 
 from pamssw import SSWConfig, State, run_ssw
+from pamssw.accounting import BudgetExceeded
 from pamssw.calculators import AnalyticCalculator
 from pamssw.potentials import DoubleWell2D
 from pamssw.walker import SurfaceWalker
@@ -97,6 +99,41 @@ def test_surface_walker_accounts_direction_probe_evaluations():
     assert result.stats["force_evaluations"] == calculator.total_calls
     assert walker.oracle.calculator is walker.calculator
     assert result.stats["force_evaluations"] <= config.max_force_evals
+
+
+def test_surface_walker_propagates_direction_probe_budget_exhaustion():
+    calculator = CountingAnalyticCalculator(AnalyticCalculator(DoubleWell2D()))
+    config = SSWConfig(
+        max_steps_per_walk=1,
+        oracle_candidates=1,
+        direction_probe_enabled=True,
+        direction_probe_top_k=1,
+        max_force_evals=1,
+        rng_seed=4,
+    )
+    walker = SurfaceWalker(calculator=calculator, config=config, softening_enabled=False)
+    walker._reset_direction_stats()
+    recorded_choices = []
+    record_direction_choice = walker._record_direction_choice
+
+    def record_choice(choice):
+        recorded_choices.append(choice)
+        record_direction_choice(choice)
+
+    def fail_if_choice_continues(*args, **kwargs):
+        raise AssertionError("direction choice was recorded after probe budget exhaustion")
+
+    walker.oracle._directional_hvp = lambda state, proposal, direction: np.zeros_like(direction)
+    walker._record_direction_choice = record_choice
+    walker._true_directional_curvature = fail_if_choice_continues
+
+    with pytest.raises(BudgetExceeded, match="force-evaluation budget exhausted"):
+        walker._walk_candidate_from_seed(State(numbers=np.array([1]), positions=np.array([[-1.0, 0.0, 0.0]])))
+
+    assert recorded_choices == []
+    assert walker._direction_choices == 0
+    assert walker.calculator.force_evaluations == config.max_force_evals
+    assert calculator.total_calls == walker.calculator.force_evaluations
 
 
 def test_force_evaluation_budget_limits_started_trials():
