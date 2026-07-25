@@ -63,6 +63,16 @@ def test_evaluation_counts_unattributed_assigns_only_unattributed_total():
     }
 
 
+def test_evaluation_counts_zero_is_immutable_and_canonical():
+    counts = EvaluationCounts.zero()
+
+    assert counts.values == (0,) * len(EvaluationPurpose)
+    assert counts.total == 0
+    assert all(counts.count(purpose) == 0 for purpose in EvaluationPurpose)
+    with pytest.raises(FrozenInstanceError):
+        counts.values = (1,) * len(EvaluationPurpose)
+
+
 @pytest.mark.parametrize(
     ("values", "error"),
     [
@@ -129,18 +139,18 @@ def test_purpose_budget_rejection_does_not_increment_counts(state: State):
 
 
 def test_nested_purpose_restores_outer_purpose_after_inner_exception(state: State):
-    counter = EvalCounter(RecordingCalculator())
+    counter = EvalCounter(RecordingCalculator(fail_on_call=1))
 
     with counter.purpose(EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH):
-        counter.evaluate(state)
-        with pytest.raises(RuntimeError, match="inner failure"):
+        with pytest.raises(RuntimeError, match="calculator failed"):
             with counter.purpose(EvaluationPurpose.DIRECTION_ORACLE):
-                raise RuntimeError("inner failure")
+                counter.evaluate(state)
+        assert counter.snapshot().count(EvaluationPurpose.DIRECTION_ORACLE) == 1
         counter.evaluate_flat(state.flatten_positions(), state)
 
     counts = counter.snapshot()
-    assert counts.count(EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH) == 2
-    assert counts.count(EvaluationPurpose.DIRECTION_ORACLE) == 0
+    assert counts.count(EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH) == 1
+    assert counts.count(EvaluationPurpose.DIRECTION_ORACLE) == 1
 
 
 def test_purpose_counts_successful_evaluate_and_evaluate_flat(state: State):
