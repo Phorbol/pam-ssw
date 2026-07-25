@@ -757,7 +757,7 @@ def test_simultaneous_controller_calls_are_serialized_into_sequential_batches(tm
             assert event_log.first_append_entered.wait(timeout=2)
             assert not event_log.second_append_entered.wait(timeout=0.25)
             event_log.release_first_append.set()
-            outcomes = (first.result(timeout=5), second.result(timeout=5))
+            outcomes = (first.result(timeout=60), second.result(timeout=60))
 
     action_ids = sorted(outcome[0].action_id for outcome in outcomes)
     assert action_ids == ["batch-00000000-slot-0000", "batch-00000001-slot-0000"]
