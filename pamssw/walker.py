@@ -16,7 +16,7 @@ from ase.io import write
 import numpy as np
 
 from .acquisition import AcquisitionPolicy, BanditSelector, ProposalOutcome, ProposalScorer
-from .accounting import BudgetExceeded, EvalCounter
+from .accounting import BudgetExceeded, EvalCounter, EvaluationPurpose
 from .bias import GaussianBiasTerm
 from .config import LSSSWConfig, RelaxConfig, SSWConfig
 from .coordinates import CartesianCoordinates, TangentVector
@@ -2085,19 +2085,28 @@ class SurfaceWalker:
             "direction_archive_productive_records": sum(1 for record in records if record.productive is True),
         }
 
-    def relax_true_minimum(self, state: State, trajectory_name: str | None = None) -> RelaxResult:
+    def relax_true_minimum(
+        self,
+        state: State,
+        trajectory_name: str | None = None,
+        *,
+        quench_purpose: EvaluationPurpose = EvaluationPurpose.LANDING_TRUE_QUENCH,
+    ) -> RelaxResult:
         if not self.geometry_validator.is_valid_state(state):
             raise BudgetExceeded("invalid geometry before true relaxation")
         relaxer = Relaxer(self.calculator.evaluate_flat, optimizer=self.config.quench_optimizer)
         relax_config = RelaxConfig(fmax=self.config.quench_fmax, maxiter=self.config.quench_maxiter)
-        result = relaxer.relax(
-            state,
-            fmax=relax_config.fmax,
-            maxiter=relax_config.maxiter,
-            trajectory_callback=self._relaxation_trajectory_callback(trajectory_name),
-            trajectory_stride=self.config.relaxation_trajectory_stride,
-        )
-        if not self.geometry_validator.is_valid_evaluation(result.state, self.calculator):
+        with self.calculator.purpose(quench_purpose):
+            result = relaxer.relax(
+                state,
+                fmax=relax_config.fmax,
+                maxiter=relax_config.maxiter,
+                trajectory_callback=self._relaxation_trajectory_callback(trajectory_name),
+                trajectory_stride=self.config.relaxation_trajectory_stride,
+            )
+        with self.calculator.purpose(EvaluationPurpose.POST_RELAX_VALIDATION):
+            valid_post_relax_state = self.geometry_validator.is_valid_evaluation(result.state, self.calculator)
+        if not valid_post_relax_state:
             raise BudgetExceeded("invalid geometry after true relaxation")
         self._record_relax_result("true_quench", result, relax_config.fmax)
         return result
@@ -2122,7 +2131,11 @@ class SurfaceWalker:
         self._reset_direction_archive_records()
         self._reset_direction_archive_output()
         self._prepare_structure_output_dirs()
-        initial = self.relax_true_minimum(initial_state, trajectory_name="initial_true_quench")
+        initial = self.relax_true_minimum(
+            initial_state,
+            trajectory_name="initial_true_quench",
+            quench_purpose=EvaluationPurpose.STARTER_TRUE_QUENCH,
+        )
         archive = MinimaArchive(
             energy_tol=self.config.dedup_energy_tol,
             rmsd_tol=self.config.dedup_rmsd_tol,
@@ -2531,44 +2544,45 @@ class SurfaceWalker:
             score_sigma_fn = self._direction_score_sigma_fn(sigma_scale, step_target=step_target)
             if plateau_evolution_active:
                 self._plateau_evolution_active_steps += 1
-            choice = self.oracle.choose_direction(
-                current,
-                scoring_proposal,
-                previous_direction,
-                anchor_direction=anchor_direction,
-                step_scale_fn=lambda curvature: self._scaled_step_scale(
-                    curvature,
-                    sigma_scale,
-                    step_target=step_target,
-                ),
-                archive=archive,
-                history_gradient=self._history_bias_gradient(current, biases),
-                continuity_weight=self._continuity_weight_for_outcome(previous_relax_outcome),
-                n_bond_pairs=self._n_bond_pairs_for_outcome(previous_relax_outcome),
-                score_sigma=(
-                    None
-                    if score_sigma_fn is not None
-                    else self._direction_score_sigma(sigma_scale, step_target=step_target)
-                ),
-                score_sigma_fn=score_sigma_fn,
-                direction_type_bonus_fn=(
-                    self.direction_type_memory.bonus if self.config.direction_type_ucb_enabled else None
-                ),
-                plateau_evolution_active=plateau_evolution_active,
-                plateau_history=(
-                    self.successful_records(
-                        seed_entry_id=seed_entry_id,
-                        limit=self.config.plateau_evolution_history_limit,
-                    )
-                    if plateau_evolution_active
-                    else []
-                ),
-                plateau_evolution_children=self.config.plateau_evolution_children,
-                plateau_evolution_crossover_pairs=self.config.plateau_evolution_crossover_pairs,
-                plateau_evolution_mutation_count=self.config.plateau_evolution_mutation_count,
-                archive_momentum_history=self._archive_momentum_history_for_seed(seed_entry_id),
-                archive_momentum_limit=self.config.archive_escape_momentum_limit,
-            )
+            with self.calculator.purpose(EvaluationPurpose.DIRECTION_ORACLE):
+                choice = self.oracle.choose_direction(
+                    current,
+                    scoring_proposal,
+                    previous_direction,
+                    anchor_direction=anchor_direction,
+                    step_scale_fn=lambda curvature: self._scaled_step_scale(
+                        curvature,
+                        sigma_scale,
+                        step_target=step_target,
+                    ),
+                    archive=archive,
+                    history_gradient=self._history_bias_gradient(current, biases),
+                    continuity_weight=self._continuity_weight_for_outcome(previous_relax_outcome),
+                    n_bond_pairs=self._n_bond_pairs_for_outcome(previous_relax_outcome),
+                    score_sigma=(
+                        None
+                        if score_sigma_fn is not None
+                        else self._direction_score_sigma(sigma_scale, step_target=step_target)
+                    ),
+                    score_sigma_fn=score_sigma_fn,
+                    direction_type_bonus_fn=(
+                        self.direction_type_memory.bonus if self.config.direction_type_ucb_enabled else None
+                    ),
+                    plateau_evolution_active=plateau_evolution_active,
+                    plateau_history=(
+                        self.successful_records(
+                            seed_entry_id=seed_entry_id,
+                            limit=self.config.plateau_evolution_history_limit,
+                        )
+                        if plateau_evolution_active
+                        else []
+                    ),
+                    plateau_evolution_children=self.config.plateau_evolution_children,
+                    plateau_evolution_crossover_pairs=self.config.plateau_evolution_crossover_pairs,
+                    plateau_evolution_mutation_count=self.config.plateau_evolution_mutation_count,
+                    archive_momentum_history=self._archive_momentum_history_for_seed(seed_entry_id),
+                    archive_momentum_limit=self.config.archive_escape_momentum_limit,
+                )
             if selected_direction_kinds is not None:
                 selected_direction_kinds.add(choice.kind)
             self._capture_direction_record(
@@ -2591,12 +2605,14 @@ class SurfaceWalker:
             if rebuild_softening_for_choice:
                 softening = self._build_softening(current, choice.direction)
                 proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
-            true_curvature = self._true_directional_curvature(current, choice.direction)
-            inner_curvature = (
-                choice.curvature
-                if self.config.direction_curvature_source == "inner" and not rebuild_softening_for_choice
-                else self.oracle._directional_curvature(current, proposal, choice.direction)
-            )
+            with self.calculator.purpose(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK):
+                true_curvature = self._true_directional_curvature(current, choice.direction)
+            with self.calculator.purpose(EvaluationPurpose.DIRECTION_ORACLE):
+                inner_curvature = (
+                    choice.curvature
+                    if self.config.direction_curvature_source == "inner" and not rebuild_softening_for_choice
+                    else self.oracle._directional_curvature(current, proposal, choice.direction)
+                )
             sigma = self._execution_step_scale(
                 current,
                 choice.direction,
@@ -2607,7 +2623,8 @@ class SurfaceWalker:
             self._record_step_displacement_metrics(current, choice.direction, sigma)
             weight = self._bias_weight(inner_curvature, sigma) * weight_scale
             self._record_bias_weight(weight)
-            true_before = self.calculator.evaluate(current)
+            with self.calculator.purpose(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK):
+                true_before = self.calculator.evaluate(current)
             true_energy_before = true_before.energy
             g_parallel = float(np.dot(true_before.gradient.reshape(-1), choice.direction))
             biases.append(
@@ -2628,21 +2645,22 @@ class SurfaceWalker:
             )
             if proposal_optimizer != self.config.proposal_optimizer:
                 self._proposal_optimizer_alt_steps += 1
-            proposal_relax = Relaxer(proposal.evaluate, optimizer=proposal_optimizer).relax(
-                trial_state,
-                fmax=self.config.proposal_fmax,
-                maxiter=self.config.proposal_relax_steps,
-                coordinate_trust_radius=self.config.proposal_trust_radius,
-                trajectory_callback=self._relaxation_trajectory_callback(
-                    self._trajectory_name(
-                        "proposal_relax",
-                        trial_index=trial_index,
-                        proposal_index=proposal_index,
-                        step_index=step_index,
-                    )
-                ),
-                trajectory_stride=self.config.relaxation_trajectory_stride,
-            )
+            with self.calculator.purpose(EvaluationPurpose.BIASED_PROPOSAL_RELAX):
+                proposal_relax = Relaxer(proposal.evaluate, optimizer=proposal_optimizer).relax(
+                    trial_state,
+                    fmax=self.config.proposal_fmax,
+                    maxiter=self.config.proposal_relax_steps,
+                    coordinate_trust_radius=self.config.proposal_trust_radius,
+                    trajectory_callback=self._relaxation_trajectory_callback(
+                        self._trajectory_name(
+                            "proposal_relax",
+                            trial_index=trial_index,
+                            proposal_index=proposal_index,
+                            step_index=step_index,
+                        )
+                    ),
+                    trajectory_stride=self.config.relaxation_trajectory_stride,
+                )
             current_candidate, clipped = self._clip_walk_displacement(
                 reference=seed_state,
                 candidate=proposal_relax.state,
@@ -2651,7 +2669,8 @@ class SurfaceWalker:
             self._walk_displacement_clips += int(clipped)
             if not self.geometry_validator.is_valid_state(current_candidate):
                 break
-            true_energy_after = self.calculator.evaluate(current_candidate).energy
+            with self.calculator.purpose(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK):
+                true_energy_after = self.calculator.evaluate(current_candidate).energy
             if not np.isfinite(true_energy_after):
                 break
             proposal_relax = replace(

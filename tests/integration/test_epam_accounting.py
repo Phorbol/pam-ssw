@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from pamssw import SSWConfig, State, run_ssw
-from pamssw.accounting import BudgetExceeded
+from pamssw.accounting import BudgetExceeded, EvaluationPurpose
 from pamssw.calculators import AnalyticCalculator
 from pamssw.potentials import DoubleWell2D
 from pamssw.walker import SurfaceWalker
@@ -30,6 +30,27 @@ class CountingAnalyticCalculator:
     def evaluate_flat(self, flat_positions, template):
         self.evaluate_flat_calls += 1
         return self.calculator.evaluate_flat(flat_positions, template)
+
+
+def test_fresh_walker_bootstrap_true_quench_has_closed_purpose_ledger():
+    calculator = CountingAnalyticCalculator(AnalyticCalculator(DoubleWell2D()))
+    walker = SurfaceWalker(
+        calculator=calculator,
+        config=SSWConfig(max_trials=1, max_steps_per_walk=1, oracle_candidates=1, rng_seed=4),
+        softening_enabled=False,
+    )
+
+    result = walker.relax_true_minimum(
+        State(numbers=np.array([1]), positions=np.array([[-1.0, 0.0, 0.0]])),
+        quench_purpose=EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH,
+    )
+
+    counts = walker.calculator.snapshot()
+    assert result.energy == pytest.approx(0.0, abs=1e-12)
+    assert counts.count(EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH) > 0
+    assert counts.count(EvaluationPurpose.POST_RELAX_VALIDATION) == 1
+    assert counts.count(EvaluationPurpose.UNATTRIBUTED) == 0
+    assert counts.total == calculator.total_calls == walker.calculator.force_evaluations
 
 
 def test_ssw_local_relaxation_accounting_is_exact():
