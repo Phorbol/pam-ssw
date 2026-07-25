@@ -72,6 +72,17 @@ cross-process restart/resume or archive-geometry replay; and no asynchronous
 racing, transition-state, or reaction-network objective. These are experimental
 controls for clean ablation, not evidence of improved search performance.
 
+The experimental `SSWAttemptWorker` is a narrow per-action boundary for this
+controller. Each action creates a fresh calculator and `SurfaceWalker`, with
+its own RNG and evaluation counter; it accepts only a side-effect-free supplied
+`SSWConfig` and derives an action-local configuration by setting the action
+seed, `max_trials=1`, and the action force budget. Internal proposal
+competition is deliberately excluded: `proposal_pool_size` must be `1` and the
+duplicate-rescue optimizer must be disabled. The current integration scope is
+repeated analytic-quench execution under a `ThreadPoolExecutor` only. It does
+not validate MACE, GPU, process-based execution, or a global force budget, and
+it makes no performance claim.
+
 ## Install
 
 ```bash

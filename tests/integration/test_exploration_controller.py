@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import threading
+import time
 from concurrent.futures import Executor, ThreadPoolExecutor
 from dataclasses import replace
 from pathlib import Path
@@ -11,9 +12,13 @@ import numpy as np
 import pytest
 
 from pamssw.archive import MinimaArchive
+from pamssw.calculators import AnalyticCalculator
+from pamssw.config import SSWConfig
+from pamssw.exploration import SSWAttemptWorker
 from pamssw.exploration.actions import AttemptResult, AttemptStatus, StarterAction
 from pamssw.exploration.controller import ExplorationController
 from pamssw.exploration.event_log import ExplorationEventLog
+from pamssw.potentials import DoubleWell2D
 from pamssw.state import State
 
 
@@ -30,6 +35,26 @@ def _archive() -> MinimaArchive:
     archive.add(_state(-1.0, label="left"), -1.0, parent_id=None)
     archive.add(_state(1.0, label="right"), -0.9, parent_id=None)
     return archive
+
+
+class RecordingCalculator:
+    """Wrap the real analytic calculator while retaining raw-call accounting."""
+
+    def __init__(self) -> None:
+        self._calculator = AnalyticCalculator(DoubleWell2D())
+        self.calls = 0
+        self.evaluate_calls = 0
+        self.evaluate_flat_calls = 0
+
+    def evaluate(self, state: State):
+        self.calls += 1
+        self.evaluate_calls += 1
+        return self._calculator.evaluate(state)
+
+    def evaluate_flat(self, flat_positions: np.ndarray, template: State):
+        self.calls += 1
+        self.evaluate_flat_calls += 1
+        return self._calculator.evaluate_flat(flat_positions, template)
 
 
 def _completed(action: StarterAction, x: float, energy: float) -> AttemptResult:
@@ -96,6 +121,63 @@ def _controller_fingerprint(controller: ExplorationController) -> tuple[object, 
         controller.archive_version,
         controller.batch_id,
     )
+
+
+def test_thread_pool_real_ssw_attempt_worker_preserves_per_action_costs_and_slot_order(
+    tmp_path: Path,
+) -> None:
+    factory_local = threading.local()
+    calculator_lock = threading.Lock()
+    created_calculators: list[RecordingCalculator] = []
+    calculators_by_action: dict[str, RecordingCalculator] = {}
+
+    def calculator_factory() -> RecordingCalculator:
+        calculator = RecordingCalculator()
+        if getattr(factory_local, "action_id", None) is None:
+            raise AssertionError("calculator factory must run inside a tracked action")
+        with calculator_lock:
+            created_calculators.append(calculator)
+        factory_local.calculator = calculator
+        return calculator
+
+    config = SSWConfig(max_steps_per_walk=1, oracle_candidates=2)
+    assert config.proposal_pool_size == 1
+    assert config.proposal_duplicate_rescue_optimizer is None
+    attempt_worker = SSWAttemptWorker(calculator_factory, config)
+
+    def tracked_worker(action: StarterAction, starter_state: State) -> AttemptResult:
+        factory_local.action_id = action.action_id
+        factory_local.calculator = None
+        result = attempt_worker(action, starter_state)
+        calculator = factory_local.calculator
+        if not isinstance(calculator, RecordingCalculator):
+            raise AssertionError("SSWAttemptWorker returned before creating the action calculator")
+        with calculator_lock:
+            calculators_by_action[action.action_id] = calculator
+        time.sleep(0.005 * (2 - action.slot_id))
+        return result
+
+    event_path = tmp_path / "events.jsonl"
+    controller = ExplorationController(_archive(), "uniform", 37, ExplorationEventLog(event_path))
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        outcomes = controller.run_batch(executor, tracked_worker, batch_size=3, force_budget=400)
+
+    expected_action_ids = [f"batch-00000000-slot-{slot_id:04d}" for slot_id in range(3)]
+    assert [outcome.action_id for outcome in outcomes] == expected_action_ids
+    assert len(created_calculators) == 3
+    assert len({id(calculator) for calculator in created_calculators}) == 3
+    assert set(calculators_by_action) == set(expected_action_ids)
+    for outcome in outcomes:
+        calculator = calculators_by_action[outcome.action_id]
+        assert outcome.force_evaluations == calculator.calls <= 400
+        assert calculator.calls == calculator.evaluate_calls + calculator.evaluate_flat_calls
+    assert controller.posterior.completed_attempts == 3
+    assert ExplorationEventLog(event_path).reconstruct_posterior().completed_attempts == 3
+
+    rows = [json.loads(line) for line in event_path.read_text(encoding="utf-8").splitlines()]
+    attempt_rows = [row for row in rows if row["record_type"] == "attempt"]
+    assert [row["action_id"] for row in attempt_rows] == expected_action_ids
+    assert rows[-1]["action_ids"] == expected_action_ids
 
 
 def test_parallel_controller_commits_and_logs_in_slot_order_despite_completion_order(tmp_path: Path) -> None:
