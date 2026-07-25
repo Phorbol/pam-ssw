@@ -99,10 +99,7 @@ class GeometryValidator:
     def is_valid_evaluation(self, state: State, calculator) -> bool:
         if not self.is_valid_state(state):
             return False
-        try:
-            energy, gradient = calculator.evaluate_flat(state.flatten_positions(), state)
-        except Exception:
-            return False
+        energy, gradient = calculator.evaluate_flat(state.flatten_positions(), state)
         return bool(np.isfinite(energy) and np.all(np.isfinite(gradient)))
 
 
@@ -1532,6 +1529,8 @@ class SoftModeOracle:
             trial_state = CartesianCoordinates.from_state(state).displace(TangentVector(candidate.direction), ds)
             try:
                 probe_energy = self.calculator.evaluate(trial_state).energy
+            except BudgetExceeded:
+                raise
             except Exception:
                 continue
             delta_e = probe_energy - state_energy
@@ -1742,7 +1741,7 @@ class SurfaceWalker:
         self.rng = np.random.default_rng(config.rng_seed)
         bond_pairs = config.local_softening_pairs if softening_enabled and isinstance(config, LSSSWConfig) else []
         self.oracle = SoftModeOracle(
-            calculator,
+            self.calculator,
             self.rng,
             config.oracle_candidates,
             bond_pairs=bond_pairs,

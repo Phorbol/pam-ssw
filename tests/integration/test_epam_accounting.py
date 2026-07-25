@@ -1,9 +1,35 @@
 import numpy as np
+import pytest
 
 from pamssw import SSWConfig, State, run_ssw
+from pamssw.accounting import BudgetExceeded
 from pamssw.calculators import AnalyticCalculator
 from pamssw.potentials import DoubleWell2D
 from pamssw.walker import SurfaceWalker
+
+
+class CountingAnalyticCalculator:
+    def __init__(self, calculator: AnalyticCalculator, fail_on_evaluate_call: int | None = None) -> None:
+        self.calculator = calculator
+        self.fail_on_evaluate_call = fail_on_evaluate_call
+        self.evaluate_calls = 0
+        self.evaluate_flat_calls = 0
+        self.failed_evaluate_calls = 0
+
+    @property
+    def total_calls(self) -> int:
+        return self.evaluate_calls + self.evaluate_flat_calls
+
+    def evaluate(self, state):
+        self.evaluate_calls += 1
+        if self.evaluate_calls == self.fail_on_evaluate_call:
+            self.failed_evaluate_calls += 1
+            raise RuntimeError("synthetic probe evaluation failure")
+        return self.calculator.evaluate(state)
+
+    def evaluate_flat(self, flat_positions, template):
+        self.evaluate_flat_calls += 1
+        return self.calculator.evaluate_flat(flat_positions, template)
 
 
 def test_ssw_local_relaxation_accounting_is_exact():
@@ -48,6 +74,102 @@ def test_force_evaluation_accounting_matches_wrapped_calculator_calls():
 
     assert isinstance(counter, int)
     assert counter > result.stats["local_relaxations"]
+
+
+def test_surface_walker_accounts_direction_probe_evaluations():
+    calculator = CountingAnalyticCalculator(AnalyticCalculator(DoubleWell2D()))
+    config = SSWConfig(
+        max_trials=1,
+        max_steps_per_walk=1,
+        oracle_candidates=3,
+        direction_probe_enabled=True,
+        direction_probe_top_k=2,
+        max_force_evals=80,
+        rng_seed=4,
+    )
+    walker = SurfaceWalker(calculator=calculator, config=config, softening_enabled=False)
+    probe_call_counts = []
+    probe_refine = walker.oracle._probe_refine
+
+    def record_probe_calls(*args, **kwargs):
+        calls_before = calculator.total_calls
+        result = probe_refine(*args, **kwargs)
+        probe_call_counts.append(calculator.total_calls - calls_before)
+        return result
+
+    walker.oracle._probe_refine = record_probe_calls
+    result = walker.run(State(numbers=np.array([1]), positions=np.array([[-1.0, 0.0, 0.0]])))
+
+    assert probe_call_counts == [config.direction_probe_top_k + 1]
+    assert result.stats["force_evaluations"] == calculator.total_calls
+    assert walker.oracle.calculator is walker.calculator
+    assert result.stats["force_evaluations"] <= config.max_force_evals
+
+
+def test_surface_walker_propagates_direction_probe_budget_exhaustion():
+    calculator = CountingAnalyticCalculator(AnalyticCalculator(DoubleWell2D()))
+    config = SSWConfig(
+        max_steps_per_walk=1,
+        oracle_candidates=1,
+        direction_probe_enabled=True,
+        direction_probe_top_k=1,
+        max_force_evals=1,
+        rng_seed=4,
+    )
+    walker = SurfaceWalker(calculator=calculator, config=config, softening_enabled=False)
+    walker._reset_direction_stats()
+    recorded_choices = []
+    record_direction_choice = walker._record_direction_choice
+
+    def record_choice(choice):
+        recorded_choices.append(choice)
+        record_direction_choice(choice)
+
+    def fail_if_choice_continues(*args, **kwargs):
+        raise AssertionError("direction choice was recorded after probe budget exhaustion")
+
+    walker.oracle._directional_hvp = lambda state, proposal, direction: np.zeros_like(direction)
+    walker._record_direction_choice = record_choice
+    walker._true_directional_curvature = fail_if_choice_continues
+
+    with pytest.raises(BudgetExceeded, match="force-evaluation budget exhausted"):
+        walker._walk_candidate_from_seed(State(numbers=np.array([1]), positions=np.array([[-1.0, 0.0, 0.0]])))
+
+    assert recorded_choices == []
+    assert walker._direction_choices == 0
+    assert walker.calculator.force_evaluations == config.max_force_evals
+    assert calculator.total_calls == walker.calculator.force_evaluations
+
+
+def test_surface_walker_skips_ordinary_direction_probe_failures():
+    calculator = CountingAnalyticCalculator(AnalyticCalculator(DoubleWell2D()), fail_on_evaluate_call=2)
+    config = SSWConfig(
+        max_trials=1,
+        max_steps_per_walk=1,
+        oracle_candidates=2,
+        direction_probe_enabled=True,
+        direction_probe_top_k=2,
+        max_force_evals=80,
+        rng_seed=4,
+    )
+    walker = SurfaceWalker(calculator=calculator, config=config, softening_enabled=False)
+    probe_evaluate_calls = []
+    probe_refine = walker.oracle._probe_refine
+
+    def record_probe_evaluations(*args, **kwargs):
+        calls_before = calculator.evaluate_calls
+        result = probe_refine(*args, **kwargs)
+        probe_evaluate_calls.append(calculator.evaluate_calls - calls_before)
+        return result
+
+    walker.oracle._probe_refine = record_probe_evaluations
+    result = walker.run(State(numbers=np.array([1]), positions=np.array([[-1.0, 0.0, 0.0]])))
+
+    assert calculator.failed_evaluate_calls == 1
+    assert probe_evaluate_calls == [config.direction_probe_top_k + 1]
+    assert result.stats["direction_choices"] == 1
+    assert result.stats["force_evaluations"] == calculator.total_calls
+    assert result.stats["force_evaluations"] <= config.max_force_evals
 
 
 def test_force_evaluation_budget_limits_started_trials():

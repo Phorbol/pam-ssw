@@ -20,17 +20,15 @@ class EvalCounter:
 
     def evaluate(self, state: State):
         self._reserve()
-        result = self.calculator.evaluate(state)
         self.force_evaluations += 1
         self.energy_evaluations += 1
-        return result
+        return self.calculator.evaluate(state)
 
     def evaluate_flat(self, flat_positions: np.ndarray, template: State) -> tuple[float, np.ndarray]:
         self._reserve()
-        energy, gradient = self.calculator.evaluate_flat(flat_positions, template)
         self.force_evaluations += 1
         self.energy_evaluations += 1
-        return energy, gradient
+        return self.calculator.evaluate_flat(flat_positions, template)
 
     def exhausted(self) -> bool:
         return self.max_force_evals is not None and self.force_evaluations >= self.max_force_evals
