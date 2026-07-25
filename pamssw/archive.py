@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass
 
 import numpy as np
@@ -50,13 +51,11 @@ class MinimaArchive:
         self.prototypes: list[ArchivePrototype] = []
 
     def add(self, state: State, energy: float, parent_id: int | None) -> MinimaEntry:
-        for entry in self.entries:
-            if abs(entry.energy - energy) > self.energy_tol:
-                continue
-            if self._rmsd(entry.state, state) <= self.rmsd_tol:
-                entry.visits += 1
-                entry.duplicate_hits += 1
-                return entry
+        match = self.find_match(state, energy)
+        if match is not None:
+            match.visits += 1
+            match.duplicate_hits += 1
+            return match
 
         entry = MinimaEntry(
             entry_id=len(self.entries),
@@ -70,6 +69,17 @@ class MinimaArchive:
         self._update_prototypes(entry)
         self.refresh_frontier_status()
         return entry
+
+    def find_match(self, state: State, energy: float) -> MinimaEntry | None:
+        for entry in self.entries:
+            if abs(entry.energy - energy) > self.energy_tol:
+                continue
+            if self._rmsd(entry.state, state) <= self.rmsd_tol:
+                return entry
+        return None
+
+    def clone(self) -> MinimaArchive:
+        return copy.deepcopy(self)
 
     def next_seed(self) -> MinimaEntry:
         return min(self.entries, key=lambda entry: (entry.visits, entry.energy, entry.entry_id))
@@ -249,7 +259,7 @@ class MinimaArchive:
             return float("inf")
         if not np.array_equal(lhs.numbers, rhs.numbers):
             return float("inf")
-        if lhs.n_atoms <= 1 or lhs.cell is not None or rhs.cell is not None or any(lhs.pbc) or any(rhs.pbc):
+        if lhs.n_atoms <= 1 or any(lhs.pbc) or any(rhs.pbc):
             if lhs.cell is not None and rhs.cell is not None and lhs.pbc == rhs.pbc and np.allclose(lhs.cell, rhs.cell):
                 diff = mic_displacement(lhs.positions, rhs.positions, lhs.cell, lhs.pbc)
             else:
