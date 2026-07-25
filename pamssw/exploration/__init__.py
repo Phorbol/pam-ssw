@@ -4,6 +4,7 @@ from .controller import BatchLog, ExplorationController, Worker
 from .event_log import ExplorationEventLog, SCHEMA_VERSION
 from .posterior import StarterProductivityPosterior
 from .policies import SUPPORTED_POLICIES, build_policy_snapshot
+from .ssw_worker import SSWAttemptWorker
 
 __all__ = [
     "AttemptResult",
@@ -17,6 +18,7 @@ __all__ = [
     "SUPPORTED_POLICIES",
     "StarterProductivityPosterior",
     "StarterAction",
+    "SSWAttemptWorker",
     "Worker",
     "build_policy_snapshot",
     "derive_action_seed",
