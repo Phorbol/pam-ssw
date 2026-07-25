@@ -1,7 +1,7 @@
 # Recoverable Budgeted Posterior Exploration Runner Design
 
 **Date:** 2026-07-25
-**Status:** Approved direction, written specification pending user review
+**Status:** Approved
 **Repository baseline:** `6b2a289` on `feature/ssw-attempt-adapter`
 
 ## 1. Purpose
