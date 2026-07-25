@@ -848,7 +848,9 @@ git commit -m "Make committed exploration batches complete"
 **Files:**
 - Create: `pamssw/exploration/campaign.py`
 - Create: `tests/unit/test_exploration_campaign.py`
+- Modify: `pamssw/accounting.py`
 - Modify: `pamssw/exploration/__init__.py`
+- Modify: `tests/unit/test_accounting.py`
 
 - [ ] **Step 1: Write failing configuration tests**
 
@@ -1058,8 +1060,10 @@ pytest -q tests/unit/test_exploration_campaign.py
 
 ```bash
 git add pamssw/exploration/campaign.py \
+  pamssw/accounting.py \
   pamssw/exploration/__init__.py \
-  tests/unit/test_exploration_campaign.py
+  tests/unit/test_exploration_campaign.py \
+  tests/unit/test_accounting.py
 git commit -m "Add fixed-fidelity campaign budget"
 ```
 
