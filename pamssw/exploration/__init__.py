@@ -1,6 +1,7 @@
 from .actions import AttemptResult, AttemptStatus, CreditedOutcome, PolicySnapshot, StarterAction
 from .batch import derive_action_seed, plan_batch
-from .controller import BatchLog, ExplorationController, Worker
+from .committed import CommittedExplorationBatch
+from .controller import BatchLog, ExplorationController, UnknownActionCostError, Worker
 from .event_log import ExplorationEventLog, SCHEMA_VERSION
 from .posterior import StarterProductivityPosterior
 from .policies import SUPPORTED_POLICIES, build_policy_snapshot
@@ -11,6 +12,7 @@ __all__ = [
     "AttemptStatus",
     "BatchLog",
     "CreditedOutcome",
+    "CommittedExplorationBatch",
     "ExplorationController",
     "ExplorationEventLog",
     "PolicySnapshot",
@@ -18,6 +20,7 @@ __all__ = [
     "SUPPORTED_POLICIES",
     "StarterProductivityPosterior",
     "StarterAction",
+    "UnknownActionCostError",
     "SSWAttemptWorker",
     "Worker",
     "build_policy_snapshot",

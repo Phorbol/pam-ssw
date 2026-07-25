@@ -22,6 +22,7 @@ from .actions import (
     StarterAction,
     should_observe_posterior,
 )
+from .committed import CommittedExplorationBatch
 from .posterior import StarterProductivityPosterior
 
 
@@ -237,52 +238,6 @@ def _validate_action_against_snapshot(action: StarterAction, snapshot: PolicySna
         raise _EventLogError("action starter_id must be eligible in snapshot")
     if action.selection_probability != snapshot.probability_for(action.starter_id):
         raise _EventLogError("action selection_probability must match snapshot")
-
-
-def _validate_append_inputs(
-    snapshot: object,
-    actions: object,
-    outcomes: object,
-) -> tuple[PolicySnapshot, tuple[StarterAction, ...], tuple[CreditedOutcome, ...]]:
-    if not isinstance(snapshot, PolicySnapshot):
-        raise _EventLogError("snapshot must be a PolicySnapshot")
-    if not isinstance(actions, tuple):
-        raise _EventLogError("actions must be a tuple")
-    if not isinstance(outcomes, tuple):
-        raise _EventLogError("outcomes must be a tuple")
-    if not actions:
-        raise _EventLogError("actions and outcomes must be nonempty")
-    if len(actions) != len(outcomes):
-        raise _EventLogError("actions and outcomes must have equal lengths")
-    if not all(isinstance(action, StarterAction) for action in actions):
-        raise _EventLogError("actions must contain StarterAction values")
-    if not all(isinstance(outcome, CreditedOutcome) for outcome in outcomes):
-        raise _EventLogError("outcomes must contain CreditedOutcome values")
-
-    typed_actions = actions
-    typed_outcomes = outcomes
-    batch_id = typed_actions[0].batch_id
-    action_ids: set[str] = set()
-    slot_ids: set[int] = set()
-    for action, outcome in zip(typed_actions, typed_outcomes):
-        _validate_action_against_snapshot(action, snapshot, batch_id)
-        if action.action_id != outcome.action_id:
-            raise _EventLogError("action_id must agree with outcome")
-        if action.starter_id != outcome.starter_id:
-            raise _EventLogError("starter_id must agree with outcome")
-        if action.force_budget is not None and outcome.force_evaluations > action.force_budget:
-            raise _EventLogError("force_evaluations cannot exceed action force_budget")
-        if outcome.posterior_observed != should_observe_posterior(
-            outcome.status, outcome.evaluation_counts
-        ):
-            raise _EventLogError("posterior_observed must match terminal observation predicate")
-        if action.action_id in action_ids:
-            raise _EventLogError("action IDs must be unique")
-        if action.slot_id in slot_ids:
-            raise _EventLogError("slot IDs must be unique")
-        action_ids.add(action.action_id)
-        slot_ids.add(action.slot_id)
-    return snapshot, typed_actions, typed_outcomes
 
 
 def _parse_snapshot(row: dict[str, object], line_number: int) -> tuple[PolicySnapshot, int]:
@@ -553,6 +508,8 @@ def _parse_committed_log(path: Path) -> _ParsedEventLog:
                     raise _EventLogError(f"line {line_number}: duplicate action_id")
                 if action.slot_id in active_slot_ids:
                     raise _EventLogError(f"line {line_number}: duplicate slot_id")
+                if action.slot_id != len(active_actions):
+                    raise _EventLogError(f"line {line_number}: actions must be in contiguous slot order")
                 seen_action_ids.add(action.action_id)
                 active_action_ids.append(action.action_id)
                 active_actions.append(action)
@@ -612,17 +569,19 @@ class ExplorationEventLog:
     def __init__(self, path: str | os.PathLike[str]) -> None:
         self.path = Path(path)
 
-    def append_batch(
-        self,
-        snapshot: PolicySnapshot,
-        actions: tuple[StarterAction, ...],
-        outcomes: tuple[CreditedOutcome, ...],
-    ) -> None:
+    def append_batch(self, batch: CommittedExplorationBatch) -> None:
         """Durably append one snapshot, its attempts, and its commit marker."""
-        snapshot, actions, outcomes = _validate_append_inputs(snapshot, actions, outcomes)
-        batch_id = actions[0].batch_id
+        if not isinstance(batch, CommittedExplorationBatch):
+            raise _EventLogError("batch must be a CommittedExplorationBatch")
+        snapshot = batch.snapshot
+        actions = batch.actions
+        outcomes = batch.outcomes
+        batch_id = batch.batch_id
         action_ids = tuple(action.action_id for action in actions)
-        candidate = _CommittedBatch(snapshot, actions, outcomes)
+        rows = [_snapshot_row(snapshot, batch_id)]
+        rows.extend(_attempt_row(action, outcome) for action, outcome in zip(actions, outcomes))
+        rows.append(_commit_row(batch_id, action_ids))
+        candidate_lines = tuple(_canonical_json_line(row) for row in rows)
         _reject_final_path_symlink(self.path)
         _require_no_follow_append_support()
         directory_fd = _open_preflight_fsynced_parent_directory(self.path)
@@ -630,20 +589,20 @@ class ExplorationEventLog:
             existing = _parse_committed_log(self.path)
             existing_batch = existing.batches.get(batch_id)
             if existing_batch is not None:
-                if existing_batch == candidate:
+                existing_rows = [_snapshot_row(existing_batch.snapshot, batch_id)]
+                existing_rows.extend(
+                    _attempt_row(action, outcome)
+                    for action, outcome in zip(existing_batch.actions, existing_batch.outcomes)
+                )
+                existing_rows.append(_commit_row(batch_id, tuple(action.action_id for action in existing_batch.actions)))
+                if tuple(_canonical_json_line(row) for row in existing_rows) == candidate_lines:
                     _fsync_existing_file(self.path)
                     _fsync_held_parent_directory(directory_fd, "post-retry")
                     return
                 raise _EventLogError("batch_id already exists in event log")
             if set(action_ids) & existing.action_ids:
                 raise _EventLogError("action_id already exists in event log")
-            rows = [_snapshot_row(snapshot, batch_id)]
-            rows.extend(_attempt_row(action, outcome) for action, outcome in zip(actions, outcomes))
-            rows.append(_commit_row(batch_id, action_ids))
-            payload = "".join(
-                _canonical_json_line(row) + "\n"
-                for row in rows
-            )
+            payload = "".join(line + "\n" for line in candidate_lines)
 
             with _open_append_text_file(self.path, directory_fd) as handle:
                 written = handle.write(payload)

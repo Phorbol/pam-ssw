@@ -1,19 +1,23 @@
 import json
 import os
 import stat
-from dataclasses import replace
+from dataclasses import FrozenInstanceError, replace
 
 import pytest
+import numpy as np
 
 from pamssw.accounting import EvaluationCounts, EvaluationPurpose
 import pamssw.exploration.event_log as event_log
 from pamssw.exploration.actions import (
+    AttemptResult,
     AttemptStatus,
     CreditedOutcome,
     PolicySnapshot,
     StarterAction,
 )
+from pamssw.exploration.committed import CommittedExplorationBatch
 from pamssw.exploration.event_log import ExplorationEventLog, SCHEMA_VERSION
+from pamssw.state import State
 
 
 def _snapshot(*, version: int = 7, archive_version: int = 11) -> PolicySnapshot:
@@ -83,6 +87,308 @@ def _outcome(
     )
 
 
+def _result(action: StarterAction, outcome: CreditedOutcome) -> AttemptResult:
+    return AttemptResult(
+        action=action,
+        landing_state=(
+            State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+            if outcome.status is AttemptStatus.COMPLETED
+            else None
+        ),
+        landing_energy=outcome.landing_energy,
+        force_evaluations=outcome.force_evaluations,
+        status=outcome.status,
+        failure_reason=outcome.failure_reason,
+        evaluation_counts=outcome.evaluation_counts,
+        cost_is_exact=outcome.cost_is_exact,
+    )
+
+
+def _batch(
+    snapshot: PolicySnapshot,
+    actions: tuple[StarterAction, ...],
+    outcomes: tuple[CreditedOutcome, ...],
+) -> CommittedExplorationBatch:
+    return CommittedExplorationBatch(
+        snapshot=snapshot,
+        actions=actions,
+        results=tuple(_result(action, outcome) for action, outcome in zip(actions, outcomes)),
+        outcomes=outcomes,
+    )
+
+
+def test_committed_batch_requires_complete_slot_aligned_facts() -> None:
+    action = _action()
+    outcome = _outcome(action, status=AttemptStatus.WORKER_ERROR)
+
+    batch = CommittedExplorationBatch(
+        snapshot=_snapshot(),
+        actions=(action,),
+        results=(_result(action, outcome),),
+        outcomes=(outcome,),
+    )
+
+    assert batch.batch_id == action.batch_id
+    assert batch.actions == (action,)
+
+
+def _failure_parts() -> tuple[
+    PolicySnapshot,
+    tuple[StarterAction, ...],
+    tuple[AttemptResult, ...],
+    tuple[CreditedOutcome, ...],
+]:
+    action = _action()
+    outcome = _outcome(action, status=AttemptStatus.WORKER_ERROR)
+    return _snapshot(), (action,), (_result(action, outcome),), (outcome,)
+
+
+def _two_failure_parts() -> tuple[
+    PolicySnapshot,
+    tuple[StarterAction, ...],
+    tuple[AttemptResult, ...],
+    tuple[CreditedOutcome, ...],
+]:
+    first = _action(slot_id=0, starter_id=8, selection_probability=0.8)
+    second = _action(slot_id=1, starter_id=3, selection_probability=0.2)
+    first_outcome = _outcome(first, status=AttemptStatus.WORKER_ERROR)
+    second_outcome = _outcome(second, status=AttemptStatus.WORKER_ERROR)
+    return (
+        _snapshot(),
+        (first, second),
+        (_result(first, first_outcome), _result(second, second_outcome)),
+        (first_outcome, second_outcome),
+    )
+
+
+@pytest.mark.parametrize(
+    ("mutate", "message"),
+    [
+        (lambda snapshot, actions, results, outcomes: (object(), actions, results, outcomes), "snapshot"),
+        (lambda snapshot, actions, results, outcomes: (snapshot, list(actions), results, outcomes), "actions"),
+        (lambda snapshot, actions, results, outcomes: (snapshot, actions, list(results), outcomes), "results"),
+        (lambda snapshot, actions, results, outcomes: (snapshot, actions, results, list(outcomes)), "outcomes"),
+        (lambda snapshot, actions, results, outcomes: (snapshot, (), (), ()), "nonempty"),
+        (lambda snapshot, actions, results, outcomes: (snapshot, actions, results, ()), "equal lengths"),
+        (lambda snapshot, actions, results, outcomes: (snapshot, (object(),), results, outcomes), "StarterAction"),
+        (lambda snapshot, actions, results, outcomes: (snapshot, actions, (object(),), outcomes), "AttemptResult"),
+        (lambda snapshot, actions, results, outcomes: (snapshot, actions, results, (object(),)), "CreditedOutcome"),
+        (
+            lambda snapshot, actions, results, outcomes: (
+                snapshot,
+                actions,
+                (_result(replace(actions[0], action_id="wrong-result"), outcomes[0]),),
+                outcomes,
+            ),
+            "result action",
+        ),
+        (
+            lambda snapshot, actions, results, outcomes: (
+                snapshot,
+                actions,
+                results,
+                (replace(outcomes[0], action_id="wrong-outcome"),),
+            ),
+            "action_id",
+        ),
+        (
+            lambda snapshot, actions, results, outcomes: (
+                snapshot,
+                actions,
+                results,
+                (replace(outcomes[0], starter_id=3),),
+            ),
+            "starter_id",
+        ),
+        (
+            lambda snapshot, actions, results, outcomes: (
+                snapshot,
+                actions,
+                (replace(results[0], status=AttemptStatus.INVALID),),
+                outcomes,
+            ),
+            "status",
+        ),
+        (
+            lambda snapshot, actions, results, outcomes: (
+                snapshot,
+                actions,
+                (replace(results[0], cost_is_exact=False),),
+                outcomes,
+            ),
+            "cost_is_exact",
+        ),
+        (
+            lambda snapshot, actions, results, outcomes: (
+                snapshot,
+                actions,
+                results,
+                (
+                    replace(
+                        outcomes[0],
+                        force_evaluations=4,
+                        evaluation_counts=EvaluationCounts.unattributed(4),
+                    ),
+                ),
+            ),
+            "force_evaluations",
+        ),
+        (
+            lambda snapshot, actions, results, outcomes: (
+                snapshot,
+                actions,
+                results,
+                (
+                    replace(
+                        outcomes[0],
+                        evaluation_counts=EvaluationCounts.from_mapping(
+                            {EvaluationPurpose.DIRECTION_ORACLE: outcomes[0].force_evaluations}
+                        ),
+                    ),
+                ),
+            ),
+            "evaluation_counts",
+        ),
+        (
+            lambda snapshot, actions, results, outcomes: (
+                snapshot,
+                actions,
+                results,
+                (replace(outcomes[0], posterior_observed=True),),
+            ),
+            "posterior_observed",
+        ),
+    ],
+)
+def test_committed_batch_rejects_invalid_slot_facts(mutate, message: str) -> None:
+    with pytest.raises(ValueError, match=message):
+        CommittedExplorationBatch(*mutate(*_failure_parts()))
+
+
+@pytest.mark.parametrize(
+    ("mutate", "message"),
+    [
+        (
+            lambda snapshot, actions, results, outcomes: (
+                snapshot,
+                (actions[0], replace(actions[0], slot_id=1)),
+                (results[0], _result(replace(actions[0], slot_id=1), outcomes[0])),
+                (outcomes[0], outcomes[0]),
+            ),
+            "unique",
+        ),
+        (
+            lambda snapshot, actions, results, outcomes: (
+                snapshot,
+                (actions[0], replace(actions[1], slot_id=2)),
+                (results[0], _result(replace(actions[1], slot_id=2), outcomes[1])),
+                outcomes,
+            ),
+            "contiguous slot order",
+        ),
+        (
+            lambda snapshot, actions, results, outcomes: (
+                snapshot,
+                tuple(reversed(actions)),
+                tuple(reversed(results)),
+                tuple(reversed(outcomes)),
+            ),
+            "contiguous slot order",
+        ),
+        (
+            lambda snapshot, actions, results, outcomes: (
+                snapshot,
+                actions,
+                tuple(reversed(results)),
+                outcomes,
+            ),
+            "result action",
+        ),
+        (
+            lambda snapshot, actions, results, outcomes: (
+                snapshot,
+                (replace(actions[0], policy_version=snapshot.version + 1), actions[1]),
+                (
+                    _result(
+                        replace(actions[0], policy_version=snapshot.version + 1), outcomes[0]
+                    ),
+                    results[1],
+                ),
+                outcomes,
+            ),
+            "policy_version",
+        ),
+        (
+            lambda snapshot, actions, results, outcomes: (
+                snapshot,
+                (replace(actions[0], selection_probability=0.2), actions[1]),
+                (
+                    _result(
+                        replace(actions[0], selection_probability=0.2), outcomes[0]
+                    ),
+                    results[1],
+                ),
+                outcomes,
+            ),
+            "selection_probability",
+        ),
+    ],
+)
+def test_committed_batch_rejects_invalid_batch_order_or_snapshot_alignment(mutate, message: str) -> None:
+    with pytest.raises(ValueError, match=message):
+        CommittedExplorationBatch(*mutate(*_two_failure_parts()))
+
+
+def test_committed_batch_fields_are_frozen() -> None:
+    batch = CommittedExplorationBatch(*_failure_parts())
+
+    with pytest.raises(FrozenInstanceError):
+        batch.actions = ()  # type: ignore[misc]
+
+
+def test_append_accepts_only_one_complete_committed_batch(tmp_path) -> None:
+    path = tmp_path / "events.jsonl"
+    batch = CommittedExplorationBatch(*_failure_parts())
+
+    ExplorationEventLog(path).append_batch(batch)
+    with pytest.raises(ValueError, match="CommittedExplorationBatch"):
+        ExplorationEventLog(path).append_batch(object())
+
+    assert ExplorationEventLog(path).reconstruct_posterior().completed_attempts == 0
+
+
+def test_idempotency_rejects_one_changed_serialized_scalar_fact(tmp_path) -> None:
+    path = tmp_path / "events.jsonl"
+    snapshot, actions, results, outcomes = _failure_parts()
+    batch = CommittedExplorationBatch(snapshot, actions, results, outcomes)
+    changed_outcome = replace(outcomes[0], failure_reason="a different durable failure")
+    changed_batch = CommittedExplorationBatch(
+        snapshot,
+        actions,
+        (_result(actions[0], changed_outcome),),
+        (changed_outcome,),
+    )
+
+    log = ExplorationEventLog(path)
+    log.append_batch(batch)
+    with pytest.raises(ValueError, match="batch_id"):
+        log.append_batch(changed_batch)
+
+
+def test_reconstruction_rejects_noncontiguous_action_slots(tmp_path) -> None:
+    path = tmp_path / "events.jsonl"
+    _write_valid_batch(path)
+    rows = _read_rows(path)
+    rows[2]["slot_id"] = 3
+    path.write_text(
+        "\n".join(event_log._canonical_json_line(row) for row in rows) + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="contiguous slot order"):
+        ExplorationEventLog(path).reconstruct_posterior()
+
+
 def _read_rows(path):
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
 
@@ -97,7 +403,7 @@ def _write_valid_batch(path, *, batch_id: int = 4):
         _outcome(actions[0]),
         _outcome(actions[1], status=AttemptStatus.WORKER_ERROR, failure_reason="exact remote OOM"),
     )
-    ExplorationEventLog(path).append_batch(snapshot, actions, outcomes)
+    ExplorationEventLog(path).append_batch(_batch(snapshot, actions, outcomes))
     return actions, outcomes
 
 
@@ -113,7 +419,7 @@ def test_append_writes_one_sorted_jsonl_payload_in_policy_attempt_commit_order(t
         _outcome(actions[1], status=AttemptStatus.WORKER_ERROR, failure_reason="exact remote OOM"),
     )
 
-    ExplorationEventLog(path).append_batch(snapshot, actions, outcomes)
+    ExplorationEventLog(path).append_batch(_batch(snapshot, actions, outcomes))
 
     raw_lines = path.read_text(encoding="utf-8").splitlines()
     rows = [json.loads(line) for line in raw_lines]
@@ -146,7 +452,7 @@ def test_append_requires_an_existing_parent_directory_without_creating_it(tmp_pa
     action = _action()
 
     with pytest.raises(FileNotFoundError, match="parent directory"):
-        ExplorationEventLog(path).append_batch(_snapshot(), (action,), (_outcome(action),))
+        ExplorationEventLog(path).append_batch(_batch(_snapshot(), (action,), (_outcome(action),)))
 
     assert not path.parent.exists()
 
@@ -158,7 +464,7 @@ def test_append_rejects_a_non_directory_parent_without_mutating_it(tmp_path):
 
     with pytest.raises(ValueError, match="parent path must be a directory"):
         ExplorationEventLog(parent / "events.jsonl").append_batch(
-            _snapshot(), (action,), (_outcome(action),)
+            _batch(_snapshot(), (action,), (_outcome(action),))
         )
 
     assert parent.read_text(encoding="utf-8") == "keep this file"
@@ -173,7 +479,7 @@ def test_existing_final_symlink_is_rejected_without_mutating_its_target(tmp_path
     action = _action()
 
     with pytest.raises(ValueError, match="final event-log path.*symlink"):
-        ExplorationEventLog(path).append_batch(_snapshot(), (action,), (_outcome(action),))
+        ExplorationEventLog(path).append_batch(_batch(_snapshot(), (action,), (_outcome(action),)))
     with pytest.raises(ValueError, match="final event-log path.*symlink"):
         ExplorationEventLog(path).reconstruct_posterior()
 
@@ -189,7 +495,7 @@ def test_dangling_final_symlink_is_rejected_without_creating_its_target(tmp_path
     action = _action()
 
     with pytest.raises(ValueError, match="final event-log path.*symlink"):
-        ExplorationEventLog(path).append_batch(_snapshot(), (action,), (_outcome(action),))
+        ExplorationEventLog(path).append_batch(_batch(_snapshot(), (action,), (_outcome(action),)))
     with pytest.raises(ValueError, match="final event-log path.*symlink"):
         ExplorationEventLog(path).reconstruct_posterior()
 
@@ -253,7 +559,7 @@ def test_append_rejects_type_pairing_and_snapshot_mismatches_before_writing(
     path = tmp_path / "events.jsonl"
 
     with pytest.raises(ValueError, match=message):
-        ExplorationEventLog(path).append_batch(snapshot, actions, outcomes)
+        ExplorationEventLog(path).append_batch(_batch(snapshot, actions, outcomes))
 
     assert not path.exists()
 
@@ -269,7 +575,7 @@ def test_append_rejects_duplicate_action_ids_or_slots_before_writing(tmp_path):
     for actions in ((first, duplicate_id), (first, duplicate_slot)):
         outcomes = tuple(_outcome(action) for action in actions)
         with pytest.raises(ValueError, match="unique"):
-            ExplorationEventLog(path).append_batch(_snapshot(), actions, outcomes)
+            ExplorationEventLog(path).append_batch(_batch(_snapshot(), actions, outcomes))
         assert not path.exists()
 
 
@@ -367,7 +673,7 @@ def test_append_rejects_a_duplicate_batch_id_with_different_actions_without_chan
 
     with pytest.raises(ValueError, match="batch_id"):
         ExplorationEventLog(path).append_batch(
-            _snapshot(), (replacement_action,), (_outcome(replacement_action),)
+            _batch(_snapshot(), (replacement_action,), (_outcome(replacement_action),))
         )
 
     assert path.read_bytes() == before
@@ -384,7 +690,7 @@ def test_append_rejects_an_existing_action_id_under_a_different_batch_without_ch
 
     with pytest.raises(ValueError, match="action_id"):
         ExplorationEventLog(path).append_batch(
-            _snapshot(), (duplicate_action,), (_outcome(duplicate_action),)
+            _batch(_snapshot(), (duplicate_action,), (_outcome(duplicate_action),))
         )
 
     assert path.read_bytes() == before
@@ -396,7 +702,7 @@ def test_append_treats_reappending_an_identical_batch_as_a_durable_idempotent_re
     before = path.read_bytes()
     before_line_count = len(before.splitlines())
 
-    ExplorationEventLog(path).append_batch(_snapshot(), actions, outcomes)
+    ExplorationEventLog(path).append_batch(_batch(_snapshot(), actions, outcomes))
 
     assert path.read_bytes() == before
     assert len(path.read_bytes().splitlines()) == before_line_count
@@ -454,8 +760,8 @@ def test_append_and_idempotent_retry_preflight_and_refsync_a_held_parent_directo
 
     action = _action()
     log = ExplorationEventLog(path)
-    log.append_batch(_snapshot(), (action,), (_outcome(action),))
-    log.append_batch(_snapshot(), (action,), (_outcome(action),))
+    log.append_batch(_batch(_snapshot(), (action,), (_outcome(action),)))
+    log.append_batch(_batch(_snapshot(), (action,), (_outcome(action),)))
 
     assert fsync_kinds == ["directory", "file", "directory", "directory", "file", "directory"]
 
@@ -474,14 +780,14 @@ def test_exact_retry_after_a_file_fsync_error_does_not_append_or_double_count(tm
 
     monkeypatch.setattr(event_log.os, "fsync", fail_file_fsync_after_directory_preflight)
     with pytest.raises(OSError, match="injected file fsync failure"):
-        log.append_batch(_snapshot(), (action,), (_outcome(action),))
+        log.append_batch(_batch(_snapshot(), (action,), (_outcome(action),)))
 
     bytes_after_failed_fsync = path.read_bytes()
     assert len(bytes_after_failed_fsync.splitlines()) == 3
     assert fsync_kinds == ["directory", "file"]
 
     monkeypatch.setattr(event_log.os, "fsync", lambda fd: None)
-    log.append_batch(_snapshot(), (action,), (_outcome(action),))
+    log.append_batch(_batch(_snapshot(), (action,), (_outcome(action),)))
 
     assert path.read_bytes() == bytes_after_failed_fsync
     posterior = log.reconstruct_posterior()
@@ -508,7 +814,7 @@ def test_parent_directory_preflight_fsync_failure_never_mutates_the_log(
 
     monkeypatch.setattr(event_log.os, "fsync", fail_preflight_directory_fsync)
     with pytest.raises(OSError, match="parent directory preflight fsync"):
-        ExplorationEventLog(path).append_batch(_snapshot(), (action,), (_outcome(action),))
+        ExplorationEventLog(path).append_batch(_batch(_snapshot(), (action,), (_outcome(action),)))
 
     if before is None:
         assert not path.exists()
@@ -531,7 +837,7 @@ def test_append_opens_only_the_final_component_relative_to_the_held_parent_fd(tm
         return real_open(name, flags, mode, dir_fd=dir_fd)
 
     monkeypatch.setattr(event_log.os, "open", record_open)
-    ExplorationEventLog(path).append_batch(_snapshot(), (action,), (_outcome(action),))
+    ExplorationEventLog(path).append_batch(_batch(_snapshot(), (action,), (_outcome(action),)))
 
     final_component_calls = [call for call in open_calls if call[3] is not None]
     assert len(final_component_calls) == 1
@@ -578,7 +884,7 @@ def test_schema_v2_round_trips_exact_terminal_accounting_and_flags_in_canonical_
         posterior_observed=True,
     )
 
-    ExplorationEventLog(path).append_batch(_snapshot(), (action,), (outcome,))
+    ExplorationEventLog(path).append_batch(_batch(_snapshot(), (action,), (outcome,)))
 
     rows = _read_rows(path)
     assert SCHEMA_VERSION == 2
@@ -667,9 +973,9 @@ def test_schema_v2_reconstruction_recomputes_observation_and_idempotent_retry_pr
     )
     log = ExplorationEventLog(path)
 
-    log.append_batch(_snapshot(), (first, second), outcomes)
+    log.append_batch(_batch(_snapshot(), (first, second), outcomes))
     before = path.read_bytes()
-    log.append_batch(_snapshot(), (first, second), outcomes)
+    log.append_batch(_batch(_snapshot(), (first, second), outcomes))
 
     parsed_outcomes = event_log._parse_committed_log(path).outcomes
     assert path.read_bytes() == before
