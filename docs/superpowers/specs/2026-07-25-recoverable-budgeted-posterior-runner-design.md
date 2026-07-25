@@ -115,6 +115,14 @@ Phase 3 therefore guarantees exact committed cost and deterministic committed
 state. It does not claim an exact lifetime hardware-call cap across arbitrary
 mid-batch process crashes.
 
+An exception that reaches the runner while the cost of a started action is
+unknown is different from an abrupt process death: the runner can observe the
+former. It atomically writes a terminal `aborted_unknown_cost` marker and
+refuses ordinary resume. The operator must start a new campaign to make a new
+budget claim. An abrupt death before any such marker or batch commit remains
+outside the reconstructable ledger and may cause deterministic re-execution on
+an explicitly requested resume.
+
 ## 4. Evaluation-Purpose Ledger
 
 ### 4.1 Closed purpose taxonomy
@@ -208,6 +216,22 @@ cost_is_exact: bool
 The event-log schema is bumped explicitly. Older rows are rejected by the new
 strict schema rather than interpreted as purpose-complete data.
 
+`CreditedOutcome` also persists:
+
+```python
+posterior_observed: bool
+```
+
+The productivity posterior observes only terminal facts that are evidence
+about the fixed physical attempt: completed landings, budget exhaustion,
+fragmentation after physical work, and physical no-landing results. It does not
+observe factory/constructor failures, escaped adapter exceptions, calculator
+infrastructure errors, or zero-cost invalid starters. These unobserved outcomes
+remain committed audit facts, but make a policy benchmark run ineligible. This
+keeps the posterior estimand equal to fixed-kernel basin discovery conditional
+on an executable action rather than silently multiplying it by infrastructure
+availability.
+
 The controller also promotes its private pending payload into one explicit
 commit contract:
 
@@ -224,6 +248,10 @@ Actions, results, and outcomes are aligned in slot order. `BatchLog` accepts
 this complete object. The compact event log serializes the policy and scalar
 outcome facts, while the recoverable run store additionally serializes the
 landing states held by `AttemptResult`.
+
+For each slot, `CommittedExplorationBatch` requires exact equality between the
+result and outcome `force_evaluations`, complete `evaluation_counts`, and
+`cost_is_exact`, not merely equality of their totals.
 
 `CreditedOutcome` remains the scalar archive-credit record; state geometry is
 not duplicated into it. This keeps credit comparison independent of NumPy array
@@ -300,6 +328,11 @@ A fully committed batch with zero total physical calls terminates the campaign
 with `zero_cost_stall`. This prevents an infinite campaign of invalid starters
 or calculator-factory failures without inventing a fake cost.
 
+`budget_tail` is reconstructed when the remaining budget is less than the
+fixed action cap. `zero_cost_stall` is reconstructed from a final committed
+zero-spend batch. Both are durable terminal facts; resume from either terminal
+state is a no-op.
+
 ## 6. Opt-In Runner
 
 ### 6.1 Configuration
@@ -316,6 +349,7 @@ class PosteriorExplorationConfig:
     total_force_budget: int
     master_seed: int
     calculator_label: str
+    calculator_fingerprint: str
     run_directory: Path
     mode: Literal["new", "resume"] = "new"
 ```
@@ -327,7 +361,7 @@ Validation requires:
 
 - policy is one of the three Phase-1 policies;
 - sizes, budgets, and seed are valid integers;
-- calculator label is a nonempty provenance string;
+- calculator label and semantic fingerprint are nonempty provenance strings;
 - `max_workers <= batch_size`;
 - `total_force_budget >= 1`;
 - new mode requires an absent or empty run directory;
@@ -389,6 +423,10 @@ PosteriorExplorationResult(
     action_evaluations,
     total_evaluations,
     purpose_counts,
+    failed_attempts,
+    posterior_observed_attempts,
+    benchmark_eligible,
+    benchmark_ineligibility_reasons,
     total_force_budget,
     unused_force_budget,
     stop_reason,
@@ -412,10 +450,14 @@ Run layout:
 ```text
 run_directory/
   manifest.json
+  sessions/
+    00000000.json
+    ...
   batches/
     00000000.json
     00000001.json
     ...
+  abort.json                 # present only after an observed unknown-cost abort
 ```
 
 The manifest and each batch are strict, versioned JSON objects. A batch file
@@ -431,6 +473,11 @@ contains:
 - budget before, reserved, actually spent, and after;
 - controller versions before and after;
 - action order and batch identifier.
+
+The manifest additionally stores the caller configuration, the effective
+side-effect-free bootstrap configuration, and the effective per-action
+configuration transformation. Session records durably capture allowed
+environment/hardware drift and the resulting benchmark-eligibility decision.
 
 ### 7.2 State serialization
 
@@ -454,6 +501,8 @@ minimum, including energy and descriptor-relevant state.
 
 Each file is written to a unique temporary file in its target directory,
 flushed, fsynced, atomically renamed, and followed by a parent-directory fsync.
+The run store creates and fsyncs the `batches/` and `sessions/` directory
+entries before publishing the manifest.
 
 `append_batch` is idempotent:
 
@@ -462,9 +511,13 @@ flushed, fsynced, atomically renamed, and followed by a parent-directory fsync.
 - gaps, duplicate action IDs, non-contiguous versions, or mismatched run IDs are
   rejected.
 
-The batch file is committed before the controller installs the shadow archive
-and posterior in memory. If the process exits after file commit but before
-in-memory install, resume treats the file as authoritative.
+The batch file is committed before the controller installs the shadow archive,
+posterior, and campaign spend in memory. A pending commit has an explicit
+reconciliation operation. If a write raises after the canonical rename, that
+operation validates and accepts the canonical byte-equivalent batch, installs
+the controller shadow state, and advances the campaign ledger exactly once
+without redispatching workers. If no canonical batch exists, it retries the
+same complete pending batch, also without redispatch.
 
 ### 7.4 Recovery
 
@@ -474,10 +527,21 @@ Recovery:
 2. starts from the serialized bootstrap archive and empty posterior;
 3. reads contiguous batch files in order;
 4. replays landing insertions in slot order;
-5. replays one posterior update per action;
-6. validates every logged discovery, insertion, collision, landing ID, version,
-   and cost against the reconstructed state;
+5. recomputes the observation rule and replays a posterior update only when
+   `posterior_observed` is true;
+6. validates every stored observation flag, discovery, insertion, collision,
+   landing ID, version, and cost against the reconstructed state;
 7. restores `policy_version`, `archive_version`, `batch_id`, and campaign spend.
+
+Before replay, every action cap and stored reservation is checked against the
+manifest's fixed `action_force_budget`; batch-internal consistency alone is not
+a trusted source of `q`.
+
+Recovery first rejects `abort.json`. It then derives `budget_tail` or
+`zero_cost_stall` from the committed ledger so a terminal campaign cannot
+dispatch again. A temporary file without a canonical peer is ignored; a
+temporary file that coexists with its canonical peer is treated as ambiguous
+and fails closed.
 
 Recovery never trusts a serialized posterior or mutable archive object without
 replay validation.
@@ -491,9 +555,11 @@ The store guarantees no duplicate committed credit and deterministic recovery
 from complete batch boundaries.
 
 If the process exits after dispatch but before atomic batch commit, those
-physical calls are not durably known. Resume may re-execute the deterministic
-batch. The final report must state that committed cost is exact and
-interrupted-uncommitted hardware cost is outside the ledger.
+physical calls are not durably known. Explicit resume may re-execute the
+deterministic batch from the preceding committed snapshot. The final report
+must state that committed cost is exact and interrupted-uncommitted hardware
+cost is outside the ledger. A caught unknown-cost failure instead writes
+`abort.json` and is not resumable.
 
 No broader lifetime-budget claim is made.
 
@@ -509,6 +575,7 @@ For every paired seed and policy:
 - use the same action cap `q`;
 - use the same campaign cap `G`;
 - use the same maximum batch width and worker count;
+- use the same `master_seed` for every policy arm of a paired replicate;
 - record the complete run manifest and run-store path.
 
 The first harness compares:
@@ -517,7 +584,13 @@ The first harness compares:
 - `posterior_proportional`;
 - `minimal_ucb`, explicitly labeled incomplete-support.
 
-Outputs include raw per-run records and derived curves for:
+Primary curves contain only states that actually existed: the bootstrap point
+followed by committed-batch boundaries. The bootstrap point begins at its
+physical evaluation count. Slot-order prefixes may be emitted only as clearly
+labelled deterministic post-hoc visualizations, never as executed campaign
+states.
+
+Outputs include raw per-run records and primary derived curves for:
 
 - best energy versus cumulative physical evaluations;
 - unique minima versus cumulative physical evaluations;
@@ -527,8 +600,16 @@ Outputs include raw per-run records and derived curves for:
 - unused campaign budget;
 - exact selection probabilities and support completeness.
 
-Aggregation uses paired seeds and reports distributions or confidence
-intervals. A tiny analytic smoke proves the harness contract. Larger LJ
+The paired estimand is the within-seed contrast between policies under the same
+`(G, q, B, W, master_seed)` and initial structure. Normal `budget_tail` runs
+are compared at their final fixed-cap campaign state with unused budget
+reported. `zero_cost_stall`, aborted, drifted, or otherwise benchmark-ineligible
+runs are stratified and reported separately, not treated as observations at
+`G`. Confidence intervals, when present, use paired/block bootstrap over
+seed-level contrasts rather than independent per-policy intervals. The harness
+persists the seed-to-master-seed mapping.
+
+A tiny analytic smoke proves the harness contract. Larger LJ
 experiments are evidence generation after Phase 3, not a condition for merging
 the infrastructure.
 
@@ -540,18 +621,22 @@ to change defaults.
 - Invalid bootstrap geometry: fail before creating a committed run.
 - Bootstrap budget exhaustion: fail with exact bootstrap counts.
 - Known zero-cost factory failure: commit an exact zero-cost failed action; a
-  zero-cost batch then stops the campaign.
+  zero-cost batch then stops the campaign without updating the posterior and is
+  benchmark-ineligible.
 - Calculator failure after a started call: count the call and return
   `WORKER_ERROR`.
 - Action budget exhaustion: return `BUDGET_EXHAUSTED` with exact action cap.
 - Future/adapter exception with unknown cost in strict runner mode: abort
-  without committing the batch or updating archive/posterior.
+  without committing the batch or updating archive/posterior, atomically write
+  `abort.json`, and refuse resume.
 - Non-finite landing or incompatible result: fail closed before commit.
 - Run-store write failure: retain the exact pending commit in-process for retry;
   do not install archive/posterior state.
 - Manifest/config/schema mismatch on resume: fail closed.
 - `KeyboardInterrupt`, `SystemExit`, and other `BaseException` values are not
-  converted to ordinary worker outcomes.
+  converted to ordinary worker outcomes. Once dispatch may have begun, the
+  runner conservatively writes the unknown-cost abort marker and re-raises the
+  original value.
 
 ## 10. Configuration and Provenance Identity
 
@@ -562,14 +647,22 @@ The immutable manifest records:
 - initial state and bootstrapped minimum;
 - policy name and support semantics;
 - calculator-factory label supplied by the caller;
+- calculator semantic fingerprint supplied by the caller;
+- effective bootstrap and per-action transformed configurations;
 - Python, NumPy, SciPy, ASE, and package versions when available;
 - repository commit and dirty flag when discoverable;
 - telemetry and run-store schema versions.
 
 Resume compatibility is enforced on semantic configuration, structure,
-calculator label, and schema. Environment and repository identity differences
-are reported and make the resumed run non-benchmark-eligible unless identical;
-they are not silently discarded.
+calculator label/fingerprint, schema, repository source fingerprint, and the
+Python/NumPy/SciPy/ASE/package versions that execute the kernel. These
+executable-kernel differences fail closed because one posterior must not mix
+physical kernels. Allowed non-kernel environment/hardware differences are
+written to a new session record and make the resumed run
+non-benchmark-eligible unless identical; they are not silently discarded.
+The `mode` field is recorded but excluded from semantic equality because a
+valid continuation necessarily changes `new` to `resume`; the canonical
+`run_directory` must remain identical.
 
 Secrets, model binary contents, and arbitrary calculator objects are never
 serialized.
@@ -585,6 +678,9 @@ serialized.
 - one real SSW action has zero unattributed calls;
 - success, invalid, fragmented, budget exhaustion, and worker error preserve
   exact purpose snapshots.
+- SSW and LS-SSW completed, duplicate/invalid, fragmented, worker-error, and
+  budget-exhausted terminal routes have purpose-sum parity with raw calculator
+  calls.
 
 ### 11.2 Contracts and logging
 
@@ -592,6 +688,9 @@ serialized.
 - SSW results are exact-cost;
 - controller-generated escaped future exceptions are unknown-cost;
 - strict-cost mode refuses unknown-cost batch commit;
+- infrastructure/adapter failures are posterior-unobserved and do not change
+  posterior counts;
+- each result/outcome slot has identical scalar, purpose, and exact-cost facts;
 - event-log schema round-trips purpose counts and exact-cost flag;
 - old/incomplete schema is rejected.
 
@@ -605,6 +704,7 @@ serialized.
   budget state;
 - early action termination releases unused reservation;
 - zero-cost batch terminates without an infinite loop;
+- zero-cost terminal resume dispatches no new action;
 - no zero-budget action is created.
 
 ### 11.4 Run store and recovery
@@ -616,9 +716,14 @@ serialized.
   boundaries;
 - append retry is idempotent;
 - post-write acknowledgement failure does not re-execute a committed batch;
+- dispatch-complete/pre-append interruption leaves no committed cost or credit,
+  and explicit resume regenerates the same action IDs, seeds, and propensities;
+- caught unknown-cost failure writes an abort marker and ordinary resume fails;
 - truncated, tampered, non-contiguous, duplicate, incompatible, symlinked, or
   non-finite artifacts fail closed;
-- temporary pre-rename artifacts do not become committed batches.
+- an orphan temporary artifact is ignored, while temporary/canonical
+  coexistence fails closed;
+- session drift eligibility decisions are durable.
 
 ### 11.5 Runner
 
@@ -626,14 +731,19 @@ serialized.
 - each action receives a distinct calculator;
 - serial `run_ssw` and `run_ls_ssw` behavior remains available;
 - runner refuses shared worker outputs and unknown-cost failures;
+- bootstrap budget exhaustion exposes exact counts without creating a
+  resumable run;
+- `BaseException` propagates rather than becoming an action outcome;
 - new versus resume directory rules are enforced;
 - natural budget stop and zero-cost stall produce exact summaries.
 
 ### 11.6 Benchmark harness
 
-- paired policy runs use identical seed/kernel/budget inputs;
+- paired policy runs use identical seed, master seed, kernel, and budget inputs;
 - raw result manifest includes provenance and exact costs;
-- curves are indexed by physical evaluations, not local relaxations;
+- primary curves begin at bootstrap and advance only at committed-batch
+  boundaries, with completed and failed attempt counts;
+- paired/block intervals operate on seed-level policy contrasts;
 - minimal UCB is labeled incomplete-support;
 - no performance claim is emitted by the smoke test.
 
@@ -652,6 +762,12 @@ Phase 3 is complete only when:
 - the complete archive, posterior, controller versions, and budget state recover
   from atomic committed batches;
 - uninterrupted and committed-boundary resumed analytic runs are equivalent;
+- caught unknown-cost actions cannot resume or contaminate posterior credit;
+- infrastructure failures are audit records but not posterior observations;
+- executable-kernel identity fails closed on resume and allowed drift is
+  durably marked benchmark-ineligible;
+- benchmark curves represent bootstrap and real committed-batch states only;
+- paired policy inference uses within-seed contrasts with identical master seed;
 - a multi-seed analytic policy harness uses exact force-evaluation budgets;
 - full existing tests and new focused suites pass;
 - documentation states the exact unbiasedness, recovery, budget, and runtime
