@@ -106,6 +106,12 @@ The corrected invariant is:
 `SoftModeOracle` therefore receives `self.calculator`, never the original
 calculator.
 
+Once the oracle shares the counter, `BudgetExceeded` is a control signal rather
+than an ordinary failed probe. Direct probe refinement must re-raise it
+immediately; only non-budget calculator exceptions may be skipped as failed
+probe candidates. This prevents an exhausted action from recording a direction
+choice and continuing until the next HVP.
+
 ## 5. Evaluation Counting Semantics
 
 `EvalCounter` remains the only budget authority for the current kernel.

@@ -192,6 +192,7 @@ git commit -m "Count started calculator evaluations"
 ### Task 2: Route Every Oracle Evaluation Through the Counter
 
 **Files:**
+- Modify: `pamssw/walker.py:1528-1538`
 - Modify: `pamssw/walker.py:1737-1780`
 - Modify: `tests/integration/test_epam_accounting.py`
 
@@ -274,8 +275,32 @@ self.oracle = SoftModeOracle(
     self.calculator,
 ```
 
-Do not change `SoftModeOracle`, `ProposalPotential`, direction scoring, or HVP
-formulas.
+Do not otherwise change `SoftModeOracle`, `ProposalPotential`, direction
+scoring, or HVP formulas.
+
+- [ ] **Step 3a: Preserve budget exhaustion as a control signal**
+
+The direct-probe loop currently catches every `Exception`. Once it uses the
+shared counter, add this ordering:
+
+```python
+try:
+    probe_energy = self.calculator.evaluate(trial_state).energy
+except BudgetExceeded:
+    raise
+except Exception:
+    continue
+```
+
+Add a regression that exhausts the counter during probe refinement and proves:
+
+- no direction choice is recorded after exhaustion;
+- raw calculator calls equal counter calls;
+- both equal the configured budget;
+- ordinary non-budget probe failures are still skipped.
+
+This changes termination timing only. It does not change direction formulas,
+candidate scores, or the treatment of ordinary calculator failures.
 
 - [ ] **Step 4: Run accounting, walker, and SSW integration tests**
 
