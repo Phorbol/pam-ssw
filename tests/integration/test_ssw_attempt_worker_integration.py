@@ -96,6 +96,10 @@ def _ls_base_config() -> LSSSWConfig:
     )
 
 
+def _ls_known_basin_config() -> LSSSWConfig:
+    return replace(_ls_base_config(), local_softening_strength=0.01)
+
+
 def _worker_with_fresh_calculators(
     config: SSWConfig,
     *,
@@ -214,8 +218,23 @@ def test_real_worker_purpose_ledger_preserves_completed_analytic_baselines(
     assert config.max_force_evals == 999
 
 
-def test_real_worker_purpose_ledger_preserves_duplicate_candidate_baseline():
-    worker, calculators = _worker_with_fresh_calculators(replace(_base_config(), dedup_rmsd_tol=10.0))
+@pytest.mark.parametrize(
+    ("config_factory", "softening_enabled", "force_evaluations"),
+    [
+        (_base_config, False, 21),
+        (_ls_known_basin_config, True, 49),
+    ],
+    ids=("ssw", "ls_ssw"),
+)
+def test_real_worker_purpose_ledger_preserves_duplicate_candidate_baseline(
+    config_factory,
+    softening_enabled,
+    force_evaluations,
+):
+    worker, calculators = _worker_with_fresh_calculators(
+        replace(config_factory(), dedup_rmsd_tol=10.0),
+        softening_enabled=softening_enabled,
+    )
 
     result = worker(_action(force_budget=400), _state())
 
@@ -223,16 +242,29 @@ def test_real_worker_purpose_ledger_preserves_duplicate_candidate_baseline():
         result,
         calculators[0],
         status=AttemptStatus.COMPLETED,
-        force_evaluations=21,
+        force_evaluations=force_evaluations,
         landing_energy=0.0,
         landing_positions=_state().positions,
     )
     _assert_closed_physical_ledger(result)
 
 
-def test_real_worker_purpose_ledger_preserves_fragmented_baseline():
+@pytest.mark.parametrize(
+    ("config_factory", "softening_enabled", "force_evaluations"),
+    [
+        (_base_config, False, 21),
+        (_ls_base_config, True, 69),
+    ],
+    ids=("ssw", "ls_ssw"),
+)
+def test_real_worker_purpose_ledger_preserves_fragmented_baseline(
+    config_factory,
+    softening_enabled,
+    force_evaluations,
+):
     worker, calculators = _worker_with_fresh_calculators(
-        replace(_base_config(), fragment_guard_factor=1.01)
+        replace(config_factory(), fragment_guard_factor=1.01),
+        softening_enabled=softening_enabled,
     )
 
     result = worker(_action(force_budget=400), _state())
@@ -241,7 +273,7 @@ def test_real_worker_purpose_ledger_preserves_fragmented_baseline():
         result,
         calculators[0],
         status=AttemptStatus.FRAGMENTED,
-        force_evaluations=21,
+        force_evaluations=force_evaluations,
         landing_energy=None,
         landing_positions=None,
     )
@@ -273,25 +305,64 @@ def test_real_worker_repeats_status_cost_and_landing_for_the_same_action_seed():
         np.testing.assert_array_equal(first.landing_state.positions, second.landing_state.positions)
 
 
-def test_real_worker_purpose_ledger_preserves_exact_budget_exhaustion_baseline():
-    worker, calculators = _worker_with_fresh_calculators(_base_config())
+@pytest.mark.parametrize(
+    ("config_factory", "softening_enabled"),
+    [
+        (_base_config, False),
+        (_ls_base_config, True),
+    ],
+    ids=("ssw", "ls_ssw"),
+)
+def test_real_worker_purpose_ledger_preserves_exact_budget_exhaustion_baseline(
+    config_factory,
+    softening_enabled,
+):
+    worker, calculators = _worker_with_fresh_calculators(
+        config_factory(),
+        softening_enabled=softening_enabled,
+    )
 
     result = worker(_action(force_budget=5), _state())
 
-    assert result.status is AttemptStatus.BUDGET_EXHAUSTED
-    assert result.force_evaluations == calculators[0].calls == 5
-    assert calculators[0].calls == calculators[0].evaluate_calls + calculators[0].evaluate_flat_calls
+    _assert_terminal_baseline(
+        result,
+        calculators[0],
+        status=AttemptStatus.BUDGET_EXHAUSTED,
+        force_evaluations=5,
+        landing_energy=None,
+        landing_positions=None,
+    )
     _assert_closed_physical_ledger(result)
 
 
-def test_real_worker_purpose_ledger_preserves_exact_worker_error_baseline():
-    worker, calculators = _worker_with_fresh_calculators(_base_config(), fail_on_call=3)
+@pytest.mark.parametrize(
+    ("config_factory", "softening_enabled"),
+    [
+        (_base_config, False),
+        (_ls_base_config, True),
+    ],
+    ids=("ssw", "ls_ssw"),
+)
+def test_real_worker_purpose_ledger_preserves_exact_worker_error_baseline(
+    config_factory,
+    softening_enabled,
+):
+    worker, calculators = _worker_with_fresh_calculators(
+        config_factory(),
+        fail_on_call=3,
+        softening_enabled=softening_enabled,
+    )
 
     result = worker(_action(force_budget=400), _state())
 
-    assert result.status is AttemptStatus.WORKER_ERROR
-    assert result.force_evaluations == calculators[0].calls == 3
-    assert calculators[0].calls == calculators[0].evaluate_calls + calculators[0].evaluate_flat_calls
+    _assert_terminal_baseline(
+        result,
+        calculators[0],
+        status=AttemptStatus.WORKER_ERROR,
+        force_evaluations=3,
+        landing_energy=None,
+        landing_positions=None,
+    )
     assert "synthetic calculator failure" in result.failure_reason
     _assert_closed_physical_ledger(result)
 
@@ -322,8 +393,22 @@ def test_post_relax_validation_purpose_ledger_preserves_worker_error_cost(monkey
     _assert_closed_physical_ledger(result)
 
 
-def test_pre_calculator_invalid_starter_has_a_zero_purpose_ledger():
-    worker, calculators = _worker_with_fresh_calculators(_base_config())
+@pytest.mark.parametrize(
+    ("config_factory", "softening_enabled"),
+    [
+        (_base_config, False),
+        (_ls_base_config, True),
+    ],
+    ids=("ssw", "ls_ssw"),
+)
+def test_pre_calculator_invalid_starter_has_a_zero_purpose_ledger(
+    config_factory,
+    softening_enabled,
+):
+    worker, calculators = _worker_with_fresh_calculators(
+        config_factory(),
+        softening_enabled=softening_enabled,
+    )
     invalid_state = _state()
     invalid_state.positions[1] = invalid_state.positions[0]
 
