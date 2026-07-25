@@ -130,6 +130,10 @@ def test_thread_pool_real_ssw_attempt_worker_preserves_per_action_costs_and_slot
     calculator_lock = threading.Lock()
     created_calculators: list[RecordingCalculator] = []
     calculators_by_action: dict[str, RecordingCalculator] = {}
+    raw_calls_by_action: dict[str, int] = {}
+    completion_barrier = threading.Barrier(3)
+    completion_lock = threading.Lock()
+    completion_order: list[int] = []
 
     def calculator_factory() -> RecordingCalculator:
         calculator = RecordingCalculator()
@@ -148,13 +152,24 @@ def test_thread_pool_real_ssw_attempt_worker_preserves_per_action_costs_and_slot
     def tracked_worker(action: StarterAction, starter_state: State) -> AttemptResult:
         factory_local.action_id = action.action_id
         factory_local.calculator = None
-        result = attempt_worker(action, starter_state)
-        calculator = factory_local.calculator
-        if not isinstance(calculator, RecordingCalculator):
-            raise AssertionError("SSWAttemptWorker returned before creating the action calculator")
-        with calculator_lock:
-            calculators_by_action[action.action_id] = calculator
-        time.sleep(0.005 * (2 - action.slot_id))
+        try:
+            result = attempt_worker(action, starter_state)
+            calculator = factory_local.calculator
+            if not isinstance(calculator, RecordingCalculator):
+                raise AssertionError("SSWAttemptWorker returned before creating the action calculator")
+            with calculator_lock:
+                calculators_by_action[action.action_id] = calculator
+                raw_calls_by_action[action.action_id] = calculator.calls
+        except Exception:
+            completion_barrier.abort()
+            raise
+        try:
+            completion_barrier.wait(timeout=5)
+        except threading.BrokenBarrierError as exc:
+            raise AssertionError("all three real SSW attempts must reach the completion barrier") from exc
+        time.sleep(0.03 * (2 - action.slot_id))
+        with completion_lock:
+            completion_order.append(action.slot_id)
         return result
 
     event_path = tmp_path / "events.jsonl"
@@ -163,13 +178,17 @@ def test_thread_pool_real_ssw_attempt_worker_preserves_per_action_costs_and_slot
         outcomes = controller.run_batch(executor, tracked_worker, batch_size=3, force_budget=400)
 
     expected_action_ids = [f"batch-00000000-slot-{slot_id:04d}" for slot_id in range(3)]
+    assert all(outcome.status is not AttemptStatus.WORKER_ERROR for outcome in outcomes), [
+        outcome.failure_reason for outcome in outcomes
+    ]
+    assert completion_order == [2, 1, 0]
     assert [outcome.action_id for outcome in outcomes] == expected_action_ids
     assert len(created_calculators) == 3
     assert len({id(calculator) for calculator in created_calculators}) == 3
     assert set(calculators_by_action) == set(expected_action_ids)
     for outcome in outcomes:
         calculator = calculators_by_action[outcome.action_id]
-        assert outcome.force_evaluations == calculator.calls <= 400
+        assert outcome.force_evaluations == raw_calls_by_action[outcome.action_id] == calculator.calls <= 400
         assert calculator.calls == calculator.evaluate_calls + calculator.evaluate_flat_calls
     assert controller.posterior.completed_attempts == 3
     assert ExplorationEventLog(event_path).reconstruct_posterior().completed_attempts == 3
