@@ -292,7 +292,10 @@ def test_reconstruction_fails_closed_on_invalid_json_schema_type_boolean_or_reco
     rows = _read_rows(path)
     mutate(rows)
     path.write_text(
-        "\n".join(row if isinstance(row, str) else json.dumps(row, sort_keys=True, separators=(",", ":")) for row in rows)
+        "\n".join(
+            row if isinstance(row, str) else event_log._canonical_json_line(row)
+            for row in rows
+        )
         + "\n",
         encoding="utf-8",
     )
@@ -317,7 +320,7 @@ def test_reconstruction_rejects_commit_action_ids_that_are_not_exact_attempt_ord
     rows = _read_rows(path)
     rows[-1]["action_ids"] = list(reversed(rows[-1]["action_ids"]))
     path.write_text(
-        "\n".join(json.dumps(row, sort_keys=True, separators=(",", ":")) for row in rows) + "\n",
+        "\n".join(event_log._canonical_json_line(row) for row in rows) + "\n",
         encoding="utf-8",
     )
 
@@ -330,7 +333,7 @@ def test_reconstruction_fails_closed_for_an_incomplete_final_batch_without_leaki
     _write_valid_batch(path)
     rows = _read_rows(path)
     path.write_text(
-        "\n".join(json.dumps(row, sort_keys=True, separators=(",", ":")) for row in rows[:-1]) + "\n",
+        "\n".join(event_log._canonical_json_line(row) for row in rows[:-1]) + "\n",
         encoding="utf-8",
     )
 
@@ -345,7 +348,7 @@ def test_reconstruction_rejects_invalid_status_or_failure_data(tmp_path):
     rows[1]["status"] = "made_up"
     rows[2]["failure_reason"] = None
     path.write_text(
-        "\n".join(json.dumps(row, sort_keys=True, separators=(",", ":")) for row in rows) + "\n",
+        "\n".join(event_log._canonical_json_line(row) for row in rows) + "\n",
         encoding="utf-8",
     )
 
@@ -410,7 +413,7 @@ def test_reconstruction_rejects_a_handcrafted_duplicate_batch_id_with_different_
         row["batch_id"] = 4
     path.write_text(
         path.read_text(encoding="utf-8")
-        + "".join(json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n" for row in duplicate_batch_rows),
+        + "".join(event_log._canonical_json_line(row) + "\n" for row in duplicate_batch_rows),
         encoding="utf-8",
     )
 
@@ -429,7 +432,7 @@ def test_reconstruction_rejects_a_handcrafted_duplicate_action_id_across_batches
     duplicate_action_rows[-1]["action_ids"][0] = first_rows[1]["action_id"]
     path.write_text(
         path.read_text(encoding="utf-8")
-        + "".join(json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n" for row in duplicate_action_rows),
+        + "".join(event_log._canonical_json_line(row) + "\n" for row in duplicate_action_rows),
         encoding="utf-8",
     )
 
@@ -608,11 +611,29 @@ def test_schema_v2_decoder_rejects_lossy_or_invalid_terminal_accounting(tmp_path
     rows = _read_rows(path)
     mutate(rows)
     path.write_text(
-        "\n".join(json.dumps(row, sort_keys=True, separators=(",", ":")) for row in rows) + "\n",
+        "\n".join(event_log._canonical_json_line(row) for row in rows) + "\n",
         encoding="utf-8",
     )
 
     with pytest.raises(ValueError):
+        ExplorationEventLog(path).reconstruct_posterior()
+
+
+def test_schema_v2_decoder_rejects_noncanonical_evaluation_count_order(tmp_path):
+    path = tmp_path / "events.jsonl"
+    _write_valid_batch(path)
+    rows = _read_rows(path)
+    canonical_counts = rows[1]["evaluation_counts"]
+    reordered_counts = dict(reversed(tuple(canonical_counts.items())))
+    assert reordered_counts == canonical_counts
+    assert tuple(reordered_counts) != tuple(canonical_counts)
+    rows[1]["evaluation_counts"] = reordered_counts
+    path.write_text(
+        "\n".join(event_log._canonical_json_line(row) for row in rows) + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="canonical order"):
         ExplorationEventLog(path).reconstruct_posterior()
 
 

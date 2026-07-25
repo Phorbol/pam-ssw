@@ -152,6 +152,8 @@ def _parse_evaluation_counts(value: object) -> EvaluationCounts:
         raise _EventLogError(
             f"evaluation_counts must include every purpose exactly once; missing={missing!r}, unknown={unknown!r}"
         )
+    if tuple(value) != expected_purposes:
+        raise _EventLogError("evaluation_counts keys must use canonical order")
     return EvaluationCounts(
         tuple(_nonnegative_int(f"evaluation_counts.{purpose}", value[purpose]) for purpose in expected_purposes)
     )
