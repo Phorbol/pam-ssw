@@ -7,6 +7,7 @@ from pamssw.config import SSWConfig
 from pamssw.exploration import SSWAttemptWorker
 from pamssw.exploration.actions import AttemptStatus, StarterAction
 from pamssw.potentials import DoubleWell2D
+from pamssw.result import RelaxResult
 from pamssw.state import State
 
 
@@ -148,3 +149,28 @@ def test_real_worker_preserves_the_cost_of_a_failing_analytic_calculator_call():
     assert result.force_evaluations == calculators[0].calls == 3
     assert calculators[0].calls == calculators[0].evaluate_calls + calculators[0].evaluate_flat_calls
     assert "synthetic calculator failure" in result.failure_reason
+
+
+def test_post_relax_validation_calculator_failure_is_a_worker_error_with_exact_cost(monkeypatch):
+    relaxed_states: list[State] = []
+
+    class ImmediateRelaxer:
+        def __init__(self, evaluator, optimizer) -> None:
+            self.evaluator = evaluator
+            self.optimizer = optimizer
+
+        def relax(self, state, fmax, maxiter, trajectory_callback=None, trajectory_stride=1):
+            relaxed_states.append(state)
+            return RelaxResult(state=state, energy=0.0, gradient_norm=0.0, n_iter=0)
+
+    monkeypatch.setattr("pamssw.walker.Relaxer", ImmediateRelaxer)
+    worker, calculators = _worker_with_fresh_calculators(_base_config(), fail_on_call=1)
+
+    result = worker(_action(force_budget=400), _state())
+
+    assert len(relaxed_states) == 1
+    assert result.status is AttemptStatus.WORKER_ERROR
+    assert result.force_evaluations == calculators[0].calls == 1
+    assert calculators[0].evaluate_calls == 0
+    assert calculators[0].evaluate_flat_calls == 1
+    assert result.failure_reason == "run_error: RuntimeError: synthetic calculator failure"

@@ -99,10 +99,7 @@ class GeometryValidator:
     def is_valid_evaluation(self, state: State, calculator) -> bool:
         if not self.is_valid_state(state):
             return False
-        try:
-            energy, gradient = calculator.evaluate_flat(state.flatten_positions(), state)
-        except Exception:
-            return False
+        energy, gradient = calculator.evaluate_flat(state.flatten_positions(), state)
         return bool(np.isfinite(energy) and np.all(np.isfinite(gradient)))
 
 
