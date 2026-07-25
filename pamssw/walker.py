@@ -1742,7 +1742,7 @@ class SurfaceWalker:
         self.rng = np.random.default_rng(config.rng_seed)
         bond_pairs = config.local_softening_pairs if softening_enabled and isinstance(config, LSSSWConfig) else []
         self.oracle = SoftModeOracle(
-            calculator,
+            self.calculator,
             self.rng,
             config.oracle_candidates,
             bond_pairs=bond_pairs,

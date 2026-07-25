@@ -6,6 +6,25 @@ from pamssw.potentials import DoubleWell2D
 from pamssw.walker import SurfaceWalker
 
 
+class CountingAnalyticCalculator:
+    def __init__(self, calculator: AnalyticCalculator) -> None:
+        self.calculator = calculator
+        self.evaluate_calls = 0
+        self.evaluate_flat_calls = 0
+
+    @property
+    def total_calls(self) -> int:
+        return self.evaluate_calls + self.evaluate_flat_calls
+
+    def evaluate(self, state):
+        self.evaluate_calls += 1
+        return self.calculator.evaluate(state)
+
+    def evaluate_flat(self, flat_positions, template):
+        self.evaluate_flat_calls += 1
+        return self.calculator.evaluate_flat(flat_positions, template)
+
+
 def test_ssw_local_relaxation_accounting_is_exact():
     result = run_ssw(
         initial_state=State(
@@ -48,6 +67,36 @@ def test_force_evaluation_accounting_matches_wrapped_calculator_calls():
 
     assert isinstance(counter, int)
     assert counter > result.stats["local_relaxations"]
+
+
+def test_surface_walker_accounts_direction_probe_evaluations():
+    calculator = CountingAnalyticCalculator(AnalyticCalculator(DoubleWell2D()))
+    config = SSWConfig(
+        max_trials=1,
+        max_steps_per_walk=1,
+        oracle_candidates=3,
+        direction_probe_enabled=True,
+        direction_probe_top_k=2,
+        max_force_evals=80,
+        rng_seed=4,
+    )
+    walker = SurfaceWalker(calculator=calculator, config=config, softening_enabled=False)
+    probe_call_counts = []
+    probe_refine = walker.oracle._probe_refine
+
+    def record_probe_calls(*args, **kwargs):
+        calls_before = calculator.total_calls
+        result = probe_refine(*args, **kwargs)
+        probe_call_counts.append(calculator.total_calls - calls_before)
+        return result
+
+    walker.oracle._probe_refine = record_probe_calls
+    result = walker.run(State(numbers=np.array([1]), positions=np.array([[-1.0, 0.0, 0.0]])))
+
+    assert probe_call_counts == [config.direction_probe_top_k + 1]
+    assert result.stats["force_evaluations"] == calculator.total_calls
+    assert walker.oracle.calculator is walker.calculator
+    assert result.stats["force_evaluations"] <= config.max_force_evals
 
 
 def test_force_evaluation_budget_limits_started_trials():
