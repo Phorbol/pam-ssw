@@ -1,5 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
-from threading import Lock
+from threading import Barrier, Lock
 import time
 from types import SimpleNamespace
 
@@ -272,6 +272,65 @@ def test_worker_serializes_only_each_calculators_first_evaluation(monkeypatch):
 
     assert all(result.status is not AttemptStatus.WORKER_ERROR for result in results)
     assert maximum_active_first_evaluations == 1
+
+
+def test_first_evaluation_wrapper_retries_after_transient_failure():
+    class TransientCalculator(_Calculator):
+        def __init__(self):
+            self.calls = 0
+
+        def evaluate(self, state):
+            self.calls += 1
+            if self.calls == 1:
+                raise RuntimeError("transient initialization failure")
+            return super().evaluate(state)
+
+    calculator = TransientCalculator()
+    wrapped = worker_module._FirstEvaluationSerializedCalculator(
+        calculator,
+        Lock(),
+    )
+
+    with pytest.raises(RuntimeError, match="transient"):
+        wrapped.evaluate(_state())
+    energy, gradient = wrapped.evaluate(_state())
+
+    assert calculator.calls == 2
+    assert energy == 0.0
+    np.testing.assert_allclose(gradient, 0.0)
+
+
+def test_first_evaluation_wrapper_does_not_serialize_later_calls():
+    second_call_barrier = Barrier(2, timeout=1.0)
+
+    class SecondCallBarrierCalculator(_Calculator):
+        def __init__(self):
+            self.calls = 0
+
+        def evaluate(self, state):
+            self.calls += 1
+            if self.calls == 2:
+                second_call_barrier.wait()
+            return super().evaluate(state)
+
+    shared_lock = Lock()
+    wrappers = tuple(
+        worker_module._FirstEvaluationSerializedCalculator(
+            SecondCallBarrierCalculator(),
+            shared_lock,
+        )
+        for _ in range(2)
+    )
+    for wrapped in wrappers:
+        wrapped.evaluate(_state())
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        results = tuple(
+            executor.map(lambda wrapped: wrapped.evaluate(_state()), wrappers)
+        )
+
+    assert all(energy == 0.0 for energy, _ in results)
+    assert all(wrapped.calculator.calls == 2 for wrapped in wrappers)
 
 
 @pytest.mark.parametrize(

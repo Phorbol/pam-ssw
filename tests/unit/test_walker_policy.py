@@ -11,6 +11,7 @@ from pamssw.calculators import AnalyticCalculator
 from pamssw.potentials import DoubleWell2D
 from pamssw.result import RelaxOutcomeClass, RelaxResult
 from pamssw.state import State
+from pamssw.softening import LocalSofteningModel, PairSofteningTerm
 from pamssw.walker import (
     CandidateDirectionGenerator,
     DirectionCandidateKind,
@@ -120,6 +121,41 @@ def test_proposal_relaxation_task_snapshots_state_and_bias_arrays():
     np.testing.assert_allclose(task.initial_state.positions, [[1.0, 0.0, 0.0]])
     np.testing.assert_allclose(task.biases[0].center, [1.0, 0.0, 0.0])
     np.testing.assert_allclose(task.biases[0].direction, [1.0, 0.0, 0.0])
+    with pytest.raises(ValueError, match="read-only"):
+        task.initial_state.positions[0, 0] = 7.0
+    with pytest.raises(ValueError, match="read-only"):
+        task.biases[0].center[0] = 7.0
+
+
+def test_proposal_relaxation_task_defensively_copies_softening_model():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+    )
+    softening = LocalSofteningModel(
+        [
+            PairSofteningTerm(
+                atom_i=0,
+                atom_j=1,
+                reference_distance=1.0,
+                width=0.2,
+                strength=0.3,
+            )
+        ]
+    )
+    task = ProposalRelaxationTask(
+        initial_state=state,
+        biases=(),
+        softening=softening,
+        fmax=0.05,
+        maxiter=10,
+        coordinate_trust_radius=None,
+    )
+
+    softening.terms.clear()
+
+    assert task.softening is not softening
+    assert len(task.softening.terms) == 1
 
 
 def test_bias_weight_matches_curvature_inversion_rule():

@@ -1,0 +1,27 @@
+{
+  "attempt_count": 10,
+  "backend": "safe-lbfgs-total",
+  "benchmark_eligible": true,
+  "benchmark_ineligibility_reasons": [],
+  "best_energy_drop_from_bootstrap_eV": 4.15966796875,
+  "completed_attempts": 10,
+  "failed_attempts": 0,
+  "frozen_code_commit": "61f32ef70585adfd78b1484bd6f0cfcac8317352",
+  "posterior_observed_count": 10,
+  "purpose_counts": {
+    "biased_proposal_relax": 1138,
+    "bootstrap_true_quench": 2,
+    "direction_oracle": 196,
+    "escape_true_pes_check": 46,
+    "landing_true_quench": 705,
+    "post_relax_validation": 21,
+    "starter_true_quench": 17,
+    "unattributed": 0
+  },
+  "schema_version": 1,
+  "seed": 44,
+  "system": "pdo",
+  "total_evaluations": 2125,
+  "unused_force_budget": 875,
+  "worker_error_count": 0
+}

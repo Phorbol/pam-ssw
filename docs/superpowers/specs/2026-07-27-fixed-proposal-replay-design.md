@@ -22,7 +22,7 @@ claimed to be a canonical or uniform sample of the full PES.
 
 ## Minimal code boundary
 
-Extract the already-existing pre-relax data into one immutable
+Extract the already-existing pre-relax data into one frozen, defensively copied
 `ProposalRelaxationTask` and one protected execution method on `SurfaceWalker`.
 The task contains the initial `State`, cumulative Gaussian biases, optional
 local-softening model, convergence certificate, iteration limit, and trust
@@ -32,6 +32,12 @@ Production behavior remains unchanged: the walker constructs the task and
 immediately executes it with the configured backend. A benchmark-only subclass
 may intercept the protected execution method to freeze the task before any
 proposal-relaxation force evaluation.
+
+The version-1 JSON replay payload is intentionally narrower than the in-memory
+task: it supports Gaussian-bias SSW tasks without local softening and omits
+arbitrary `State.metadata`. Serialization rejects local-softening tasks instead
+of silently changing their objective. The real-GPU replay cases in this study
+use no local softening, and their calculators do not consume state metadata.
 
 No starter, direction, curvature, bias, archive, posterior, quench, or budget
 policy is changed.

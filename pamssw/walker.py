@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sys
+from copy import deepcopy
 from collections import deque
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field, replace
@@ -31,7 +32,7 @@ from .state import State
 
 @dataclass(frozen=True)
 class ProposalRelaxationTask:
-    """Optimizer-neutral snapshot of one biased-PES relaxation problem."""
+    """Optimizer-neutral defensive snapshot of one biased-PES relaxation problem."""
 
     initial_state: State
     biases: tuple[GaussianBiasTerm, ...]
@@ -48,31 +49,35 @@ class ProposalRelaxationTask:
         if self.coordinate_trust_radius is not None and self.coordinate_trust_radius <= 0.0:
             raise ValueError("coordinate_trust_radius must be positive when set")
         state = self.initial_state
-        object.__setattr__(
-            self,
-            "initial_state",
-            State(
-                numbers=state.numbers.copy(),
-                positions=state.positions.copy(),
-                cell=None if state.cell is None else state.cell.copy(),
-                pbc=state.pbc,
-                fixed_mask=state.fixed_mask.copy(),
-                metadata=state.metadata.copy(),
-            ),
+        task_state = State(
+            numbers=state.numbers.copy(),
+            positions=state.positions.copy(),
+            cell=None if state.cell is None else state.cell.copy(),
+            pbc=state.pbc,
+            fixed_mask=state.fixed_mask.copy(),
+            metadata=state.metadata.copy(),
         )
-        object.__setattr__(
-            self,
-            "biases",
-            tuple(
-                GaussianBiasTerm(
-                    center=bias.center.copy(),
-                    direction=bias.direction.copy(),
-                    sigma=float(bias.sigma),
-                    weight=float(bias.weight),
-                )
-                for bias in self.biases
-            ),
+        task_state.numbers.setflags(write=False)
+        task_state.positions.setflags(write=False)
+        task_state.fixed_mask.setflags(write=False)
+        if task_state.cell is not None:
+            task_state.cell.setflags(write=False)
+        object.__setattr__(self, "initial_state", task_state)
+
+        task_biases = tuple(
+            GaussianBiasTerm(
+                center=bias.center.copy(),
+                direction=bias.direction.copy(),
+                sigma=float(bias.sigma),
+                weight=float(bias.weight),
+            )
+            for bias in self.biases
         )
+        for bias in task_biases:
+            bias.center.setflags(write=False)
+            bias.direction.setflags(write=False)
+        object.__setattr__(self, "biases", task_biases)
+        object.__setattr__(self, "softening", deepcopy(self.softening))
 
 
 class ProposalPotential:
