@@ -219,6 +219,32 @@ def test_real_worker_purpose_ledger_preserves_completed_analytic_baselines(
 
 
 @pytest.mark.parametrize(
+    "proposal_optimizer",
+    ["ase-fire2", "safe-lbfgs-total", "bias-separated-lbfgs"],
+)
+def test_new_proposal_optimizers_preserve_exact_analytic_worker_ledger(proposal_optimizer):
+    config = replace(
+        _base_config(),
+        proposal_optimizer=proposal_optimizer,
+        proposal_trust_radius=None,
+    )
+    worker, calculators = _worker_with_fresh_calculators(config)
+
+    result = worker(_action(force_budget=400), _state())
+
+    _assert_terminal_baseline(
+        result,
+        calculators[0],
+        status=AttemptStatus.COMPLETED,
+        force_evaluations=15,
+        landing_energy=1.0750373417042004e-34,
+        landing_positions=_SSW_COMPLETED_LANDING,
+    )
+    _assert_closed_physical_ledger(result)
+    assert result.evaluation_counts.count(EvaluationPurpose.BIASED_PROPOSAL_RELAX) == 1
+
+
+@pytest.mark.parametrize(
     ("config_factory", "softening_enabled", "force_evaluations"),
     [
         (_base_config, False, 15),

@@ -10,6 +10,11 @@ from ase.optimize import FIRE, LBFGS
 import numpy as np
 from scipy.optimize import minimize
 
+try:
+    from ase.optimize import FIRE2 as _ASE_FIRE2
+except ImportError:  # pragma: no cover - depends on the installed ASE version
+    _ASE_FIRE2 = None
+
 from .pbc import mic_displacement, wrap_positions
 from .result import RelaxOutcomeClass, RelaxResult, RelaxTelemetry
 from .state import State
@@ -244,6 +249,7 @@ def _limit_max_atomic_displacement(direction: np.ndarray) -> np.ndarray:
 RelaxOptimizer = Literal[
     "scipy-lbfgsb",
     "ase-fire",
+    "ase-fire2",
     "ase-lbfgs",
     "safe-lbfgs-total",
     "bias-separated-lbfgs",
@@ -300,7 +306,7 @@ class Relaxer:
             if self.optimizer == "scipy-lbfgsb":
                 bounds = self._coordinate_bounds(state, coordinate_trust_radius)
 
-        if self.optimizer in {"ase-fire", "ase-lbfgs"}:
+        if self.optimizer in {"ase-fire", "ase-fire2", "ase-lbfgs"}:
             relaxed, n_iter, optimizer_success = self._relax_with_ase(
                 state,
                 trace=trace,
@@ -745,7 +751,14 @@ class Relaxer:
         if np.any(state.fixed_mask):
             atoms.set_constraint(FixAtoms(mask=state.fixed_mask))
         atoms.calc = _EvaluatorCalculator(trace.backend_evaluate, state)
-        optimizer_cls = FIRE if self.optimizer == "ase-fire" else LBFGS
+        if self.optimizer == "ase-fire":
+            optimizer_cls = FIRE
+        elif self.optimizer == "ase-lbfgs":
+            optimizer_cls = LBFGS
+        else:
+            if _ASE_FIRE2 is None:
+                raise ValueError("ASE FIRE2 is not available in the installed ASE version")
+            optimizer_cls = _ASE_FIRE2
         optimizer = optimizer_cls(atoms, logfile=None)
         if trajectory_callback is not None:
             trajectory_callback(state)

@@ -208,13 +208,13 @@ def test_config_validates_relaxation_optimizers():
 def test_safe_lbfgs_is_proposal_only_and_opt_in():
     config = SSWConfig(
         proposal_optimizer="bias-separated-lbfgs",
-        proposal_optimizer_alt="safe-lbfgs-total",
+        proposal_optimizer_alt="ase-fire2",
         proposal_duplicate_rescue_optimizer="bias-separated-lbfgs",
     )
 
     assert config.proposal_optimizer == "bias-separated-lbfgs"
     assert config.quench_optimizer == "scipy-lbfgsb"
-    for optimizer in ("safe-lbfgs-total", "bias-separated-lbfgs"):
+    for optimizer in ("safe-lbfgs-total", "bias-separated-lbfgs", "ase-fire2"):
         with pytest.raises(ValueError, match="quench_optimizer"):
             SSWConfig(quench_optimizer=optimizer)
 

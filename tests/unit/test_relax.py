@@ -345,6 +345,31 @@ def test_relaxer_can_use_ase_fire_without_scipy_line_search():
     assert result.n_iter > 0
 
 
+def test_relaxer_can_use_ase_fire2_when_available():
+    if getattr(relax_module, "_ASE_FIRE2") is None:
+        pytest.skip("installed ASE does not provide FIRE2")
+
+    def evaluator(flat_positions, template):
+        return 0.5 * float(np.dot(flat_positions, flat_positions)), flat_positions.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(evaluator, optimizer="ase-fire2").relax(state, fmax=1e-4, maxiter=500)
+
+    assert result.gradient_norm <= 1e-4
+    assert result.telemetry.backend == "ase-fire2"
+
+
+def test_relaxer_reports_missing_ase_fire2_capability(monkeypatch):
+    monkeypatch.setattr(relax_module, "_ASE_FIRE2", None)
+
+    def evaluator(flat_positions, template):
+        return 0.5 * float(np.dot(flat_positions, flat_positions)), flat_positions.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    with pytest.raises(ValueError, match="FIRE2.*not available"):
+        Relaxer(evaluator, optimizer="ase-fire2").relax(state, fmax=1e-4, maxiter=5)
+
+
 @pytest.mark.parametrize("optimizer", ["scipy-lbfgsb", "ase-fire", "ase-lbfgs"])
 def test_relaxer_reuses_report_only_endpoint_evaluations_without_changing_backend_path(optimizer):
     evaluated_positions = []

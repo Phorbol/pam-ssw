@@ -278,6 +278,7 @@ class SSWConfig:
             raise ValueError("anchor_mixing_alpha must be between 0 and 1 when set")
         quench_optimizers = {"scipy-lbfgsb", "ase-fire", "ase-lbfgs"}
         proposal_optimizers = quench_optimizers | {
+            "ase-fire2",
             "safe-lbfgs-total",
             "bias-separated-lbfgs",
         }
@@ -286,12 +287,12 @@ class SSWConfig:
         if self.proposal_optimizer not in proposal_optimizers:
             raise ValueError(
                 "proposal_optimizer must be one of scipy-lbfgsb, ase-fire, "
-                "ase-lbfgs, safe-lbfgs-total, bias-separated-lbfgs"
+                "ase-lbfgs, ase-fire2, safe-lbfgs-total, bias-separated-lbfgs"
             )
         if self.proposal_optimizer_alt is not None and self.proposal_optimizer_alt not in proposal_optimizers:
             raise ValueError(
                 "proposal_optimizer_alt must be one of scipy-lbfgsb, ase-fire, "
-                "ase-lbfgs, safe-lbfgs-total, bias-separated-lbfgs when set"
+                "ase-lbfgs, ase-fire2, safe-lbfgs-total, bias-separated-lbfgs when set"
             )
         if (
             self.proposal_duplicate_rescue_optimizer is not None
@@ -299,7 +300,8 @@ class SSWConfig:
         ):
             raise ValueError(
                 "proposal_duplicate_rescue_optimizer must be one of scipy-lbfgsb, "
-                "ase-fire, ase-lbfgs, safe-lbfgs-total, bias-separated-lbfgs when set"
+                "ase-fire, ase-lbfgs, ase-fire2, safe-lbfgs-total, "
+                "bias-separated-lbfgs when set"
             )
         if self.direction_curvature_source not in {"inner", "true"}:
             raise ValueError("direction_curvature_source must be inner or true")
