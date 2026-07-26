@@ -139,7 +139,13 @@ def main() -> int:
             "of this bias-secant mechanism; it does not rank optimizers statistically."
         ),
     }
-    with (RUN_ROOT / "summary.json").open("x", encoding="utf-8") as stream:
+    summary_path = RUN_ROOT / "summary.json"
+    if summary_path.exists():
+        existing = json.loads(summary_path.read_text(encoding="utf-8"))
+        if existing != payload:
+            raise ValueError("existing summary does not match recomputed evidence")
+        return 0
+    with summary_path.open("x", encoding="utf-8") as stream:
         json.dump(payload, stream, indent=2, sort_keys=True, allow_nan=False)
         stream.write("\n")
     return 0
