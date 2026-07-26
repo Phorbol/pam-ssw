@@ -1082,6 +1082,14 @@ git commit -m "Add fixed-fidelity campaign budget"
 
 ---
 
+> **Superseded remainder:** Tasks 6–11 below are not part of the active
+> implementation scope. They were replaced by
+> `docs/superpowers/specs/2026-07-26-minimal-posterior-ablation-runner-design.md`
+> and
+> `docs/superpowers/plans/2026-07-26-minimal-posterior-ablation-runner.md`.
+> Phase-3 completion now means a non-recoverable analytic ThreadPool runner
+> and raw three-policy harness; no manifest/resume/replay layer is required.
+
 ### Task 6: Strict state and run-manifest serialization
 
 **Files:**

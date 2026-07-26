@@ -43,14 +43,15 @@ the cell.
 ## Experimental posterior-driven exploration core
 
 `ExplorationController` is a generic, walker-independent synchronous batch
-controller with `uniform`, `posterior_proportional`, and `minimal_ucb`
-policies. Here, **strategy-unbiased** has only an operational meaning:
-`uniform` and `posterior_proportional` give every eligible starter strictly
-positive probability and log each action's exact selection propensity. It does
-not mean thermodynamic, kinetic, or detailed-balance unbiasedness. `minimal_ucb`
-is a deterministic, non-full-support comparator. The current legacy composite
-UCB remains the external/default SSW comparator; it is not silently
-reimplemented or replaced.
+controller with the unchanged `uniform`, `posterior_proportional`, and
+`minimal_ucb` policies. Here, **strategy-unbiased** has only an operational
+strategy-support meaning: `uniform` and `posterior_proportional` give every
+eligible starter strictly positive probability and log each action's exact
+selection propensity. `minimal_ucb` is deterministic and does not provide
+propensity-based full support. None of these terms claim thermodynamic,
+kinetic, canonical, detailed-balance, or statistical unbiasedness. The current
+legacy composite UCB remains the external/default SSW comparator; it is not
+silently reimplemented or replaced.
 
 The fixed Beta(1,1) posterior models the probability that an action lands in a
 basin absent from the dispatch archive snapshot. Every planned action receives a
@@ -59,29 +60,34 @@ and is finalized; malformed or non-`AttemptResult` returns, and returns for the
 wrong action, fail closed before logging. Finalized failed attempts count as
 false. Batches sample with replacement; repeated landings in the same novel
 basin receive success credit for every action but produce one archive insertion.
-The controller commits exact JSONL facts synchronously in slot order. Phase 1
-has one controller/writer, a POSIX durability path with a pre-existing parent
-directory, and an O(total log size) append preflight.
+The opt-in public `run_posterior_ssw` and `run_posterior_ls_ssw` functions
+compose this core into fixed-budget SSW and LS-SSW campaigns. They accept a raw
+`State`, bootstrap it with one true-PES quench, and charge both that bootstrap
+and its final validation to the campaign's single total force budget. Every
+dispatched action uses the same fixed action-force cap; all calculator calls
+carry an evaluation purpose, and zero unattributed evaluations is a benchmark
+eligibility condition.
 
-Phase-1 boundaries are explicit: generic workers only; no `run_parallel_ssw` or
-`SurfaceWalker` adapter; no default SSW-path change; no aggregate force-budget
-manager; no MACE or multiprocess runtime validation; ordinary `Exception`
-values raised by futures become zero-cost terminal records, while
-`BaseException`, `SystemExit`, and `KeyboardInterrupt` are not caught; no
-cross-process restart/resume or archive-geometry replay; and no asynchronous
-racing, transition-state, or reaction-network objective. These are experimental
-controls for clean ablation, not evidence of improved search performance.
+The runner commits complete batches synchronously in slot order through one
+`ThreadPoolExecutor`, then writes the compact action facts to
+`events.jsonl`. The experimental `SSWAttemptWorker` remains a narrow
+per-action boundary: every action creates a fresh calculator and
+`SurfaceWalker`, derives an action-local configuration with `max_trials=1` and
+the fixed action cap, and excludes internal proposal competition
+(`proposal_pool_size=1` with duplicate rescue disabled).
 
-The experimental `SSWAttemptWorker` is a narrow per-action boundary for this
-controller. Each action creates a fresh calculator and `SurfaceWalker`, with
-its own RNG and evaluation counter; it accepts only a side-effect-free supplied
-`SSWConfig` and derives an action-local configuration by setting the action
-seed, `max_trials=1`, and the action force budget. Internal proposal
-competition is deliberately excluded: `proposal_pool_size` must be `1` and the
-duplicate-rescue optimizer must be disabled. The current integration scope is
-repeated analytic-quench execution under a `ThreadPoolExecutor` only. It does
-not validate MACE, GPU, process-based execution, or a global force budget, and
-it makes no performance claim.
+`benchmarks/posterior_policy_compare.py` is a paired raw-fact
+integration/ablation harness for the three policies. It records paired runs and
+their accounting facts; it does not pick a winner, test statistical
+significance, or claim performance superiority. Its tiny analytic `DoubleWell`
+smoke is an integration check, not a scientifically valid policy benchmark.
+
+Runtime validation is limited to the analytic backend and
+`ThreadPoolExecutor`. This opt-in path has no recovery, resume, or replay;
+no asynchronous racing; no MACE, GPU, or process-backend validation; and no
+canonical, thermodynamic, or kinetic unbiased-sampling claim. It also makes no
+policy-superiority claim. These are experimental controls for clean ablation,
+not evidence of improved search performance.
 
 ## Install
 
