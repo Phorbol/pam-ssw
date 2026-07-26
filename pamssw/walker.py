@@ -22,7 +22,7 @@ from .config import LSSSWConfig, RelaxConfig, SSWConfig
 from .coordinates import CartesianCoordinates, TangentVector
 from .fingerprint import descriptor_distance, structural_descriptor
 from .pbc import mic_displacement, mic_distance_matrix, wrap_positions
-from .relax import Relaxer
+from .relax import RelaxEvaluation, Relaxer
 from .result import RelaxOutcomeClass, RelaxResult, SearchResult, StatsValue, WalkRecord
 from .rigid import project_out_rigid_body_modes, rigid_body_overlap
 from .softening import LocalSofteningModel
@@ -40,19 +40,47 @@ class ProposalPotential:
         self.biases = biases or []
         self.softening = softening
 
-    def evaluate(self, flat_positions: np.ndarray, template: State) -> tuple[float, np.ndarray]:
-        energy, gradient = self.calculator.evaluate_flat(flat_positions, template)
-        total_gradient = gradient.copy()
-        total_energy = energy
+    def evaluate_parts(self, flat_positions: np.ndarray, template: State) -> RelaxEvaluation:
+        flat_positions = np.asarray(flat_positions, dtype=float)
+        expected_shape = (template.n_atoms * 3,)
+        if flat_positions.shape != expected_shape:
+            raise ValueError(f"flat_positions must have shape {expected_shape}")
+        true_energy, true_gradient = self.calculator.evaluate_flat(flat_positions, template)
+        true_gradient = np.asarray(true_gradient, dtype=float)
+        if true_gradient.shape != flat_positions.shape:
+            raise ValueError("true_gradient must have the same shape as flat_positions")
+        bias_energy = 0.0
+        bias_gradient = np.zeros_like(true_gradient)
         for bias in self.biases:
-            bias_energy, bias_gradient = bias.evaluate(flat_positions, cell=template.cell, pbc=template.pbc)
-            total_energy += bias_energy
-            total_gradient += bias_gradient
+            term_energy, term_gradient = bias.evaluate(flat_positions, cell=template.cell, pbc=template.pbc)
+            term_gradient = np.asarray(term_gradient, dtype=float)
+            if term_gradient.shape != flat_positions.shape:
+                raise ValueError("bias_gradient must have the same shape as flat_positions")
+            bias_energy += term_energy
+            bias_gradient += term_gradient
+        softening_energy = 0.0
+        softening_gradient = np.zeros_like(true_gradient)
         if self.softening is not None:
-            soft_energy, soft_gradient = self.softening.evaluate(flat_positions)
-            total_energy += soft_energy
-            total_gradient += soft_gradient
-        return float(total_energy), total_gradient
+            softening_energy, softening_gradient = self.softening.evaluate(flat_positions)
+            softening_gradient = np.asarray(softening_gradient, dtype=float)
+            if softening_gradient.shape != flat_positions.shape:
+                raise ValueError("softening_gradient must have the same shape as flat_positions")
+        total_energy = float(true_energy + bias_energy + softening_energy)
+        total_gradient = true_gradient + bias_gradient + softening_gradient
+        return RelaxEvaluation(
+            true_energy=float(true_energy),
+            true_gradient=true_gradient,
+            bias_energy=float(bias_energy),
+            bias_gradient=bias_gradient,
+            softening_energy=float(softening_energy),
+            softening_gradient=softening_gradient,
+            total_energy=total_energy,
+            total_gradient=total_gradient,
+        )
+
+    def evaluate(self, flat_positions: np.ndarray, template: State) -> tuple[float, np.ndarray]:
+        evaluation = self.evaluate_parts(flat_positions, template)
+        return evaluation.total_energy, evaluation.total_gradient.copy()
 
 
 @dataclass(frozen=True)

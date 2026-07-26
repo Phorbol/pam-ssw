@@ -85,6 +85,54 @@ def test_gaussian_bias_rejects_mismatched_position_shape():
         bias.evaluate(np.zeros(3))
 
 
+def test_proposal_parts_preserve_tuple_api_fixed_atoms_and_stable_mic_branch():
+    class CountingConstantCalculator:
+        def __init__(self):
+            self.calls = 0
+
+        def evaluate_flat(self, flat_positions, template):
+            self.calls += 1
+            return 2.5, np.full_like(flat_positions, 0.75)
+
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[9.8, 0.0, 0.0]]),
+        cell=np.diag([10.0, 10.0, 10.0]),
+        pbc=(True, True, True),
+        fixed_mask=np.array([True]),
+    )
+    wrapped = state.with_flat_positions(np.array([-0.2, 0.0, 0.0]))
+    calculator = CountingConstantCalculator()
+    potential = ProposalPotential(
+        calculator,
+        biases=[
+            GaussianBiasTerm(
+                center=np.array([9.5, 0.0, 0.0]),
+                direction=np.array([1.0, 0.0, 0.0]),
+                sigma=0.5,
+                weight=2.0,
+            )
+        ],
+    )
+
+    assert hasattr(potential, "evaluate_parts")
+    inside_parts = potential.evaluate_parts(state.flatten_positions(), state)
+    wrapped_parts = potential.evaluate_parts(wrapped.flatten_positions(), wrapped)
+    energy, gradient = potential.evaluate(state.flatten_positions(), state)
+
+    assert calculator.calls == 3
+    assert inside_parts.bias_energy == pytest.approx(wrapped_parts.bias_energy)
+    np.testing.assert_allclose(inside_parts.bias_gradient, wrapped_parts.bias_gradient)
+    assert inside_parts.softening_energy == 0.0
+    np.testing.assert_allclose(inside_parts.softening_gradient, np.zeros(3))
+    np.testing.assert_allclose(inside_parts.total_gradient, np.full(3, 0.75) + inside_parts.bias_gradient)
+    assert energy == pytest.approx(inside_parts.total_energy)
+    np.testing.assert_allclose(gradient, inside_parts.total_gradient)
+    assert gradient.flags.writeable
+    gradient[0] = gradient[0] + 1.0
+    assert gradient[0] != inside_parts.total_gradient[0]
+
+
 def test_surface_walker_uses_configured_step_length_controller_controls():
     walker = SurfaceWalker(
         calculator=AnalyticCalculator(DoubleWell2D()),

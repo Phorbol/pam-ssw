@@ -1,9 +1,72 @@
+from dataclasses import FrozenInstanceError
+
 import numpy as np
 import pytest
 
-from pamssw.relax import Relaxer
+import pamssw.relax as relax_module
+from pamssw.relax import RelaxEvaluation, Relaxer
 from pamssw.result import RelaxOutcomeClass
 from pamssw.state import State
+
+
+def test_relax_evaluation_is_a_frozen_component_value_object():
+    evaluation_type = getattr(relax_module, "RelaxEvaluation", None)
+
+    assert evaluation_type is not None
+    evaluation = evaluation_type(
+        true_energy=1.0,
+        true_gradient=np.array([1.0, 2.0, 3.0]),
+        bias_energy=2.0,
+        bias_gradient=np.array([4.0, 5.0, 6.0]),
+        softening_energy=3.0,
+        softening_gradient=np.array([7.0, 8.0, 9.0]),
+        total_energy=6.0,
+        total_gradient=np.array([12.0, 15.0, 18.0]),
+    )
+
+    assert evaluation.total_energy == 6.0
+    np.testing.assert_allclose(evaluation.total_gradient, [12.0, 15.0, 18.0])
+    with pytest.raises(FrozenInstanceError):
+        evaluation.total_energy = 0.0
+
+
+def test_relax_evaluation_defensively_copies_and_locks_all_gradient_arrays():
+    gradients = {
+        "true_gradient": np.array([1.0, 2.0, 3.0]),
+        "bias_gradient": np.array([4.0, 5.0, 6.0]),
+        "softening_gradient": np.array([7.0, 8.0, 9.0]),
+        "total_gradient": np.array([12.0, 15.0, 18.0]),
+    }
+    evaluation = RelaxEvaluation(
+        true_energy=1.0,
+        bias_energy=2.0,
+        softening_energy=3.0,
+        total_energy=6.0,
+        **gradients,
+    )
+    gradients["true_gradient"][0] = -1.0
+
+    assert evaluation.true_gradient[0] == 1.0
+    for name, source in gradients.items():
+        component = getattr(evaluation, name)
+        assert not np.shares_memory(component, source)
+        assert not component.flags.writeable
+        with pytest.raises(ValueError, match="read-only"):
+            component[0] = 0.0
+
+
+def test_relax_evaluation_rejects_mismatched_component_gradient_shapes():
+    with pytest.raises(ValueError, match="same shape"):
+        RelaxEvaluation(
+            true_energy=1.0,
+            true_gradient=np.zeros(3),
+            bias_energy=0.0,
+            bias_gradient=np.zeros(3),
+            softening_energy=0.0,
+            softening_gradient=np.zeros(2),
+            total_energy=1.0,
+            total_gradient=np.zeros(3),
+        )
 
 
 def test_relaxer_passes_force_tolerance_to_lbfgsb(monkeypatch):

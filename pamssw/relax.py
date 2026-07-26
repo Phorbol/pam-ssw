@@ -20,6 +20,38 @@ class FlatEvaluator(Protocol):
         ...
 
 
+@dataclass(frozen=True)
+class RelaxEvaluation:
+    """One proposal-objective evaluation separated into analytic components."""
+
+    true_energy: float
+    true_gradient: np.ndarray
+    bias_energy: float
+    bias_gradient: np.ndarray
+    softening_energy: float
+    softening_gradient: np.ndarray
+    total_energy: float
+    total_gradient: np.ndarray
+
+    def __post_init__(self) -> None:
+        gradient_names = (
+            "true_gradient",
+            "bias_gradient",
+            "softening_gradient",
+            "total_gradient",
+        )
+        expected_shape: tuple[int, ...] | None = None
+        for name in gradient_names:
+            gradient = np.asarray(getattr(self, name), dtype=float)
+            if expected_shape is None:
+                expected_shape = gradient.shape
+            elif gradient.shape != expected_shape:
+                raise ValueError("RelaxEvaluation component gradients must have the same shape")
+            gradient = gradient.copy()
+            gradient.setflags(write=False)
+            object.__setattr__(self, name, gradient)
+
+
 RelaxOptimizer = Literal["scipy-lbfgsb", "ase-fire", "ase-lbfgs"]
 
 
