@@ -112,6 +112,49 @@ def test_evaluation_counts_from_mapping_does_not_alias_input_mapping():
     assert counts.count(EvaluationPurpose.DIRECTION_ORACLE) == 2
 
 
+def test_evaluation_counts_adds_elementwise_without_mutating_either_operand():
+    left = EvaluationCounts.from_mapping({EvaluationPurpose.DIRECTION_ORACLE: 2})
+    right = EvaluationCounts.from_mapping({EvaluationPurpose.LANDING_TRUE_QUENCH: 3})
+
+    combined = left + right
+
+    assert combined == EvaluationCounts.from_mapping(
+        {
+            EvaluationPurpose.DIRECTION_ORACLE: 2,
+            EvaluationPurpose.LANDING_TRUE_QUENCH: 3,
+        }
+    )
+    assert combined is not left
+    assert combined is not right
+    assert left.count(EvaluationPurpose.DIRECTION_ORACLE) == 2
+    assert right.count(EvaluationPurpose.LANDING_TRUE_QUENCH) == 3
+
+
+def test_evaluation_counts_add_rejects_non_counts():
+    with pytest.raises(TypeError):
+        EvaluationCounts.zero() + 1
+
+
+def test_evaluation_counts_sum_handles_empty_and_canonical_iterables_without_aliasing():
+    first = EvaluationCounts.from_mapping({EvaluationPurpose.DIRECTION_ORACLE: 2})
+    second = EvaluationCounts.from_mapping({EvaluationPurpose.LANDING_TRUE_QUENCH: 3})
+
+    empty = EvaluationCounts.sum(())
+    combined = EvaluationCounts.sum((first, second))
+
+    assert empty == EvaluationCounts.zero()
+    assert combined == first + second
+    assert combined is not first
+    assert combined is not second
+    assert first.count(EvaluationPurpose.DIRECTION_ORACLE) == 2
+    assert second.count(EvaluationPurpose.LANDING_TRUE_QUENCH) == 3
+
+
+def test_evaluation_counts_sum_rejects_non_count_items():
+    with pytest.raises(TypeError):
+        EvaluationCounts.sum((EvaluationCounts.zero(), object()))
+
+
 def test_purpose_counts_started_delegated_failure(state: State):
     counter = EvalCounter(RecordingCalculator(fail_on_call=1))
 

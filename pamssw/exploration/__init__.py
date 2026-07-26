@@ -1,6 +1,13 @@
 from .actions import AttemptResult, AttemptStatus, CreditedOutcome, PolicySnapshot, StarterAction
 from .batch import derive_action_seed, plan_batch
 from .committed import CommittedExplorationBatch
+from .campaign import (
+    CampaignBudget,
+    CampaignBudgetSnapshot,
+    CampaignStopReason,
+    PosteriorExplorationConfig,
+    PosteriorExplorationResult,
+)
 from .controller import BatchLog, ExplorationController, UnknownActionCostError, Worker
 from .event_log import ExplorationEventLog, SCHEMA_VERSION
 from .posterior import StarterProductivityPosterior
@@ -11,11 +18,16 @@ __all__ = [
     "AttemptResult",
     "AttemptStatus",
     "BatchLog",
+    "CampaignBudget",
+    "CampaignBudgetSnapshot",
+    "CampaignStopReason",
     "CreditedOutcome",
     "CommittedExplorationBatch",
     "ExplorationController",
     "ExplorationEventLog",
     "PolicySnapshot",
+    "PosteriorExplorationConfig",
+    "PosteriorExplorationResult",
     "SCHEMA_VERSION",
     "SUPPORTED_POLICIES",
     "StarterProductivityPosterior",

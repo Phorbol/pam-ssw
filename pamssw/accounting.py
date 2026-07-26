@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from enum import Enum
@@ -88,6 +88,20 @@ class EvaluationCounts:
             purpose.value: self.values[index]
             for index, purpose in enumerate(EvaluationPurpose)
         }
+
+    def __add__(self, other: object) -> EvaluationCounts:
+        if not isinstance(other, EvaluationCounts):
+            raise TypeError("evaluation counts can only be added to EvaluationCounts")
+        return type(self)(tuple(left + right for left, right in zip(self.values, other.values)))
+
+    @classmethod
+    def sum(cls, counts: Iterable[EvaluationCounts]) -> EvaluationCounts:
+        total = cls.zero()
+        for count in counts:
+            if not isinstance(count, cls):
+                raise TypeError("evaluation counts sum requires EvaluationCounts items")
+            total = total + count
+        return total
 
 
 @dataclass
