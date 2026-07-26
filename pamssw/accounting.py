@@ -13,7 +13,18 @@ from .state import State
 
 
 class BudgetExceeded(RuntimeError):
-    pass
+    def __init__(
+        self,
+        message: str,
+        *,
+        evaluation_counts: EvaluationCounts | None = None,
+    ) -> None:
+        super().__init__(message)
+        if evaluation_counts is not None and not isinstance(
+            evaluation_counts, EvaluationCounts
+        ):
+            raise TypeError("evaluation_counts must be an EvaluationCounts or None")
+        self.evaluation_counts = evaluation_counts
 
 
 class EvaluationPurpose(Enum):
@@ -150,7 +161,10 @@ class EvalCounter:
     def _start_evaluation(self) -> None:
         with self._lock:
             if self.max_force_evals is not None and self.force_evaluations >= self.max_force_evals:
-                raise BudgetExceeded("force-evaluation budget exhausted")
+                raise BudgetExceeded(
+                    "force-evaluation budget exhausted",
+                    evaluation_counts=EvaluationCounts(tuple(self._purpose_counts)),
+                )
             self._record_started()
 
     def _record_started(self) -> None:

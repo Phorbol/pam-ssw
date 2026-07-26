@@ -19,10 +19,13 @@ from pamssw.state import State
 def test_package_root_exports_only_the_public_posterior_exploration_types():
     from pamssw.exploration.controller import ExplorationController
     from pamssw.exploration.posterior import StarterProductivityPosterior
+    from pamssw.exploration.runner import BootstrapConvergenceError
 
     assert pamssw.ExplorationController is ExplorationController
     assert pamssw.StarterProductivityPosterior is StarterProductivityPosterior
+    assert pamssw.BootstrapConvergenceError is BootstrapConvergenceError
     assert set(pamssw.__all__) == {
+        "BootstrapConvergenceError",
         "ExplorationController",
         "LSSSWConfig",
         "RelaxConfig",

@@ -14,6 +14,7 @@ from ..accounting import EvalCounter, EvaluationCounts, EvaluationPurpose
 from ..archive import MinimaArchive
 from ..config import LSSSWConfig, SSWConfig
 from ..relax import Relaxer
+from ..result import RelaxResult
 from ..state import State
 from ..walker import GeometryValidator
 from .actions import AttemptStatus, CreditedOutcome
@@ -26,6 +27,25 @@ from .campaign import (
 from .controller import ExplorationController
 from .event_log import ExplorationEventLog
 from .ssw_worker import SSWAttemptWorker
+
+
+class BootstrapConvergenceError(RuntimeError):
+    """A failed bootstrap certificate with its exact charged evaluation ledger."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        relaxation: RelaxResult,
+        evaluation_counts: EvaluationCounts,
+    ) -> None:
+        super().__init__(message)
+        if not isinstance(relaxation, RelaxResult):
+            raise TypeError("relaxation must be a RelaxResult")
+        if not isinstance(evaluation_counts, EvaluationCounts):
+            raise TypeError("evaluation_counts must be an EvaluationCounts")
+        self.relaxation = relaxation
+        self.evaluation_counts = evaluation_counts
 
 
 def _bootstrap_minimum(
@@ -65,8 +85,10 @@ def _bootstrap_minimum(
 
     energy = float(relaxed.energy)
     if not isfinite(relaxed.gradient_norm) or relaxed.gradient_norm > ssw_config.quench_fmax:
-        raise ValueError(
-            "bootstrap relaxation did not converge to the configured per-atom force tolerance"
+        raise BootstrapConvergenceError(
+            "bootstrap relaxation did not converge to the configured per-atom force tolerance",
+            relaxation=relaxed,
+            evaluation_counts=counter.snapshot(),
         )
     if not valid_final_evaluation or not isfinite(energy):
         raise ValueError("invalid final relaxed state")
@@ -280,6 +302,7 @@ def _write_optimizer_diagnostics(path: Path, diagnostics: tuple) -> None:
 
 
 __all__ = [
+    "BootstrapConvergenceError",
     "run_posterior_ssw",
     "run_posterior_ls_ssw",
 ]

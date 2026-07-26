@@ -419,7 +419,12 @@ class Relaxer:
             method="L-BFGS-B",
             jac=True,
             bounds=bounds,
-            options={"maxiter": maxiter, "gtol": fmax, "ftol": 1e-12, "maxls": 50},
+            options={
+                "maxiter": maxiter,
+                "gtol": fmax / np.sqrt(3.0),
+                "ftol": 0.0,
+                "maxls": 50,
+            },
             **minimize_kwargs,
         )
         relaxed = state.with_active_positions(np.asarray(result.x, dtype=float))

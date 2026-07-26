@@ -12,6 +12,7 @@ from pamssw.exploration import PosteriorExplorationConfig, PosteriorExplorationR
 from pamssw.exploration.actions import AttemptStatus
 from pamssw.exploration.campaign import CampaignStopReason
 from pamssw.exploration.runner import (
+    BootstrapConvergenceError,
     _bootstrap_minimum,
     _write_optimizer_diagnostics,
     run_posterior_ls_ssw,
@@ -186,13 +187,18 @@ def test_bootstrap_minimum_rejects_invalid_raw_geometry_before_factory():
 
 
 def test_bootstrap_minimum_propagates_force_budget_exhaustion():
-    with pytest.raises(BudgetExceeded, match="force-evaluation budget exhausted"):
+    with pytest.raises(BudgetExceeded, match="force-evaluation budget exhausted") as captured:
         _bootstrap_minimum(
             State(numbers=np.array([1]), positions=np.array([[-0.8, 0.0, 0.0]])),
             lambda: CountingAnalyticCalculator(),
             SSWConfig(),
             total_force_budget=1,
         )
+    assert captured.value.evaluation_counts.total == 1
+    assert (
+        captured.value.evaluation_counts.count(EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH)
+        == 1
+    )
 
 
 def test_bootstrap_minimum_rejects_an_uncertified_relaxation(monkeypatch):
@@ -208,13 +214,19 @@ def test_bootstrap_minimum_rejects_an_uncertified_relaxation(monkeypatch):
 
     monkeypatch.setattr("pamssw.exploration.runner.Relaxer.relax", unconverged_relax)
 
-    with pytest.raises(ValueError, match="bootstrap.*converge"):
+    with pytest.raises(BootstrapConvergenceError, match="bootstrap.*converge") as captured:
         _bootstrap_minimum(
             initial,
             lambda: CountingAnalyticCalculator(),
             SSWConfig(quench_maxiter=1),
             total_force_budget=100,
         )
+    assert captured.value.relaxation.gradient_norm == 10.0 * SSWConfig().quench_fmax
+    assert captured.value.evaluation_counts.total == 1
+    assert (
+        captured.value.evaluation_counts.count(EvaluationPurpose.POST_RELAX_VALIDATION)
+        == 1
+    )
 
 
 @pytest.mark.parametrize(

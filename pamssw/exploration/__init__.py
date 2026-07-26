@@ -13,7 +13,7 @@ from .controller import BatchLog, ExplorationController, UnknownActionCostError,
 from .event_log import ExplorationEventLog, SCHEMA_VERSION
 from .posterior import StarterProductivityPosterior
 from .policies import SUPPORTED_POLICIES, build_policy_snapshot
-from .runner import run_posterior_ls_ssw, run_posterior_ssw
+from .runner import BootstrapConvergenceError, run_posterior_ls_ssw, run_posterior_ssw
 from .ssw_worker import SSWAttemptWorker
 
 __all__ = [
@@ -21,6 +21,7 @@ __all__ = [
     "AttemptDiagnostics",
     "AttemptStatus",
     "BatchLog",
+    "BootstrapConvergenceError",
     "CampaignBudget",
     "CampaignBudgetSnapshot",
     "CampaignStopReason",

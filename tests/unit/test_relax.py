@@ -70,7 +70,9 @@ def test_relax_evaluation_rejects_mismatched_component_gradient_shapes():
         )
 
 
-def test_relaxer_passes_force_tolerance_to_lbfgsb(monkeypatch):
+def test_relaxer_maps_per_atom_force_tolerance_to_sufficient_lbfgsb_component_bound(
+    monkeypatch,
+):
     captured = {}
 
     class Result:
@@ -90,8 +92,8 @@ def test_relaxer_passes_force_tolerance_to_lbfgsb(monkeypatch):
     state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
     Relaxer(evaluator).relax(state, fmax=1e-4, maxiter=123)
 
-    assert captured["options"]["gtol"] == 1e-4
-    assert captured["options"]["ftol"] < 1e-9
+    assert captured["options"]["gtol"] == pytest.approx(1e-4 / np.sqrt(3.0))
+    assert captured["options"]["ftol"] == 0.0
     assert captured["options"]["maxiter"] == 123
 
 
