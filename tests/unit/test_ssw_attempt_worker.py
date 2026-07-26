@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 import pamssw
+from pamssw.accounting import BudgetExceeded, EvaluationCounts, EvaluationPurpose
 import pamssw.exploration as exploration
 import pamssw.exploration.ssw_worker as worker_module
 from pamssw.config import LSSSWConfig, SSWConfig
@@ -41,12 +42,21 @@ class _Calculator:
 
 
 class _Counter:
-    def __init__(self, force_evaluations: int, exhausted: bool) -> None:
+    def __init__(
+        self,
+        force_evaluations: int,
+        exhausted: bool,
+        evaluation_counts: EvaluationCounts | None = None,
+    ) -> None:
         self.force_evaluations = force_evaluations
         self._exhausted = exhausted
+        self._evaluation_counts = evaluation_counts or EvaluationCounts.unattributed(force_evaluations)
 
     def exhausted(self) -> bool:
         return self._exhausted
+
+    def snapshot(self) -> EvaluationCounts:
+        return self._evaluation_counts
 
 
 def _archive_entry(entry_id: int, *, x: float = 1.0, energy: float = 0.5) -> SimpleNamespace:
@@ -92,6 +102,7 @@ def _install_fake_walker(
     *,
     force_evaluations: int = 3,
     exhausted: bool = False,
+    evaluation_counts: EvaluationCounts | None = None,
     constructor_error: Exception | None = None,
 ) -> list[SimpleNamespace]:
     instances: list[SimpleNamespace] = []
@@ -101,7 +112,7 @@ def _install_fake_walker(
             if constructor_error is not None:
                 raise constructor_error
             instance = SimpleNamespace(
-                calculator=_Counter(force_evaluations, exhausted),
+                calculator=_Counter(force_evaluations, exhausted, evaluation_counts),
                 config=config,
                 softening_enabled=softening_enabled,
                 calculator_from_factory=calculator,
@@ -126,6 +137,7 @@ def _make_worker(
     *,
     force_evaluations: int = 3,
     exhausted: bool = False,
+    evaluation_counts: EvaluationCounts | None = None,
     config: SSWConfig | None = None,
 ) -> tuple[SSWAttemptWorker, list[SimpleNamespace], list[_Calculator]]:
     instances = _install_fake_walker(
@@ -133,6 +145,7 @@ def _make_worker(
         outcome,
         force_evaluations=force_evaluations,
         exhausted=exhausted,
+        evaluation_counts=evaluation_counts,
     )
     calculators: list[_Calculator] = []
 
@@ -411,6 +424,7 @@ def test_more_than_one_walk_record_is_a_mapping_worker_error_with_exact_count(mo
         _search_result(
             history=[_walk_record(7), _walk_record(8)],
             entries=[_archive_entry(7), _archive_entry(8)],
+            stats={"force_evaluations": 4, "budget_exhausted": 0, "fragment_rejections": 0},
         ),
         force_evaluations=4,
     )
@@ -432,7 +446,11 @@ def test_more_than_one_walk_record_is_a_mapping_worker_error_with_exact_count(mo
 def test_absent_or_duplicate_discovered_id_is_a_mapping_worker_error(monkeypatch, entries):
     worker, _, _ = _make_worker(
         monkeypatch,
-        _search_result(history=[_walk_record(7)], entries=entries),
+        _search_result(
+            history=[_walk_record(7)],
+            entries=entries,
+            stats={"force_evaluations": 4, "budget_exhausted": 0, "fragment_rejections": 0},
+        ),
         force_evaluations=4,
     )
 
@@ -478,3 +496,139 @@ def test_base_exceptions_propagate_from_the_walker(monkeypatch):
 
     with pytest.raises(KeyboardInterrupt):
         worker(_action(), _state())
+
+
+def test_completed_worker_result_uses_the_exact_purpose_snapshot_not_legacy_stats(monkeypatch):
+    exact_counts = EvaluationCounts.from_mapping(
+        {
+            EvaluationPurpose.STARTER_TRUE_QUENCH: 1,
+            EvaluationPurpose.DIRECTION_ORACLE: 2,
+            EvaluationPurpose.LANDING_TRUE_QUENCH: 1,
+        }
+    )
+    worker, _, _ = _make_worker(
+        monkeypatch,
+        _search_result(
+            history=[_walk_record(7)],
+            entries=[_archive_entry(7, energy=1.5)],
+            stats={"force_evaluations": 4, "budget_exhausted": 0, "fragment_rejections": 0},
+        ),
+        force_evaluations=exact_counts.total,
+        evaluation_counts=exact_counts,
+    )
+
+    result = worker(_action(), _state())
+
+    assert result.status is AttemptStatus.COMPLETED
+    assert result.force_evaluations == exact_counts.total
+    assert result.evaluation_counts == exact_counts
+    assert result.cost_is_exact is True
+
+
+@pytest.mark.parametrize(
+    "mode",
+    ["completed", "budget", "run_error", "fragmented", "no_landing", "mapping_error"],
+)
+def test_post_construction_terminal_paths_preserve_the_exact_calculator_snapshot(monkeypatch, mode):
+    exact_counts = EvaluationCounts.from_mapping(
+        {
+            EvaluationPurpose.DIRECTION_ORACLE: 2,
+            EvaluationPurpose.BIASED_PROPOSAL_RELAX: 1,
+            EvaluationPurpose.LANDING_TRUE_QUENCH: 1,
+        }
+    )
+    if mode == "completed":
+        outcome = _search_result(
+            history=[_walk_record(7)],
+            entries=[_archive_entry(7)],
+            stats={"force_evaluations": 4, "budget_exhausted": 0, "fragment_rejections": 0},
+        )
+        exhausted = False
+    elif mode == "budget":
+        outcome = BudgetExceeded("exact budget exhaustion")
+        exhausted = True
+    elif mode == "run_error":
+        outcome = RuntimeError("run failure")
+        exhausted = False
+    elif mode == "fragmented":
+        outcome = _search_result(
+            stats={"force_evaluations": 4, "budget_exhausted": 0, "fragment_rejections": 1}
+        )
+        exhausted = False
+    elif mode == "no_landing":
+        outcome = _search_result(
+            stats={"force_evaluations": 4, "budget_exhausted": 0, "fragment_rejections": 0}
+        )
+        exhausted = False
+    else:
+        outcome = _search_result(
+            history=[_walk_record(7), _walk_record(8)],
+            entries=[_archive_entry(7), _archive_entry(8)],
+            stats={"force_evaluations": 4, "budget_exhausted": 0, "fragment_rejections": 0},
+        )
+        exhausted = False
+    worker, _, _ = _make_worker(
+        monkeypatch,
+        outcome,
+        force_evaluations=exact_counts.total,
+        exhausted=exhausted,
+        evaluation_counts=exact_counts,
+    )
+
+    result = worker(_action(), _state())
+
+    assert result.evaluation_counts == exact_counts
+    assert result.evaluation_counts.total == result.force_evaluations == exact_counts.total
+    assert result.cost_is_exact is True
+
+
+def test_result_mapping_mismatch_returns_worker_error_with_the_same_exact_snapshot(monkeypatch):
+    exact_counts = EvaluationCounts.from_mapping({EvaluationPurpose.DIRECTION_ORACLE: 4})
+    worker, _, _ = _make_worker(
+        monkeypatch,
+        _search_result(
+            stats={"force_evaluations": 3, "budget_exhausted": 0, "fragment_rejections": 0}
+        ),
+        force_evaluations=exact_counts.total,
+        evaluation_counts=exact_counts,
+    )
+
+    result = worker(_action(), _state())
+
+    assert result.status is AttemptStatus.WORKER_ERROR
+    assert result.failure_reason == (
+        "result_mapping_error: ValueError: search result force_evaluations must equal calculator snapshot"
+    )
+    assert result.force_evaluations == exact_counts.total
+    assert result.evaluation_counts == exact_counts
+    assert result.cost_is_exact is True
+
+
+@pytest.mark.parametrize("failure_kind", ["invalid_starter", "factory", "calculator", "constructor"])
+def test_pre_calculator_terminal_paths_are_exact_zero_snapshots(monkeypatch, failure_kind):
+    if failure_kind == "invalid_starter":
+        worker = SSWAttemptWorker(lambda: _Calculator(), SSWConfig())
+        starter = State(numbers=np.array([1]), positions=np.array([[np.nan, 0.0, 0.0]]))
+    elif failure_kind == "factory":
+        def failing_factory():
+            raise RuntimeError("factory failure")
+
+        worker = SSWAttemptWorker(failing_factory, SSWConfig())
+        starter = _state()
+    elif failure_kind == "calculator":
+        worker = SSWAttemptWorker(lambda: object(), SSWConfig())
+        starter = _state()
+    else:
+        _install_fake_walker(
+            monkeypatch,
+            _search_result(),
+            constructor_error=RuntimeError("constructor failure"),
+        )
+        worker = SSWAttemptWorker(lambda: _Calculator(), SSWConfig())
+        starter = _state()
+
+    result = worker(_action(), starter)
+
+    assert result.force_evaluations == 0
+    assert result.evaluation_counts == EvaluationCounts.zero()
+    assert result.cost_is_exact is True

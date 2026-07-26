@@ -14,10 +14,19 @@ from numbers import Integral
 import threading
 from typing import Callable, Protocol
 
+from ..accounting import EvaluationCounts
 from ..archive import MinimaArchive, MinimaEntry
 from ..state import State
-from .actions import AttemptResult, AttemptStatus, CreditedOutcome, PolicySnapshot, StarterAction
+from .actions import (
+    AttemptResult,
+    AttemptStatus,
+    CreditedOutcome,
+    PolicySnapshot,
+    StarterAction,
+    should_observe_posterior,
+)
 from .batch import plan_batch
+from .committed import CommittedExplorationBatch
 from .policies import SUPPORTED_POLICIES, build_policy_snapshot
 from .posterior import StarterProductivityPosterior
 
@@ -25,12 +34,7 @@ from .posterior import StarterProductivityPosterior
 class BatchLog(Protocol):
     """Append one fully finalized batch before the controller commits it."""
 
-    def append_batch(
-        self,
-        snapshot: PolicySnapshot,
-        actions: tuple[StarterAction, ...],
-        outcomes: tuple[CreditedOutcome, ...],
-    ) -> None: ...
+    def append_batch(self, batch: CommittedExplorationBatch) -> None: ...
 
 
 Worker = Callable[[StarterAction, State], AttemptResult]
@@ -40,14 +44,16 @@ Worker = Callable[[StarterAction, State], AttemptResult]
 class _PendingCommit:
     """One finalized batch whose audit write may have completed indeterminately."""
 
-    snapshot: PolicySnapshot
-    actions: tuple[StarterAction, ...]
-    outcomes: tuple[CreditedOutcome, ...]
+    batch: CommittedExplorationBatch
     shadow_archive: MinimaArchive
     shadow_posterior: StarterProductivityPosterior
     next_policy_version: int
     next_archive_version: int
     next_batch_id: int
+
+
+class UnknownActionCostError(RuntimeError):
+    """Raised when a strict controller receives an inexact worker cost."""
 
 
 def _nonnegative_int(name: str, value: object) -> int:
@@ -83,6 +89,8 @@ class ExplorationController:
         policy_name: str,
         master_seed: int,
         event_log: BatchLog,
+        *,
+        require_exact_cost: bool = False,
     ) -> None:
         if not isinstance(archive, MinimaArchive):
             raise ValueError("archive must be a MinimaArchive")
@@ -90,15 +98,23 @@ class ExplorationController:
         self.master_seed = _nonnegative_int("master_seed", master_seed)
         if not callable(getattr(event_log, "append_batch", None)):
             raise ValueError("event_log must provide a callable append_batch method")
+        if not isinstance(require_exact_cost, bool):
+            raise ValueError("require_exact_cost must be a boolean")
 
         self.archive = archive.clone()
         self.event_log = event_log
+        self.require_exact_cost = require_exact_cost
         self.posterior = StarterProductivityPosterior()
         self.policy_version = 0
         self.archive_version = 0
         self.batch_id = 0
         self._run_lock = threading.Lock()
         self._pending_commit: _PendingCommit | None = None
+
+    @property
+    def has_pending_commit(self) -> bool:
+        """Whether a fully finalized batch awaits a durable log acknowledgement."""
+        return self._pending_commit is not None
 
     def run_batch(
         self,
@@ -116,7 +132,7 @@ class ExplorationController:
         """
         with self._run_lock:
             if self._pending_commit is not None:
-                return self._reconcile_pending_commit()
+                return self._reconcile_pending_commit().outcomes
             if not isinstance(executor, Executor):
                 raise ValueError("executor must be a concurrent.futures.Executor")
             if not callable(worker):
@@ -165,37 +181,47 @@ class ExplorationController:
                 result_by_slot[action.slot_id] = result
 
             ordered_results = tuple(result_by_slot[action.slot_id] for action in actions)
+            if self.require_exact_cost and any(
+                not result.cost_is_exact for result in ordered_results
+            ):
+                raise UnknownActionCostError(
+                    "strict exploration requires exact cost for every action"
+                )
             shadow_archive = self.archive.clone()
             shadow_posterior = self.posterior.clone()
             outcomes = tuple(
                 _credit_result(result, dispatch_archive, shadow_archive, shadow_posterior)
                 for result in ordered_results
             )
+            batch = CommittedExplorationBatch(snapshot, actions, ordered_results, outcomes)
             self._pending_commit = _PendingCommit(
-                snapshot=snapshot,
-                actions=actions,
-                outcomes=outcomes,
+                batch=batch,
                 shadow_archive=shadow_archive,
                 shadow_posterior=shadow_posterior,
                 next_policy_version=self.policy_version + 1,
                 next_archive_version=self.archive_version + 1,
                 next_batch_id=self.batch_id + 1,
             )
+            return self._reconcile_pending_commit().outcomes
+
+    def reconcile_pending_commit(self) -> CommittedExplorationBatch:
+        """Retry the exact pending log write without dispatching new work."""
+        with self._run_lock:
             return self._reconcile_pending_commit()
 
-    def _reconcile_pending_commit(self) -> tuple[CreditedOutcome, ...]:
+    def _reconcile_pending_commit(self) -> CommittedExplorationBatch:
         """Append and install the exact finalized batch currently pending."""
         pending = self._pending_commit
         if pending is None:
             raise RuntimeError("no pending exploration batch to reconcile")
-        self.event_log.append_batch(pending.snapshot, pending.actions, pending.outcomes)
+        self.event_log.append_batch(pending.batch)
         self.archive = pending.shadow_archive
         self.posterior = pending.shadow_posterior
         self.policy_version = pending.next_policy_version
         self.archive_version = pending.next_archive_version
         self.batch_id = pending.next_batch_id
         self._pending_commit = None
-        return pending.outcomes
+        return pending.batch
 
 
 def _entries_by_id(archive: MinimaArchive) -> dict[int, MinimaEntry]:
@@ -213,6 +239,8 @@ def _worker_error_result(action: StarterAction, exc: Exception) -> AttemptResult
         force_evaluations=0,
         status=AttemptStatus.WORKER_ERROR,
         failure_reason=f"{type(exc).__name__}: {exc}",
+        evaluation_counts=EvaluationCounts.zero(),
+        cost_is_exact=False,
     )
 
 
@@ -243,7 +271,9 @@ def _credit_result(
         landing_entry_id = landing.entry_id
         landing_energy = result.landing_energy
 
-    shadow_posterior.update(result.action.starter_id, discovered=discovered)
+    posterior_observed = should_observe_posterior(result.status, result.evaluation_counts)
+    if posterior_observed:
+        shadow_posterior.update(result.action.starter_id, discovered=discovered)
     return CreditedOutcome(
         action_id=result.action.action_id,
         starter_id=result.action.starter_id,
@@ -255,7 +285,10 @@ def _credit_result(
         landing_entry_id=landing_entry_id,
         landing_energy=landing_energy,
         failure_reason=result.failure_reason,
+        evaluation_counts=result.evaluation_counts,
+        cost_is_exact=result.cost_is_exact,
+        posterior_observed=posterior_observed,
     )
 
 
-__all__ = ["BatchLog", "ExplorationController", "Worker"]
+__all__ = ["BatchLog", "ExplorationController", "UnknownActionCostError", "Worker"]

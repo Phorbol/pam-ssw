@@ -1356,7 +1356,7 @@ def test_direction_archive_run_finalizes_productive_and_nonproductive_trials(
     )
     relax_calls = 0
 
-    def fake_relax_true_minimum(state, trajectory_name=None):
+    def fake_relax_true_minimum(state, trajectory_name=None, *, quench_purpose=None):
         nonlocal relax_calls
         relax_calls += 1
         if relax_calls == 1:
@@ -1401,7 +1401,11 @@ def test_direction_archive_run_does_not_mark_duplicate_after_new_best_as_global_
         _capture_test_direction_archive_record(walker, trial_index=0, proposal_index=1)
         return [CandidateProposal("first", improved), CandidateProposal("duplicate", improved)]
 
-    monkeypatch.setattr(walker, "relax_true_minimum", lambda state, trajectory_name=None: next(relax_results))
+    monkeypatch.setattr(
+        walker,
+        "relax_true_minimum",
+        lambda state, trajectory_name=None, *, quench_purpose=None: next(relax_results),
+    )
     monkeypatch.setattr(walker, "_proposal_pool", proposal_pool)
 
     walker.run(initial)
@@ -1425,7 +1429,7 @@ def test_plateau_evolution_run_loop_activates_after_patience_without_improvement
     )
     active_flags = []
 
-    def fake_relax_true_minimum(state, trajectory_name=None):
+    def fake_relax_true_minimum(state, trajectory_name=None, *, quench_purpose=None):
         return RelaxResult(state, energy=-1.0, gradient_norm=0.0, n_iter=0)
 
     def proposal_pool(*args, **kwargs):
@@ -1457,7 +1461,11 @@ def test_direction_archive_run_reset_clears_previously_retained_records(monkeypa
     )
     assert walker._direction_archive_records
 
-    monkeypatch.setattr(walker, "relax_true_minimum", lambda state, trajectory_name=None: RelaxResult(state, 0.0, 0.0, 0))
+    monkeypatch.setattr(
+        walker,
+        "relax_true_minimum",
+        lambda state, trajectory_name=None, *, quench_purpose=None: RelaxResult(state, 0.0, 0.0, 0),
+    )
     monkeypatch.setattr(walker.calculator, "exhausted", lambda: True)
 
     walker.run(initial)
@@ -1474,7 +1482,11 @@ def test_direction_archive_budget_exhaustion_discards_pending_without_productive
         softening_enabled=False,
     )
 
-    monkeypatch.setattr(walker, "relax_true_minimum", lambda state, trajectory_name=None: RelaxResult(state, 0.0, 0.0, 0))
+    monkeypatch.setattr(
+        walker,
+        "relax_true_minimum",
+        lambda state, trajectory_name=None, *, quench_purpose=None: RelaxResult(state, 0.0, 0.0, 0),
+    )
 
     def exhausted_proposal_pool(*args, **kwargs):
         _capture_test_direction_archive_record(walker, trial_index=0)
@@ -3164,7 +3176,7 @@ def test_run_records_direction_type_trial_productivity(monkeypatch, is_new, cand
     )
     relax_calls = 0
 
-    def fake_relax_true_minimum(state, trajectory_name=None):
+    def fake_relax_true_minimum(state, trajectory_name=None, *, quench_purpose=None):
         nonlocal relax_calls
         relax_calls += 1
         if relax_calls == 1:
@@ -3961,7 +3973,7 @@ def test_surface_walker_rejects_unphysical_energy_drop_before_archive(monkeypatc
     )
     relax_calls = 0
 
-    def fake_relax_true_minimum(state, trajectory_name=None):
+    def fake_relax_true_minimum(state, trajectory_name=None, *, quench_purpose=None):
         nonlocal relax_calls
         relax_calls += 1
         if relax_calls == 1:

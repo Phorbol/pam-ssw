@@ -14,11 +14,19 @@ import stat
 from dataclasses import dataclass
 from pathlib import Path
 
-from .actions import AttemptStatus, CreditedOutcome, PolicySnapshot, StarterAction
+from ..accounting import EvaluationCounts, EvaluationPurpose
+from .actions import (
+    AttemptStatus,
+    CreditedOutcome,
+    PolicySnapshot,
+    StarterAction,
+    should_observe_posterior,
+)
+from .committed import CommittedExplorationBatch
 from .posterior import StarterProductivityPosterior
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 _POLICY_SNAPSHOT_FIELDS = frozenset(
     {
@@ -39,6 +47,7 @@ _ATTEMPT_FIELDS = frozenset(
         "archive_version",
         "batch_id",
         "discovered_against_snapshot",
+        "evaluation_counts",
         "failure_reason",
         "force_budget",
         "force_evaluations",
@@ -55,6 +64,8 @@ _ATTEMPT_FIELDS = frozenset(
         "starter_id",
         "status",
         "within_batch_collision",
+        "cost_is_exact",
+        "posterior_observed",
     }
 )
 _BATCH_COMMIT_FIELDS = frozenset(
@@ -124,6 +135,31 @@ def _optional_failure_reason(value: object) -> str | None:
     return _nonempty_string("failure_reason", value)
 
 
+def _evaluation_counts_row(evaluation_counts: EvaluationCounts) -> dict[str, int]:
+    if not isinstance(evaluation_counts, EvaluationCounts):
+        raise _EventLogError("evaluation_counts must be an EvaluationCounts")
+    return {
+        purpose.value: evaluation_counts.count(purpose) for purpose in EvaluationPurpose
+    }
+
+
+def _parse_evaluation_counts(value: object) -> EvaluationCounts:
+    if not isinstance(value, dict):
+        raise _EventLogError("evaluation_counts must be a JSON object")
+    expected_purposes = tuple(purpose.value for purpose in EvaluationPurpose)
+    if set(value) != set(expected_purposes):
+        missing = sorted(set(expected_purposes) - set(value))
+        unknown = sorted(set(value) - set(expected_purposes))
+        raise _EventLogError(
+            f"evaluation_counts must include every purpose exactly once; missing={missing!r}, unknown={unknown!r}"
+        )
+    if tuple(value) != expected_purposes:
+        raise _EventLogError("evaluation_counts keys must use canonical order")
+    return EvaluationCounts(
+        tuple(_nonnegative_int(f"evaluation_counts.{purpose}", value[purpose]) for purpose in expected_purposes)
+    )
+
+
 def _require_fields(row: dict[str, object], expected: frozenset[str], line_number: int) -> None:
     if set(row) != expected:
         missing = sorted(expected - set(row))
@@ -169,6 +205,9 @@ def _attempt_row(action: StarterAction, outcome: CreditedOutcome) -> dict[str, o
         "status": outcome.status.value,
         "failure_reason": outcome.failure_reason,
         "force_evaluations": outcome.force_evaluations,
+        "evaluation_counts": _evaluation_counts_row(outcome.evaluation_counts),
+        "cost_is_exact": outcome.cost_is_exact,
+        "posterior_observed": outcome.posterior_observed,
         "discovered_against_snapshot": outcome.discovered_against_snapshot,
         "inserted_into_archive": outcome.inserted_into_archive,
         "within_batch_collision": outcome.within_batch_collision,
@@ -199,48 +238,6 @@ def _validate_action_against_snapshot(action: StarterAction, snapshot: PolicySna
         raise _EventLogError("action starter_id must be eligible in snapshot")
     if action.selection_probability != snapshot.probability_for(action.starter_id):
         raise _EventLogError("action selection_probability must match snapshot")
-
-
-def _validate_append_inputs(
-    snapshot: object,
-    actions: object,
-    outcomes: object,
-) -> tuple[PolicySnapshot, tuple[StarterAction, ...], tuple[CreditedOutcome, ...]]:
-    if not isinstance(snapshot, PolicySnapshot):
-        raise _EventLogError("snapshot must be a PolicySnapshot")
-    if not isinstance(actions, tuple):
-        raise _EventLogError("actions must be a tuple")
-    if not isinstance(outcomes, tuple):
-        raise _EventLogError("outcomes must be a tuple")
-    if not actions:
-        raise _EventLogError("actions and outcomes must be nonempty")
-    if len(actions) != len(outcomes):
-        raise _EventLogError("actions and outcomes must have equal lengths")
-    if not all(isinstance(action, StarterAction) for action in actions):
-        raise _EventLogError("actions must contain StarterAction values")
-    if not all(isinstance(outcome, CreditedOutcome) for outcome in outcomes):
-        raise _EventLogError("outcomes must contain CreditedOutcome values")
-
-    typed_actions = actions
-    typed_outcomes = outcomes
-    batch_id = typed_actions[0].batch_id
-    action_ids: set[str] = set()
-    slot_ids: set[int] = set()
-    for action, outcome in zip(typed_actions, typed_outcomes):
-        _validate_action_against_snapshot(action, snapshot, batch_id)
-        if action.action_id != outcome.action_id:
-            raise _EventLogError("action_id must agree with outcome")
-        if action.starter_id != outcome.starter_id:
-            raise _EventLogError("starter_id must agree with outcome")
-        if action.force_budget is not None and outcome.force_evaluations > action.force_budget:
-            raise _EventLogError("force_evaluations cannot exceed action force_budget")
-        if action.action_id in action_ids:
-            raise _EventLogError("action IDs must be unique")
-        if action.slot_id in slot_ids:
-            raise _EventLogError("slot IDs must be unique")
-        action_ids.add(action.action_id)
-        slot_ids.add(action.slot_id)
-    return snapshot, typed_actions, typed_outcomes
 
 
 def _parse_snapshot(row: dict[str, object], line_number: int) -> tuple[PolicySnapshot, int]:
@@ -313,6 +310,9 @@ def _parse_attempt(
         inserted_into_archive=_boolean("inserted_into_archive", row["inserted_into_archive"]),
         within_batch_collision=_boolean("within_batch_collision", row["within_batch_collision"]),
         force_evaluations=_nonnegative_int("force_evaluations", row["force_evaluations"]),
+        evaluation_counts=_parse_evaluation_counts(row["evaluation_counts"]),
+        cost_is_exact=_boolean("cost_is_exact", row["cost_is_exact"]),
+        posterior_observed=_boolean("posterior_observed", row["posterior_observed"]),
         status=status,
         landing_entry_id=_optional_nonnegative_int("landing_entry_id", row["landing_entry_id"]),
         landing_energy=_optional_finite_number("landing_energy", row["landing_energy"]),
@@ -320,6 +320,10 @@ def _parse_attempt(
     )
     if action.force_budget is not None and outcome.force_evaluations > action.force_budget:
         raise _EventLogError("force_evaluations cannot exceed action force_budget")
+    if outcome.posterior_observed != should_observe_posterior(
+        outcome.status, outcome.evaluation_counts
+    ):
+        raise _EventLogError("posterior_observed must match terminal observation predicate")
     return action, outcome
 
 
@@ -350,6 +354,12 @@ def _reject_duplicate_json_keys(pairs: list[tuple[str, object]]) -> dict[str, ob
             raise _EventLogError(f"duplicate JSON object key: {key!r}")
         row[key] = value
     return row
+
+
+def _canonical_json_line(row: dict[str, object]) -> str:
+    """Keep top-level rows sorted while preserving enum order inside count objects."""
+    sorted_row = {key: row[key] for key in sorted(row)}
+    return json.dumps(sorted_row, separators=(",", ":"), allow_nan=False)
 
 
 @dataclass(frozen=True)
@@ -498,6 +508,8 @@ def _parse_committed_log(path: Path) -> _ParsedEventLog:
                     raise _EventLogError(f"line {line_number}: duplicate action_id")
                 if action.slot_id in active_slot_ids:
                     raise _EventLogError(f"line {line_number}: duplicate slot_id")
+                if action.slot_id != len(active_actions):
+                    raise _EventLogError(f"line {line_number}: actions must be in contiguous slot order")
                 seen_action_ids.add(action.action_id)
                 active_action_ids.append(action.action_id)
                 active_actions.append(action)
@@ -557,17 +569,19 @@ class ExplorationEventLog:
     def __init__(self, path: str | os.PathLike[str]) -> None:
         self.path = Path(path)
 
-    def append_batch(
-        self,
-        snapshot: PolicySnapshot,
-        actions: tuple[StarterAction, ...],
-        outcomes: tuple[CreditedOutcome, ...],
-    ) -> None:
+    def append_batch(self, batch: CommittedExplorationBatch) -> None:
         """Durably append one snapshot, its attempts, and its commit marker."""
-        snapshot, actions, outcomes = _validate_append_inputs(snapshot, actions, outcomes)
-        batch_id = actions[0].batch_id
+        if not isinstance(batch, CommittedExplorationBatch):
+            raise _EventLogError("batch must be a CommittedExplorationBatch")
+        snapshot = batch.snapshot
+        actions = batch.actions
+        outcomes = batch.outcomes
+        batch_id = batch.batch_id
         action_ids = tuple(action.action_id for action in actions)
-        candidate = _CommittedBatch(snapshot, actions, outcomes)
+        rows = [_snapshot_row(snapshot, batch_id)]
+        rows.extend(_attempt_row(action, outcome) for action, outcome in zip(actions, outcomes))
+        rows.append(_commit_row(batch_id, action_ids))
+        candidate_lines = tuple(_canonical_json_line(row) for row in rows)
         _reject_final_path_symlink(self.path)
         _require_no_follow_append_support()
         directory_fd = _open_preflight_fsynced_parent_directory(self.path)
@@ -575,20 +589,20 @@ class ExplorationEventLog:
             existing = _parse_committed_log(self.path)
             existing_batch = existing.batches.get(batch_id)
             if existing_batch is not None:
-                if existing_batch == candidate:
+                existing_rows = [_snapshot_row(existing_batch.snapshot, batch_id)]
+                existing_rows.extend(
+                    _attempt_row(action, outcome)
+                    for action, outcome in zip(existing_batch.actions, existing_batch.outcomes)
+                )
+                existing_rows.append(_commit_row(batch_id, tuple(action.action_id for action in existing_batch.actions)))
+                if tuple(_canonical_json_line(row) for row in existing_rows) == candidate_lines:
                     _fsync_existing_file(self.path)
                     _fsync_held_parent_directory(directory_fd, "post-retry")
                     return
                 raise _EventLogError("batch_id already exists in event log")
             if set(action_ids) & existing.action_ids:
                 raise _EventLogError("action_id already exists in event log")
-            rows = [_snapshot_row(snapshot, batch_id)]
-            rows.extend(_attempt_row(action, outcome) for action, outcome in zip(actions, outcomes))
-            rows.append(_commit_row(batch_id, action_ids))
-            payload = "".join(
-                json.dumps(row, sort_keys=True, separators=(",", ":"), allow_nan=False) + "\n"
-                for row in rows
-            )
+            payload = "".join(line + "\n" for line in candidate_lines)
 
             with _open_append_text_file(self.path, directory_fd) as handle:
                 written = handle.write(payload)
@@ -609,7 +623,13 @@ class ExplorationEventLog:
         parsed = _parse_committed_log(self.path)
         posterior = StarterProductivityPosterior()
         for outcome in parsed.outcomes:
-            posterior.update(outcome.starter_id, outcome.discovered_against_snapshot)
+            posterior_observed = should_observe_posterior(
+                outcome.status, outcome.evaluation_counts
+            )
+            if outcome.posterior_observed != posterior_observed:
+                raise _EventLogError("posterior_observed must match terminal observation predicate")
+            if posterior_observed:
+                posterior.update(outcome.starter_id, outcome.discovered_against_snapshot)
         return posterior
 
 

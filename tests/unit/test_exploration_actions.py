@@ -4,6 +4,8 @@ import numpy as np
 import pytest
 
 import pamssw
+import pamssw.exploration
+from pamssw.accounting import EvaluationCounts, EvaluationPurpose
 from pamssw.exploration.actions import (
     AttemptResult,
     AttemptStatus,
@@ -34,11 +36,17 @@ def test_package_root_exports_only_the_public_posterior_exploration_types():
         "read_state",
         "relax_minimum",
         "run_ls_ssw",
+        "run_posterior_ls_ssw",
+        "run_posterior_ssw",
         "run_ssw",
         "state_from_atoms",
         "state_to_atoms",
         "write_state",
     }
+    assert callable(pamssw.run_posterior_ssw)
+    assert callable(pamssw.run_posterior_ls_ssw)
+    assert pamssw.run_posterior_ssw is pamssw.exploration.run_posterior_ssw
+    assert pamssw.run_posterior_ls_ssw is pamssw.exploration.run_posterior_ls_ssw
 
     internal_exports = {
         "AttemptResult",
@@ -311,8 +319,14 @@ def test_attempt_result_keeps_normal_dataclass_fields_and_replace_behavior():
         "force_evaluations",
         "status",
         "failure_reason",
+        "evaluation_counts",
+        "cost_is_exact",
     ]
-    replaced = replace(result, force_evaluations=2)
+    replaced = replace(
+        result,
+        force_evaluations=2,
+        evaluation_counts=EvaluationCounts.unattributed(2),
+    )
     assert replaced.force_evaluations == 2
     assert replaced.landing_state is not result.landing_state
 
@@ -413,6 +427,67 @@ def test_credited_outcome_preserves_dispatch_and_commit_facts():
 
 
 @pytest.mark.parametrize(
+    ("status", "force_evaluations", "posterior_observed"),
+    [
+        (AttemptStatus.WORKER_ERROR, 0, True),
+        (AttemptStatus.INVALID, 0, True),
+        (AttemptStatus.INVALID, 3, False),
+    ],
+)
+def test_credited_outcome_rejects_posterior_observation_values_that_disagree_with_terminal_facts(
+    status: AttemptStatus,
+    force_evaluations: int,
+    posterior_observed: bool,
+):
+    with pytest.raises(ValueError, match="posterior_observed"):
+        CreditedOutcome(
+            action_id="a",
+            starter_id=2,
+            discovered_against_snapshot=False,
+            inserted_into_archive=False,
+            within_batch_collision=False,
+            force_evaluations=force_evaluations,
+            status=status,
+            landing_entry_id=None,
+            landing_energy=None,
+            failure_reason="terminal failure",
+            evaluation_counts=EvaluationCounts.unattributed(force_evaluations),
+            posterior_observed=posterior_observed,
+        )
+
+
+@pytest.mark.parametrize(
+    ("status", "force_evaluations", "posterior_observed"),
+    [
+        (AttemptStatus.WORKER_ERROR, 0, False),
+        (AttemptStatus.INVALID, 0, False),
+        (AttemptStatus.INVALID, 3, True),
+    ],
+)
+def test_credited_outcome_accepts_posterior_observation_values_that_match_terminal_facts(
+    status: AttemptStatus,
+    force_evaluations: int,
+    posterior_observed: bool,
+):
+    outcome = CreditedOutcome(
+        action_id="a",
+        starter_id=2,
+        discovered_against_snapshot=False,
+        inserted_into_archive=False,
+        within_batch_collision=False,
+        force_evaluations=force_evaluations,
+        status=status,
+        landing_entry_id=None,
+        landing_energy=None,
+        failure_reason="terminal failure",
+        evaluation_counts=EvaluationCounts.unattributed(force_evaluations),
+        posterior_observed=posterior_observed,
+    )
+
+    assert outcome.posterior_observed is posterior_observed
+
+
+@pytest.mark.parametrize(
     "values",
     [
         {"landing_entry_id": None},
@@ -492,3 +567,180 @@ def test_attempt_result_and_credited_outcome_are_frozen():
         result.force_evaluations = 2
     with pytest.raises(FrozenInstanceError):
         outcome.action_id = "other"
+
+
+def test_terminal_records_preserve_exact_evaluation_vectors_and_legacy_scalar_conversion():
+    exact_counts = EvaluationCounts(
+        (1, 0, 2, 0, 0, 0, 0, 0)
+    )
+    result = AttemptResult(
+        action=_action(),
+        landing_state=None,
+        landing_energy=None,
+        force_evaluations=3,
+        status=AttemptStatus.INVALID,
+        failure_reason="invalid after exact accounting",
+        evaluation_counts=exact_counts,
+        cost_is_exact=True,
+    )
+    outcome = CreditedOutcome(
+        action_id="a",
+        starter_id=2,
+        discovered_against_snapshot=False,
+        inserted_into_archive=False,
+        within_batch_collision=False,
+        force_evaluations=3,
+        status=AttemptStatus.INVALID,
+        landing_entry_id=None,
+        landing_energy=None,
+        failure_reason="invalid after exact accounting",
+        evaluation_counts=exact_counts,
+        cost_is_exact=False,
+        posterior_observed=True,
+    )
+    legacy = AttemptResult(
+        action=_action(),
+        landing_state=None,
+        landing_energy=None,
+        force_evaluations=3,
+        status=AttemptStatus.INVALID,
+        failure_reason="legacy scalar only",
+    )
+
+    assert result.evaluation_counts == exact_counts
+    assert result.evaluation_counts.total == result.force_evaluations
+    assert result.cost_is_exact is True
+    assert outcome.evaluation_counts == exact_counts
+    assert outcome.evaluation_counts.total == outcome.force_evaluations
+    assert outcome.cost_is_exact is False
+    assert outcome.posterior_observed is True
+    assert legacy.evaluation_counts == EvaluationCounts.unattributed(3)
+    assert legacy.cost_is_exact is True
+
+
+@pytest.mark.parametrize(
+    ("record_factory", "kwargs", "message"),
+    [
+        (
+            AttemptResult,
+            {
+                "action": _action(),
+                "landing_state": None,
+                "landing_energy": None,
+                "force_evaluations": 3,
+                "status": AttemptStatus.INVALID,
+                "failure_reason": "mismatched accounting",
+                "evaluation_counts": EvaluationCounts.unattributed(2),
+            },
+            "evaluation_counts total",
+        ),
+        (
+            CreditedOutcome,
+            {
+                "action_id": "a",
+                "starter_id": 2,
+                "discovered_against_snapshot": False,
+                "inserted_into_archive": False,
+                "within_batch_collision": False,
+                "force_evaluations": 3,
+                "status": AttemptStatus.INVALID,
+                "landing_entry_id": None,
+                "landing_energy": None,
+                "failure_reason": "mismatched accounting",
+                "evaluation_counts": EvaluationCounts.unattributed(2),
+            },
+            "evaluation_counts total",
+        ),
+    ],
+)
+def test_terminal_records_reject_mismatched_evaluation_count_totals(record_factory, kwargs, message):
+    with pytest.raises(ValueError, match=message):
+        record_factory(**kwargs)
+
+
+@pytest.mark.parametrize(
+    ("record_factory", "kwargs", "message"),
+    [
+        (
+            AttemptResult,
+            {
+                "action": _action(),
+                "landing_state": None,
+                "landing_energy": None,
+                "force_evaluations": 0,
+                "status": AttemptStatus.INVALID,
+                "failure_reason": "invalid",
+                "evaluation_counts": object(),
+            },
+            "evaluation_counts",
+        ),
+        (
+            AttemptResult,
+            {
+                "action": _action(),
+                "landing_state": None,
+                "landing_energy": None,
+                "force_evaluations": 0,
+                "status": AttemptStatus.INVALID,
+                "failure_reason": "invalid",
+                "cost_is_exact": 1,
+            },
+            "cost_is_exact",
+        ),
+        (
+            CreditedOutcome,
+            {
+                "action_id": "a",
+                "starter_id": 2,
+                "discovered_against_snapshot": False,
+                "inserted_into_archive": False,
+                "within_batch_collision": False,
+                "force_evaluations": 0,
+                "status": AttemptStatus.INVALID,
+                "landing_entry_id": None,
+                "landing_energy": None,
+                "failure_reason": "invalid",
+                "cost_is_exact": "unknown",
+            },
+            "cost_is_exact",
+        ),
+        (
+            CreditedOutcome,
+            {
+                "action_id": "a",
+                "starter_id": 2,
+                "discovered_against_snapshot": False,
+                "inserted_into_archive": False,
+                "within_batch_collision": False,
+                "force_evaluations": 0,
+                "status": AttemptStatus.INVALID,
+                "landing_entry_id": None,
+                "landing_energy": None,
+                "failure_reason": "invalid",
+                "posterior_observed": 1,
+            },
+            "posterior_observed",
+        ),
+    ],
+)
+def test_terminal_records_reject_unknown_or_nonboolean_accounting_flags(record_factory, kwargs, message):
+    with pytest.raises(ValueError, match=message):
+        record_factory(**kwargs)
+
+
+def test_terminal_records_store_an_immutable_evaluation_count_snapshot_without_aliasing():
+    source = {purpose: 0 for purpose in EvaluationPurpose}
+    source[EvaluationPurpose.DIRECTION_ORACLE] = 2
+    counts = EvaluationCounts.from_mapping(source)
+    result = AttemptResult(
+        action=_action(),
+        landing_state=None,
+        landing_energy=None,
+        force_evaluations=2,
+        status=AttemptStatus.INVALID,
+        failure_reason="exact snapshot",
+        evaluation_counts=counts,
+    )
+    source[EvaluationPurpose.DIRECTION_ORACLE] = 9
+
+    assert result.evaluation_counts.count(EvaluationPurpose.DIRECTION_ORACLE) == 2
