@@ -1,3 +1,6 @@
+from concurrent.futures import ThreadPoolExecutor
+from threading import Lock
+import time
 from types import SimpleNamespace
 
 import numpy as np
@@ -195,6 +198,82 @@ def test_softening_worker_accepts_an_ls_ssw_config_and_passes_the_flag(monkeypat
     assert instances[0].softening_enabled is True
 
 
+def test_worker_serializes_only_each_calculators_first_evaluation(monkeypatch):
+    active_lock = Lock()
+    active_first_evaluations = 0
+    maximum_active_first_evaluations = 0
+
+    class FirstEvaluationRacyCalculator(_Calculator):
+        def __init__(self):
+            self.used = False
+
+        def evaluate(self, state):
+            nonlocal active_first_evaluations, maximum_active_first_evaluations
+            if self.used:
+                return super().evaluate(state)
+            self.used = True
+            with active_lock:
+                active_first_evaluations += 1
+                maximum_active_first_evaluations = max(
+                    maximum_active_first_evaluations,
+                    active_first_evaluations,
+                )
+                overlapping = active_first_evaluations > 1
+            time.sleep(0.05)
+            with active_lock:
+                active_first_evaluations -= 1
+            if overlapping:
+                raise NameError("module is not installed as a submodule")
+            return super().evaluate(state)
+
+    class EvaluatingSurfaceWalker:
+        def __init__(self, calculator, config, softening_enabled):
+            self._delegate = calculator
+            self.calculator = _Counter(
+                1,
+                False,
+                EvaluationCounts.from_mapping(
+                    {EvaluationPurpose.STARTER_TRUE_QUENCH: 1}
+                ),
+            )
+
+        def run(self, starter):
+            self._delegate.evaluate(starter)
+            return _search_result(
+                stats={
+                    "force_evaluations": 1,
+                    "budget_exhausted": 0,
+                    "fragment_rejections": 0,
+                }
+            )
+
+    monkeypatch.setattr(worker_module, "SurfaceWalker", EvaluatingSurfaceWalker)
+    worker = SSWAttemptWorker(FirstEvaluationRacyCalculator, SSWConfig())
+    actions = (
+        _action(random_seed=12),
+        StarterAction(
+            action_id="batch-00000001-slot-0001",
+            batch_id=1,
+            slot_id=1,
+            policy_name="uniform",
+            policy_version=2,
+            archive_version=3,
+            starter_id=4,
+            selection_probability=0.25,
+            random_seed=13,
+            force_budget=8,
+        ),
+    )
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        results = tuple(
+            executor.map(lambda action: worker(action, _state()), actions)
+        )
+
+    assert all(result.status is not AttemptStatus.WORKER_ERROR for result in results)
+    assert maximum_active_first_evaluations == 1
+
+
 @pytest.mark.parametrize(
     "config",
     [
@@ -243,7 +322,7 @@ def test_action_overrides_config_and_factory_is_called_once_per_action(monkeypat
     assert instances[0].config.max_trials == 1
     assert instances[0].config.rng_seed == 31
     assert instances[0].config.max_force_evals == 5
-    assert instances[0].calculator_from_factory is calculators[0]
+    assert instances[0].calculator_from_factory.calculator is calculators[0]
     assert mapped.status is AttemptStatus.COMPLETED
     assert mapped.force_evaluations == 3
 
