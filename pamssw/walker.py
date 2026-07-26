@@ -3556,6 +3556,15 @@ class SurfaceWalker:
         summary["bias_weight_max"] = float(self._bias_weight_max)
         return summary
 
+    def relaxation_diagnostics(self) -> dict[str, StatsValue]:
+        """Return bounded optimizer diagnostics for one isolated attempt."""
+
+        summary: dict[str, StatsValue] = dict(self._relax_stats_summary())
+        summary["proposal_optimizer"] = self.config.proposal_optimizer
+        summary["quench_optimizer"] = self.config.quench_optimizer
+        summary["force_evaluations"] = self.calculator.snapshot().total
+        return summary
+
     def _build_softening(self, seed_state: State, direction: np.ndarray | None = None) -> LocalSofteningModel | None:
         if not self.softening_enabled or not isinstance(self.config, LSSSWConfig):
             self._local_softening_terms_last = 0

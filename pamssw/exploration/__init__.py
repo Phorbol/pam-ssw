@@ -2,6 +2,7 @@ from .actions import AttemptResult, AttemptStatus, CreditedOutcome, PolicySnapsh
 from .batch import derive_action_seed, plan_batch
 from .committed import CommittedExplorationBatch
 from .campaign import (
+    AttemptDiagnostics,
     CampaignBudget,
     CampaignBudgetSnapshot,
     CampaignStopReason,
@@ -17,6 +18,7 @@ from .ssw_worker import SSWAttemptWorker
 
 __all__ = [
     "AttemptResult",
+    "AttemptDiagnostics",
     "AttemptStatus",
     "BatchLog",
     "CampaignBudget",

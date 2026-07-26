@@ -195,6 +195,13 @@ def test_real_worker_purpose_ledger_preserves_completed_analytic_baselines(
     result = worker(action, _state())
 
     assert len(calculators) == 1
+    diagnostics = worker.diagnostics_snapshot()
+    assert len(diagnostics) == 1
+    assert diagnostics[0].action_id == action.action_id
+    diagnostic_stats = dict(diagnostics[0].stats)
+    assert diagnostic_stats["proposal_optimizer"] == config.proposal_optimizer
+    assert diagnostic_stats["proposal_relax_count"] >= 1
+    assert diagnostic_stats["force_evaluations"] == result.force_evaluations
     _assert_terminal_baseline(
         result,
         calculators[0],
@@ -359,6 +366,9 @@ def test_real_worker_purpose_ledger_preserves_exact_budget_exhaustion_baseline(
         landing_positions=None,
     )
     _assert_closed_physical_ledger(result)
+    diagnostics = worker.diagnostics_snapshot()
+    assert len(diagnostics) == 1
+    assert dict(diagnostics[0].stats)["force_evaluations"] == 5
 
 
 @pytest.mark.parametrize(

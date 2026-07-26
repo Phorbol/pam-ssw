@@ -13,9 +13,11 @@ from pamssw.exploration.actions import AttemptStatus
 from pamssw.exploration.campaign import CampaignStopReason
 from pamssw.exploration.runner import (
     _bootstrap_minimum,
+    _write_optimizer_diagnostics,
     run_posterior_ls_ssw,
     run_posterior_ssw,
 )
+from pamssw.exploration.campaign import AttemptDiagnostics
 from pamssw.exploration.event_log import ExplorationEventLog
 from pamssw import run_ls_ssw, run_ssw
 from pamssw.potentials import DoubleWell2D
@@ -313,7 +315,12 @@ def test_posterior_runner_uses_real_threaded_ssw_with_exact_budget_and_event_led
     assert result.total_evaluations <= result.total_force_budget
     assert result.purpose_counts.count(EvaluationPurpose.UNATTRIBUTED) == 0
     assert result.unused_force_budget < exploration_config.action_force_budget
+    diagnostic_path = run_directory / "optimizer_diagnostics.json"
+    diagnostics = json.loads(diagnostic_path.read_text())
+    assert len(diagnostics["attempts"]) == result.completed_attempts + result.failed_attempts
+    assert all(item["stats"]["force_evaluations"] >= 0 for item in diagnostics["attempts"])
     assert event_path.is_file()
+
     assert ExplorationEventLog(event_path).reconstruct_posterior().completed_attempts == (
         result.posterior_observed_attempts
     )
@@ -332,6 +339,22 @@ def test_posterior_runner_uses_real_threaded_ssw_with_exact_budget_and_event_led
         remaining -= sum(
             sum(attempt["evaluation_counts"].values()) for attempt in attempts
         )
+
+
+def test_optimizer_diagnostics_writer_never_overwrites_an_existing_sidecar(tmp_path: Path):
+    path = tmp_path / "optimizer_diagnostics.json"
+    path.write_text("keep\n", encoding="utf-8")
+    diagnostics = (
+        AttemptDiagnostics(
+            action_id="action-1",
+            stats=(("force_evaluations", 3),),
+        ),
+    )
+
+    with pytest.raises(FileExistsError):
+        _write_optimizer_diagnostics(path, diagnostics)
+
+    assert path.read_text(encoding="utf-8") == "keep\n"
 
 
 @pytest.mark.parametrize("invalid_run_directory", ("existing", "missing-parent"))

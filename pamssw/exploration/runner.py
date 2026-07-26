@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from copy import deepcopy
 from concurrent.futures import ThreadPoolExecutor
+import json
 from math import isfinite
+import os
+from pathlib import Path
 from typing import Callable
 
 from ..accounting import EvalCounter, EvaluationCounts, EvaluationPurpose
@@ -191,6 +194,10 @@ def _run_posterior_campaign(
 
     if budget.stop_reason is None:
         raise RuntimeError("posterior campaign reached no terminal budget state")
+    _write_optimizer_diagnostics(
+        run_directory / "optimizer_diagnostics.json",
+        worker.diagnostics_snapshot(),
+    )
     return _campaign_result(
         controller,
         budget,
@@ -247,6 +254,29 @@ def _campaign_result(
         benchmark_ineligibility_reasons=reasons,
         run_directory=exploration_config.run_directory,
     )
+
+
+def _write_optimizer_diagnostics(path: Path, diagnostics: tuple) -> None:
+    payload = {
+        "schema_version": 1,
+        "attempts": [
+            {
+                "action_id": item.action_id,
+                "stats": dict(item.stats),
+            }
+            for item in diagnostics
+        ],
+    }
+    temporary = path.with_name(f".{path.name}.tmp")
+    with temporary.open("x", encoding="utf-8") as stream:
+        json.dump(payload, stream, indent=2, sort_keys=True, allow_nan=False)
+        stream.write("\n")
+        stream.flush()
+        os.fsync(stream.fileno())
+    try:
+        os.link(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 __all__ = [

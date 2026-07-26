@@ -5,6 +5,7 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import replace
 from numbers import Integral
+from threading import Lock
 from typing import Callable
 
 from ..accounting import BudgetExceeded, EvaluationCounts
@@ -13,6 +14,7 @@ from ..result import SearchResult
 from ..state import State
 from ..walker import GeometryValidator, SurfaceWalker
 from .actions import AttemptResult, AttemptStatus, StarterAction
+from .campaign import AttemptDiagnostics
 
 
 class SSWAttemptWorker:
@@ -44,6 +46,8 @@ class SSWAttemptWorker:
         self.config = config
         self.softening_enabled = softening_enabled
         self.geometry_validator = GeometryValidator()
+        self._diagnostics_lock = Lock()
+        self._diagnostics: dict[str, AttemptDiagnostics] = {}
 
     def __call__(self, action: StarterAction, starter_state: State) -> AttemptResult:
         if not isinstance(action, StarterAction):
@@ -51,24 +55,42 @@ class SSWAttemptWorker:
         if not isinstance(starter_state, State):
             raise ValueError("starter_state must be a State")
         if not self.geometry_validator.is_valid_state(starter_state):
-            return _failed_result(
+            result = _failed_result(
                 action,
                 AttemptStatus.INVALID,
                 EvaluationCounts.zero(),
                 "invalid_starter_geometry",
             )
+            self._record_diagnostics_safely(
+                action,
+                stage="invalid_starter",
+                force_evaluations=0,
+            )
+            return result
 
         try:
             calculator = self.calculator_factory()
         except Exception as exc:
-            return _worker_error(action, EvaluationCounts.zero(), "factory_error", exc)
+            result = _worker_error(action, EvaluationCounts.zero(), "factory_error", exc)
+            self._record_diagnostics_safely(
+                action,
+                stage="factory_error",
+                force_evaluations=0,
+            )
+            return result
         if not _is_calculator(calculator):
-            return _failed_result(
+            result = _failed_result(
                 action,
                 AttemptStatus.WORKER_ERROR,
                 EvaluationCounts.zero(),
                 "calculator_error: missing callable evaluate and evaluate_flat",
             )
+            self._record_diagnostics_safely(
+                action,
+                stage="calculator_error",
+                force_evaluations=0,
+            )
+            return result
 
         action_config = replace(
             self.config,
@@ -79,38 +101,159 @@ class SSWAttemptWorker:
         try:
             walker = SurfaceWalker(calculator, action_config, self.softening_enabled)
         except Exception as exc:
-            return _worker_error(action, EvaluationCounts.zero(), "constructor_error", exc)
+            result = _worker_error(action, EvaluationCounts.zero(), "constructor_error", exc)
+            self._record_diagnostics_safely(
+                action,
+                stage="constructor_error",
+                force_evaluations=0,
+            )
+            return result
 
         try:
             result = walker.run(deepcopy(starter_state))
         except BudgetExceeded:
             evaluation_counts = _calculator_snapshot(walker)
             if _counter_exhausted(walker):
-                return _failed_result(
+                terminal = _failed_result(
                     action,
                     AttemptStatus.BUDGET_EXHAUSTED,
                     evaluation_counts,
                     "budget_exhausted",
                 )
-            return _failed_result(
+                stage = "budget_exhausted"
+            else:
+                terminal = _failed_result(
+                    action,
+                    AttemptStatus.INVALID,
+                    evaluation_counts,
+                    "budget_exception_without_exhaustion",
+                )
+                stage = "budget_exception_without_exhaustion"
+            self._record_diagnostics_safely(
                 action,
-                AttemptStatus.INVALID,
-                evaluation_counts,
-                "budget_exception_without_exhaustion",
+                walker=walker,
+                stage=stage,
+                force_evaluations=evaluation_counts.total,
             )
+            return terminal
         except Exception as exc:
-            return _worker_error(action, _calculator_snapshot(walker), "run_error", exc)
-
-        try:
             evaluation_counts = _calculator_snapshot(walker)
-            return _map_search_result(action, result, evaluation_counts)
-        except Exception as exc:
-            return _worker_error(
+            terminal = _worker_error(action, evaluation_counts, "run_error", exc)
+            self._record_diagnostics_safely(
                 action,
-                _calculator_snapshot(walker),
+                walker=walker,
+                stage="run_error",
+                force_evaluations=evaluation_counts.total,
+            )
+            return terminal
+
+        evaluation_counts = _calculator_snapshot(walker)
+        try:
+            terminal = _map_search_result(action, result, evaluation_counts)
+        except Exception as exc:
+            terminal = _worker_error(
+                action,
+                evaluation_counts,
                 "result_mapping_error",
                 exc,
             )
+            stage = "result_mapping_error"
+        else:
+            stage = terminal.status.value
+        self._record_diagnostics_safely(
+            action,
+            walker=walker,
+            result=result,
+            stage=stage,
+            force_evaluations=evaluation_counts.total,
+        )
+        return terminal
+
+    def diagnostics_snapshot(self) -> tuple[AttemptDiagnostics, ...]:
+        with self._diagnostics_lock:
+            return tuple(self._diagnostics[key] for key in sorted(self._diagnostics))
+
+    def _record_diagnostics(
+        self,
+        action: StarterAction,
+        walker: SurfaceWalker | None,
+        result: SearchResult | None = None,
+        *,
+        stage: str,
+        force_evaluations: int,
+    ) -> None:
+        if result is not None:
+            source = result.stats
+        elif walker is None:
+            source = {}
+        else:
+            diagnostic_source = getattr(walker, "relaxation_diagnostics", None)
+            source = diagnostic_source() if callable(diagnostic_source) else {}
+        retained = {
+            name: value
+            for name, value in source.items()
+            if name.startswith("proposal_relax_")
+            or name.startswith("true_quench_")
+            or name
+            in {
+                "force_evaluations",
+                "budget_exhausted",
+                "fragment_rejections",
+                "proposal_optimizer",
+                "quench_optimizer",
+            }
+        }
+        if "proposal_optimizer" not in retained:
+            retained["proposal_optimizer"] = self.config.proposal_optimizer
+        if "quench_optimizer" not in retained:
+            retained["quench_optimizer"] = self.config.quench_optimizer
+        retained["force_evaluations"] = force_evaluations
+        retained["diagnostic_stage"] = stage
+        diagnostic = AttemptDiagnostics(
+            action_id=action.action_id,
+            stats=tuple(sorted(retained.items())),
+        )
+        with self._diagnostics_lock:
+            self._diagnostics[action.action_id] = diagnostic
+
+    def _record_diagnostics_safely(
+        self,
+        action: StarterAction,
+        *,
+        stage: str,
+        force_evaluations: int,
+        walker: SurfaceWalker | None = None,
+        result: SearchResult | None = None,
+    ) -> None:
+        """Record bounded diagnostics without changing an action's terminal result."""
+        try:
+            self._record_diagnostics(
+                action,
+                walker,
+                result,
+                stage=stage,
+                force_evaluations=force_evaluations,
+            )
+        except Exception as exc:
+            fallback = AttemptDiagnostics(
+                action_id=action.action_id,
+                stats=tuple(
+                    sorted(
+                        {
+                            "diagnostic_stage": stage,
+                            "diagnostics_error": type(exc).__name__,
+                            "force_evaluations": force_evaluations,
+                            "proposal_optimizer": self.config.proposal_optimizer,
+                            "quench_optimizer": self.config.quench_optimizer,
+                        }.items()
+                    )
+                ),
+            )
+            try:
+                with self._diagnostics_lock:
+                    self._diagnostics[action.action_id] = fallback
+            except Exception:
+                pass
 
 
 def _has_shared_filesystem_output(config: SSWConfig) -> bool:
