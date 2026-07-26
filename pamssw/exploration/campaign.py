@@ -27,15 +27,6 @@ def _nonnegative_int(value: object, name: str) -> int:
     return value
 
 
-def _stripped_nonempty(value: object, name: str) -> str:
-    if not isinstance(value, str):
-        raise TypeError(f"{name} must be a string")
-    normalized = value.strip()
-    if not normalized:
-        raise ValueError(f"{name} must be nonempty")
-    return normalized
-
-
 @dataclass(frozen=True)
 class PosteriorExplorationConfig:
     """Fixed-fidelity configuration for a posterior exploration campaign."""
@@ -46,10 +37,7 @@ class PosteriorExplorationConfig:
     action_force_budget: int
     total_force_budget: int
     master_seed: int
-    calculator_label: str
-    calculator_fingerprint: str
     run_directory: Path
-    mode: str = "new"
 
     def __post_init__(self) -> None:
         if not isinstance(self.policy_name, str):
@@ -63,19 +51,9 @@ class PosteriorExplorationConfig:
         _positive_int(self.action_force_budget, "action_force_budget")
         _positive_int(self.total_force_budget, "total_force_budget")
         _nonnegative_int(self.master_seed, "master_seed")
-        object.__setattr__(
-            self, "calculator_label", _stripped_nonempty(self.calculator_label, "calculator_label")
-        )
-        object.__setattr__(
-            self,
-            "calculator_fingerprint",
-            _stripped_nonempty(self.calculator_fingerprint, "calculator_fingerprint"),
-        )
         if not isinstance(self.run_directory, (str, os.PathLike)):
             raise TypeError("run_directory must be path-like")
         object.__setattr__(self, "run_directory", Path(self.run_directory))
-        if self.mode not in {"new", "resume"}:
-            raise ValueError("mode must be 'new' or 'resume'")
 
 
 class CampaignStopReason(str, Enum):

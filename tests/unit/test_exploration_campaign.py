@@ -24,15 +24,13 @@ def _config(**changes) -> PosteriorExplorationConfig:
         "action_force_budget": 8,
         "total_force_budget": 101,
         "master_seed": 7,
-        "calculator_label": " MACE-OMAT ",
-        "calculator_fingerprint": " model-sha256 ",
         "run_directory": "runs/campaign",
     }
     values.update(changes)
     return PosteriorExplorationConfig(**values)
 
 
-def test_posterior_exploration_config_has_the_fixed_fidelity_contract_and_normalizes_values():
+def test_posterior_exploration_config_has_the_runner_contract_and_normalizes_run_directory():
     config = _config()
 
     assert tuple(field.name for field in fields(config)) == (
@@ -42,15 +40,9 @@ def test_posterior_exploration_config_has_the_fixed_fidelity_contract_and_normal
         "action_force_budget",
         "total_force_budget",
         "master_seed",
-        "calculator_label",
-        "calculator_fingerprint",
         "run_directory",
-        "mode",
     )
-    assert config.calculator_label == "MACE-OMAT"
-    assert config.calculator_fingerprint == "model-sha256"
     assert config.run_directory == Path("runs/campaign")
-    assert config.mode == "new"
 
 
 def test_posterior_exploration_config_is_frozen_and_accepts_all_current_policies():
@@ -83,14 +75,8 @@ def test_posterior_exploration_config_is_frozen_and_accepts_all_current_policies
         {"master_seed": -1},
         {"master_seed": True},
         {"master_seed": 1.0},
-        {"calculator_label": " \t "},
-        {"calculator_label": None},
-        {"calculator_fingerprint": "\n"},
-        {"calculator_fingerprint": None},
         {"run_directory": 1},
         {"run_directory": object()},
-        {"mode": "restart"},
-        {"mode": True},
     ],
 )
 def test_posterior_exploration_config_rejects_invalid_values(changes):
@@ -98,11 +84,10 @@ def test_posterior_exploration_config_rejects_invalid_values(changes):
         _config(**changes)
 
 
-def test_posterior_exploration_config_accepts_path_objects_and_resume_mode():
-    config = _config(run_directory=Path("runs/resume"), mode="resume")
+def test_posterior_exploration_config_accepts_path_objects():
+    config = _config(run_directory=Path("runs/campaign"))
 
-    assert config.run_directory == Path("runs/resume")
-    assert config.mode == "resume"
+    assert config.run_directory == Path("runs/campaign")
 
 
 def _counts(total: int) -> EvaluationCounts:
