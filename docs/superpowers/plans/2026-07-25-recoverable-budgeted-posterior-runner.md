@@ -885,11 +885,11 @@ Normalize `run_directory` to `Path` in `__post_init__` and reuse
 Cover bootstrap and batch reservation:
 
 ```python
-ledger = CampaignBudget(total=101)
+ledger = CampaignBudget(total=101, action_force_budget=10)
 ledger.record_bootstrap(EvaluationCounts.from_mapping(
     {EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH: 11}
 ))
-assert ledger.next_batch_size(max_batch_size=3, action_budget=10) == 3
+assert ledger.next_batch_size(max_batch_size=3) == 3
 
 ledger.commit_batch(
     action_counts=(
@@ -903,7 +903,6 @@ ledger.commit_batch(
             {EvaluationPurpose.BIASED_PROPOSAL_RELAX: 3}
         ),
     ),
-    reserved_action_budget=10,
 )
 assert ledger.spent == 32
 assert ledger.remaining == 69
@@ -912,29 +911,27 @@ assert ledger.remaining == 69
 Final tail:
 
 ```python
-ledger = CampaignBudget(total=25)
+ledger = CampaignBudget(total=25, action_force_budget=10)
 ledger.record_bootstrap(EvaluationCounts.from_mapping(
     {EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH: 6}
 ))
-assert ledger.next_batch_size(3, 10) == 1
+assert ledger.next_batch_size(3) == 1
 ledger.commit_batch(
     (
         EvaluationCounts.from_mapping(
             {EvaluationPurpose.DIRECTION_ORACLE: 7}
         ),
     ),
-    10,
 )
-assert ledger.next_batch_size(3, 10) == 1
+assert ledger.next_batch_size(3) == 1
 ledger.commit_batch(
     (
         EvaluationCounts.from_mapping(
             {EvaluationPurpose.LANDING_TRUE_QUENCH: 6}
         ),
     ),
-    10,
 )
-assert ledger.next_batch_size(3, 10) == 0
+assert ledger.next_batch_size(3) == 0
 assert ledger.unused == 6
 ```
 
@@ -955,6 +952,7 @@ class CampaignStopReason(str, Enum):
 @dataclass
 class CampaignBudget:
     total: int
+    action_force_budget: int
     bootstrap_counts: EvaluationCounts = field(default_factory=EvaluationCounts.zero)
     action_counts: EvaluationCounts = field(default_factory=EvaluationCounts.zero)
     committed_batches: int = 0
@@ -970,11 +968,11 @@ class CampaignBudget:
     def remaining(self) -> int:
         return self.total - self.spent
 
-    def next_batch_size(self, max_batch_size: int, action_budget: int) -> int:
+    def next_batch_size(self, max_batch_size: int) -> int:
         if self.stop_reason is not None:
             return 0
-        # strictly validate both integer arguments before division
-        return min(max_batch_size, self.remaining // action_budget)
+        # strictly validate the batch argument before division
+        return min(max_batch_size, self.remaining // self.action_force_budget)
 
     def record_bootstrap(self, counts: EvaluationCounts) -> None:
         if self.bootstrap_recorded:
@@ -995,13 +993,12 @@ Implement:
 def commit_batch(
     self,
     action_counts: tuple[EvaluationCounts, ...],
-    reserved_action_budget: int,
 ) -> None:
     if not action_counts:
         raise ValueError("action_counts cannot be empty")
-    if len(action_counts) * reserved_action_budget > self.remaining:
+    if len(action_counts) * self.action_force_budget > self.remaining:
         raise ValueError("batch reservation exceeds remaining campaign budget")
-    if any(counts.total > reserved_action_budget for counts in action_counts):
+    if any(counts.total > self.action_force_budget for counts in action_counts):
         raise ValueError("action cost exceeds its reserved budget")
     merged = EvaluationCounts.sum(action_counts)
     self.action_counts = self.action_counts + merged
@@ -1011,11 +1008,13 @@ def commit_batch(
 
 Add immutable elementwise `EvaluationCounts.__add__` and
 `EvaluationCounts.sum`. `commit_batch` consumes actual counts, not reservation.
-If merged batch cost is zero, set `stop_reason=ZERO_COST_STALL`. If
-`remaining < action_budget` at the next reservation decision, set
-`stop_reason=BUDGET_TAIL`. Expose immutable snapshot/restore methods and prove
-that both terminal reasons survive restore and make `next_batch_size` return
-zero.
+If merged batch cost is zero, set `stop_reason=ZERO_COST_STALL`; otherwise, if
+`remaining < action_force_budget`, set `stop_reason=BUDGET_TAIL`. Bootstrap
+performs the same tail check. Persist the fixed action budget and last batch
+spend in the immutable snapshot. Restore receives the manifest action budget,
+requires exact equality with the snapshot, recomputes the terminal reason, and
+rejects drift or forged terminal facts. Both terminal reasons survive restore
+and make `next_batch_size` return zero.
 
 - [ ] **Step 5: Define the result summary**
 
@@ -1641,7 +1640,7 @@ if budget.stop_reason is not None:
     return _assemble_result(stop_reason=budget.stop_reason)
 
 while True:
-    width = budget.next_batch_size(config.batch_size, config.action_force_budget)
+    width = budget.next_batch_size(config.batch_size)
     if width == 0:
         assert budget.stop_reason is CampaignStopReason.BUDGET_TAIL
         stop_reason = budget.stop_reason
@@ -1689,7 +1688,6 @@ while True:
         action_counts=tuple(
             outcome.evaluation_counts for outcome in stored.batch.outcomes
         ),
-        reserved_action_budget=config.action_force_budget,
     )
     batch_spent = stored.spent
     if batch_spent == 0:
