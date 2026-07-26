@@ -3791,6 +3791,25 @@ def test_surface_walker_reports_relaxation_convergence_diagnostics():
     assert result.stats["proposal_relax_max_iterations"] >= result.stats["proposal_relax_min_iterations"]
     assert "proposal_relax_active_bound_fraction_mean" in result.stats
     assert "proposal_relax_displacement_max" in result.stats
+    assert result.stats["proposal_relax_evaluator_calls"] >= 1
+    assert result.stats["proposal_relax_backend_evaluations"] >= 1
+    assert result.stats["proposal_relax_reporting_cache_hits"] >= 1
+    assert result.stats["proposal_relax_reporting_evaluator_calls"] >= 0
+    assert result.stats["proposal_relax_finalization_requests"] == result.stats["proposal_relax_count"]
+    assert result.stats["proposal_relax_explicit_finalization_calls"] >= 0
+    assert (
+        result.stats["proposal_relax_gradient_measure_raw_active_max_force"]
+        + result.stats["proposal_relax_gradient_measure_projected_active_kkt_residual"]
+        + result.stats["proposal_relax_gradient_measure_unknown"]
+        == result.stats["proposal_relax_count"]
+    )
+    assert (
+        result.stats["proposal_relax_termination_converged"]
+        + result.stats["proposal_relax_termination_maxiter"]
+        + result.stats["proposal_relax_termination_optimizer_stopped"]
+        + result.stats["proposal_relax_termination_unconverged"]
+        == result.stats["proposal_relax_count"]
+    )
     assert "bias_zero_weight_fraction" in result.stats
 
 

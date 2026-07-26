@@ -253,6 +253,8 @@ def test_relaxer_wraps_final_periodic_coordinates(monkeypatch):
         nit = 1
 
     def fake_minimize(fun, x0, method, jac, bounds=None, options=None):
+        fun(np.asarray(x0, dtype=float))
+        fun(Result.x)
         return Result()
 
     monkeypatch.setattr("pamssw.relax.minimize", fake_minimize)
@@ -270,6 +272,44 @@ def test_relaxer_wraps_final_periodic_coordinates(monkeypatch):
     result = Relaxer(evaluator).relax(state, fmax=1e-4, maxiter=3, coordinate_trust_radius=0.25)
 
     np.testing.assert_allclose(result.state.positions, np.array([[0.2, 4.8, 11.0]]))
+    assert result.telemetry.backend_evaluations == 2
+    assert result.telemetry.reporting_cache_hits == 1
+    assert result.telemetry.reporting_evaluator_calls == 1
+    assert result.telemetry.finalization_requests == 1
+    assert result.telemetry.explicit_finalization_calls == 1
+
+
+def test_fully_periodic_scipy_relax_reports_raw_force_when_no_finite_bounds(monkeypatch):
+    class Result:
+        x = np.array([1.0, 2.0, 3.0])
+        nit = 0
+        success = True
+
+    def fake_minimize(fun, x0, method, jac, bounds=None, options=None):
+        assert bounds == [(None, None), (None, None), (None, None)]
+        fun(np.asarray(x0, dtype=float))
+        return Result()
+
+    monkeypatch.setattr("pamssw.relax.minimize", fake_minimize)
+
+    def evaluator(flat_positions, template):
+        return 0.0, np.zeros_like(flat_positions)
+
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[1.0, 2.0, 3.0]]),
+        cell=np.diag([5.0, 5.0, 5.0]),
+        pbc=(True, True, True),
+    )
+
+    result = Relaxer(evaluator).relax(
+        state,
+        fmax=1e-4,
+        maxiter=3,
+        coordinate_trust_radius=0.25,
+    )
+
+    assert result.telemetry.gradient_measure == "raw_active_max_force"
 
 
 def test_relaxer_reports_projected_gradient_for_bound_constrained_optimum(monkeypatch):
@@ -289,6 +329,7 @@ def test_relaxer_reports_projected_gradient_for_bound_constrained_optimum(monkey
     result = Relaxer(evaluator).relax(state, fmax=1e-4, maxiter=3, coordinate_trust_radius=0.25)
 
     assert result.gradient_norm == 0.0
+    assert result.telemetry.gradient_measure == "projected_active_kkt_residual"
 
 
 def test_relaxer_can_use_ase_fire_without_scipy_line_search():
@@ -301,6 +342,76 @@ def test_relaxer_can_use_ase_fire_without_scipy_line_search():
     assert result.gradient_norm < 1e-4
     assert result.energy < 1e-8
     assert result.n_iter > 0
+
+
+@pytest.mark.parametrize("optimizer", ["scipy-lbfgsb", "ase-fire", "ase-lbfgs"])
+def test_relaxer_reuses_report_only_endpoint_evaluations_without_changing_backend_path(optimizer):
+    evaluated_positions = []
+
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        evaluated_positions.append(flat.copy())
+        return 0.5 * float(np.dot(flat, flat)), flat.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(evaluator, optimizer=optimizer).relax(state, fmax=1e-4, maxiter=200)
+
+    assert result.gradient_norm <= 1e-4
+    assert result.telemetry.backend == optimizer
+    assert result.telemetry.converged
+    assert result.telemetry.termination_reason == "converged"
+    assert result.telemetry.evaluator_calls == len(evaluated_positions)
+    assert result.telemetry.backend_evaluations == len(evaluated_positions)
+    assert result.telemetry.reporting_cache_hits == 2
+    assert result.telemetry.reporting_evaluator_calls == 0
+    assert result.telemetry.finalization_requests == 1
+    assert result.telemetry.explicit_finalization_calls == 0
+    assert result.telemetry.gradient_measure == "raw_active_max_force"
+
+
+def test_relaxer_reports_unified_maxiter_termination():
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        return 0.5 * float(np.dot(flat, flat)), flat.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[10.0, 0.0, 0.0]]))
+    result = Relaxer(evaluator, optimizer="ase-fire").relax(state, fmax=1e-12, maxiter=1)
+
+    assert not result.telemetry.converged
+    assert result.telemetry.termination_reason == "maxiter"
+    assert result.gradient_norm > 1e-12
+
+
+def test_scipy_reporting_does_not_repeat_backend_endpoint_calls(monkeypatch):
+    calls = []
+
+    class Result:
+        x = np.zeros(3)
+        nit = 1
+        success = True
+
+    def fake_minimize(fun, x0, method, jac, bounds=None, options=None):
+        fun(np.asarray(x0, dtype=float))
+        fun(Result.x)
+        return Result()
+
+    monkeypatch.setattr("pamssw.relax.minimize", fake_minimize)
+
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        calls.append(flat.copy())
+        return 0.5 * float(np.dot(flat, flat)), flat.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(evaluator, optimizer="scipy-lbfgsb").relax(state, fmax=1e-4, maxiter=5)
+
+    assert len(calls) == 2
+    assert result.telemetry.backend_evaluations == 2
+    assert result.telemetry.reporting_cache_hits == 2
+    assert result.telemetry.reporting_evaluator_calls == 0
+    assert result.telemetry.evaluator_calls == (
+        result.telemetry.backend_evaluations + result.telemetry.reporting_evaluator_calls
+    )
 
 
 def test_relaxer_applies_ase_trajectory_stride():

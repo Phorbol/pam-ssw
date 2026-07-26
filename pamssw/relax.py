@@ -11,7 +11,7 @@ import numpy as np
 from scipy.optimize import minimize
 
 from .pbc import mic_displacement, wrap_positions
-from .result import RelaxOutcomeClass, RelaxResult
+from .result import RelaxOutcomeClass, RelaxResult, RelaxTelemetry
 from .state import State
 
 
@@ -50,6 +50,92 @@ class RelaxEvaluation:
             gradient = gradient.copy()
             gradient.setflags(write=False)
             object.__setattr__(self, name, gradient)
+
+
+class _EvaluationTrace:
+    """Keep backend calls intact while reusing exact endpoints for reporting."""
+
+    def __init__(self, evaluator: FlatEvaluator, initial_flat: np.ndarray) -> None:
+        self.evaluator = evaluator
+        self.initial_flat = np.asarray(initial_flat, dtype=float).reshape(-1).copy()
+        self.initial_result: tuple[float, np.ndarray] | None = None
+        self.last_flat: np.ndarray | None = None
+        self.last_result: tuple[float, np.ndarray] | None = None
+        self.evaluator_calls = 0
+        self.backend_evaluations = 0
+        self.reporting_cache_hits = 0
+        self.reporting_evaluator_calls = 0
+        self.finalization_requests = 0
+        self.explicit_finalization_calls = 0
+
+    def backend_evaluate(self, flat_positions: np.ndarray, template: State) -> tuple[float, np.ndarray]:
+        result = self._call(flat_positions, template)
+        self.backend_evaluations += 1
+        flat = np.asarray(flat_positions, dtype=float).reshape(-1)
+        if np.array_equal(flat, self.initial_flat):
+            self.initial_result = self._copy_result(result)
+        self.last_flat = flat.copy()
+        self.last_result = self._copy_result(result)
+        return self._copy_result(result)
+
+    def report_evaluate(
+        self,
+        flat_positions: np.ndarray,
+        template: State,
+        *,
+        finalization: bool = False,
+    ) -> tuple[float, np.ndarray]:
+        self.finalization_requests += int(finalization)
+        flat = np.asarray(flat_positions, dtype=float).reshape(-1)
+        if np.array_equal(flat, self.initial_flat) and self.initial_result is not None:
+            self.reporting_cache_hits += 1
+            return self._copy_result(self.initial_result)
+        if (
+            self.last_flat is not None
+            and self.last_result is not None
+            and np.array_equal(flat, self.last_flat)
+        ):
+            self.reporting_cache_hits += 1
+            return self._copy_result(self.last_result)
+        self.reporting_evaluator_calls += 1
+        self.explicit_finalization_calls += int(finalization)
+        return self._call(flat, template)
+
+    def telemetry(
+        self,
+        *,
+        backend: str,
+        converged: bool,
+        termination_reason: str,
+        optimizer_success: bool | None,
+        gradient_measure: str,
+    ) -> RelaxTelemetry:
+        return RelaxTelemetry(
+            backend=backend,
+            evaluator_calls=self.evaluator_calls,
+            backend_evaluations=self.backend_evaluations,
+            reporting_cache_hits=self.reporting_cache_hits,
+            reporting_evaluator_calls=self.reporting_evaluator_calls,
+            finalization_requests=self.finalization_requests,
+            explicit_finalization_calls=self.explicit_finalization_calls,
+            gradient_measure=gradient_measure,
+            converged=converged,
+            termination_reason=termination_reason,
+            optimizer_success=optimizer_success,
+        )
+
+    def _call(self, flat_positions: np.ndarray, template: State) -> tuple[float, np.ndarray]:
+        flat = np.asarray(flat_positions, dtype=float).reshape(-1)
+        energy, gradient = self.evaluator(flat, template)
+        gradient = np.asarray(gradient, dtype=float).reshape(-1)
+        if gradient.shape != flat.shape:
+            raise ValueError("evaluator gradient must have the same shape as flat_positions")
+        self.evaluator_calls += 1
+        return float(energy), gradient.copy()
+
+    @staticmethod
+    def _copy_result(result: tuple[float, np.ndarray]) -> tuple[float, np.ndarray]:
+        return float(result[0]), np.asarray(result[1], dtype=float).copy()
 
 
 RelaxOptimizer = Literal["scipy-lbfgsb", "ase-fire", "ase-lbfgs"]
@@ -95,6 +181,7 @@ class Relaxer:
         trajectory_stride: int = 1,
     ) -> RelaxResult:
         x0 = state.flatten_active()
+        trace = _EvaluationTrace(self.evaluator, state.flatten_positions())
         if trajectory_stride <= 0:
             raise ValueError("trajectory_stride must be positive")
         bounds = None
@@ -105,14 +192,19 @@ class Relaxer:
                 bounds = self._coordinate_bounds(state, coordinate_trust_radius)
 
         if self.optimizer in {"ase-fire", "ase-lbfgs"}:
-            relaxed, n_iter = self._relax_with_ase(
+            relaxed, n_iter, optimizer_success = self._relax_with_ase(
                 state,
+                trace=trace,
                 fmax=fmax,
                 maxiter=maxiter,
                 trajectory_callback=trajectory_callback,
                 trajectory_stride=trajectory_stride,
             )
-            energy, full_gradient = self.evaluator(relaxed.flatten_positions(), relaxed)
+            energy, full_gradient = trace.report_evaluate(
+                relaxed.flatten_positions(),
+                relaxed,
+                finalization=True,
+            )
             grad_matrix = full_gradient.reshape(relaxed.n_atoms, 3)
             active_gradient = grad_matrix[relaxed.movable_mask].reshape(-1)
             active_bound_fraction = 0.0
@@ -120,7 +212,8 @@ class Relaxer:
             gradient_norm = float(
                 np.max(np.linalg.norm(active_gradient.reshape(-1, 3), axis=1, ord=2), initial=0.0)
             )
-            initial_energy, _ = self.evaluator(state.flatten_positions(), state)
+            initial_energy, _ = trace.report_evaluate(state.flatten_positions(), state)
+            converged = gradient_norm <= fmax
             return RelaxResult(
                 state=relaxed,
                 energy=float(energy),
@@ -138,6 +231,18 @@ class Relaxer:
                     displacement_max=displacement_max,
                     active_bound_fraction=active_bound_fraction,
                 ),
+                telemetry=trace.telemetry(
+                    backend=self.optimizer,
+                    converged=converged,
+                    termination_reason=self._termination_reason(
+                        converged=converged,
+                        n_iter=n_iter,
+                        maxiter=maxiter,
+                        optimizer_success=optimizer_success,
+                    ),
+                    optimizer_success=optimizer_success,
+                    gradient_measure="raw_active_max_force",
+                ),
             )
         if self.optimizer != "scipy-lbfgsb":
             raise ValueError(f"unsupported relax optimizer: {self.optimizer}")
@@ -146,6 +251,7 @@ class Relaxer:
             fmax=fmax,
             maxiter=maxiter,
             bounds=bounds,
+            trace=trace,
             trajectory_callback=trajectory_callback,
             trajectory_stride=trajectory_stride,
         )
@@ -156,6 +262,7 @@ class Relaxer:
         fmax: float,
         maxiter: int,
         bounds: list[tuple[float | None, float | None]] | None,
+        trace: _EvaluationTrace,
         trajectory_callback: Callable[[State], None] | None,
         trajectory_stride: int,
     ) -> RelaxResult:
@@ -165,7 +272,7 @@ class Relaxer:
 
         def objective(active_flat: np.ndarray) -> tuple[float, np.ndarray]:
             candidate = state.with_active_positions(active_flat)
-            energy, full_gradient = self.evaluator(candidate.flatten_positions(), candidate)
+            energy, full_gradient = trace.backend_evaluate(candidate.flatten_positions(), candidate)
             grad_matrix = full_gradient.reshape(candidate.n_atoms, 3)
             return energy, grad_matrix[candidate.movable_mask].reshape(-1)
 
@@ -199,10 +306,17 @@ class Relaxer:
                 fixed_mask=relaxed.fixed_mask.copy(),
                 metadata=relaxed.metadata.copy(),
             )
-        energy, full_gradient = self.evaluator(relaxed.flatten_positions(), relaxed)
+        energy, full_gradient = trace.report_evaluate(
+            relaxed.flatten_positions(),
+            relaxed,
+            finalization=True,
+        )
         grad_matrix = full_gradient.reshape(relaxed.n_atoms, 3)
         active_gradient = grad_matrix[relaxed.movable_mask].reshape(-1)
-        if bounds is not None:
+        has_finite_bounds = bounds is not None and any(
+            lower is not None or upper is not None for lower, upper in bounds
+        )
+        if has_finite_bounds:
             active_gradient = self._projected_gradient(np.asarray(result.x, dtype=float), active_gradient, bounds)
         active_bound_fraction = self._active_bound_fraction(np.asarray(result.x, dtype=float), bounds)
         displacement_rms, displacement_max = self._displacement_stats(state, relaxed)
@@ -216,6 +330,10 @@ class Relaxer:
             n_iter = int(result.nit)
         if trajectory_callback is not None:
             trajectory_callback(relaxed)
+        initial_energy, _ = trace.report_evaluate(state.flatten_positions(), state)
+        converged = gradient_norm <= fmax
+        optimizer_success_value = getattr(result, "success", None)
+        optimizer_success = None if optimizer_success_value is None else bool(optimizer_success_value)
         return RelaxResult(
             state=relaxed,
             energy=float(energy),
@@ -225,7 +343,7 @@ class Relaxer:
             displacement_rms=displacement_rms,
             displacement_max=displacement_max,
             outcome_class=self.classify_outcome(
-                initial_energy=objective(x0)[0],
+                initial_energy=initial_energy,
                 final_energy=energy,
                 gradient_norm=gradient_norm,
                 fmax=fmax,
@@ -233,16 +351,33 @@ class Relaxer:
                 displacement_max=displacement_max,
                 active_bound_fraction=active_bound_fraction,
             ),
+            telemetry=trace.telemetry(
+                backend=self.optimizer,
+                converged=converged,
+                termination_reason=self._termination_reason(
+                    converged=converged,
+                    n_iter=n_iter,
+                    maxiter=maxiter,
+                    optimizer_success=optimizer_success,
+                ),
+                optimizer_success=optimizer_success,
+                gradient_measure=(
+                    "projected_active_kkt_residual"
+                    if has_finite_bounds
+                    else "raw_active_max_force"
+                ),
+            ),
         )
 
     def _relax_with_ase(
         self,
         state: State,
+        trace: _EvaluationTrace,
         fmax: float,
         maxiter: int,
         trajectory_callback: Callable[[State], None] | None = None,
         trajectory_stride: int = 1,
-    ) -> tuple[State, int]:
+    ) -> tuple[State, int, bool]:
         atoms = Atoms(
             numbers=state.numbers,
             positions=state.positions,
@@ -251,7 +386,7 @@ class Relaxer:
         )
         if np.any(state.fixed_mask):
             atoms.set_constraint(FixAtoms(mask=state.fixed_mask))
-        atoms.calc = _EvaluatorCalculator(self.evaluator, state)
+        atoms.calc = _EvaluatorCalculator(trace.backend_evaluate, state)
         optimizer_cls = FIRE if self.optimizer == "ase-fire" else LBFGS
         optimizer = optimizer_cls(atoms, logfile=None)
         if trajectory_callback is not None:
@@ -270,7 +405,7 @@ class Relaxer:
                 )
 
             optimizer.attach(record_step, interval=trajectory_stride)
-        optimizer.run(fmax=fmax, steps=maxiter)
+        optimizer_success = bool(optimizer.run(fmax=fmax, steps=maxiter))
         relaxed = State(
             numbers=state.numbers.copy(),
             positions=np.asarray(atoms.get_positions(), dtype=float),
@@ -291,7 +426,23 @@ class Relaxer:
         n_iter = int(getattr(optimizer, "nsteps", 0))
         if trajectory_callback is not None:
             trajectory_callback(relaxed)
-        return relaxed, n_iter
+        return relaxed, n_iter, optimizer_success
+
+    @staticmethod
+    def _termination_reason(
+        *,
+        converged: bool,
+        n_iter: int,
+        maxiter: int,
+        optimizer_success: bool | None,
+    ) -> str:
+        if converged:
+            return "converged"
+        if n_iter >= maxiter:
+            return "maxiter"
+        if optimizer_success is False:
+            return "optimizer_stopped"
+        return "unconverged"
 
     @staticmethod
     def _projected_gradient(

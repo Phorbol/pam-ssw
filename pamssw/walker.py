@@ -3031,6 +3031,24 @@ class SurfaceWalker:
                 "displacement_rms_sum": 0.0,
                 "max_displacement": 0.0,
                 "outcome_counts": {outcome.value: 0 for outcome in RelaxOutcomeClass},
+                "evaluator_calls": 0,
+                "backend_evaluations": 0,
+                "reporting_cache_hits": 0,
+                "reporting_evaluator_calls": 0,
+                "finalization_requests": 0,
+                "explicit_finalization_calls": 0,
+                "gradient_measure_counts": {
+                    measure: 0
+                    for measure in (
+                        "raw_active_max_force",
+                        "projected_active_kkt_residual",
+                        "unknown",
+                    )
+                },
+                "termination_counts": {
+                    reason: 0
+                    for reason in ("converged", "maxiter", "optimizer_stopped", "unconverged", "unknown")
+                },
             },
             "proposal_relax": {
                 "count": 0,
@@ -3043,6 +3061,24 @@ class SurfaceWalker:
                 "displacement_rms_sum": 0.0,
                 "max_displacement": 0.0,
                 "outcome_counts": {outcome.value: 0 for outcome in RelaxOutcomeClass},
+                "evaluator_calls": 0,
+                "backend_evaluations": 0,
+                "reporting_cache_hits": 0,
+                "reporting_evaluator_calls": 0,
+                "finalization_requests": 0,
+                "explicit_finalization_calls": 0,
+                "gradient_measure_counts": {
+                    measure: 0
+                    for measure in (
+                        "raw_active_max_force",
+                        "projected_active_kkt_residual",
+                        "unknown",
+                    )
+                },
+                "termination_counts": {
+                    reason: 0
+                    for reason in ("converged", "maxiter", "optimizer_stopped", "unconverged", "unknown")
+                },
             },
         }
 
@@ -3291,6 +3327,20 @@ class SurfaceWalker:
         stats["displacement_rms_sum"] += result.displacement_rms
         stats["max_displacement"] = max(float(stats["max_displacement"]), result.displacement_max)
         stats["outcome_counts"][result.outcome_class.value] += 1
+        stats["evaluator_calls"] += result.telemetry.evaluator_calls
+        stats["backend_evaluations"] += result.telemetry.backend_evaluations
+        stats["reporting_cache_hits"] += result.telemetry.reporting_cache_hits
+        stats["reporting_evaluator_calls"] += result.telemetry.reporting_evaluator_calls
+        stats["finalization_requests"] += result.telemetry.finalization_requests
+        stats["explicit_finalization_calls"] += result.telemetry.explicit_finalization_calls
+        gradient_measure_counts = stats["gradient_measure_counts"]
+        gradient_measure_counts[result.telemetry.gradient_measure] = (
+            int(gradient_measure_counts.get(result.telemetry.gradient_measure, 0)) + 1
+        )
+        termination_counts = stats["termination_counts"]
+        termination_counts[result.telemetry.termination_reason] = (
+            int(termination_counts.get(result.telemetry.termination_reason, 0)) + 1
+        )
 
     def _record_bias_weight(self, weight: float) -> None:
         self._bias_steps += 1
@@ -3421,6 +3471,28 @@ class SurfaceWalker:
                 float(stats["displacement_rms_sum"] / count) if count else 0.0
             )
             summary[f"{label}_displacement_max"] = float(stats["max_displacement"])
+            summary[f"{label}_evaluator_calls"] = int(stats["evaluator_calls"])
+            summary[f"{label}_backend_evaluations"] = int(stats["backend_evaluations"])
+            summary[f"{label}_reporting_cache_hits"] = int(stats["reporting_cache_hits"])
+            summary[f"{label}_reporting_evaluator_calls"] = int(stats["reporting_evaluator_calls"])
+            summary[f"{label}_finalization_requests"] = int(stats["finalization_requests"])
+            summary[f"{label}_explicit_finalization_calls"] = int(stats["explicit_finalization_calls"])
+            gradient_measure_counts = stats["gradient_measure_counts"]
+            for measure in (
+                "raw_active_max_force",
+                "projected_active_kkt_residual",
+                "unknown",
+            ):
+                summary[f"{label}_gradient_measure_{measure}"] = int(
+                    gradient_measure_counts.get(measure, 0)
+                )
+            for measure, measure_count in sorted(gradient_measure_counts.items()):
+                summary[f"{label}_gradient_measure_{measure}"] = int(measure_count)
+            termination_counts = stats["termination_counts"]
+            for reason in ("converged", "maxiter", "optimizer_stopped", "unconverged", "unknown"):
+                summary[f"{label}_termination_{reason}"] = int(termination_counts.get(reason, 0))
+            for reason, reason_count in sorted(termination_counts.items()):
+                summary[f"{label}_termination_{reason}"] = int(reason_count)
             for outcome in RelaxOutcomeClass:
                 outcome_count = int(stats["outcome_counts"][outcome.value])
                 summary[f"{label}_outcome_{outcome.value}"] = outcome_count

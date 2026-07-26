@@ -167,14 +167,14 @@ def _assert_closed_physical_ledger(result) -> None:
         (
             _base_config,
             False,
-            21,
+            15,
             1.0750373417042004e-34,
             _SSW_COMPLETED_LANDING,
         ),
         (
             _ls_base_config,
             True,
-            69,
+            63,
             2.0427020177514484e-09,
             _LS_SSW_COMPLETED_LANDING,
         ),
@@ -221,8 +221,8 @@ def test_real_worker_purpose_ledger_preserves_completed_analytic_baselines(
 @pytest.mark.parametrize(
     ("config_factory", "softening_enabled", "force_evaluations"),
     [
-        (_base_config, False, 21),
-        (_ls_known_basin_config, True, 49),
+        (_base_config, False, 15),
+        (_ls_known_basin_config, True, 43),
     ],
     ids=("ssw", "ls_ssw"),
 )
@@ -252,8 +252,8 @@ def test_real_worker_purpose_ledger_preserves_duplicate_candidate_baseline(
 @pytest.mark.parametrize(
     ("config_factory", "softening_enabled", "force_evaluations"),
     [
-        (_base_config, False, 21),
-        (_ls_base_config, True, 69),
+        (_base_config, False, 15),
+        (_ls_base_config, True, 63),
     ],
     ids=("ssw", "ls_ssw"),
 )

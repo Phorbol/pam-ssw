@@ -19,6 +19,7 @@ from pamssw.exploration.runner import (
 from pamssw.exploration.event_log import ExplorationEventLog
 from pamssw import run_ls_ssw, run_ssw
 from pamssw.potentials import DoubleWell2D
+from pamssw.result import RelaxResult
 from pamssw.state import State
 
 
@@ -189,6 +190,28 @@ def test_bootstrap_minimum_propagates_force_budget_exhaustion():
             lambda: CountingAnalyticCalculator(),
             SSWConfig(),
             total_force_budget=1,
+        )
+
+
+def test_bootstrap_minimum_rejects_an_uncertified_relaxation(monkeypatch):
+    initial = State(numbers=np.array([1]), positions=np.array([[-0.8, 0.0, 0.0]]))
+
+    def unconverged_relax(self, state, fmax, maxiter, **kwargs):
+        return RelaxResult(
+            state=state,
+            energy=0.0,
+            gradient_norm=10.0 * fmax,
+            n_iter=maxiter,
+        )
+
+    monkeypatch.setattr("pamssw.exploration.runner.Relaxer.relax", unconverged_relax)
+
+    with pytest.raises(ValueError, match="bootstrap.*converge"):
+        _bootstrap_minimum(
+            initial,
+            lambda: CountingAnalyticCalculator(),
+            SSWConfig(quench_maxiter=1),
+            total_force_budget=100,
         )
 
 

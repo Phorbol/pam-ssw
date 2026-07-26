@@ -61,6 +61,10 @@ def _bootstrap_minimum(
         valid_final_evaluation = geometry_validator.is_valid_evaluation(relaxed.state, counter)
 
     energy = float(relaxed.energy)
+    if not isfinite(relaxed.gradient_norm) or relaxed.gradient_norm > ssw_config.quench_fmax:
+        raise ValueError(
+            "bootstrap relaxation did not converge to the configured per-atom force tolerance"
+        )
     if not valid_final_evaluation or not isfinite(energy):
         raise ValueError("invalid final relaxed state")
     return deepcopy(relaxed.state), energy, counter.snapshot()
