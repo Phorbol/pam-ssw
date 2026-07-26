@@ -88,12 +88,28 @@ class CampaignBudgetSnapshot:
     total: int
     action_force_budget: int
     bootstrap_counts: EvaluationCounts
-    action_counts: EvaluationCounts
-    committed_batches: int
-    committed_attempts: int
+    batch_attempt_counts: tuple[int, ...]
+    batch_evaluation_counts: tuple[EvaluationCounts, ...]
     bootstrap_recorded: bool
     stop_reason: CampaignStopReason | None
-    last_batch_spend: int | None
+
+    @property
+    def action_counts(self) -> EvaluationCounts:
+        return EvaluationCounts.sum(self.batch_evaluation_counts)
+
+    @property
+    def committed_batches(self) -> int:
+        return len(self.batch_attempt_counts)
+
+    @property
+    def committed_attempts(self) -> int:
+        return sum(self.batch_attempt_counts)
+
+    @property
+    def last_batch_spend(self) -> int | None:
+        if not self.batch_evaluation_counts:
+            return None
+        return self.batch_evaluation_counts[-1].total
 
 
 @dataclass
@@ -103,12 +119,12 @@ class CampaignBudget:
     total: int
     action_force_budget: int
     bootstrap_counts: EvaluationCounts = field(default_factory=EvaluationCounts.zero, init=False)
-    action_counts: EvaluationCounts = field(default_factory=EvaluationCounts.zero, init=False)
-    committed_batches: int = field(default=0, init=False)
-    committed_attempts: int = field(default=0, init=False)
+    _batch_attempt_counts: list[int] = field(default_factory=list, init=False, repr=False)
+    _batch_evaluation_counts: list[EvaluationCounts] = field(
+        default_factory=list, init=False, repr=False
+    )
     bootstrap_recorded: bool = field(default=False, init=False)
     stop_reason: CampaignStopReason | None = field(default=None, init=False)
-    last_batch_spend: int | None = field(default=None, init=False)
 
     def __post_init__(self) -> None:
         _positive_int(self.total, "total")
@@ -117,6 +133,24 @@ class CampaignBudget:
     @property
     def spent(self) -> int:
         return self.bootstrap_counts.total + self.action_counts.total
+
+    @property
+    def action_counts(self) -> EvaluationCounts:
+        return EvaluationCounts.sum(self._batch_evaluation_counts)
+
+    @property
+    def committed_batches(self) -> int:
+        return len(self._batch_attempt_counts)
+
+    @property
+    def committed_attempts(self) -> int:
+        return sum(self._batch_attempt_counts)
+
+    @property
+    def last_batch_spend(self) -> int | None:
+        if not self._batch_evaluation_counts:
+            return None
+        return self._batch_evaluation_counts[-1].total
 
     @property
     def remaining(self) -> int:
@@ -166,10 +200,8 @@ class CampaignBudget:
         if len(counts) * self.action_force_budget > self.remaining:
             raise ValueError("batch reservation exceeds remaining budget")
         merged = EvaluationCounts.sum(counts)
-        self.action_counts = self.action_counts + merged
-        self.committed_batches += 1
-        self.committed_attempts += len(counts)
-        self.last_batch_spend = merged.total
+        self._batch_attempt_counts.append(len(counts))
+        self._batch_evaluation_counts.append(EvaluationCounts(tuple(merged.values)))
         if merged.total == 0:
             self.stop_reason = CampaignStopReason.ZERO_COST_STALL
         elif self.remaining < self.action_force_budget:
@@ -180,12 +212,13 @@ class CampaignBudget:
             total=self.total,
             action_force_budget=self.action_force_budget,
             bootstrap_counts=EvaluationCounts(tuple(self.bootstrap_counts.values)),
-            action_counts=EvaluationCounts(tuple(self.action_counts.values)),
-            committed_batches=self.committed_batches,
-            committed_attempts=self.committed_attempts,
+            batch_attempt_counts=tuple(self._batch_attempt_counts),
+            batch_evaluation_counts=tuple(
+                EvaluationCounts(tuple(counts.values))
+                for counts in self._batch_evaluation_counts
+            ),
             bootstrap_recorded=self.bootstrap_recorded,
             stop_reason=self.stop_reason,
-            last_batch_spend=self.last_batch_spend,
         )
 
     @classmethod
@@ -203,71 +236,58 @@ class CampaignBudget:
         budget = cls(snapshot.total, snapshot_action_force_budget)
         if not isinstance(snapshot.bootstrap_counts, EvaluationCounts):
             raise TypeError("snapshot bootstrap_counts must be an EvaluationCounts")
-        if not isinstance(snapshot.action_counts, EvaluationCounts):
-            raise TypeError("snapshot action_counts must be an EvaluationCounts")
+        if not isinstance(snapshot.batch_attempt_counts, tuple):
+            raise TypeError("snapshot batch_attempt_counts must be a tuple")
+        if not isinstance(snapshot.batch_evaluation_counts, tuple):
+            raise TypeError("snapshot batch_evaluation_counts must be a tuple")
+        if len(snapshot.batch_attempt_counts) != len(snapshot.batch_evaluation_counts):
+            raise ValueError("snapshot batch history lengths must match")
         if not isinstance(snapshot.bootstrap_recorded, bool):
             raise TypeError("snapshot bootstrap_recorded must be a boolean")
         if snapshot.stop_reason is not None and not isinstance(snapshot.stop_reason, CampaignStopReason):
             raise TypeError("snapshot stop_reason must be a CampaignStopReason or None")
-        _nonnegative_int(snapshot.committed_batches, "snapshot committed_batches")
-        _nonnegative_int(snapshot.committed_attempts, "snapshot committed_attempts")
-        if snapshot.committed_batches > snapshot.committed_attempts or (
-            snapshot.committed_batches == 0
-        ) != (snapshot.committed_attempts == 0):
-            raise ValueError("snapshot batches must match committed attempts")
-        if snapshot.action_counts.total > snapshot.committed_attempts * budget.action_force_budget:
-            raise ValueError("snapshot action counts exceed committed attempt capacity")
-        if snapshot.last_batch_spend is None:
-            if snapshot.committed_batches != 0:
-                raise ValueError("snapshot last batch spend is required after a committed batch")
-        else:
-            _nonnegative_int(snapshot.last_batch_spend, "snapshot last_batch_spend")
-            if snapshot.committed_batches == 0:
-                raise ValueError("snapshot last batch spend requires a committed batch")
-            max_last_batch_width = (
-                snapshot.committed_attempts - snapshot.committed_batches + 1
-            )
-            if snapshot.last_batch_spend > max_last_batch_width * budget.action_force_budget:
-                raise ValueError("snapshot last batch spend exceeds possible batch capacity")
-            if snapshot.last_batch_spend > snapshot.action_counts.total:
-                raise ValueError("snapshot last batch spend exceeds action counts")
-            if (
-                snapshot.committed_batches == 1
-                and snapshot.last_batch_spend != snapshot.action_counts.total
-            ):
-                raise ValueError("single-batch snapshot last spend must equal action counts")
         if not snapshot.bootstrap_recorded:
             if (
                 snapshot.bootstrap_counts != EvaluationCounts.zero()
-                or snapshot.action_counts != EvaluationCounts.zero()
-                or snapshot.committed_batches != 0
-                or snapshot.committed_attempts != 0
+                or snapshot.batch_attempt_counts
+                or snapshot.batch_evaluation_counts
                 or snapshot.stop_reason is not None
-                or snapshot.last_batch_spend is not None
             ):
                 raise ValueError("unrecorded bootstrap requires an empty budget snapshot")
-        elif snapshot.bootstrap_counts.total + snapshot.action_counts.total > budget.total:
-            raise ValueError("snapshot counts exceed total budget")
-        if snapshot.action_counts.total > 0 and snapshot.committed_attempts == 0:
-            raise ValueError("snapshot action counts require committed attempts")
-        expected_stop_reason: CampaignStopReason | None
-        if not snapshot.bootstrap_recorded:
-            expected_stop_reason = None
-        elif snapshot.last_batch_spend == 0:
-            expected_stop_reason = CampaignStopReason.ZERO_COST_STALL
-        elif budget.total - snapshot.bootstrap_counts.total - snapshot.action_counts.total < budget.action_force_budget:
+            return budget
+        if snapshot.bootstrap_counts.total > budget.total:
+            raise ValueError("snapshot bootstrap counts exceed total budget")
+        remaining = budget.total - snapshot.bootstrap_counts.total
+        restored_widths: list[int] = []
+        restored_counts: list[EvaluationCounts] = []
+        for index, (width, counts) in enumerate(
+            zip(snapshot.batch_attempt_counts, snapshot.batch_evaluation_counts)
+        ):
+            width = _positive_int(width, "snapshot batch attempt count")
+            if not isinstance(counts, EvaluationCounts):
+                raise TypeError("snapshot batch evaluation counts must be EvaluationCounts")
+            if width * budget.action_force_budget > remaining:
+                raise ValueError("snapshot batch reservation exceeds remaining budget")
+            if counts.total > width * budget.action_force_budget:
+                raise ValueError("snapshot batch counts exceed reserved action capacity")
+            if counts.total == 0 and index != len(snapshot.batch_evaluation_counts) - 1:
+                raise ValueError("zero-spend batch must be the final batch")
+            remaining -= counts.total
+            restored_widths.append(width)
+            restored_counts.append(EvaluationCounts(tuple(counts.values)))
+        if restored_counts and restored_counts[-1].total == 0:
+            expected_stop_reason: CampaignStopReason | None = CampaignStopReason.ZERO_COST_STALL
+        elif remaining < budget.action_force_budget:
             expected_stop_reason = CampaignStopReason.BUDGET_TAIL
         else:
             expected_stop_reason = None
         if snapshot.stop_reason is not expected_stop_reason:
             raise ValueError("snapshot stop reason does not match manifest-derived terminal state")
         budget.bootstrap_counts = EvaluationCounts(tuple(snapshot.bootstrap_counts.values))
-        budget.action_counts = EvaluationCounts(tuple(snapshot.action_counts.values))
-        budget.committed_batches = snapshot.committed_batches
-        budget.committed_attempts = snapshot.committed_attempts
+        budget._batch_attempt_counts = restored_widths
+        budget._batch_evaluation_counts = restored_counts
         budget.bootstrap_recorded = snapshot.bootstrap_recorded
         budget.stop_reason = expected_stop_reason
-        budget.last_batch_spend = snapshot.last_batch_spend
         return budget
 
     @classmethod

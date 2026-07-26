@@ -265,12 +265,10 @@ def test_campaign_budget_snapshot_restores_validated_state_and_recomputes_spend(
         "total",
         "action_force_budget",
         "bootstrap_counts",
-        "action_counts",
-        "committed_batches",
-        "committed_attempts",
+        "batch_attempt_counts",
+        "batch_evaluation_counts",
         "bootstrap_recorded",
         "stop_reason",
-        "last_batch_spend",
     )
     assert restored.snapshot() == snapshot
     assert restored_via_restore.snapshot() == snapshot
@@ -278,52 +276,58 @@ def test_campaign_budget_snapshot_restores_validated_state_and_recomputes_spend(
     assert restored.remaining == 13
     assert restored.last_batch_spend == 11
     assert restored.action_force_budget == 8
+    assert snapshot.batch_attempt_counts == (2,)
+    assert snapshot.batch_evaluation_counts == (_counts(11),)
+    assert snapshot.action_counts == _counts(11)
+    assert snapshot.committed_batches == 1
+    assert snapshot.committed_attempts == 2
+    assert snapshot.last_batch_spend == 11
     with pytest.raises(FrozenInstanceError):
         snapshot.total = 31
 
 
-def test_campaign_budget_restore_rejects_inconsistent_accounting_and_preserves_terminal_state():
+def _history_snapshot(
+    *,
+    total: int = 100,
+    action_force_budget: int = 10,
+    bootstrap_counts: EvaluationCounts | None = None,
+    batch_attempt_counts: object = (),
+    batch_evaluation_counts: object = (),
+    bootstrap_recorded: bool = True,
+    stop_reason: CampaignStopReason | None = None,
+) -> CampaignBudgetSnapshot:
+    return CampaignBudgetSnapshot(
+        total=total,
+        action_force_budget=action_force_budget,
+        bootstrap_counts=bootstrap_counts or _counts(5),
+        batch_attempt_counts=batch_attempt_counts,
+        batch_evaluation_counts=batch_evaluation_counts,
+        bootstrap_recorded=bootstrap_recorded,
+        stop_reason=stop_reason,
+    )
+
+
+def test_campaign_budget_restore_rejects_unrecorded_bootstrap_and_preserves_terminal_history():
     tail = _bootstrapped_budget(total=25, bootstrap_cost=6, action_force_budget=7)
     tail.commit_batch((_counts(7), _counts(6)))
-    assert tail.next_batch_size(3) == 0
     restored_tail = CampaignBudget.from_snapshot(tail.snapshot(), action_force_budget=7)
 
     assert restored_tail.stop_reason is CampaignStopReason.BUDGET_TAIL
     assert restored_tail.next_batch_size(3) == 0
 
-    invalid = CampaignBudgetSnapshot(
+    invalid = _history_snapshot(
         total=10,
         action_force_budget=1,
         bootstrap_counts=_counts(1),
-        action_counts=_counts(0),
-        committed_batches=0,
-        committed_attempts=0,
         bootstrap_recorded=False,
-        stop_reason=None,
-        last_batch_spend=None,
     )
     with pytest.raises(ValueError):
         CampaignBudget.from_snapshot(invalid, action_force_budget=1)
 
-    impossible_batch_history = CampaignBudgetSnapshot(
-        total=10,
-        action_force_budget=1,
-        bootstrap_counts=_counts(1),
-        action_counts=_counts(1),
-        committed_batches=0,
-        committed_attempts=1,
-        bootstrap_recorded=True,
-        stop_reason=None,
-        last_batch_spend=1,
-    )
-    with pytest.raises(ValueError):
-        CampaignBudget.from_snapshot(impossible_batch_history, action_force_budget=1)
 
-
-def test_campaign_budget_restore_derives_and_validates_terminal_reason_from_manifest_facts():
+def test_campaign_budget_restore_derives_and_validates_terminal_reason_from_history():
     tail = _bootstrapped_budget(total=25, bootstrap_cost=6, action_force_budget=7)
     tail.commit_batch((_counts(7), _counts(6)))
-    assert tail.next_batch_size(3) == 0
     tail_snapshot = tail.snapshot()
 
     assert (
@@ -340,7 +344,7 @@ def test_campaign_budget_restore_derives_and_validates_terminal_reason_from_mani
     zero = _bootstrapped_budget()
     zero.commit_batch((_counts(0),))
     zero_snapshot = zero.snapshot()
-    assert zero_snapshot.last_batch_spend == 0
+    assert zero_snapshot.batch_evaluation_counts == (_counts(0),)
     assert (
         CampaignBudget.from_snapshot(zero_snapshot, action_force_budget=10).stop_reason
         is CampaignStopReason.ZERO_COST_STALL
@@ -383,78 +387,73 @@ def test_campaign_budget_bootstrap_only_tail_snapshot_round_trips_with_the_bound
 @pytest.mark.parametrize(
     "snapshot",
     [
-        CampaignBudgetSnapshot(
-            total=10,
-            action_force_budget=5,
-            bootstrap_counts=_counts(1),
-            action_counts=_counts(1),
-            committed_batches=1,
-            committed_attempts=1,
-            bootstrap_recorded=True,
-            stop_reason=None,
-            last_batch_spend=None,
-        ),
-        CampaignBudgetSnapshot(
-            total=10,
-            action_force_budget=5,
-            bootstrap_counts=_counts(1),
-            action_counts=_counts(0),
-            committed_batches=0,
-            committed_attempts=0,
-            bootstrap_recorded=True,
-            stop_reason=None,
-            last_batch_spend=0,
-        ),
-        CampaignBudgetSnapshot(
-            total=10,
-            action_force_budget=5,
-            bootstrap_counts=_counts(1),
-            action_counts=_counts(1),
-            committed_batches=1,
-            committed_attempts=1,
-            bootstrap_recorded=True,
-            stop_reason=CampaignStopReason.ZERO_COST_STALL,
-            last_batch_spend=1,
-        ),
+        _history_snapshot(batch_attempt_counts=[], batch_evaluation_counts=()),
+        _history_snapshot(batch_attempt_counts=(1,), batch_evaluation_counts=()),
+        _history_snapshot(batch_attempt_counts=(True,), batch_evaluation_counts=(_counts(1),)),
+        _history_snapshot(batch_attempt_counts=(1.0,), batch_evaluation_counts=(_counts(1),)),
+        _history_snapshot(batch_attempt_counts=(0,), batch_evaluation_counts=(_counts(1),)),
+        _history_snapshot(batch_attempt_counts=(1,), batch_evaluation_counts=(object(),)),
     ],
 )
-def test_campaign_budget_restore_rejects_inconsistent_last_batch_facts(snapshot):
+def test_campaign_budget_restore_rejects_history_type_length_and_width_tampering(snapshot):
+    with pytest.raises((TypeError, ValueError)):
+        CampaignBudget.from_snapshot(snapshot, action_force_budget=10)
+
+
+def test_campaign_budget_restore_rejects_a_zero_first_batch_followed_by_a_later_batch():
+    snapshot = _history_snapshot(
+        batch_attempt_counts=(1, 1),
+        batch_evaluation_counts=(_counts(0), _counts(5)),
+    )
+
+    assert sum(count.total for count in snapshot.batch_evaluation_counts) == 5
+    assert snapshot.batch_evaluation_counts[-1].total == 5
     with pytest.raises(ValueError):
-        CampaignBudget.from_snapshot(snapshot, action_force_budget=5)
+        CampaignBudget.from_snapshot(snapshot, action_force_budget=10)
 
 
-def test_campaign_budget_restore_rejects_action_counts_beyond_attempt_capacity():
-    snapshot = CampaignBudgetSnapshot(
-        total=100,
-        action_force_budget=10,
-        bootstrap_counts=_counts(10),
-        action_counts=_counts(50),
-        committed_batches=2,
-        committed_attempts=2,
-        bootstrap_recorded=True,
-        stop_reason=None,
-        last_batch_spend=10,
+def test_campaign_budget_restore_rejects_an_intermediate_zero_spend_batch():
+    snapshot = _history_snapshot(
+        batch_attempt_counts=(1, 1, 1),
+        batch_evaluation_counts=(_counts(5), _counts(0), _counts(5)),
     )
 
     with pytest.raises(ValueError):
         CampaignBudget.from_snapshot(snapshot, action_force_budget=10)
 
 
-def test_campaign_budget_restore_rejects_last_batch_beyond_possible_batch_width():
-    snapshot = CampaignBudgetSnapshot(
-        total=40,
+def test_campaign_budget_restore_rejects_a_batch_reservation_impossible_at_its_history_point():
+    snapshot = _history_snapshot(
+        total=30,
         action_force_budget=10,
-        bootstrap_counts=_counts(10),
-        action_counts=_counts(20),
-        committed_batches=2,
-        committed_attempts=2,
-        bootstrap_recorded=True,
-        stop_reason=None,
-        last_batch_spend=20,
+        bootstrap_counts=_counts(5),
+        batch_attempt_counts=(2, 2),
+        batch_evaluation_counts=(_counts(15), _counts(0)),
+        stop_reason=CampaignStopReason.ZERO_COST_STALL,
     )
 
     with pytest.raises(ValueError):
         CampaignBudget.from_snapshot(snapshot, action_force_budget=10)
+
+
+def test_campaign_budget_snapshot_round_trips_multi_batch_purpose_counts_from_history():
+    bootstrap = EvaluationCounts.from_mapping({EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH: 4})
+    first = EvaluationCounts.from_mapping({EvaluationPurpose.DIRECTION_ORACLE: 2})
+    second = EvaluationCounts.from_mapping({EvaluationPurpose.LANDING_TRUE_QUENCH: 3})
+    third = EvaluationCounts.from_mapping({EvaluationPurpose.STARTER_TRUE_QUENCH: 4})
+    budget = CampaignBudget(100, 10)
+    budget.record_bootstrap(bootstrap)
+    budget.commit_batch((first, second))
+    budget.commit_batch((third,))
+
+    restored = CampaignBudget.from_snapshot(budget.snapshot(), action_force_budget=10)
+
+    assert restored.snapshot() == budget.snapshot()
+    assert restored.action_counts == first + second + third
+    assert restored.bootstrap_counts == bootstrap
+    assert restored.committed_batches == 2
+    assert restored.committed_attempts == 3
+    assert restored.last_batch_spend == third.total
 
 
 def _result(**changes) -> PosteriorExplorationResult:
