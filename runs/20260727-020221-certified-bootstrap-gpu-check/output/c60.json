@@ -1,0 +1,21 @@
+{
+  "energy_eV": -474.6689147949219,
+  "force_evaluations": 41,
+  "force_tolerance_eV_per_A": 0.03,
+  "frozen_commit": "01bcdc47a002bdf00f0d568f966be06169080756",
+  "purpose_counts": {
+    "biased_proposal_relax": 0,
+    "bootstrap_true_quench": 40,
+    "direction_oracle": 0,
+    "escape_true_pes_check": 0,
+    "landing_true_quench": 0,
+    "post_relax_validation": 1,
+    "starter_true_quench": 0,
+    "unattributed": 0
+  },
+  "schema_version": 1,
+  "state_sha256": "95858c9667976be8ae132ccd2416a34fdff5a8de2dd5b68fc32225a2bb89a3e3",
+  "status": "certified",
+  "system": "c60",
+  "wall_time_s": 2.6780378879993805
+}

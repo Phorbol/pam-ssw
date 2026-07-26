@@ -12,13 +12,17 @@ from pamssw.exploration import PosteriorExplorationConfig, PosteriorExplorationR
 from pamssw.exploration.actions import AttemptStatus
 from pamssw.exploration.campaign import CampaignStopReason
 from pamssw.exploration.runner import (
+    BootstrapConvergenceError,
     _bootstrap_minimum,
+    _write_optimizer_diagnostics,
     run_posterior_ls_ssw,
     run_posterior_ssw,
 )
+from pamssw.exploration.campaign import AttemptDiagnostics
 from pamssw.exploration.event_log import ExplorationEventLog
 from pamssw import run_ls_ssw, run_ssw
 from pamssw.potentials import DoubleWell2D
+from pamssw.result import RelaxResult
 from pamssw.state import State
 
 
@@ -183,13 +187,46 @@ def test_bootstrap_minimum_rejects_invalid_raw_geometry_before_factory():
 
 
 def test_bootstrap_minimum_propagates_force_budget_exhaustion():
-    with pytest.raises(BudgetExceeded, match="force-evaluation budget exhausted"):
+    with pytest.raises(BudgetExceeded, match="force-evaluation budget exhausted") as captured:
         _bootstrap_minimum(
             State(numbers=np.array([1]), positions=np.array([[-0.8, 0.0, 0.0]])),
             lambda: CountingAnalyticCalculator(),
             SSWConfig(),
             total_force_budget=1,
         )
+    assert captured.value.evaluation_counts.total == 1
+    assert (
+        captured.value.evaluation_counts.count(EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH)
+        == 1
+    )
+
+
+def test_bootstrap_minimum_rejects_an_uncertified_relaxation(monkeypatch):
+    initial = State(numbers=np.array([1]), positions=np.array([[-0.8, 0.0, 0.0]]))
+
+    def unconverged_relax(self, state, fmax, maxiter, **kwargs):
+        return RelaxResult(
+            state=state,
+            energy=0.0,
+            gradient_norm=10.0 * fmax,
+            n_iter=maxiter,
+        )
+
+    monkeypatch.setattr("pamssw.exploration.runner.Relaxer.relax", unconverged_relax)
+
+    with pytest.raises(BootstrapConvergenceError, match="bootstrap.*converge") as captured:
+        _bootstrap_minimum(
+            initial,
+            lambda: CountingAnalyticCalculator(),
+            SSWConfig(quench_maxiter=1),
+            total_force_budget=100,
+        )
+    assert captured.value.relaxation.gradient_norm == 10.0 * SSWConfig().quench_fmax
+    assert captured.value.evaluation_counts.total == 1
+    assert (
+        captured.value.evaluation_counts.count(EvaluationPurpose.POST_RELAX_VALIDATION)
+        == 1
+    )
 
 
 @pytest.mark.parametrize(
@@ -290,7 +327,12 @@ def test_posterior_runner_uses_real_threaded_ssw_with_exact_budget_and_event_led
     assert result.total_evaluations <= result.total_force_budget
     assert result.purpose_counts.count(EvaluationPurpose.UNATTRIBUTED) == 0
     assert result.unused_force_budget < exploration_config.action_force_budget
+    diagnostic_path = run_directory / "optimizer_diagnostics.json"
+    diagnostics = json.loads(diagnostic_path.read_text())
+    assert len(diagnostics["attempts"]) == result.completed_attempts + result.failed_attempts
+    assert all(item["stats"]["force_evaluations"] >= 0 for item in diagnostics["attempts"])
     assert event_path.is_file()
+
     assert ExplorationEventLog(event_path).reconstruct_posterior().completed_attempts == (
         result.posterior_observed_attempts
     )
@@ -309,6 +351,22 @@ def test_posterior_runner_uses_real_threaded_ssw_with_exact_budget_and_event_led
         remaining -= sum(
             sum(attempt["evaluation_counts"].values()) for attempt in attempts
         )
+
+
+def test_optimizer_diagnostics_writer_never_overwrites_an_existing_sidecar(tmp_path: Path):
+    path = tmp_path / "optimizer_diagnostics.json"
+    path.write_text("keep\n", encoding="utf-8")
+    diagnostics = (
+        AttemptDiagnostics(
+            action_id="action-1",
+            stats=(("force_evaluations", 3),),
+        ),
+    )
+
+    with pytest.raises(FileExistsError):
+        _write_optimizer_diagnostics(path, diagnostics)
+
+    assert path.read_text(encoding="utf-8") == "keep\n"
 
 
 @pytest.mark.parametrize("invalid_run_directory", ("existing", "missing-parent"))

@@ -72,5 +72,26 @@ class GaussianBiasTerm:
         coefficient = energy * ((projection**2 / self.sigma**4) - (1.0 / self.sigma**2)) * ndot
         return coefficient * self.direction
 
+    def mic_image_signature(
+        self,
+        flat_positions: np.ndarray,
+        cell: np.ndarray | None = None,
+        pbc: tuple[bool, bool, bool] = (False, False, False),
+    ) -> tuple[int, ...]:
+        """Return the periodic image integers used by the MIC branch."""
+
+        flat = np.asarray(flat_positions, dtype=float).reshape(-1)
+        if flat.shape != self.center.shape:
+            raise ValueError("flat_positions must have the same shape as the Gaussian bias center")
+        if cell is None or not any(pbc):
+            return ()
+        delta = flat.reshape(-1, 3) - self.center.reshape(-1, 3)
+        fractional = delta @ np.linalg.inv(cell)
+        images = np.zeros_like(fractional, dtype=int)
+        for axis, periodic in enumerate(pbc):
+            if periodic:
+                images[:, axis] = np.rint(fractional[:, axis]).astype(int)
+        return tuple(int(value) for value in images.reshape(-1))
+
     def directional_curvature_shift(self) -> float:
         return -self.weight / (self.sigma**2)

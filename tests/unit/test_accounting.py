@@ -206,10 +206,11 @@ def test_purpose_budget_rejection_does_not_increment_counts(state: State):
     counter = EvalCounter(calculator, max_force_evals=0)
 
     with counter.purpose(EvaluationPurpose.DIRECTION_ORACLE):
-        with pytest.raises(BudgetExceeded):
+        with pytest.raises(BudgetExceeded) as captured:
             counter.evaluate(state)
 
     counts = counter.snapshot()
+    assert captured.value.evaluation_counts == counts
     assert calculator.calls == 0
     assert counts.total == 0
     assert counts.count(EvaluationPurpose.DIRECTION_ORACLE) == 0
@@ -366,8 +367,9 @@ def test_evaluate_and_evaluate_flat_share_one_force_evaluation_budget(state: Sta
     assert calculator.calls == 2
     assert counter.force_evaluations == 2
     assert counter.energy_evaluations == 2
-    with pytest.raises(BudgetExceeded):
+    with pytest.raises(BudgetExceeded) as captured:
         counter.evaluate(state)
+    assert captured.value.evaluation_counts == counter.snapshot()
 
 
 @pytest.mark.parametrize("method", ["evaluate", "evaluate_flat"])

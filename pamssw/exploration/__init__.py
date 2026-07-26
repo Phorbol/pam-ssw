@@ -2,6 +2,7 @@ from .actions import AttemptResult, AttemptStatus, CreditedOutcome, PolicySnapsh
 from .batch import derive_action_seed, plan_batch
 from .committed import CommittedExplorationBatch
 from .campaign import (
+    AttemptDiagnostics,
     CampaignBudget,
     CampaignBudgetSnapshot,
     CampaignStopReason,
@@ -12,13 +13,15 @@ from .controller import BatchLog, ExplorationController, UnknownActionCostError,
 from .event_log import ExplorationEventLog, SCHEMA_VERSION
 from .posterior import StarterProductivityPosterior
 from .policies import SUPPORTED_POLICIES, build_policy_snapshot
-from .runner import run_posterior_ls_ssw, run_posterior_ssw
+from .runner import BootstrapConvergenceError, run_posterior_ls_ssw, run_posterior_ssw
 from .ssw_worker import SSWAttemptWorker
 
 __all__ = [
     "AttemptResult",
+    "AttemptDiagnostics",
     "AttemptStatus",
     "BatchLog",
+    "BootstrapConvergenceError",
     "CampaignBudget",
     "CampaignBudgetSnapshot",
     "CampaignStopReason",

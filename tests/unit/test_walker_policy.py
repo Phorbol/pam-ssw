@@ -85,6 +85,54 @@ def test_gaussian_bias_rejects_mismatched_position_shape():
         bias.evaluate(np.zeros(3))
 
 
+def test_proposal_parts_preserve_tuple_api_fixed_atoms_and_stable_mic_branch():
+    class CountingConstantCalculator:
+        def __init__(self):
+            self.calls = 0
+
+        def evaluate_flat(self, flat_positions, template):
+            self.calls += 1
+            return 2.5, np.full_like(flat_positions, 0.75)
+
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[9.8, 0.0, 0.0]]),
+        cell=np.diag([10.0, 10.0, 10.0]),
+        pbc=(True, True, True),
+        fixed_mask=np.array([True]),
+    )
+    wrapped = state.with_flat_positions(np.array([-0.2, 0.0, 0.0]))
+    calculator = CountingConstantCalculator()
+    potential = ProposalPotential(
+        calculator,
+        biases=[
+            GaussianBiasTerm(
+                center=np.array([9.5, 0.0, 0.0]),
+                direction=np.array([1.0, 0.0, 0.0]),
+                sigma=0.5,
+                weight=2.0,
+            )
+        ],
+    )
+
+    assert hasattr(potential, "evaluate_parts")
+    inside_parts = potential.evaluate_parts(state.flatten_positions(), state)
+    wrapped_parts = potential.evaluate_parts(wrapped.flatten_positions(), wrapped)
+    energy, gradient = potential.evaluate(state.flatten_positions(), state)
+
+    assert calculator.calls == 3
+    assert inside_parts.bias_energy == pytest.approx(wrapped_parts.bias_energy)
+    np.testing.assert_allclose(inside_parts.bias_gradient, wrapped_parts.bias_gradient)
+    assert inside_parts.softening_energy == 0.0
+    np.testing.assert_allclose(inside_parts.softening_gradient, np.zeros(3))
+    np.testing.assert_allclose(inside_parts.total_gradient, np.full(3, 0.75) + inside_parts.bias_gradient)
+    assert energy == pytest.approx(inside_parts.total_energy)
+    np.testing.assert_allclose(gradient, inside_parts.total_gradient)
+    assert gradient.flags.writeable
+    gradient[0] = gradient[0] + 1.0
+    assert gradient[0] != inside_parts.total_gradient[0]
+
+
 def test_surface_walker_uses_configured_step_length_controller_controls():
     walker = SurfaceWalker(
         calculator=AnalyticCalculator(DoubleWell2D()),
@@ -3743,6 +3791,32 @@ def test_surface_walker_reports_relaxation_convergence_diagnostics():
     assert result.stats["proposal_relax_max_iterations"] >= result.stats["proposal_relax_min_iterations"]
     assert "proposal_relax_active_bound_fraction_mean" in result.stats
     assert "proposal_relax_displacement_max" in result.stats
+    assert result.stats["proposal_relax_evaluator_calls"] >= 1
+    assert result.stats["proposal_relax_backend_evaluations"] >= 1
+    assert result.stats["proposal_relax_reporting_cache_hits"] >= 1
+    assert result.stats["proposal_relax_reporting_evaluator_calls"] >= 0
+    assert result.stats["proposal_relax_finalization_requests"] == result.stats["proposal_relax_count"]
+    assert result.stats["proposal_relax_explicit_finalization_calls"] >= 0
+    assert result.stats["proposal_relax_accepted_steps"] >= 0
+    assert result.stats["proposal_relax_rejected_steps"] >= 0
+    assert result.stats["proposal_relax_accepted_secants"] >= 0
+    assert result.stats["proposal_relax_rejected_secants"] >= 0
+    assert result.stats["proposal_relax_line_search_evaluations"] >= 0
+    assert result.stats["proposal_relax_mic_branch_resets"] >= 0
+    assert np.isfinite(result.stats["proposal_relax_bias_secant_curvature_sum"])
+    assert (
+        result.stats["proposal_relax_gradient_measure_raw_active_max_force"]
+        + result.stats["proposal_relax_gradient_measure_projected_active_kkt_residual"]
+        + result.stats["proposal_relax_gradient_measure_unknown"]
+        == result.stats["proposal_relax_count"]
+    )
+    assert (
+        result.stats["proposal_relax_termination_converged"]
+        + result.stats["proposal_relax_termination_maxiter"]
+        + result.stats["proposal_relax_termination_optimizer_stopped"]
+        + result.stats["proposal_relax_termination_unconverged"]
+        == result.stats["proposal_relax_count"]
+    )
     assert "bias_zero_weight_fraction" in result.stats
 
 

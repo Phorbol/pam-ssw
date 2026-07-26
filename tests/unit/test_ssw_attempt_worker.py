@@ -273,12 +273,17 @@ def test_invalid_starter_returns_zero_cost_invalid_without_calling_factory():
         return _Calculator()
 
     invalid = State(numbers=np.array([1]), positions=np.array([[np.nan, 0.0, 0.0]]))
-    result = SSWAttemptWorker(factory, SSWConfig())(_action(), invalid)
+    worker = SSWAttemptWorker(factory, SSWConfig())
+    result = worker(_action(), invalid)
 
     assert result.status is AttemptStatus.INVALID
     assert result.force_evaluations == 0
     assert result.failure_reason == "invalid_starter_geometry"
     assert calls == 0
+    diagnostics = worker.diagnostics_snapshot()
+    assert len(diagnostics) == 1
+    assert dict(diagnostics[0].stats)["diagnostic_stage"] == "invalid_starter"
+    assert dict(diagnostics[0].stats)["force_evaluations"] == 0
 
 
 @pytest.mark.parametrize("action,starter", [(object(), _state()), (_action(), object())])
@@ -293,19 +298,23 @@ def test_factory_failure_is_a_zero_cost_worker_error():
     def factory() -> _Calculator:
         raise RuntimeError("factory boom")
 
-    result = SSWAttemptWorker(factory, SSWConfig())(_action(), _state())
+    worker = SSWAttemptWorker(factory, SSWConfig())
+    result = worker(_action(), _state())
 
     assert result.status is AttemptStatus.WORKER_ERROR
     assert result.force_evaluations == 0
     assert result.failure_reason == "factory_error: RuntimeError: factory boom"
+    assert dict(worker.diagnostics_snapshot()[0].stats)["diagnostic_stage"] == "factory_error"
 
 
 def test_malformed_factory_calculator_is_a_zero_cost_worker_error():
-    result = SSWAttemptWorker(lambda: object(), SSWConfig())(_action(), _state())
+    worker = SSWAttemptWorker(lambda: object(), SSWConfig())
+    result = worker(_action(), _state())
 
     assert result.status is AttemptStatus.WORKER_ERROR
     assert result.force_evaluations == 0
     assert result.failure_reason == "calculator_error: missing callable evaluate and evaluate_flat"
+    assert dict(worker.diagnostics_snapshot()[0].stats)["diagnostic_stage"] == "calculator_error"
 
 
 def test_walker_construction_failure_is_a_zero_cost_worker_error(monkeypatch):
@@ -317,6 +326,26 @@ def test_walker_construction_failure_is_a_zero_cost_worker_error(monkeypatch):
     assert result.status is AttemptStatus.WORKER_ERROR
     assert result.force_evaluations == 0
     assert result.failure_reason == "constructor_error: RuntimeError: construct boom"
+    assert dict(worker.diagnostics_snapshot()[0].stats)["diagnostic_stage"] == "constructor_error"
+
+
+def test_diagnostic_failure_cannot_change_the_terminal_action_result(monkeypatch):
+    worker, _, _ = _make_worker(monkeypatch, _search_result())
+
+    def fail_diagnostics(*args, **kwargs):
+        raise RuntimeError("diagnostic boom")
+
+    monkeypatch.setattr(worker, "_record_diagnostics", fail_diagnostics)
+
+    result = worker(_action(), _state())
+
+    assert result.status is AttemptStatus.INVALID
+    assert result.force_evaluations == 3
+    diagnostics = worker.diagnostics_snapshot()
+    assert len(diagnostics) == 1
+    stats = dict(diagnostics[0].stats)
+    assert stats["diagnostics_error"] == "RuntimeError"
+    assert stats["force_evaluations"] == result.force_evaluations
 
 
 def test_landing_comes_from_the_walk_record_not_the_search_best_state(monkeypatch):
@@ -632,3 +661,6 @@ def test_pre_calculator_terminal_paths_are_exact_zero_snapshots(monkeypatch, fai
     assert result.force_evaluations == 0
     assert result.evaluation_counts == EvaluationCounts.zero()
     assert result.cost_is_exact is True
+    diagnostics = worker.diagnostics_snapshot()
+    assert len(diagnostics) == 1
+    assert dict(diagnostics[0].stats)["force_evaluations"] == 0

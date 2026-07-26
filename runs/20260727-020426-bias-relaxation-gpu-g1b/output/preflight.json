@@ -1,0 +1,33 @@
+{
+  "ase_version": "3.25.0",
+  "cuda_available": true,
+  "cuda_device": "NVIDIA GeForce RTX 3060",
+  "cuda_runtime": "12.8",
+  "frozen_commit": "c598096170d40625b6d127668935a166cc1507c1",
+  "input_sha256": {
+    "c60": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9",
+    "pdo": "68243ceb7c0fbb6ba7a9454d680287eb98c4e5210efbd9ebb63517ba79aaa8b0"
+  },
+  "mace_version": "0.3.14",
+  "model": "/root/.cache/mace/mace-omat-0-small.model",
+  "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+  "numpy_version": "2.1.3",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.34",
+  "python": "3.12.12 | packaged by conda-forge | (main, Oct 22 2025, 23:25:55) [GCC 14.3.0]",
+  "schema_version": 1,
+  "single_points": [
+    {
+      "energy_eV": -473.64532470703125,
+      "force_max_eV_per_A": 0.9479217790447323,
+      "system": "c60",
+      "wall_time_s": 0.7124574229965219
+    },
+    {
+      "energy_eV": -567.767578125,
+      "force_max_eV_per_A": 0.49565429464380406,
+      "system": "pdo",
+      "wall_time_s": 0.2341786079996382
+    }
+  ],
+  "torch_version": "2.8.0+cu128"
+}

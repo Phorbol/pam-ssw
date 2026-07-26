@@ -20,6 +20,30 @@ class RelaxOutcomeClass(str, Enum):
 
 
 @dataclass(frozen=True)
+class RelaxTelemetry:
+    """Backend-independent accounting for one local relaxation."""
+
+    backend: str = "unknown"
+    evaluator_calls: int = 0
+    backend_evaluations: int = 0
+    reporting_cache_hits: int = 0
+    reporting_evaluator_calls: int = 0
+    finalization_requests: int = 0
+    explicit_finalization_calls: int = 0
+    gradient_measure: str = "unknown"
+    converged: bool = False
+    termination_reason: str = "unknown"
+    optimizer_success: bool | None = None
+    accepted_steps: int = 0
+    rejected_steps: int = 0
+    accepted_secants: int = 0
+    rejected_secants: int = 0
+    line_search_evaluations: int = 0
+    mic_branch_resets: int = 0
+    bias_secant_curvature_sum: float = 0.0
+
+
+@dataclass(frozen=True)
 class RelaxResult:
     """Result of a local relaxation."""
     state: State
@@ -30,6 +54,7 @@ class RelaxResult:
     displacement_rms: float = 0.0
     displacement_max: float = 0.0
     outcome_class: RelaxOutcomeClass = RelaxOutcomeClass.USEFUL_PROGRESS
+    telemetry: RelaxTelemetry = field(default_factory=RelaxTelemetry)
 
 
 @dataclass(frozen=True)

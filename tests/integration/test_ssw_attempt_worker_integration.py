@@ -167,14 +167,14 @@ def _assert_closed_physical_ledger(result) -> None:
         (
             _base_config,
             False,
-            21,
+            15,
             1.0750373417042004e-34,
             _SSW_COMPLETED_LANDING,
         ),
         (
             _ls_base_config,
             True,
-            69,
+            63,
             2.0427020177514484e-09,
             _LS_SSW_COMPLETED_LANDING,
         ),
@@ -195,6 +195,13 @@ def test_real_worker_purpose_ledger_preserves_completed_analytic_baselines(
     result = worker(action, _state())
 
     assert len(calculators) == 1
+    diagnostics = worker.diagnostics_snapshot()
+    assert len(diagnostics) == 1
+    assert diagnostics[0].action_id == action.action_id
+    diagnostic_stats = dict(diagnostics[0].stats)
+    assert diagnostic_stats["proposal_optimizer"] == config.proposal_optimizer
+    assert diagnostic_stats["proposal_relax_count"] >= 1
+    assert diagnostic_stats["force_evaluations"] == result.force_evaluations
     _assert_terminal_baseline(
         result,
         calculators[0],
@@ -219,10 +226,36 @@ def test_real_worker_purpose_ledger_preserves_completed_analytic_baselines(
 
 
 @pytest.mark.parametrize(
+    "proposal_optimizer",
+    ["ase-fire2", "safe-lbfgs-total", "bias-separated-lbfgs"],
+)
+def test_new_proposal_optimizers_preserve_exact_analytic_worker_ledger(proposal_optimizer):
+    config = replace(
+        _base_config(),
+        proposal_optimizer=proposal_optimizer,
+        proposal_trust_radius=None,
+    )
+    worker, calculators = _worker_with_fresh_calculators(config)
+
+    result = worker(_action(force_budget=400), _state())
+
+    _assert_terminal_baseline(
+        result,
+        calculators[0],
+        status=AttemptStatus.COMPLETED,
+        force_evaluations=15,
+        landing_energy=1.0750373417042004e-34,
+        landing_positions=_SSW_COMPLETED_LANDING,
+    )
+    _assert_closed_physical_ledger(result)
+    assert result.evaluation_counts.count(EvaluationPurpose.BIASED_PROPOSAL_RELAX) == 1
+
+
+@pytest.mark.parametrize(
     ("config_factory", "softening_enabled", "force_evaluations"),
     [
-        (_base_config, False, 21),
-        (_ls_known_basin_config, True, 49),
+        (_base_config, False, 15),
+        (_ls_known_basin_config, True, 43),
     ],
     ids=("ssw", "ls_ssw"),
 )
@@ -252,8 +285,8 @@ def test_real_worker_purpose_ledger_preserves_duplicate_candidate_baseline(
 @pytest.mark.parametrize(
     ("config_factory", "softening_enabled", "force_evaluations"),
     [
-        (_base_config, False, 21),
-        (_ls_base_config, True, 69),
+        (_base_config, False, 15),
+        (_ls_base_config, True, 63),
     ],
     ids=("ssw", "ls_ssw"),
 )
@@ -333,6 +366,9 @@ def test_real_worker_purpose_ledger_preserves_exact_budget_exhaustion_baseline(
         landing_positions=None,
     )
     _assert_closed_physical_ledger(result)
+    diagnostics = worker.diagnostics_snapshot()
+    assert len(diagnostics) == 1
+    assert dict(diagnostics[0].stats)["force_evaluations"] == 5
 
 
 @pytest.mark.parametrize(

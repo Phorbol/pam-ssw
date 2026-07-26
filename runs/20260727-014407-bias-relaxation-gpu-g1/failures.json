@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "failures": [
+    {
+      "system": "c60",
+      "optimizer": "ase-fire2",
+      "stage": "bootstrap_true_quench",
+      "proposal_started": false,
+      "error": "bootstrap relaxation did not converge to the configured per-atom force tolerance",
+      "process_wall_time_s": 6.539450179,
+      "force_evaluations": null,
+      "accounting_note": "The counter was local to the raising bootstrap function, so the failed call count was not persisted."
+    },
+    {
+      "system": "pdo",
+      "optimizer": "ase-fire",
+      "stage": "bootstrap_true_quench",
+      "proposal_started": false,
+      "error": "bootstrap relaxation did not converge to the configured per-atom force tolerance",
+      "process_wall_time_s": 6.66145418,
+      "force_evaluations": null,
+      "accounting_note": "The counter was local to the raising bootstrap function, so the failed call count was not persisted."
+    },
+    {
+      "system": "pdo",
+      "optimizer": "ase-fire2",
+      "stage": "bootstrap_true_quench",
+      "proposal_started": false,
+      "error": "bootstrap relaxation did not converge to the configured per-atom force tolerance",
+      "process_wall_time_s": 6.922301399,
+      "force_evaluations": null,
+      "accounting_note": "The counter was local to the raising bootstrap function, so the failed call count was not persisted."
+    },
+    {
+      "system": "pdo",
+      "optimizer": "safe-lbfgs-total",
+      "stage": "bootstrap_true_quench",
+      "proposal_started": false,
+      "error": "bootstrap relaxation did not converge to the configured per-atom force tolerance",
+      "process_wall_time_s": 6.803469195,
+      "force_evaluations": null,
+      "accounting_note": "The counter was local to the raising bootstrap function, so the failed call count was not persisted."
+    }
+  ]
+}

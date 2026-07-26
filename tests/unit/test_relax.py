@@ -1,12 +1,78 @@
+from dataclasses import FrozenInstanceError
+
 import numpy as np
 import pytest
 
-from pamssw.relax import Relaxer
+import pamssw.relax as relax_module
+from pamssw.accounting import BudgetExceeded
+from pamssw.relax import RelaxEvaluation, Relaxer
 from pamssw.result import RelaxOutcomeClass
 from pamssw.state import State
 
 
-def test_relaxer_passes_force_tolerance_to_lbfgsb(monkeypatch):
+def test_relax_evaluation_is_a_frozen_component_value_object():
+    evaluation_type = getattr(relax_module, "RelaxEvaluation", None)
+
+    assert evaluation_type is not None
+    evaluation = evaluation_type(
+        true_energy=1.0,
+        true_gradient=np.array([1.0, 2.0, 3.0]),
+        bias_energy=2.0,
+        bias_gradient=np.array([4.0, 5.0, 6.0]),
+        softening_energy=3.0,
+        softening_gradient=np.array([7.0, 8.0, 9.0]),
+        total_energy=6.0,
+        total_gradient=np.array([12.0, 15.0, 18.0]),
+    )
+
+    assert evaluation.total_energy == 6.0
+    np.testing.assert_allclose(evaluation.total_gradient, [12.0, 15.0, 18.0])
+    with pytest.raises(FrozenInstanceError):
+        evaluation.total_energy = 0.0
+
+
+def test_relax_evaluation_defensively_copies_and_locks_all_gradient_arrays():
+    gradients = {
+        "true_gradient": np.array([1.0, 2.0, 3.0]),
+        "bias_gradient": np.array([4.0, 5.0, 6.0]),
+        "softening_gradient": np.array([7.0, 8.0, 9.0]),
+        "total_gradient": np.array([12.0, 15.0, 18.0]),
+    }
+    evaluation = RelaxEvaluation(
+        true_energy=1.0,
+        bias_energy=2.0,
+        softening_energy=3.0,
+        total_energy=6.0,
+        **gradients,
+    )
+    gradients["true_gradient"][0] = -1.0
+
+    assert evaluation.true_gradient[0] == 1.0
+    for name, source in gradients.items():
+        component = getattr(evaluation, name)
+        assert not np.shares_memory(component, source)
+        assert not component.flags.writeable
+        with pytest.raises(ValueError, match="read-only"):
+            component[0] = 0.0
+
+
+def test_relax_evaluation_rejects_mismatched_component_gradient_shapes():
+    with pytest.raises(ValueError, match="same shape"):
+        RelaxEvaluation(
+            true_energy=1.0,
+            true_gradient=np.zeros(3),
+            bias_energy=0.0,
+            bias_gradient=np.zeros(3),
+            softening_energy=0.0,
+            softening_gradient=np.zeros(2),
+            total_energy=1.0,
+            total_gradient=np.zeros(3),
+        )
+
+
+def test_relaxer_maps_per_atom_force_tolerance_to_sufficient_lbfgsb_component_bound(
+    monkeypatch,
+):
     captured = {}
 
     class Result:
@@ -26,8 +92,8 @@ def test_relaxer_passes_force_tolerance_to_lbfgsb(monkeypatch):
     state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
     Relaxer(evaluator).relax(state, fmax=1e-4, maxiter=123)
 
-    assert captured["options"]["gtol"] == 1e-4
-    assert captured["options"]["ftol"] < 1e-9
+    assert captured["options"]["gtol"] == pytest.approx(1e-4 / np.sqrt(3.0))
+    assert captured["options"]["ftol"] == 0.0
     assert captured["options"]["maxiter"] == 123
 
 
@@ -190,6 +256,8 @@ def test_relaxer_wraps_final_periodic_coordinates(monkeypatch):
         nit = 1
 
     def fake_minimize(fun, x0, method, jac, bounds=None, options=None):
+        fun(np.asarray(x0, dtype=float))
+        fun(Result.x)
         return Result()
 
     monkeypatch.setattr("pamssw.relax.minimize", fake_minimize)
@@ -207,6 +275,44 @@ def test_relaxer_wraps_final_periodic_coordinates(monkeypatch):
     result = Relaxer(evaluator).relax(state, fmax=1e-4, maxiter=3, coordinate_trust_radius=0.25)
 
     np.testing.assert_allclose(result.state.positions, np.array([[0.2, 4.8, 11.0]]))
+    assert result.telemetry.backend_evaluations == 2
+    assert result.telemetry.reporting_cache_hits == 1
+    assert result.telemetry.reporting_evaluator_calls == 1
+    assert result.telemetry.finalization_requests == 1
+    assert result.telemetry.explicit_finalization_calls == 1
+
+
+def test_fully_periodic_scipy_relax_reports_raw_force_when_no_finite_bounds(monkeypatch):
+    class Result:
+        x = np.array([1.0, 2.0, 3.0])
+        nit = 0
+        success = True
+
+    def fake_minimize(fun, x0, method, jac, bounds=None, options=None):
+        assert bounds == [(None, None), (None, None), (None, None)]
+        fun(np.asarray(x0, dtype=float))
+        return Result()
+
+    monkeypatch.setattr("pamssw.relax.minimize", fake_minimize)
+
+    def evaluator(flat_positions, template):
+        return 0.0, np.zeros_like(flat_positions)
+
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[1.0, 2.0, 3.0]]),
+        cell=np.diag([5.0, 5.0, 5.0]),
+        pbc=(True, True, True),
+    )
+
+    result = Relaxer(evaluator).relax(
+        state,
+        fmax=1e-4,
+        maxiter=3,
+        coordinate_trust_radius=0.25,
+    )
+
+    assert result.telemetry.gradient_measure == "raw_active_max_force"
 
 
 def test_relaxer_reports_projected_gradient_for_bound_constrained_optimum(monkeypatch):
@@ -226,6 +332,7 @@ def test_relaxer_reports_projected_gradient_for_bound_constrained_optimum(monkey
     result = Relaxer(evaluator).relax(state, fmax=1e-4, maxiter=3, coordinate_trust_radius=0.25)
 
     assert result.gradient_norm == 0.0
+    assert result.telemetry.gradient_measure == "projected_active_kkt_residual"
 
 
 def test_relaxer_can_use_ase_fire_without_scipy_line_search():
@@ -238,6 +345,101 @@ def test_relaxer_can_use_ase_fire_without_scipy_line_search():
     assert result.gradient_norm < 1e-4
     assert result.energy < 1e-8
     assert result.n_iter > 0
+
+
+def test_relaxer_can_use_ase_fire2_when_available():
+    if getattr(relax_module, "_ASE_FIRE2") is None:
+        pytest.skip("installed ASE does not provide FIRE2")
+
+    def evaluator(flat_positions, template):
+        return 0.5 * float(np.dot(flat_positions, flat_positions)), flat_positions.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(evaluator, optimizer="ase-fire2").relax(state, fmax=1e-4, maxiter=500)
+
+    assert result.gradient_norm <= 1e-4
+    assert result.telemetry.backend == "ase-fire2"
+
+
+def test_relaxer_reports_missing_ase_fire2_capability(monkeypatch):
+    monkeypatch.setattr(relax_module, "_ASE_FIRE2", None)
+
+    def evaluator(flat_positions, template):
+        return 0.5 * float(np.dot(flat_positions, flat_positions)), flat_positions.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    with pytest.raises(ValueError, match="FIRE2.*not available"):
+        Relaxer(evaluator, optimizer="ase-fire2").relax(state, fmax=1e-4, maxiter=5)
+
+
+@pytest.mark.parametrize("optimizer", ["scipy-lbfgsb", "ase-fire", "ase-lbfgs"])
+def test_relaxer_reuses_report_only_endpoint_evaluations_without_changing_backend_path(optimizer):
+    evaluated_positions = []
+
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        evaluated_positions.append(flat.copy())
+        return 0.5 * float(np.dot(flat, flat)), flat.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(evaluator, optimizer=optimizer).relax(state, fmax=1e-4, maxiter=200)
+
+    assert result.gradient_norm <= 1e-4
+    assert result.telemetry.backend == optimizer
+    assert result.telemetry.converged
+    assert result.telemetry.termination_reason == "converged"
+    assert result.telemetry.evaluator_calls == len(evaluated_positions)
+    assert result.telemetry.backend_evaluations == len(evaluated_positions)
+    assert result.telemetry.reporting_cache_hits == 2
+    assert result.telemetry.reporting_evaluator_calls == 0
+    assert result.telemetry.finalization_requests == 1
+    assert result.telemetry.explicit_finalization_calls == 0
+    assert result.telemetry.gradient_measure == "raw_active_max_force"
+
+
+def test_relaxer_reports_unified_maxiter_termination():
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        return 0.5 * float(np.dot(flat, flat)), flat.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[10.0, 0.0, 0.0]]))
+    result = Relaxer(evaluator, optimizer="ase-fire").relax(state, fmax=1e-12, maxiter=1)
+
+    assert not result.telemetry.converged
+    assert result.telemetry.termination_reason == "maxiter"
+    assert result.gradient_norm > 1e-12
+
+
+def test_scipy_reporting_does_not_repeat_backend_endpoint_calls(monkeypatch):
+    calls = []
+
+    class Result:
+        x = np.zeros(3)
+        nit = 1
+        success = True
+
+    def fake_minimize(fun, x0, method, jac, bounds=None, options=None):
+        fun(np.asarray(x0, dtype=float))
+        fun(Result.x)
+        return Result()
+
+    monkeypatch.setattr("pamssw.relax.minimize", fake_minimize)
+
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        calls.append(flat.copy())
+        return 0.5 * float(np.dot(flat, flat)), flat.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(evaluator, optimizer="scipy-lbfgsb").relax(state, fmax=1e-4, maxiter=5)
+
+    assert len(calls) == 2
+    assert result.telemetry.backend_evaluations == 2
+    assert result.telemetry.reporting_cache_hits == 2
+    assert result.telemetry.reporting_evaluator_calls == 0
+    assert result.telemetry.evaluator_calls == (
+        result.telemetry.backend_evaluations + result.telemetry.reporting_evaluator_calls
+    )
 
 
 def test_relaxer_applies_ase_trajectory_stride():
@@ -256,3 +458,387 @@ def test_relaxer_applies_ase_trajectory_stride():
 
     assert len(trajectory) < 20
     assert len(trajectory) >= 2
+
+
+def test_safe_lbfgs_two_loop_uses_fixed_empty_history_scale_and_latest_inverse_scale():
+    inverse_product = getattr(relax_module, "_lbfgs_inverse_product")
+    gradient = np.array([2.0, -4.0])
+
+    np.testing.assert_allclose(inverse_product(gradient, []), gradient / 70.0)
+
+    s = np.array([1.0, 0.0])
+    y = np.array([2.0, 0.0])
+    history = [(s, y, 1.0 / float(np.dot(s, y)))]
+    np.testing.assert_allclose(inverse_product(np.array([2.0, 0.0]), history), [1.0, 0.0])
+
+
+def test_safe_lbfgs_curvature_gate_is_relative_to_secant_norms():
+    accepts = getattr(relax_module, "_accept_lbfgs_curvature")
+
+    assert accepts(np.array([1.0]), np.array([1.0]))
+    assert not accepts(np.array([1.0]), np.array([0.0]))
+    assert not accepts(np.array([1.0]), np.array([-1.0]))
+
+
+def test_safe_lbfgs_limits_maximum_displacement_of_each_atom():
+    limit = getattr(relax_module, "_limit_max_atomic_displacement")
+    direction = np.array([3.0, 4.0, 0.0, 0.0, 0.0, 10.0])
+
+    limited = limit(direction)
+
+    atom_norms = np.linalg.norm(limited.reshape(-1, 3), axis=1)
+    assert np.max(atom_norms) == pytest.approx(0.2)
+    np.testing.assert_allclose(limited, direction * 0.02)
+
+
+def test_safe_lbfgs_total_converges_on_quadratic_with_armijo_steps():
+    calls = []
+
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        calls.append(flat.copy())
+        return 0.5 * float(np.dot(flat, flat)), flat.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+        state,
+        fmax=1e-8,
+        maxiter=10,
+    )
+
+    assert result.telemetry.converged
+    assert result.telemetry.termination_reason == "converged"
+    assert result.telemetry.backend == "safe-lbfgs-total"
+    assert result.telemetry.backend_evaluations == len(calls)
+    assert result.telemetry.accepted_steps == result.n_iter
+    assert result.telemetry.accepted_secants == result.n_iter
+    assert result.telemetry.rejected_secants == 0
+    assert result.telemetry.line_search_evaluations == (
+        result.telemetry.accepted_steps + result.telemetry.rejected_steps
+    )
+    assert 1 < result.n_iter <= 10
+    np.testing.assert_allclose(result.state.positions, 0.0, atol=1e-12)
+
+
+def test_safe_lbfgs_total_caps_first_atomic_step():
+    trajectory = []
+
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        return 0.5 * float(np.dot(flat, flat)), flat.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[100.0, 0.0, 0.0]]))
+    result = Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+        state,
+        fmax=1e-12,
+        maxiter=1,
+        trajectory_callback=trajectory.append,
+    )
+
+    assert result.n_iter == 1
+    assert result.telemetry.termination_reason == "maxiter"
+    assert len(trajectory) == 2
+    assert np.linalg.norm(trajectory[1].positions - trajectory[0].positions) == pytest.approx(0.2)
+
+
+def test_safe_lbfgs_total_reports_explicit_armijo_failure_without_fallback():
+    initial = np.array([1.0, 0.0, 0.0])
+
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        energy = 0.0 if np.array_equal(flat, initial) else 1.0
+        return energy, np.array([1.0, 0.0, 0.0])
+
+    state = State(numbers=np.array([1]), positions=initial.reshape(1, 3))
+    result = Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+        state,
+        fmax=1e-12,
+        maxiter=10,
+    )
+
+    assert result.n_iter == 0
+    assert not result.telemetry.converged
+    assert result.telemetry.termination_reason == "line_search_failed"
+    assert result.telemetry.backend_evaluations == 21
+    assert result.telemetry.accepted_steps == 0
+    assert result.telemetry.rejected_steps == 20
+    assert result.telemetry.line_search_evaluations == 20
+    np.testing.assert_array_equal(result.state.positions, state.positions)
+
+
+def test_safe_lbfgs_total_rejects_a_non_descent_direction(monkeypatch):
+    monkeypatch.setattr(
+        relax_module,
+        "_lbfgs_inverse_product",
+        lambda gradient, history: -np.asarray(gradient, dtype=float),
+    )
+
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        return 0.5 * float(np.dot(flat, flat)), flat.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+        state,
+        fmax=1e-8,
+        maxiter=10,
+    )
+
+    assert result.n_iter == 0
+    assert result.telemetry.termination_reason == "non_descent_direction"
+    assert result.telemetry.backend_evaluations == 1
+
+
+def test_safe_lbfgs_total_stops_on_nonfinite_line_trial():
+    initial = np.array([1.0, 0.0, 0.0])
+
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        if np.array_equal(flat, initial):
+            return 0.5, initial.copy()
+        return float("nan"), np.full(3, np.nan)
+
+    state = State(numbers=np.array([1]), positions=initial.reshape(1, 3))
+    result = Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+        state,
+        fmax=1e-8,
+        maxiter=10,
+    )
+
+    assert result.n_iter == 0
+    assert result.telemetry.termination_reason == "nonfinite_evaluation"
+    assert result.telemetry.backend_evaluations == 2
+    assert result.telemetry.rejected_steps == 1
+    assert result.telemetry.line_search_evaluations == 1
+    np.testing.assert_array_equal(result.state.positions, state.positions)
+
+
+def test_safe_lbfgs_total_rejects_zero_curvature_secant_without_fallback():
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        return float(flat[0]), np.array([1.0, 0.0, 0.0])
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+        state,
+        fmax=1e-12,
+        maxiter=1,
+    )
+
+    assert result.telemetry.accepted_steps == 1
+    assert result.telemetry.accepted_secants == 0
+    assert result.telemetry.rejected_secants == 1
+
+
+def test_safe_lbfgs_total_keeps_fixed_atoms_out_of_steps_and_secants():
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        return 0.5 * float(np.dot(flat, flat)), flat.copy()
+
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[10.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+        fixed_mask=np.array([True, False]),
+    )
+    result = Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+        state,
+        fmax=1e-8,
+        maxiter=10,
+    )
+
+    np.testing.assert_array_equal(result.state.positions[0], state.positions[0])
+    np.testing.assert_allclose(result.state.positions[1], 0.0, atol=1e-12)
+    assert result.telemetry.converged
+
+
+def test_safe_lbfgs_total_propagates_budget_exhaustion_from_line_search():
+    calls = 0
+
+    def evaluator(flat_positions, template):
+        nonlocal calls
+        calls += 1
+        if calls > 1:
+            raise BudgetExceeded("test budget exhausted")
+        flat = np.asarray(flat_positions, dtype=float)
+        return 0.5 * float(np.dot(flat, flat)), flat.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    with pytest.raises(BudgetExceeded, match="test budget"):
+        Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+            state,
+            fmax=1e-8,
+            maxiter=10,
+        )
+
+
+def _quadratic_bias_parts(flat_positions, template):
+    flat = np.asarray(flat_positions, dtype=float)
+    true_energy = 0.5 * float(np.dot(flat, flat))
+    true_gradient = flat.copy()
+    bias_energy = 0.25 * float(np.dot(flat, flat))
+    bias_gradient = 0.5 * flat
+    return RelaxEvaluation(
+        true_energy=true_energy,
+        true_gradient=true_gradient,
+        bias_energy=bias_energy,
+        bias_gradient=bias_gradient,
+        softening_energy=0.0,
+        softening_gradient=np.zeros_like(flat),
+        total_energy=true_energy + bias_energy,
+        total_gradient=true_gradient + bias_gradient,
+    )
+
+
+def _total_from_parts(flat_positions, template):
+    parts = _quadratic_bias_parts(flat_positions, template)
+    return parts.total_energy, parts.total_gradient.copy()
+
+
+def test_bias_separated_lbfgs_requires_component_evaluation():
+    state = State(numbers=np.array([1]), positions=np.array([[0.1, 0.0, 0.0]]))
+
+    with pytest.raises(ValueError, match="component"):
+        Relaxer(_total_from_parts, optimizer="bias-separated-lbfgs").relax(
+            state,
+            fmax=1e-8,
+            maxiter=2,
+        )
+
+
+def test_bias_separated_lbfgs_rejects_local_softening_components():
+    def parts_with_softening(flat_positions, template):
+        parts = _quadratic_bias_parts(flat_positions, template)
+        return RelaxEvaluation(
+            true_energy=parts.true_energy,
+            true_gradient=parts.true_gradient,
+            bias_energy=parts.bias_energy,
+            bias_gradient=parts.bias_gradient,
+            softening_energy=0.0,
+            softening_gradient=np.zeros_like(parts.total_gradient),
+            total_energy=parts.total_energy,
+            total_gradient=parts.total_gradient,
+            softening_present=True,
+        )
+
+    def total(flat_positions, template):
+        parts = parts_with_softening(flat_positions, template)
+        return parts.total_energy, parts.total_gradient.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.1, 0.0, 0.0]]))
+    with pytest.raises(ValueError, match="softening"):
+        Relaxer(
+            total,
+            optimizer="bias-separated-lbfgs",
+            component_evaluator=parts_with_softening,
+        ).relax(state, fmax=1e-8, maxiter=2)
+
+
+def test_total_and_bias_separated_modes_have_identical_first_step():
+    state = State(numbers=np.array([1]), positions=np.array([[0.1, 0.0, 0.0]]))
+    trajectories = {}
+
+    for optimizer in ("safe-lbfgs-total", "bias-separated-lbfgs"):
+        trajectory = []
+        Relaxer(
+            _total_from_parts,
+            optimizer=optimizer,
+            component_evaluator=_quadratic_bias_parts,
+        ).relax(
+            state,
+            fmax=1e-12,
+            maxiter=1,
+            trajectory_callback=trajectory.append,
+        )
+        trajectories[optimizer] = trajectory
+
+    np.testing.assert_array_equal(
+        trajectories["safe-lbfgs-total"][1].positions,
+        trajectories["bias-separated-lbfgs"][1].positions,
+    )
+
+
+def test_bias_separation_changes_only_post_secant_preconditioning():
+    state = State(numbers=np.array([1]), positions=np.array([[0.1, 0.0, 0.0]]))
+    results = {}
+
+    for optimizer in ("safe-lbfgs-total", "bias-separated-lbfgs"):
+        results[optimizer] = Relaxer(
+            _total_from_parts,
+            optimizer=optimizer,
+            component_evaluator=_quadratic_bias_parts,
+        ).relax(state, fmax=1e-12, maxiter=2)
+
+    total = results["safe-lbfgs-total"]
+    separated = results["bias-separated-lbfgs"]
+    assert total.telemetry.accepted_secants == 2
+    assert separated.telemetry.accepted_secants == 2
+    assert total.telemetry.bias_secant_curvature_sum != 0.0
+    assert separated.telemetry.bias_secant_curvature_sum != 0.0
+    assert not np.array_equal(total.state.positions, separated.state.positions)
+
+
+def test_custom_modes_are_identical_when_bias_gradient_is_zero():
+    def unbiased_parts(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        return RelaxEvaluation(
+            true_energy=0.5 * float(np.dot(flat, flat)),
+            true_gradient=flat.copy(),
+            bias_energy=0.0,
+            bias_gradient=np.zeros_like(flat),
+            softening_energy=0.0,
+            softening_gradient=np.zeros_like(flat),
+            total_energy=0.5 * float(np.dot(flat, flat)),
+            total_gradient=flat.copy(),
+        )
+
+    def total(flat_positions, template):
+        parts = unbiased_parts(flat_positions, template)
+        return parts.total_energy, parts.total_gradient.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.5, 0.0, 0.0]]))
+    results = [
+        Relaxer(total, optimizer=optimizer, component_evaluator=unbiased_parts).relax(
+            state,
+            fmax=1e-12,
+            maxiter=4,
+        )
+        for optimizer in ("safe-lbfgs-total", "bias-separated-lbfgs")
+    ]
+
+    np.testing.assert_array_equal(results[0].state.positions, results[1].state.positions)
+    assert results[0].telemetry.backend_evaluations == results[1].telemetry.backend_evaluations
+    assert results[0].telemetry.accepted_secants == results[1].telemetry.accepted_secants
+
+
+@pytest.mark.parametrize("optimizer", ["safe-lbfgs-total", "bias-separated-lbfgs"])
+def test_custom_lbfgs_clears_history_on_mic_branch_change(optimizer):
+    def component_evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        signature = ((0, 0, 0),) if flat[0] >= 0.9 else ((1, 0, 0),)
+        return RelaxEvaluation(
+            true_energy=100.0 * float(flat[0]),
+            true_gradient=np.array([100.0, 0.0, 0.0]),
+            bias_energy=0.0,
+            bias_gradient=np.zeros(3),
+            softening_energy=0.0,
+            softening_gradient=np.zeros(3),
+            total_energy=100.0 * float(flat[0]),
+            total_gradient=np.array([100.0, 0.0, 0.0]),
+            bias_image_signature=signature,
+        )
+
+    def total(flat_positions, template):
+        parts = component_evaluator(flat_positions, template)
+        return parts.total_energy, parts.total_gradient.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(
+        total,
+        optimizer=optimizer,
+        component_evaluator=component_evaluator,
+    ).relax(state, fmax=1e-12, maxiter=1)
+
+    assert result.telemetry.accepted_steps == 1
+    assert result.telemetry.mic_branch_resets == 1
+    assert result.telemetry.accepted_secants == 0
+    assert result.telemetry.rejected_secants == 1

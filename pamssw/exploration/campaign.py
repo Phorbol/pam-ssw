@@ -7,6 +7,7 @@ from pathlib import Path
 
 from ..accounting import EvaluationCounts
 from ..archive import MinimaArchive
+from ..result import StatsValue
 from .policies import SUPPORTED_POLICIES
 from .posterior import StarterProductivityPosterior
 
@@ -59,6 +60,32 @@ class PosteriorExplorationConfig:
 class CampaignStopReason(str, Enum):
     BUDGET_TAIL = "budget_tail"
     ZERO_COST_STALL = "zero_cost_stall"
+
+
+@dataclass(frozen=True)
+class AttemptDiagnostics:
+    """Bounded per-action optimizer diagnostics kept outside posterior credit."""
+
+    action_id: str
+    stats: tuple[tuple[str, StatsValue], ...]
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.action_id, str) or not self.action_id.strip():
+            raise ValueError("action_id must be a nonempty string")
+        if not isinstance(self.stats, tuple):
+            raise TypeError("stats must be a tuple")
+        names: list[str] = []
+        for item in self.stats:
+            if not isinstance(item, tuple) or len(item) != 2:
+                raise TypeError("each stats item must be a name-value tuple")
+            name, value = item
+            if not isinstance(name, str) or not name:
+                raise ValueError("diagnostic stat names must be nonempty strings")
+            if value is not None and not isinstance(value, (int, float, str)):
+                raise TypeError("diagnostic stat values must be scalar")
+            names.append(name)
+        if len(set(names)) != len(names):
+            raise ValueError("diagnostic stat names must be unique")
 
 
 @dataclass(frozen=True)

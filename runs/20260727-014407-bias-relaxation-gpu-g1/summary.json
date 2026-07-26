@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "frozen_commit": "47212f7e280671b76d87af95250d469c163353d0",
+  "matrix": {
+    "planned_arms": 8,
+    "proposal_completed_arms": 4,
+    "bootstrap_failed_arms": 4
+  },
+  "completed": [
+    {
+      "system": "c60",
+      "optimizer": "ase-fire",
+      "bootstrap_evaluations": 37,
+      "action_evaluations": 2258,
+      "total_evaluations": 2295,
+      "biased_proposal_relax_evaluations": 1419,
+      "completed_attempts": 5,
+      "failed_attempts": 0,
+      "best_energy_drop_from_bootstrap_eV": 5.58184814453125,
+      "wall_time_s": 41.29448292100278
+    },
+    {
+      "system": "c60",
+      "optimizer": "safe-lbfgs-total",
+      "bootstrap_evaluations": 38,
+      "action_evaluations": 2066,
+      "total_evaluations": 2104,
+      "biased_proposal_relax_evaluations": 1208,
+      "proposal_relax_backend_evaluations": 1125,
+      "proposal_relax_rejected_steps": 21,
+      "completed_attempts": 4,
+      "failed_attempts": 0,
+      "best_energy_drop_from_bootstrap_eV": 4.642852783203125,
+      "wall_time_s": 41.04809696000302
+    },
+    {
+      "system": "c60",
+      "optimizer": "bias-separated-lbfgs",
+      "bootstrap_evaluations": 37,
+      "action_evaluations": 2327,
+      "total_evaluations": 2364,
+      "biased_proposal_relax_evaluations": 1466,
+      "proposal_relax_backend_evaluations": 1466,
+      "proposal_relax_rejected_steps": 251,
+      "proposal_relax_rejected_secants": 1,
+      "proposal_relax_bias_secant_curvature_sum": 12.33147765776834,
+      "completed_attempts": 4,
+      "failed_attempts": 0,
+      "best_energy_drop_from_bootstrap_eV": 4.899566650390625,
+      "wall_time_s": 42.33087164099561
+    },
+    {
+      "system": "pdo",
+      "optimizer": "bias-separated-lbfgs",
+      "bootstrap_evaluations": 36,
+      "action_evaluations": 2195,
+      "total_evaluations": 2231,
+      "biased_proposal_relax_evaluations": 1475,
+      "proposal_relax_backend_evaluations": 1267,
+      "proposal_relax_rejected_steps": 160,
+      "proposal_relax_rejected_secants": 2,
+      "proposal_relax_bias_secant_curvature_sum": 14.939593901283045,
+      "completed_attempts": 8,
+      "failed_attempts": 0,
+      "best_energy_drop_from_bootstrap_eV": 3.3128662109375,
+      "wall_time_s": 52.29764379700646
+    }
+  ],
+  "paired_c60_custom_result": {
+    "bias_separated_minus_total_biased_proposal_evaluations": 258,
+    "bias_separated_minus_total_proposal_backend_evaluations": 341,
+    "bias_separated_minus_total_rejected_steps": 230,
+    "bias_separated_minus_total_best_energy_drop_eV": 0.2567138671875,
+    "interpretation": "The analytic bias changed secant decisions but increased line-search work; this seed is negative on the primary evaluation-cost metric."
+  },
+  "gate_decision": {
+    "advance_to_g2": false,
+    "reason": "PdO did not produce a total-vs-separated proposal pair, and C60 was negative on the primary cost metric."
+  },
+  "root_cause_hypothesis": {
+    "fact": "SciPy L-BFGS-B uses an infinity norm over scalar gradient components for gtol, while the runner certifies the maximum Euclidean force norm per movable atom.",
+    "current_options": {
+      "gtol": "fmax",
+      "ftol": 1e-12
+    },
+    "consequence": "SciPy can terminate successfully without satisfying the stricter per-atom vector-force certificate; ftol can also terminate before that certificate."
+  }
+}

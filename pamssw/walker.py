@@ -22,7 +22,7 @@ from .config import LSSSWConfig, RelaxConfig, SSWConfig
 from .coordinates import CartesianCoordinates, TangentVector
 from .fingerprint import descriptor_distance, structural_descriptor
 from .pbc import mic_displacement, mic_distance_matrix, wrap_positions
-from .relax import Relaxer
+from .relax import RelaxEvaluation, Relaxer
 from .result import RelaxOutcomeClass, RelaxResult, SearchResult, StatsValue, WalkRecord
 from .rigid import project_out_rigid_body_modes, rigid_body_overlap
 from .softening import LocalSofteningModel
@@ -40,19 +40,53 @@ class ProposalPotential:
         self.biases = biases or []
         self.softening = softening
 
-    def evaluate(self, flat_positions: np.ndarray, template: State) -> tuple[float, np.ndarray]:
-        energy, gradient = self.calculator.evaluate_flat(flat_positions, template)
-        total_gradient = gradient.copy()
-        total_energy = energy
+    def evaluate_parts(self, flat_positions: np.ndarray, template: State) -> RelaxEvaluation:
+        flat_positions = np.asarray(flat_positions, dtype=float)
+        expected_shape = (template.n_atoms * 3,)
+        if flat_positions.shape != expected_shape:
+            raise ValueError(f"flat_positions must have shape {expected_shape}")
+        true_energy, true_gradient = self.calculator.evaluate_flat(flat_positions, template)
+        true_gradient = np.asarray(true_gradient, dtype=float)
+        if true_gradient.shape != flat_positions.shape:
+            raise ValueError("true_gradient must have the same shape as flat_positions")
+        bias_energy = 0.0
+        bias_gradient = np.zeros_like(true_gradient)
         for bias in self.biases:
-            bias_energy, bias_gradient = bias.evaluate(flat_positions, cell=template.cell, pbc=template.pbc)
-            total_energy += bias_energy
-            total_gradient += bias_gradient
+            term_energy, term_gradient = bias.evaluate(flat_positions, cell=template.cell, pbc=template.pbc)
+            term_gradient = np.asarray(term_gradient, dtype=float)
+            if term_gradient.shape != flat_positions.shape:
+                raise ValueError("bias_gradient must have the same shape as flat_positions")
+            bias_energy += term_energy
+            bias_gradient += term_gradient
+        softening_energy = 0.0
+        softening_gradient = np.zeros_like(true_gradient)
         if self.softening is not None:
-            soft_energy, soft_gradient = self.softening.evaluate(flat_positions)
-            total_energy += soft_energy
-            total_gradient += soft_gradient
-        return float(total_energy), total_gradient
+            softening_energy, softening_gradient = self.softening.evaluate(flat_positions)
+            softening_gradient = np.asarray(softening_gradient, dtype=float)
+            if softening_gradient.shape != flat_positions.shape:
+                raise ValueError("softening_gradient must have the same shape as flat_positions")
+        total_energy = float(true_energy + bias_energy + softening_energy)
+        total_gradient = true_gradient + bias_gradient + softening_gradient
+        bias_image_signature = tuple(
+            bias.mic_image_signature(flat_positions, cell=template.cell, pbc=template.pbc)
+            for bias in self.biases
+        )
+        return RelaxEvaluation(
+            true_energy=float(true_energy),
+            true_gradient=true_gradient,
+            bias_energy=float(bias_energy),
+            bias_gradient=bias_gradient,
+            softening_energy=float(softening_energy),
+            softening_gradient=softening_gradient,
+            total_energy=total_energy,
+            total_gradient=total_gradient,
+            bias_image_signature=bias_image_signature,
+            softening_present=self.softening is not None,
+        )
+
+    def evaluate(self, flat_positions: np.ndarray, template: State) -> tuple[float, np.ndarray]:
+        evaluation = self.evaluate_parts(flat_positions, template)
+        return evaluation.total_energy, evaluation.total_gradient.copy()
 
 
 @dataclass(frozen=True)
@@ -2645,8 +2679,20 @@ class SurfaceWalker:
             )
             if proposal_optimizer != self.config.proposal_optimizer:
                 self._proposal_optimizer_alt_steps += 1
+            custom_lbfgs = proposal_optimizer in {
+                "safe-lbfgs-total",
+                "bias-separated-lbfgs",
+            }
+            if proposal_optimizer == "bias-separated-lbfgs" and softening is not None:
+                raise ValueError("bias-separated-lbfgs does not support local softening")
+            relaxer_kwargs = {"optimizer": proposal_optimizer}
+            if custom_lbfgs:
+                relaxer_kwargs["component_evaluator"] = proposal.evaluate_parts
             with self.calculator.purpose(EvaluationPurpose.BIASED_PROPOSAL_RELAX):
-                proposal_relax = Relaxer(proposal.evaluate, optimizer=proposal_optimizer).relax(
+                proposal_relax = Relaxer(
+                    proposal.evaluate,
+                    **relaxer_kwargs,
+                ).relax(
                     trial_state,
                     fmax=self.config.proposal_fmax,
                     maxiter=self.config.proposal_relax_steps,
@@ -3003,6 +3049,31 @@ class SurfaceWalker:
                 "displacement_rms_sum": 0.0,
                 "max_displacement": 0.0,
                 "outcome_counts": {outcome.value: 0 for outcome in RelaxOutcomeClass},
+                "evaluator_calls": 0,
+                "backend_evaluations": 0,
+                "reporting_cache_hits": 0,
+                "reporting_evaluator_calls": 0,
+                "finalization_requests": 0,
+                "explicit_finalization_calls": 0,
+                "accepted_steps": 0,
+                "rejected_steps": 0,
+                "accepted_secants": 0,
+                "rejected_secants": 0,
+                "line_search_evaluations": 0,
+                "mic_branch_resets": 0,
+                "bias_secant_curvature_sum": 0.0,
+                "gradient_measure_counts": {
+                    measure: 0
+                    for measure in (
+                        "raw_active_max_force",
+                        "projected_active_kkt_residual",
+                        "unknown",
+                    )
+                },
+                "termination_counts": {
+                    reason: 0
+                    for reason in ("converged", "maxiter", "optimizer_stopped", "unconverged", "unknown")
+                },
             },
             "proposal_relax": {
                 "count": 0,
@@ -3015,6 +3086,31 @@ class SurfaceWalker:
                 "displacement_rms_sum": 0.0,
                 "max_displacement": 0.0,
                 "outcome_counts": {outcome.value: 0 for outcome in RelaxOutcomeClass},
+                "evaluator_calls": 0,
+                "backend_evaluations": 0,
+                "reporting_cache_hits": 0,
+                "reporting_evaluator_calls": 0,
+                "finalization_requests": 0,
+                "explicit_finalization_calls": 0,
+                "accepted_steps": 0,
+                "rejected_steps": 0,
+                "accepted_secants": 0,
+                "rejected_secants": 0,
+                "line_search_evaluations": 0,
+                "mic_branch_resets": 0,
+                "bias_secant_curvature_sum": 0.0,
+                "gradient_measure_counts": {
+                    measure: 0
+                    for measure in (
+                        "raw_active_max_force",
+                        "projected_active_kkt_residual",
+                        "unknown",
+                    )
+                },
+                "termination_counts": {
+                    reason: 0
+                    for reason in ("converged", "maxiter", "optimizer_stopped", "unconverged", "unknown")
+                },
             },
         }
 
@@ -3263,6 +3359,27 @@ class SurfaceWalker:
         stats["displacement_rms_sum"] += result.displacement_rms
         stats["max_displacement"] = max(float(stats["max_displacement"]), result.displacement_max)
         stats["outcome_counts"][result.outcome_class.value] += 1
+        stats["evaluator_calls"] += result.telemetry.evaluator_calls
+        stats["backend_evaluations"] += result.telemetry.backend_evaluations
+        stats["reporting_cache_hits"] += result.telemetry.reporting_cache_hits
+        stats["reporting_evaluator_calls"] += result.telemetry.reporting_evaluator_calls
+        stats["finalization_requests"] += result.telemetry.finalization_requests
+        stats["explicit_finalization_calls"] += result.telemetry.explicit_finalization_calls
+        stats["accepted_steps"] += result.telemetry.accepted_steps
+        stats["rejected_steps"] += result.telemetry.rejected_steps
+        stats["accepted_secants"] += result.telemetry.accepted_secants
+        stats["rejected_secants"] += result.telemetry.rejected_secants
+        stats["line_search_evaluations"] += result.telemetry.line_search_evaluations
+        stats["mic_branch_resets"] += result.telemetry.mic_branch_resets
+        stats["bias_secant_curvature_sum"] += result.telemetry.bias_secant_curvature_sum
+        gradient_measure_counts = stats["gradient_measure_counts"]
+        gradient_measure_counts[result.telemetry.gradient_measure] = (
+            int(gradient_measure_counts.get(result.telemetry.gradient_measure, 0)) + 1
+        )
+        termination_counts = stats["termination_counts"]
+        termination_counts[result.telemetry.termination_reason] = (
+            int(termination_counts.get(result.telemetry.termination_reason, 0)) + 1
+        )
 
     def _record_bias_weight(self, weight: float) -> None:
         self._bias_steps += 1
@@ -3393,6 +3510,37 @@ class SurfaceWalker:
                 float(stats["displacement_rms_sum"] / count) if count else 0.0
             )
             summary[f"{label}_displacement_max"] = float(stats["max_displacement"])
+            summary[f"{label}_evaluator_calls"] = int(stats["evaluator_calls"])
+            summary[f"{label}_backend_evaluations"] = int(stats["backend_evaluations"])
+            summary[f"{label}_reporting_cache_hits"] = int(stats["reporting_cache_hits"])
+            summary[f"{label}_reporting_evaluator_calls"] = int(stats["reporting_evaluator_calls"])
+            summary[f"{label}_finalization_requests"] = int(stats["finalization_requests"])
+            summary[f"{label}_explicit_finalization_calls"] = int(stats["explicit_finalization_calls"])
+            summary[f"{label}_accepted_steps"] = int(stats["accepted_steps"])
+            summary[f"{label}_rejected_steps"] = int(stats["rejected_steps"])
+            summary[f"{label}_accepted_secants"] = int(stats["accepted_secants"])
+            summary[f"{label}_rejected_secants"] = int(stats["rejected_secants"])
+            summary[f"{label}_line_search_evaluations"] = int(stats["line_search_evaluations"])
+            summary[f"{label}_mic_branch_resets"] = int(stats["mic_branch_resets"])
+            summary[f"{label}_bias_secant_curvature_sum"] = float(
+                stats["bias_secant_curvature_sum"]
+            )
+            gradient_measure_counts = stats["gradient_measure_counts"]
+            for measure in (
+                "raw_active_max_force",
+                "projected_active_kkt_residual",
+                "unknown",
+            ):
+                summary[f"{label}_gradient_measure_{measure}"] = int(
+                    gradient_measure_counts.get(measure, 0)
+                )
+            for measure, measure_count in sorted(gradient_measure_counts.items()):
+                summary[f"{label}_gradient_measure_{measure}"] = int(measure_count)
+            termination_counts = stats["termination_counts"]
+            for reason in ("converged", "maxiter", "optimizer_stopped", "unconverged", "unknown"):
+                summary[f"{label}_termination_{reason}"] = int(termination_counts.get(reason, 0))
+            for reason, reason_count in sorted(termination_counts.items()):
+                summary[f"{label}_termination_{reason}"] = int(reason_count)
             for outcome in RelaxOutcomeClass:
                 outcome_count = int(stats["outcome_counts"][outcome.value])
                 summary[f"{label}_outcome_{outcome.value}"] = outcome_count
@@ -3406,6 +3554,15 @@ class SurfaceWalker:
         )
         summary["bias_weight_mean"] = float(self._bias_weight_sum / self._bias_steps) if self._bias_steps else 0.0
         summary["bias_weight_max"] = float(self._bias_weight_max)
+        return summary
+
+    def relaxation_diagnostics(self) -> dict[str, StatsValue]:
+        """Return bounded optimizer diagnostics for one isolated attempt."""
+
+        summary: dict[str, StatsValue] = dict(self._relax_stats_summary())
+        summary["proposal_optimizer"] = self.config.proposal_optimizer
+        summary["quench_optimizer"] = self.config.quench_optimizer
+        summary["force_evaluations"] = self.calculator.snapshot().total
         return summary
 
     def _build_softening(self, seed_state: State, direction: np.ndarray | None = None) -> LocalSofteningModel | None:
