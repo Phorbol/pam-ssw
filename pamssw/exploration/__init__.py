@@ -12,6 +12,7 @@ from .controller import BatchLog, ExplorationController, UnknownActionCostError,
 from .event_log import ExplorationEventLog, SCHEMA_VERSION
 from .posterior import StarterProductivityPosterior
 from .policies import SUPPORTED_POLICIES, build_policy_snapshot
+from .runner import run_posterior_ls_ssw, run_posterior_ssw
 from .ssw_worker import SSWAttemptWorker
 
 __all__ = [
@@ -38,4 +39,6 @@ __all__ = [
     "build_policy_snapshot",
     "derive_action_seed",
     "plan_batch",
+    "run_posterior_ls_ssw",
+    "run_posterior_ssw",
 ]
