@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 import pamssw.relax as relax_module
+from pamssw.accounting import BudgetExceeded
 from pamssw.relax import RelaxEvaluation, Relaxer
 from pamssw.result import RelaxOutcomeClass
 from pamssw.state import State
@@ -430,3 +431,214 @@ def test_relaxer_applies_ase_trajectory_stride():
 
     assert len(trajectory) < 20
     assert len(trajectory) >= 2
+
+
+def test_safe_lbfgs_two_loop_uses_fixed_empty_history_scale_and_latest_inverse_scale():
+    inverse_product = getattr(relax_module, "_lbfgs_inverse_product")
+    gradient = np.array([2.0, -4.0])
+
+    np.testing.assert_allclose(inverse_product(gradient, []), gradient / 70.0)
+
+    s = np.array([1.0, 0.0])
+    y = np.array([2.0, 0.0])
+    history = [(s, y, 1.0 / float(np.dot(s, y)))]
+    np.testing.assert_allclose(inverse_product(np.array([2.0, 0.0]), history), [1.0, 0.0])
+
+
+def test_safe_lbfgs_curvature_gate_is_relative_to_secant_norms():
+    accepts = getattr(relax_module, "_accept_lbfgs_curvature")
+
+    assert accepts(np.array([1.0]), np.array([1.0]))
+    assert not accepts(np.array([1.0]), np.array([0.0]))
+    assert not accepts(np.array([1.0]), np.array([-1.0]))
+
+
+def test_safe_lbfgs_limits_maximum_displacement_of_each_atom():
+    limit = getattr(relax_module, "_limit_max_atomic_displacement")
+    direction = np.array([3.0, 4.0, 0.0, 0.0, 0.0, 10.0])
+
+    limited = limit(direction)
+
+    atom_norms = np.linalg.norm(limited.reshape(-1, 3), axis=1)
+    assert np.max(atom_norms) == pytest.approx(0.2)
+    np.testing.assert_allclose(limited, direction * 0.02)
+
+
+def test_safe_lbfgs_total_converges_on_quadratic_with_armijo_steps():
+    calls = []
+
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        calls.append(flat.copy())
+        return 0.5 * float(np.dot(flat, flat)), flat.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+        state,
+        fmax=1e-8,
+        maxiter=10,
+    )
+
+    assert result.telemetry.converged
+    assert result.telemetry.termination_reason == "converged"
+    assert result.telemetry.backend == "safe-lbfgs-total"
+    assert result.telemetry.backend_evaluations == len(calls)
+    assert result.telemetry.accepted_steps == result.n_iter
+    assert result.telemetry.accepted_secants == result.n_iter
+    assert result.telemetry.rejected_secants == 0
+    assert result.telemetry.line_search_evaluations == (
+        result.telemetry.accepted_steps + result.telemetry.rejected_steps
+    )
+    assert 1 < result.n_iter <= 10
+    np.testing.assert_allclose(result.state.positions, 0.0, atol=1e-12)
+
+
+def test_safe_lbfgs_total_caps_first_atomic_step():
+    trajectory = []
+
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        return 0.5 * float(np.dot(flat, flat)), flat.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[100.0, 0.0, 0.0]]))
+    result = Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+        state,
+        fmax=1e-12,
+        maxiter=1,
+        trajectory_callback=trajectory.append,
+    )
+
+    assert result.n_iter == 1
+    assert result.telemetry.termination_reason == "maxiter"
+    assert len(trajectory) == 2
+    assert np.linalg.norm(trajectory[1].positions - trajectory[0].positions) == pytest.approx(0.2)
+
+
+def test_safe_lbfgs_total_reports_explicit_armijo_failure_without_fallback():
+    initial = np.array([1.0, 0.0, 0.0])
+
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        energy = 0.0 if np.array_equal(flat, initial) else 1.0
+        return energy, np.array([1.0, 0.0, 0.0])
+
+    state = State(numbers=np.array([1]), positions=initial.reshape(1, 3))
+    result = Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+        state,
+        fmax=1e-12,
+        maxiter=10,
+    )
+
+    assert result.n_iter == 0
+    assert not result.telemetry.converged
+    assert result.telemetry.termination_reason == "line_search_failed"
+    assert result.telemetry.backend_evaluations == 21
+    assert result.telemetry.accepted_steps == 0
+    assert result.telemetry.rejected_steps == 20
+    assert result.telemetry.line_search_evaluations == 20
+    np.testing.assert_array_equal(result.state.positions, state.positions)
+
+
+def test_safe_lbfgs_total_rejects_a_non_descent_direction(monkeypatch):
+    monkeypatch.setattr(
+        relax_module,
+        "_lbfgs_inverse_product",
+        lambda gradient, history: -np.asarray(gradient, dtype=float),
+    )
+
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        return 0.5 * float(np.dot(flat, flat)), flat.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+        state,
+        fmax=1e-8,
+        maxiter=10,
+    )
+
+    assert result.n_iter == 0
+    assert result.telemetry.termination_reason == "non_descent_direction"
+    assert result.telemetry.backend_evaluations == 1
+
+
+def test_safe_lbfgs_total_stops_on_nonfinite_line_trial():
+    initial = np.array([1.0, 0.0, 0.0])
+
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        if np.array_equal(flat, initial):
+            return 0.5, initial.copy()
+        return float("nan"), np.full(3, np.nan)
+
+    state = State(numbers=np.array([1]), positions=initial.reshape(1, 3))
+    result = Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+        state,
+        fmax=1e-8,
+        maxiter=10,
+    )
+
+    assert result.n_iter == 0
+    assert result.telemetry.termination_reason == "nonfinite_evaluation"
+    assert result.telemetry.backend_evaluations == 2
+    assert result.telemetry.rejected_steps == 1
+    assert result.telemetry.line_search_evaluations == 1
+    np.testing.assert_array_equal(result.state.positions, state.positions)
+
+
+def test_safe_lbfgs_total_rejects_zero_curvature_secant_without_fallback():
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        return float(flat[0]), np.array([1.0, 0.0, 0.0])
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+        state,
+        fmax=1e-12,
+        maxiter=1,
+    )
+
+    assert result.telemetry.accepted_steps == 1
+    assert result.telemetry.accepted_secants == 0
+    assert result.telemetry.rejected_secants == 1
+
+
+def test_safe_lbfgs_total_keeps_fixed_atoms_out_of_steps_and_secants():
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        return 0.5 * float(np.dot(flat, flat)), flat.copy()
+
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[10.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+        fixed_mask=np.array([True, False]),
+    )
+    result = Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+        state,
+        fmax=1e-8,
+        maxiter=10,
+    )
+
+    np.testing.assert_array_equal(result.state.positions[0], state.positions[0])
+    np.testing.assert_allclose(result.state.positions[1], 0.0, atol=1e-12)
+    assert result.telemetry.converged
+
+
+def test_safe_lbfgs_total_propagates_budget_exhaustion_from_line_search():
+    calls = 0
+
+    def evaluator(flat_positions, template):
+        nonlocal calls
+        calls += 1
+        if calls > 1:
+            raise BudgetExceeded("test budget exhausted")
+        flat = np.asarray(flat_positions, dtype=float)
+        return 0.5 * float(np.dot(flat, flat)), flat.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    with pytest.raises(BudgetExceeded, match="test budget"):
+        Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+            state,
+            fmax=1e-8,
+            maxiter=10,
+        )

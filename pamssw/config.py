@@ -276,19 +276,27 @@ class SSWConfig:
             raise ValueError("seed_selection_mode must be archive_ucb or metropolis_chain")
         if self.anchor_mixing_alpha is not None and not 0.0 <= self.anchor_mixing_alpha <= 1.0:
             raise ValueError("anchor_mixing_alpha must be between 0 and 1 when set")
-        allowed_optimizers = {"scipy-lbfgsb", "ase-fire", "ase-lbfgs"}
-        if self.quench_optimizer not in allowed_optimizers:
+        quench_optimizers = {"scipy-lbfgsb", "ase-fire", "ase-lbfgs"}
+        proposal_optimizers = quench_optimizers | {"safe-lbfgs-total"}
+        if self.quench_optimizer not in quench_optimizers:
             raise ValueError("quench_optimizer must be one of scipy-lbfgsb, ase-fire, ase-lbfgs")
-        if self.proposal_optimizer not in allowed_optimizers:
-            raise ValueError("proposal_optimizer must be one of scipy-lbfgsb, ase-fire, ase-lbfgs")
-        if self.proposal_optimizer_alt is not None and self.proposal_optimizer_alt not in allowed_optimizers:
-            raise ValueError("proposal_optimizer_alt must be one of scipy-lbfgsb, ase-fire, ase-lbfgs when set")
+        if self.proposal_optimizer not in proposal_optimizers:
+            raise ValueError(
+                "proposal_optimizer must be one of scipy-lbfgsb, ase-fire, "
+                "ase-lbfgs, safe-lbfgs-total"
+            )
+        if self.proposal_optimizer_alt is not None and self.proposal_optimizer_alt not in proposal_optimizers:
+            raise ValueError(
+                "proposal_optimizer_alt must be one of scipy-lbfgsb, ase-fire, "
+                "ase-lbfgs, safe-lbfgs-total when set"
+            )
         if (
             self.proposal_duplicate_rescue_optimizer is not None
-            and self.proposal_duplicate_rescue_optimizer not in allowed_optimizers
+            and self.proposal_duplicate_rescue_optimizer not in proposal_optimizers
         ):
             raise ValueError(
-                "proposal_duplicate_rescue_optimizer must be one of scipy-lbfgsb, ase-fire, ase-lbfgs when set"
+                "proposal_duplicate_rescue_optimizer must be one of scipy-lbfgsb, "
+                "ase-fire, ase-lbfgs, safe-lbfgs-total when set"
             )
         if self.direction_curvature_source not in {"inner", "true"}:
             raise ValueError("direction_curvature_source must be inner or true")

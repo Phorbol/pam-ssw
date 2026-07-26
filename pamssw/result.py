@@ -34,6 +34,12 @@ class RelaxTelemetry:
     converged: bool = False
     termination_reason: str = "unknown"
     optimizer_success: bool | None = None
+    accepted_steps: int = 0
+    rejected_steps: int = 0
+    accepted_secants: int = 0
+    rejected_secants: int = 0
+    line_search_evaluations: int = 0
+    mic_branch_resets: int = 0
 
 
 @dataclass(frozen=True)

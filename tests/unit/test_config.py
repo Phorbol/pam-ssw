@@ -205,6 +205,19 @@ def test_config_validates_relaxation_optimizers():
         SSWConfig(quench_optimizer="unknown")
 
 
+def test_safe_lbfgs_is_proposal_only_and_opt_in():
+    config = SSWConfig(
+        proposal_optimizer="safe-lbfgs-total",
+        proposal_optimizer_alt="safe-lbfgs-total",
+        proposal_duplicate_rescue_optimizer="safe-lbfgs-total",
+    )
+
+    assert config.proposal_optimizer == "safe-lbfgs-total"
+    assert config.quench_optimizer == "scipy-lbfgsb"
+    with pytest.raises(ValueError, match="quench_optimizer"):
+        SSWConfig(quench_optimizer="safe-lbfgs-total")
+
+
 def test_config_validates_direction_curvature_source():
     assert SSWConfig(direction_curvature_source="inner").direction_curvature_source == "inner"
     assert SSWConfig(direction_curvature_source="true").direction_curvature_source == "true"
