@@ -57,9 +57,14 @@ The fixed Beta(1,1) posterior models the probability that an action lands in a
 basin absent from the dispatch archive snapshot. Every planned action receives a
 terminal attempt record only after its batch passes result-contract validation
 and is finalized; malformed or non-`AttemptResult` returns, and returns for the
-wrong action, fail closed before logging. Finalized failed attempts count as
-false. Batches sample with replacement; repeated landings in the same novel
-basin receive success credit for every action but produce one archive insertion.
+wrong action, fail closed before logging. A terminal attempt updates the
+posterior only when `evaluation_counts.total > 0`: `INVALID`, `FRAGMENTED`, and
+`BUDGET_EXHAUSTED` count as false, while `COMPLETED` is success or false
+according to whether it discovers a snapshot-new basin. `WORKER_ERROR` and any
+zero-cost terminal result are not posterior observations and make the campaign
+benchmark-ineligible. Batches sample with replacement; repeated landings in the
+same novel basin receive success credit for every action but produce one archive
+insertion.
 The opt-in public `run_posterior_ssw` and `run_posterior_ls_ssw` functions
 compose this core into fixed-budget SSW and LS-SSW campaigns. They accept a raw
 `State`, bootstrap it with one true-PES quench, and charge both that bootstrap
@@ -68,13 +73,22 @@ dispatched action uses the same fixed action-force cap; all calculator calls
 carry an evaluation purpose, and zero unattributed evaluations is a benchmark
 eligibility condition.
 
-The runner commits complete batches synchronously in slot order through one
-`ThreadPoolExecutor`, then writes the compact action facts to
-`events.jsonl`. The experimental `SSWAttemptWorker` remains a narrow
-per-action boundary: every action creates a fresh calculator and
-`SurfaceWalker`, derives an action-local configuration with `max_trials=1` and
-the fixed action cap, and excludes internal proposal competition
-(`proposal_pool_size=1` with duplicate rescue disabled).
+The runner dispatches complete batches synchronously through one
+`ThreadPoolExecutor`. After slot-order credit, the controller durably appends a
+policy snapshot, slot-order attempt facts, and `batch_commit` to `events.jsonl`;
+only then does it install the archive and posterior, after which the runner
+commits the campaign budget. On an append failure, the live controller retains
+the pending batch for in-process retry, but the public runner propagates the
+exception. The compact log has no recoverable archive geometry, checksum,
+locking, or cross-process recovery; process termination loses the in-memory
+archive and landing states, and `BaseException`, `SystemExit`, and
+`KeyboardInterrupt` are not caught.
+
+The experimental `SSWAttemptWorker` remains a narrow per-action boundary:
+every action creates a fresh calculator and `SurfaceWalker`, derives an
+action-local configuration with `max_trials=1` and the fixed action cap, and
+excludes internal proposal competition (`proposal_pool_size=1` with duplicate
+rescue disabled).
 
 `benchmarks/posterior_policy_compare.py` is a paired raw-fact
 integration/ablation harness for the three policies. It records paired runs and
