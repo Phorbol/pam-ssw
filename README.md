@@ -83,6 +83,8 @@ exception. The compact log has no recoverable archive geometry, checksum,
 locking, or cross-process recovery; process termination loses the in-memory
 archive and landing states, and `BaseException`, `SystemExit`, and
 `KeyboardInterrupt` are not caught.
+This experimental event log is schema v2; Phase-1 schema-v1 logs are not
+supported and are not backward-compatible.
 
 The experimental `SSWAttemptWorker` remains a narrow per-action boundary:
 every action creates a fresh calculator and `SurfaceWalker`, derives an

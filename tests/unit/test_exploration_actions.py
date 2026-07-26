@@ -427,6 +427,67 @@ def test_credited_outcome_preserves_dispatch_and_commit_facts():
 
 
 @pytest.mark.parametrize(
+    ("status", "force_evaluations", "posterior_observed"),
+    [
+        (AttemptStatus.WORKER_ERROR, 0, True),
+        (AttemptStatus.INVALID, 0, True),
+        (AttemptStatus.INVALID, 3, False),
+    ],
+)
+def test_credited_outcome_rejects_posterior_observation_values_that_disagree_with_terminal_facts(
+    status: AttemptStatus,
+    force_evaluations: int,
+    posterior_observed: bool,
+):
+    with pytest.raises(ValueError, match="posterior_observed"):
+        CreditedOutcome(
+            action_id="a",
+            starter_id=2,
+            discovered_against_snapshot=False,
+            inserted_into_archive=False,
+            within_batch_collision=False,
+            force_evaluations=force_evaluations,
+            status=status,
+            landing_entry_id=None,
+            landing_energy=None,
+            failure_reason="terminal failure",
+            evaluation_counts=EvaluationCounts.unattributed(force_evaluations),
+            posterior_observed=posterior_observed,
+        )
+
+
+@pytest.mark.parametrize(
+    ("status", "force_evaluations", "posterior_observed"),
+    [
+        (AttemptStatus.WORKER_ERROR, 0, False),
+        (AttemptStatus.INVALID, 0, False),
+        (AttemptStatus.INVALID, 3, True),
+    ],
+)
+def test_credited_outcome_accepts_posterior_observation_values_that_match_terminal_facts(
+    status: AttemptStatus,
+    force_evaluations: int,
+    posterior_observed: bool,
+):
+    outcome = CreditedOutcome(
+        action_id="a",
+        starter_id=2,
+        discovered_against_snapshot=False,
+        inserted_into_archive=False,
+        within_batch_collision=False,
+        force_evaluations=force_evaluations,
+        status=status,
+        landing_entry_id=None,
+        landing_energy=None,
+        failure_reason="terminal failure",
+        evaluation_counts=EvaluationCounts.unattributed(force_evaluations),
+        posterior_observed=posterior_observed,
+    )
+
+    assert outcome.posterior_observed is posterior_observed
+
+
+@pytest.mark.parametrize(
     "values",
     [
         {"landing_entry_id": None},
@@ -535,7 +596,7 @@ def test_terminal_records_preserve_exact_evaluation_vectors_and_legacy_scalar_co
         failure_reason="invalid after exact accounting",
         evaluation_counts=exact_counts,
         cost_is_exact=False,
-        posterior_observed=False,
+        posterior_observed=True,
     )
     legacy = AttemptResult(
         action=_action(),
@@ -552,7 +613,7 @@ def test_terminal_records_preserve_exact_evaluation_vectors_and_legacy_scalar_co
     assert outcome.evaluation_counts == exact_counts
     assert outcome.evaluation_counts.total == outcome.force_evaluations
     assert outcome.cost_is_exact is False
-    assert outcome.posterior_observed is False
+    assert outcome.posterior_observed is True
     assert legacy.evaluation_counts == EvaluationCounts.unattributed(3)
     assert legacy.cost_is_exact is True
 

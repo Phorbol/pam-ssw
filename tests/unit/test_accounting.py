@@ -1,3 +1,5 @@
+import threading
+
 import numpy as np
 import pytest
 from dataclasses import FrozenInstanceError
@@ -24,6 +26,38 @@ class RecordingCalculator:
         self.calls += 1
         if self.calls == self.fail_on_call:
             raise RuntimeError("calculator failed")
+
+
+class ConcurrentBarrierCalculator:
+    """Record each call while keeping a fixed number of calls in flight."""
+
+    def __init__(self, parties: int) -> None:
+        self._call_barrier = threading.Barrier(parties)
+        self._lock = threading.Lock()
+        self.calls = 0
+
+    def evaluate(self, state: State) -> EnergyResult:
+        with self._lock:
+            self.calls += 1
+        self._call_barrier.wait(timeout=5)
+        return EnergyResult(energy=1.0, gradient=np.zeros_like(state.positions))
+
+    def evaluate_flat(self, flat_positions: np.ndarray, template: State) -> tuple[float, np.ndarray]:
+        with self._lock:
+            self.calls += 1
+        self._call_barrier.wait(timeout=5)
+        return 1.0, np.zeros_like(flat_positions)
+
+
+class ReservationRaceCounter(EvalCounter):
+    """Force every pre-lock caller past reservation before it can start."""
+
+    def __init__(self, calculator: object, *, max_force_evals: int, parties: int) -> None:
+        super().__init__(calculator, max_force_evals=max_force_evals)
+        self._reservation_barrier = threading.Barrier(parties)
+
+    def _reserve(self) -> None:
+        self._reservation_barrier.wait(timeout=5)
 
 
 @pytest.fixture
@@ -216,6 +250,76 @@ def test_unscoped_evaluations_use_unattributed_purpose(state: State):
     counter.evaluate_flat(state.flatten_positions(), state)
 
     assert counter.snapshot().count(EvaluationPurpose.UNATTRIBUTED) == 1
+
+
+def test_shared_counter_keeps_overlapping_thread_purposes_separate(state: State):
+    calculator = ConcurrentBarrierCalculator(parties=2)
+    counter = EvalCounter(calculator)
+    scopes_entered = threading.Barrier(2)
+    errors: list[BaseException] = []
+
+    def worker(purpose: EvaluationPurpose) -> None:
+        try:
+            with counter.purpose(purpose):
+                scopes_entered.wait(timeout=5)
+                counter.evaluate(state)
+        except BaseException as error:
+            errors.append(error)
+
+    threads = [
+        threading.Thread(target=worker, args=(EvaluationPurpose.DIRECTION_ORACLE,)),
+        threading.Thread(target=worker, args=(EvaluationPurpose.LANDING_TRUE_QUENCH,)),
+    ]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(timeout=5)
+
+    assert all(not thread.is_alive() for thread in threads)
+    assert not errors
+    counts = counter.snapshot()
+    assert calculator.calls == 2
+    assert counts.total == 2
+    assert counts.count(EvaluationPurpose.DIRECTION_ORACLE) == 1
+    assert counts.count(EvaluationPurpose.LANDING_TRUE_QUENCH) == 1
+
+
+def test_shared_counter_never_reserves_more_than_its_concurrent_force_cap(state: State):
+    parties = 4
+    calculator = RecordingCalculator()
+    counter = ReservationRaceCounter(calculator, max_force_evals=1, parties=parties)
+    start = threading.Barrier(parties)
+    successes: list[None] = []
+    budget_errors: list[BudgetExceeded] = []
+    errors: list[BaseException] = []
+
+    def worker() -> None:
+        try:
+            with counter.purpose(EvaluationPurpose.DIRECTION_ORACLE):
+                start.wait(timeout=5)
+                counter.evaluate(state)
+            successes.append(None)
+        except BudgetExceeded as error:
+            budget_errors.append(error)
+        except BaseException as error:
+            errors.append(error)
+
+    threads = [threading.Thread(target=worker) for _ in range(parties)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(timeout=5)
+
+    assert all(not thread.is_alive() for thread in threads)
+    assert not errors
+    assert len(successes) + len(budget_errors) == parties
+    assert len(successes) == 1
+    assert len(budget_errors) == parties - 1
+    assert calculator.calls == 1
+    assert counter.force_evaluations == 1
+    assert counter.energy_evaluations == 1
+    assert counter.snapshot().count(EvaluationPurpose.DIRECTION_ORACLE) == 1
+    assert counter.exhausted()
 
 
 def test_purpose_rejects_non_enum_value(state: State):

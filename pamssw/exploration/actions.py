@@ -272,6 +272,10 @@ class CreditedOutcome:
             _strict_boolean("posterior_observed", self.posterior_observed),
         )
         _status(self.status)
+        if self.posterior_observed != should_observe_posterior(
+            self.status, self.evaluation_counts
+        ):
+            raise ValueError("posterior_observed must match terminal observation predicate")
         for name in (
             "discovered_against_snapshot",
             "inserted_into_archive",

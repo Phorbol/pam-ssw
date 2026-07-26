@@ -249,15 +249,6 @@ def _two_failure_parts() -> tuple[
             ),
             "evaluation_counts",
         ),
-        (
-            lambda snapshot, actions, results, outcomes: (
-                snapshot,
-                actions,
-                results,
-                (replace(outcomes[0], posterior_observed=True),),
-            ),
-            "posterior_observed",
-        ),
     ],
 )
 def test_committed_batch_rejects_invalid_slot_facts(mutate, message: str) -> None:
@@ -909,6 +900,7 @@ def test_schema_v2_round_trips_exact_terminal_accounting_and_flags_in_canonical_
         lambda rows: rows[1]["evaluation_counts"].__setitem__("direction_oracle", 99),
         lambda rows: rows[1].__setitem__("cost_is_exact", 1),
         lambda rows: rows[1].__setitem__("posterior_observed", 1),
+        lambda rows: rows[2].__setitem__("posterior_observed", True),
     ],
 )
 def test_schema_v2_decoder_rejects_lossy_or_invalid_terminal_accounting(tmp_path, mutate):

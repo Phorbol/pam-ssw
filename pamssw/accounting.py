@@ -4,6 +4,7 @@ from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from enum import Enum
+import threading
 from typing import Mapping
 
 import numpy as np
@@ -113,40 +114,52 @@ class EvalCounter:
     _purpose_counts: list[int] = field(
         default_factory=lambda: [0] * len(EvaluationPurpose), init=False, repr=False
     )
-    _purpose_stack: list[EvaluationPurpose] = field(default_factory=list, init=False, repr=False)
+    _lock: threading.Lock = field(default_factory=threading.Lock, init=False, repr=False)
+    _purpose_local: threading.local = field(default_factory=threading.local, init=False, repr=False)
 
     def evaluate(self, state: State):
-        self._reserve()
-        self._record_started()
+        self._start_evaluation()
         return self.calculator.evaluate(state)
 
     def evaluate_flat(self, flat_positions: np.ndarray, template: State) -> tuple[float, np.ndarray]:
-        self._reserve()
-        self._record_started()
+        self._start_evaluation()
         return self.calculator.evaluate_flat(flat_positions, template)
 
     @contextmanager
     def purpose(self, purpose: EvaluationPurpose) -> Iterator[None]:
         if not isinstance(purpose, EvaluationPurpose):
             raise TypeError("evaluation purpose must be an EvaluationPurpose")
-        self._purpose_stack.append(purpose)
+        stack = self._purpose_stack()
+        stack.append(purpose)
         try:
             yield
         finally:
-            self._purpose_stack.pop()
+            stack.pop()
 
     def snapshot(self) -> EvaluationCounts:
-        return EvaluationCounts(tuple(self._purpose_counts))
+        with self._lock:
+            return EvaluationCounts(tuple(self._purpose_counts))
+
+    def _purpose_stack(self) -> list[EvaluationPurpose]:
+        stack = getattr(self._purpose_local, "stack", None)
+        if stack is None:
+            stack = []
+            self._purpose_local.stack = stack
+        return stack
+
+    def _start_evaluation(self) -> None:
+        with self._lock:
+            if self.max_force_evals is not None and self.force_evaluations >= self.max_force_evals:
+                raise BudgetExceeded("force-evaluation budget exhausted")
+            self._record_started()
 
     def _record_started(self) -> None:
         self.force_evaluations += 1
         self.energy_evaluations += 1
-        purpose = self._purpose_stack[-1] if self._purpose_stack else EvaluationPurpose.UNATTRIBUTED
+        stack = self._purpose_stack()
+        purpose = stack[-1] if stack else EvaluationPurpose.UNATTRIBUTED
         self._purpose_counts[list(EvaluationPurpose).index(purpose)] += 1
 
     def exhausted(self) -> bool:
-        return self.max_force_evals is not None and self.force_evaluations >= self.max_force_evals
-
-    def _reserve(self) -> None:
-        if self.max_force_evals is not None and self.force_evaluations >= self.max_force_evals:
-            raise BudgetExceeded("force-evaluation budget exhausted")
+        with self._lock:
+            return self.max_force_evals is not None and self.force_evaluations >= self.max_force_evals
