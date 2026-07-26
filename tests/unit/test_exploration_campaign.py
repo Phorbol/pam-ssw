@@ -423,6 +423,40 @@ def test_campaign_budget_restore_rejects_inconsistent_last_batch_facts(snapshot)
         CampaignBudget.from_snapshot(snapshot, action_force_budget=5)
 
 
+def test_campaign_budget_restore_rejects_action_counts_beyond_attempt_capacity():
+    snapshot = CampaignBudgetSnapshot(
+        total=100,
+        action_force_budget=10,
+        bootstrap_counts=_counts(10),
+        action_counts=_counts(50),
+        committed_batches=2,
+        committed_attempts=2,
+        bootstrap_recorded=True,
+        stop_reason=None,
+        last_batch_spend=10,
+    )
+
+    with pytest.raises(ValueError):
+        CampaignBudget.from_snapshot(snapshot, action_force_budget=10)
+
+
+def test_campaign_budget_restore_rejects_last_batch_beyond_possible_batch_width():
+    snapshot = CampaignBudgetSnapshot(
+        total=40,
+        action_force_budget=10,
+        bootstrap_counts=_counts(10),
+        action_counts=_counts(20),
+        committed_batches=2,
+        committed_attempts=2,
+        bootstrap_recorded=True,
+        stop_reason=None,
+        last_batch_spend=20,
+    )
+
+    with pytest.raises(ValueError):
+        CampaignBudget.from_snapshot(snapshot, action_force_budget=10)
+
+
 def _result(**changes) -> PosteriorExplorationResult:
     values = {
         "archive": MinimaArchive(energy_tol=0.01, rmsd_tol=0.1),

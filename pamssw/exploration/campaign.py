@@ -215,6 +215,8 @@ class CampaignBudget:
             snapshot.committed_batches == 0
         ) != (snapshot.committed_attempts == 0):
             raise ValueError("snapshot batches must match committed attempts")
+        if snapshot.action_counts.total > snapshot.committed_attempts * budget.action_force_budget:
+            raise ValueError("snapshot action counts exceed committed attempt capacity")
         if snapshot.last_batch_spend is None:
             if snapshot.committed_batches != 0:
                 raise ValueError("snapshot last batch spend is required after a committed batch")
@@ -222,6 +224,11 @@ class CampaignBudget:
             _nonnegative_int(snapshot.last_batch_spend, "snapshot last_batch_spend")
             if snapshot.committed_batches == 0:
                 raise ValueError("snapshot last batch spend requires a committed batch")
+            max_last_batch_width = (
+                snapshot.committed_attempts - snapshot.committed_batches + 1
+            )
+            if snapshot.last_batch_spend > max_last_batch_width * budget.action_force_budget:
+                raise ValueError("snapshot last batch spend exceeds possible batch capacity")
             if snapshot.last_batch_spend > snapshot.action_counts.total:
                 raise ValueError("snapshot last batch spend exceeds action counts")
             if (
