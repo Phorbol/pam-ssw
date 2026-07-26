@@ -1010,11 +1010,25 @@ Add immutable elementwise `EvaluationCounts.__add__` and
 `EvaluationCounts.sum`. `commit_batch` consumes actual counts, not reservation.
 If merged batch cost is zero, set `stop_reason=ZERO_COST_STALL`; otherwise, if
 `remaining < action_force_budget`, set `stop_reason=BUDGET_TAIL`. Bootstrap
-performs the same tail check. Persist the fixed action budget and last batch
-spend in the immutable snapshot. Restore receives the manifest action budget,
-requires exact equality with the snapshot, recomputes the terminal reason, and
-rejects drift or forged terminal facts. Both terminal reasons survive restore
-and make `next_batch_size` return zero.
+performs the same tail check.
+
+The immutable snapshot must persist the fixed action budget and the complete
+pure-budget batch history: one positive action count and one merged
+`EvaluationCounts` value for every committed batch. Do not use duplicated
+aggregate counters or only the final batch spend as recovery authority.
+Restore receives the manifest action budget, requires exact equality with the
+snapshot, and validates the historical batches sequentially from the recorded
+bootstrap state:
+
+1. each batch reservation fitted the remaining budget at its historical
+   dispatch boundary;
+2. each merged batch cost is no larger than its action count multiplied by the
+   fixed action budget;
+3. a zero-cost batch is necessarily the final committed batch;
+4. aggregate action counts, committed attempts, committed batches, final batch
+   spend, and the terminal reason are derived from the validated history.
+
+Both terminal reasons survive restore and make `next_batch_size` return zero.
 
 - [ ] **Step 5: Define the result summary**
 
