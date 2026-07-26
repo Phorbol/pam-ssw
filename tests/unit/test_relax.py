@@ -642,3 +642,176 @@ def test_safe_lbfgs_total_propagates_budget_exhaustion_from_line_search():
             fmax=1e-8,
             maxiter=10,
         )
+
+
+def _quadratic_bias_parts(flat_positions, template):
+    flat = np.asarray(flat_positions, dtype=float)
+    true_energy = 0.5 * float(np.dot(flat, flat))
+    true_gradient = flat.copy()
+    bias_energy = 0.25 * float(np.dot(flat, flat))
+    bias_gradient = 0.5 * flat
+    return RelaxEvaluation(
+        true_energy=true_energy,
+        true_gradient=true_gradient,
+        bias_energy=bias_energy,
+        bias_gradient=bias_gradient,
+        softening_energy=0.0,
+        softening_gradient=np.zeros_like(flat),
+        total_energy=true_energy + bias_energy,
+        total_gradient=true_gradient + bias_gradient,
+    )
+
+
+def _total_from_parts(flat_positions, template):
+    parts = _quadratic_bias_parts(flat_positions, template)
+    return parts.total_energy, parts.total_gradient.copy()
+
+
+def test_bias_separated_lbfgs_requires_component_evaluation():
+    state = State(numbers=np.array([1]), positions=np.array([[0.1, 0.0, 0.0]]))
+
+    with pytest.raises(ValueError, match="component"):
+        Relaxer(_total_from_parts, optimizer="bias-separated-lbfgs").relax(
+            state,
+            fmax=1e-8,
+            maxiter=2,
+        )
+
+
+def test_bias_separated_lbfgs_rejects_local_softening_components():
+    def parts_with_softening(flat_positions, template):
+        parts = _quadratic_bias_parts(flat_positions, template)
+        return RelaxEvaluation(
+            true_energy=parts.true_energy,
+            true_gradient=parts.true_gradient,
+            bias_energy=parts.bias_energy,
+            bias_gradient=parts.bias_gradient,
+            softening_energy=0.0,
+            softening_gradient=np.zeros_like(parts.total_gradient),
+            total_energy=parts.total_energy,
+            total_gradient=parts.total_gradient,
+            softening_present=True,
+        )
+
+    def total(flat_positions, template):
+        parts = parts_with_softening(flat_positions, template)
+        return parts.total_energy, parts.total_gradient.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.1, 0.0, 0.0]]))
+    with pytest.raises(ValueError, match="softening"):
+        Relaxer(
+            total,
+            optimizer="bias-separated-lbfgs",
+            component_evaluator=parts_with_softening,
+        ).relax(state, fmax=1e-8, maxiter=2)
+
+
+def test_total_and_bias_separated_modes_have_identical_first_step():
+    state = State(numbers=np.array([1]), positions=np.array([[0.1, 0.0, 0.0]]))
+    trajectories = {}
+
+    for optimizer in ("safe-lbfgs-total", "bias-separated-lbfgs"):
+        trajectory = []
+        Relaxer(
+            _total_from_parts,
+            optimizer=optimizer,
+            component_evaluator=_quadratic_bias_parts,
+        ).relax(
+            state,
+            fmax=1e-12,
+            maxiter=1,
+            trajectory_callback=trajectory.append,
+        )
+        trajectories[optimizer] = trajectory
+
+    np.testing.assert_array_equal(
+        trajectories["safe-lbfgs-total"][1].positions,
+        trajectories["bias-separated-lbfgs"][1].positions,
+    )
+
+
+def test_bias_separation_changes_only_post_secant_preconditioning():
+    state = State(numbers=np.array([1]), positions=np.array([[0.1, 0.0, 0.0]]))
+    results = {}
+
+    for optimizer in ("safe-lbfgs-total", "bias-separated-lbfgs"):
+        results[optimizer] = Relaxer(
+            _total_from_parts,
+            optimizer=optimizer,
+            component_evaluator=_quadratic_bias_parts,
+        ).relax(state, fmax=1e-12, maxiter=2)
+
+    total = results["safe-lbfgs-total"]
+    separated = results["bias-separated-lbfgs"]
+    assert total.telemetry.accepted_secants == 2
+    assert separated.telemetry.accepted_secants == 2
+    assert total.telemetry.bias_secant_curvature_sum != 0.0
+    assert separated.telemetry.bias_secant_curvature_sum != 0.0
+    assert not np.array_equal(total.state.positions, separated.state.positions)
+
+
+def test_custom_modes_are_identical_when_bias_gradient_is_zero():
+    def unbiased_parts(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        return RelaxEvaluation(
+            true_energy=0.5 * float(np.dot(flat, flat)),
+            true_gradient=flat.copy(),
+            bias_energy=0.0,
+            bias_gradient=np.zeros_like(flat),
+            softening_energy=0.0,
+            softening_gradient=np.zeros_like(flat),
+            total_energy=0.5 * float(np.dot(flat, flat)),
+            total_gradient=flat.copy(),
+        )
+
+    def total(flat_positions, template):
+        parts = unbiased_parts(flat_positions, template)
+        return parts.total_energy, parts.total_gradient.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.5, 0.0, 0.0]]))
+    results = [
+        Relaxer(total, optimizer=optimizer, component_evaluator=unbiased_parts).relax(
+            state,
+            fmax=1e-12,
+            maxiter=4,
+        )
+        for optimizer in ("safe-lbfgs-total", "bias-separated-lbfgs")
+    ]
+
+    np.testing.assert_array_equal(results[0].state.positions, results[1].state.positions)
+    assert results[0].telemetry.backend_evaluations == results[1].telemetry.backend_evaluations
+    assert results[0].telemetry.accepted_secants == results[1].telemetry.accepted_secants
+
+
+@pytest.mark.parametrize("optimizer", ["safe-lbfgs-total", "bias-separated-lbfgs"])
+def test_custom_lbfgs_clears_history_on_mic_branch_change(optimizer):
+    def component_evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        signature = ((0, 0, 0),) if flat[0] >= 0.9 else ((1, 0, 0),)
+        return RelaxEvaluation(
+            true_energy=100.0 * float(flat[0]),
+            true_gradient=np.array([100.0, 0.0, 0.0]),
+            bias_energy=0.0,
+            bias_gradient=np.zeros(3),
+            softening_energy=0.0,
+            softening_gradient=np.zeros(3),
+            total_energy=100.0 * float(flat[0]),
+            total_gradient=np.array([100.0, 0.0, 0.0]),
+            bias_image_signature=signature,
+        )
+
+    def total(flat_positions, template):
+        parts = component_evaluator(flat_positions, template)
+        return parts.total_energy, parts.total_gradient.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(
+        total,
+        optimizer=optimizer,
+        component_evaluator=component_evaluator,
+    ).relax(state, fmax=1e-12, maxiter=1)
+
+    assert result.telemetry.accepted_steps == 1
+    assert result.telemetry.mic_branch_resets == 1
+    assert result.telemetry.accepted_secants == 0
+    assert result.telemetry.rejected_secants == 1

@@ -96,3 +96,25 @@ def test_proposal_parts_rejects_true_gradient_shape_mismatch():
 
     with pytest.raises(ValueError, match="true_gradient.*flat_positions"):
         potential.evaluate_parts(state.flatten_positions(), state)
+
+
+def test_gaussian_bias_reports_mic_image_signature():
+    term = GaussianBiasTerm(
+        center=np.array([0.0, 0.0, 0.0]),
+        direction=np.array([1.0, 0.0, 0.0]),
+        sigma=0.7,
+        weight=0.4,
+    )
+    cell = np.diag([10.0, 10.0, 10.0])
+
+    assert term.mic_image_signature(np.array([4.9, 0.0, 0.0]), cell, (True, True, True)) == (
+        0,
+        0,
+        0,
+    )
+    assert term.mic_image_signature(np.array([5.1, 0.0, 0.0]), cell, (True, True, True)) == (
+        1,
+        0,
+        0,
+    )
+    assert term.mic_image_signature(np.array([5.1, 0.0, 0.0]), cell, (False, False, False)) == ()

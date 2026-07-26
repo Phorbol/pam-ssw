@@ -40,6 +40,7 @@ class RelaxTelemetry:
     rejected_secants: int = 0
     line_search_evaluations: int = 0
     mic_branch_resets: int = 0
+    bias_secant_curvature_sum: float = 0.0
 
 
 @dataclass(frozen=True)

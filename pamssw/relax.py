@@ -20,6 +20,11 @@ class FlatEvaluator(Protocol):
         ...
 
 
+class ComponentEvaluator(Protocol):
+    def __call__(self, flat_positions: np.ndarray, template: State) -> RelaxEvaluation:
+        ...
+
+
 @dataclass(frozen=True)
 class RelaxEvaluation:
     """One proposal-objective evaluation separated into analytic components."""
@@ -32,6 +37,8 @@ class RelaxEvaluation:
     softening_gradient: np.ndarray
     total_energy: float
     total_gradient: np.ndarray
+    bias_image_signature: tuple[tuple[int, ...], ...] = ()
+    softening_present: bool = False
 
     def __post_init__(self) -> None:
         gradient_names = (
@@ -70,13 +77,37 @@ class _EvaluationTrace:
 
     def backend_evaluate(self, flat_positions: np.ndarray, template: State) -> tuple[float, np.ndarray]:
         result = self._call(flat_positions, template)
+        self._record_backend_result(flat_positions, result)
+        return self._copy_result(result)
+
+    def backend_evaluate_parts(
+        self,
+        flat_positions: np.ndarray,
+        template: State,
+        component_evaluator: ComponentEvaluator,
+    ) -> RelaxEvaluation:
+        flat = np.asarray(flat_positions, dtype=float).reshape(-1)
+        parts = component_evaluator(flat, template)
+        if not isinstance(parts, RelaxEvaluation):
+            raise TypeError("component_evaluator must return RelaxEvaluation")
+        if parts.total_gradient.shape != flat.shape:
+            raise ValueError("component total_gradient must match flat_positions")
+        self.evaluator_calls += 1
+        result = (float(parts.total_energy), parts.total_gradient)
+        self._record_backend_result(flat, result)
+        return parts
+
+    def _record_backend_result(
+        self,
+        flat_positions: np.ndarray,
+        result: tuple[float, np.ndarray],
+    ) -> None:
         self.backend_evaluations += 1
         flat = np.asarray(flat_positions, dtype=float).reshape(-1)
         if np.array_equal(flat, self.initial_flat):
             self.initial_result = self._copy_result(result)
         self.last_flat = flat.copy()
         self.last_result = self._copy_result(result)
-        return self._copy_result(result)
 
     def report_evaluate(
         self,
@@ -115,6 +146,7 @@ class _EvaluationTrace:
         rejected_secants: int = 0,
         line_search_evaluations: int = 0,
         mic_branch_resets: int = 0,
+        bias_secant_curvature_sum: float = 0.0,
     ) -> RelaxTelemetry:
         return RelaxTelemetry(
             backend=backend,
@@ -134,6 +166,7 @@ class _EvaluationTrace:
             rejected_secants=rejected_secants,
             line_search_evaluations=line_search_evaluations,
             mic_branch_resets=mic_branch_resets,
+            bias_secant_curvature_sum=bias_secant_curvature_sum,
         )
 
     def _call(self, flat_positions: np.ndarray, template: State) -> tuple[float, np.ndarray]:
@@ -208,7 +241,13 @@ def _limit_max_atomic_displacement(direction: np.ndarray) -> np.ndarray:
     return direction
 
 
-RelaxOptimizer = Literal["scipy-lbfgsb", "ase-fire", "ase-lbfgs", "safe-lbfgs-total"]
+RelaxOptimizer = Literal[
+    "scipy-lbfgsb",
+    "ase-fire",
+    "ase-lbfgs",
+    "safe-lbfgs-total",
+    "bias-separated-lbfgs",
+]
 
 
 class _EvaluatorCalculator(Calculator):
@@ -240,6 +279,7 @@ class _EvaluatorCalculator(Calculator):
 class Relaxer:
     evaluator: FlatEvaluator
     optimizer: RelaxOptimizer = "scipy-lbfgsb"
+    component_evaluator: ComponentEvaluator | None = None
 
     def relax(
         self,
@@ -313,7 +353,9 @@ class Relaxer:
                     gradient_measure="raw_active_max_force",
                 ),
             )
-        if self.optimizer == "safe-lbfgs-total":
+        if self.optimizer in {"safe-lbfgs-total", "bias-separated-lbfgs"}:
+            if self.optimizer == "bias-separated-lbfgs" and self.component_evaluator is None:
+                raise ValueError("bias-separated-lbfgs requires a component evaluator")
             return self._relax_with_safe_lbfgs(
                 state,
                 fmax=fmax,
@@ -459,8 +501,13 @@ class Relaxer:
     ) -> RelaxResult:
         x = state.flatten_active().copy()
         current = state.with_active_positions(x)
-        energy, full_gradient = trace.backend_evaluate(current.flatten_positions(), current)
-        gradient = full_gradient.reshape(current.n_atoms, 3)[current.movable_mask].reshape(-1)
+        (
+            energy,
+            gradient,
+            secant_gradient,
+            bias_gradient,
+            image_signature,
+        ) = self._safe_lbfgs_evaluate(current, trace)
         initial_energy = float(energy)
         history: list[tuple[np.ndarray, np.ndarray, float]] = []
         n_iter = 0
@@ -468,6 +515,8 @@ class Relaxer:
         accepted_secants = 0
         rejected_secants = 0
         line_search_evaluations = 0
+        mic_branch_resets = 0
+        bias_secant_curvature_sum = 0.0
         termination_reason = "maxiter"
         converged = False
         last_trajectory_x: np.ndarray | None = None
@@ -500,19 +549,20 @@ class Relaxer:
             trial_x = x
             trial_energy = energy
             trial_gradient = gradient
+            trial_secant_gradient = secant_gradient
+            trial_bias_gradient = bias_gradient
+            trial_image_signature = image_signature
             for _ in range(_SAFE_LBFGS_MAX_LINE_TRIALS):
                 trial_x = x + alpha * direction
                 trial_state = state.with_active_positions(trial_x)
-                trial_energy, trial_full_gradient = trace.backend_evaluate(
-                    trial_state.flatten_positions(),
-                    trial_state,
-                )
+                (
+                    trial_energy,
+                    trial_gradient,
+                    trial_secant_gradient,
+                    trial_bias_gradient,
+                    trial_image_signature,
+                ) = self._safe_lbfgs_evaluate(trial_state, trace)
                 line_search_evaluations += 1
-                trial_gradient = (
-                    trial_full_gradient.reshape(trial_state.n_atoms, 3)[trial_state.movable_mask]
-                    .reshape(-1)
-                    .copy()
-                )
                 if not np.isfinite(trial_energy) or not np.all(np.isfinite(trial_gradient)):
                     rejected_steps += 1
                     termination_reason = "nonfinite_evaluation"
@@ -532,18 +582,29 @@ class Relaxer:
                 break
 
             s = trial_x - x
-            y = trial_gradient - gradient
-            if _accept_lbfgs_curvature(s, y):
+            branch_changed = trial_image_signature != image_signature
+            if branch_changed:
+                history.clear()
+                rejected_secants += 1
+                mic_branch_resets += 1
+            else:
+                y = trial_secant_gradient - secant_gradient
+                bias_y = trial_bias_gradient - bias_gradient
+                bias_secant_curvature_sum += float(np.dot(s, bias_y))
+            if not branch_changed and _accept_lbfgs_curvature(s, y):
                 curvature = float(np.dot(s, y))
                 history.append((s.copy(), y.copy(), 1.0 / curvature))
                 if len(history) > _SAFE_LBFGS_MEMORY:
                     history.pop(0)
                 accepted_secants += 1
-            else:
+            elif not branch_changed:
                 rejected_secants += 1
             x = trial_x.copy()
             energy = float(trial_energy)
             gradient = trial_gradient.copy()
+            secant_gradient = trial_secant_gradient.copy()
+            bias_gradient = trial_bias_gradient.copy()
+            image_signature = trial_image_signature
             n_iter += 1
             current = state.with_active_positions(x)
             if trajectory_callback is not None and n_iter % trajectory_stride == 0:
@@ -608,7 +669,62 @@ class Relaxer:
                 accepted_secants=accepted_secants,
                 rejected_secants=rejected_secants,
                 line_search_evaluations=line_search_evaluations,
+                mic_branch_resets=mic_branch_resets,
+                bias_secant_curvature_sum=bias_secant_curvature_sum,
             ),
+        )
+
+    def _safe_lbfgs_evaluate(
+        self,
+        state: State,
+        trace: _EvaluationTrace,
+    ) -> tuple[
+        float,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        tuple[tuple[int, ...], ...],
+    ]:
+        if self.component_evaluator is None:
+            energy, full_gradient = trace.backend_evaluate(state.flatten_positions(), state)
+            total_gradient = (
+                full_gradient.reshape(state.n_atoms, 3)[state.movable_mask].reshape(-1).copy()
+            )
+            return (
+                float(energy),
+                total_gradient,
+                total_gradient.copy(),
+                np.zeros_like(total_gradient),
+                (),
+            )
+        parts = trace.backend_evaluate_parts(
+            state.flatten_positions(),
+            state,
+            self.component_evaluator,
+        )
+        if self.optimizer == "bias-separated-lbfgs" and (
+            parts.softening_present
+            or parts.softening_energy != 0.0
+            or np.any(parts.softening_gradient != 0.0)
+        ):
+            raise ValueError("bias-separated-lbfgs does not support local softening")
+        total_gradient = (
+            parts.total_gradient.reshape(state.n_atoms, 3)[state.movable_mask].reshape(-1).copy()
+        )
+        bias_gradient = (
+            parts.bias_gradient.reshape(state.n_atoms, 3)[state.movable_mask].reshape(-1).copy()
+        )
+        secant_gradient = (
+            total_gradient - bias_gradient
+            if self.optimizer == "bias-separated-lbfgs"
+            else total_gradient.copy()
+        )
+        return (
+            float(parts.total_energy),
+            total_gradient,
+            secant_gradient,
+            bias_gradient,
+            parts.bias_image_signature,
         )
 
     def _relax_with_ase(

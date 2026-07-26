@@ -3797,6 +3797,13 @@ def test_surface_walker_reports_relaxation_convergence_diagnostics():
     assert result.stats["proposal_relax_reporting_evaluator_calls"] >= 0
     assert result.stats["proposal_relax_finalization_requests"] == result.stats["proposal_relax_count"]
     assert result.stats["proposal_relax_explicit_finalization_calls"] >= 0
+    assert result.stats["proposal_relax_accepted_steps"] >= 0
+    assert result.stats["proposal_relax_rejected_steps"] >= 0
+    assert result.stats["proposal_relax_accepted_secants"] >= 0
+    assert result.stats["proposal_relax_rejected_secants"] >= 0
+    assert result.stats["proposal_relax_line_search_evaluations"] >= 0
+    assert result.stats["proposal_relax_mic_branch_resets"] >= 0
+    assert np.isfinite(result.stats["proposal_relax_bias_secant_curvature_sum"])
     assert (
         result.stats["proposal_relax_gradient_measure_raw_active_max_force"]
         + result.stats["proposal_relax_gradient_measure_projected_active_kkt_residual"]

@@ -67,6 +67,10 @@ class ProposalPotential:
                 raise ValueError("softening_gradient must have the same shape as flat_positions")
         total_energy = float(true_energy + bias_energy + softening_energy)
         total_gradient = true_gradient + bias_gradient + softening_gradient
+        bias_image_signature = tuple(
+            bias.mic_image_signature(flat_positions, cell=template.cell, pbc=template.pbc)
+            for bias in self.biases
+        )
         return RelaxEvaluation(
             true_energy=float(true_energy),
             true_gradient=true_gradient,
@@ -76,6 +80,8 @@ class ProposalPotential:
             softening_gradient=softening_gradient,
             total_energy=total_energy,
             total_gradient=total_gradient,
+            bias_image_signature=bias_image_signature,
+            softening_present=self.softening is not None,
         )
 
     def evaluate(self, flat_positions: np.ndarray, template: State) -> tuple[float, np.ndarray]:
@@ -2673,8 +2679,20 @@ class SurfaceWalker:
             )
             if proposal_optimizer != self.config.proposal_optimizer:
                 self._proposal_optimizer_alt_steps += 1
+            custom_lbfgs = proposal_optimizer in {
+                "safe-lbfgs-total",
+                "bias-separated-lbfgs",
+            }
+            if proposal_optimizer == "bias-separated-lbfgs" and softening is not None:
+                raise ValueError("bias-separated-lbfgs does not support local softening")
+            relaxer_kwargs = {"optimizer": proposal_optimizer}
+            if custom_lbfgs:
+                relaxer_kwargs["component_evaluator"] = proposal.evaluate_parts
             with self.calculator.purpose(EvaluationPurpose.BIASED_PROPOSAL_RELAX):
-                proposal_relax = Relaxer(proposal.evaluate, optimizer=proposal_optimizer).relax(
+                proposal_relax = Relaxer(
+                    proposal.evaluate,
+                    **relaxer_kwargs,
+                ).relax(
                     trial_state,
                     fmax=self.config.proposal_fmax,
                     maxiter=self.config.proposal_relax_steps,
@@ -3037,6 +3055,13 @@ class SurfaceWalker:
                 "reporting_evaluator_calls": 0,
                 "finalization_requests": 0,
                 "explicit_finalization_calls": 0,
+                "accepted_steps": 0,
+                "rejected_steps": 0,
+                "accepted_secants": 0,
+                "rejected_secants": 0,
+                "line_search_evaluations": 0,
+                "mic_branch_resets": 0,
+                "bias_secant_curvature_sum": 0.0,
                 "gradient_measure_counts": {
                     measure: 0
                     for measure in (
@@ -3067,6 +3092,13 @@ class SurfaceWalker:
                 "reporting_evaluator_calls": 0,
                 "finalization_requests": 0,
                 "explicit_finalization_calls": 0,
+                "accepted_steps": 0,
+                "rejected_steps": 0,
+                "accepted_secants": 0,
+                "rejected_secants": 0,
+                "line_search_evaluations": 0,
+                "mic_branch_resets": 0,
+                "bias_secant_curvature_sum": 0.0,
                 "gradient_measure_counts": {
                     measure: 0
                     for measure in (
@@ -3333,6 +3365,13 @@ class SurfaceWalker:
         stats["reporting_evaluator_calls"] += result.telemetry.reporting_evaluator_calls
         stats["finalization_requests"] += result.telemetry.finalization_requests
         stats["explicit_finalization_calls"] += result.telemetry.explicit_finalization_calls
+        stats["accepted_steps"] += result.telemetry.accepted_steps
+        stats["rejected_steps"] += result.telemetry.rejected_steps
+        stats["accepted_secants"] += result.telemetry.accepted_secants
+        stats["rejected_secants"] += result.telemetry.rejected_secants
+        stats["line_search_evaluations"] += result.telemetry.line_search_evaluations
+        stats["mic_branch_resets"] += result.telemetry.mic_branch_resets
+        stats["bias_secant_curvature_sum"] += result.telemetry.bias_secant_curvature_sum
         gradient_measure_counts = stats["gradient_measure_counts"]
         gradient_measure_counts[result.telemetry.gradient_measure] = (
             int(gradient_measure_counts.get(result.telemetry.gradient_measure, 0)) + 1
@@ -3477,6 +3516,15 @@ class SurfaceWalker:
             summary[f"{label}_reporting_evaluator_calls"] = int(stats["reporting_evaluator_calls"])
             summary[f"{label}_finalization_requests"] = int(stats["finalization_requests"])
             summary[f"{label}_explicit_finalization_calls"] = int(stats["explicit_finalization_calls"])
+            summary[f"{label}_accepted_steps"] = int(stats["accepted_steps"])
+            summary[f"{label}_rejected_steps"] = int(stats["rejected_steps"])
+            summary[f"{label}_accepted_secants"] = int(stats["accepted_secants"])
+            summary[f"{label}_rejected_secants"] = int(stats["rejected_secants"])
+            summary[f"{label}_line_search_evaluations"] = int(stats["line_search_evaluations"])
+            summary[f"{label}_mic_branch_resets"] = int(stats["mic_branch_resets"])
+            summary[f"{label}_bias_secant_curvature_sum"] = float(
+                stats["bias_secant_curvature_sum"]
+            )
             gradient_measure_counts = stats["gradient_measure_counts"]
             for measure in (
                 "raw_active_max_force",
