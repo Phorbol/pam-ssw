@@ -1,0 +1,3 @@
+{"event":"manifest_frozen","git_commit":"cd03704a56dd85c9257448faf998fa3229a897b5","run_id":"20260727-012539-bias-relaxation-analytic"}
+{"event":"execution_completed","exit_code":0,"output_sha256":"24b4db7b9170d006155ea0d29509d4d8391491e8896f9bef47cf2cc605d677bc","run_id":"20260727-012539-bias-relaxation-analytic"}
+{"event":"validation_completed","all_backends_converged":true,"custom_ledgers_closed":true,"decision":"advance_complete_custom_pair_to_g1","run_id":"20260727-012539-bias-relaxation-analytic"}

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "artifacts": [
+    {
+      "path": "raw_results.json",
+      "sha256": "24b4db7b9170d006155ea0d29509d4d8391491e8896f9bef47cf2cc605d677bc",
+      "role": "raw_per_case_results"
+    }
+  ]
+}
