@@ -8,7 +8,7 @@ import pytest
 from pamssw.accounting import BudgetExceeded, EvaluationPurpose
 from pamssw.calculators import AnalyticCalculator
 from pamssw.config import LSSSWConfig, SSWConfig
-from pamssw.exploration import PosteriorExplorationConfig
+from pamssw.exploration import PosteriorExplorationConfig, PosteriorExplorationResult
 from pamssw.exploration.actions import AttemptStatus
 from pamssw.exploration.campaign import CampaignStopReason
 from pamssw.exploration.runner import (
@@ -336,6 +336,59 @@ def test_posterior_runner_rejects_run_directory_before_any_calculator_factory_ca
         )
 
     assert factory_calls == 0
+
+
+def test_posterior_runner_preflights_static_worker_config_before_bootstrap_or_directory_creation(
+    tmp_path: Path,
+):
+    factory_calls = 0
+    run_directory = tmp_path / "worker-config"
+
+    def factory() -> CountingAnalyticCalculator:
+        nonlocal factory_calls
+        factory_calls += 1
+        return CountingAnalyticCalculator()
+
+    with pytest.raises(ValueError, match="proposal_pool_size"):
+        run_posterior_ssw(
+            _runner_state(),
+            factory,
+            SSWConfig(proposal_pool_size=2),
+            _runner_exploration_config(run_directory),
+        )
+
+    assert factory_calls == 0
+    assert not run_directory.exists()
+
+
+def test_posterior_ls_runner_executes_real_campaign_with_exact_accounting(tmp_path: Path):
+    exploration_config = _runner_exploration_config(
+        tmp_path / "ls-real",
+        batch_size=1,
+        max_workers=1,
+        action_force_budget=100,
+        total_force_budget=180,
+    )
+    result = run_posterior_ls_ssw(
+        _runner_state(),
+        lambda: AnalyticCalculator(DoubleWell2D()),
+        LSSSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=2,
+            local_softening_mode="manual",
+            local_softening_pairs=[(0, 1)],
+            rng_seed=19,
+        ),
+        exploration_config,
+    )
+
+    assert isinstance(result, PosteriorExplorationResult)
+    assert result.completed_batches >= 1
+    assert result.total_evaluations == result.bootstrap_evaluations + result.action_evaluations
+    assert result.total_evaluations == result.purpose_counts.total
+    assert result.total_evaluations + result.unused_force_budget == result.total_force_budget
+    assert result.total_evaluations <= result.total_force_budget
+    assert result.purpose_counts.count(EvaluationPurpose.UNATTRIBUTED) == 0
 
 
 def test_posterior_runner_stops_after_bootstrap_when_only_a_budget_tail_remains(tmp_path: Path):

@@ -138,6 +138,11 @@ def _run_posterior_campaign(
 
     run_directory = exploration_config.run_directory
     _preflight_run_directory(run_directory)
+    worker = SSWAttemptWorker(
+        calculator_factory,
+        ssw_config,
+        softening_enabled=softening_enabled,
+    )
     bootstrap_state, bootstrap_energy, bootstrap_counts = _bootstrap_minimum(
         initial_state,
         calculator_factory,
@@ -164,11 +169,6 @@ def _run_posterior_campaign(
         exploration_config.master_seed,
         event_log,
         require_exact_cost=True,
-    )
-    worker = SSWAttemptWorker(
-        calculator_factory,
-        ssw_config,
-        softening_enabled=softening_enabled,
     )
     outcomes: list[CreditedOutcome] = []
     with ThreadPoolExecutor(max_workers=exploration_config.max_workers) as executor:
