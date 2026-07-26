@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 import pamssw
+import pamssw.exploration
 from pamssw.accounting import EvaluationCounts, EvaluationPurpose
 from pamssw.exploration.actions import (
     AttemptResult,
@@ -35,11 +36,17 @@ def test_package_root_exports_only_the_public_posterior_exploration_types():
         "read_state",
         "relax_minimum",
         "run_ls_ssw",
+        "run_posterior_ls_ssw",
+        "run_posterior_ssw",
         "run_ssw",
         "state_from_atoms",
         "state_to_atoms",
         "write_state",
     }
+    assert callable(pamssw.run_posterior_ssw)
+    assert callable(pamssw.run_posterior_ls_ssw)
+    assert pamssw.run_posterior_ssw is pamssw.exploration.run_posterior_ssw
+    assert pamssw.run_posterior_ls_ssw is pamssw.exploration.run_posterior_ls_ssw
 
     internal_exports = {
         "AttemptResult",
