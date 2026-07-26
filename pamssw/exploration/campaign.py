@@ -78,7 +78,7 @@ class PosteriorExplorationConfig:
             raise ValueError("mode must be 'new' or 'resume'")
 
 
-class CampaignStopReason(Enum):
+class CampaignStopReason(str, Enum):
     BUDGET_TAIL = "budget_tail"
     ZERO_COST_STALL = "zero_cost_stall"
 
@@ -92,6 +92,7 @@ class CampaignBudgetSnapshot:
     committed_attempts: int
     bootstrap_recorded: bool
     stop_reason: CampaignStopReason | None
+    last_batch_spend: int | None
 
 
 @dataclass
@@ -105,6 +106,7 @@ class CampaignBudget:
     committed_attempts: int = field(default=0, init=False)
     bootstrap_recorded: bool = field(default=False, init=False)
     stop_reason: CampaignStopReason | None = field(default=None, init=False)
+    last_batch_spend: int | None = field(default=None, init=False)
 
     def __post_init__(self) -> None:
         _positive_int(self.total, "total")
@@ -166,8 +168,11 @@ class CampaignBudget:
         self.action_counts = self.action_counts + merged
         self.committed_batches += 1
         self.committed_attempts += len(counts)
+        self.last_batch_spend = merged.total
         if merged.total == 0:
             self.stop_reason = CampaignStopReason.ZERO_COST_STALL
+        elif self.remaining < action_force_budget:
+            self.stop_reason = CampaignStopReason.BUDGET_TAIL
 
     def snapshot(self) -> CampaignBudgetSnapshot:
         return CampaignBudgetSnapshot(
@@ -178,12 +183,16 @@ class CampaignBudget:
             committed_attempts=self.committed_attempts,
             bootstrap_recorded=self.bootstrap_recorded,
             stop_reason=self.stop_reason,
+            last_batch_spend=self.last_batch_spend,
         )
 
     @classmethod
-    def from_snapshot(cls, snapshot: CampaignBudgetSnapshot) -> CampaignBudget:
+    def from_snapshot(
+        cls, snapshot: CampaignBudgetSnapshot, action_force_budget: int
+    ) -> CampaignBudget:
         if not isinstance(snapshot, CampaignBudgetSnapshot):
             raise TypeError("snapshot must be a CampaignBudgetSnapshot")
+        action_force_budget = _positive_int(action_force_budget, "action_force_budget")
         budget = cls(snapshot.total)
         if not isinstance(snapshot.bootstrap_counts, EvaluationCounts):
             raise TypeError("snapshot bootstrap_counts must be an EvaluationCounts")
@@ -199,6 +208,20 @@ class CampaignBudget:
             snapshot.committed_batches == 0
         ) != (snapshot.committed_attempts == 0):
             raise ValueError("snapshot batches must match committed attempts")
+        if snapshot.last_batch_spend is None:
+            if snapshot.committed_batches != 0:
+                raise ValueError("snapshot last batch spend is required after a committed batch")
+        else:
+            _nonnegative_int(snapshot.last_batch_spend, "snapshot last_batch_spend")
+            if snapshot.committed_batches == 0:
+                raise ValueError("snapshot last batch spend requires a committed batch")
+            if snapshot.last_batch_spend > snapshot.action_counts.total:
+                raise ValueError("snapshot last batch spend exceeds action counts")
+            if (
+                snapshot.committed_batches == 1
+                and snapshot.last_batch_spend != snapshot.action_counts.total
+            ):
+                raise ValueError("single-batch snapshot last spend must equal action counts")
         if not snapshot.bootstrap_recorded:
             if (
                 snapshot.bootstrap_counts != EvaluationCounts.zero()
@@ -206,24 +229,39 @@ class CampaignBudget:
                 or snapshot.committed_batches != 0
                 or snapshot.committed_attempts != 0
                 or snapshot.stop_reason is not None
+                or snapshot.last_batch_spend is not None
             ):
                 raise ValueError("unrecorded bootstrap requires an empty budget snapshot")
         elif snapshot.bootstrap_counts.total + snapshot.action_counts.total > budget.total:
             raise ValueError("snapshot counts exceed total budget")
         if snapshot.action_counts.total > 0 and snapshot.committed_attempts == 0:
             raise ValueError("snapshot action counts require committed attempts")
+        expected_stop_reason: CampaignStopReason | None
+        if not snapshot.bootstrap_recorded:
+            expected_stop_reason = None
+        elif snapshot.last_batch_spend == 0:
+            expected_stop_reason = CampaignStopReason.ZERO_COST_STALL
+        elif budget.total - snapshot.bootstrap_counts.total - snapshot.action_counts.total < action_force_budget:
+            expected_stop_reason = CampaignStopReason.BUDGET_TAIL
+        else:
+            expected_stop_reason = None
+        if snapshot.stop_reason is not expected_stop_reason:
+            raise ValueError("snapshot stop reason does not match manifest-derived terminal state")
         budget.bootstrap_counts = EvaluationCounts(tuple(snapshot.bootstrap_counts.values))
         budget.action_counts = EvaluationCounts(tuple(snapshot.action_counts.values))
         budget.committed_batches = snapshot.committed_batches
         budget.committed_attempts = snapshot.committed_attempts
         budget.bootstrap_recorded = snapshot.bootstrap_recorded
-        budget.stop_reason = snapshot.stop_reason
+        budget.stop_reason = expected_stop_reason
+        budget.last_batch_spend = snapshot.last_batch_spend
         return budget
 
     @classmethod
-    def restore(cls, snapshot: CampaignBudgetSnapshot) -> CampaignBudget:
+    def restore(
+        cls, snapshot: CampaignBudgetSnapshot, action_force_budget: int
+    ) -> CampaignBudget:
         """Restore a ledger from a validated immutable snapshot."""
-        return cls.from_snapshot(snapshot)
+        return cls.from_snapshot(snapshot, action_force_budget)
 
 
 @dataclass(frozen=True)
@@ -247,7 +285,7 @@ class PosteriorExplorationResult:
     purpose_counts: EvaluationCounts
     total_force_budget: int
     unused_force_budget: int
-    stop_reason: CampaignStopReason | None
+    stop_reason: CampaignStopReason
     benchmark_eligible: bool
     benchmark_ineligibility_reasons: tuple[str, ...]
     run_directory: Path
@@ -275,8 +313,8 @@ class PosteriorExplorationResult:
             _nonnegative_int(getattr(self, name), name)
         if not isinstance(self.purpose_counts, EvaluationCounts):
             raise TypeError("purpose_counts must be an EvaluationCounts")
-        if self.stop_reason is not None and not isinstance(self.stop_reason, CampaignStopReason):
-            raise TypeError("stop_reason must be a CampaignStopReason or None")
+        if not isinstance(self.stop_reason, CampaignStopReason):
+            raise TypeError("stop_reason must be a CampaignStopReason")
         if not isinstance(self.benchmark_eligible, bool):
             raise TypeError("benchmark_eligible must be a boolean")
         if not isinstance(self.benchmark_ineligibility_reasons, tuple):
@@ -291,6 +329,10 @@ class PosteriorExplorationResult:
             reasons.append(normalized)
         if self.benchmark_eligible != (not reasons):
             raise ValueError("benchmark eligibility must match ineligibility reasons")
+        if self.stop_reason is CampaignStopReason.ZERO_COST_STALL and (
+            self.benchmark_eligible or not reasons
+        ):
+            raise ValueError("zero-cost stalls are benchmark-ineligible and require a reason")
         attempts = self.completed_attempts + self.failed_attempts
         if self.completed_batches > attempts or (self.completed_batches == 0) != (attempts == 0):
             raise ValueError("completed batches must match represented terminal attempts")

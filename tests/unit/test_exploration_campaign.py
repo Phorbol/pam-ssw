@@ -1,4 +1,4 @@
-from dataclasses import FrozenInstanceError, fields
+from dataclasses import FrozenInstanceError, fields, replace
 from pathlib import Path
 
 import pytest
@@ -116,6 +116,7 @@ def _bootstrapped_budget(total: int = 101, bootstrap_cost: int = 11) -> Campaign
 
 
 def test_campaign_stop_reason_is_closed_to_the_two_budget_terminal_causes():
+    assert issubclass(CampaignStopReason, str)
     assert set(CampaignStopReason) == {
         CampaignStopReason.BUDGET_TAIL,
         CampaignStopReason.ZERO_COST_STALL,
@@ -146,6 +147,7 @@ def test_campaign_budget_marks_a_tail_without_spending_a_residual_action():
     assert budget.next_batch_size(3, 7) == 2
     budget.commit_batch((_counts(7), _counts(6)), 7)
 
+    assert budget.stop_reason is CampaignStopReason.BUDGET_TAIL
     assert budget.next_batch_size(3, 7) == 0
     assert budget.stop_reason is CampaignStopReason.BUDGET_TAIL
     assert budget.spent == 19
@@ -242,8 +244,8 @@ def test_campaign_budget_snapshot_restores_validated_state_and_recomputes_spend(
     budget.commit_batch((_counts(8), _counts(3)), 8)
 
     snapshot = budget.snapshot()
-    restored = CampaignBudget.from_snapshot(snapshot)
-    restored_via_restore = CampaignBudget.restore(snapshot)
+    restored = CampaignBudget.from_snapshot(snapshot, action_force_budget=8)
+    restored_via_restore = CampaignBudget.restore(snapshot, action_force_budget=8)
 
     assert tuple(field.name for field in fields(snapshot)) == (
         "total",
@@ -253,11 +255,13 @@ def test_campaign_budget_snapshot_restores_validated_state_and_recomputes_spend(
         "committed_attempts",
         "bootstrap_recorded",
         "stop_reason",
+        "last_batch_spend",
     )
     assert restored.snapshot() == snapshot
     assert restored_via_restore.snapshot() == snapshot
     assert restored.spent == 17
     assert restored.remaining == 13
+    assert restored.last_batch_spend == 11
     with pytest.raises(FrozenInstanceError):
         snapshot.total = 31
 
@@ -266,7 +270,7 @@ def test_campaign_budget_restore_rejects_inconsistent_accounting_and_preserves_t
     tail = _bootstrapped_budget(total=25, bootstrap_cost=6)
     tail.commit_batch((_counts(7), _counts(6)), 7)
     assert tail.next_batch_size(3, 7) == 0
-    restored_tail = CampaignBudget.from_snapshot(tail.snapshot())
+    restored_tail = CampaignBudget.from_snapshot(tail.snapshot(), action_force_budget=7)
 
     assert restored_tail.stop_reason is CampaignStopReason.BUDGET_TAIL
     assert restored_tail.next_batch_size(3, 7) == 0
@@ -279,9 +283,10 @@ def test_campaign_budget_restore_rejects_inconsistent_accounting_and_preserves_t
         committed_attempts=0,
         bootstrap_recorded=False,
         stop_reason=None,
+        last_batch_spend=None,
     )
     with pytest.raises(ValueError):
-        CampaignBudget.from_snapshot(invalid)
+        CampaignBudget.from_snapshot(invalid, action_force_budget=1)
 
     impossible_batch_history = CampaignBudgetSnapshot(
         total=10,
@@ -291,9 +296,90 @@ def test_campaign_budget_restore_rejects_inconsistent_accounting_and_preserves_t
         committed_attempts=1,
         bootstrap_recorded=True,
         stop_reason=None,
+        last_batch_spend=1,
     )
     with pytest.raises(ValueError):
-        CampaignBudget.from_snapshot(impossible_batch_history)
+        CampaignBudget.from_snapshot(impossible_batch_history, action_force_budget=1)
+
+
+def test_campaign_budget_restore_derives_and_validates_terminal_reason_from_manifest_facts():
+    tail = _bootstrapped_budget(total=25, bootstrap_cost=6)
+    tail.commit_batch((_counts(7), _counts(6)), 7)
+    assert tail.next_batch_size(3, 7) == 0
+    tail_snapshot = tail.snapshot()
+
+    assert (
+        CampaignBudget.from_snapshot(tail_snapshot, action_force_budget=7).stop_reason
+        is CampaignStopReason.BUDGET_TAIL
+    )
+    with pytest.raises(ValueError):
+        CampaignBudget.from_snapshot(
+            replace(tail_snapshot, stop_reason=None), action_force_budget=7
+        )
+    with pytest.raises(ValueError):
+        CampaignBudget.from_snapshot(tail_snapshot, action_force_budget=6)
+
+    zero = _bootstrapped_budget()
+    zero.commit_batch((_counts(0),), 10)
+    zero_snapshot = zero.snapshot()
+    assert zero_snapshot.last_batch_spend == 0
+    assert (
+        CampaignBudget.from_snapshot(zero_snapshot, action_force_budget=10).stop_reason
+        is CampaignStopReason.ZERO_COST_STALL
+    )
+    with pytest.raises(ValueError):
+        CampaignBudget.from_snapshot(
+            replace(zero_snapshot, stop_reason=CampaignStopReason.BUDGET_TAIL),
+            action_force_budget=10,
+        )
+
+
+@pytest.mark.parametrize("action_force_budget", [0, True, 1.0])
+def test_campaign_budget_restore_validates_manifest_action_budget(action_force_budget):
+    snapshot = _bootstrapped_budget(total=30, bootstrap_cost=6).snapshot()
+
+    with pytest.raises((TypeError, ValueError)):
+        CampaignBudget.from_snapshot(snapshot, action_force_budget=action_force_budget)
+
+
+@pytest.mark.parametrize(
+    "snapshot",
+    [
+        CampaignBudgetSnapshot(
+            total=10,
+            bootstrap_counts=_counts(1),
+            action_counts=_counts(1),
+            committed_batches=1,
+            committed_attempts=1,
+            bootstrap_recorded=True,
+            stop_reason=None,
+            last_batch_spend=None,
+        ),
+        CampaignBudgetSnapshot(
+            total=10,
+            bootstrap_counts=_counts(1),
+            action_counts=_counts(0),
+            committed_batches=0,
+            committed_attempts=0,
+            bootstrap_recorded=True,
+            stop_reason=None,
+            last_batch_spend=0,
+        ),
+        CampaignBudgetSnapshot(
+            total=10,
+            bootstrap_counts=_counts(1),
+            action_counts=_counts(1),
+            committed_batches=1,
+            committed_attempts=1,
+            bootstrap_recorded=True,
+            stop_reason=CampaignStopReason.ZERO_COST_STALL,
+            last_batch_spend=1,
+        ),
+    ],
+)
+def test_campaign_budget_restore_rejects_inconsistent_last_batch_facts(snapshot):
+    with pytest.raises(ValueError):
+        CampaignBudget.from_snapshot(snapshot, action_force_budget=5)
 
 
 def _result(**changes) -> PosteriorExplorationResult:
@@ -392,6 +478,7 @@ def test_posterior_exploration_result_validates_accounting_and_attempt_invariant
         {"purpose_counts": _counts(16)},
         {"total_force_budget": 24},
         {"unused_force_budget": -1},
+        {"stop_reason": None},
         {"stop_reason": "budget_tail"},
         {"benchmark_eligible": 1},
         {"benchmark_ineligibility_reasons": []},
@@ -421,10 +508,42 @@ def test_posterior_exploration_result_rejects_broken_summary_invariants(changes)
 
 def test_posterior_exploration_result_accepts_a_clean_benchmark_summary():
     result = _result(
-        stop_reason=None,
+        stop_reason=CampaignStopReason.BUDGET_TAIL,
         benchmark_eligible=True,
         benchmark_ineligibility_reasons=(),
     )
 
     assert result.benchmark_eligible is True
     assert result.benchmark_ineligibility_reasons == ()
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {
+            "stop_reason": CampaignStopReason.ZERO_COST_STALL,
+            "benchmark_eligible": True,
+            "benchmark_ineligibility_reasons": (),
+        },
+        {
+            "stop_reason": CampaignStopReason.ZERO_COST_STALL,
+            "benchmark_eligible": False,
+            "benchmark_ineligibility_reasons": (),
+        },
+        {
+            "stop_reason": CampaignStopReason.BUDGET_TAIL,
+            "benchmark_eligible": True,
+            "benchmark_ineligibility_reasons": ("tail",),
+        },
+    ],
+)
+def test_posterior_exploration_result_validates_stop_reason_benchmark_eligibility(changes):
+    with pytest.raises(ValueError):
+        _result(**changes)
+
+
+def test_posterior_exploration_result_allows_a_zero_cost_stop_with_an_ineligibility_reason():
+    result = _result(stop_reason=CampaignStopReason.ZERO_COST_STALL)
+
+    assert result.benchmark_eligible is False
+    assert result.benchmark_ineligibility_reasons
