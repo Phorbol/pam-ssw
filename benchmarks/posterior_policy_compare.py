@@ -10,6 +10,7 @@ import numpy as np
 from pamssw.calculators import AnalyticCalculator
 from pamssw.config import SSWConfig
 from pamssw.exploration import PosteriorExplorationConfig, run_posterior_ssw
+from pamssw.exploration.policies import SUPPORTED_POLICIES
 from pamssw.potentials import DoubleWell2D
 from pamssw.state import State
 
@@ -48,7 +49,7 @@ def _ssw_config() -> SSWConfig:
     )
 
 
-def _create_output_root(output_root: Path) -> Path:
+def _preflight_output_root(output_root: Path) -> Path:
     output_root = Path(output_root)
     if output_root.exists() or output_root.is_symlink():
         raise FileExistsError(f"output_root already exists: {output_root}")
@@ -57,8 +58,73 @@ def _create_output_root(output_root: Path) -> Path:
         raise FileNotFoundError(f"output_root parent does not exist: {parent}")
     if not parent.is_dir():
         raise NotADirectoryError(f"output_root parent is not a directory: {parent}")
-    output_root.mkdir()
     return output_root
+
+
+def _validated_seeds(seeds: object) -> tuple[int, ...]:
+    try:
+        seeds = tuple(seeds)
+    except TypeError as error:
+        raise TypeError("seeds must be an iterable of integers") from error
+    if not seeds:
+        raise ValueError("seeds must be nonempty")
+    seen: set[int] = set()
+    for seed in seeds:
+        if isinstance(seed, bool) or not isinstance(seed, int):
+            raise TypeError("seeds must contain integers")
+        if seed < 0:
+            raise ValueError("seeds must contain nonnegative integers")
+        if seed in seen:
+            raise ValueError("seeds must be unique")
+        seen.add(seed)
+    return seeds
+
+
+def _validated_policies(policies: object) -> tuple[str, ...]:
+    try:
+        policies = tuple(policies)
+    except TypeError as error:
+        raise TypeError("policies must be an iterable of strings") from error
+    if not policies:
+        raise ValueError("policies must be nonempty")
+    seen: set[str] = set()
+    for policy in policies:
+        if not isinstance(policy, str):
+            raise TypeError("policies must contain strings")
+        if policy not in SUPPORTED_POLICIES:
+            raise ValueError(f"unsupported policy: {policy}")
+        if policy in seen:
+            raise ValueError("policies must be unique")
+        seen.add(policy)
+    return policies
+
+
+def _preflight_exploration_configs(
+    *,
+    output_root: Path,
+    seeds: object,
+    policies: object,
+    total_force_budget: int,
+    action_force_budget: int,
+    batch_size: int,
+    max_workers: int,
+) -> tuple[tuple[int, str, PosteriorExplorationConfig], ...]:
+    validated_seeds = _validated_seeds(seeds)
+    validated_policies = _validated_policies(policies)
+    planned: list[tuple[int, str, PosteriorExplorationConfig]] = []
+    for seed in validated_seeds:
+        for policy in validated_policies:
+            exploration_config = PosteriorExplorationConfig(
+                policy_name=policy,
+                batch_size=batch_size,
+                max_workers=max_workers,
+                action_force_budget=action_force_budget,
+                total_force_budget=total_force_budget,
+                master_seed=seed,
+                run_directory=output_root / f"seed-{seed:08d}-{policy}",
+            )
+            planned.append((seed, policy, exploration_config))
+    return tuple(planned)
 
 
 def _record(result, *, seed: int, policy: str, exploration_config: PosteriorExplorationConfig) -> dict[str, object]:
@@ -99,33 +165,34 @@ def run_comparison(
     batch_size: int,
     max_workers: int,
 ) -> tuple[dict[str, object], ...]:
-    output_root = _create_output_root(output_root)
+    output_root = Path(output_root)
+    planned_configs = _preflight_exploration_configs(
+        output_root=output_root,
+        seeds=seeds,
+        policies=policies,
+        total_force_budget=total_force_budget,
+        action_force_budget=action_force_budget,
+        batch_size=batch_size,
+        max_workers=max_workers,
+    )
+    output_root = _preflight_output_root(output_root)
+    output_root.mkdir()
     records: list[dict[str, object]] = []
-    for seed in seeds:
-        for policy in policies:
-            exploration_config = PosteriorExplorationConfig(
-                policy_name=policy,
-                batch_size=batch_size,
-                max_workers=max_workers,
-                action_force_budget=action_force_budget,
-                total_force_budget=total_force_budget,
-                master_seed=seed,
-                run_directory=output_root / f"seed-{seed:08d}-{policy}",
+    for seed, policy, exploration_config in planned_configs:
+        result = run_posterior_ssw(
+            _initial_state(),
+            _calculator_factory,
+            _ssw_config(),
+            exploration_config,
+        )
+        records.append(
+            _record(
+                result,
+                seed=seed,
+                policy=policy,
+                exploration_config=exploration_config,
             )
-            result = run_posterior_ssw(
-                _initial_state(),
-                _calculator_factory,
-                _ssw_config(),
-                exploration_config,
-            )
-            records.append(
-                _record(
-                    result,
-                    seed=seed,
-                    policy=policy,
-                    exploration_config=exploration_config,
-                )
-            )
+        )
     return tuple(records)
 
 

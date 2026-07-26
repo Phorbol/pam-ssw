@@ -36,6 +36,20 @@ EXPECTED_RECORD_FIELDS = {
 POLICIES = ("uniform", "posterior_proportional", "minimal_ucb")
 
 
+def _attempt_metadata_by_slot(event_path: Path) -> dict[tuple[int, int], tuple[int, int]]:
+    rows = [
+        json.loads(line)
+        for line in event_path.read_text(encoding="utf-8").splitlines()
+        if json.loads(line)["record_type"] == "attempt"
+    ]
+    metadata = {
+        (row["batch_id"], row["slot_id"]): (row["random_seed"], row["force_budget"])
+        for row in rows
+    }
+    assert len(metadata) == len(rows)
+    return metadata
+
+
 def test_run_comparison_is_importable():
     assert callable(run_comparison)
 
@@ -88,6 +102,16 @@ def test_run_comparison_emits_paired_raw_facts_and_event_logs(tmp_path: Path):
         event_path = output_root / f"seed-{record['seed']:08d}-{record['policy']}" / "events.jsonl"
         assert event_path.is_file()
 
+    for seed in (3, 7):
+        metadata_by_policy = [
+            _attempt_metadata_by_slot(output_root / f"seed-{seed:08d}-{policy}" / "events.jsonl")
+            for policy in POLICIES
+        ]
+        common_slots = set.intersection(*(set(metadata) for metadata in metadata_by_policy))
+        assert common_slots
+        for slot in common_slots:
+            assert len({metadata[slot] for metadata in metadata_by_policy}) == 1
+
 
 def test_run_comparison_preserves_supplied_policy_order(tmp_path: Path):
     policies = ("minimal_ucb", "uniform")
@@ -123,6 +147,90 @@ def test_run_comparison_rejects_existing_output_root_before_any_run(tmp_path: Pa
 
     assert sentinel.read_text(encoding="utf-8") == "do not touch"
     assert list(output_root.iterdir()) == [sentinel]
+
+
+@pytest.mark.parametrize(
+    ("seeds", "policies", "controls", "error_type"),
+    [
+        ((), POLICIES, {}, ValueError),
+        ((3, 3), POLICIES, {}, ValueError),
+        ((-1,), POLICIES, {}, ValueError),
+        ((True,), POLICIES, {}, TypeError),
+        ((3,), (), {}, ValueError),
+        ((3,), ("uniform", "uniform"), {}, ValueError),
+        ((3,), ("uniform", "unsupported"), {}, ValueError),
+        ((3,), POLICIES, {"total_force_budget": 0}, ValueError),
+        ((3,), POLICIES, {"action_force_budget": 0}, ValueError),
+        ((3,), POLICIES, {"batch_size": 0}, ValueError),
+        ((3,), POLICIES, {"max_workers": 3}, ValueError),
+    ],
+)
+def test_run_comparison_preflights_all_inputs_without_creating_output_root(
+    tmp_path: Path,
+    seeds: tuple[int, ...],
+    policies: tuple[str, ...],
+    controls: dict[str, int],
+    error_type: type[Exception],
+):
+    output_root = tmp_path / "must-not-exist"
+    defaults = {
+        "total_force_budget": 120,
+        "action_force_budget": 30,
+        "batch_size": 2,
+        "max_workers": 2,
+    }
+
+    with pytest.raises(error_type):
+        run_comparison(
+            output_root=output_root,
+            seeds=seeds,
+            policies=policies,
+            **(defaults | controls),
+        )
+
+    assert not output_root.exists()
+
+
+@pytest.mark.parametrize(
+    ("seed_values", "controls"),
+    [
+        (("3", "3"), {}),
+        (("-1",), {}),
+        (("3",), {"total_force_budget": 0}),
+        (("3",), {"max_workers": 3}),
+    ],
+)
+def test_cli_invalid_inputs_do_not_create_output_or_derived_run_root(
+    tmp_path: Path, seed_values: tuple[str, ...], controls: dict[str, int]
+):
+    output = tmp_path / "facts.json"
+    defaults = {
+        "total_force_budget": 120,
+        "action_force_budget": 30,
+        "batch_size": 2,
+        "max_workers": 2,
+    }
+    effective = defaults | controls
+    arguments = [
+        "--output",
+        str(output),
+        "--seeds",
+        *seed_values,
+        "--total-force-budget",
+        str(effective["total_force_budget"]),
+        "--action-force-budget",
+        str(effective["action_force_budget"]),
+        "--batch-size",
+        str(effective["batch_size"]),
+        "--max-workers",
+        str(effective["max_workers"]),
+    ]
+
+    with pytest.raises(ValueError):
+        main(arguments)
+
+    assert not output.exists()
+    assert not (tmp_path / "facts-runs").exists()
 
 
 def test_cli_rejects_existing_output_or_derived_run_root(tmp_path: Path):
