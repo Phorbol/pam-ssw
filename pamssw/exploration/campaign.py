@@ -86,6 +86,7 @@ class CampaignStopReason(str, Enum):
 @dataclass(frozen=True)
 class CampaignBudgetSnapshot:
     total: int
+    action_force_budget: int
     bootstrap_counts: EvaluationCounts
     action_counts: EvaluationCounts
     committed_batches: int
@@ -100,6 +101,7 @@ class CampaignBudget:
     """Budget ledger that charges observed evaluations, not reserved capacity."""
 
     total: int
+    action_force_budget: int
     bootstrap_counts: EvaluationCounts = field(default_factory=EvaluationCounts.zero, init=False)
     action_counts: EvaluationCounts = field(default_factory=EvaluationCounts.zero, init=False)
     committed_batches: int = field(default=0, init=False)
@@ -110,6 +112,7 @@ class CampaignBudget:
 
     def __post_init__(self) -> None:
         _positive_int(self.total, "total")
+        _positive_int(self.action_force_budget, "action_force_budget")
 
     @property
     def spent(self) -> int:
@@ -132,23 +135,21 @@ class CampaignBudget:
             raise ValueError("bootstrap counts exceed total budget")
         self.bootstrap_counts = EvaluationCounts(tuple(counts.values))
         self.bootstrap_recorded = True
+        if self.remaining < self.action_force_budget:
+            self.stop_reason = CampaignStopReason.BUDGET_TAIL
 
-    def next_batch_size(self, batch_size: int, action_force_budget: int) -> int:
+    def next_batch_size(self, batch_size: int) -> int:
         _positive_int(batch_size, "batch_size")
-        _positive_int(action_force_budget, "action_force_budget")
         if not self.bootstrap_recorded:
             raise RuntimeError("bootstrap must be recorded before scheduling")
         if self.stop_reason is not None:
             return 0
-        width = min(batch_size, self.remaining // action_force_budget)
+        width = min(batch_size, self.remaining // self.action_force_budget)
         if width == 0:
             self.stop_reason = CampaignStopReason.BUDGET_TAIL
         return width
 
-    def commit_batch(
-        self, counts: tuple[EvaluationCounts, ...], action_force_budget: int
-    ) -> None:
-        _positive_int(action_force_budget, "action_force_budget")
+    def commit_batch(self, counts: tuple[EvaluationCounts, ...]) -> None:
         if self.stop_reason is not None:
             raise RuntimeError("cannot commit after campaign termination")
         if not self.bootstrap_recorded:
@@ -160,9 +161,9 @@ class CampaignBudget:
         for count in counts:
             if not isinstance(count, EvaluationCounts):
                 raise TypeError("batch counts must contain EvaluationCounts")
-            if count.total > action_force_budget:
+            if count.total > self.action_force_budget:
                 raise ValueError("an action exceeded its force-evaluation budget")
-        if len(counts) * action_force_budget > self.remaining:
+        if len(counts) * self.action_force_budget > self.remaining:
             raise ValueError("batch reservation exceeds remaining budget")
         merged = EvaluationCounts.sum(counts)
         self.action_counts = self.action_counts + merged
@@ -171,12 +172,13 @@ class CampaignBudget:
         self.last_batch_spend = merged.total
         if merged.total == 0:
             self.stop_reason = CampaignStopReason.ZERO_COST_STALL
-        elif self.remaining < action_force_budget:
+        elif self.remaining < self.action_force_budget:
             self.stop_reason = CampaignStopReason.BUDGET_TAIL
 
     def snapshot(self) -> CampaignBudgetSnapshot:
         return CampaignBudgetSnapshot(
             total=self.total,
+            action_force_budget=self.action_force_budget,
             bootstrap_counts=EvaluationCounts(tuple(self.bootstrap_counts.values)),
             action_counts=EvaluationCounts(tuple(self.action_counts.values)),
             committed_batches=self.committed_batches,
@@ -188,12 +190,17 @@ class CampaignBudget:
 
     @classmethod
     def from_snapshot(
-        cls, snapshot: CampaignBudgetSnapshot, action_force_budget: int
+        cls, snapshot: CampaignBudgetSnapshot, *, action_force_budget: int
     ) -> CampaignBudget:
         if not isinstance(snapshot, CampaignBudgetSnapshot):
             raise TypeError("snapshot must be a CampaignBudgetSnapshot")
         action_force_budget = _positive_int(action_force_budget, "action_force_budget")
-        budget = cls(snapshot.total)
+        snapshot_action_force_budget = _positive_int(
+            snapshot.action_force_budget, "snapshot action_force_budget"
+        )
+        if action_force_budget != snapshot_action_force_budget:
+            raise ValueError("manifest action_force_budget does not match campaign identity")
+        budget = cls(snapshot.total, snapshot_action_force_budget)
         if not isinstance(snapshot.bootstrap_counts, EvaluationCounts):
             raise TypeError("snapshot bootstrap_counts must be an EvaluationCounts")
         if not isinstance(snapshot.action_counts, EvaluationCounts):
@@ -241,7 +248,7 @@ class CampaignBudget:
             expected_stop_reason = None
         elif snapshot.last_batch_spend == 0:
             expected_stop_reason = CampaignStopReason.ZERO_COST_STALL
-        elif budget.total - snapshot.bootstrap_counts.total - snapshot.action_counts.total < action_force_budget:
+        elif budget.total - snapshot.bootstrap_counts.total - snapshot.action_counts.total < budget.action_force_budget:
             expected_stop_reason = CampaignStopReason.BUDGET_TAIL
         else:
             expected_stop_reason = None
@@ -258,10 +265,10 @@ class CampaignBudget:
 
     @classmethod
     def restore(
-        cls, snapshot: CampaignBudgetSnapshot, action_force_budget: int
+        cls, snapshot: CampaignBudgetSnapshot, *, action_force_budget: int
     ) -> CampaignBudget:
         """Restore a ledger from a validated immutable snapshot."""
-        return cls.from_snapshot(snapshot, action_force_budget)
+        return cls.from_snapshot(snapshot, action_force_budget=action_force_budget)
 
 
 @dataclass(frozen=True)
