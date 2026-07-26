@@ -46,6 +46,7 @@ class SSWAttemptWorker:
         self.config = config
         self.softening_enabled = softening_enabled
         self.geometry_validator = GeometryValidator()
+        self._calculator_first_evaluation_lock = Lock()
         self._diagnostics_lock = Lock()
         self._diagnostics: dict[str, AttemptDiagnostics] = {}
 
@@ -91,6 +92,10 @@ class SSWAttemptWorker:
                 force_evaluations=0,
             )
             return result
+        calculator = _FirstEvaluationSerializedCalculator(
+            calculator,
+            self._calculator_first_evaluation_lock,
+        )
 
         action_config = replace(
             self.config,
@@ -271,6 +276,35 @@ def _is_calculator(calculator: object) -> bool:
     return callable(getattr(calculator, "evaluate", None)) and callable(
         getattr(calculator, "evaluate_flat", None)
     )
+
+
+class _FirstEvaluationSerializedCalculator:
+    """Serialize lazy calculator initialization without adding evaluations."""
+
+    def __init__(self, calculator: object, shared_lock: Lock) -> None:
+        self.calculator = calculator
+        self._shared_lock = shared_lock
+        self._first_evaluation_complete = False
+
+    def evaluate(self, state: State):
+        return self._evaluate_once(self.calculator.evaluate, state)
+
+    def evaluate_flat(self, flat_positions, template: State):
+        return self._evaluate_once(
+            self.calculator.evaluate_flat,
+            flat_positions,
+            template,
+        )
+
+    def _evaluate_once(self, evaluator, *args):
+        if self._first_evaluation_complete:
+            return evaluator(*args)
+        with self._shared_lock:
+            if not self._first_evaluation_complete:
+                result = evaluator(*args)
+                self._first_evaluation_complete = True
+                return result
+        return evaluator(*args)
 
 
 def _calculator_snapshot(walker: SurfaceWalker) -> EvaluationCounts:

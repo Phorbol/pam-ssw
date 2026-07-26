@@ -11,6 +11,7 @@ from pamssw.calculators import AnalyticCalculator
 from pamssw.potentials import DoubleWell2D
 from pamssw.result import RelaxOutcomeClass, RelaxResult
 from pamssw.state import State
+from pamssw.softening import LocalSofteningModel, PairSofteningTerm
 from pamssw.walker import (
     CandidateDirectionGenerator,
     DirectionCandidateKind,
@@ -18,6 +19,7 @@ from pamssw.walker import (
     DirectionScorer,
     DirectionRecord,
     DirectionTypeMemory,
+    ProposalRelaxationTask,
     ProposalPotential,
     GeometryValidator,
     BiasStrengthController,
@@ -36,6 +38,124 @@ class Quadratic:
         gradient = np.asarray(flat_positions, dtype=float).copy()
         energy = 0.5 * float(gradient @ gradient)
         return energy, gradient
+
+
+def test_walk_exposes_optimizer_neutral_proposal_relaxation_task(monkeypatch):
+    class TaskCaptured(RuntimeError):
+        pass
+
+    captured = []
+
+    class CapturingWalker(SurfaceWalker):
+        def _relax_proposal_task(self, task, *, optimizer, trajectory_callback):
+            captured.append((task, optimizer, trajectory_callback))
+            raise TaskCaptured
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    walker = CapturingWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            proposal_relax_steps=7,
+            proposal_fmax=0.05,
+            proposal_optimizer="ase-fire2",
+            proposal_trust_radius=0.4,
+        ),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0])
+    walker.oracle.generator.generate_initial_direction = lambda *args, **kwargs: direction
+    walker.oracle.choose_direction = lambda *args, **kwargs: DirectionChoice(
+        direction=direction,
+        curvature=-0.5,
+        kind=DirectionCandidateKind.RANDOM,
+        candidate_count=1,
+    )
+    monkeypatch.setattr(walker, "_build_softening", lambda *args, **kwargs: None)
+    monkeypatch.setattr(walker, "_true_directional_curvature", lambda *args, **kwargs: -0.5)
+    monkeypatch.setattr(walker.oracle, "_directional_curvature", lambda *args, **kwargs: -0.5)
+
+    with pytest.raises(TaskCaptured):
+        walker._walk_candidate_from_seed(state, trial_index=2, proposal_index=3)
+
+    assert len(captured) == 1
+    task, optimizer, trajectory_callback = captured[0]
+    assert isinstance(task, ProposalRelaxationTask)
+    assert optimizer == "ase-fire2"
+    assert trajectory_callback is None
+    assert task.fmax == pytest.approx(0.05)
+    assert task.maxiter == 7
+    assert task.coordinate_trust_radius == pytest.approx(0.4)
+    assert task.softening is None
+    assert len(task.biases) == 1
+    assert not hasattr(task, "optimizer")
+    assert task.initial_state.numbers.tolist() == [1]
+    assert task.initial_state.positions[0, 0] > state.positions[0, 0]
+
+
+def test_proposal_relaxation_task_snapshots_state_and_bias_arrays():
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    center = np.array([1.0, 0.0, 0.0])
+    direction = np.array([1.0, 0.0, 0.0])
+    task = ProposalRelaxationTask(
+        initial_state=state,
+        biases=(
+            GaussianBiasTerm(
+                center=center,
+                direction=direction,
+                sigma=0.2,
+                weight=0.4,
+            ),
+        ),
+        softening=None,
+        fmax=0.05,
+        maxiter=10,
+        coordinate_trust_radius=None,
+    )
+
+    state.positions[0, 0] = 9.0
+    center[0] = 8.0
+    direction[0] = -1.0
+
+    np.testing.assert_allclose(task.initial_state.positions, [[1.0, 0.0, 0.0]])
+    np.testing.assert_allclose(task.biases[0].center, [1.0, 0.0, 0.0])
+    np.testing.assert_allclose(task.biases[0].direction, [1.0, 0.0, 0.0])
+    with pytest.raises(ValueError, match="read-only"):
+        task.initial_state.positions[0, 0] = 7.0
+    with pytest.raises(ValueError, match="read-only"):
+        task.biases[0].center[0] = 7.0
+
+
+def test_proposal_relaxation_task_defensively_copies_softening_model():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+    )
+    softening = LocalSofteningModel(
+        [
+            PairSofteningTerm(
+                atom_i=0,
+                atom_j=1,
+                reference_distance=1.0,
+                width=0.2,
+                strength=0.3,
+            )
+        ]
+    )
+    task = ProposalRelaxationTask(
+        initial_state=state,
+        biases=(),
+        softening=softening,
+        fmax=0.05,
+        maxiter=10,
+        coordinate_trust_radius=None,
+    )
+
+    softening.terms.clear()
+
+    assert task.softening is not softening
+    assert len(task.softening.terms) == 1
 
 
 def test_bias_weight_matches_curvature_inversion_rule():

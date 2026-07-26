@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sys
+from copy import deepcopy
 from collections import deque
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field, replace
@@ -27,6 +28,56 @@ from .result import RelaxOutcomeClass, RelaxResult, SearchResult, StatsValue, Wa
 from .rigid import project_out_rigid_body_modes, rigid_body_overlap
 from .softening import LocalSofteningModel
 from .state import State
+
+
+@dataclass(frozen=True)
+class ProposalRelaxationTask:
+    """Optimizer-neutral defensive snapshot of one biased-PES relaxation problem."""
+
+    initial_state: State
+    biases: tuple[GaussianBiasTerm, ...]
+    softening: LocalSofteningModel | None
+    fmax: float
+    maxiter: int
+    coordinate_trust_radius: float | None
+
+    def __post_init__(self) -> None:
+        if self.fmax <= 0.0:
+            raise ValueError("fmax must be positive")
+        if self.maxiter < 0:
+            raise ValueError("maxiter must be non-negative")
+        if self.coordinate_trust_radius is not None and self.coordinate_trust_radius <= 0.0:
+            raise ValueError("coordinate_trust_radius must be positive when set")
+        state = self.initial_state
+        task_state = State(
+            numbers=state.numbers.copy(),
+            positions=state.positions.copy(),
+            cell=None if state.cell is None else state.cell.copy(),
+            pbc=state.pbc,
+            fixed_mask=state.fixed_mask.copy(),
+            metadata=state.metadata.copy(),
+        )
+        task_state.numbers.setflags(write=False)
+        task_state.positions.setflags(write=False)
+        task_state.fixed_mask.setflags(write=False)
+        if task_state.cell is not None:
+            task_state.cell.setflags(write=False)
+        object.__setattr__(self, "initial_state", task_state)
+
+        task_biases = tuple(
+            GaussianBiasTerm(
+                center=bias.center.copy(),
+                direction=bias.direction.copy(),
+                sigma=float(bias.sigma),
+                weight=float(bias.weight),
+            )
+            for bias in self.biases
+        )
+        for bias in task_biases:
+            bias.center.setflags(write=False)
+            bias.direction.setflags(write=False)
+        object.__setattr__(self, "biases", task_biases)
+        object.__setattr__(self, "softening", deepcopy(self.softening))
 
 
 class ProposalPotential:
@@ -1875,6 +1926,39 @@ class SurfaceWalker:
         threshold = float(getattr(self.config, "choice_aligned_softening_cos_threshold", 0.3))
         return bool(cosine < threshold)
 
+    def _relax_proposal_task(
+        self,
+        task: ProposalRelaxationTask,
+        *,
+        optimizer: str,
+        trajectory_callback,
+    ) -> RelaxResult:
+        if optimizer == "bias-separated-lbfgs" and task.softening is not None:
+            raise ValueError("bias-separated-lbfgs does not support local softening")
+        proposal = ProposalPotential(
+            self.calculator,
+            biases=list(task.biases),
+            softening=task.softening,
+        )
+        custom_lbfgs = optimizer in {
+            "safe-lbfgs-total",
+            "bias-separated-lbfgs",
+        }
+        relaxer_kwargs = {"optimizer": optimizer}
+        if custom_lbfgs:
+            relaxer_kwargs["component_evaluator"] = proposal.evaluate_parts
+        return Relaxer(
+            proposal.evaluate,
+            **relaxer_kwargs,
+        ).relax(
+            task.initial_state,
+            fmax=task.fmax,
+            maxiter=task.maxiter,
+            coordinate_trust_radius=task.coordinate_trust_radius,
+            trajectory_callback=trajectory_callback,
+            trajectory_stride=self.config.relaxation_trajectory_stride,
+        )
+
     def _reset_direction_archive_pending_records(self) -> None:
         self._direction_archive_pending_records = [] if self._direction_archive_storage_enabled() else None
 
@@ -2679,24 +2763,20 @@ class SurfaceWalker:
             )
             if proposal_optimizer != self.config.proposal_optimizer:
                 self._proposal_optimizer_alt_steps += 1
-            custom_lbfgs = proposal_optimizer in {
-                "safe-lbfgs-total",
-                "bias-separated-lbfgs",
-            }
             if proposal_optimizer == "bias-separated-lbfgs" and softening is not None:
                 raise ValueError("bias-separated-lbfgs does not support local softening")
-            relaxer_kwargs = {"optimizer": proposal_optimizer}
-            if custom_lbfgs:
-                relaxer_kwargs["component_evaluator"] = proposal.evaluate_parts
+            proposal_task = ProposalRelaxationTask(
+                initial_state=trial_state,
+                biases=tuple(biases),
+                softening=softening,
+                fmax=self.config.proposal_fmax,
+                maxiter=self.config.proposal_relax_steps,
+                coordinate_trust_radius=self.config.proposal_trust_radius,
+            )
             with self.calculator.purpose(EvaluationPurpose.BIASED_PROPOSAL_RELAX):
-                proposal_relax = Relaxer(
-                    proposal.evaluate,
-                    **relaxer_kwargs,
-                ).relax(
-                    trial_state,
-                    fmax=self.config.proposal_fmax,
-                    maxiter=self.config.proposal_relax_steps,
-                    coordinate_trust_radius=self.config.proposal_trust_radius,
+                proposal_relax = self._relax_proposal_task(
+                    proposal_task,
+                    optimizer=proposal_optimizer,
                     trajectory_callback=self._relaxation_trajectory_callback(
                         self._trajectory_name(
                             "proposal_relax",
@@ -2705,7 +2785,6 @@ class SurfaceWalker:
                             step_index=step_index,
                         )
                     ),
-                    trajectory_stride=self.config.relaxation_trajectory_stride,
                 )
             current_candidate, clipped = self._clip_walk_displacement(
                 reference=seed_state,
