@@ -75,4 +75,3 @@ accepted-state energy decreases are monotone. It cannot by itself attribute
 causality to L-BFGS memory, Armijo, or the atomic step cap, because those
 controls are not separately ablated. Different final stationary points remain
 search behavior, not same-basin convergence acceleration.
-
