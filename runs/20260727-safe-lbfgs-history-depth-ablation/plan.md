@@ -1,42 +1,37 @@
-# Safe L-BFGS history-depth ablation (G1, one execution only)
+# Safe L-BFGS history-depth ablation
 
-## Frozen question and matrix
+## Frozen experiment
 
-For the pinned 16 one-bias proposal-relaxation tasks, compare only adaptive
-safe-total L-BFGS with history depth one and history depth ten.  The frozen
-matrix is `SYSTEMS=(c60,pdo)`, seeds 42 through 49, `MAXITER=400`, and exactly
-32 rows in this order: system, arm, seed.
+Run exactly two `safe-lbfgs-total` arms over the pinned C60 and PdO tasks:
 
-1. `adaptive-scale-history1`: `safe-lbfgs-total`, history limit 1,
-   `latest-history-pair-gamma-plus-one-two-loop-correction`.
-2. `adaptive-scale-history10`: `safe-lbfgs-total`, history limit 10,
-   `latest-history-pair-gamma-plus-up-to-ten-two-loop-corrections`.
+1. `adaptive-scale-history1`, `_safe_lbfgs_history_limit=1`;
+2. `adaptive-scale-history10`, `_safe_lbfgs_history_limit=10`.
 
-Both use the total-biased-gradient secant.  Neither enables
-`_safe_lbfgs_adaptive_scale_without_history`.
+Seeds are 42 through 49, `maxiter=400`, for exactly 32 rows ordered by
+system, arm, then seed. One calculator is created for each `(system, arm)` and
+reused only by that arm's eight serial tasks.
 
-## Execution gate
+## Minimal execution gate
 
-`run_gpu_ablation.py` fails closed before calculator construction: it checks
-arguments/non-overwrite, frozen source and every canonical task hash, helper
-and import roots, the pinned pamssw bundle, execution commit and clean
-worktree, runtime/platform schemas, model/input hashes, and CUDA provenance.
-`--expected-git-commit` is mandatory; `--preflight-only` performs all gates
-and creates zero calculators.  The runner does not embed a self-referential
-execution commit.
+Before calculator construction, verify the requested execution commit against
+`HEAD`, require a clean tracked worktree, and verify the pinned source summary,
+all task payloads, the pamssw source bundle, the external fixed-replay helper,
+the model, and both inputs. Record Python, NumPy, SciPy, ASE, PyTorch, MACE,
+and CUDA runtime/device facts.
 
-Every `(system, arm)` has exactly one calculator which is serially reused for
-its eight tasks; systems and arms are serial.  Rows retain task payload/hash,
-requested/resolved arm policy, result/certificate/termination, complete
-zero-extra-call trace, callback hashes, telemetry, wall time, and endpoint
-positions/hash.  Finite `maxiter` and `line_search_failed` rows are reported
-as incomplete outcomes; non-finite values, open accounting, or schema drift
-are fatal.  A complete 32-row ledger and validated summary are staged beside
-the target and published only by directory rename.
+Rows contain raw task, arm, result, telemetry, trace, accounting, endpoint, and
+wall-time facts. The runner derives no certificate or termination aggregate.
+The accounting closure is trace length = force evaluations = telemetry
+`evaluator_calls` = biased-proposal-relax calls, with zero unattributed calls.
+`backend_evaluations` remains raw telemetry and is not part of that equality.
 
-## Claim ceiling
+## Completion and claim ceiling
 
-Any future output establishes only fixed-task, fixed-model CUDA replay
-behaviour for these C60/PdO tasks and this pinned objective.  It does not
-establish endpoint equivalence, search improvement, statistical significance,
-or a production-default change.
+Refuse existing `output` or `output.partial`. Write the two system ledgers to
+`output.partial`, write `summary.json` last as the completion marker, then use
+an ordinary directory rename to `output`. This is a single-process convention,
+not a concurrent publication API.
+
+Future analysis may establish only fixed-task, fixed-model CUDA replay
+behavior for this matrix. It does not establish endpoint equivalence, general
+search improvement, statistical significance, or a production-default change.
