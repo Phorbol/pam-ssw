@@ -333,6 +333,13 @@ def test_real_ledger_yields_canonical_pairwise_mic_and_certificate_first_evidenc
     assert "positive retained-history contribution" in conclusion
     assert "not retained" in conclusion
     assert "statistical" not in conclusion.lower()
+    assert "no trace curve" not in conclusion.lower()
+    assert (
+        "The trace figure visualizes exact evaluations and callback-observed annotations "
+        "for accounting."
+    ) in conclusion
+    assert "A callback-observed label is not an optimizer acceptance rule." in conclusion
+    assert "The figure supports no endpoint-equivalence inference." in conclusion
     assert not (tmp_path / "analysis" / "history_capacity_curves.svg").exists()
 
 
