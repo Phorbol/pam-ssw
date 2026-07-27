@@ -9,10 +9,10 @@
 
 ## Optimizer and cost evidence
 
-- C60: proposal relaxation 840/1034 converged, 194 failed; true quench 35/201 converged, 166 unconverged.
+- C60: proposal relaxation 840/1034 converged, 194 reached `maxiter` without the force certificate; true quench 35/201 converged, 166 unconverged.
   Cost shares: proposal 51.2%, true-quench/validation 13.6%, direction oracle 30.5%, escape checks 4.7%.
   Best-energy improvement trials: 1, 2, 3, 4, 5, 7, 8, 26, 40, 83, 118, 127, 162.
-- PDO: proposal relaxation 283/290 converged, 7 failed; true quench 201/201 converged, 0 unconverged.
+- PDO: proposal relaxation 283/290 converged, 7 ended with `line_search_failed`; true quench 201/201 converged, 0 unconverged.
   Cost shares: proposal 62.0%, true-quench/validation 22.9%, direction oracle 12.3%, escape checks 2.8%.
   Best-energy improvement trials: 1, 2, 5, 6, 10, 14, 16, 54, 76, 141, 145, 146, 147, 166, 172, 180, 183, 191.
 
