@@ -133,6 +133,8 @@ def _write_new_case(root: Path, system: str, reference: dict[str, object]) -> No
         {
             "system": system,
             "execution_commit": "n" * 40,
+            "old_execution_commit": reference["old_execution_commit"],
+            "old_artifact_sha256": reference["old_artifact_sha256"],
             "effective_config": {
                 "max_trials": 5,
                 "direction_selection_mode": "discrete",
@@ -200,8 +202,96 @@ def test_validation_config_changes_only_max_trials(tmp_path):
     assert {**pdo.__dict__, "max_trials": 200} == source_pdo.__dict__
 
 
-def test_analyzer_requires_exact_trajectory_and_reports_escape_only_savings(tmp_path):
+def test_analyzer_reports_numeric_mismatch_without_suppressing_accounting(tmp_path):
     analyzer = _load(ANALYZER_PATH, "direction_oracle_no_loss_analyzer")
+    reference_path = tmp_path / "reference.json"
+    reference = {
+        "schema_version": 1,
+        "trial_count": 5,
+        "systems": {system: _reference(system) for system in analyzer.SYSTEMS},
+    }
+    _write_json(reference_path, reference)
+    output_root = tmp_path / "output"
+    repeat_root = tmp_path / "repeat"
+    for system in analyzer.SYSTEMS:
+        _write_new_case(output_root, system, reference["systems"][system])
+        _write_new_case(repeat_root, system, reference["systems"][system])
+
+    current_energy = _reference("c60")["energy_trace"]
+    current_energy[0]["energy_eV"] = -10.001
+    current_energy[0]["best_energy_eV"] = -10.001
+    _write_json(output_root / "c60" / "energy_trace.json", current_energy)
+    current_directions = _direction_rows()
+    current_directions[0]["curvature"] = 1.25
+    (output_root / "c60" / "direction_trace.jsonl").write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in current_directions),
+        encoding="utf-8",
+    )
+
+    repeat_energy = _reference("c60")["energy_trace"]
+    repeat_energy[0]["energy_eV"] = -10.003
+    repeat_energy[0]["best_energy_eV"] = -10.003
+    _write_json(repeat_root / "c60" / "energy_trace.json", repeat_energy)
+    repeat_directions = _direction_rows()
+    repeat_directions[0].update(
+        selected_kind="bond",
+        candidate_count=3,
+        curvature=0.75,
+    )
+    (repeat_root / "c60" / "direction_trace.jsonl").write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in repeat_directions),
+        encoding="utf-8",
+    )
+    repeat_summary_path = repeat_root / "c60" / "summary.json"
+    repeat_summary = json.loads(repeat_summary_path.read_text(encoding="utf-8"))
+    repeat_summary["purpose_counts"]["direction_oracle"] += 2
+    repeat_summary["force_evaluations"] += 2
+    _write_json(repeat_summary_path, repeat_summary)
+
+    evidence = analyzer.analyze(reference_path, output_root, repeat_root)
+
+    c60 = evidence["systems"]["c60"]
+    assert c60["trajectory_exact"] is False
+    assert c60["exact_gpu_trajectory_claim_supported"] is False
+    old_vs_current = c60["comparisons"]["old_vs_current"]
+    assert old_vs_current["initial_energy_delta_eV"] == pytest.approx(-0.001)
+    assert old_vs_current["first_mismatch"]["artifact"] == "energy_trace"
+    assert old_vs_current["first_mismatch"]["index"] == 0
+    assert old_vs_current["energy_trace"]["different_rows"] == 1
+    assert old_vs_current["first_direction"] == {
+        "available": True,
+        "selected_kind_match": True,
+        "candidate_count_match": True,
+        "reference_curvature": 1.0,
+        "current_curvature": 1.25,
+        "curvature_delta": 0.25,
+    }
+    current_vs_repeat = c60["comparisons"]["current_vs_repeat"]
+    assert current_vs_repeat["initial_energy_delta_eV"] == pytest.approx(-0.002)
+    assert current_vs_repeat["first_direction"] == {
+        "available": True,
+        "selected_kind_match": False,
+        "candidate_count_match": False,
+        "reference_curvature": 1.25,
+        "current_curvature": 0.75,
+        "curvature_delta": -0.5,
+    }
+    assert c60["savings"]["escape_true_pes_check"] == 7
+    assert c60["savings"]["direction_oracle"] == 0
+    assert c60["savings"]["biased_proposal_relax"] == 0
+    assert c60["mechanism_savings"] == {
+        "true_curvature_hvp": 6,
+        "true_after_carry": 1,
+    }
+    conclusion_path = tmp_path / "conclusion.md"
+    analyzer.write_conclusion(evidence, conclusion_path)
+    conclusion = conclusion_path.read_text(encoding="utf-8")
+    assert "exact_gpu_trajectory_claim_supported: false" in conclusion
+    assert "C60" in conclusion
+
+
+def test_analyzer_fails_closed_for_accounting_errors_even_when_trajectory_differs(tmp_path):
+    analyzer = _load(ANALYZER_PATH, "direction_oracle_no_loss_analyzer_accounting")
     reference_path = tmp_path / "reference.json"
     reference = {
         "schema_version": 1,
@@ -213,20 +303,11 @@ def test_analyzer_requires_exact_trajectory_and_reports_escape_only_savings(tmp_
     for system in analyzer.SYSTEMS:
         _write_new_case(output_root, system, reference["systems"][system])
 
-    evidence = analyzer.analyze(reference_path, output_root)
+    summary_path = output_root / "c60" / "summary.json"
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    summary["purpose_counts"]["unattributed"] = 1
+    summary["force_evaluations"] += 1
+    _write_json(summary_path, summary)
 
-    c60 = evidence["systems"]["c60"]
-    assert c60["trajectory_exact"] is True
-    assert c60["savings"]["escape_true_pes_check"] == 7
-    assert c60["savings"]["direction_oracle"] == 0
-    assert c60["savings"]["biased_proposal_relax"] == 0
-    assert c60["mechanism_savings"] == {
-        "true_curvature_hvp": 6,
-        "true_after_carry": 1,
-    }
-
-    broken = _reference("c60")
-    broken["energy_trace"][3]["energy_eV"] = -99.0
-    _write_json(output_root / "c60" / "energy_trace.json", broken["energy_trace"])
-    with pytest.raises(ValueError, match="energy_trace"):
+    with pytest.raises(ValueError, match="unattributed"):
         analyzer.analyze(reference_path, output_root)
