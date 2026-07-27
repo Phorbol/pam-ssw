@@ -282,6 +282,13 @@ def _require_finite(value: object, label: str) -> float:
     return number
 
 
+def _require_nonnegative_finite(value: object, label: str) -> float:
+    number = _require_finite(value, label)
+    if number < 0.0:
+        raise ValueError(f"{label} must be a nonnegative finite number")
+    return number
+
+
 def _require_sha256(value: object, label: str) -> str:
     digest = _require_string(value, label)
     if not SHA256_RE.fullmatch(digest):
@@ -581,7 +588,12 @@ def _validate_trace_records(
         if accepted_state:
             accepted_trace_hashes.add(positions_digest)
         for field in TRACE_FLOAT_FIELDS:
-            _require_finite(item.get(field), f"{label}.trace_records[{index}].{field}")
+            validator = (
+                _require_nonnegative_finite
+                if field == "active_max_total_force_eV_per_A"
+                else _require_finite
+            )
+            validator(item.get(field), f"{label}.trace_records[{index}].{field}")
     if accepted_trace_hashes != callback_hashes:
         raise ValueError(f"{label}.accepted_callback_hashes are not closed by accepted trace states")
     return accepted, len(trace) - accepted
@@ -684,7 +696,7 @@ def _validate_row(
     endpoint_energy = _require_finite(
         endpoint.get("biased_energy_eV"), f"{label}.endpoint.biased_energy_eV"
     )
-    endpoint_force = _require_finite(
+    endpoint_force = _require_nonnegative_finite(
         endpoint.get("max_active_atom_force_eV_per_A"),
         f"{label}.endpoint.max_active_atom_force_eV_per_A",
     )
@@ -695,12 +707,12 @@ def _validate_row(
         raise ValueError(f"{label} endpoint energy differs from last trace total energy")
     if endpoint_force != final_trace["active_max_total_force_eV_per_A"]:
         raise ValueError(f"{label} endpoint max force differs from last trace force")
-    expected_certificate = endpoint_force <= source_contract.fmax_eV_per_A
+    expected_certificate = 0.0 <= endpoint_force <= source_contract.fmax_eV_per_A
     if certificate != expected_certificate:
         raise ValueError(f"{label} certificate does not match finite endpoint force and source fmax")
     if (reason == "converged") != certificate:
         raise ValueError(f"{label} termination reason does not match certificate")
-    _require_finite(record.get("wall_time_s"), f"{label}.wall_time_s")
+    _require_nonnegative_finite(record.get("wall_time_s"), f"{label}.wall_time_s")
 
     normalized = dict(record)
     normalized["_accepted_trace_records"] = accepted_records
@@ -770,7 +782,7 @@ def _validate_summary_outcomes(summary: Mapping[str, Any], rows: Sequence[Mappin
     # The runner's total includes orchestration overhead.  Per-row wall time is
     # the only arm-comparable cost reported below, so retain the summary total
     # only as a finite execution-provenance field rather than forcing equality.
-    _require_finite(summary.get("wall_time_total_s"), "wall_time_total_s")
+    _require_nonnegative_finite(summary.get("wall_time_total_s"), "wall_time_total_s")
     _require_string(summary.get("claim_ceiling"), "claim_ceiling")
 
 

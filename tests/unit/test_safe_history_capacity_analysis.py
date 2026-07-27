@@ -242,6 +242,10 @@ def test_real_ledger_yields_canonical_pairwise_mic_and_certificate_first_evidenc
         ("unknown_trace", "trace record keys"),
         ("unknown_purpose", "purpose_counts keys"),
         ("unknown_provenance", "git provenance keys"),
+        ("negative_force_closure", "nonnegative"),
+        ("negative_trace_force", "nonnegative"),
+        ("negative_wall_time", "nonnegative"),
+        ("negative_summary_wall_time", "nonnegative"),
     ],
 )
 def test_fail_closed_schema_rejects_incomplete_duplicate_badbool_nonfinite_and_broken_ledgers(
@@ -360,6 +364,18 @@ def test_fail_closed_schema_rejects_incomplete_duplicate_badbool_nonfinite_and_b
         summary = json.loads(summary_path.read_text(encoding="utf-8"))
         summary["git_provenance"]["unreviewed_extra_field"] = True
         _write_json(summary_path, summary)
+    elif mutation == "negative_force_closure":
+        c60["rows"][0]["endpoint"]["max_active_atom_force_eV_per_A"] = -1.0
+        c60["rows"][0]["trace_records"][-1]["active_max_total_force_eV_per_A"] = -1.0
+    elif mutation == "negative_trace_force":
+        c60["rows"][0]["trace_records"][0]["active_max_total_force_eV_per_A"] = -1.0
+    elif mutation == "negative_wall_time":
+        c60["rows"][0]["wall_time_s"] = -999999.0
+    elif mutation == "negative_summary_wall_time":
+        summary_path = ledger_dir / "summary.json"
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        summary["wall_time_total_s"] = -999999.0
+        _write_json(summary_path, summary)
     else:  # pragma: no cover - protects parametrization edits.
         raise AssertionError(mutation)
     if mutation not in {
@@ -371,6 +387,7 @@ def test_fail_closed_schema_rejects_incomplete_duplicate_badbool_nonfinite_and_b
         "row_count_float",
         "unknown_summary",
         "unknown_provenance",
+        "negative_summary_wall_time",
     }:
         _write_json(c60_path, c60)
 
