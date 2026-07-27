@@ -541,6 +541,198 @@ def test_safe_lbfgs_total_caps_first_atomic_step():
     assert np.linalg.norm(trajectory[1].positions - trajectory[0].positions) == pytest.approx(0.2)
 
 
+@pytest.mark.parametrize(
+    "history_limit",
+    [True, False, -1, 1, 9, 11, 0.0, 10.0, "10"],
+)
+def test_safe_lbfgs_history_limit_rejects_invalid_values_before_evaluator(history_limit):
+    calls = []
+
+    def evaluator(flat_positions, template):
+        calls.append(np.asarray(flat_positions, dtype=float).copy())
+        return 0.0, np.zeros_like(flat_positions)
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    with pytest.raises(ValueError, match="_safe_lbfgs_history_limit"):
+        Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+            state,
+            fmax=1e-8,
+            maxiter=1,
+            _safe_lbfgs_history_limit=history_limit,
+        )
+
+    assert calls == []
+
+
+@pytest.mark.parametrize(
+    "optimizer",
+    ["ase-fire", "ase-fire2", "ase-lbfgs", "scipy-lbfgsb", "bias-separated-lbfgs"],
+)
+def test_safe_lbfgs_history_limit_rejects_other_optimizers_before_evaluator(optimizer):
+    calls = []
+
+    def evaluator(flat_positions, template):
+        calls.append(np.asarray(flat_positions, dtype=float).copy())
+        return 0.0, np.zeros_like(flat_positions)
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    with pytest.raises(ValueError, match="safe-lbfgs-total"):
+        Relaxer(evaluator, optimizer=optimizer).relax(
+            state,
+            fmax=1e-8,
+            maxiter=1,
+            _safe_lbfgs_history_limit=0,
+        )
+
+    assert calls == []
+
+
+def _run_safe_lbfgs_history_limit(history_limit, *, maxiter):
+    calls = []
+    trajectory = []
+    curvature = np.array([1.0, 4.0, 2.0])
+
+    def evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        calls.append(flat.copy())
+        return 0.5 * float(np.dot(curvature * flat, flat)), curvature * flat
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.8, -0.6, 0.4]]))
+    result = Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+        state,
+        fmax=1e-12,
+        maxiter=maxiter,
+        trajectory_callback=trajectory.append,
+        _safe_lbfgs_history_limit=history_limit,
+    )
+    return result, calls, trajectory
+
+
+def test_safe_lbfgs_history_limit_none_matches_explicit_default_capacity():
+    default_result, default_calls, default_trajectory = _run_safe_lbfgs_history_limit(
+        None,
+        maxiter=4,
+    )
+    explicit_result, explicit_calls, explicit_trajectory = _run_safe_lbfgs_history_limit(
+        10,
+        maxiter=4,
+    )
+
+    np.testing.assert_array_equal(default_calls, explicit_calls)
+    assert len(default_trajectory) == len(explicit_trajectory)
+    for default_state, explicit_state in zip(default_trajectory, explicit_trajectory, strict=True):
+        np.testing.assert_array_equal(default_state.positions, explicit_state.positions)
+    np.testing.assert_array_equal(default_result.state.positions, explicit_result.state.positions)
+    assert default_result.energy == explicit_result.energy
+    assert default_result.gradient_norm == explicit_result.gradient_norm
+    assert default_result.n_iter == explicit_result.n_iter
+    assert default_result.telemetry == explicit_result.telemetry
+
+
+def test_safe_lbfgs_history_limit_zero_matches_default_capacity_for_first_iteration():
+    empty_result, empty_calls, empty_trajectory = _run_safe_lbfgs_history_limit(0, maxiter=1)
+    default_result, default_calls, default_trajectory = _run_safe_lbfgs_history_limit(10, maxiter=1)
+
+    np.testing.assert_array_equal(empty_calls, default_calls)
+    assert len(empty_trajectory) == len(default_trajectory)
+    for empty_state, default_state in zip(empty_trajectory, default_trajectory, strict=True):
+        np.testing.assert_array_equal(empty_state.positions, default_state.positions)
+    np.testing.assert_array_equal(empty_result.state.positions, default_result.state.positions)
+    assert empty_result.energy == default_result.energy
+    assert empty_result.gradient_norm == default_result.gradient_norm
+    assert empty_result.n_iter == default_result.n_iter == 1
+    assert empty_result.telemetry == default_result.telemetry
+
+
+def test_safe_lbfgs_history_limit_zero_keeps_inverse_product_history_empty(monkeypatch):
+    inverse_product = relax_module._lbfgs_inverse_product
+    history_lengths = []
+
+    def spy_inverse_product(gradient, history):
+        history_lengths.append(len(history))
+        return inverse_product(gradient, history)
+
+    monkeypatch.setattr(relax_module, "_lbfgs_inverse_product", spy_inverse_product)
+
+    result, _, _ = _run_safe_lbfgs_history_limit(0, maxiter=3)
+
+    assert result.n_iter == 3
+    assert history_lengths == [0, 0, 0]
+
+
+def test_safe_lbfgs_history_capacity_changes_anisotropic_path_only_after_secant():
+    empty_first, _, empty_first_trajectory = _run_safe_lbfgs_history_limit(0, maxiter=1)
+    default_first, _, default_first_trajectory = _run_safe_lbfgs_history_limit(10, maxiter=1)
+    empty_second, _, _ = _run_safe_lbfgs_history_limit(0, maxiter=2)
+    default_second, _, _ = _run_safe_lbfgs_history_limit(10, maxiter=2)
+
+    assert empty_first.telemetry.accepted_secants == 1
+    assert default_first.telemetry.accepted_secants == 1
+    assert len(empty_first_trajectory) == len(default_first_trajectory)
+    for empty_state, default_state in zip(
+        empty_first_trajectory,
+        default_first_trajectory,
+        strict=True,
+    ):
+        np.testing.assert_array_equal(empty_state.positions, default_state.positions)
+    np.testing.assert_array_equal(empty_first.state.positions, default_first.state.positions)
+    assert empty_second.telemetry.accepted_secants == 2
+    assert default_second.telemetry.accepted_secants == 2
+    assert not np.array_equal(empty_second.state.positions, default_second.state.positions)
+
+
+def test_safe_lbfgs_history_limit_zero_preserves_secant_and_line_search_diagnostics():
+    def accepted_components(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        true_energy = 0.5 * float(np.dot(flat, flat))
+        bias_energy = 0.25 * float(np.dot(flat, flat))
+        return RelaxEvaluation(
+            true_energy=true_energy,
+            true_gradient=flat.copy(),
+            bias_energy=bias_energy,
+            bias_gradient=0.5 * flat,
+            softening_energy=0.0,
+            softening_gradient=np.zeros_like(flat),
+            total_energy=true_energy + bias_energy,
+            total_gradient=1.5 * flat,
+        )
+
+    def accepted_evaluator(flat_positions, template):
+        parts = accepted_components(flat_positions, template)
+        return parts.total_energy, parts.total_gradient.copy()
+
+    def rejected_evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        return float(flat[0]), np.array([1.0, 0.0, 0.0])
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    accepted = Relaxer(
+        accepted_evaluator,
+        optimizer="safe-lbfgs-total",
+        component_evaluator=accepted_components,
+    ).relax(state, fmax=1e-12, maxiter=1, _safe_lbfgs_history_limit=0)
+    rejected = Relaxer(rejected_evaluator, optimizer="safe-lbfgs-total").relax(
+        state,
+        fmax=1e-12,
+        maxiter=1,
+        _safe_lbfgs_history_limit=0,
+    )
+
+    assert accepted.telemetry.accepted_secants == 1
+    assert accepted.telemetry.rejected_secants == 0
+    assert accepted.telemetry.bias_secant_curvature_sum > 0.0
+    assert accepted.telemetry.line_search_evaluations == 1
+    assert accepted.telemetry.line_search_evaluations == (
+        accepted.telemetry.accepted_steps + accepted.telemetry.rejected_steps
+    )
+    assert rejected.telemetry.accepted_secants == 0
+    assert rejected.telemetry.rejected_secants == 1
+    assert rejected.telemetry.line_search_evaluations == 1
+    assert rejected.telemetry.line_search_evaluations == (
+        rejected.telemetry.accepted_steps + rejected.telemetry.rejected_steps
+    )
+
+
 def test_safe_lbfgs_total_reports_explicit_armijo_failure_without_fallback():
     initial = np.array([1.0, 0.0, 0.0])
 
@@ -810,8 +1002,15 @@ def test_custom_modes_are_identical_when_bias_gradient_is_zero():
     assert results[0].telemetry.accepted_secants == results[1].telemetry.accepted_secants
 
 
-@pytest.mark.parametrize("optimizer", ["safe-lbfgs-total", "bias-separated-lbfgs"])
-def test_custom_lbfgs_clears_history_on_mic_branch_change(optimizer):
+@pytest.mark.parametrize(
+    ("optimizer", "history_limit"),
+    [
+        ("safe-lbfgs-total", 0),
+        ("safe-lbfgs-total", None),
+        ("bias-separated-lbfgs", None),
+    ],
+)
+def test_custom_lbfgs_clears_history_on_mic_branch_change(optimizer, history_limit):
     def component_evaluator(flat_positions, template):
         flat = np.asarray(flat_positions, dtype=float)
         signature = ((0, 0, 0),) if flat[0] >= 0.9 else ((1, 0, 0),)
@@ -836,7 +1035,12 @@ def test_custom_lbfgs_clears_history_on_mic_branch_change(optimizer):
         total,
         optimizer=optimizer,
         component_evaluator=component_evaluator,
-    ).relax(state, fmax=1e-12, maxiter=1)
+    ).relax(
+        state,
+        fmax=1e-12,
+        maxiter=1,
+        _safe_lbfgs_history_limit=history_limit,
+    )
 
     assert result.telemetry.accepted_steps == 1
     assert result.telemetry.mic_branch_resets == 1
