@@ -132,6 +132,7 @@
       }
     }
   },
+  "analysis_script_sha256": "2ede1518b1cdafe7ac8b1ae0b3f836997b0942bfb1937c9cd5b7fbaab0396946",
   "certificate": {
     "all_satisfied": false,
     "by_termination_reason": {
@@ -727,6 +728,11 @@
       "expected_git_commit": "0d651ac31e8e4cd12fd2935a0cfb2d66715d2c48",
       "repo_root": "/tmp/SSW-worktrees/history-capacity-ablation",
       "worktree_clean": true
+    },
+    "mic_implementation": {
+      "module": "pamssw.pbc",
+      "path": "/tmp/SSW-worktrees/history-capacity-ablation/pamssw/pbc.py",
+      "sha256": "2ed7ae8278f12be63c97bd62306695e92fe0239c35c2bce8d9009595c5e62cf3"
     },
     "pamssw_source_provenance": {
       "bundle_sha256": "459a3ed173afbde50c499a2653702796ec1f08f022cc0a93ed2e028222d62636",

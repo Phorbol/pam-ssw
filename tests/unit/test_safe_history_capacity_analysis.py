@@ -11,12 +11,14 @@ import sys
 import numpy as np
 import pytest
 
+from pamssw import pbc as pbc_module
 from pamssw.pbc import mic_displacement
 
 
 RUN_ROOT = Path(__file__).resolve().parents[2] / "runs" / "20260727-safe-history-capacity-ablation"
 ANALYZER = RUN_ROOT / "analyze_ablation.py"
 RUNNER = RUN_ROOT / "run_gpu_ablation.py"
+TRACE_RECORDER = RUN_ROOT.parent / "20260727-proposal-energy-traces" / "trace_recorder.py"
 RAW_DIR = RUN_ROOT / "output"
 SYSTEMS = ("c60", "pdo")
 ARMS = (
@@ -77,6 +79,28 @@ def test_analyzer_is_created_for_the_history_capacity_contract() -> None:
     assert ANALYZER.is_file()
 
 
+def test_analysis_anchors_are_fixed_to_the_reviewed_execution() -> None:
+    analyzer = _module(ANALYZER, "safe_history_capacity_analysis_anchors")
+
+    assert analyzer.EXPECTED_SOURCE_SUMMARY_SHA256 == (
+        "62cc771e2aa24e9addef0e870d0524f901f02bddc34152cf2a2eeea91a671b04"
+    )
+    assert analyzer.EXPECTED_KERNEL_DESCRIPTOR_SHA256 == (
+        "1846e340e762b79f50897dfacd40a16288ed52bb481f36f24ab01594c4724102"
+    )
+    assert analyzer.EXPECTED_EXECUTION_COMMIT == "0d651ac31e8e4cd12fd2935a0cfb2d66715d2c48"
+
+
+def test_analyzer_position_hash_matches_trace_recorder_and_raw_endpoints() -> None:
+    analyzer = _module(ANALYZER, "safe_history_capacity_analysis_position_hash")
+    recorder = _module(TRACE_RECORDER, "safe_history_capacity_trace_recorder_test")
+
+    for row in _rows(RAW_DIR):
+        positions = row["endpoint"]["positions"]
+        assert analyzer.position_sha256(positions) == recorder.position_hash(positions)
+        assert analyzer.position_sha256(positions) == row["trace_records"][-1]["positions_sha256"]
+
+
 def test_analyzer_task_sha_matches_runner_canonical_hashes_for_pinned_source_payloads() -> None:
     analyzer = _module(ANALYZER, "safe_history_capacity_analysis")
     runner = _module(RUNNER, "safe_history_capacity_runner_for_analysis")
@@ -108,7 +132,14 @@ def test_real_ledger_yields_canonical_pairwise_mic_and_certificate_first_evidenc
 
     assert evidence["ledger"] == {"row_count": 32, "task_count": 16}
     assert evidence["raw_files"]["summary.json"]["sha256"] == _sha256(RAW_DIR / "summary.json")
+    assert evidence["analysis_script_sha256"] == _sha256(ANALYZER)
     assert evidence["execution"]["git_commit"] == summary["current_git_commit"]
+    mic_provenance = evidence["provenance"]["mic_implementation"]
+    assert mic_provenance == {
+        "module": "pamssw.pbc",
+        "path": str(Path(pbc_module.__file__).resolve()),
+        "sha256": _sha256(Path(pbc_module.__file__).resolve()),
+    }
     assert evidence["certificate"]["all_satisfied"] is False
     assert evidence["certificate"]["by_termination_reason"]["maxiter"]["count"] == 12
     assert len(evidence["paired_tasks"]) == 16
@@ -192,6 +223,25 @@ def test_real_ledger_yields_canonical_pairwise_mic_and_certificate_first_evidenc
         ("task_sha", "task_sha256"),
         ("task_sha_pair", "task_sha256"),
         ("unknown_fields", "ledger row keys"),
+        ("source_anchor", "source summary sha256"),
+        ("descriptor_anchor", "kernel descriptor sha256"),
+        ("commit_anchor", "execution commit"),
+        ("schema_float", "schema_version"),
+        ("row_count_float", "row_count"),
+        ("force_string", "integer"),
+        ("force_bool", "integer"),
+        ("endpoint_force", "last trace force"),
+        ("endpoint_shape", "shape"),
+        ("endpoint_coordinates", "position hash"),
+        ("endpoint_energy", "last trace total energy"),
+        ("trace_all_false", "accepted_state"),
+        ("accepted_secants", "secants"),
+        ("numeric_string_position", "numeric values"),
+        ("unknown_summary", "summary keys"),
+        ("unknown_telemetry", "telemetry keys"),
+        ("unknown_trace", "trace record keys"),
+        ("unknown_purpose", "purpose_counts keys"),
+        ("unknown_provenance", "git provenance keys"),
     ],
 )
 def test_fail_closed_schema_rejects_incomplete_duplicate_badbool_nonfinite_and_broken_ledgers(
@@ -226,9 +276,102 @@ def test_fail_closed_schema_rejects_incomplete_duplicate_badbool_nonfinite_and_b
             for row in payload["rows"]:
                 row["unreviewed_extra_field"] = True
             _write_json(path, payload)
+    elif mutation == "source_anchor":
+        summary_path = ledger_dir / "summary.json"
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        source_path = ledger_dir / "tampered-source-summary.json"
+        source = json.loads(Path(summary["source_summary"]).read_text(encoding="utf-8"))
+        source["unreviewed_extra_field"] = True
+        _write_json(source_path, source)
+        summary["source_summary"] = str(source_path)
+        summary["source_summary_sha256"] = _sha256(source_path)
+        _write_json(summary_path, summary)
+    elif mutation == "descriptor_anchor":
+        summary_path = ledger_dir / "summary.json"
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        descriptor = summary["safe_kernel_descriptor"]
+        descriptor["kernel_constants"]["_SAFE_LBFGS_BACKTRACK"] = 0.25
+        serialized = json.dumps(
+            descriptor,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+        summary["safe_kernel_descriptor_sha256"] = hashlib.sha256(
+            serialized.encode("utf-8")
+        ).hexdigest()
+        _write_json(summary_path, summary)
+        for system in SYSTEMS:
+            path = ledger_dir / f"{system}.json"
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            for row in payload["rows"]:
+                row["objective_descriptor"] = descriptor
+            _write_json(path, payload)
+    elif mutation == "commit_anchor":
+        summary_path = ledger_dir / "summary.json"
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        fake_commit = "1" * 40
+        summary["current_git_commit"] = fake_commit
+        summary["git_provenance"]["actual_git_commit"] = fake_commit
+        summary["git_provenance"]["expected_git_commit"] = fake_commit
+        _write_json(summary_path, summary)
+    elif mutation == "schema_float":
+        summary_path = ledger_dir / "summary.json"
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        summary["schema_version"] = 1.0
+        _write_json(summary_path, summary)
+    elif mutation == "row_count_float":
+        summary_path = ledger_dir / "summary.json"
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        summary["row_count"] = 32.0
+        _write_json(summary_path, summary)
+    elif mutation == "force_string":
+        c60["rows"][0]["force_evaluations"] = str(c60["rows"][0]["force_evaluations"])
+    elif mutation == "force_bool":
+        c60["rows"][0]["force_evaluations"] = True
+    elif mutation == "endpoint_force":
+        c60["rows"][0]["endpoint"]["max_active_atom_force_eV_per_A"] = 999.0
+    elif mutation == "endpoint_shape":
+        c60["rows"][0]["endpoint"]["positions"] = [[0.0, 0.0, 0.0]]
+    elif mutation == "endpoint_coordinates":
+        c60["rows"][0]["endpoint"]["positions"][0][0] += 0.1
+    elif mutation == "endpoint_energy":
+        c60["rows"][0]["endpoint"]["biased_energy_eV"] += 1.0
+    elif mutation == "trace_all_false":
+        for trace in c60["rows"][0]["trace_records"]:
+            trace["accepted_state"] = False
+    elif mutation == "accepted_secants":
+        c60["rows"][0]["telemetry"]["accepted_secants"] = 0
+    elif mutation == "numeric_string_position":
+        c60["rows"][0]["endpoint"]["positions"][0][0] = "1.25"
+    elif mutation == "unknown_summary":
+        summary_path = ledger_dir / "summary.json"
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        summary["unreviewed_extra_field"] = True
+        _write_json(summary_path, summary)
+    elif mutation == "unknown_telemetry":
+        c60["rows"][0]["telemetry"]["unreviewed_extra_field"] = 0
+    elif mutation == "unknown_trace":
+        c60["rows"][0]["trace_records"][0]["unreviewed_extra_field"] = 0
+    elif mutation == "unknown_purpose":
+        c60["rows"][0]["purpose_counts"]["unreviewed_extra_field"] = 0
+    elif mutation == "unknown_provenance":
+        summary_path = ledger_dir / "summary.json"
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        summary["git_provenance"]["unreviewed_extra_field"] = True
+        _write_json(summary_path, summary)
     else:  # pragma: no cover - protects parametrization edits.
         raise AssertionError(mutation)
-    if mutation != "unknown_fields":
+    if mutation not in {
+        "unknown_fields",
+        "source_anchor",
+        "descriptor_anchor",
+        "commit_anchor",
+        "schema_float",
+        "row_count_float",
+        "unknown_summary",
+        "unknown_provenance",
+    }:
         _write_json(c60_path, c60)
 
     completed = _run(ledger_dir, tmp_path / "analysis")

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from dataclasses import dataclass
 from hashlib import sha256
 import json
 import math
@@ -25,12 +26,16 @@ REPO_ROOT = RUN_ROOT.parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from pamssw import pbc as pbc_module
 from pamssw.pbc import mic_displacement
 
 
 SYSTEMS = ("c60", "pdo")
 SEEDS = tuple(range(42, 50))
 MAXITER = 400
+EXPECTED_SOURCE_SUMMARY_SHA256 = "62cc771e2aa24e9addef0e870d0524f901f02bddc34152cf2a2eeea91a671b04"
+EXPECTED_KERNEL_DESCRIPTOR_SHA256 = "1846e340e762b79f50897dfacd40a16288ed52bb481f36f24ab01594c4724102"
+EXPECTED_EXECUTION_COMMIT = "0d651ac31e8e4cd12fd2935a0cfb2d66715d2c48"
 ARMS = (
     ("safe-total-gradient-history10", 10),
     ("safe-total-gradient-history0", 0),
@@ -61,6 +66,123 @@ ROW_KEYS = frozenset(
         "wall_time_s",
     }
 )
+SUMMARY_KEYS = frozenset(
+    {
+        "arms",
+        "certificate_all_satisfied",
+        "certificate_unsatisfied_count",
+        "claim_ceiling",
+        "cuda_model_input_provenance",
+        "current_git_commit",
+        "git_provenance",
+        "pamssw_source_provenance",
+        "row_count",
+        "runner_helper_provenance",
+        "safe_kernel_descriptor",
+        "safe_kernel_descriptor_sha256",
+        "schema_version",
+        "source_summary",
+        "source_summary_sha256",
+        "systems",
+        "task_count",
+        "termination_reason_counts",
+        "wall_time_total_s",
+    }
+)
+TELEMETRY_KEYS = frozenset(
+    {
+        "accepted_secants",
+        "accepted_steps",
+        "backend",
+        "backend_evaluations",
+        "bias_secant_curvature_sum",
+        "converged",
+        "evaluator_calls",
+        "explicit_finalization_calls",
+        "finalization_requests",
+        "gradient_measure",
+        "line_search_evaluations",
+        "mic_branch_resets",
+        "optimizer_success",
+        "rejected_secants",
+        "rejected_steps",
+        "reporting_cache_hits",
+        "reporting_evaluator_calls",
+        "termination_reason",
+    }
+)
+ENDPOINT_KEYS = frozenset({"biased_energy_eV", "max_active_atom_force_eV_per_A", "positions"})
+TRACE_KEYS = frozenset(
+    {
+        "accepted_state",
+        "active_max_total_force_eV_per_A",
+        "bias_energy_eV",
+        "evaluation_index",
+        "positions_sha256",
+        "softening_energy_eV",
+        "total_energy_eV",
+        "true_energy_eV",
+    }
+)
+OBJECTIVE_KEYS = frozenset({"kernel_constants", "optimizer", "safe_lbfgs_memory"})
+KERNEL_CONSTANT_KEYS = frozenset(
+    {
+        "_SAFE_LBFGS_ARMIJO_C1",
+        "_SAFE_LBFGS_BACKTRACK",
+        "_SAFE_LBFGS_CURVATURE_REL",
+        "_SAFE_LBFGS_EMPTY_HISTORY_SCALE",
+        "_SAFE_LBFGS_MAX_ATOM_STEP",
+        "_SAFE_LBFGS_MAX_LINE_TRIALS",
+        "_SAFE_LBFGS_MIN_ALPHA",
+    }
+)
+PURPOSE_KEYS = frozenset(
+    {
+        "biased_proposal_relax",
+        "bootstrap_true_quench",
+        "direction_oracle",
+        "escape_true_pes_check",
+        "landing_true_quench",
+        "post_relax_validation",
+        "starter_true_quench",
+        "unattributed",
+    }
+)
+HELPER_KEYS = frozenset({"fixed_replay_driver", "g1_driver", "trace_recorder"})
+PAMSSW_PROVENANCE_KEYS = frozenset(
+    {"bundle_sha256", "imported_module_paths", "imported_symbol_paths", "source_root"}
+)
+PAMSSW_MODULE_KEYS = frozenset(
+    {
+        "pamssw",
+        "pamssw.accounting",
+        "pamssw.calculators",
+        "pamssw.exploration",
+        "pamssw.exploration.runner",
+        "pamssw.pbc",
+        "pamssw.proposal_replay",
+        "pamssw.relax",
+        "pamssw.result",
+        "pamssw.state",
+        "pamssw.walker",
+    }
+)
+PAMSSW_SYMBOL_KEYS = frozenset({"EvalCounter", "ProposalRelaxationTask", "Relaxer"})
+CUDA_PROVENANCE_KEYS = frozenset(
+    {
+        "cuda_device",
+        "cuda_version",
+        "device",
+        "model",
+        "model_declared_sha256",
+        "model_sha256",
+        "source_system_inputs",
+        "torch_version",
+    }
+)
+GIT_PROVENANCE_KEYS = frozenset(
+    {"actual_git_commit", "expected_git_commit", "repo_root", "worktree_clean"}
+)
 
 TELEMETRY_INTEGER_FIELDS = (
     "accepted_secants",
@@ -83,6 +205,15 @@ TRACE_FLOAT_FIELDS = (
     "total_energy_eV",
     "true_energy_eV",
 )
+
+
+@dataclass(frozen=True)
+class SourceTaskContract:
+    cell: np.ndarray
+    pbc: tuple[bool, bool, bool]
+    task_sha256: str
+    n_atoms: int
+    fmax_eV_per_A: float
 
 
 def _load_json_object(path: Path, *, label: str) -> dict[str, Any]:
@@ -111,6 +242,17 @@ def _require_mapping(value: object, label: str) -> Mapping[str, Any]:
     if not isinstance(value, Mapping):
         raise ValueError(f"{label} must be an object")
     return value
+
+
+def _require_exact_keys(
+    value: Mapping[str, Any],
+    expected: frozenset[str] | set[str],
+    label: str,
+) -> None:
+    if set(value) != set(expected):
+        missing = sorted(set(expected) - set(value))
+        extra = sorted(set(value) - set(expected))
+        raise ValueError(f"{label} keys differ; missing={missing}, extra={extra}")
 
 
 def _require_string(value: object, label: str) -> str:
@@ -155,8 +297,14 @@ def _require_git_sha(value: object, label: str) -> str:
 
 
 def _require_finite_array(value: object, label: str, shape: tuple[int, ...] | None = None) -> np.ndarray:
+    object_array = np.asarray(value, dtype=object)
+    if object_array.ndim == 0 or any(
+        isinstance(item, bool) or not isinstance(item, (int, float))
+        for item in object_array.flat
+    ):
+        raise ValueError(f"{label} must contain only numeric values")
     try:
-        array = np.asarray(value, dtype=float)
+        array = np.asarray(object_array, dtype=float)
     except (TypeError, ValueError) as error:
         raise ValueError(f"{label} must be a numeric array") from error
     if shape is not None and array.shape != shape:
@@ -164,6 +312,24 @@ def _require_finite_array(value: object, label: str, shape: tuple[int, ...] | No
     if array.ndim == 0 or not np.isfinite(array).all():
         raise ValueError(f"{label} contains non-finite values")
     return array
+
+
+def position_sha256(positions: object) -> str:
+    """Return the canonical position hash used by the pinned trace recorder."""
+
+    coordinates = np.asarray(positions, dtype=float)
+    if coordinates.ndim == 1:
+        if coordinates.size % 3 != 0:
+            raise ValueError("flat positions must contain a multiple of three coordinates")
+        coordinates = coordinates.reshape(-1, 3)
+    if coordinates.ndim != 2 or coordinates.shape[1] != 3:
+        raise ValueError("positions must have shape (n_atoms, 3)")
+    canonical = np.array(coordinates, dtype=np.dtype("<f8"), order="C", copy=True)
+    digest = sha256()
+    digest.update(str(canonical.shape).encode("ascii"))
+    digest.update(b"\0")
+    digest.update(canonical.tobytes())
+    return digest.hexdigest()
 
 
 def _canonical_json(payload: object) -> str:
@@ -189,14 +355,18 @@ def canonical_task_sha256(task_payload: Mapping[str, Any]) -> str:
 
 def _validate_provenance(
     summary: Mapping[str, Any],
-) -> tuple[str, dict[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool], str]]]:
+) -> tuple[str, dict[tuple[str, str], SourceTaskContract]]:
     """Validate historical provenance and recover PBC state from pinned source."""
 
-    if summary.get("schema_version") != 1:
+    _require_exact_keys(summary, SUMMARY_KEYS, "summary")
+    if _require_int(summary.get("schema_version"), "summary.schema_version", minimum=1) != 1:
         raise ValueError("summary schema_version must be exactly 1")
-    if tuple(summary.get("systems", ())) != SYSTEMS:
+    systems = summary.get("systems")
+    if not isinstance(systems, list) or tuple(systems) != SYSTEMS:
         raise ValueError("summary systems must be exactly c60, pdo")
-    if summary.get("row_count") != 32 or summary.get("task_count") != 16:
+    if _require_int(summary.get("row_count"), "summary.row_count") != 32:
+        raise ValueError("summary row_count must be exactly 32")
+    if _require_int(summary.get("task_count"), "summary.task_count") != 16:
         raise ValueError("summary must declare exactly row_count=32 and task_count=16")
 
     arms = summary.get("arms")
@@ -204,11 +374,21 @@ def _validate_provenance(
         {"arm_id": arm_id, "history_limit": limit, "kernel": "safe-lbfgs-total"}
         for arm_id, limit in ARMS
     ]
+    if not isinstance(arms, list) or len(arms) != len(expected_arms):
+        raise ValueError("summary arms must be the exact fixed history10/history0 matrix")
+    for index, arm in enumerate(arms):
+        arm_mapping = _require_mapping(arm, f"summary.arms[{index}]")
+        _require_exact_keys(arm_mapping, {"arm_id", "history_limit", "kernel"}, f"summary.arms[{index}]")
+        _require_string(arm_mapping.get("arm_id"), f"summary.arms[{index}].arm_id")
+        _require_int(arm_mapping.get("history_limit"), f"summary.arms[{index}].history_limit")
+        _require_string(arm_mapping.get("kernel"), f"summary.arms[{index}].kernel")
     if arms != expected_arms:
         raise ValueError("summary arms must be the exact fixed history10/history0 matrix")
 
     source_path = Path(_require_string(summary.get("source_summary"), "source_summary"))
     source_digest = _require_sha256(summary.get("source_summary_sha256"), "source_summary_sha256")
+    if source_digest != EXPECTED_SOURCE_SUMMARY_SHA256:
+        raise ValueError("source summary SHA256 does not match the pinned reviewed source")
     if not source_path.is_file():
         raise ValueError("pinned source summary is unavailable")
     if _sha256(source_path) != source_digest:
@@ -216,52 +396,80 @@ def _validate_provenance(
     source_summary = _load_json_object(source_path, label="pinned source summary")
 
     descriptor = _require_mapping(summary.get("safe_kernel_descriptor"), "safe_kernel_descriptor")
+    _require_exact_keys(descriptor, OBJECTIVE_KEYS, "safe kernel objective descriptor")
     if descriptor.get("optimizer") != "safe-lbfgs-total" or descriptor.get("safe_lbfgs_memory") != 10:
         raise ValueError("safe kernel descriptor is not the reviewed safe-lbfgs-total memory-10 kernel")
+    _require_int(descriptor.get("safe_lbfgs_memory"), "safe kernel descriptor safe_lbfgs_memory")
     constants = _require_mapping(descriptor.get("kernel_constants"), "safe kernel descriptor kernel_constants")
-    if not constants:
-        raise ValueError("safe kernel descriptor kernel_constants must not be empty")
+    _require_exact_keys(constants, KERNEL_CONSTANT_KEYS, "safe kernel descriptor kernel_constants")
     for name, value in constants.items():
-        _require_string(name, "safe kernel descriptor constant name")
         _require_finite(value, f"safe kernel descriptor kernel_constants.{name}")
     descriptor_json = json.dumps(descriptor, sort_keys=True, separators=(",", ":"), allow_nan=False)
-    if sha256(descriptor_json.encode("utf-8")).hexdigest() != _require_sha256(
+    declared_descriptor_sha = _require_sha256(
         summary.get("safe_kernel_descriptor_sha256"), "safe_kernel_descriptor_sha256"
-    ):
+    )
+    if declared_descriptor_sha != EXPECTED_KERNEL_DESCRIPTOR_SHA256:
+        raise ValueError("kernel descriptor SHA256 does not match the pinned reviewed kernel")
+    if sha256(descriptor_json.encode("utf-8")).hexdigest() != declared_descriptor_sha:
         raise ValueError("safe kernel descriptor SHA256 mismatch")
 
     helpers = _require_mapping(summary.get("runner_helper_provenance"), "runner helper provenance")
-    for helper_name in ("fixed_replay_driver", "g1_driver", "trace_recorder"):
+    _require_exact_keys(helpers, HELPER_KEYS, "runner helper provenance")
+    for helper_name in sorted(HELPER_KEYS):
         helper = _require_mapping(helpers.get(helper_name), f"runner helper provenance {helper_name}")
+        _require_exact_keys(helper, {"path", "sha256"}, f"runner helper provenance {helper_name}")
         _require_string(helper.get("path"), f"runner helper provenance {helper_name}.path")
         _require_sha256(helper.get("sha256"), f"runner helper provenance {helper_name}.sha256")
 
     pamssw = _require_mapping(summary.get("pamssw_source_provenance"), "pamssw source provenance")
+    _require_exact_keys(pamssw, PAMSSW_PROVENANCE_KEYS, "pamssw source provenance")
     _require_string(pamssw.get("source_root"), "pamssw source provenance source_root")
     _require_sha256(pamssw.get("bundle_sha256"), "pamssw source provenance bundle_sha256")
-    for field in ("imported_module_paths", "imported_symbol_paths"):
-        mapping = _require_mapping(pamssw.get(field), f"pamssw source provenance {field}")
-        if not mapping or not all(isinstance(path, str) and path for path in mapping.values()):
-            raise ValueError(f"pamssw source provenance {field} must contain non-empty paths")
+    module_paths = _require_mapping(
+        pamssw.get("imported_module_paths"), "pamssw source provenance imported_module_paths"
+    )
+    symbol_paths = _require_mapping(
+        pamssw.get("imported_symbol_paths"), "pamssw source provenance imported_symbol_paths"
+    )
+    _require_exact_keys(
+        module_paths, PAMSSW_MODULE_KEYS, "pamssw source provenance imported_module_paths"
+    )
+    _require_exact_keys(
+        symbol_paths, PAMSSW_SYMBOL_KEYS, "pamssw source provenance imported_symbol_paths"
+    )
+    for field, mapping in (
+        ("imported_module_paths", module_paths),
+        ("imported_symbol_paths", symbol_paths),
+    ):
+        for name, path in mapping.items():
+            _require_string(path, f"pamssw source provenance {field}.{name}")
 
     cuda = _require_mapping(summary.get("cuda_model_input_provenance"), "CUDA/model/input provenance")
+    _require_exact_keys(cuda, CUDA_PROVENANCE_KEYS, "CUDA/model/input provenance")
     for field in ("cuda_device", "cuda_version", "device", "model", "torch_version"):
         _require_string(cuda.get(field), f"CUDA/model/input provenance {field}")
+    if cuda.get("device") != "cuda":
+        raise ValueError("CUDA/model/input provenance device must be cuda")
     model_digest = _require_sha256(cuda.get("model_sha256"), "CUDA/model/input provenance model_sha256")
     if _require_sha256(cuda.get("model_declared_sha256"), "CUDA/model/input provenance model_declared_sha256") != model_digest:
         raise ValueError("CUDA/model/input provenance model SHA256 values differ")
     source_inputs = _require_mapping(cuda.get("source_system_inputs"), "CUDA/model/input provenance source_system_inputs")
-    if set(source_inputs) != set(SYSTEMS):
-        raise ValueError("CUDA/model/input provenance must contain exactly c60 and pdo inputs")
+    _require_exact_keys(source_inputs, set(SYSTEMS), "CUDA/model/input provenance source_system_inputs")
     for system in SYSTEMS:
         item = _require_mapping(source_inputs[system], f"CUDA/model/input provenance {system}")
+        _require_exact_keys(
+            item, {"declared_sha256", "input", "sha256"}, f"CUDA/model/input provenance {system}"
+        )
         _require_string(item.get("input"), f"CUDA/model/input provenance {system}.input")
         recorded = _require_sha256(item.get("sha256"), f"CUDA/model/input provenance {system}.sha256")
         if _require_sha256(item.get("declared_sha256"), f"CUDA/model/input provenance {system}.declared_sha256") != recorded:
             raise ValueError(f"CUDA/model/input provenance {system} SHA256 values differ")
 
     current_commit = _require_git_sha(summary.get("current_git_commit"), "current_git_commit")
+    if current_commit != EXPECTED_EXECUTION_COMMIT:
+        raise ValueError("execution commit does not match the pinned reviewed execution")
     git = _require_mapping(summary.get("git_provenance"), "git provenance")
+    _require_exact_keys(git, GIT_PROVENANCE_KEYS, "git provenance")
     if _require_git_sha(git.get("actual_git_commit"), "git provenance actual_git_commit") != current_commit:
         raise ValueError("git provenance actual commit differs from execution commit")
     if _require_git_sha(git.get("expected_git_commit"), "git provenance expected_git_commit") != current_commit:
@@ -275,14 +483,14 @@ def _validate_provenance(
 
 def _source_task_states(
     source_summary: Mapping[str, Any],
-) -> dict[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool], str]]:
+) -> dict[tuple[str, str], SourceTaskContract]:
     entries = source_summary.get("systems")
     if not isinstance(entries, list) or tuple(
         entry.get("system") if isinstance(entry, Mapping) else None for entry in entries
     ) != SYSTEMS:
         raise ValueError("pinned source summary must contain ordered c60 and pdo task states")
 
-    states: dict[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool], str]] = {}
+    states: dict[tuple[str, str], SourceTaskContract] = {}
     for system, entry in zip(SYSTEMS, entries, strict=True):
         assert isinstance(entry, Mapping)
         tasks = entry.get("tasks")
@@ -295,6 +503,27 @@ def _source_task_states(
                 raise ValueError(f"pinned source summary task identity mismatch for {task_id}")
             payload = _require_mapping(task.get("task"), f"pinned source summary task payload {task_id}")
             state = _require_mapping(payload.get("initial_state"), f"pinned source initial_state {task_id}")
+            _require_exact_keys(
+                state,
+                {"cell", "fixed_mask", "numbers", "pbc", "positions"},
+                f"pinned source initial_state {task_id}",
+            )
+            numbers = state.get("numbers")
+            if not isinstance(numbers, list) or not numbers:
+                raise ValueError(f"pinned source numbers {task_id} must be a non-empty list")
+            for index, number in enumerate(numbers):
+                _require_int(number, f"pinned source numbers {task_id}[{index}]", minimum=1)
+            n_atoms = len(numbers)
+            _require_finite_array(
+                state.get("positions"), f"pinned source positions {task_id}", (n_atoms, 3)
+            )
+            fixed_mask = state.get("fixed_mask")
+            if (
+                not isinstance(fixed_mask, list)
+                or len(fixed_mask) != n_atoms
+                or not all(isinstance(value, bool) for value in fixed_mask)
+            ):
+                raise ValueError(f"pinned source fixed_mask {task_id} must contain {n_atoms} booleans")
             cell = _require_finite_array(state.get("cell"), f"pinned source cell {task_id}", (3, 3))
             pbc_value = state.get("pbc")
             if not isinstance(pbc_value, list) or len(pbc_value) != 3 or not all(
@@ -304,11 +533,24 @@ def _source_task_states(
             pbc = tuple(pbc_value)
             if any(pbc) and abs(float(np.linalg.det(cell))) < 1.0e-12:
                 raise ValueError(f"pinned source periodic cell {task_id} is singular")
-            states[(system, task_id)] = (cell, pbc, canonical_task_sha256(payload))
+            fmax = _require_finite(payload.get("fmax"), f"pinned source fmax {task_id}")
+            if fmax <= 0.0:
+                raise ValueError(f"pinned source fmax {task_id} must be positive")
+            states[(system, task_id)] = SourceTaskContract(
+                cell=cell,
+                pbc=pbc,
+                task_sha256=canonical_task_sha256(payload),
+                n_atoms=n_atoms,
+                fmax_eV_per_A=fmax,
+            )
     return states
 
 
-def _validate_trace_records(row: Mapping[str, Any], label: str) -> tuple[int, int]:
+def _validate_trace_records(
+    row: Mapping[str, Any],
+    label: str,
+    callback_hashes: set[str],
+) -> tuple[int, int]:
     trace = row.get("trace_records")
     calls = _require_int(row.get("force_evaluations"), f"{label}.force_evaluations", minimum=1)
     telemetry = _require_mapping(row.get("telemetry"), f"{label}.telemetry")
@@ -316,15 +558,32 @@ def _validate_trace_records(row: Mapping[str, Any], label: str) -> tuple[int, in
     if not isinstance(trace, list) or len(trace) != calls or calls != evaluator_calls:
         raise ValueError(f"{label} trace_records length must equal force_evaluations and telemetry evaluator_calls")
     accepted = 0
+    accepted_trace_hashes: set[str] = set()
     for index, record in enumerate(trace, start=1):
         item = _require_mapping(record, f"{label}.trace_records[{index}]")
-        if item.get("evaluation_index") != index:
+        _require_exact_keys(item, TRACE_KEYS, f"{label} trace record")
+        evaluation_index = _require_int(
+            item.get("evaluation_index"), f"{label}.trace_records[{index}].evaluation_index", minimum=1
+        )
+        if evaluation_index != index:
             raise ValueError(f"{label}.trace_records evaluation_index must be contiguous from one")
-        _require_bool(item.get("accepted_state"), f"{label}.trace_records[{index}].accepted_state")
-        accepted += int(item["accepted_state"])
-        _require_sha256(item.get("positions_sha256"), f"{label}.trace_records[{index}].positions_sha256")
+        accepted_state = _require_bool(
+            item.get("accepted_state"), f"{label}.trace_records[{index}].accepted_state"
+        )
+        positions_digest = _require_sha256(
+            item.get("positions_sha256"), f"{label}.trace_records[{index}].positions_sha256"
+        )
+        if accepted_state != (positions_digest in callback_hashes):
+            raise ValueError(
+                f"{label}.trace_records[{index}].accepted_state disagrees with callback membership"
+            )
+        accepted += int(accepted_state)
+        if accepted_state:
+            accepted_trace_hashes.add(positions_digest)
         for field in TRACE_FLOAT_FIELDS:
             _require_finite(item.get(field), f"{label}.trace_records[{index}].{field}")
+    if accepted_trace_hashes != callback_hashes:
+        raise ValueError(f"{label}.accepted_callback_hashes are not closed by accepted trace states")
     return accepted, len(trace) - accepted
 
 
@@ -332,7 +591,7 @@ def _validate_row(
     row: object,
     *,
     expected_system: str,
-    states: Mapping[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool], str]],
+    states: Mapping[tuple[str, str], SourceTaskContract],
     descriptor: Mapping[str, Any],
 ) -> dict[str, Any]:
     record = _require_mapping(row, "ledger row")
@@ -349,23 +608,34 @@ def _validate_row(
         raise ValueError(f"{label} is not a reviewed fixed task")
     if (expected_system, task_id) not in states:
         raise ValueError(f"{label} lacks a pinned source task state")
-    if _require_sha256(record.get("task_sha256"), f"{label}.task_sha256") != states[
-        (expected_system, task_id)
-    ][2]:
+    source_contract = states[(expected_system, task_id)]
+    if (
+        _require_sha256(record.get("task_sha256"), f"{label}.task_sha256")
+        != source_contract.task_sha256
+    ):
         raise ValueError(f"{label}.task_sha256 differs from the pinned source task payload")
+    force_evaluations = _require_int(
+        record.get("force_evaluations"), f"{label}.force_evaluations", minimum=1
+    )
     arm_id = _require_string(record.get("arm_id"), f"{label}.arm_id")
     if arm_id not in ARM_LIMITS:
         raise ValueError(f"{label} arm is outside the exact fixed matrix")
-    if record.get("kernel") != "safe-lbfgs-total" or record.get("history_limit") != ARM_LIMITS[arm_id]:
+    history_limit = _require_int(record.get("history_limit"), f"{label}.history_limit")
+    if record.get("kernel") != "safe-lbfgs-total" or history_limit != ARM_LIMITS[arm_id]:
         raise ValueError(f"{label} kernel/history limit does not match its fixed arm")
-    if record.get("objective_descriptor") != descriptor:
+    row_descriptor = _require_mapping(
+        record.get("objective_descriptor"), f"{label}.objective_descriptor"
+    )
+    _require_exact_keys(row_descriptor, OBJECTIVE_KEYS, f"{label}.objective_descriptor")
+    if row_descriptor != descriptor:
         raise ValueError(f"{label} objective descriptor differs from the reviewed kernel")
-    if record.get("replay_maxiter") != MAXITER:
+    if _require_int(record.get("replay_maxiter"), f"{label}.replay_maxiter", minimum=1) != MAXITER:
         raise ValueError(f"{label}.replay_maxiter must be exactly {MAXITER}")
     _require_int(record.get("source_task_maxiter"), f"{label}.source_task_maxiter", minimum=1)
     certificate = _require_bool(record.get("certificate_satisfied"), f"{label}.certificate_satisfied")
     reason = _require_string(record.get("termination_reason"), f"{label}.termination_reason")
     telemetry = _require_mapping(record.get("telemetry"), f"{label}.telemetry")
+    _require_exact_keys(telemetry, TELEMETRY_KEYS, f"{label} telemetry")
     for field in TELEMETRY_INTEGER_FIELDS:
         _require_int(telemetry.get(field), f"{label}.telemetry.{field}")
     _require_finite(telemetry.get("bias_secant_curvature_sum"), f"{label}.telemetry.bias_secant_curvature_sum")
@@ -377,34 +647,59 @@ def _validate_row(
     optimizer_success = _require_bool(telemetry.get("optimizer_success"), f"{label}.telemetry.optimizer_success")
     if reason not in {"converged", "maxiter"}:
         raise ValueError(f"{label} has an unsupported termination reason")
-    if reason == "converged" and (not certificate or not converged or not optimizer_success):
-        raise ValueError(f"{label} converged outcome must satisfy its certificate")
-    if reason == "maxiter" and (certificate or converged or optimizer_success):
-        raise ValueError(f"{label} finite maxiter outcome must be an unsatisfied certificate")
+    expected_optimizer_success = reason == "converged"
+    if converged != expected_optimizer_success or optimizer_success != expected_optimizer_success:
+        raise ValueError(f"{label} termination/converged telemetry is inconsistent")
+    if int(telemetry["accepted_secants"]) + int(telemetry["rejected_secants"]) != int(
+        telemetry["accepted_steps"]
+    ):
+        raise ValueError(f"{label} accepted and rejected secants must close accepted_steps")
 
     purpose_counts = _require_mapping(record.get("purpose_counts"), f"{label}.purpose_counts")
-    if not purpose_counts:
-        raise ValueError(f"{label}.purpose_counts must not be empty")
+    _require_exact_keys(purpose_counts, PURPOSE_KEYS, f"{label} purpose_counts")
     for purpose, count in purpose_counts.items():
-        _require_string(purpose, f"{label}.purpose_counts key")
         _require_int(count, f"{label}.purpose_counts[{purpose}]")
-    if sum(purpose_counts.values()) != record["force_evaluations"]:
+    if sum(purpose_counts.values()) != force_evaluations:
         raise ValueError(f"{label}.purpose_counts must sum to force_evaluations")
     callbacks = record.get("accepted_callback_hashes")
-    if not isinstance(callbacks, list) or not all(
-        isinstance(value, str) and SHA256_RE.fullmatch(value) for value in callbacks
-    ):
-        raise ValueError(f"{label}.accepted_callback_hashes must be SHA256 strings")
+    if not isinstance(callbacks, list):
+        raise ValueError(f"{label}.accepted_callback_hashes must be a list")
+    callback_hashes = {
+        _require_sha256(value, f"{label}.accepted_callback_hashes[{index}]")
+        for index, value in enumerate(callbacks)
+    }
+    if len(callback_hashes) != len(callbacks):
+        raise ValueError(f"{label}.accepted_callback_hashes must not contain duplicates")
 
-    accepted_records, nonaccepted_records = _validate_trace_records(record, label)
+    accepted_records, nonaccepted_records = _validate_trace_records(
+        record, label, callback_hashes
+    )
     endpoint = _require_mapping(record.get("endpoint"), f"{label}.endpoint")
-    if set(endpoint) != {"biased_energy_eV", "max_active_atom_force_eV_per_A", "positions"}:
-        raise ValueError(f"{label}.endpoint must contain exactly energy, force residual, and positions")
-    endpoint_positions = _require_finite_array(endpoint.get("positions"), f"{label}.endpoint.positions")
-    if endpoint_positions.ndim != 2 or endpoint_positions.shape[1] != 3:
-        raise ValueError(f"{label}.endpoint.positions must have shape (n_atoms, 3)")
-    _require_finite(endpoint.get("biased_energy_eV"), f"{label}.endpoint.biased_energy_eV")
-    _require_finite(endpoint.get("max_active_atom_force_eV_per_A"), f"{label}.endpoint.max_active_atom_force_eV_per_A")
+    _require_exact_keys(endpoint, ENDPOINT_KEYS, f"{label} endpoint")
+    endpoint_positions = _require_finite_array(
+        endpoint.get("positions"),
+        f"{label}.endpoint.positions",
+        (source_contract.n_atoms, 3),
+    )
+    endpoint_energy = _require_finite(
+        endpoint.get("biased_energy_eV"), f"{label}.endpoint.biased_energy_eV"
+    )
+    endpoint_force = _require_finite(
+        endpoint.get("max_active_atom_force_eV_per_A"),
+        f"{label}.endpoint.max_active_atom_force_eV_per_A",
+    )
+    final_trace = _require_mapping(record["trace_records"][-1], f"{label}.final trace record")
+    if position_sha256(endpoint_positions) != final_trace["positions_sha256"]:
+        raise ValueError(f"{label} endpoint position hash differs from the final trace")
+    if endpoint_energy != final_trace["total_energy_eV"]:
+        raise ValueError(f"{label} endpoint energy differs from last trace total energy")
+    if endpoint_force != final_trace["active_max_total_force_eV_per_A"]:
+        raise ValueError(f"{label} endpoint max force differs from last trace force")
+    expected_certificate = endpoint_force <= source_contract.fmax_eV_per_A
+    if certificate != expected_certificate:
+        raise ValueError(f"{label} certificate does not match finite endpoint force and source fmax")
+    if (reason == "converged") != certificate:
+        raise ValueError(f"{label} termination reason does not match certificate")
     _require_finite(record.get("wall_time_s"), f"{label}.wall_time_s")
 
     normalized = dict(record)
@@ -417,7 +712,7 @@ def _validate_row(
 def _validated_rows(
     ledger_dir: Path,
     summary: Mapping[str, Any],
-    states: Mapping[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool], str]],
+    states: Mapping[tuple[str, str], SourceTaskContract],
 ) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     descriptor = _require_mapping(summary.get("safe_kernel_descriptor"), "safe_kernel_descriptor")
@@ -462,7 +757,15 @@ def _validate_summary_outcomes(summary: Mapping[str, Any], rows: Sequence[Mappin
     if _require_int(summary.get("certificate_unsatisfied_count"), "certificate_unsatisfied_count") != len(rows) - satisfied:
         raise ValueError("summary certificate_unsatisfied_count disagrees with ledger rows")
     reasons = Counter(str(row["termination_reason"]) for row in rows)
-    if summary.get("termination_reason_counts") != dict(sorted(reasons.items())):
+    recorded_reasons = _require_mapping(
+        summary.get("termination_reason_counts"), "summary.termination_reason_counts"
+    )
+    _require_exact_keys(
+        recorded_reasons, {"converged", "maxiter"}, "summary.termination_reason_counts"
+    )
+    for reason, count in recorded_reasons.items():
+        _require_int(count, f"summary.termination_reason_counts.{reason}")
+    if recorded_reasons != dict(sorted(reasons.items())):
         raise ValueError("summary termination_reason_counts disagrees with ledger rows")
     # The runner's total includes orchestration overhead.  Per-row wall time is
     # the only arm-comparable cost reported below, so retain the summary total
@@ -517,7 +820,7 @@ def _by_system_arm(rows: Sequence[Mapping[str, Any]]) -> dict[str, dict[str, dic
 
 def _paired_tasks(
     rows: Sequence[Mapping[str, Any]],
-    states: Mapping[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool], str]],
+    states: Mapping[tuple[str, str], SourceTaskContract],
 ) -> list[dict[str, Any]]:
     by_key = {(row["system"], row["task_id"], row["arm_id"]): row for row in rows}
     pairs: list[dict[str, Any]] = []
@@ -528,12 +831,14 @@ def _paired_tasks(
             history0 = by_key[(system, task_id, "safe-total-gradient-history0")]
             if history10["task_sha256"] != history0["task_sha256"]:
                 raise ValueError(f"{system}/{task_id} task SHA256 must match across the paired arms")
-            cell, pbc, _ = states[(system, task_id)]
+            source_contract = states[(system, task_id)]
             positions10 = np.asarray(history10["_endpoint_positions"], dtype=float)
             positions0 = np.asarray(history0["_endpoint_positions"], dtype=float)
             if positions10.shape != positions0.shape:
                 raise ValueError(f"{system}/{task_id} paired endpoint atom counts differ")
-            displacement = mic_displacement(positions0, positions10, cell, pbc)
+            displacement = mic_displacement(
+                positions0, positions10, source_contract.cell, source_contract.pbc
+            )
             norms = np.linalg.norm(displacement, axis=1)
             pair = {
                 "system": system,
@@ -545,7 +850,7 @@ def _paired_tasks(
                 "endpoint_delta": {
                     "max_mic_displacement_A": float(np.max(norms)),
                     "rms_mic_displacement_A": float(np.sqrt(np.mean(np.square(norms)))),
-                    "pbc": list(pbc),
+                    "pbc": list(source_contract.pbc),
                 },
                 "force_residual": {
                     "history10_eV_per_A": float(history10["endpoint"]["max_active_atom_force_eV_per_A"]),
@@ -583,8 +888,11 @@ def build_evidence(ledger_dir: Path) -> dict[str, Any]:
         name: {"sha256": _sha256(ledger_dir / name)}
         for name in ("summary.json", "c60.json", "pdo.json")
     }
+    analysis_path = Path(__file__).resolve()
+    pbc_path = Path(_require_string(pbc_module.__file__, "imported pamssw.pbc path")).resolve()
     return {
         "schema_version": 1,
+        "analysis_script_sha256": _sha256(analysis_path),
         "raw_files": raw_files,
         "ledger": {"row_count": len(rows), "task_count": 16},
         "execution": {"git_commit": execution_commit},
@@ -597,6 +905,11 @@ def build_evidence(ledger_dir: Path) -> dict[str, Any]:
             "pamssw_source_provenance": summary["pamssw_source_provenance"],
             "cuda_model_input_provenance": summary["cuda_model_input_provenance"],
             "git_provenance": summary["git_provenance"],
+            "mic_implementation": {
+                "module": "pamssw.pbc",
+                "path": str(pbc_path),
+                "sha256": _sha256(pbc_path),
+            },
         },
         "certificate": {
             "all_satisfied": satisfied == len(rows),
