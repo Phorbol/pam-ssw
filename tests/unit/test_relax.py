@@ -587,7 +587,15 @@ def test_safe_lbfgs_history_limit_rejects_other_optimizers_before_evaluator(opti
     assert calls == []
 
 
-def _run_safe_lbfgs_history_limit(history_limit, *, maxiter):
+_ADAPTIVE_SCALE_UNSET = object()
+
+
+def _run_safe_lbfgs_history_limit(
+    history_limit,
+    *,
+    maxiter,
+    adaptive_scale_without_history=_ADAPTIVE_SCALE_UNSET,
+):
     calls = []
     trajectory = []
     curvature = np.array([1.0, 4.0, 2.0])
@@ -598,12 +606,19 @@ def _run_safe_lbfgs_history_limit(history_limit, *, maxiter):
         return 0.5 * float(np.dot(curvature * flat, flat)), curvature * flat
 
     state = State(numbers=np.array([1]), positions=np.array([[0.8, -0.6, 0.4]]))
+    relax_kwargs = {
+        "_safe_lbfgs_history_limit": history_limit,
+    }
+    if adaptive_scale_without_history is not _ADAPTIVE_SCALE_UNSET:
+        relax_kwargs["_safe_lbfgs_adaptive_scale_without_history"] = (
+            adaptive_scale_without_history
+        )
     result = Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
         state,
         fmax=1e-12,
         maxiter=maxiter,
         trajectory_callback=trajectory.append,
-        _safe_lbfgs_history_limit=history_limit,
+        **relax_kwargs,
     )
     return result, calls, trajectory
 
@@ -730,6 +745,302 @@ def test_safe_lbfgs_history_limit_zero_preserves_secant_and_line_search_diagnost
     assert rejected.telemetry.line_search_evaluations == 1
     assert rejected.telemetry.line_search_evaluations == (
         rejected.telemetry.accepted_steps + rejected.telemetry.rejected_steps
+    )
+
+
+@pytest.mark.parametrize(
+    "invalid",
+    [None, 0, 1, 1.0, "true", [], {}, np.bool_(True)],
+)
+def test_safe_lbfgs_scale_only_flag_rejects_non_booleans_before_evaluation(invalid):
+    calls = []
+
+    def evaluator(flat_positions, template):
+        calls.append(np.asarray(flat_positions, dtype=float).copy())
+        return 0.0, np.zeros_like(flat_positions, dtype=float)
+
+    state = State(numbers=np.array([1]), positions=np.zeros((1, 3)))
+    with pytest.raises((TypeError, ValueError), match="adaptive scale"):
+        Relaxer(evaluator, optimizer="safe-lbfgs-total").relax(
+            state,
+            fmax=1e-8,
+            maxiter=1,
+            _safe_lbfgs_history_limit=0,
+            _safe_lbfgs_adaptive_scale_without_history=invalid,
+        )
+
+    assert calls == []
+
+
+@pytest.mark.parametrize(
+    "optimizer",
+    [
+        "scipy-lbfgsb",
+        "ase-fire",
+        "ase-fire2",
+        "ase-lbfgs",
+        "safe-lbfgs-total",
+        "bias-separated-lbfgs",
+    ],
+)
+def test_safe_lbfgs_scale_only_false_is_noop_for_existing_optimizer_paths(optimizer):
+    assert (
+        relax_module._resolve_safe_lbfgs_adaptive_scale_without_history(
+            False,
+            optimizer,
+            None,
+        )
+        is False
+    )
+
+
+def test_safe_lbfgs_scale_only_omitted_default_matches_explicit_false_bitwise():
+    omitted, omitted_calls, omitted_trajectory = _run_safe_lbfgs_history_limit(
+        10,
+        maxiter=4,
+    )
+    explicit, explicit_calls, explicit_trajectory = _run_safe_lbfgs_history_limit(
+        10,
+        maxiter=4,
+        adaptive_scale_without_history=False,
+    )
+
+    np.testing.assert_array_equal(omitted_calls, explicit_calls)
+    assert len(omitted_trajectory) == len(explicit_trajectory)
+    for omitted_state, explicit_state in zip(
+        omitted_trajectory,
+        explicit_trajectory,
+        strict=True,
+    ):
+        np.testing.assert_array_equal(omitted_state.positions, explicit_state.positions)
+    np.testing.assert_array_equal(omitted.state.positions, explicit.state.positions)
+    assert omitted.energy == explicit.energy
+    assert omitted.gradient_norm == explicit.gradient_norm
+    assert omitted.n_iter == explicit.n_iter
+    assert omitted.telemetry == explicit.telemetry
+
+
+@pytest.mark.parametrize(
+    ("optimizer", "history_limit"),
+    [
+        ("safe-lbfgs-total", None),
+        ("safe-lbfgs-total", 10),
+        ("scipy-lbfgsb", 0),
+        ("ase-fire", 0),
+        ("bias-separated-lbfgs", 0),
+    ],
+)
+def test_safe_lbfgs_scale_only_rejects_invalid_mode_before_evaluation(
+    optimizer,
+    history_limit,
+):
+    calls = []
+
+    def evaluator(flat_positions, template):
+        calls.append(np.asarray(flat_positions, dtype=float).copy())
+        return 0.0, np.zeros_like(flat_positions, dtype=float)
+
+    state = State(numbers=np.array([1]), positions=np.zeros((1, 3)))
+    with pytest.raises(ValueError, match="adaptive scale"):
+        Relaxer(evaluator, optimizer=optimizer).relax(
+            state,
+            fmax=1e-8,
+            maxiter=1,
+            _safe_lbfgs_history_limit=history_limit,
+            _safe_lbfgs_adaptive_scale_without_history=True,
+        )
+
+    assert calls == []
+
+
+def test_safe_lbfgs_scale_only_three_modes_share_the_first_iteration():
+    fixed, fixed_calls, _ = _run_safe_lbfgs_history_limit(0, maxiter=1)
+    scale_only, scale_calls, _ = _run_safe_lbfgs_history_limit(
+        0,
+        maxiter=1,
+        adaptive_scale_without_history=True,
+    )
+    history, history_calls, _ = _run_safe_lbfgs_history_limit(10, maxiter=1)
+
+    np.testing.assert_array_equal(fixed_calls, scale_calls)
+    np.testing.assert_array_equal(fixed_calls, history_calls)
+    np.testing.assert_array_equal(fixed.state.positions, scale_only.state.positions)
+    np.testing.assert_array_equal(fixed.state.positions, history.state.positions)
+
+
+def test_safe_lbfgs_scale_only_is_distinct_after_first_accepted_secant():
+    fixed, _, _ = _run_safe_lbfgs_history_limit(0, maxiter=2)
+    scale_only, _, _ = _run_safe_lbfgs_history_limit(
+        0,
+        maxiter=2,
+        adaptive_scale_without_history=True,
+    )
+    history, _, _ = _run_safe_lbfgs_history_limit(10, maxiter=2)
+
+    assert not np.array_equal(fixed.state.positions, scale_only.state.positions)
+    assert not np.array_equal(scale_only.state.positions, history.state.positions)
+
+
+def test_lbfgs_inverse_product_can_use_latest_pair_only_as_scalar_scale():
+    gradient = np.array([2.0, -1.0, 0.5])
+    s = np.array([1.0, 2.0, 0.0])
+    y = np.array([4.0, 1.0, 0.0])
+    curvature = float(np.dot(s, y))
+    pair = (s, y, 1.0 / curvature)
+    expected_gamma = curvature / float(np.dot(y, y))
+
+    product = relax_module._lbfgs_inverse_product(
+        gradient,
+        [],
+        scale_pair=pair,
+    )
+
+    np.testing.assert_allclose(product, expected_gamma * gradient)
+
+
+def test_safe_lbfgs_scale_only_keeps_two_loop_history_empty(monkeypatch):
+    inverse_product = relax_module._lbfgs_inverse_product
+    observations = []
+
+    def spy_inverse_product(gradient, history, *, scale_pair=None):
+        observations.append((len(history), scale_pair is not None))
+        return inverse_product(gradient, history, scale_pair=scale_pair)
+
+    monkeypatch.setattr(relax_module, "_lbfgs_inverse_product", spy_inverse_product)
+
+    result, _, _ = _run_safe_lbfgs_history_limit(
+        0,
+        maxiter=3,
+        adaptive_scale_without_history=True,
+    )
+
+    assert result.n_iter == 3
+    assert observations == [(0, False), (0, True), (0, True)]
+
+
+def test_safe_lbfgs_scale_only_preserves_latest_pair_after_later_rejection(
+    monkeypatch,
+):
+    inverse_product = relax_module._lbfgs_inverse_product
+    scale_gammas = []
+    curvature_decisions = iter((True, False, False))
+
+    def spy_inverse_product(gradient, history, *, scale_pair=None):
+        if scale_pair is None:
+            scale_gammas.append(None)
+        else:
+            s, y, _ = scale_pair
+            scale_gammas.append(float(np.dot(s, y) / np.dot(y, y)))
+        return inverse_product(gradient, history, scale_pair=scale_pair)
+
+    monkeypatch.setattr(relax_module, "_lbfgs_inverse_product", spy_inverse_product)
+    monkeypatch.setattr(
+        relax_module,
+        "_accept_lbfgs_curvature",
+        lambda s, y: next(curvature_decisions),
+    )
+
+    result, _, _ = _run_safe_lbfgs_history_limit(
+        0,
+        maxiter=3,
+        adaptive_scale_without_history=True,
+    )
+
+    assert result.telemetry.accepted_secants == 1
+    assert result.telemetry.rejected_secants == 2
+    assert scale_gammas[0] is None
+    assert scale_gammas[1] is not None
+    assert scale_gammas[2] == scale_gammas[1]
+
+
+def test_safe_lbfgs_scale_only_rejected_curvature_does_not_update_scale_pair(
+    monkeypatch,
+):
+    inverse_product = relax_module._lbfgs_inverse_product
+    scale_pair_presence = []
+
+    def spy_inverse_product(gradient, history, *, scale_pair=None):
+        scale_pair_presence.append(scale_pair is not None)
+        return inverse_product(gradient, history, scale_pair=scale_pair)
+
+    monkeypatch.setattr(relax_module, "_lbfgs_inverse_product", spy_inverse_product)
+
+    def linear_evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        return float(flat[0]), np.array([1.0, 0.0, 0.0])
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(linear_evaluator, optimizer="safe-lbfgs-total").relax(
+        state,
+        fmax=1e-12,
+        maxiter=2,
+        _safe_lbfgs_history_limit=0,
+        _safe_lbfgs_adaptive_scale_without_history=True,
+    )
+
+    assert result.telemetry.rejected_secants == 2
+    assert scale_pair_presence == [False, False]
+
+
+def test_safe_lbfgs_scale_only_clears_scale_pair_on_mic_branch_change(monkeypatch):
+    inverse_product = relax_module._lbfgs_inverse_product
+    scale_pair_presence = []
+
+    def spy_inverse_product(gradient, history, *, scale_pair=None):
+        scale_pair_presence.append(scale_pair is not None)
+        return inverse_product(gradient, history, scale_pair=scale_pair)
+
+    monkeypatch.setattr(relax_module, "_lbfgs_inverse_product", spy_inverse_product)
+
+    def component_evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        signature = ((0, 0, 0),) if flat[0] >= 0.8 else ((1, 0, 0),)
+        gradient = flat.copy()
+        return RelaxEvaluation(
+            true_energy=0.5 * float(np.dot(flat, flat)),
+            true_gradient=gradient,
+            bias_energy=0.0,
+            bias_gradient=np.zeros_like(flat),
+            softening_energy=0.0,
+            softening_gradient=np.zeros_like(flat),
+            total_energy=0.5 * float(np.dot(flat, flat)),
+            total_gradient=gradient,
+            bias_image_signature=signature,
+        )
+
+    def total_evaluator(flat_positions, template):
+        parts = component_evaluator(flat_positions, template)
+        return parts.total_energy, parts.total_gradient.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(
+        total_evaluator,
+        optimizer="safe-lbfgs-total",
+        component_evaluator=component_evaluator,
+    ).relax(
+        state,
+        fmax=1e-12,
+        maxiter=3,
+        _safe_lbfgs_history_limit=0,
+        _safe_lbfgs_adaptive_scale_without_history=True,
+    )
+
+    assert result.telemetry.mic_branch_resets == 1
+    assert scale_pair_presence == [False, True, False]
+
+
+def test_safe_lbfgs_scale_only_closes_evaluator_and_line_search_accounting():
+    result, evaluator_calls, _ = _run_safe_lbfgs_history_limit(
+        0,
+        maxiter=4,
+        adaptive_scale_without_history=True,
+    )
+
+    assert len(evaluator_calls) == result.telemetry.evaluator_calls
+    assert result.telemetry.backend_evaluations == result.telemetry.evaluator_calls
+    assert result.telemetry.reporting_evaluator_calls == 0
+    assert result.telemetry.line_search_evaluations == (
+        result.telemetry.accepted_steps + result.telemetry.rejected_steps
     )
 
 
