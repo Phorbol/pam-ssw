@@ -173,6 +173,36 @@ def test_render_plot_closes_figure_when_savefig_fails(
         plt.close("all")
 
 
+def test_render_plot_closes_figure_when_output_parent_creation_fails(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    plotter = _module(PLOTTER, "safe_history_capacity_plotter_mkdir_cleanup")
+    rows = plotter.load_validated_ledger(RAW_DIR)
+    import matplotlib.pyplot as plt
+
+    output = tmp_path / "blocked" / "history_capacity_curves.svg"
+    original_mkdir = Path.mkdir
+
+    def fail_output_parent_mkdir(
+        path: Path,
+        *args: object,
+        **kwargs: object,
+    ) -> None:
+        if path == output.parent:
+            raise OSError("injected output parent mkdir failure")
+        original_mkdir(path, *args, **kwargs)
+
+    plt.close("all")
+    monkeypatch.setattr(Path, "mkdir", fail_output_parent_mkdir)
+    try:
+        with pytest.raises(OSError, match="injected output parent mkdir failure"):
+            plotter.render_plot(rows, output)
+        assert plt.get_fignums() == []
+    finally:
+        plt.close("all")
+
+
 def test_analysis_anchors_are_fixed_to_the_reviewed_execution() -> None:
     analyzer = _module(ANALYZER, "safe_history_capacity_analysis_anchors")
 

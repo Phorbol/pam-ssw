@@ -4,11 +4,12 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 import os
 from pathlib import Path
 import sys
 import tempfile
-from typing import Any, Mapping, Sequence
+from typing import Any, Iterator, Mapping, Sequence
 
 import numpy as np
 
@@ -83,6 +84,21 @@ def _task_legend_handles(Line2D: Any, system: str) -> list[Any]:
     ]
 
 
+@contextmanager
+def _history_capacity_figure(plt: Any) -> Iterator[tuple[Any, Any]]:
+    figure, axes = plt.subplots(
+        len(METRICS),
+        len(SYSTEMS),
+        figsize=(13.0, 9.2),
+        sharex="col",
+        squeeze=False,
+    )
+    try:
+        yield figure, axes
+    finally:
+        plt.close(figure)
+
+
 def render_plot(rows: Sequence[Mapping[str, Any]], output_path: Path) -> None:
     os.environ.setdefault(
         "MPLCONFIGDIR",
@@ -94,21 +110,17 @@ def render_plot(rows: Sequence[Mapping[str, Any]], output_path: Path) -> None:
     import matplotlib.pyplot as plt
     from matplotlib.lines import Line2D
 
-    with plt.rc_context(
-        {
-            "font.family": "DejaVu Sans",
-            "path.simplify": False,
-            "svg.fonttype": "none",
-            "svg.hashsalt": "pamssw-safe-history-capacity-v1",
-        }
+    with (
+        plt.rc_context(
+            {
+                "font.family": "DejaVu Sans",
+                "path.simplify": False,
+                "svg.fonttype": "none",
+                "svg.hashsalt": "pamssw-safe-history-capacity-v1",
+            }
+        ),
+        _history_capacity_figure(plt) as (figure, axes),
     ):
-        figure, axes = plt.subplots(
-            len(METRICS),
-            len(SYSTEMS),
-            figsize=(13.0, 9.2),
-            sharex="col",
-            squeeze=False,
-        )
         figure.set_gid("safe-history-capacity-curves")
 
         for column, system in enumerate(SYSTEMS):
@@ -306,14 +318,11 @@ def render_plot(rows: Sequence[Mapping[str, Any]], output_path: Path) -> None:
         semantic_legend.set_gid("legend-trace-semantics")
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            figure.savefig(
-                output_path,
-                format="svg",
-                metadata=SVG_METADATA,
-            )
-        finally:
-            plt.close(figure)
+        figure.savefig(
+            output_path,
+            format="svg",
+            metadata=SVG_METADATA,
+        )
         svg = output_path.read_text(encoding="utf-8")
         output_path.write_text(
             "\n".join(line.rstrip() for line in svg.splitlines()) + "\n",
