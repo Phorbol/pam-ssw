@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import fields
 import importlib.util
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -71,6 +72,10 @@ def test_production_config_projects_to_unsoftened_serial_ssw_without_worker_outp
     assert type(config) is SSWConfig
     assert projection["source_config_type"] == "LSSSWConfig"
     assert projection["softening_enabled"] is False
+    assert config.quench_optimizer == "ase-lbfgs"
+    assert config.quench_fallback_optimizer == "ase-fire"
+    assert config.quench_fmax == pytest.approx(0.01)
+    assert config.quench_maxiter == projection["source_config"]["quench_maxiter"] == 400
     assert config.proposal_pool_size == 1
     assert config.proposal_duplicate_rescue_optimizer is None
     assert config.accepted_structures_log is None
@@ -79,6 +84,12 @@ def test_production_config_projects_to_unsoftened_serial_ssw_without_worker_outp
     assert config.direction_diagnostics_path is None
     assert config.write_proposal_minima is False
     assert config.write_relaxation_trajectories is False
+    assert projection["effective_ssw_config"] == {
+        item.name: getattr(config, item.name) for item in fields(SSWConfig)
+    }
+    assert projection["overrides"]["quench_optimizer"] == "ase-lbfgs"
+    assert projection["overrides"]["quench_fallback_optimizer"] == "ase-fire"
+    assert projection["overrides"]["quench_fmax"] == pytest.approx(0.01)
     assert projection["removed_ls_fields"]
 
 
@@ -132,29 +143,35 @@ def test_thread_owned_factory_creates_one_bootstrap_and_one_worker_calculator():
 
 def test_parameterized_ablation_creates_all_policy_sibling_run_directories(tmp_path, monkeypatch):
     runner = _runner_module()
-    input_path = tmp_path / "c60.xyz"
+    input_paths = {system: tmp_path / f"{system}.xyz" for system in runner.SYSTEMS}
     model_path = tmp_path / "model.model"
-    input_path.write_text("fixture", encoding="utf-8")
+    for input_path in input_paths.values():
+        input_path.write_text("fixture", encoding="utf-8")
     model_path.write_text("fixture", encoding="utf-8")
 
     class FakeProduction:
-        INPUT_PATHS = {"c60": input_path}
+        INPUT_PATHS = input_paths
         MODEL_PATH = model_path
         CALCULATOR_CONFIG = {"device": "cuda", "default_dtype": "float32"}
 
         @staticmethod
         def build_config(system, case_directory):
-            assert system == "c60"
+            del case_directory
+            assert system in runner.SYSTEMS
             return LSSSWConfig(
                 max_trials=1,
                 max_steps_per_walk=1,
                 oracle_candidates=2,
                 proposal_pool_size=1,
+                quench_optimizer="scipy-lbfgsb",
+                quench_fallback_optimizer=None,
+                quench_fmax=0.02 if system == "c60" else 0.03,
+                quench_maxiter=400,
             )
 
         @staticmethod
         def load_state(system):
-            assert system == "c60"
+            assert system in runner.SYSTEMS
             return _analytic_state()
 
     called_policies: list[str] = []
@@ -181,14 +198,26 @@ def test_parameterized_ablation_creates_all_policy_sibling_run_directories(tmp_p
     index = runner.run_ablation(
         output_root=tmp_path / "output",
         expected_git_commit="expected",
-        systems=("c60",),
+        systems=runner.SYSTEMS,
         master_seeds=(42,),
         action_force_budget=30,
         total_force_budget=120,
     )
 
-    assert called_policies == list(runner.POLICIES)
-    assert [item["policy_name"] for item in index["campaigns"]] == list(runner.POLICIES)
+    assert called_policies == list(runner.POLICIES) * len(runner.SYSTEMS)
+    assert [item["policy_name"] for item in index["campaigns"]] == called_policies
+    for system in runner.SYSTEMS:
+        projection = index["manifest"]["projections"][system]
+        assert projection["source_config"]["quench_optimizer"] == "scipy-lbfgsb"
+        assert projection["source_config"]["quench_fallback_optimizer"] is None
+        assert projection["effective_ssw_config"]["quench_optimizer"] == "ase-lbfgs"
+        assert projection["effective_ssw_config"]["quench_fallback_optimizer"] == "ase-fire"
+        assert projection["effective_ssw_config"]["quench_fmax"] == pytest.approx(0.01)
+        assert projection["effective_ssw_config"]["quench_maxiter"] == 400
+        assert projection["overrides"]["quench_optimizer"] == "ase-lbfgs"
+        assert projection["overrides"]["quench_fallback_optimizer"] == "ase-fire"
+        assert projection["overrides"]["quench_fmax"] == pytest.approx(0.01)
+        assert "quench_maxiter" not in projection["overrides"]
 
 
 def test_zero_fe_attempts_are_explicitly_untimed_and_ambiguous_factory_records_fail_closed(

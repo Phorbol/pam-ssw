@@ -2,8 +2,10 @@
 """Serial, exact-accounting C60/PdO posterior starter-policy GPU ablation.
 
 This harness intentionally compares only the existing outer starter policies
-under one production-derived *unsoftened* SSW action.  It does not alter the
-policy, credit, direction, relaxation, or archive algorithms.
+under one production-derived *unsoftened* SSW action.  Proposal relaxation is
+unchanged; true quenching uses one fixed, explicitly recorded ASE-LBFGS with
+FIRE fallback protocol shared by every policy.  The policy, credit, direction,
+and archive algorithms are unchanged.
 """
 
 from __future__ import annotations
@@ -180,8 +182,11 @@ def _validated_seeds(seeds: object) -> tuple[int, ...]:
     return tuple(_nonnegative_int("master_seed", value) for value in values)
 
 
-def _disabled_worker_output_fields() -> dict[str, object]:
+def _experiment_overrides() -> dict[str, object]:
     return {
+        "quench_optimizer": "ase-lbfgs",
+        "quench_fallback_optimizer": "ase-fire",
+        "quench_fmax": 0.01,
         "accepted_structures_log": None,
         "accepted_structures_dir": None,
         "write_proposal_minima": False,
@@ -206,7 +211,8 @@ def build_ssw_config(system: str, case_directory: Path) -> tuple[SSWConfig, dict
     source_values = asdict(source)
     common_names = {item.name for item in fields(SSWConfig)}
     values = {name: source_values[name] for name in common_names}
-    values.update(_disabled_worker_output_fields())
+    overrides = _experiment_overrides()
+    values.update(overrides)
     config = SSWConfig(**values)
     if config.proposal_pool_size != 1:
         raise RuntimeError("posterior worker requires proposal_pool_size=1")
@@ -218,7 +224,7 @@ def build_ssw_config(system: str, case_directory: Path) -> tuple[SSWConfig, dict
         "effective_ssw_config": asdict(config),
         "softening_enabled": False,
         "removed_ls_fields": sorted(set(source_values) - common_names),
-        "overrides": _disabled_worker_output_fields(),
+        "overrides": overrides,
     }
     return config, projection
 
