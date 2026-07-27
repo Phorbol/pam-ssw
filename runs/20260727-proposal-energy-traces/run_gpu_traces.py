@@ -44,7 +44,7 @@ REFERENCE_BACKEND_ORDER = ("ase-fire", "ase-fire2", "safe-lbfgs-total")
 OBSERVATION_MAXITER = 400
 
 EXPECTED_SOURCE_SUMMARY_SHA256 = "62cc771e2aa24e9addef0e870d0524f901f02bddc34152cf2a2eeea91a671b04"
-EXPECTED_REFERENCE_SUMMARY_SHA256 = "a11cd8ee1a1dae9cc71cac0038008149b1c0fcb67ae72ceba8afc821cbdf370"
+EXPECTED_REFERENCE_SUMMARY_SHA256 = "a11cd8ee1a1dae9cc71cac0038008149b1c0f0cb67ae72ceba8afc821cbdf370"
 
 # The original cap-400 replay is deterministic on its recorded GPU/model.  A
 # 1e-8 eV / Angstrom absolute tolerance admits only normal floating-point

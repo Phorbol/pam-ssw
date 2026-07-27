@@ -167,6 +167,17 @@ def test_trace_runner_current_commit_resolves_the_worktree_head():
     assert trace_runner._current_commit() == expected
 
 
+def test_trace_runner_binds_the_reviewed_source_and_cap400_reference_hashes():
+    trace_runner = _trace_runner_module()
+
+    assert trace_runner.EXPECTED_SOURCE_SUMMARY_SHA256 == (
+        "62cc771e2aa24e9addef0e870d0524f901f02bddc34152cf2a2eeea91a671b04"
+    )
+    assert trace_runner.EXPECTED_REFERENCE_SUMMARY_SHA256 == (
+        "a11cd8ee1a1dae9cc71cac0038008149b1c0f0cb67ae72ceba8afc821cbdf370"
+    )
+
+
 def test_model_provenance_hashes_local_files_before_any_calculator_warmup(tmp_path):
     trace_runner = _trace_runner_module()
     model_path = tmp_path / "model.pt"
