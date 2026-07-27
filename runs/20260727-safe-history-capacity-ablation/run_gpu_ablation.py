@@ -46,6 +46,22 @@ SYSTEMS = ("c60", "pdo")
 SEEDS = tuple(range(42, 50))
 MAXITER = 400
 EXPECTED_SOURCE_SUMMARY_SHA256 = "62cc771e2aa24e9addef0e870d0524f901f02bddc34152cf2a2eeea91a671b04"
+EXPECTED_FIXED_REPLAY_DRIVER_SHA256 = "f9c9602e42985891a6ca2a84ca70dda69c52b9d794a6ea6c76857c398345fa8f"
+EXPECTED_TRACE_RECORDER_SHA256 = "c6feeaabf0062f6654f8ea4b4fff610b258dcab754e1907dd3f4c3779e7165de"
+EXPECTED_SAFE_KERNEL_DESCRIPTOR = {
+    "optimizer": "safe-lbfgs-total",
+    "safe_lbfgs_memory": 10,
+    "kernel_constants": {
+        "_SAFE_LBFGS_EMPTY_HISTORY_SCALE": 1.0 / 70.0,
+        "_SAFE_LBFGS_MAX_ATOM_STEP": 0.2,
+        "_SAFE_LBFGS_ARMIJO_C1": 1.0e-4,
+        "_SAFE_LBFGS_BACKTRACK": 0.5,
+        "_SAFE_LBFGS_MAX_LINE_TRIALS": 20,
+        "_SAFE_LBFGS_MIN_ALPHA": 2.0**-20,
+        "_SAFE_LBFGS_CURVATURE_REL": 1.4901161193847656e-08,
+    },
+}
+EXPECTED_SAFE_KERNEL_DESCRIPTOR_SHA256 = "1846e340e762b79f50897dfacd40a16288ed52bb481f36f24ab01594c4724102"
 _TRACE_RECORDER_MODULE_NAME = "_safe_history_capacity_trace_recorder"
 
 
@@ -94,6 +110,9 @@ class Preflight:
     tasks_by_system: Mapping[str, tuple[FrozenTask, ...]]
     source_summary_sha256: str
     source: Mapping[str, Any]
+    safe_kernel_descriptor: Mapping[str, Any]
+    safe_kernel_descriptor_sha256: str
+    helper_provenance: Mapping[str, Any]
     cuda_provenance: Mapping[str, Any]
 
 
@@ -129,6 +148,23 @@ def canonical_task_sha256(task_payload: Mapping[str, Any]) -> str:
         )
     except (TypeError, ValueError) as error:
         raise ValueError("task payload is not canonical JSON") from error
+    return sha256(serialized.encode("utf-8")).hexdigest()
+
+
+def canonical_descriptor_sha256(descriptor: Mapping[str, Any]) -> str:
+    """Return the canonical SHA-256 of a serializable kernel descriptor."""
+
+    if not isinstance(descriptor, Mapping):
+        raise ValueError("kernel descriptor must be a mapping")
+    try:
+        serialized = json.dumps(
+            descriptor,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+    except (TypeError, ValueError) as error:
+        raise ValueError("kernel descriptor is not canonical JSON") from error
     return sha256(serialized.encode("utf-8")).hexdigest()
 
 
@@ -223,9 +259,54 @@ def objective_descriptor() -> dict[str, Any]:
     }
 
 
+def _verified_safe_kernel_descriptor() -> tuple[dict[str, Any], str]:
+    descriptor = objective_descriptor()
+    descriptor_sha256 = canonical_descriptor_sha256(descriptor)
+    if descriptor_sha256 != EXPECTED_SAFE_KERNEL_DESCRIPTOR_SHA256:
+        raise ValueError(
+            "safe kernel descriptor SHA256 mismatch: "
+            f"expected {EXPECTED_SAFE_KERNEL_DESCRIPTOR_SHA256}, got {descriptor_sha256}"
+        )
+    return descriptor, descriptor_sha256
+
+
+def _verified_helper_file(
+    path: Path,
+    *,
+    expected_sha256: str,
+    label: str,
+) -> dict[str, str]:
+    if not path.is_file():
+        raise FileNotFoundError(f"{label} does not exist: {path}")
+    actual_sha256 = _sha256(path)
+    if actual_sha256 != expected_sha256:
+        raise ValueError(
+            f"{label} SHA256 mismatch: expected {expected_sha256}, got {actual_sha256}"
+        )
+    return {"path": str(path), "sha256": actual_sha256}
+
+
+def _verified_helper_provenance() -> dict[str, dict[str, str]]:
+    return {
+        "fixed_replay_driver": _verified_helper_file(
+            FIXED_REPLAY_DRIVER,
+            expected_sha256=EXPECTED_FIXED_REPLAY_DRIVER_SHA256,
+            label="fixed replay driver",
+        ),
+        "trace_recorder": _verified_helper_file(
+            TRACE_RECORDER_PATH,
+            expected_sha256=EXPECTED_TRACE_RECORDER_SHA256,
+            label="trace recorder",
+        ),
+    }
+
+
 def _fixed_replay_source() -> Mapping[str, Any]:
-    if not FIXED_REPLAY_DRIVER.is_file():
-        raise FileNotFoundError(FIXED_REPLAY_DRIVER)
+    _verified_helper_file(
+        FIXED_REPLAY_DRIVER,
+        expected_sha256=EXPECTED_FIXED_REPLAY_DRIVER_SHA256,
+        label="fixed replay driver",
+    )
     helpers = runpy.run_path(str(FIXED_REPLAY_DRIVER))
     source_factory = helpers.get("_source")
     if not callable(source_factory):
@@ -316,6 +397,8 @@ def preflight(
     """Complete all source/provenance/CUDA checks before calculator creation."""
 
     tasks_by_system, source_summary_sha256 = load_fixed_tasks(source_summary_path)
+    safe_kernel_descriptor, safe_kernel_descriptor_sha256 = _verified_safe_kernel_descriptor()
+    helper_provenance = _verified_helper_provenance()
     source = source_loader()
     if not isinstance(source, Mapping) or not callable(source.get("_calculator")):
         raise RuntimeError("fixed replay source does not expose _calculator")
@@ -328,6 +411,9 @@ def preflight(
         tasks_by_system=tasks_by_system,
         source_summary_sha256=source_summary_sha256,
         source=source,
+        safe_kernel_descriptor=safe_kernel_descriptor,
+        safe_kernel_descriptor_sha256=safe_kernel_descriptor_sha256,
+        helper_provenance=helper_provenance,
         cuda_provenance=verified_provenance,
     )
 
@@ -335,6 +421,11 @@ def preflight(
 def _trace_recorder_module():
     """Load the existing recorder only by its experiment-local file path."""
 
+    _verified_helper_file(
+        TRACE_RECORDER_PATH,
+        expected_sha256=EXPECTED_TRACE_RECORDER_SHA256,
+        label="trace recorder",
+    )
     module = sys.modules.get(_TRACE_RECORDER_MODULE_NAME)
     if module is not None:
         return module
@@ -556,9 +647,7 @@ def run(
     if output_dir.exists():
         raise FileExistsError(output_dir)
     checked = preflight(source_summary_path=source_summary_path)
-    descriptor = objective_descriptor()
-    if descriptor["safe_lbfgs_memory"] != 10:
-        raise RuntimeError("safe L-BFGS memory no longer matches the reviewed value 10")
+    descriptor = checked.safe_kernel_descriptor
     calculator_factory = checked.source["_calculator"]
     started = perf_counter()
     rows: list[dict[str, Any]] = []
@@ -589,7 +678,9 @@ def run(
         "task_count": 16,
         "row_count": 32,
         "arms": [asdict(arm) for arm in ARMS],
-        "objective_descriptor": descriptor,
+        "safe_kernel_descriptor": descriptor,
+        "safe_kernel_descriptor_sha256": checked.safe_kernel_descriptor_sha256,
+        "runner_helper_provenance": dict(checked.helper_provenance),
         "cuda_model_input_provenance": dict(checked.cuda_provenance),
         "current_git_commit": _current_commit(),
         "wall_time_total_s": perf_counter() - started,

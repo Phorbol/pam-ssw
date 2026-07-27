@@ -143,6 +143,107 @@ def test_kernel_descriptor_binds_current_safe_lbfgs_constants_and_memory10():
         assert descriptor["kernel_constants"][name] == getattr(relax_module, name)
 
 
+def _trusted_source(tmp_path, calculator_factory):
+    model_path = tmp_path / "model.pt"
+    input_path = tmp_path / "input.xyz"
+    model_path.write_bytes(b"trusted model")
+    input_path.write_bytes(b"trusted input")
+    return {
+        "MODEL": model_path,
+        "MODEL_SHA256": _sha256(model_path),
+        "SYSTEMS": {
+            "c60": {"input": input_path, "sha256": _sha256(input_path)},
+            "pdo": {"input": input_path, "sha256": _sha256(input_path)},
+        },
+        "_calculator": calculator_factory,
+    }
+
+
+def test_safe_kernel_descriptor_has_pinned_literal_values_and_canonical_sha():
+    runner = _runner_module()
+    expected = {
+        "optimizer": "safe-lbfgs-total",
+        "safe_lbfgs_memory": 10,
+        "kernel_constants": {
+            "_SAFE_LBFGS_EMPTY_HISTORY_SCALE": 1.0 / 70.0,
+            "_SAFE_LBFGS_MAX_ATOM_STEP": 0.2,
+            "_SAFE_LBFGS_ARMIJO_C1": 1.0e-4,
+            "_SAFE_LBFGS_BACKTRACK": 0.5,
+            "_SAFE_LBFGS_MAX_LINE_TRIALS": 20,
+            "_SAFE_LBFGS_MIN_ALPHA": 2.0**-20,
+            "_SAFE_LBFGS_CURVATURE_REL": 1.4901161193847656e-08,
+        },
+    }
+
+    assert runner.EXPECTED_SAFE_KERNEL_DESCRIPTOR == expected
+    assert runner.EXPECTED_SAFE_KERNEL_DESCRIPTOR_SHA256 == (
+        "1846e340e762b79f50897dfacd40a16288ed52bb481f36f24ab01594c4724102"
+    )
+    assert runner.canonical_descriptor_sha256(expected) == (
+        runner.EXPECTED_SAFE_KERNEL_DESCRIPTOR_SHA256
+    )
+    assert runner.objective_descriptor() == expected
+
+
+def test_kernel_constant_drift_fails_preflight_before_calculator_factory(tmp_path, monkeypatch):
+    runner = _runner_module()
+    import pamssw.relax as relax_module
+
+    calculator_calls = 0
+
+    def forbidden_calculator_factory():
+        nonlocal calculator_calls
+        calculator_calls += 1
+        raise AssertionError("calculator construction must follow kernel validation")
+
+    monkeypatch.setattr(relax_module, "_SAFE_LBFGS_BACKTRACK", 0.4)
+
+    with pytest.raises(ValueError, match="safe kernel descriptor SHA256 mismatch"):
+        runner.preflight(
+            source_summary_path=runner.SOURCE_SUMMARY_PATH,
+            source_loader=lambda: _trusted_source(tmp_path, forbidden_calculator_factory),
+            cuda_probe=lambda _: {"device": "cuda"},
+        )
+
+    assert calculator_calls == 0
+
+
+def test_helper_file_provenance_is_pinned_and_fails_before_calculator_factory(
+    tmp_path,
+    monkeypatch,
+):
+    runner = _runner_module()
+
+    assert runner.EXPECTED_FIXED_REPLAY_DRIVER_SHA256 == (
+        "f9c9602e42985891a6ca2a84ca70dda69c52b9d794a6ea6c76857c398345fa8f"
+    )
+    assert runner.EXPECTED_TRACE_RECORDER_SHA256 == (
+        "c6feeaabf0062f6654f8ea4b4fff610b258dcab754e1907dd3f4c3779e7165de"
+    )
+    assert _sha256(runner.FIXED_REPLAY_DRIVER) == runner.EXPECTED_FIXED_REPLAY_DRIVER_SHA256
+    assert _sha256(runner.TRACE_RECORDER_PATH) == runner.EXPECTED_TRACE_RECORDER_SHA256
+
+    for path_name in ("FIXED_REPLAY_DRIVER", "TRACE_RECORDER_PATH"):
+        calculator_calls = 0
+
+        def forbidden_calculator_factory():
+            nonlocal calculator_calls
+            calculator_calls += 1
+            raise AssertionError("calculator construction must follow helper validation")
+
+        tampered = tmp_path / f"{path_name}.py"
+        tampered.write_text("# tampered helper\n", encoding="utf-8")
+        monkeypatch.setattr(runner, path_name, tampered)
+        with pytest.raises(ValueError, match="SHA256 mismatch"):
+            runner.preflight(
+                source_summary_path=runner.SOURCE_SUMMARY_PATH,
+                source_loader=lambda: _trusted_source(tmp_path, forbidden_calculator_factory),
+                cuda_probe=lambda _: {"device": "cuda"},
+            )
+        assert calculator_calls == 0
+        monkeypatch.undo()
+
+
 @pytest.mark.parametrize("tamper_target", ("task", "model", "input", "cuda"))
 def test_tampered_preflight_fails_before_any_calculator_call(tmp_path, tamper_target):
     runner = _runner_module()
