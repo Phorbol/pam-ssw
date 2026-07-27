@@ -1,0 +1,450 @@
+{
+  "bootstrap": {
+    "fallback_observable": false,
+    "force_evaluations_by_system": {
+      "c60": 49,
+      "pdo": 84
+    },
+    "note": "optimizer_diagnostics.json contains action IDs only; bootstrap fallback use cannot be reconstructed from this artifact"
+  },
+  "campaigns": {
+    "c60": {
+      "minimal_ucb": {
+        "action_force_evaluations": 5025,
+        "all_actions_completed": true,
+        "archive_entries": 9,
+        "benchmark_eligible": true,
+        "best_archive_energy_eV": -491.3221435546875,
+        "best_energy_drop_eV": 16.652435302734375,
+        "bootstrap_energy_eV": -474.6697082519531,
+        "bootstrap_evaluator_wall_time_s": 0.8443845970323309,
+        "bootstrap_force_evaluations": 49,
+        "campaign_wall_time_s": 87.23028232398792,
+        "completed_attempts": 9,
+        "duplicate_rate": 0.1,
+        "failed_attempts": 0,
+        "purpose_counts": {
+          "biased_proposal_relax": 2727,
+          "bootstrap_true_quench": 48,
+          "direction_oracle": 1672,
+          "escape_true_pes_check": 72,
+          "landing_true_quench": 527,
+          "post_relax_validation": 19,
+          "starter_true_quench": 9,
+          "unattributed": 0
+        },
+        "purpose_fractions": {
+          "biased_proposal_relax": 0.5374458021284982,
+          "bootstrap_true_quench": 0.009459992116673236,
+          "direction_oracle": 0.3295230587307844,
+          "escape_true_pes_check": 0.014189988175009854,
+          "landing_true_quench": 0.10386283011430823,
+          "post_relax_validation": 0.003744580212849823,
+          "starter_true_quench": 0.0017737485218762318,
+          "unattributed": 0.0
+        },
+        "quench_fallback_attempts": 0,
+        "quench_fallback_converged": 0,
+        "total_force_evaluations": 5074,
+        "true_quench_unconverged": 0,
+        "unused_force_budget": 926
+      },
+      "posterior_proportional": {
+        "action_force_evaluations": 5098,
+        "all_actions_completed": true,
+        "archive_entries": 10,
+        "benchmark_eligible": true,
+        "best_archive_energy_eV": -488.4958190917969,
+        "best_energy_drop_eV": 13.82598876953125,
+        "bootstrap_energy_eV": -474.6698303222656,
+        "bootstrap_evaluator_wall_time_s": 0.8305362960090861,
+        "bootstrap_force_evaluations": 49,
+        "campaign_wall_time_s": 88.72229373900336,
+        "completed_attempts": 10,
+        "duplicate_rate": 0.09090909090909091,
+        "failed_attempts": 0,
+        "purpose_counts": {
+          "biased_proposal_relax": 2885,
+          "bootstrap_true_quench": 48,
+          "direction_oracle": 1566,
+          "escape_true_pes_check": 68,
+          "landing_true_quench": 549,
+          "post_relax_validation": 21,
+          "starter_true_quench": 10,
+          "unattributed": 0
+        },
+        "purpose_fractions": {
+          "biased_proposal_relax": 0.5605206916650476,
+          "bootstrap_true_quench": 0.00932582086652419,
+          "direction_oracle": 0.30425490577035164,
+          "escape_true_pes_check": 0.013211579560909268,
+          "landing_true_quench": 0.10666407616087041,
+          "post_relax_validation": 0.004080046629104332,
+          "starter_true_quench": 0.0019428793471925393,
+          "unattributed": 0.0
+        },
+        "quench_fallback_attempts": 0,
+        "quench_fallback_converged": 0,
+        "total_force_evaluations": 5147,
+        "true_quench_unconverged": 0,
+        "unused_force_budget": 853
+      },
+      "uniform": {
+        "action_force_evaluations": 5611,
+        "all_actions_completed": true,
+        "archive_entries": 12,
+        "benchmark_eligible": true,
+        "best_archive_energy_eV": -487.0556335449219,
+        "best_energy_drop_eV": 12.385955810546875,
+        "bootstrap_energy_eV": -474.669677734375,
+        "bootstrap_evaluator_wall_time_s": 6.16632235396537,
+        "bootstrap_force_evaluations": 49,
+        "campaign_wall_time_s": 123.6984111010097,
+        "completed_attempts": 11,
+        "duplicate_rate": 0.0,
+        "failed_attempts": 0,
+        "purpose_counts": {
+          "biased_proposal_relax": 2947,
+          "bootstrap_true_quench": 48,
+          "direction_oracle": 1798,
+          "escape_true_pes_check": 80,
+          "landing_true_quench": 753,
+          "post_relax_validation": 23,
+          "starter_true_quench": 11,
+          "unattributed": 0
+        },
+        "purpose_fractions": {
+          "biased_proposal_relax": 0.5206713780918728,
+          "bootstrap_true_quench": 0.008480565371024734,
+          "direction_oracle": 0.3176678445229682,
+          "escape_true_pes_check": 0.014134275618374558,
+          "landing_true_quench": 0.13303886925795053,
+          "post_relax_validation": 0.004063604240282685,
+          "starter_true_quench": 0.0019434628975265019,
+          "unattributed": 0.0
+        },
+        "quench_fallback_attempts": 0,
+        "quench_fallback_converged": 0,
+        "total_force_evaluations": 5660,
+        "true_quench_unconverged": 0,
+        "unused_force_budget": 340
+      }
+    },
+    "pdo": {
+      "minimal_ucb": {
+        "action_force_evaluations": 4990,
+        "all_actions_completed": true,
+        "archive_entries": 14,
+        "benchmark_eligible": true,
+        "best_archive_energy_eV": -572.8558349609375,
+        "best_energy_drop_eV": 4.4580078125,
+        "bootstrap_energy_eV": -568.3978271484375,
+        "bootstrap_evaluator_wall_time_s": 1.7883477947325446,
+        "bootstrap_force_evaluations": 84,
+        "campaign_wall_time_s": 117.36524532400654,
+        "completed_attempts": 16,
+        "duplicate_rate": 0.17647058823529413,
+        "failed_attempts": 0,
+        "purpose_counts": {
+          "biased_proposal_relax": 2289,
+          "bootstrap_true_quench": 83,
+          "direction_oracle": 454,
+          "escape_true_pes_check": 39,
+          "landing_true_quench": 2144,
+          "post_relax_validation": 33,
+          "starter_true_quench": 32,
+          "unattributed": 0
+        },
+        "purpose_fractions": {
+          "biased_proposal_relax": 0.45112337406385494,
+          "bootstrap_true_quench": 0.016357903035080803,
+          "direction_oracle": 0.08947575877020103,
+          "escape_true_pes_check": 0.007686243594797004,
+          "landing_true_quench": 0.4225463145447379,
+          "post_relax_validation": 0.00650374458021285,
+          "starter_true_quench": 0.0063066614111154905,
+          "unattributed": 0.0
+        },
+        "quench_fallback_attempts": 1,
+        "quench_fallback_converged": 1,
+        "total_force_evaluations": 5074,
+        "true_quench_unconverged": 0,
+        "unused_force_budget": 926
+      },
+      "posterior_proportional": {
+        "action_force_evaluations": 5075,
+        "all_actions_completed": true,
+        "archive_entries": 15,
+        "benchmark_eligible": true,
+        "best_archive_energy_eV": -573.044677734375,
+        "best_energy_drop_eV": 4.6468505859375,
+        "bootstrap_energy_eV": -568.3978271484375,
+        "bootstrap_evaluator_wall_time_s": 1.7913100010482594,
+        "bootstrap_force_evaluations": 84,
+        "campaign_wall_time_s": 116.16079814400291,
+        "completed_attempts": 15,
+        "duplicate_rate": 0.0625,
+        "failed_attempts": 0,
+        "purpose_counts": {
+          "biased_proposal_relax": 2403,
+          "bootstrap_true_quench": 83,
+          "direction_oracle": 492,
+          "escape_true_pes_check": 39,
+          "landing_true_quench": 2081,
+          "post_relax_validation": 31,
+          "starter_true_quench": 30,
+          "unattributed": 0
+        },
+        "purpose_fractions": {
+          "biased_proposal_relax": 0.4657879433998837,
+          "bootstrap_true_quench": 0.016088389222717582,
+          "direction_oracle": 0.09536731924791626,
+          "escape_true_pes_check": 0.007559604574529948,
+          "landing_true_quench": 0.4033727466563288,
+          "post_relax_validation": 0.006008916456677651,
+          "starter_true_quench": 0.005815080441946114,
+          "unattributed": 0.0
+        },
+        "quench_fallback_attempts": 0,
+        "quench_fallback_converged": 0,
+        "total_force_evaluations": 5159,
+        "true_quench_unconverged": 0,
+        "unused_force_budget": 841
+      },
+      "uniform": {
+        "action_force_evaluations": 4927,
+        "all_actions_completed": true,
+        "archive_entries": 15,
+        "benchmark_eligible": true,
+        "best_archive_energy_eV": -572.0985107421875,
+        "best_energy_drop_eV": 3.70068359375,
+        "bootstrap_energy_eV": -568.3978271484375,
+        "bootstrap_evaluator_wall_time_s": 1.7851910019526258,
+        "bootstrap_force_evaluations": 84,
+        "campaign_wall_time_s": 113.07620021700859,
+        "completed_attempts": 15,
+        "duplicate_rate": 0.0625,
+        "failed_attempts": 0,
+        "purpose_counts": {
+          "biased_proposal_relax": 2154,
+          "bootstrap_true_quench": 83,
+          "direction_oracle": 438,
+          "escape_true_pes_check": 36,
+          "landing_true_quench": 2239,
+          "post_relax_validation": 31,
+          "starter_true_quench": 30,
+          "unattributed": 0
+        },
+        "purpose_fractions": {
+          "biased_proposal_relax": 0.4298543204949112,
+          "bootstrap_true_quench": 0.016563560167631212,
+          "direction_oracle": 0.08740770305328278,
+          "escape_true_pes_check": 0.007184194771502694,
+          "landing_true_quench": 0.4468170025942926,
+          "post_relax_validation": 0.00618638994212732,
+          "starter_true_quench": 0.005986828976252245,
+          "unattributed": 0.0
+        },
+        "quench_fallback_attempts": 1,
+        "quench_fallback_converged": 1,
+        "total_force_evaluations": 5011,
+        "true_quench_unconverged": 0,
+        "unused_force_budget": 989
+      }
+    }
+  },
+  "claim_boundary": {
+    "TS_vs_UCB": "not tested",
+    "execution": "six serial GPU campaigns completed with exact ledgers",
+    "frequency_unbiasedness": "uniform has full random support; posterior_proportional keeps positive support but is not frequency-unbiased; minimal_ucb is a deterministic comparator",
+    "policy_ranking": "not established",
+    "reason": "one seed per system and known GPU nondeterminism permit only descriptive, not inferential, policy comparisons"
+  },
+  "cost_observation": {
+    "c60": "biased proposal relaxation and direction oracle dominate",
+    "pdo": "biased proposal relaxation and strict true quenching dominate",
+    "purpose_fractions_by_system": {
+      "c60": {
+        "biased_proposal_relax": 0.5389459102071658,
+        "bootstrap_true_quench": 0.009067439078143693,
+        "direction_oracle": 0.31710849442730304,
+        "escape_true_pes_check": 0.013853031924941755,
+        "landing_true_quench": 0.11516906995781122,
+        "post_relax_validation": 0.003967004596687866,
+        "starter_true_quench": 0.001889049807946603,
+        "unattributed": 0.0
+      },
+      "pdo": {
+        "biased_proposal_relax": 0.4490947257937549,
+        "bootstrap_true_quench": 0.016334295460509053,
+        "direction_oracle": 0.09078981894515875,
+        "escape_true_pes_check": 0.007478352138546313,
+        "landing_true_quench": 0.42403568617160853,
+        "post_relax_validation": 0.006231960115455261,
+        "starter_true_quench": 0.0060351613749672,
+        "unattributed": 0.0
+      }
+    }
+  },
+  "diagnostic_scope": {
+    "optimizer_diagnostics": "action-scoped and final-backend-only for true-quench telemetry",
+    "reason": "fallback attempts replace primary-attempt optimizer telemetry, so diagnostic evaluator-call fields are not an additive cost ledger",
+    "true_quench_cost": "purpose_ledger_not_final_only_optimizer_diagnostics"
+  },
+  "overall": {
+    "completed_attempts": 76,
+    "completed_campaigns": 6,
+    "failed_attempts": 0,
+    "purpose_counts": {
+      "biased_proposal_relax": 15405,
+      "bootstrap_true_quench": 393,
+      "direction_oracle": 6420,
+      "escape_true_pes_check": 334,
+      "landing_true_quench": 8293,
+      "post_relax_validation": 158,
+      "starter_true_quench": 122,
+      "unattributed": 0
+    },
+    "purpose_fractions": {
+      "biased_proposal_relax": 0.49493975903614457,
+      "bootstrap_true_quench": 0.012626506024096385,
+      "direction_oracle": 0.20626506024096386,
+      "escape_true_pes_check": 0.010730923694779116,
+      "landing_true_quench": 0.2664417670682731,
+      "post_relax_validation": 0.005076305220883534,
+      "starter_true_quench": 0.0039196787148594375,
+      "unattributed": 0.0
+    },
+    "quench_fallback_attempts": 2,
+    "quench_fallback_converged": 2,
+    "total_force_evaluations": 31125,
+    "total_wall_time_s": 646.253230849019,
+    "true_quench_unconverged": 0
+  },
+  "policy_semantics": {
+    "minimal_ucb": {
+      "interpretation": "deterministic one-hot comparator, not an unbiased or full-support exploration policy",
+      "one_hot": true,
+      "strictly_positive_on_all_eligible": false,
+      "support_complete": false
+    },
+    "posterior_proportional": {
+      "interpretation": "full positive support, but not frequency-unbiased because selection probabilities depend on posterior means",
+      "one_hot": false,
+      "strictly_positive_on_all_eligible": true,
+      "support_complete": true
+    },
+    "uniform": {
+      "interpretation": "random full-support baseline",
+      "one_hot": false,
+      "strictly_positive_on_all_eligible": true,
+      "support_complete": true
+    }
+  },
+  "schema_version": 1,
+  "validation": {
+    "campaign_count": 6,
+    "evaluation_ledgers": "passed",
+    "event_field_validation": "passed",
+    "execution_commit": "83d34b568246a811a45a77e5c04e022fea3df598",
+    "matrix": {
+      "master_seeds": [
+        42
+      ],
+      "policies": [
+        "uniform",
+        "posterior_proportional",
+        "minimal_ucb"
+      ],
+      "systems": [
+        "c60",
+        "pdo"
+      ]
+    },
+    "optimizer_diagnostics": "passed",
+    "policy_probability_reconstruction": "passed",
+    "posterior_credit_reconstruction": "passed",
+    "protocol": {
+      "action_force_budget": 1000,
+      "batch_size": 1,
+      "max_workers": 1,
+      "proposal_fmax": 0.05,
+      "proposal_optimizer": "safe-lbfgs-total",
+      "proposal_pool_size": 1,
+      "quench_fallback_optimizer": "ase-fire",
+      "quench_fmax": 0.01,
+      "quench_maxiter": 400,
+      "quench_optimizer": "ase-lbfgs",
+      "total_force_budget": 6000
+    },
+    "provenance": {
+      "calculator": {
+        "default_dtype": "float32",
+        "device": "cuda",
+        "enable_cueq": false,
+        "inference_precision": "float32"
+      },
+      "calculator_reuse": {
+        "accounting": "each bootstrap/action is wrapped by its own EvalCounter",
+        "actions": "one worker-thread-local calculator reused serially",
+        "bootstrap": "one uncached caller-thread calculator",
+        "cross_thread_calculator_sharing": false
+      },
+      "cuda": {
+        "available": true,
+        "device_name": "NVIDIA GeForce RTX 3060",
+        "requested_device": "cuda",
+        "runtime_version": "12.8"
+      },
+      "effective_configs": {
+        "c60": {
+          "proposal_fmax": 0.05,
+          "proposal_optimizer": "safe-lbfgs-total",
+          "proposal_pool_size": 1,
+          "proposal_relax_steps": 80,
+          "quench_fallback_optimizer": "ase-fire",
+          "quench_fmax": 0.01,
+          "quench_maxiter": 400,
+          "quench_optimizer": "ase-lbfgs",
+          "rng_seed": 42
+        },
+        "pdo": {
+          "proposal_fmax": 0.05,
+          "proposal_optimizer": "safe-lbfgs-total",
+          "proposal_pool_size": 1,
+          "proposal_relax_steps": 300,
+          "quench_fallback_optimizer": "ase-fire",
+          "quench_fmax": 0.01,
+          "quench_maxiter": 400,
+          "quench_optimizer": "ase-lbfgs",
+          "rng_seed": 42
+        }
+      },
+      "execution_commit": "83d34b568246a811a45a77e5c04e022fea3df598",
+      "inputs": {
+        "c60": {
+          "path": "/mnt/d/download/trae-research-code/ssw/runs/20260428-c60-mace-production/prerelaxed_c60.xyz",
+          "sha256": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9"
+        },
+        "pdo": {
+          "path": "/mnt/d/download/trae-research-code/ssw/PdO.xyz",
+          "sha256": "68243ceb7c0fbb6ba7a9454d680287eb98c4e5210efbd9ebb63517ba79aaa8b0"
+        }
+      },
+      "model": {
+        "path": "/root/.cache/mace/mace-omat-0-small.model",
+        "sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5"
+      },
+      "pamssw_bundle_sha256": "9ccab5f4ad38f368153448a13b277ed4786661fea9b5c15eb0091fff492d16d0",
+      "runtime_versions": {
+        "ase": "3.25.0",
+        "mace": "0.3.14",
+        "numpy": "2.1.3",
+        "python": "3.12.12",
+        "scipy": "1.17.1",
+        "torch": "2.8.0"
+      }
+    },
+    "status": "passed"
+  }
+}
