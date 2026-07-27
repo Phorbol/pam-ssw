@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 from hashlib import sha256
 import json
 import math
@@ -21,7 +22,8 @@ from pamssw.state import State
 RUN_ROOT = Path(__file__).resolve().parent
 RAW_DIR = RUN_ROOT / "output"
 SYSTEMS = ("c60", "pdo")
-SEEDS = tuple(range(42, 50))
+CANDIDATE_SEEDS = tuple(range(42, 58))
+TARGET_ELIGIBLE_TASKS = 8
 ARMS = {"fmax-0.05": 0.05, "fmax-0.10": 0.10}
 STRICT_ARM = "fmax-0.05"
 LOOSE_ARM = "fmax-0.10"
@@ -116,7 +118,12 @@ def _validate_protocol(summary: object) -> Mapping[str, Any]:
     protocol = summary.get("protocol")
     if protocol != {
         "systems": ["c60", "pdo"],
-        "seeds": list(SEEDS),
+        "candidate_seeds": list(CANDIDATE_SEEDS),
+        "target_capture_eligible_tasks_per_system": 8,
+        "capture_selection_rule": (
+            "strict first 8 capture-eligible tasks from the deterministic "
+            "candidate-seed prefix, defined before any arm execution"
+        ),
         "target_bias_count": 1,
         "softening_enabled": False,
         "proposal_optimizer": "safe-lbfgs-total",
@@ -150,7 +157,7 @@ def _validate_task(
     if not isinstance(item, Mapping):
         raise ValueError("captured task must be an object")
     seed = item.get("seed")
-    if item.get("system") != system or seed not in SEEDS:
+    if item.get("system") != system or seed not in CANDIDATE_SEEDS:
         raise ValueError("captured task identity is invalid")
     task = item.get("task")
     if not isinstance(task, Mapping):
@@ -238,6 +245,70 @@ def _validate_bootstrap(system_data: Mapping[str, Any]) -> None:
         raise ValueError("bootstrap certificate is inconsistent")
 
 
+def _validate_capture_attempts(
+    system_data: Mapping[str, Any],
+    *,
+    system: str,
+) -> tuple[int, ...]:
+    attempts = system_data.get("capture_attempts")
+    if (
+        not isinstance(attempts, list)
+        or not TARGET_ELIGIBLE_TASKS <= len(attempts) <= len(CANDIDATE_SEEDS)
+    ):
+        raise ValueError("capture attempt prefix is incomplete")
+    attempted_seeds = tuple(int(item.get("seed")) for item in attempts)
+    if attempted_seeds != CANDIDATE_SEEDS[: len(attempts)]:
+        raise ValueError("capture attempt prefix is not deterministic")
+    eligible = []
+    for item in attempts:
+        if not isinstance(item, Mapping):
+            raise ValueError("capture attempt must be an object")
+        seed = int(item["seed"])
+        total = int(item.get("force_evaluations"))
+        counts = _counts(
+            item.get("purpose_counts"),
+            label="capture",
+            allowed={
+                EvaluationPurpose.DIRECTION_ORACLE.value,
+                EvaluationPurpose.ESCAPE_TRUE_PES_CHECK.value,
+            },
+            expected_total=total,
+        )
+        status = item.get("status")
+        reason = item.get("reason")
+        selected = item.get("selected_for_arms")
+        direction_kind = item.get("selected_direction_kind")
+        if not isinstance(direction_kind, str) or not direction_kind:
+            raise ValueError("capture attempt lacks selected direction kind")
+        if status == "eligible":
+            if reason is not None or selected is not True:
+                raise ValueError("eligible capture attempt is inconsistent")
+            eligible.append(seed)
+        elif status == "ineligible":
+            if (
+                not isinstance(reason, str)
+                or not reason
+                or selected is not False
+            ):
+                raise ValueError("ineligible capture attempt lacks reason")
+        else:
+            raise ValueError("capture attempt has unknown status")
+        expected_trace = f"{system}/seed-{seed}/direction_trace.jsonl"
+        if item.get("direction_trace_path") != expected_trace:
+            raise ValueError("capture attempt trace path is inconsistent")
+        if sum(counts.values()) != total:
+            raise ValueError("capture purpose accounting does not close")
+    if (
+        len(eligible) != TARGET_ELIGIBLE_TASKS
+        or attempts[-1].get("status") != "eligible"
+    ):
+        raise ValueError("capture attempt prefix does not end at eighth eligible")
+    expected_file = f"{system}/capture_attempts.json"
+    if system_data.get("capture_attempts_file") != expected_file:
+        raise ValueError("capture attempt ledger path is inconsistent")
+    return tuple(eligible)
+
+
 def _validate_row(
     row: object,
     *,
@@ -250,7 +321,7 @@ def _validate_row(
     arm_id = row.get("arm_id")
     if (
         row.get("system") != system
-        or seed not in SEEDS
+        or seed not in tasks
         or arm_id not in ARMS
     ):
         raise ValueError("row identity is invalid")
@@ -413,6 +484,8 @@ def analyze(raw_dir: Path) -> dict[str, Any]:
             "fixed_one_bias_local_ablation": True,
             "softening_disabled": True,
             "shared_bootstrap_true_pes_fmax_eV_per_A": 0.05,
+            "capture_eligibility_conditioned": True,
+            "capture_eligibility_may_filter_direction_kinds": True,
             "full_ssw_superiority_supported": False,
         },
         "systems": {},
@@ -420,13 +493,16 @@ def analyze(raw_dir: Path) -> dict[str, Any]:
     for system in SYSTEMS:
         system_data = summary["systems"][system]
         _validate_bootstrap(system_data)
+        eligible_seeds = _validate_capture_attempts(
+            system_data, system=system
+        )
         task_items = system_data.get("tasks")
         rows = system_data.get("rows")
         if (
             not isinstance(task_items, list)
-            or len(task_items) != len(SEEDS)
+            or len(task_items) != TARGET_ELIGIBLE_TASKS
             or not isinstance(rows, list)
-            or len(rows) != len(SEEDS) * len(ARMS)
+            or len(rows) != TARGET_ELIGIBLE_TASKS * len(ARMS)
         ):
             raise ValueError(f"{system} matrix is incomplete")
         tasks: dict[int, Mapping[str, Any]] = {}
@@ -436,8 +512,22 @@ def analyze(raw_dir: Path) -> dict[str, Any]:
             if seed in tasks:
                 raise ValueError("duplicate captured task")
             tasks[seed] = validated
-        if set(tasks) != set(SEEDS):
-            raise ValueError(f"{system} tasks do not cover fixed seeds")
+        if tuple(tasks) != eligible_seeds:
+            raise ValueError(
+                f"{system} tasks are not the first capture-eligible seeds"
+            )
+        attempts_by_seed = {
+            int(item["seed"]): item
+            for item in system_data["capture_attempts"]
+        }
+        for seed, task in tasks.items():
+            if (
+                task["capture_evaluation_counts"]
+                != attempts_by_seed[seed]["purpose_counts"]
+            ):
+                raise ValueError(
+                    "selected task capture counts differ from attempt ledger"
+                )
 
         by_key: dict[tuple[int, str], Mapping[str, Any]] = {}
         for item in rows:
@@ -447,7 +537,7 @@ def analyze(raw_dir: Path) -> dict[str, Any]:
                 raise ValueError("duplicate result row")
             by_key[key] = row
         expected = {
-            (seed, arm_id) for seed in SEEDS for arm_id in ARMS
+            (seed, arm_id) for seed in eligible_seeds for arm_id in ARMS
         }
         if set(by_key) != expected:
             raise ValueError(f"{system} rows do not cover fixed matrix")
@@ -459,7 +549,7 @@ def analyze(raw_dir: Path) -> dict[str, Any]:
             system_data.get("dedup_rmsd_tol_A"), "dedup RMSD tolerance"
         )
         comparisons = []
-        for seed in SEEDS:
+        for seed in eligible_seeds:
             strict = by_key[(seed, STRICT_ARM)]
             loose = by_key[(seed, LOOSE_ARM)]
             if (
@@ -508,6 +598,46 @@ def analyze(raw_dir: Path) -> dict[str, Any]:
             bool(item["landing_same_basin"]) for item in comparisons
         )
         evidence["systems"][system] = {
+            "capture_selection": {
+                "candidate_seed_prefix": [
+                    int(item["seed"])
+                    for item in system_data["capture_attempts"]
+                ],
+                "selected_seeds": list(eligible_seeds),
+                "ineligible_attempts": [
+                    {
+                        "seed": int(item["seed"]),
+                        "reason": item["reason"],
+                        "selected_direction_kind": item[
+                            "selected_direction_kind"
+                        ],
+                        "force_evaluations": int(
+                            item["force_evaluations"]
+                        ),
+                        "purpose_counts": dict(item["purpose_counts"]),
+                    }
+                    for item in system_data["capture_attempts"]
+                    if item["status"] == "ineligible"
+                ],
+                "eligible_direction_kind_counts": dict(
+                    sorted(
+                        Counter(
+                            item["selected_direction_kind"]
+                            for item in system_data["capture_attempts"]
+                            if item["status"] == "eligible"
+                        ).items()
+                    )
+                ),
+                "ineligible_direction_kind_counts": dict(
+                    sorted(
+                        Counter(
+                            item["selected_direction_kind"]
+                            for item in system_data["capture_attempts"]
+                            if item["status"] == "ineligible"
+                        ).items()
+                    )
+                ),
+            },
             "archive_matcher": {
                 "definition": "current MinimaArchive energy-plus-RMSD rule",
                 "dedup_energy_tol_eV": energy_tol,

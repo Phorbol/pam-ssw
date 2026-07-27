@@ -114,7 +114,9 @@ def preflight(runner):
 def test_protocol_changes_only_proposal_force_certificate():
     runner = module(RUNNER_PATH, "proposal_fmax_contract")
     assert runner.SYSTEMS == ("c60", "pdo")
-    assert runner.SEEDS == tuple(range(42, 50))
+    assert runner.CANDIDATE_SEEDS == tuple(range(42, 58))
+    assert runner.TARGET_ELIGIBLE_TASKS == 8
+    assert runner.DEFAULT_OUTPUT == runner.RUN_ROOT / "output-v2"
     assert [
         (arm.arm_id, arm.fmax_eV_per_A) for arm in runner.ARMS
     ] == [("fmax-0.05", 0.05), ("fmax-0.10", 0.10)]
@@ -169,6 +171,38 @@ def test_arm_task_has_same_biased_pes_and_maxiter_but_different_fmax():
     np.testing.assert_array_equal(
         strict.biases[0].center, loose.biases[0].center
     )
+
+
+def test_observable_capture_attempt_keeps_failed_seed_counts_and_reason():
+    runner = module(RUNNER_PATH, "proposal_fmax_capture_attempt")
+
+    class FailedWalker:
+        def __init__(self, **kwargs):
+            self.calculator = type(
+                "Counter",
+                (),
+                {"snapshot": lambda self: counts(direction_oracle=2)},
+            )()
+            self.capture_failure_reason = "trial_state_geometry_invalid"
+            self.capture_selected_direction_kind = "bond"
+
+        def _walk_candidate_from_seed(self, seed_state):
+            return seed_state
+
+    attempt = runner.capture_proposal_attempt(
+        state("pdo"),
+        object(),
+        type("Config", (), {"max_steps_per_walk": 1})(),
+        target_bias_count=1,
+        walker_factory=FailedWalker,
+    )
+    assert attempt.status == "ineligible"
+    assert attempt.reason == "trial_state_geometry_invalid"
+    assert attempt.selected_direction_kind == "bond"
+    assert attempt.task is None
+    assert attempt.evaluation_counts.total == 2
+    assert attempt.evaluation_counts.as_dict()["direction_oracle"] == 2
+    assert attempt.evaluation_counts.as_dict()["unattributed"] == 0
 
 
 def test_execute_proposal_closes_biased_relax_purpose_and_records_certificate():
@@ -335,13 +369,18 @@ def test_run_uses_one_bootstrap_and_one_fixed_task_per_seed_for_both_arms(
 
     def capture(seed_state, calculator, config, *, target_bias_count):
         events.append(("capture", config.rng_seed, target_bias_count))
+        failed = any(seed_state.pbc) and config.rng_seed == 46
         captured = task("pdo" if any(seed_state.pbc) else "c60")
-        return CapturedProposalTask(
-            task=captured,
+        return runner.CaptureAttempt(
+            status="ineligible" if failed else "eligible",
+            reason="trial_state_geometry_invalid" if failed else None,
+            selected_direction_kind="bond" if failed else "random",
+            task=None if failed else captured,
             evaluation_counts=counts(direction_oracle=2),
         )
 
     def replay(source, calculator, *, optimizer):
+        events.append(("proposal", source.fmax))
         arm_shift = source.fmax
         calls = 2 if source.fmax == 0.10 else 4
         return ProposalReplayResult(
@@ -396,7 +435,7 @@ def test_run_uses_one_bootstrap_and_one_fixed_task_per_seed_for_both_arms(
         }
 
     monkeypatch.setattr(runner, "bootstrap_minimum", bootstrap)
-    monkeypatch.setattr(runner, "capture_proposal_task", capture)
+    monkeypatch.setattr(runner, "capture_proposal_attempt", capture)
     monkeypatch.setattr(runner, "replay_proposal_task", replay)
     monkeypatch.setattr(runner, "execute_landing", landing)
 
@@ -416,8 +455,15 @@ def test_run_uses_one_bootstrap_and_one_fixed_task_per_seed_for_both_arms(
     )
     assert calculator_calls == 12
     assert sum(event[0] == "bootstrap" for event in events) == 2
-    assert sum(event[0] == "capture" for event in events) == 16
+    assert sum(event[0] == "capture" for event in events) == 17
     assert sum(event[0] == "landing" for event in events) == 32
+    capture_indices = [
+        index for index, event in enumerate(events) if event[0] == "capture"
+    ]
+    proposal_indices = [
+        index for index, event in enumerate(events) if event[0] == "proposal"
+    ]
+    assert max(capture_indices) < min(proposal_indices)
     assert summary["task_count"] == 16
     assert summary["row_count"] == 32
     assert not output.with_name("output.partial").exists()
@@ -428,7 +474,49 @@ def test_run_uses_one_bootstrap_and_one_fixed_task_per_seed_for_both_arms(
         system_data = persisted["systems"][system]
         assert len(system_data["tasks"]) == 8
         assert len(system_data["rows"]) == 16
-        for seed in runner.SEEDS:
+        expected_seeds = (
+            tuple(range(42, 50))
+            if system == "c60"
+            else (42, 43, 44, 45, 47, 48, 49, 50)
+        )
+        assert tuple(
+            attempt["seed"] for attempt in system_data["capture_attempts"]
+        ) == (
+            tuple(range(42, 50))
+            if system == "c60"
+            else tuple(range(42, 51))
+        )
+        failures = [
+            attempt
+            for attempt in system_data["capture_attempts"]
+            if attempt["status"] == "ineligible"
+        ]
+        assert failures == (
+            []
+            if system == "c60"
+            else [
+                {
+                    "direction_trace_path": (
+                        "pdo/seed-46/direction_trace.jsonl"
+                    ),
+                    "force_evaluations": 2,
+                    "purpose_counts": {
+                        purpose.value: (
+                            2
+                            if purpose is EvaluationPurpose.DIRECTION_ORACLE
+                            else 0
+                        )
+                        for purpose in EvaluationPurpose
+                    },
+                    "reason": "trial_state_geometry_invalid",
+                    "seed": 46,
+                    "selected_direction_kind": "bond",
+                    "selected_for_arms": False,
+                    "status": "ineligible",
+                }
+            ]
+        )
+        for seed in expected_seeds:
             paired = [
                 row for row in system_data["rows"] if row["seed"] == seed
             ]
@@ -481,8 +569,16 @@ def test_analyzer_reports_paired_cost_and_current_archive_landing_equivalence(
         )
 
     def capture(seed_state, calculator, config, *, target_bias_count):
-        return CapturedProposalTask(
-            task=task("pdo" if any(seed_state.pbc) else "c60"),
+        failed = any(seed_state.pbc) and config.rng_seed == 46
+        return runner.CaptureAttempt(
+            status="ineligible" if failed else "eligible",
+            reason="trial_state_geometry_invalid" if failed else None,
+            selected_direction_kind="bond" if failed else "random",
+            task=(
+                None
+                if failed
+                else task("pdo" if any(seed_state.pbc) else "c60")
+            ),
             evaluation_counts=counts(direction_oracle=2),
         )
 
@@ -540,7 +636,7 @@ def test_analyzer_reports_paired_cost_and_current_archive_landing_equivalence(
         }
 
     monkeypatch.setattr(runner, "bootstrap_minimum", bootstrap)
-    monkeypatch.setattr(runner, "capture_proposal_task", capture)
+    monkeypatch.setattr(runner, "capture_proposal_attempt", capture)
     monkeypatch.setattr(runner, "replay_proposal_task", replay)
     monkeypatch.setattr(runner, "execute_landing", landing)
     output = tmp_path / "output"
@@ -555,6 +651,8 @@ def test_analyzer_reports_paired_cost_and_current_archive_landing_equivalence(
         "fixed_one_bias_local_ablation": True,
         "softening_disabled": True,
         "shared_bootstrap_true_pes_fmax_eV_per_A": 0.05,
+        "capture_eligibility_conditioned": True,
+        "capture_eligibility_may_filter_direction_kinds": True,
         "full_ssw_superiority_supported": False,
     }
     for system in runner.SYSTEMS:
@@ -565,8 +663,19 @@ def test_analyzer_reports_paired_cost_and_current_archive_landing_equivalence(
         assert paired["landing_same_basin_count"] == 8
         assert paired["landing_equivalence_rate"] == pytest.approx(1.0)
         assert paired["both_landing_certified_count"] == 8
+    assert evidence["systems"]["pdo"]["capture_selection"][
+        "ineligible_direction_kind_counts"
+    ] == {"bond": 1}
 
     raw = json.loads((output / "summary.json").read_text(encoding="utf-8"))
+    invalid_prefix = deepcopy(raw)
+    invalid_prefix["systems"]["pdo"]["capture_attempts"][0]["seed"] = 43
+    (output / "summary.json").write_text(
+        json.dumps(invalid_prefix), encoding="utf-8"
+    )
+    with pytest.raises(ValueError, match="capture attempt prefix"):
+        analyzer.analyze(output)
+
     invalid_bootstrap = deepcopy(raw)
     invalid_bootstrap["systems"]["c60"]["bootstrap"]["purpose_counts"][
         "unattributed"

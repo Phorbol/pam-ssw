@@ -22,7 +22,6 @@ import numpy as np
 from pamssw.accounting import EvaluationCounts, EvaluationPurpose
 from pamssw.calculators import ASECalculator
 from pamssw.proposal_replay import (
-    capture_proposal_task,
     proposal_task_to_payload,
     replay_proposal_task,
 )
@@ -31,6 +30,7 @@ from pamssw.walker import ProposalRelaxationTask, SurfaceWalker
 
 
 RUN_ROOT = Path(__file__).resolve().parent
+DEFAULT_OUTPUT = RUN_ROOT / "output-v2"
 REPO_ROOT = RUN_ROOT.parents[1]
 PRODUCTION_RUNNER_PATH = (
     REPO_ROOT
@@ -39,7 +39,8 @@ PRODUCTION_RUNNER_PATH = (
     / "run_production.py"
 )
 SYSTEMS = ("c60", "pdo")
-SEEDS = tuple(range(42, 50))
+CANDIDATE_SEEDS = tuple(range(42, 58))
+TARGET_ELIGIBLE_TASKS = 8
 PROPOSAL_OPTIMIZER = "safe-lbfgs-total"
 SAFE_HISTORY_LIMIT = 10
 TARGET_BIAS_COUNT = 1
@@ -82,6 +83,66 @@ class BootstrapResult:
     evaluation_counts: EvaluationCounts
     termination_reason: str
     certificate_satisfied: bool
+
+
+@dataclass(frozen=True)
+class CaptureAttempt:
+    status: str
+    reason: str | None
+    selected_direction_kind: str | None
+    task: ProposalRelaxationTask | None
+    evaluation_counts: EvaluationCounts
+
+
+class _TaskCaptured(RuntimeError):
+    def __init__(self, task: ProposalRelaxationTask) -> None:
+        super().__init__("proposal-relaxation task captured")
+        self.task = task
+
+
+class _ObservingGeometryValidator:
+    def __init__(self, delegate: object) -> None:
+        self.delegate = delegate
+        self.failure_reason: str | None = None
+
+    def is_valid_state(self, state: State) -> bool:
+        valid = bool(self.delegate.is_valid_state(state))
+        if not valid:
+            self.failure_reason = "trial_state_geometry_invalid"
+        return valid
+
+    def __getattr__(self, name: str):
+        return getattr(self.delegate, name)
+
+
+class _ObservableCaptureWalker(SurfaceWalker):
+    def __init__(self, *args, target_bias_count: int, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._target_bias_count = target_bias_count
+        observer = _ObservingGeometryValidator(self.geometry_validator)
+        self.geometry_validator = observer
+        self._capture_geometry_observer = observer
+        self.capture_selected_direction_kind: str | None = None
+
+    @property
+    def capture_failure_reason(self) -> str:
+        return (
+            self._capture_geometry_observer.failure_reason
+            or "walk_terminated_before_target"
+        )
+
+    def _relax_proposal_task(self, task, *, optimizer, trajectory_callback):
+        if len(task.biases) == self._target_bias_count:
+            raise _TaskCaptured(task)
+        return super()._relax_proposal_task(
+            task,
+            optimizer=optimizer,
+            trajectory_callback=trajectory_callback,
+        )
+
+    def _record_direction_choice(self, choice) -> None:
+        super()._record_direction_choice(choice)
+        self.capture_selected_direction_kind = choice.kind.value
 
 
 def _production_module():
@@ -275,6 +336,49 @@ def build_capture_config(system: str, case_dir: Path, *, seed: int):
         production.build_config(system, case_dir),
         max_steps_per_walk=TARGET_BIAS_COUNT,
         rng_seed=seed,
+    )
+
+
+def capture_proposal_attempt(
+    seed_state: State,
+    calculator: object,
+    config,
+    *,
+    target_bias_count: int,
+    walker_factory=_ObservableCaptureWalker,
+) -> CaptureAttempt:
+    if (
+        isinstance(target_bias_count, bool)
+        or not isinstance(target_bias_count, int)
+        or target_bias_count <= 0
+    ):
+        raise ValueError("target_bias_count must be a positive integer")
+    if target_bias_count > config.max_steps_per_walk:
+        raise ValueError("target_bias_count exceeds max_steps_per_walk")
+    walker = walker_factory(
+        calculator=calculator,
+        config=config,
+        softening_enabled=SOFTENING_ENABLED,
+        target_bias_count=target_bias_count,
+    )
+    try:
+        walker._walk_candidate_from_seed(seed_state)
+    except _TaskCaptured as captured:
+        return CaptureAttempt(
+            status="eligible",
+            reason=None,
+            selected_direction_kind=(
+                walker.capture_selected_direction_kind
+            ),
+            task=captured.task,
+            evaluation_counts=walker.calculator.snapshot(),
+        )
+    return CaptureAttempt(
+        status="ineligible",
+        reason=str(walker.capture_failure_reason),
+        selected_direction_kind=walker.capture_selected_direction_kind,
+        task=None,
+        evaluation_counts=walker.calculator.snapshot(),
     )
 
 
@@ -495,17 +599,12 @@ def run(
 
     partial_dir.mkdir(parents=True)
     systems: dict[str, Any] = {}
+    capture_contexts: dict[str, list[tuple[Any, ...]]] = {}
     for system in SYSTEMS:
         system_dir = partial_dir / system
         system_dir.mkdir()
         bootstrap_calculator = calculator_factory()
         capture_calculator = calculator_factory()
-        proposal_calculators = {
-            arm.arm_id: calculator_factory() for arm in ARMS
-        }
-        landing_calculators = {
-            arm.arm_id: calculator_factory() for arm in ARMS
-        }
         bootstrap_config = build_capture_config(
             system, system_dir / "seed-42", seed=42
         )
@@ -516,25 +615,56 @@ def run(
             bootstrap_calculator,
         )
         task_records = []
-        rows = []
-        for seed in SEEDS:
+        capture_attempt_records = []
+        eligible_tasks = []
+        for seed in CANDIDATE_SEEDS:
             case_dir = system_dir / f"seed-{seed}"
             case_dir.mkdir(parents=True, exist_ok=True)
             config = build_capture_config(system, case_dir, seed=seed)
-            captured = capture_proposal_task(
+            attempt = capture_proposal_attempt(
                 bootstrap.state,
                 capture_calculator,
                 config,
                 target_bias_count=TARGET_BIAS_COUNT,
             )
-            source = captured.task
-            capture_counts = captured.evaluation_counts
+            capture_counts = attempt.evaluation_counts
+            if not _counts_close(capture_counts):
+                raise RuntimeError("capture purpose accounting does not close")
+            if (
+                not isinstance(attempt.selected_direction_kind, str)
+                or not attempt.selected_direction_kind
+            ):
+                raise RuntimeError(
+                    "capture attempt lacks selected direction kind"
+                )
+            capture_attempt_records.append(
+                {
+                    "seed": seed,
+                    "status": attempt.status,
+                    "reason": attempt.reason,
+                    "selected_direction_kind": (
+                        attempt.selected_direction_kind
+                    ),
+                    "selected_for_arms": attempt.status == "eligible",
+                    "purpose_counts": capture_counts.as_dict(),
+                    "force_evaluations": capture_counts.total,
+                    "direction_trace_path": (
+                        f"{system}/seed-{seed}/direction_trace.jsonl"
+                    ),
+                }
+            )
+            if attempt.status == "ineligible":
+                if attempt.task is not None or not attempt.reason:
+                    raise RuntimeError("invalid ineligible capture attempt")
+                continue
+            if attempt.status != "eligible" or attempt.task is None:
+                raise RuntimeError("invalid eligible capture attempt")
+            source = attempt.task
             if (
                 len(source.biases) != TARGET_BIAS_COUNT
                 or source.softening is not None
                 or source.maxiter != config.proposal_relax_steps
                 or source.fmax != config.proposal_fmax
-                or not _counts_close(capture_counts)
             ):
                 raise RuntimeError("captured fixed proposal task violates protocol")
             source_hash = source_task_sha256(source)
@@ -549,33 +679,22 @@ def run(
                     "task": proposal_task_to_payload(source),
                 }
             )
-            for arm in ARMS:
-                proposal = execute_proposal(
-                    source, arm, proposal_calculators[arm.arm_id]
-                )
-                landing = execute_landing(
-                    state_from_payload(proposal["final"]["state"]),
-                    config,
-                    landing_calculators[arm.arm_id],
-                )
-                if (
-                    landing["initial"]["positions_sha256"]
-                    != proposal["final"]["positions_sha256"]
-                ):
-                    raise RuntimeError(
-                        "landing quench did not start from proposal endpoint"
-                    )
-                rows.append(
-                    {
-                        "system": system,
-                        "seed": seed,
-                        "arm_id": arm.arm_id,
-                        "source_task_sha256": source_hash,
-                        "fixed_biased_pes_sha256": pes_hash,
-                        "proposal": proposal,
-                        "landing": landing,
-                    }
-                )
+            eligible_tasks.append(
+                (seed, config, source, source_hash, pes_hash)
+            )
+            if len(eligible_tasks) == TARGET_ELIGIBLE_TASKS:
+                break
+        _write_json(
+            system_dir / "capture_attempts.json",
+            capture_attempt_records,
+        )
+        if len(eligible_tasks) != TARGET_ELIGIBLE_TASKS:
+            raise RuntimeError(
+                f"{system} candidate stream produced fewer than "
+                f"{TARGET_ELIGIBLE_TASKS} capture-eligible tasks"
+            )
+
+        capture_contexts[system] = eligible_tasks
         systems[system] = {
             "dedup_energy_tol_eV": float(
                 bootstrap_config.dedup_energy_tol
@@ -604,15 +723,64 @@ def run(
                     bootstrap.certificate_satisfied
                 ),
             },
+            "capture_attempts_file": f"{system}/capture_attempts.json",
+            "capture_attempts": capture_attempt_records,
             "tasks": task_records,
-            "rows": rows,
+            "rows": [],
         }
+
+    for system in SYSTEMS:
+        proposal_calculators = {
+            arm.arm_id: calculator_factory() for arm in ARMS
+        }
+        landing_calculators = {
+            arm.arm_id: calculator_factory() for arm in ARMS
+        }
+        rows = []
+        for seed, config, source, source_hash, pes_hash in capture_contexts[
+            system
+        ]:
+            for arm in ARMS:
+                proposal = execute_proposal(
+                    source, arm, proposal_calculators[arm.arm_id]
+                )
+                landing = execute_landing(
+                    state_from_payload(proposal["final"]["state"]),
+                    config,
+                    landing_calculators[arm.arm_id],
+                )
+                if (
+                    landing["initial"]["positions_sha256"]
+                    != proposal["final"]["positions_sha256"]
+                ):
+                    raise RuntimeError(
+                        "landing quench did not start from proposal endpoint"
+                    )
+                rows.append(
+                    {
+                        "system": system,
+                        "seed": seed,
+                        "arm_id": arm.arm_id,
+                        "source_task_sha256": source_hash,
+                        "fixed_biased_pes_sha256": pes_hash,
+                        "proposal": proposal,
+                        "landing": landing,
+                    }
+                )
+        systems[system]["rows"] = rows
 
     summary = {
         **dict(checked.metadata),
         "protocol": {
             "systems": list(SYSTEMS),
-            "seeds": list(SEEDS),
+            "candidate_seeds": list(CANDIDATE_SEEDS),
+            "target_capture_eligible_tasks_per_system": (
+                TARGET_ELIGIBLE_TASKS
+            ),
+            "capture_selection_rule": (
+                "strict first 8 capture-eligible tasks from the deterministic "
+                "candidate-seed prefix, defined before any arm execution"
+            ),
             "target_bias_count": TARGET_BIAS_COUNT,
             "softening_enabled": SOFTENING_ENABLED,
             "proposal_optimizer": PROPOSAL_OPTIMIZER,
@@ -628,8 +796,10 @@ def run(
             "landing_maxiter": LANDING_MAXITER,
             "landing_objective": TRUE_PES_OBJECTIVE,
         },
-        "task_count": len(SYSTEMS) * len(SEEDS),
-        "row_count": len(SYSTEMS) * len(SEEDS) * len(ARMS),
+        "task_count": len(SYSTEMS) * TARGET_ELIGIBLE_TASKS,
+        "row_count": (
+            len(SYSTEMS) * TARGET_ELIGIBLE_TASKS * len(ARMS)
+        ),
         "systems": systems,
         "claim_boundary": (
             "This is a capture-policy-conditioned fixed one-bias local "
@@ -637,7 +807,11 @@ def run(
             "SciPy true-PES fmax=0.05 bootstrap per system. It tests whether "
             "a looser proposal certificate reduces proposal cost without "
             "changing the subsequent true-PES landing under the current "
-            "archive matcher; it does not support full-SSW superiority claims."
+            "archive matcher. Tasks are capture-eligibility-conditioned via "
+            "the recorded deterministic pre-arm seed stream, which may "
+            "systematically filter direction kinds; eligible/ineligible "
+            "direction kinds are retained in the attempt ledger. It does not "
+            "support full-SSW superiority claims."
         ),
     }
     _write_json(partial_dir / "summary.json", summary)
@@ -647,7 +821,7 @@ def run(
 
 def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=RUN_ROOT / "output")
+    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--expected-git-commit", required=True)
     parser.add_argument("--preflight-only", action="store_true")
     return parser.parse_args(argv)
