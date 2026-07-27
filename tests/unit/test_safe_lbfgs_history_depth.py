@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import errno
 from pathlib import Path
 import subprocess
 import sys
@@ -586,3 +587,103 @@ def test_preflight_orders_trust_gates_before_source_loader_or_calculator(tmp_pat
         "model_inputs",
         "cuda",
     ]
+
+
+def test_publish_race_keeps_concurrently_created_target_and_cleans_staging(
+    tmp_path, monkeypatch
+):
+    runner = _runner_module()
+    output_dir = tmp_path / "output"
+    sentinel = output_dir / "sentinel"
+    helper_calls = 0
+
+    def race_at_noreplace_boundary(source, target):
+        nonlocal helper_calls
+        helper_calls += 1
+        assert source.parent == target.parent
+        target.mkdir()
+        (target / "sentinel").write_text("preserve", encoding="utf-8")
+        raise FileExistsError(target)
+
+    monkeypatch.setattr(
+        runner,
+        "_rename_directory_noreplace",
+        race_at_noreplace_boundary,
+        raising=False,
+    )
+    monkeypatch.setattr(
+        runner,
+        "preflight",
+        lambda **_: _fake_preflight(runner, lambda: object()),
+    )
+    monkeypatch.setattr(
+        runner,
+        "replay_task_with_trace",
+        lambda task, calculator, *, arm: _finite_replay(runner, task, arm),
+    )
+
+    with pytest.raises(FileExistsError):
+        runner.run(output_dir=output_dir, expected_git_commit="e" * 40)
+
+    assert helper_calls == 1
+    assert sentinel.read_text(encoding="utf-8") == "preserve"
+    assert not list(tmp_path.glob(".output.staging-*"))
+
+
+@pytest.mark.parametrize("with_sentinel", (False, True))
+def test_noreplace_helper_never_overwrites_existing_empty_or_nonempty_target(
+    tmp_path, with_sentinel
+):
+    runner = _runner_module()
+    source = tmp_path / ".staging"
+    source.mkdir()
+    (source / "summary.json").write_text("staged", encoding="utf-8")
+    target = tmp_path / "output"
+    target.mkdir()
+    sentinel = target / "sentinel"
+    if with_sentinel:
+        sentinel.write_text("preserve", encoding="utf-8")
+
+    with pytest.raises(FileExistsError):
+        runner._rename_directory_noreplace(source, target)
+
+    assert source.is_dir()
+    assert (source / "summary.json").read_text(encoding="utf-8") == "staged"
+    assert target.is_dir()
+    if with_sentinel:
+        assert sentinel.read_text(encoding="utf-8") == "preserve"
+
+
+def test_noreplace_helper_fails_closed_when_platform_support_is_absent(
+    tmp_path, monkeypatch
+):
+    runner = _runner_module()
+    source = tmp_path / ".staging"
+    source.mkdir()
+    target = tmp_path / "output"
+    monkeypatch.setattr(runner.sys, "platform", "darwin")
+
+    with pytest.raises(OSError) as error:
+        runner._rename_directory_noreplace(source, target)
+
+    assert error.value.errno in {errno.ENOSYS, errno.ENOTSUP}
+    assert source.is_dir()
+    assert not target.exists()
+
+
+def test_noreplace_helper_fails_closed_for_cross_parent_publication(tmp_path):
+    runner = _runner_module()
+    source_parent = tmp_path / "source-parent"
+    target_parent = tmp_path / "target-parent"
+    source_parent.mkdir()
+    target_parent.mkdir()
+    source = source_parent / ".staging"
+    source.mkdir()
+    target = target_parent / "output"
+
+    with pytest.raises(OSError) as error:
+        runner._rename_directory_noreplace(source, target)
+
+    assert error.value.errno == errno.EXDEV
+    assert source.is_dir()
+    assert not target.exists()

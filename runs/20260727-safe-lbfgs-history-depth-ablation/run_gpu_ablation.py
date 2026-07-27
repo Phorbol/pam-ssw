@@ -4,13 +4,16 @@
 from __future__ import annotations
 
 import argparse
+import ctypes
 from dataclasses import asdict, dataclass, replace
+import errno
 from hashlib import sha256
 import importlib
 import importlib.metadata
 import importlib.util
 import inspect
 import json
+import os
 from pathlib import Path
 import platform
 import runpy
@@ -941,6 +944,53 @@ def _write_json_atomic(path: Path, payload: Any) -> None:
     temporary.replace(path)
 
 
+def _rename_directory_noreplace(source: Path, target: Path) -> None:
+    """Atomically publish a sibling directory only when the target is absent."""
+
+    if source.parent.resolve() != target.parent.resolve():
+        raise OSError(
+            errno.EXDEV,
+            "atomic no-replace publication requires staging and target to share a parent",
+            str(target),
+        )
+    if sys.platform != "linux":
+        raise OSError(
+            errno.ENOTSUP,
+            "atomic no-replace directory publication requires Linux renameat2",
+            str(target),
+        )
+    libc = ctypes.CDLL(None, use_errno=True)
+    try:
+        renameat2 = libc.renameat2
+    except AttributeError as error:
+        raise OSError(
+            errno.ENOSYS,
+            "libc does not expose Linux renameat2",
+            str(target),
+        ) from error
+    renameat2.argtypes = (
+        ctypes.c_int,
+        ctypes.c_char_p,
+        ctypes.c_int,
+        ctypes.c_char_p,
+        ctypes.c_uint,
+    )
+    renameat2.restype = ctypes.c_int
+    result = renameat2(
+        -100,  # AT_FDCWD
+        os.fsencode(source),
+        -100,  # AT_FDCWD
+        os.fsencode(target),
+        1,  # RENAME_NOREPLACE
+    )
+    if result == 0:
+        return
+    failure_errno = ctypes.get_errno()
+    if failure_errno == errno.EEXIST:
+        raise FileExistsError(failure_errno, os.strerror(failure_errno), str(target))
+    raise OSError(failure_errno, os.strerror(failure_errno), str(target))
+
+
 def publish_ledger_atomically(output_dir: Path, rows: Sequence[Mapping[str, Any]], summary_payload: Mapping[str, Any], *, write_json: Callable[[Path, Any], None] = _write_json_atomic) -> None:
     if output_dir.exists():
         raise FileExistsError(output_dir)
@@ -953,9 +1003,7 @@ def publish_ledger_atomically(output_dir: Path, rows: Sequence[Mapping[str, Any]
             system_rows = [dict(row) for row in rows if row["system"] == system]
             write_json(staging_dir / f"{system}.json", {"system": system, "task_ids": [f"{system}-seed-{seed}-bias-1" for seed in SEEDS], "rows": system_rows})
         write_json(staging_dir / "summary.json", summary_payload)
-        if output_dir.exists():
-            raise FileExistsError(output_dir)
-        staging_dir.rename(output_dir)
+        _rename_directory_noreplace(staging_dir, output_dir)
     finally:
         if staging_dir.exists():
             shutil.rmtree(staging_dir)
