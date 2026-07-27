@@ -268,9 +268,9 @@ def _resolve_safe_lbfgs_history_limit(
     if (
         isinstance(history_limit, bool)
         or not isinstance(history_limit, int)
-        or history_limit not in {0, _SAFE_LBFGS_MEMORY}
+        or history_limit not in {0, 1, _SAFE_LBFGS_MEMORY}
     ):
-        raise ValueError("_safe_lbfgs_history_limit must be None, 0, or 10")
+        raise ValueError("_safe_lbfgs_history_limit must be None, 0, 1, or 10")
     if optimizer != "safe-lbfgs-total":
         raise ValueError(
             "_safe_lbfgs_history_limit is only supported for optimizer='safe-lbfgs-total'"

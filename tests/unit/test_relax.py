@@ -543,9 +543,9 @@ def test_safe_lbfgs_total_caps_first_atomic_step():
 
 @pytest.mark.parametrize(
     "history_limit",
-    [True, False, -1, 1, 9, 11, 0.0, 10.0, "10"],
+    [True, False, -1, 2, 9, 11, 1.0, "1", 0.0, 10.0, "10"],
 )
-def test_safe_lbfgs_history_limit_rejects_invalid_values_before_evaluator(history_limit):
+def test_safe_lbfgs_history_one_depth_rejects_invalid_values_before_evaluator(history_limit):
     calls = []
 
     def evaluator(flat_positions, template):
@@ -568,7 +568,11 @@ def test_safe_lbfgs_history_limit_rejects_invalid_values_before_evaluator(histor
     "optimizer",
     ["ase-fire", "ase-fire2", "ase-lbfgs", "scipy-lbfgsb", "bias-separated-lbfgs"],
 )
-def test_safe_lbfgs_history_limit_rejects_other_optimizers_before_evaluator(optimizer):
+@pytest.mark.parametrize("history_limit", [0, 1])
+def test_safe_lbfgs_history_one_or_zero_rejects_other_optimizers_before_evaluator(
+    optimizer,
+    history_limit,
+):
     calls = []
 
     def evaluator(flat_positions, template):
@@ -581,7 +585,7 @@ def test_safe_lbfgs_history_limit_rejects_other_optimizers_before_evaluator(opti
             state,
             fmax=1e-8,
             maxiter=1,
-            _safe_lbfgs_history_limit=0,
+            _safe_lbfgs_history_limit=history_limit,
         )
 
     assert calls == []
@@ -644,6 +648,28 @@ def test_safe_lbfgs_history_limit_none_matches_explicit_default_capacity():
     assert default_result.telemetry == explicit_result.telemetry
 
 
+def test_safe_lbfgs_history_one_runs_and_matches_depth_ten_with_one_usable_secant():
+    history_one, history_one_calls, history_one_trajectory = _run_safe_lbfgs_history_limit(
+        1,
+        maxiter=2,
+    )
+    history_ten, history_ten_calls, history_ten_trajectory = _run_safe_lbfgs_history_limit(
+        10,
+        maxiter=2,
+    )
+
+    assert history_one.n_iter == history_ten.n_iter == 2
+    assert history_one.telemetry.accepted_secants == history_ten.telemetry.accepted_secants == 2
+    np.testing.assert_array_equal(history_one_calls, history_ten_calls)
+    assert len(history_one_trajectory) == len(history_ten_trajectory)
+    for one_state, ten_state in zip(history_one_trajectory, history_ten_trajectory, strict=True):
+        np.testing.assert_array_equal(one_state.positions, ten_state.positions)
+    np.testing.assert_array_equal(history_one.state.positions, history_ten.state.positions)
+    assert history_one.energy == history_ten.energy
+    assert history_one.gradient_norm == history_ten.gradient_norm
+    assert history_one.telemetry == history_ten.telemetry
+
+
 def test_safe_lbfgs_history_limit_zero_matches_default_capacity_for_first_iteration():
     empty_result, empty_calls, empty_trajectory = _run_safe_lbfgs_history_limit(0, maxiter=1)
     default_result, default_calls, default_trajectory = _run_safe_lbfgs_history_limit(10, maxiter=1)
@@ -673,6 +699,40 @@ def test_safe_lbfgs_history_limit_zero_keeps_inverse_product_history_empty(monke
 
     assert result.n_iter == 3
     assert history_lengths == [0, 0, 0]
+
+
+def test_safe_lbfgs_history_depth_one_retains_one_pair_and_diverges_only_after_second_secant(
+    monkeypatch,
+):
+    inverse_product = relax_module._lbfgs_inverse_product
+    observations = {}
+    active_history_limit = None
+
+    def spy_inverse_product(gradient, history):
+        observations.setdefault(active_history_limit, []).append(
+            (len(history), -inverse_product(gradient, history))
+        )
+        return inverse_product(gradient, history)
+
+    monkeypatch.setattr(relax_module, "_lbfgs_inverse_product", spy_inverse_product)
+
+    active_history_limit = 1
+    history_one, _, _ = _run_safe_lbfgs_history_limit(1, maxiter=3)
+    active_history_limit = 10
+    history_ten, _, _ = _run_safe_lbfgs_history_limit(10, maxiter=3)
+
+    one_observations = observations[1]
+    ten_observations = observations[10]
+    assert history_one.n_iter == history_ten.n_iter == 3
+    assert [length for length, _ in one_observations] == [0, 1, 1]
+    assert [length for length, _ in ten_observations] == [0, 1, 2]
+    for (_, one_direction), (_, ten_direction) in zip(
+        one_observations[:2],
+        ten_observations[:2],
+        strict=True,
+    ):
+        np.testing.assert_array_equal(one_direction, ten_direction)
+    assert not np.array_equal(one_observations[2][1], ten_observations[2][1])
 
 
 def test_safe_lbfgs_history_capacity_changes_anisotropic_path_only_after_secant():
@@ -1357,3 +1417,58 @@ def test_custom_lbfgs_clears_history_on_mic_branch_change(optimizer, history_lim
     assert result.telemetry.mic_branch_resets == 1
     assert result.telemetry.accepted_secants == 0
     assert result.telemetry.rejected_secants == 1
+
+
+@pytest.mark.parametrize(
+    ("history_limit", "expected_history_lengths"),
+    [(1, [0, 1, 1, 0]), (10, [0, 1, 2, 0])],
+)
+def test_safe_lbfgs_history_depth_clears_on_mic_branch_change(
+    monkeypatch,
+    history_limit,
+    expected_history_lengths,
+):
+    inverse_product = relax_module._lbfgs_inverse_product
+    history_lengths = []
+
+    def spy_inverse_product(gradient, history):
+        history_lengths.append(len(history))
+        return inverse_product(gradient, history)
+
+    monkeypatch.setattr(relax_module, "_lbfgs_inverse_product", spy_inverse_product)
+
+    def component_evaluator(flat_positions, template):
+        flat = np.asarray(flat_positions, dtype=float)
+        signature = ((0, 0, 0),) if flat[0] >= 0.7 else ((1, 0, 0),)
+        gradient = flat.copy()
+        return RelaxEvaluation(
+            true_energy=0.5 * float(np.dot(flat, flat)),
+            true_gradient=gradient,
+            bias_energy=0.0,
+            bias_gradient=np.zeros_like(flat),
+            softening_energy=0.0,
+            softening_gradient=np.zeros_like(flat),
+            total_energy=0.5 * float(np.dot(flat, flat)),
+            total_gradient=gradient,
+            bias_image_signature=signature,
+        )
+
+    def total_evaluator(flat_positions, template):
+        parts = component_evaluator(flat_positions, template)
+        return parts.total_energy, parts.total_gradient.copy()
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    result = Relaxer(
+        total_evaluator,
+        optimizer="safe-lbfgs-total",
+        component_evaluator=component_evaluator,
+    ).relax(
+        state,
+        fmax=1e-12,
+        maxiter=4,
+        _safe_lbfgs_history_limit=history_limit,
+    )
+
+    assert result.n_iter == 4
+    assert result.telemetry.mic_branch_resets == 1
+    assert history_lengths == expected_history_lengths
