@@ -25,6 +25,7 @@ SAFE_ARM = ARMS[1][0]
 INITIAL_FORCE_THRESHOLDS = (0.10, 0.05, 0.01)
 SAME_BASIN_ENERGY_TOL_EV = 1.0e-3
 SAME_BASIN_KABSCH_RMSD_TOL_A = 0.15
+FLOAT32_REFERENCE_ENERGY_EV = -500.0
 
 
 def _load_json(path: Path) -> Any:
@@ -75,6 +76,30 @@ def kabsch_rmsd(first: object, second: object) -> float:
 
 def _certificate(force: float, threshold: float) -> bool:
     return bool(threshold > 0.0 and 0.0 <= force <= threshold)
+
+
+def _percentile(values: Sequence[float | int], percentile: float) -> float:
+    if not values:
+        raise ValueError("cannot summarize an empty sequence")
+    return float(np.percentile(np.asarray(values, dtype=float), percentile))
+
+
+def _distribution(
+    values: Sequence[float | int],
+    *,
+    total_as_integer: bool = False,
+    max_as_integer: bool = False,
+) -> dict[str, float | int]:
+    if not values:
+        raise ValueError("cannot summarize an empty sequence")
+    total = sum(values)
+    maximum = max(values)
+    return {
+        "total": int(total) if total_as_integer else float(total),
+        "median": _percentile(values, 50.0),
+        "p90": _percentile(values, 90.0),
+        "max": int(maximum) if max_as_integer else float(maximum),
+    }
 
 
 def _validate_summary(summary: object) -> Mapping[str, Any]:
@@ -146,6 +171,9 @@ def _validate_row(
     _finite(final.get("energy_eV"), "final energy")
     _finite(final.get("max_active_force_eV_per_A"), "final force")
     _positions(final.get("positions"), "final positions")
+    wall_time = _finite(row.get("wall_time_s"), "wall_time_s")
+    if wall_time < 0.0:
+        raise ValueError("wall_time_s must be non-negative")
     evaluator_calls = _integer(row.get("evaluator_calls"), "evaluator_calls")
     telemetry_calls = _integer(telemetry.get("evaluator_calls"), "telemetry evaluator_calls")
     post_relax_calls = _integer(
@@ -236,6 +264,15 @@ def analyze(raw_dir: Path) -> dict[str, Any]:
             )
             for threshold in INITIAL_FORCE_THRESHOLDS
         }
+        calls = [int(row["evaluator_calls"]) for row in arm_rows]
+        terminal_forces = [
+            float(row["final"]["max_active_force_eV_per_A"])
+            for row in arm_rows
+        ]
+        energy_changes = [
+            float(row["final"]["energy_eV"]) - float(row["initial"]["energy_eV"])
+            for row in arm_rows
+        ]
         terminal_by_arm[arm_id] = {
             "force_certificate_0.01_count": sum(
                 _certificate(
@@ -244,7 +281,30 @@ def analyze(raw_dir: Path) -> dict[str, Any]:
                 )
                 for row in arm_rows
             ),
-            "evaluator_calls": sum(int(row["evaluator_calls"]) for row in arm_rows),
+            "evaluator_calls": _distribution(
+                calls,
+                total_as_integer=True,
+                max_as_integer=True,
+            ),
+            "wall_time_s_total": float(
+                sum(float(row["wall_time_s"]) for row in arm_rows)
+            ),
+            "terminal_force_eV_per_A": {
+                "median": _percentile(terminal_forces, 50.0),
+                "p90": _percentile(terminal_forces, 90.0),
+                "max": max(terminal_forces),
+            },
+            "energy_change_eV": {
+                "definition": "final_energy_eV_minus_initial_energy_eV",
+                "total": float(sum(energy_changes)),
+                "median": _percentile(energy_changes, 50.0),
+                "p90": _percentile(energy_changes, 90.0),
+                "min": min(energy_changes),
+                "max": max(energy_changes),
+                "decreased_count": sum(delta < 0.0 for delta in energy_changes),
+                "unchanged_count": sum(delta == 0.0 for delta in energy_changes),
+                "increased_count": sum(delta > 0.0 for delta in energy_changes),
+            },
             "termination_reasons": dict(
                 sorted(Counter(str(row["termination_reason"]) for row in arm_rows).items())
             ),
@@ -252,9 +312,33 @@ def analyze(raw_dir: Path) -> dict[str, Any]:
 
     pairs = []
     same_basin_count = 0
+    strict_contingency = {
+        "safe_only": 0,
+        "scipy_only": 0,
+        "both": 0,
+        "neither": 0,
+    }
     for task_index in range(EXPECTED_TASK_COUNT):
         scipy_row = by_key[(SCIPY_ARM, task_index)]
         safe_row = by_key[(SAFE_ARM, task_index)]
+        scipy_strict = _certificate(
+            float(scipy_row["final"]["max_active_force_eV_per_A"]),
+            0.01,
+        )
+        safe_strict = _certificate(
+            float(safe_row["final"]["max_active_force_eV_per_A"]),
+            0.01,
+        )
+        contingency_key = (
+            "both"
+            if scipy_strict and safe_strict
+            else "scipy_only"
+            if scipy_strict
+            else "safe_only"
+            if safe_strict
+            else "neither"
+        )
+        strict_contingency[contingency_key] += 1
         energy_delta = abs(
             float(safe_row["final"]["energy_eV"])
             - float(scipy_row["final"]["energy_eV"])
@@ -278,6 +362,50 @@ def analyze(raw_dir: Path) -> dict[str, Any]:
                 "same_basin_current_archive_semantics": same_basin,
             }
         )
+
+    safe_failures = [
+        by_key[(SAFE_ARM, task_index)]
+        for task_index in range(EXPECTED_TASK_COUNT)
+        if by_key[(SAFE_ARM, task_index)]["termination_reason"]
+        == "line_search_failed"
+    ]
+    failure_calls = [int(row["evaluator_calls"]) for row in safe_failures]
+    safe_failure_summary = {
+        "count": len(safe_failures),
+        "evaluator_calls_total": sum(failure_calls),
+        "evaluator_calls_median": (
+            _percentile(failure_calls, 50.0) if failure_calls else None
+        ),
+        "accepted_steps_total": sum(
+            _integer(row["telemetry"].get("accepted_steps"), "accepted_steps")
+            for row in safe_failures
+        ),
+        "rejected_steps_total": sum(
+            _integer(row["telemetry"].get("rejected_steps"), "rejected_steps")
+            for row in safe_failures
+        ),
+        "line_search_evaluations_total": sum(
+            _integer(
+                row["telemetry"].get("line_search_evaluations"),
+                "line_search_evaluations",
+            )
+            for row in safe_failures
+        ),
+    }
+
+    all_energy_changes = [
+        float(row["final"]["energy_eV"]) - float(row["initial"]["energy_eV"])
+        for row in by_key.values()
+    ]
+    nonzero_energy_steps = [
+        abs(delta) for delta in all_energy_changes if delta != 0.0
+    ]
+    if not nonzero_energy_steps:
+        raise ValueError("all final-minus-initial energy changes are zero")
+    minimum_energy_step = min(nonzero_energy_steps)
+    float32_ulp = abs(
+        float(np.spacing(np.float32(FLOAT32_REFERENCE_ENERGY_EV)))
+    )
     return {
         "schema_version": 1,
         "ledger": {
@@ -287,6 +415,20 @@ def analyze(raw_dir: Path) -> dict[str, Any]:
         },
         "initial_force_certificate_counts_by_arm": certificate_counts,
         "terminal_by_arm": terminal_by_arm,
+        "safe_line_search_failed": safe_failure_summary,
+        "energy_resolution": {
+            "minimum_nonzero_absolute_final_minus_initial_energy_eV": (
+                minimum_energy_step
+            ),
+            "float32_reference_energy_eV": FLOAT32_REFERENCE_ENERGY_EV,
+            "float32_ulp_at_reference_energy_eV": float32_ulp,
+            "minimum_step_equals_float32_ulp": minimum_energy_step == float32_ulp,
+            "interpretation": (
+                "This numerical match supports the inference that energy "
+                "quantization may contribute to Armijo stalling near minima; "
+                "it does not prove the root cause."
+            ),
+        },
         "terminal_pairing": {
             "same_basin_definition": (
                 "abs_energy_delta_eV<=0.001_and_kabsch_rmsd_A<=0.15"
@@ -294,6 +436,7 @@ def analyze(raw_dir: Path) -> dict[str, Any]:
             "semantic_scope": "current_c60_archive_energy_plus_kabsch_thresholds",
             "same_basin_count": same_basin_count,
             "different_basin_count": EXPECTED_TASK_COUNT - same_basin_count,
+            "strict_force_certificate_0.01_contingency": strict_contingency,
             "pairs": pairs,
         },
         "claim_boundary": (
@@ -307,6 +450,32 @@ def render_conclusion(evidence: Mapping[str, Any]) -> str:
     initial = evidence["initial_force_certificate_counts_by_arm"]
     terminal = evidence["terminal_by_arm"]
     pairing = evidence["terminal_pairing"]
+    scipy = terminal[SCIPY_ARM]
+    safe = terminal[SAFE_ARM]
+    failures = evidence["safe_line_search_failed"]
+    resolution = evidence["energy_resolution"]
+    contingency = pairing["strict_force_certificate_0.01_contingency"]
+    failure_median = failures["evaluator_calls_median"]
+    failure_median_text = "n/a" if failure_median is None else f"{failure_median:g}"
+    minimum_step = resolution[
+        "minimum_nonzero_absolute_final_minus_initial_energy_eV"
+    ]
+    float32_ulp = resolution["float32_ulp_at_reference_energy_eV"]
+    if resolution["minimum_step_equals_float32_ulp"]:
+        resolution_text = (
+            f"The minimum non-zero absolute final-minus-initial energy step was "
+            f"{minimum_step} eV, equal to the float32 ULP at approximately "
+            f"-500 eV ({float32_ulp} eV). This numerical match supports the "
+            "inference that energy quantization may contribute to Armijo stalling "
+            "near minima; it does not prove the root cause."
+        )
+    else:
+        resolution_text = (
+            f"The minimum non-zero absolute final-minus-initial energy step was "
+            f"{minimum_step} eV. It does not equal the float32 ULP at approximately "
+            f"-500 eV ({float32_ulp} eV), so this comparison alone does not "
+            "support the energy-quantization inference."
+        )
     return (
         "# C60 post-SciPy accepted-endpoint refinement/rescue ablation\n\n"
         "This experiment re-relaxes all 143 accepted endpoints produced by the "
@@ -321,9 +490,51 @@ def render_conclusion(evidence: Mapping[str, Any]) -> str:
         f"{initial[SAFE_ARM]['0.01']}. These derived loose-threshold counts do "
         "not add a third optimizer arm; there is no third optimizer arm.\n\n"
         "## Terminal outcomes\n\n"
-        f"0.01 eV/Å terminal certificates: SciPy restart "
-        f"{terminal[SCIPY_ARM]['force_certificate_0.01_count']}/143; safe L-BFGS "
-        f"rescue {terminal[SAFE_ARM]['force_certificate_0.01_count']}/143. Under "
+        f"Safe L-BFGS reached {safe['force_certificate_0.01_count']}/143 versus "
+        f"{scipy['force_certificate_0.01_count']}/143 for the SciPy restart, but "
+        f"used {safe['evaluator_calls']['total']:,} versus "
+        f"{scipy['evaluator_calls']['total']:,} evaluator calls. Per-task "
+        "evaluator calls (median/p90/max) were "
+        f"{safe['evaluator_calls']['median']:g}/"
+        f"{safe['evaluator_calls']['p90']:g}/"
+        f"{safe['evaluator_calls']['max']:g} for safe and "
+        f"{scipy['evaluator_calls']['median']:g}/"
+        f"{scipy['evaluator_calls']['p90']:g}/"
+        f"{scipy['evaluator_calls']['max']:g} for SciPy; total wall times were "
+        f"{safe['wall_time_s_total']:.6g} s and "
+        f"{scipy['wall_time_s_total']:.6g} s, respectively. Terminal force "
+        "(median/p90/max, eV/Å) was "
+        f"{safe['terminal_force_eV_per_A']['median']:.6g}/"
+        f"{safe['terminal_force_eV_per_A']['p90']:.6g}/"
+        f"{safe['terminal_force_eV_per_A']['max']:.6g} for safe and "
+        f"{scipy['terminal_force_eV_per_A']['median']:.6g}/"
+        f"{scipy['terminal_force_eV_per_A']['p90']:.6g}/"
+        f"{scipy['terminal_force_eV_per_A']['max']:.6g} for SciPy.\n\n"
+        "The strict 0.01 eV/Å paired contingency "
+        f"(safe-only/SciPy-only/both/neither) was "
+        f"{contingency['safe_only']}/{contingency['scipy_only']}/"
+        f"{contingency['both']}/{contingency['neither']}. "
+        f"{failures['count']} line-search failures consumed "
+        f"{failures['evaluator_calls_total']:,} evaluator calls "
+        f"(median {failure_median_text}), with "
+        f"{failures['accepted_steps_total']:,} accepted steps, "
+        f"{failures['rejected_steps_total']:,} rejected steps, and "
+        f"{failures['line_search_evaluations_total']:,} line-search "
+        "evaluations.\n\n"
+        "Initial-to-final energy changes (total/median/p90/min/max, eV) were "
+        f"{safe['energy_change_eV']['total']:.12g}/"
+        f"{safe['energy_change_eV']['median']:.12g}/"
+        f"{safe['energy_change_eV']['p90']:.12g}/"
+        f"{safe['energy_change_eV']['min']:.12g}/"
+        f"{safe['energy_change_eV']['max']:.12g} for safe and "
+        f"{scipy['energy_change_eV']['total']:.12g}/"
+        f"{scipy['energy_change_eV']['median']:.12g}/"
+        f"{scipy['energy_change_eV']['p90']:.12g}/"
+        f"{scipy['energy_change_eV']['min']:.12g}/"
+        f"{scipy['energy_change_eV']['max']:.12g} for SciPy.\n\n"
+        "## Numerical resolution evidence\n\n"
+        f"{resolution_text}\n\n"
+        "Under "
         "the current archive semantics of |dE| <= 1e-3 eV plus Kabsch RMSD <= "
         f"0.15 Å, {pairing['same_basin_count']}/143 terminal pairs are same-basin.\n\n"
         "The basin label is limited to those current archive semantics. It is not "

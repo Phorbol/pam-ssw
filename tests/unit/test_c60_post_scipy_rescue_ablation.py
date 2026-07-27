@@ -412,3 +412,133 @@ def test_analyzer_rejects_counter_mismatch_and_states_claim_ceiling(tmp_path: Pa
     assert "not a fair replacement comparison against the original landing process" in conclusion
     assert "current archive semantics" in conclusion
     assert "no third optimizer arm" in conclusion
+
+
+def test_analyzer_adds_reproducible_cost_force_energy_and_strict_pair_aggregates(
+    tmp_path: Path,
+) -> None:
+    runner = _module(RUNNER_PATH, "c60_post_scipy_rescue_runner_aggregate_fixture")
+    analyzer = _module(ANALYZER_PATH, "c60_post_scipy_rescue_analyzer_aggregates")
+    raw_dir = _write_fake_output(tmp_path, runner)
+    rows_path = raw_dir / "rows.json"
+    rows = json.loads(rows_path.read_text(encoding="utf-8"))
+    for row in rows:
+        index = int(row["task_index"])
+        safe = row["arm_id"] == "safe-lbfgs-total-rescue"
+        calls = (2 if safe else 1) * (index + 1)
+        row["evaluator_calls"] = calls
+        row["telemetry"]["evaluator_calls"] = calls
+        row["purpose_count_delta"]["post_relax_validation"] = calls
+        row["wall_time_s"] = 0.2 if safe else 0.1
+        row["final"]["energy_eV"] = row["initial"]["energy_eV"] - (
+            0.002 if safe else 0.001
+        )
+        row["final"]["max_active_force_eV_per_A"] = (
+            (0.005 if index < 5 or index >= 133 else 0.2)
+            if safe
+            else (index + 1) / 1000.0
+        )
+        row["telemetry"].update(
+            accepted_steps=0,
+            rejected_steps=0,
+            line_search_evaluations=0,
+        )
+        if safe and index in (0, 1):
+            row["termination_reason"] = "line_search_failed"
+            row["telemetry"].update(
+                termination_reason="line_search_failed",
+                accepted_steps=index + 2,
+                rejected_steps=index + 4,
+                line_search_evaluations=index + 6,
+            )
+    rows_path.write_text(json.dumps(rows), encoding="utf-8")
+
+    evidence = analyzer.analyze(raw_dir)
+    scipy = evidence["terminal_by_arm"]["scipy-lbfgsb-restart"]
+    safe = evidence["terminal_by_arm"]["safe-lbfgs-total-rescue"]
+
+    assert scipy["evaluator_calls"] == {
+        "total": 10296,
+        "median": 72.0,
+        "p90": 128.8,
+        "max": 143,
+    }
+    assert safe["evaluator_calls"] == {
+        "total": 20592,
+        "median": 144.0,
+        "p90": 257.6,
+        "max": 286,
+    }
+    assert scipy["wall_time_s_total"] == pytest.approx(14.3)
+    assert safe["wall_time_s_total"] == pytest.approx(28.6)
+    assert scipy["terminal_force_eV_per_A"] == {
+        "median": pytest.approx(0.072),
+        "p90": pytest.approx(0.1288),
+        "max": pytest.approx(0.143),
+    }
+    assert scipy["energy_change_eV"] == {
+        "definition": "final_energy_eV_minus_initial_energy_eV",
+        "total": pytest.approx(-0.143),
+        "median": pytest.approx(-0.001),
+        "p90": pytest.approx(-0.001),
+        "min": pytest.approx(-0.001),
+        "max": pytest.approx(-0.001),
+        "decreased_count": 143,
+        "unchanged_count": 0,
+        "increased_count": 0,
+    }
+    assert evidence["terminal_pairing"][
+        "strict_force_certificate_0.01_contingency"
+    ] == {
+        "safe_only": 10,
+        "scipy_only": 5,
+        "both": 5,
+        "neither": 123,
+    }
+    assert evidence["safe_line_search_failed"] == {
+        "count": 2,
+        "evaluator_calls_total": 6,
+        "evaluator_calls_median": 3.0,
+        "accepted_steps_total": 5,
+        "rejected_steps_total": 9,
+        "line_search_evaluations_total": 13,
+    }
+
+    conclusion = analyzer.render_conclusion(evidence)
+    assert "59/143 versus 32/143" not in conclusion
+    assert "20,592 versus 10,296" in conclusion
+    assert "2 line-search failures consumed 6 evaluator calls" in conclusion
+    assert "does not equal the float32 ULP" in conclusion
+
+
+def test_analyzer_reports_float32_energy_resolution_as_inference_not_root_cause(
+    tmp_path: Path,
+) -> None:
+    runner = _module(RUNNER_PATH, "c60_post_scipy_rescue_runner_resolution_fixture")
+    analyzer = _module(ANALYZER_PATH, "c60_post_scipy_rescue_analyzer_resolution")
+    raw_dir = _write_fake_output(tmp_path, runner)
+    rows_path = raw_dir / "rows.json"
+    rows = json.loads(rows_path.read_text(encoding="utf-8"))
+    ulp = abs(float(np.spacing(np.float32(-500.0))))
+    for index, row in enumerate(rows):
+        row["initial"]["energy_eV"] = -500.0
+        row["final"]["energy_eV"] = -500.0 if index == 0 else -500.0 - ulp
+    rows_path.write_text(json.dumps(rows), encoding="utf-8")
+
+    evidence = analyzer.analyze(raw_dir)
+
+    assert evidence["energy_resolution"] == {
+        "minimum_nonzero_absolute_final_minus_initial_energy_eV": ulp,
+        "float32_reference_energy_eV": -500.0,
+        "float32_ulp_at_reference_energy_eV": ulp,
+        "minimum_step_equals_float32_ulp": True,
+        "interpretation": (
+            "This numerical match supports the inference that energy quantization "
+            "may contribute to Armijo stalling near minima; it does not prove the "
+            "root cause."
+        ),
+    }
+    conclusion = analyzer.render_conclusion(evidence)
+    assert "supports the inference" in conclusion
+    assert "may contribute to Armijo stalling near minima" in conclusion
+    assert "does not prove the root cause" in conclusion
