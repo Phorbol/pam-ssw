@@ -441,6 +441,11 @@ def test_analyzer_reports_certificates_cost_same_basin_and_claim_boundary(
     assert evidence["paired"]["loose"]["c60"]["safe-lbfgs-total"][
         "same_basin_count"
     ] == 16
+    finite_pair = evidence["paired"]["loose"]["c60"]["safe-lbfgs-total"][
+        "pairs"
+    ][0]
+    assert finite_pair["terminal_rmsd_status"] == "finite"
+    assert finite_pair["terminal_rmsd_A"] == pytest.approx(0.0)
     assert "capture policy" in evidence["claim_boundary"]
     assert "SciPy loose endpoint" in evidence["claim_boundary"]
 
@@ -450,6 +455,46 @@ def test_analyzer_reports_certificates_cost_same_basin_and_claim_boundary(
     rows_path.write_text(json.dumps(rows))
     with pytest.raises(ValueError, match="position hash"):
         analyzer.analyze(raw)
+
+
+def test_distance_signature_screened_rmsd_is_json_null_and_not_same_basin(
+    monkeypatch,
+):
+    runner = module(RUNNER_PATH, "tiered_runner_nonfinite_rmsd_fixture")
+    analyzer = module(ANALYZER_PATH, "tiered_analyzer_nonfinite_rmsd")
+    state = _task(runner).state
+    row = {
+        "final": {
+            "energy_eV": -1.0,
+            "state": runner.state_payload(state),
+        }
+    }
+    monkeypatch.setattr(
+        analyzer.MinimaArchive,
+        "_rmsd",
+        staticmethod(lambda first, second: float("inf")),
+    )
+
+    same, energy_delta, rmsd, *status = analyzer._same_basin(
+        row,
+        row,
+        energy_tol=1.0e-3,
+        rmsd_tol=0.15,
+    )
+    pair = {
+        "same_basin_current_archive_semantics": same,
+        "absolute_terminal_energy_delta_eV": energy_delta,
+        "terminal_rmsd_A": rmsd,
+        "terminal_rmsd_status": status[0] if status else None,
+    }
+
+    json.dumps(pair, allow_nan=False)
+    assert pair == {
+        "same_basin_current_archive_semantics": False,
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "terminal_rmsd_A": None,
+        "terminal_rmsd_status": "distance_signature_screened_or_nonfinite",
+    }
 
 
 def test_cli_entrypoints_exist_and_parse_help():

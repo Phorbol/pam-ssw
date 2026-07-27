@@ -291,7 +291,7 @@ def _same_basin(
     *,
     energy_tol: float,
     rmsd_tol: float,
-) -> tuple[bool, float, float]:
+) -> tuple[bool, float, float | None, str]:
     energy_delta = abs(
         float(first["final"]["energy_eV"])
         - float(second["final"]["energy_eV"])
@@ -299,7 +299,19 @@ def _same_basin(
     rmsd = MinimaArchive._rmsd(
         _state(first["final"]["state"]), _state(second["final"]["state"])
     )
-    return energy_delta <= energy_tol and rmsd <= rmsd_tol, energy_delta, rmsd
+    if not math.isfinite(rmsd):
+        return (
+            False,
+            energy_delta,
+            None,
+            "distance_signature_screened_or_nonfinite",
+        )
+    return (
+        energy_delta <= energy_tol and rmsd <= rmsd_tol,
+        energy_delta,
+        rmsd,
+        "finite",
+    )
 
 
 def analyze(raw_dir: Path) -> dict[str, Any]:
@@ -356,7 +368,7 @@ def analyze(raw_dir: Path) -> dict[str, Any]:
                 pairs = []
                 for task_index, scipy_row in enumerate(scipy_rows):
                     arm_row = rows[(stage, system, arm_id, task_index)]
-                    same, energy_delta, rmsd = _same_basin(
+                    same, energy_delta, rmsd, rmsd_status = _same_basin(
                         scipy_row,
                         arm_row,
                         energy_tol=energy_tol,
@@ -368,6 +380,7 @@ def analyze(raw_dir: Path) -> dict[str, Any]:
                             "same_basin_current_archive_semantics": same,
                             "absolute_terminal_energy_delta_eV": energy_delta,
                             "terminal_rmsd_A": rmsd,
+                            "terminal_rmsd_status": rmsd_status,
                             "evaluator_call_delta_vs_scipy": (
                                 int(arm_row["evaluator_calls"])
                                 - int(scipy_row["evaluator_calls"])
