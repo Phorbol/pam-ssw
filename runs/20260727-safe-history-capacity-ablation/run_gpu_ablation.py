@@ -11,11 +11,14 @@ from __future__ import annotations
 import argparse
 from dataclasses import asdict, dataclass, replace
 from hashlib import sha256
+import importlib
 import importlib.util
+import inspect
 import json
 from pathlib import Path
 import runpy
 import shutil
+import subprocess
 import sys
 import tempfile
 from time import perf_counter
@@ -32,6 +35,8 @@ from pamssw.walker import ProposalRelaxationTask
 
 
 RUN_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = RUN_ROOT.parents[1]
+PAMSSW_SOURCE_ROOT = REPO_ROOT / "pamssw"
 OUTPUT_DIR = RUN_ROOT / "output" / "ledger"
 SOURCE_SUMMARY_PATH = Path(
     "/tmp/SSW-worktrees/fixed-proposal-replay/"
@@ -51,6 +56,7 @@ SYSTEMS = ("c60", "pdo")
 SEEDS = tuple(range(42, 50))
 MAXITER = 400
 EXPECTED_SOURCE_SUMMARY_SHA256 = "62cc771e2aa24e9addef0e870d0524f901f02bddc34152cf2a2eeea91a671b04"
+EXPECTED_PAMSSW_BUNDLE_SHA256 = "459a3ed173afbde50c499a2653702796ec1f08f022cc0a93ed2e028222d62636"
 EXPECTED_FIXED_REPLAY_DRIVER_SHA256 = "f9c9602e42985891a6ca2a84ca70dda69c52b9d794a6ea6c76857c398345fa8f"
 EXPECTED_G1_DRIVER_SHA256 = "0e69736d5d92372a2f4e449c440c09307613a55f0028126c7bb36d77296bbfbb"
 EXPECTED_TRACE_RECORDER_SHA256 = "c6feeaabf0062f6654f8ea4b4fff610b258dcab754e1907dd3f4c3779e7165de"
@@ -119,6 +125,8 @@ class Preflight:
     safe_kernel_descriptor: Mapping[str, Any]
     safe_kernel_descriptor_sha256: str
     helper_provenance: Mapping[str, Any]
+    pamssw_source_provenance: Mapping[str, Any]
+    repo_provenance: Mapping[str, Any]
     cuda_provenance: Mapping[str, Any]
 
 
@@ -312,6 +320,125 @@ def _verified_helper_provenance() -> dict[str, dict[str, str]]:
     }
 
 
+def _pamssw_bundle_sha256(source_root: Path) -> str:
+    """Hash sorted repo-relative Python sources, excluding bytecode caches."""
+
+    if not source_root.is_dir():
+        raise FileNotFoundError(f"pamssw source root does not exist: {source_root}")
+    source_files = sorted(
+        path
+        for path in source_root.rglob("*.py")
+        if path.is_file() and "__pycache__" not in path.parts
+    )
+    if not source_files:
+        raise ValueError(f"pamssw source root contains no Python files: {source_root}")
+    digest = sha256()
+    for path in source_files:
+        relative_path = path.relative_to(source_root).as_posix().encode("utf-8")
+        digest.update(relative_path)
+        digest.update(b"\0")
+        digest.update(path.read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def _imported_pamssw_source_paths() -> dict[str, Path]:
+    """Return filesystem paths for every pamssw module used by this replay chain."""
+
+    module_names = (
+        "pamssw",
+        "pamssw.accounting",
+        "pamssw.calculators",
+        "pamssw.exploration",
+        "pamssw.exploration.runner",
+        "pamssw.pbc",
+        "pamssw.proposal_replay",
+        "pamssw.relax",
+        "pamssw.result",
+        "pamssw.state",
+        "pamssw.walker",
+    )
+    paths: dict[str, Path] = {}
+    for module_name in module_names:
+        module = importlib.import_module(module_name)
+        module_file = getattr(module, "__file__", None)
+        if not isinstance(module_file, str):
+            raise RuntimeError(f"pamssw module has no source file: {module_name}")
+        paths[module_name] = Path(module_file).resolve()
+    return paths
+
+
+def _pamssw_symbol_source_paths() -> dict[str, Path]:
+    return {
+        "EvalCounter": Path(inspect.getfile(EvalCounter)).resolve(),
+        "Relaxer": Path(inspect.getfile(Relaxer)).resolve(),
+        "ProposalRelaxationTask": Path(inspect.getfile(ProposalRelaxationTask)).resolve(),
+    }
+
+
+def _verified_pamssw_source() -> dict[str, Any]:
+    source_root = PAMSSW_SOURCE_ROOT.resolve()
+    imported_module_paths = _imported_pamssw_source_paths()
+    imported_symbol_paths = _pamssw_symbol_source_paths()
+    imported_paths = {**imported_module_paths, **imported_symbol_paths}
+    for name, path in imported_paths.items():
+        if not path.is_relative_to(source_root):
+            raise RuntimeError(
+                "pamssw import path is outside the current repo source tree: "
+                f"{name} -> {path}"
+            )
+    bundle_sha256 = _pamssw_bundle_sha256(source_root)
+    if bundle_sha256 != EXPECTED_PAMSSW_BUNDLE_SHA256:
+        raise ValueError(
+            "pamssw source bundle SHA256 mismatch: "
+            f"expected {EXPECTED_PAMSSW_BUNDLE_SHA256}, got {bundle_sha256}"
+        )
+    return {
+        "source_root": str(source_root),
+        "bundle_sha256": bundle_sha256,
+        "imported_module_paths": {
+            name: str(path) for name, path in imported_module_paths.items()
+        },
+        "imported_symbol_paths": {
+            name: str(path) for name, path in imported_symbol_paths.items()
+        },
+    }
+
+
+def _worktree_is_clean() -> bool:
+    completed = subprocess.run(
+        ["git", "status", "--porcelain", "--untracked-files=all"],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return not completed.stdout.strip()
+
+
+def _verified_repo_provenance(expected_git_commit: str) -> dict[str, Any]:
+    if (
+        not isinstance(expected_git_commit, str)
+        or len(expected_git_commit) != 40
+        or any(character not in "0123456789abcdef" for character in expected_git_commit)
+    ):
+        raise ValueError("expected git commit must be a 40-character lowercase SHA-1")
+    actual_git_commit = _current_commit()
+    if actual_git_commit != expected_git_commit:
+        raise RuntimeError(
+            "git commit mismatch: "
+            f"expected {expected_git_commit}, got {actual_git_commit}"
+        )
+    if not _worktree_is_clean():
+        raise RuntimeError("git worktree is not clean")
+    return {
+        "repo_root": str(REPO_ROOT),
+        "actual_git_commit": actual_git_commit,
+        "expected_git_commit": expected_git_commit,
+        "worktree_clean": True,
+    }
+
+
 def _fixed_replay_source() -> Mapping[str, Any]:
     _verified_helper_file(
         FIXED_REPLAY_DRIVER,
@@ -407,6 +534,7 @@ def _cuda_provenance(source: Mapping[str, Any]) -> dict[str, Any]:
 def preflight(
     *,
     source_summary_path: Path,
+    expected_git_commit: str,
     source_loader: Callable[[], Mapping[str, Any]] = _fixed_replay_source,
     cuda_probe: Callable[[Mapping[str, Any]], Mapping[str, Any]] = _cuda_provenance,
 ) -> Preflight:
@@ -415,6 +543,8 @@ def preflight(
     tasks_by_system, source_summary_sha256 = load_fixed_tasks(source_summary_path)
     safe_kernel_descriptor, safe_kernel_descriptor_sha256 = _verified_safe_kernel_descriptor()
     helper_provenance = _verified_helper_provenance()
+    pamssw_source_provenance = _verified_pamssw_source()
+    repo_provenance = _verified_repo_provenance(expected_git_commit)
     source = source_loader()
     if not isinstance(source, Mapping) or not callable(source.get("_calculator")):
         raise RuntimeError("fixed replay source does not expose _calculator")
@@ -430,6 +560,8 @@ def preflight(
         safe_kernel_descriptor=safe_kernel_descriptor,
         safe_kernel_descriptor_sha256=safe_kernel_descriptor_sha256,
         helper_provenance=helper_provenance,
+        pamssw_source_provenance=pamssw_source_provenance,
+        repo_provenance=repo_provenance,
         cuda_provenance=verified_provenance,
     )
 
@@ -607,11 +739,9 @@ def publish_ledger_atomically(
 
 
 def _current_commit() -> str:
-    import subprocess
-
     completed = subprocess.run(
         ["git", "rev-parse", "HEAD"],
-        cwd=RUN_ROOT.parents[1],
+        cwd=REPO_ROOT,
         check=True,
         capture_output=True,
         text=True,
@@ -657,12 +787,16 @@ def run(
     *,
     source_summary_path: Path = SOURCE_SUMMARY_PATH,
     output_dir: Path = OUTPUT_DIR,
+    expected_git_commit: str,
 ) -> dict[str, Any]:
     """Execute every fixed task once per arm and atomically publish the ledger."""
 
     if output_dir.exists():
         raise FileExistsError(output_dir)
-    checked = preflight(source_summary_path=source_summary_path)
+    checked = preflight(
+        source_summary_path=source_summary_path,
+        expected_git_commit=expected_git_commit,
+    )
     descriptor = checked.safe_kernel_descriptor
     calculator_factory = checked.source["_calculator"]
     started = perf_counter()
@@ -697,8 +831,10 @@ def run(
         "safe_kernel_descriptor": descriptor,
         "safe_kernel_descriptor_sha256": checked.safe_kernel_descriptor_sha256,
         "runner_helper_provenance": dict(checked.helper_provenance),
+        "pamssw_source_provenance": dict(checked.pamssw_source_provenance),
+        "git_provenance": dict(checked.repo_provenance),
         "cuda_model_input_provenance": dict(checked.cuda_provenance),
-        "current_git_commit": _current_commit(),
+        "current_git_commit": checked.repo_provenance["actual_git_commit"],
         "wall_time_total_s": perf_counter() - started,
     }
     publish_ledger_atomically(output_dir, rows, summary)
@@ -709,12 +845,17 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-summary", type=Path, default=SOURCE_SUMMARY_PATH)
     parser.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
+    parser.add_argument("--expected-git-commit", required=True)
     return parser.parse_args(argv)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(argv)
-    run(source_summary_path=args.source_summary, output_dir=args.output_dir)
+    run(
+        source_summary_path=args.source_summary,
+        output_dir=args.output_dir,
+        expected_git_commit=args.expected_git_commit,
+    )
     return 0
 
 

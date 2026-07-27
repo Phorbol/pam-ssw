@@ -9,9 +9,11 @@ import sys
 import numpy as np
 import pytest
 
+from pamssw.accounting import EvalCounter, EvaluationPurpose
 from pamssw.bias import GaussianBiasTerm
+from pamssw.relax import Relaxer
 from pamssw.state import State
-from pamssw.walker import ProposalRelaxationTask
+from pamssw.walker import ProposalPotential, ProposalRelaxationTask
 
 
 _RUNNER_PATH = (
@@ -159,6 +161,102 @@ def _trusted_source(tmp_path, calculator_factory):
     }
 
 
+def _replay_without_observer(task, calculator, *, history_limit, maxiter):
+    counter = EvalCounter(calculator)
+    proposal = ProposalPotential(
+        counter,
+        biases=list(task.biases),
+        softening=task.softening,
+    )
+    relaxer = Relaxer(
+        proposal.evaluate,
+        optimizer="safe-lbfgs-total",
+        component_evaluator=proposal.evaluate_parts,
+    )
+    with counter.purpose(EvaluationPurpose.BIASED_PROPOSAL_RELAX):
+        result = relaxer.relax(
+            task.initial_state,
+            fmax=task.fmax,
+            maxiter=maxiter,
+            coordinate_trust_radius=task.coordinate_trust_radius,
+            _safe_lbfgs_history_limit=history_limit,
+        )
+    return result, counter.snapshot()
+
+
+def test_pamssw_source_bundle_and_import_paths_are_pinned_to_this_worktree():
+    runner = _runner_module()
+
+    assert runner.EXPECTED_PAMSSW_BUNDLE_SHA256 == (
+        "459a3ed173afbde50c499a2653702796ec1f08f022cc0a93ed2e028222d62636"
+    )
+    provenance = runner._verified_pamssw_source()
+
+    assert provenance["bundle_sha256"] == runner.EXPECTED_PAMSSW_BUNDLE_SHA256
+    assert provenance["source_root"] == str(runner.REPO_ROOT / "pamssw")
+    assert set(provenance["imported_module_paths"]) >= {
+        "pamssw.accounting",
+        "pamssw.relax",
+        "pamssw.walker",
+    }
+    assert all(
+        Path(path).is_relative_to(runner.REPO_ROOT / "pamssw")
+        for path in provenance["imported_module_paths"].values()
+    )
+
+
+@pytest.mark.parametrize("failure", ("commit", "dirty", "import_path", "bundle"))
+def test_repo_or_pamssw_preflight_failures_precede_calculator_factory(
+    tmp_path,
+    monkeypatch,
+    failure,
+):
+    runner = _runner_module()
+    calculator_calls = 0
+
+    def forbidden_calculator_factory():
+        nonlocal calculator_calls
+        calculator_calls += 1
+        raise AssertionError("calculator construction must follow source preflight")
+
+    expected_commit = runner._current_commit()
+    if failure == "commit":
+        expected_commit = "0" * 40
+    elif failure == "dirty":
+        monkeypatch.setattr(runner, "_worktree_is_clean", lambda: False, raising=False)
+    elif failure == "import_path":
+        monkeypatch.setattr(
+            runner,
+            "_imported_pamssw_source_paths",
+            lambda: {"pamssw.relax": Path("/tmp/foreign-site-packages/pamssw/relax.py")},
+            raising=False,
+        )
+    elif failure == "bundle":
+        monkeypatch.setattr(
+            runner,
+            "_pamssw_bundle_sha256",
+            lambda _: "0" * 64,
+            raising=False,
+        )
+
+    with pytest.raises((RuntimeError, ValueError), match="(commit|worktree|import|bundle)"):
+        runner.preflight(
+            source_summary_path=runner.SOURCE_SUMMARY_PATH,
+            expected_git_commit=expected_commit,
+            source_loader=lambda: _trusted_source(tmp_path, forbidden_calculator_factory),
+            cuda_probe=lambda _: {"device": "cuda"},
+        )
+
+    assert calculator_calls == 0
+
+
+def test_cli_requires_expected_git_commit():
+    runner = _runner_module()
+
+    with pytest.raises(SystemExit):
+        runner._parse_args([])
+
+
 def test_safe_kernel_descriptor_has_pinned_literal_values_and_canonical_sha():
     runner = _runner_module()
     expected = {
@@ -197,10 +295,12 @@ def test_kernel_constant_drift_fails_preflight_before_calculator_factory(tmp_pat
         raise AssertionError("calculator construction must follow kernel validation")
 
     monkeypatch.setattr(relax_module, "_SAFE_LBFGS_BACKTRACK", 0.4)
+    monkeypatch.setattr(runner, "_worktree_is_clean", lambda: True)
 
     with pytest.raises(ValueError, match="safe kernel descriptor SHA256 mismatch"):
         runner.preflight(
             source_summary_path=runner.SOURCE_SUMMARY_PATH,
+            expected_git_commit=runner._current_commit(),
             source_loader=lambda: _trusted_source(tmp_path, forbidden_calculator_factory),
             cuda_probe=lambda _: {"device": "cuda"},
         )
@@ -213,6 +313,7 @@ def test_helper_file_provenance_is_pinned_and_fails_before_calculator_factory(
     monkeypatch,
 ):
     runner = _runner_module()
+    monkeypatch.setattr(runner, "_worktree_is_clean", lambda: True)
 
     assert runner.EXPECTED_FIXED_REPLAY_DRIVER_SHA256 == (
         "f9c9602e42985891a6ca2a84ca70dda69c52b9d794a6ea6c76857c398345fa8f"
@@ -237,20 +338,22 @@ def test_helper_file_provenance_is_pinned_and_fails_before_calculator_factory(
 
         tampered = tmp_path / f"{path_name}.py"
         tampered.write_text("# tampered helper\n", encoding="utf-8")
-        monkeypatch.setattr(runner, path_name, tampered)
-        with pytest.raises(ValueError, match="SHA256 mismatch"):
-            runner.preflight(
-                source_summary_path=runner.SOURCE_SUMMARY_PATH,
-                source_loader=lambda: _trusted_source(tmp_path, forbidden_calculator_factory),
-                cuda_probe=lambda _: {"device": "cuda"},
-            )
+        with monkeypatch.context() as patched:
+            patched.setattr(runner, path_name, tampered)
+            with pytest.raises(ValueError, match="SHA256 mismatch"):
+                runner.preflight(
+                    source_summary_path=runner.SOURCE_SUMMARY_PATH,
+                    expected_git_commit=runner._current_commit(),
+                    source_loader=lambda: _trusted_source(tmp_path, forbidden_calculator_factory),
+                    cuda_probe=lambda _: {"device": "cuda"},
+                )
         assert calculator_calls == 0
-        monkeypatch.undo()
 
 
 @pytest.mark.parametrize("tamper_target", ("task", "model", "input", "cuda"))
-def test_tampered_preflight_fails_before_any_calculator_call(tmp_path, tamper_target):
+def test_tampered_preflight_fails_before_any_calculator_call(tmp_path, monkeypatch, tamper_target):
     runner = _runner_module()
+    monkeypatch.setattr(runner, "_worktree_is_clean", lambda: True)
     model_path = tmp_path / "model.pt"
     input_path = tmp_path / "input.xyz"
     model_path.write_bytes(b"trusted model")
@@ -290,6 +393,7 @@ def test_tampered_preflight_fails_before_any_calculator_call(tmp_path, tamper_ta
     with pytest.raises((ValueError, RuntimeError), match="(SHA256 mismatch|cuda|CUDA|source summary)"):
         runner.preflight(
             source_summary_path=source_summary,
+            expected_git_commit=runner._current_commit(),
             source_loader=lambda: source,
             cuda_probe=cuda_probe,
         )
@@ -366,3 +470,31 @@ def test_replay_observer_adds_zero_pes_calls_and_closes_the_ledger():
     assert replay.evaluation_counts.as_dict()["unattributed"] == 0
     assert replay.certificate_satisfied
     assert all(np.isfinite(record["total_energy_eV"]) for record in replay.trace_records)
+
+
+def test_recording_observer_matches_plain_relaxer_without_extra_pes_calls():
+    runner = _runner_module()
+    task = _task()
+    history_limit = 0
+    plain_calculator = _QuadraticCountingCalculator()
+    observed_calculator = _QuadraticCountingCalculator()
+
+    plain_result, plain_counts = _replay_without_observer(
+        task,
+        plain_calculator,
+        history_limit=history_limit,
+        maxiter=runner.MAXITER,
+    )
+    observed = runner.replay_task_with_trace(
+        task,
+        observed_calculator,
+        history_limit=history_limit,
+    )
+
+    assert plain_calculator.calls == observed_calculator.calls
+    assert plain_calculator.calls == plain_counts.total
+    assert observed_calculator.calls == observed.evaluation_counts.total
+    assert np.array_equal(plain_result.state.positions, observed.result.state.positions)
+    assert plain_result.energy == pytest.approx(observed.result.energy, abs=0.0)
+    assert plain_result.telemetry.evaluator_calls == observed.result.telemetry.evaluator_calls
+    assert len(observed.trace_records) == observed_calculator.calls
