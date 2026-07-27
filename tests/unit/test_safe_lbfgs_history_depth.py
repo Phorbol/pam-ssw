@@ -308,6 +308,11 @@ def test_preflight_only_returns_metadata_before_calculator(tmp_path, monkeypatch
 
     source = trusted_source(tmp_path, calculator_factory)
     monkeypatch.setattr(runner, "_tracked_worktree_clean", lambda: True, raising=False)
+    monkeypatch.setattr(
+        runner,
+        "_pamssw_bundle_sha256",
+        lambda _: runner.EXPECTED_PAMSSW_BUNDLE_SHA256,
+    )
     checked = runner.preflight(
         source_summary_path=runner.SOURCE_SUMMARY_PATH,
         expected_git_commit=runner._current_commit(),
