@@ -663,9 +663,43 @@ def test_analyzer_reports_paired_cost_and_current_archive_landing_equivalence(
         assert paired["landing_same_basin_count"] == 8
         assert paired["landing_equivalence_rate"] == pytest.approx(1.0)
         assert paired["both_landing_certified_count"] == 8
+        assert paired["arm_costs"] == {
+            "fmax-0.05": {
+                "proposal_force_evaluations": 32,
+                "proposal_wall_time_s": pytest.approx(0.8),
+                "landing_force_evaluations": 32,
+                "landing_wall_time_s": pytest.approx(0.8),
+                "combined_force_evaluations": 64,
+                "combined_wall_time_s": pytest.approx(1.6),
+            },
+            "fmax-0.10": {
+                "proposal_force_evaluations": 16,
+                "proposal_wall_time_s": pytest.approx(0.8),
+                "landing_force_evaluations": 32,
+                "landing_wall_time_s": pytest.approx(0.8),
+                "combined_force_evaluations": 48,
+                "combined_wall_time_s": pytest.approx(1.6),
+            },
+        }
+        assert paired["combined_force_evaluation_savings"] == 16
+        assert paired["combined_force_evaluation_savings_fraction"] == pytest.approx(
+            0.25
+        )
     assert evidence["systems"]["pdo"]["capture_selection"][
         "ineligible_direction_kind_counts"
     ] == {"bond": 1}
+    assert evidence["systems"]["c60"]["shared_pre_arm_costs"] == {
+        "bootstrap_force_evaluations": 3,
+        "bootstrap_wall_time_s": pytest.approx(0.1),
+        "capture_force_evaluations": 16,
+        "combined_force_evaluations": 19,
+    }
+    assert evidence["systems"]["pdo"]["shared_pre_arm_costs"] == {
+        "bootstrap_force_evaluations": 3,
+        "bootstrap_wall_time_s": pytest.approx(0.1),
+        "capture_force_evaluations": 18,
+        "combined_force_evaluations": 21,
+    }
 
     raw = json.loads((output / "summary.json").read_text(encoding="utf-8"))
     invalid_prefix = deepcopy(raw)

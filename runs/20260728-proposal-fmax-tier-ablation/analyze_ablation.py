@@ -363,6 +363,7 @@ def _validate_row(
     )
     _finite(proposal_final.get("biased_energy_eV"), "biased energy")
     proposal_calls = int(proposal.get("force_evaluations"))
+    _finite(proposal.get("wall_time_s"), "proposal wall time")
     proposal_counts = _counts(
         proposal.get("purpose_counts"),
         label="proposal",
@@ -418,6 +419,7 @@ def _validate_row(
         "landing force",
     )
     landing_calls = int(landing.get("force_evaluations"))
+    _finite(landing.get("wall_time_s"), "landing wall time")
     landing_counts = _counts(
         landing.get("purpose_counts"),
         label="landing",
@@ -597,7 +599,62 @@ def analyze(raw_dir: Path) -> dict[str, Any]:
         same_count = sum(
             bool(item["landing_same_basin"]) for item in comparisons
         )
+        arm_costs = {}
+        for arm_id in (STRICT_ARM, LOOSE_ARM):
+            arm_rows = [
+                by_key[(seed, arm_id)] for seed in eligible_seeds
+            ]
+            proposal_calls = sum(
+                int(row["proposal"]["force_evaluations"])
+                for row in arm_rows
+            )
+            proposal_wall = sum(
+                float(row["proposal"]["wall_time_s"])
+                for row in arm_rows
+            )
+            landing_calls = sum(
+                int(row["landing"]["force_evaluations"])
+                for row in arm_rows
+            )
+            landing_wall = sum(
+                float(row["landing"]["wall_time_s"])
+                for row in arm_rows
+            )
+            arm_costs[arm_id] = {
+                "proposal_force_evaluations": proposal_calls,
+                "proposal_wall_time_s": proposal_wall,
+                "landing_force_evaluations": landing_calls,
+                "landing_wall_time_s": landing_wall,
+                "combined_force_evaluations": (
+                    proposal_calls + landing_calls
+                ),
+                "combined_wall_time_s": proposal_wall + landing_wall,
+            }
+        strict_combined_calls = int(
+            arm_costs[STRICT_ARM]["combined_force_evaluations"]
+        )
+        loose_combined_calls = int(
+            arm_costs[LOOSE_ARM]["combined_force_evaluations"]
+        )
+        combined_savings = strict_combined_calls - loose_combined_calls
+        bootstrap_calls = int(
+            system_data["bootstrap"]["force_evaluations"]
+        )
+        capture_calls = sum(
+            int(item["force_evaluations"])
+            for item in system_data["capture_attempts"]
+        )
         evidence["systems"][system] = {
+            "shared_pre_arm_costs": {
+                "bootstrap_force_evaluations": bootstrap_calls,
+                "bootstrap_wall_time_s": float(
+                    system_data["bootstrap"]["wall_time_s"]
+                ),
+                "capture_force_evaluations": capture_calls,
+                "combined_force_evaluations": (
+                    bootstrap_calls + capture_calls
+                ),
+            },
             "capture_selection": {
                 "candidate_seed_prefix": [
                     int(item["seed"])
@@ -669,6 +726,11 @@ def analyze(raw_dir: Path) -> dict[str, Any]:
                 ),
                 "landing_same_basin_count": same_count,
                 "landing_equivalence_rate": same_count / len(comparisons),
+                "arm_costs": arm_costs,
+                "combined_force_evaluation_savings": combined_savings,
+                "combined_force_evaluation_savings_fraction": (
+                    combined_savings / strict_combined_calls
+                ),
             },
         }
     return evidence
