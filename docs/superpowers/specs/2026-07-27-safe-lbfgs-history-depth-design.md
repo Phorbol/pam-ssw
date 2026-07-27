@@ -198,7 +198,7 @@ The following closure must hold exactly:
 ```text
 trace records
   = evaluator calls
-  = telemetry objective calls
+  = telemetry evaluator calls
   = biased-proposal-relax purpose calls
 ```
 
@@ -236,9 +236,21 @@ shipping the ignored ledger.
 ## Analysis
 
 The analyzer is the single owner of derived scientific semantics. It validates
-the required row fields, recomputes force certificates from final force and
-`fmax`, reconstructs termination and cost totals, and rejects a missing or
-duplicate task-arm cell.
+the required row fields and requires
+
+\[
+f_{\max}>0,\qquad
+0\le f_{\rm final},
+\]
+
+before deriving the certificate
+
+\[
+f_{\rm final}\le f_{\max}.
+\]
+
+It reconstructs termination and cost totals and rejects a missing or duplicate
+task-arm cell.
 
 Use derived certificate coverage as the first outcome, followed by
 complete-protocol evaluator cost and wall time. Do not compare only converged

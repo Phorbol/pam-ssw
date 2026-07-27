@@ -281,14 +281,17 @@ Require:
 ```python
 len(row["trace"]) \
     == row["force_evaluations"] \
-    == row["telemetry"]["backend_evaluations"] \
+    == row["telemetry"]["evaluator_calls"] \
     == row["purpose_counts"]["biased_proposal_relax"]
 row["purpose_counts"]["unattributed"] == 0
 ```
 
 Require finite energy, force, displacement, wall time, coordinates, and trace
-values. Require task/arm membership in the frozen matrix. The runner does not
-derive a certificate; Task 4 does.
+values. Require task/arm membership in the frozen matrix. Preserve
+`backend_evaluations` as raw telemetry but do not use it in the accounting
+closure because an explicit reporting finalization may be an evaluator call
+without being a backend evaluation. The runner does not derive a certificate;
+Task 4 does.
 
 - [ ] **Step 6: implement simple single-process completion**
 
@@ -438,9 +441,11 @@ Expected: FAIL because the analyzer does not exist.
 
 - [ ] **Step 2: implement strict ledger validation**
 
-The analyzer derives `certificate_satisfied` from
-`final_active_max_force_eV_per_A <= fmax_eV_per_A`, derives termination counts
-from rows, and computes paired history1-minus-history10 fields:
+The analyzer rejects non-positive `fmax` and negative final force, then derives
+`certificate_satisfied` from
+`0 <= final_active_max_force_eV_per_A <= fmax_eV_per_A`. Add a focused negative
+final-force test. It derives termination counts from rows and computes paired
+history1-minus-history10 fields:
 
 ```python
 {
