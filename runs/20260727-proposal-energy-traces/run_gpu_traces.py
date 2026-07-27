@@ -15,8 +15,10 @@ import importlib.util
 import json
 from pathlib import Path
 import runpy
+import shutil
 import subprocess
 import sys
+import tempfile
 from time import perf_counter
 from typing import Any, Mapping, NamedTuple, Sequence
 
@@ -367,6 +369,39 @@ def _write_json_atomic(path: Path, payload: Any) -> None:
     temporary.replace(path)
 
 
+def _publish_ledger_atomically(
+    output_dir: Path,
+    system_payloads: Sequence[Mapping[str, Any]],
+    summary_payload: Mapping[str, Any],
+    *,
+    write_json=_write_json_atomic,
+) -> None:
+    """Publish a complete ledger with one same-filesystem directory rename."""
+
+    if output_dir.exists():
+        raise FileExistsError(output_dir)
+    output_dir.parent.mkdir(parents=True, exist_ok=True)
+    staging_dir = Path(
+        tempfile.mkdtemp(
+            prefix=f".{output_dir.name}.staging-",
+            dir=output_dir.parent,
+        )
+    )
+    try:
+        for system_payload in system_payloads:
+            system = system_payload.get("system")
+            if not isinstance(system, str) or not system:
+                raise ValueError("system ledger payload requires a nonempty system name")
+            write_json(staging_dir / f"{system}.json", system_payload)
+        write_json(staging_dir / "summary.json", summary_payload)
+        if output_dir.exists():
+            raise FileExistsError(output_dir)
+        staging_dir.rename(output_dir)
+    finally:
+        if staging_dir.exists():
+            shutil.rmtree(staging_dir)
+
+
 def _current_commit() -> str:
     completed = subprocess.run(
         ["git", "rev-parse", "HEAD"],
@@ -566,9 +601,7 @@ def run(
         "systems": system_payloads,
         "wall_time_total_s": perf_counter() - started,
     }
-    for system_payload in system_payloads:
-        _write_json_atomic(output_dir / f"{system_payload['system']}.json", system_payload)
-    _write_json_atomic(output_dir / "summary.json", payload)
+    _publish_ledger_atomically(output_dir, system_payloads, payload)
     return payload
 
 

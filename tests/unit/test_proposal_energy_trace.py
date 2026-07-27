@@ -205,6 +205,48 @@ def test_model_provenance_hashes_local_files_before_any_calculator_warmup(tmp_pa
     assert calculator_factory_calls == 0
 
 
+def test_ledger_publish_failure_leaves_no_final_or_staging_directory(tmp_path):
+    trace_runner = _trace_runner_module()
+    output_dir = tmp_path / "ledger"
+    write_attempts: list[str] = []
+
+    def fail_on_summary(path, payload):
+        del payload
+        write_attempts.append(path.name)
+        if path.name == "summary.json":
+            raise OSError("injected summary write failure")
+        trace_runner._write_json_atomic(path, {"written": path.name})
+
+    with pytest.raises(OSError, match="injected summary write failure"):
+        trace_runner._publish_ledger_atomically(
+            output_dir,
+            [{"system": "c60"}, {"system": "pdo"}],
+            {"schema_version": 1},
+            write_json=fail_on_summary,
+        )
+
+    assert write_attempts == ["c60.json", "pdo.json", "summary.json"]
+    assert not output_dir.exists()
+    assert not list(tmp_path.glob(".ledger.staging-*"))
+
+
+def test_ledger_publish_refuses_existing_output_without_touching_it(tmp_path):
+    trace_runner = _trace_runner_module()
+    output_dir = tmp_path / "ledger"
+    output_dir.mkdir()
+    sentinel = output_dir / "sentinel.txt"
+    sentinel.write_text("preserve", encoding="utf-8")
+
+    with pytest.raises(FileExistsError):
+        trace_runner._publish_ledger_atomically(
+            output_dir,
+            [{"system": "c60"}],
+            {"schema_version": 1},
+        )
+
+    assert sentinel.read_text(encoding="utf-8") == "preserve"
+
+
 @pytest.mark.parametrize("optimizer", ["ase-fire", "safe-lbfgs-total"])
 def test_replay_task_with_trace_closes_all_ledgers_without_trace_only_pes_calls(optimizer):
     trace_recorder = _trace_recorder_module()
