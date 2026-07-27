@@ -256,6 +256,25 @@ RelaxOptimizer = Literal[
 ]
 
 
+def _resolve_safe_lbfgs_history_limit(
+    history_limit: int | None,
+    optimizer: RelaxOptimizer,
+) -> int:
+    if history_limit is None:
+        return _SAFE_LBFGS_MEMORY
+    if (
+        isinstance(history_limit, bool)
+        or not isinstance(history_limit, int)
+        or history_limit not in {0, _SAFE_LBFGS_MEMORY}
+    ):
+        raise ValueError("_safe_lbfgs_history_limit must be None, 0, or 10")
+    if optimizer != "safe-lbfgs-total":
+        raise ValueError(
+            "_safe_lbfgs_history_limit is only supported for optimizer='safe-lbfgs-total'"
+        )
+    return history_limit
+
+
 class _EvaluatorCalculator(Calculator):
     implemented_properties = ["energy", "forces"]
 
@@ -295,7 +314,13 @@ class Relaxer:
         coordinate_trust_radius: float | None = None,
         trajectory_callback: Callable[[State], None] | None = None,
         trajectory_stride: int = 1,
+        *,
+        _safe_lbfgs_history_limit: int | None = None,
     ) -> RelaxResult:
+        history_limit = _resolve_safe_lbfgs_history_limit(
+            _safe_lbfgs_history_limit,
+            self.optimizer,
+        )
         trace = _EvaluationTrace(self.evaluator, state.flatten_positions())
         if trajectory_stride <= 0:
             raise ValueError("trajectory_stride must be positive")
@@ -369,6 +394,7 @@ class Relaxer:
                 trace=trace,
                 trajectory_callback=trajectory_callback,
                 trajectory_stride=trajectory_stride,
+                history_limit=history_limit,
             )
         if self.optimizer != "scipy-lbfgsb":
             raise ValueError(f"unsupported relax optimizer: {self.optimizer}")
@@ -509,6 +535,7 @@ class Relaxer:
         trace: _EvaluationTrace,
         trajectory_callback: Callable[[State], None] | None,
         trajectory_stride: int,
+        history_limit: int,
     ) -> RelaxResult:
         x = state.flatten_active().copy()
         current = state.with_active_positions(x)
@@ -605,7 +632,7 @@ class Relaxer:
             if not branch_changed and _accept_lbfgs_curvature(s, y):
                 curvature = float(np.dot(s, y))
                 history.append((s.copy(), y.copy(), 1.0 / curvature))
-                if len(history) > _SAFE_LBFGS_MEMORY:
+                while len(history) > history_limit:
                     history.pop(0)
                 accepted_secants += 1
             elif not branch_changed:
