@@ -670,6 +670,24 @@ def _trace_values_are_finite(records: Sequence[Mapping[str, Any]]) -> bool:
         return False
 
 
+def _replay_endpoint_is_finite(replay: ReplayResult) -> bool:
+    result = replay.result
+    return bool(
+        np.isfinite(result.energy)
+        and np.isfinite(result.gradient_norm)
+        and np.all(np.isfinite(result.state.positions))
+    )
+
+
+def _replay_ledger_is_closed(replay: ReplayResult) -> bool:
+    counts = replay.evaluation_counts
+    return bool(
+        len(replay.trace_records) == counts.total
+        and len(replay.trace_records) == replay.result.telemetry.evaluator_calls
+        and counts.as_dict()["unattributed"] == 0
+    )
+
+
 def _expected_row_keys() -> list[dict[str, str]]:
     return [
         {"system": system, "task_id": f"{system}-seed-{seed}-bias-1", "arm_id": arm.arm_id}
@@ -810,12 +828,23 @@ def run(
                     calculators[arm.arm_id],
                     history_limit=arm.history_limit,
                 )
+                if not _replay_endpoint_is_finite(replay):
+                    raise RuntimeError(
+                        f"non-finite replay endpoint: {system}/{frozen.task_id}/{arm.arm_id}"
+                    )
                 if not _trace_values_are_finite(replay.trace_records):
                     raise RuntimeError(f"non-finite trace value: {system}/{frozen.task_id}/{arm.arm_id}")
-                if not replay.certificate_satisfied:
-                    raise RuntimeError(f"certificate not satisfied: {system}/{frozen.task_id}/{arm.arm_id}")
+                if not _replay_ledger_is_closed(replay):
+                    raise RuntimeError(f"ledger mismatch: {system}/{frozen.task_id}/{arm.arm_id}")
                 rows.append(_row_payload(frozen, arm, replay, descriptor))
     _validate_full_ledger_rows(rows)
+    termination_reason_counts: dict[str, int] = {}
+    for row in rows:
+        reason = row["termination_reason"]
+        termination_reason_counts[reason] = termination_reason_counts.get(reason, 0) + 1
+    certificate_unsatisfied_count = sum(
+        not bool(row["certificate_satisfied"]) for row in rows
+    )
     summary = {
         "schema_version": 1,
         "claim_ceiling": (
@@ -827,6 +856,9 @@ def run(
         "systems": list(SYSTEMS),
         "task_count": 16,
         "row_count": 32,
+        "certificate_all_satisfied": certificate_unsatisfied_count == 0,
+        "certificate_unsatisfied_count": certificate_unsatisfied_count,
+        "termination_reason_counts": dict(sorted(termination_reason_counts.items())),
         "arms": [asdict(arm) for arm in ARMS],
         "safe_kernel_descriptor": descriptor,
         "safe_kernel_descriptor_sha256": checked.safe_kernel_descriptor_sha256,

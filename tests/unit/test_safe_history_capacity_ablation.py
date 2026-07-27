@@ -10,9 +10,10 @@ import sys
 import numpy as np
 import pytest
 
-from pamssw.accounting import EvalCounter, EvaluationPurpose
+from pamssw.accounting import EvalCounter, EvaluationCounts, EvaluationPurpose
 from pamssw.bias import GaussianBiasTerm
 from pamssw.relax import Relaxer
+from pamssw.result import RelaxResult, RelaxTelemetry
 from pamssw.state import State
 from pamssw.walker import ProposalPotential, ProposalRelaxationTask
 
@@ -520,3 +521,118 @@ def test_recording_observer_matches_plain_relaxer_without_extra_pes_calls():
     assert plain_result.energy == pytest.approx(observed.result.energy, abs=0.0)
     assert plain_result.telemetry.evaluator_calls == observed.result.telemetry.evaluator_calls
     assert len(observed.trace_records) == observed_calculator.calls
+
+
+def _finite_trace_record() -> dict[str, float | bool]:
+    return {
+        "true_energy_eV": -1.0,
+        "bias_energy_eV": 0.0,
+        "softening_energy_eV": 0.0,
+        "total_energy_eV": -1.0,
+        "active_max_total_force_eV_per_A": 0.1,
+        "accepted_state": True,
+    }
+
+
+def _fake_preflight_for_full_run(runner):
+    tasks_by_system, source_sha256 = runner.load_fixed_tasks(runner.SOURCE_SUMMARY_PATH)
+    return runner.Preflight(
+        tasks_by_system=tasks_by_system,
+        source_summary_sha256=source_sha256,
+        source={"_calculator": lambda: object()},
+        safe_kernel_descriptor=runner.objective_descriptor(),
+        safe_kernel_descriptor_sha256=runner.EXPECTED_SAFE_KERNEL_DESCRIPTOR_SHA256,
+        helper_provenance={},
+        pamssw_source_provenance={},
+        repo_provenance={"actual_git_commit": "f" * 40},
+        cuda_provenance={},
+    )
+
+
+def _fake_replay(task, *, certificate_satisfied, energy=-1.0, trace_records=None, evaluator_calls=2):
+    counts = EvaluationCounts.from_mapping(
+        {EvaluationPurpose.BIASED_PROPOSAL_RELAX: evaluator_calls}
+    )
+    if trace_records is None:
+        trace_records = [_finite_trace_record() for _ in range(evaluator_calls)]
+    return RelaxResult(
+        state=task.initial_state,
+        energy=energy,
+        gradient_norm=0.1,
+        n_iter=400,
+        telemetry=RelaxTelemetry(
+            backend="safe-lbfgs-total",
+            evaluator_calls=evaluator_calls,
+            backend_evaluations=evaluator_calls,
+            converged=False,
+            termination_reason="maxiter",
+        ),
+    ), counts, trace_records, certificate_satisfied
+
+
+def test_finite_certificate_failure_is_published_as_a_scientific_result(tmp_path, monkeypatch):
+    runner = _runner_module()
+    monkeypatch.setattr(runner, "preflight", lambda **_: _fake_preflight_for_full_run(runner))
+
+    def finite_maxiter_replay(task, calculator, *, history_limit):
+        del calculator, history_limit
+        result, counts, records, certificate = _fake_replay(
+            task,
+            certificate_satisfied=False,
+        )
+        return runner.ReplayResult(result, counts, 0.0, records, (), certificate)
+
+    monkeypatch.setattr(runner, "replay_task_with_trace", finite_maxiter_replay)
+    output_dir = tmp_path / "output"
+
+    summary = runner.run(
+        output_dir=output_dir,
+        expected_git_commit="f" * 40,
+    )
+
+    assert summary["row_count"] == 32
+    assert summary["certificate_all_satisfied"] is False
+    assert summary["certificate_unsatisfied_count"] == 32
+    assert summary["termination_reason_counts"] == {"maxiter": 32}
+    assert output_dir.is_dir()
+    assert not list(tmp_path.glob(".output.staging-*"))
+    rows = json.loads((output_dir / "c60.json").read_text(encoding="utf-8"))["rows"]
+    row = next(
+        item
+        for item in rows
+        if item["task_id"] == "c60-seed-44-bias-1"
+        and item["arm_id"] == "safe-total-gradient-history0"
+    )
+    assert row["certificate_satisfied"] is False
+    assert row["termination_reason"] == "maxiter"
+
+
+@pytest.mark.parametrize("failure", ("nonfinite", "ledger"))
+def test_nonfinite_or_open_ledger_remains_fatal(tmp_path, monkeypatch, failure):
+    runner = _runner_module()
+    monkeypatch.setattr(runner, "preflight", lambda **_: _fake_preflight_for_full_run(runner))
+
+    def invalid_replay(task, calculator, *, history_limit):
+        del calculator, history_limit
+        if failure == "nonfinite":
+            result, counts, records, certificate = _fake_replay(
+                task,
+                certificate_satisfied=False,
+                energy=float("nan"),
+            )
+        else:
+            result, counts, records, certificate = _fake_replay(
+                task,
+                certificate_satisfied=False,
+                trace_records=[_finite_trace_record()],
+            )
+        return runner.ReplayResult(result, counts, 0.0, records, (), certificate)
+
+    monkeypatch.setattr(runner, "replay_task_with_trace", invalid_replay)
+    output_dir = tmp_path / "output"
+
+    with pytest.raises(RuntimeError, match="(non-finite|ledger mismatch)"):
+        runner.run(output_dir=output_dir, expected_git_commit="f" * 40)
+
+    assert not output_dir.exists()
+    assert not list(tmp_path.glob(".output.staging-*"))

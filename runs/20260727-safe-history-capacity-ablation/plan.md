@@ -19,6 +19,13 @@ is no retry, resubmission, parameter adjustment, seed substitution, or
 capacity expansion after observing an adverse/inconclusive result; such a
 result is a valid negative G1 outcome.
 
+The first physical attempt reached the fixed replay matrix but stopped at a
+runner protocol bug: a finite, ledger-closed `maxiter` result was treated as
+an invalid ledger instead of a reported scientific outcome.  It produced no
+published artifact and is not a result.  Re-running the complete fixed matrix
+after this protocol repair is required to obtain the first valid attempt; it
+does not change tasks, arms, parameters, or constitute retuning.
+
 ## Claim ceiling
 
 The resulting data can establish only fixed-task, fixed-model, CUDA replay
