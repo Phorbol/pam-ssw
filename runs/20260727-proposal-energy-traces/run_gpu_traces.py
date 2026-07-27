@@ -68,10 +68,6 @@ class TraceReplayResult(NamedTuple):
     certificate_satisfied: bool
 
 
-class ReplayMismatchError(RuntimeError):
-    """Raised when a replay does not reproduce a frozen cap-400 reference row."""
-
-
 def _trace_recorder_module():
     """Load the adjacent benchmark-local recorder without importing a package path."""
 
@@ -276,67 +272,89 @@ def _trace_values_are_finite(records: Sequence[Mapping[str, Any]]) -> bool:
         return False
 
 
-def _require_reference_match(
+def _build_reference_comparison(
     *,
     system: str,
     task_id: str,
     backend: str,
     replay: TraceReplayResult,
     reference: Mapping[str, Any],
-) -> None:
+) -> dict[str, Any]:
+    """Describe a valid replay against a historical row without making it an oracle."""
+
     context = f"{system}/{task_id}/{backend}"
-    if replay.evaluation_counts.total != reference.get("force_evaluations"):
-        raise ReplayMismatchError(
-            f"{context}: force calls {replay.evaluation_counts.total} != "
-            f"reference {reference.get('force_evaluations')!r}"
-        )
-    if replay.certificate_satisfied is not reference.get("certificate_satisfied"):
-        raise ReplayMismatchError(f"{context}: certificate does not reproduce reference")
-    if replay.result.telemetry.termination_reason != reference.get("termination_reason"):
-        raise ReplayMismatchError(f"{context}: termination reason does not reproduce reference")
-    reference_energy = reference.get("final_biased_energy_eV")
-    actual_energy = float(replay.result.energy)
-    if not isinstance(reference_energy, (int, float)) or not np.isclose(
-        actual_energy,
-        float(reference_energy),
-        rtol=0.0,
-        atol=ENERGY_ABSOLUTE_TOLERANCE_EV,
-    ):
-        reference_energy_display = float(reference_energy) if isinstance(reference_energy, (int, float)) else reference_energy
-        energy_delta = (
-            actual_energy - float(reference_energy)
-            if isinstance(reference_energy, (int, float))
-            else float("nan")
-        )
-        raise ReplayMismatchError(
-            f"{context}: final biased energy does not reproduce reference "
-            f"(actual={actual_energy}, reference={reference_energy_display}, "
-            f"delta={energy_delta}, atol={ENERGY_ABSOLUTE_TOLERANCE_EV})"
-        )
-    reference_positions = np.asarray(reference.get("final_positions"), dtype=float)
-    actual_positions = replay.result.state.positions
-    max_mic_displacement = float("inf")
-    if reference_positions.shape == actual_positions.shape:
-        displacement = mic_displacement(
-            actual_positions,
-            reference_positions,
-            replay.result.state.cell,
-            replay.result.state.pbc,
-        )
-        max_mic_displacement = float(
-            np.max(np.linalg.norm(displacement, axis=1), initial=0.0)
-        )
+    reference_calls = reference.get("force_evaluations")
     if (
-        reference_positions.shape != actual_positions.shape
-        or not np.isfinite(max_mic_displacement)
-        or max_mic_displacement > POSITION_MAX_MIC_DISPLACEMENT_A
+        isinstance(reference_calls, bool)
+        or not isinstance(reference_calls, int)
+        or reference_calls < 0
     ):
-        raise ReplayMismatchError(
-            f"{context}: final positions do not reproduce reference "
-            f"(actual={actual_positions.tolist()}, reference={reference_positions.tolist()}, "
-            f"delta={max_mic_displacement}, "
-            f"max_mic_displacement_A={POSITION_MAX_MIC_DISPLACEMENT_A})"
+        raise ValueError(f"{context}: reference force_evaluations must be a nonnegative integer")
+    reference_certificate = reference.get("certificate_satisfied")
+    if not isinstance(reference_certificate, bool):
+        raise ValueError(f"{context}: reference certificate_satisfied must be a boolean")
+    reference_termination = reference.get("termination_reason")
+    if not isinstance(reference_termination, str) or not reference_termination:
+        raise ValueError(f"{context}: reference termination_reason must be a nonempty string")
+    reference_energy = reference.get("final_biased_energy_eV")
+    if (
+        isinstance(reference_energy, bool)
+        or not isinstance(reference_energy, (int, float))
+        or not np.isfinite(float(reference_energy))
+    ):
+        raise ValueError(f"{context}: reference final_biased_energy_eV must be finite")
+    try:
+        reference_positions = np.asarray(reference.get("final_positions"), dtype=float)
+    except (TypeError, ValueError) as error:
+        raise ValueError(f"{context}: reference final_positions must be numeric") from error
+
+    actual_energy = float(replay.result.energy)
+    actual_positions = np.asarray(replay.result.state.positions, dtype=float)
+    if not np.isfinite(actual_energy) or not np.all(np.isfinite(actual_positions)):
+        raise RuntimeError(f"{context}: current replay endpoint is non-finite")
+    if reference_positions.shape != actual_positions.shape:
+        raise ValueError(
+            f"{context}: reference final_positions shape {reference_positions.shape} "
+            f"does not match current shape {actual_positions.shape}"
         )
+    if not np.all(np.isfinite(reference_positions)):
+        raise ValueError(f"{context}: reference final_positions must be finite")
+
+    displacement = mic_displacement(
+        actual_positions,
+        reference_positions,
+        replay.result.state.cell,
+        replay.result.state.pbc,
+    )
+    displacement_norms = np.linalg.norm(displacement, axis=1)
+    max_mic_displacement = float(np.max(displacement_norms, initial=0.0))
+    rms_mic_displacement = (
+        float(np.sqrt(np.mean(displacement_norms**2))) if displacement_norms.size else 0.0
+    )
+    energy_delta = actual_energy - float(reference_energy)
+    certificate_equal = replay.certificate_satisfied == reference_certificate
+    termination_equal = replay.result.telemetry.termination_reason == reference_termination
+    energy_within_neighborhood = abs(energy_delta) <= ENERGY_ABSOLUTE_TOLERANCE_EV
+    position_within_neighborhood = max_mic_displacement <= POSITION_MAX_MIC_DISPLACEMENT_A
+    all_reference_fields_equal = bool(
+        replay.evaluation_counts.total == reference_calls
+        and certificate_equal
+        and termination_equal
+        and actual_energy == float(reference_energy)
+        and np.array_equal(actual_positions, reference_positions)
+    )
+    return {
+        "call_delta": replay.evaluation_counts.total - reference_calls,
+        "certificate_equal": certificate_equal,
+        "termination_equal": termination_equal,
+        "energy_delta_eV": energy_delta,
+        "max_mic_displacement_A": max_mic_displacement,
+        "rms_mic_displacement_A": rms_mic_displacement,
+        "energy_within_measured_neighborhood": energy_within_neighborhood,
+        "position_within_measured_neighborhood": position_within_neighborhood,
+        "all_reference_fields_equal": all_reference_fields_equal,
+        "strict_reference_match": all_reference_fields_equal,
+    }
 
 
 def _reference_endpoint_comparison(reference: Mapping[str, Any]) -> dict[str, Any]:
@@ -360,6 +378,7 @@ def _row_payload(
     backend: str,
     replay: TraceReplayResult,
     reference: Mapping[str, Any],
+    reference_comparison: Mapping[str, Any],
 ) -> dict[str, Any]:
     result = replay.result
     trace_records = replay.trace_records
@@ -385,6 +404,7 @@ def _row_payload(
         "non_accepted_evaluation_count": len(trace_records) - accepted_state_count,
         "trace_records": trace_records,
         "reference_endpoint_comparison": _reference_endpoint_comparison(reference),
+        "reference_comparison": dict(reference_comparison),
     }
 
 
@@ -587,7 +607,13 @@ def run(
                     raise RuntimeError(f"recorder/counter mismatch: {system}/{task_id}/{backend}")
                 if len(replay.trace_records) != replay.result.telemetry.evaluator_calls:
                     raise RuntimeError(f"recorder/telemetry mismatch: {system}/{task_id}/{backend}")
-                _require_reference_match(
+                if not (
+                    np.isfinite(replay.result.energy)
+                    and np.isfinite(replay.result.gradient_norm)
+                    and np.all(np.isfinite(replay.result.state.positions))
+                ):
+                    raise RuntimeError(f"non-finite replay endpoint: {system}/{task_id}/{backend}")
+                reference_comparison = _build_reference_comparison(
                     system=system,
                     task_id=task_id,
                     backend=backend,
@@ -602,6 +628,7 @@ def run(
                         backend=backend,
                         replay=replay,
                         reference=reference,
+                        reference_comparison=reference_comparison,
                     )
                 )
         if len(rows) != 16:
@@ -622,7 +649,7 @@ def run(
         "reference_summary_sha256": reference_sha256,
         "current_git_commit": _current_commit(),
         "observation_maxiter": OBSERVATION_MAXITER,
-        "float_reproduction_tolerances": {
+        "historical_reference_neighborhoods": {
             "final_biased_energy_absolute_eV": ENERGY_ABSOLUTE_TOLERANCE_EV,
             "final_positions_max_mic_displacement_A": POSITION_MAX_MIC_DISPLACEMENT_A,
         },

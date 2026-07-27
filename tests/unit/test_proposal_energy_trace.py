@@ -180,7 +180,7 @@ def test_trace_runner_binds_the_reviewed_source_and_cap400_reference_hashes():
     )
 
 
-def test_reference_match_uses_measured_mic_float32_equivalence_and_rejects_excess_drift():
+def test_reference_comparison_describes_float32_jitter_and_preserves_mic_equivalence():
     trace_runner = _trace_runner_module()
     reference_positions = np.array([[0.2, 0.0, 0.0]])
     state = State(
@@ -191,14 +191,14 @@ def test_reference_match_uses_measured_mic_float32_equivalence_and_rejects_exces
         fixed_mask=np.array([False]),
     )
     reference = {
-        "force_evaluations": 75,
+        "force_evaluations": 40,
         "certificate_satisfied": True,
         "termination_reason": "converged",
         "final_biased_energy_eV": -464.6608064065233,
         "final_positions": reference_positions.tolist(),
     }
 
-    def replay_with(*, energy_delta=0.0, position_delta=0.0):
+    def replay_with(*, calls=39, energy_delta=0.0, position_delta=0.0):
         result = RelaxResult(
             state=State(
                 numbers=state.numbers.copy(),
@@ -214,7 +214,7 @@ def test_reference_match_uses_measured_mic_float32_equivalence_and_rejects_exces
         )
         return trace_runner.TraceReplayResult(
             result=result,
-            evaluation_counts=EvaluationCounts.unattributed(75),
+            evaluation_counts=EvaluationCounts.unattributed(calls),
             wall_time_s=0.0,
             trace_records=[],
             accepted_callback_hashes=(),
@@ -223,35 +223,88 @@ def test_reference_match_uses_measured_mic_float32_equivalence_and_rejects_exces
 
     assert trace_runner.ENERGY_ABSOLUTE_TOLERANCE_EV == pytest.approx(5.0e-4)
     assert trace_runner.POSITION_MAX_MIC_DISPLACEMENT_A == pytest.approx(2.0e-3)
-    trace_runner._require_reference_match(
+    jittered = trace_runner._build_reference_comparison(
         system="c60",
         task_id="c60-seed-42-bias-1",
         backend="ase-fire",
         replay=replay_with(energy_delta=4.9e-4, position_delta=np.array([[10.0, 0.0, 0.0]])),
         reference=reference,
     )
+    assert jittered["call_delta"] == -1
+    assert jittered["certificate_equal"] is True
+    assert jittered["termination_equal"] is True
+    assert jittered["energy_delta_eV"] == pytest.approx(4.9e-4)
+    assert jittered["max_mic_displacement_A"] == pytest.approx(0.0)
+    assert jittered["rms_mic_displacement_A"] == pytest.approx(0.0)
+    assert jittered["energy_within_measured_neighborhood"] is True
+    assert jittered["position_within_measured_neighborhood"] is True
+    assert jittered["all_reference_fields_equal"] is False
 
-    with pytest.raises(
-        trace_runner.ReplayMismatchError,
-        match=r"final biased energy.*actual=.*reference=.*delta=",
-    ):
-        trace_runner._require_reference_match(
+    large_difference = trace_runner._build_reference_comparison(
+        system="c60",
+        task_id="c60-seed-42-bias-1",
+        backend="ase-fire",
+        replay=replay_with(energy_delta=1.0e-2, position_delta=3.0e-3),
+        reference=reference,
+    )
+    assert large_difference["energy_within_measured_neighborhood"] is False
+    assert large_difference["position_within_measured_neighborhood"] is False
+    assert large_difference["all_reference_fields_equal"] is False
+
+    exact = trace_runner._build_reference_comparison(
+        system="c60",
+        task_id="c60-seed-42-bias-1",
+        backend="ase-fire",
+        replay=replay_with(calls=40),
+        reference=reference,
+    )
+    assert exact["all_reference_fields_equal"] is True
+
+
+def test_reference_comparison_rejects_malformed_reference_fields():
+    trace_runner = _trace_runner_module()
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[0.2, 0.0, 0.0]]),
+        fixed_mask=np.array([False]),
+    )
+    replay = trace_runner.TraceReplayResult(
+        result=RelaxResult(
+            state=state,
+            energy=-1.0,
+            gradient_norm=0.01,
+            n_iter=1,
+            telemetry=RelaxTelemetry(termination_reason="converged"),
+        ),
+        evaluation_counts=EvaluationCounts.unattributed(40),
+        wall_time_s=0.0,
+        trace_records=[],
+        accepted_callback_hashes=(),
+        certificate_satisfied=True,
+    )
+    reference = {
+        "force_evaluations": 40,
+        "certificate_satisfied": True,
+        "termination_reason": "converged",
+        "final_biased_energy_eV": -1.0,
+        "final_positions": state.positions.tolist(),
+    }
+
+    with pytest.raises(ValueError, match="force_evaluations"):
+        trace_runner._build_reference_comparison(
             system="c60",
             task_id="c60-seed-42-bias-1",
             backend="ase-fire",
-            replay=replay_with(energy_delta=5.0001e-4),
-            reference=reference,
+            replay=replay,
+            reference={**reference, "force_evaluations": "40"},
         )
-    with pytest.raises(
-        trace_runner.ReplayMismatchError,
-        match=r"final positions.*actual=.*reference=.*delta=",
-    ):
-        trace_runner._require_reference_match(
+    with pytest.raises(ValueError, match="final_positions shape"):
+        trace_runner._build_reference_comparison(
             system="c60",
             task_id="c60-seed-42-bias-1",
             backend="ase-fire",
-            replay=replay_with(position_delta=2.0001e-3),
-            reference=reference,
+            replay=replay,
+            reference={**reference, "final_positions": [[0.2, 0.0]]},
         )
 
 

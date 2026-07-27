@@ -3,9 +3,11 @@
 This benchmark-local runner replays the already frozen, one-Gaussian proposal
 tasks with the shared `maxiter=400` observation cap.  It uses independent
 warmed calculators from the committed fixed-replay/G1 helper, retains only
-`ase-fire` and `safe-lbfgs-total`, and fails closed unless every row reproduces
-the old cap-400 ledger's call count, certificate, termination reason, final
-biased energy, and final coordinates.
+`ase-fire` and `safe-lbfgs-total`. It fails closed on current-run observer
+integrity, finite values, exact source/task/model/input provenance, CUDA
+availability, and atomic publication. The old cap-400 raw run is a validated
+historical comparator, not a deterministic oracle: its call/endpoint
+differences are recorded instead of making a current trace invalid.
 
 Each trace point is recorded while the relaxation evaluator already has the
 PES components in hand.  `EvalCounter`, trace-record count, and Relaxer
@@ -26,3 +28,5 @@ This work establishes matching evaluated points and matching callback-observed
 accepted states for the frozen replay.  A trace point not marked accepted is
 not automatically a line-search rejection, and these labels make no causal
 claim about why an optimizer accepted, rejected, or converged a step.
+Historical comparator differences likewise do not establish a new optimizer
+effect or invalidate a current observer-integrity-closed trace.

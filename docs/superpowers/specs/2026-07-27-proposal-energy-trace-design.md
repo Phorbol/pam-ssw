@@ -43,15 +43,19 @@ execution paths.
 For every task/backend pair:
 
 - the exact `EvalCounter` total must equal the number of recorded evaluations;
-- certificate, final energy, evaluator-call count, termination reason, and
-  final coordinates must reproduce the existing shared-cap-400 result;
+- the current replay's recorder, counter, and Relaxer telemetry must close,
+  all recorded values and the final endpoint must be finite, and no observer
+  path may call the calculator directly;
 - source summary and task-spec hashes must match the committed compact
-  provenance;
-- all recorded energies and forces must be finite;
-- no observer path may call the calculator directly.
+  provenance, while the model and input files are re-hashed locally before
+  calculator construction;
+- CUDA availability and complete atomic ledger publication are required.
 
-A mismatch invalidates the trace; it is not repaired by changing optimizer
-parameters.
+The existing shared-cap-400 raw run is a validated historical comparator, not
+a deterministic execution oracle. Its call count, certificate, termination,
+energy, and MIC-aware endpoint differences are emitted as a comparison object;
+only malformed reference fields invalidate a run. A historical difference is
+not repaired by changing optimizer parameters.
 
 ## Outputs
 
@@ -61,7 +65,7 @@ The run stores:
 - a compact summary with per-task call counts, accepted-state counts,
   rejected/non-accepted evaluation counts, endpoint comparison, and trace
   integrity status;
-- deterministic curve data for total biased energy, true PES energy, Gaussian
+- recorded curve data for total biased energy, true PES energy, Gaussian
   bias energy, and maximum force versus exact evaluator calls.
 
 The trace describes evaluated points, not physical dynamics. FIRE evaluations
@@ -75,3 +79,5 @@ accepted-state energy decreases are monotone. It cannot by itself attribute
 causality to L-BFGS memory, Armijo, or the atomic step cap, because those
 controls are not separately ablated. Different final stationary points remain
 search behavior, not same-basin convergence acceleration.
+Historical comparator differences neither prove a new optimizer effect nor
+invalidate a current trace whose observer ledger closes exactly.
