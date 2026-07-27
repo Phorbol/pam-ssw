@@ -17,6 +17,8 @@ from pamssw.pbc import mic_displacement
 
 RUN_ROOT = Path(__file__).resolve().parents[2] / "runs" / "20260727-safe-history-capacity-ablation"
 ANALYZER = RUN_ROOT / "analyze_ablation.py"
+PLOTTER = RUN_ROOT / "plot_ablation.py"
+COMMITTED_SVG = RUN_ROOT / "history_capacity_curves.svg"
 RUNNER = RUN_ROOT / "run_gpu_ablation.py"
 TRACE_RECORDER = RUN_ROOT.parent / "20260727-proposal-energy-traces" / "trace_recorder.py"
 RAW_DIR = RUN_ROOT / "output"
@@ -57,6 +59,22 @@ def _run(ledger_dir: Path, output_dir: Path) -> subprocess.CompletedProcess[str]
     )
 
 
+def _plot(ledger_dir: Path, output_path: Path) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [
+            sys.executable,
+            str(PLOTTER),
+            "--ledger-dir",
+            str(ledger_dir),
+            "--output",
+            str(output_path),
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+
 def _copy_ledger(tmp_path: Path) -> Path:
     destination = tmp_path / "ledger"
     shutil.copytree(RAW_DIR, destination)
@@ -77,6 +95,60 @@ def _write_json(path: Path, payload: object) -> None:
 
 def test_analyzer_is_created_for_the_history_capacity_contract() -> None:
     assert ANALYZER.is_file()
+
+
+def test_plotter_is_created_for_the_history_capacity_contract() -> None:
+    assert PLOTTER.is_file()
+
+
+def test_plot_contains_reviewed_system_metric_arm_and_trace_semantics(tmp_path: Path) -> None:
+    output = tmp_path / "history_capacity_curves.svg"
+    completed = _plot(RAW_DIR, output)
+    assert completed.returncode == 0, completed.stderr
+
+    svg = output.read_text(encoding="utf-8")
+    assert all(line == line.rstrip() for line in svg.splitlines())
+    for label in (
+        "C60",
+        "PdO",
+        "Total biased energy (eV)",
+        "Active max total force (eV/Å)",
+        "History 10",
+        "History 0",
+        "Task ID (color)",
+        "Arm (line style)",
+        "All exact evaluations",
+        "Callback-observed accepted_state (not optimizer acceptance rule)",
+        "Callback-nonaccepted evaluation",
+        "Explicit finalization recheck",
+    ):
+        assert label in svg
+
+
+def test_plotter_rejects_incomplete_ledger_through_shared_validator(tmp_path: Path) -> None:
+    ledger_dir = _copy_ledger(tmp_path)
+    c60_path = ledger_dir / "c60.json"
+    c60 = json.loads(c60_path.read_text(encoding="utf-8"))
+    c60["rows"].pop()
+    _write_json(c60_path, c60)
+
+    output = tmp_path / "history_capacity_curves.svg"
+    completed = _plot(ledger_dir, output)
+
+    assert completed.returncode != 0
+    assert "fixed task-arm matrix" in completed.stderr.lower()
+    assert not output.exists()
+
+
+def test_plot_is_byte_deterministic_and_matches_committed_svg(tmp_path: Path) -> None:
+    first = tmp_path / "first" / "history_capacity_curves.svg"
+    second = tmp_path / "second" / "history_capacity_curves.svg"
+    first_run = _plot(RAW_DIR, first)
+    second_run = _plot(RAW_DIR, second)
+    assert first_run.returncode == second_run.returncode == 0
+
+    assert first.read_bytes() == second.read_bytes()
+    assert first.read_bytes() == COMMITTED_SVG.read_bytes()
 
 
 def test_analysis_anchors_are_fixed_to_the_reviewed_execution() -> None:

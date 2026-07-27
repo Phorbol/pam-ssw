@@ -786,6 +786,39 @@ def _validate_summary_outcomes(summary: Mapping[str, Any], rows: Sequence[Mappin
     _require_string(summary.get("claim_ceiling"), "claim_ceiling")
 
 
+def _load_validated_ledger_context(
+    ledger_dir: Path,
+) -> tuple[
+    Path,
+    dict[str, Any],
+    str,
+    dict[tuple[str, str], SourceTaskContract],
+    list[dict[str, Any]],
+]:
+    ledger_dir = ledger_dir.resolve()
+    summary = _load_json_object(ledger_dir / "summary.json", label="summary")
+    execution_commit, states = _validate_provenance(summary)
+    rows = _validated_rows(ledger_dir, summary, states)
+    _validate_summary_outcomes(summary, rows)
+    system_order = {system: index for index, system in enumerate(SYSTEMS)}
+    seed_order = {seed: index for index, seed in enumerate(SEEDS)}
+    arm_order = {arm_id: index for index, (arm_id, _) in enumerate(ARMS)}
+    rows.sort(
+        key=lambda row: (
+            system_order[row["system"]],
+            seed_order[row["seed"]],
+            arm_order[row["arm_id"]],
+        )
+    )
+    return ledger_dir, summary, execution_commit, states, rows
+
+
+def load_validated_ledger(ledger_dir: Path) -> list[dict[str, Any]]:
+    """Load rows only after the reviewed provenance, schema, and closures pass."""
+
+    return _load_validated_ledger_context(ledger_dir)[-1]
+
+
 def _sum(rows: Sequence[Mapping[str, Any]], path: Sequence[str]) -> int:
     total = 0
     for row in rows:
@@ -888,12 +921,9 @@ def _pair_arm(row: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def build_evidence(ledger_dir: Path) -> dict[str, Any]:
-    ledger_dir = ledger_dir.resolve()
-    summary_path = ledger_dir / "summary.json"
-    summary = _load_json_object(summary_path, label="summary")
-    execution_commit, states = _validate_provenance(summary)
-    rows = _validated_rows(ledger_dir, summary, states)
-    _validate_summary_outcomes(summary, rows)
+    ledger_dir, summary, execution_commit, states, rows = _load_validated_ledger_context(
+        ledger_dir
+    )
     reason_counts = Counter(str(row["termination_reason"]) for row in rows)
     satisfied = sum(bool(row["certificate_satisfied"]) for row in rows)
     raw_files = {
