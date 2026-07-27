@@ -33,6 +33,33 @@ OUTPUT_PATH_FIELDS = {
     "relaxation_trajectory_dir",
     "direction_archive_path",
 }
+FROZEN_RUNTIME_IDENTITY = {
+    "input_sha256": {
+        "c60": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9",
+        "pdo": "68243ceb7c0fbb6ba7a9454d680287eb98c4e5210efbd9ebb63517ba79aaa8b0",
+    },
+    "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+    "calculator": {
+        "default_dtype": "float32",
+        "device": "cuda",
+        "enable_cueq": False,
+        "inference_precision": "float32",
+    },
+    "runtime_versions": {
+        "ase": "3.25.0",
+        "mace": "0.3.14",
+        "numpy": "2.1.3",
+        "python": "3.12.12",
+        "scipy": "1.17.1",
+        "torch": "2.8.0",
+    },
+    "cuda": {
+        "available": True,
+        "device_name": "NVIDIA GeForce RTX 3060",
+        "runtime_version": "12.8",
+    },
+    "safe_lbfgs_default_history_limit": 10,
+}
 
 
 def _load(path: Path, module_name: str):
@@ -175,6 +202,12 @@ def _write_new_case(
             "reference_sha256": reference_sha256,
             "old_execution_commit": reference["old_execution_commit"],
             "old_artifact_sha256": reference["old_artifact_sha256"],
+            "input_sha256": FROZEN_RUNTIME_IDENTITY["input_sha256"][system],
+            "model_sha256": FROZEN_RUNTIME_IDENTITY["model_sha256"],
+            "calculator": FROZEN_RUNTIME_IDENTITY["calculator"],
+            "runtime_versions": FROZEN_RUNTIME_IDENTITY["runtime_versions"],
+            "cuda": FROZEN_RUNTIME_IDENTITY["cuda"],
+            "safe_lbfgs_default_history_limit": 10,
             "effective_config": {
                 "max_trials": 5,
                 "rng_seed": 42,
@@ -234,6 +267,7 @@ def test_real_reference_is_hash_pinned_to_the_old_execution_artifacts():
     assert analyzer.CURRENT_EXECUTION_COMMIT == CURRENT_EXECUTION_COMMIT
     assert analyzer.FROZEN_CONFIG_SHA256 == FROZEN_CONFIG_SHA256
     assert analyzer.OUTPUT_PATH_FIELDS == OUTPUT_PATH_FIELDS
+    assert analyzer.FROZEN_RUNTIME_IDENTITY == FROZEN_RUNTIME_IDENTITY
     for system in ("c60", "pdo"):
         case = payload["systems"][system]
         assert case["old_execution_commit"] == "b2dc9c46932533f8f5be9262ca89555538e40159"
@@ -480,7 +514,6 @@ def test_analyzer_fails_closed_for_unpinned_identity_or_invalid_direction_trace(
             expected_config_sha256=expected_config_sha256,
         )
 
-    invalid_directions = _direction_rows()
     direction_path.write_text("", encoding="utf-8")
     summary["purpose_counts"]["direction_oracle"] = 0
     summary["force_evaluations"] -= 14
@@ -507,4 +540,49 @@ def test_analyzer_fails_closed_for_unpinned_identity_or_invalid_direction_trace(
             output_root,
             expected_reference_sha256=expected_reference_sha256,
             expected_config_sha256=expected_config_sha256,
+        )
+
+
+@pytest.mark.parametrize(
+    ("field", "mutated_value"),
+    [
+        ("input_sha256", "0" * 64),
+        ("model_sha256", "1" * 64),
+        ("calculator", {"device": "cpu"}),
+    ],
+)
+def test_analyzer_fails_closed_for_runtime_identity_mismatch(
+    tmp_path, field, mutated_value
+):
+    analyzer = _load(
+        ANALYZER_PATH,
+        f"direction_oracle_no_loss_analyzer_runtime_{field}",
+    )
+    reference_path = tmp_path / "reference.json"
+    reference = {
+        "schema_version": 1,
+        "trial_count": 5,
+        "systems": {system: _reference(system) for system in analyzer.SYSTEMS},
+    }
+    _write_json(reference_path, reference)
+    expected_reference_sha256 = sha256(reference_path.read_bytes()).hexdigest()
+    output_root = tmp_path / "output"
+    for system in analyzer.SYSTEMS:
+        _write_new_case(
+            output_root,
+            system,
+            reference["systems"][system],
+            reference_sha256=expected_reference_sha256,
+        )
+    summary_path = output_root / "c60" / "summary.json"
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    summary[field] = mutated_value
+    _write_json(summary_path, summary)
+
+    with pytest.raises(ValueError, match=field):
+        analyzer.analyze(
+            reference_path,
+            output_root,
+            expected_reference_sha256=expected_reference_sha256,
+            expected_config_sha256=_config_hashes(output_root),
         )

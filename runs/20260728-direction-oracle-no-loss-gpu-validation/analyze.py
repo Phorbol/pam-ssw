@@ -31,6 +31,33 @@ OUTPUT_PATH_FIELDS = {
     "relaxation_trajectory_dir",
     "direction_archive_path",
 }
+FROZEN_RUNTIME_IDENTITY = {
+    "input_sha256": {
+        "c60": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9",
+        "pdo": "68243ceb7c0fbb6ba7a9454d680287eb98c4e5210efbd9ebb63517ba79aaa8b0",
+    },
+    "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+    "calculator": {
+        "default_dtype": "float32",
+        "device": "cuda",
+        "enable_cueq": False,
+        "inference_precision": "float32",
+    },
+    "runtime_versions": {
+        "ase": "3.25.0",
+        "mace": "0.3.14",
+        "numpy": "2.1.3",
+        "python": "3.12.12",
+        "scipy": "1.17.1",
+        "torch": "2.8.0",
+    },
+    "cuda": {
+        "available": True,
+        "device_name": "NVIDIA GeForce RTX 3060",
+        "runtime_version": "12.8",
+    },
+    "safe_lbfgs_default_history_limit": 10,
+}
 
 
 def _read_json(path: Path) -> Any:
@@ -105,6 +132,20 @@ def _validate_config_identity(
     if actual != expected_config_sha256[system]:
         raise ValueError(f"{system} effective config SHA mismatch")
     return actual
+
+
+def _validate_runtime_identity(summary: dict[str, Any], system: str) -> None:
+    expected = {
+        "input_sha256": FROZEN_RUNTIME_IDENTITY["input_sha256"][system],
+        **{
+            key: value
+            for key, value in FROZEN_RUNTIME_IDENTITY.items()
+            if key != "input_sha256"
+        },
+    }
+    for field, value in expected.items():
+        if summary.get(field) != value:
+            raise ValueError(f"{system} {field} runtime identity mismatch")
 
 
 def _case_paths(output_root: Path, system: str) -> dict[str, Path]:
@@ -294,6 +335,7 @@ def _validate_current_run(
         raise ValueError(f"{system} reference SHA provenance mismatch")
     if summary.get("execution_commit") != expected_execution_commit:
         raise ValueError(f"{system} execution commit mismatch")
+    _validate_runtime_identity(summary, system)
     config_sha256 = _validate_config_identity(
         summary, system, expected_config_sha256
     )
@@ -449,6 +491,7 @@ def analyze(
         "expected_execution_commit": expected_execution_commit,
         "expected_effective_config_sha256": dict(expected_config_sha256),
         "excluded_effective_config_fields": sorted(OUTPUT_PATH_FIELDS),
+        "expected_runtime_identity": FROZEN_RUNTIME_IDENTITY,
         "output_root": str(output_root),
         "repeat_root": None if repeat_root is None else str(repeat_root),
         "trajectory_exact": all(payload["trajectory_exact"] for payload in systems.values()),
