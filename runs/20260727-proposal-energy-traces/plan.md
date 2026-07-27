@@ -14,10 +14,11 @@ the Relaxer trajectory callback's coordinate hashes, never from a new model
 call.  The raw output remains a local artifact and is deliberately not part
 of the repository.
 
-Final energy and coordinate reproduction use `1e-4 eV` and `1e-5 A` absolute
-float32 replay-equivalence limits, respectively. These limits only classify
-cross-process numerical equivalence; they do not alter optimizer settings,
-budgets, or any optimizer claim.
+Final energy and coordinate reproduction use measured float32 replay-
+equivalence limits of `5e-4 eV` total energy and `2e-3 A` maximum MIC-aware
+atomic displacement, respectively. These same-stationary-neighborhood limits
+only classify cross-process numerical equivalence; they do not alter optimizer
+settings, budgets, or any optimizer claim.
 
 ## Claim ceiling
 

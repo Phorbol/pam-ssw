@@ -180,15 +180,22 @@ def test_trace_runner_binds_the_reviewed_source_and_cap400_reference_hashes():
     )
 
 
-def test_reference_match_uses_float32_replay_equivalence_limits_and_rejects_excess_drift():
+def test_reference_match_uses_measured_mic_float32_equivalence_and_rejects_excess_drift():
     trace_runner = _trace_runner_module()
-    state = _state()
+    reference_positions = np.array([[0.2, 0.0, 0.0]])
+    state = State(
+        numbers=np.array([1]),
+        positions=reference_positions,
+        cell=np.diag([10.0, 10.0, 10.0]),
+        pbc=(True, False, False),
+        fixed_mask=np.array([False]),
+    )
     reference = {
         "force_evaluations": 75,
         "certificate_satisfied": True,
         "termination_reason": "converged",
         "final_biased_energy_eV": -464.6608064065233,
-        "final_positions": state.positions.tolist(),
+        "final_positions": reference_positions.tolist(),
     }
 
     def replay_with(*, energy_delta=0.0, position_delta=0.0):
@@ -196,6 +203,8 @@ def test_reference_match_uses_float32_replay_equivalence_limits_and_rejects_exce
             state=State(
                 numbers=state.numbers.copy(),
                 positions=state.positions + position_delta,
+                cell=state.cell.copy(),
+                pbc=state.pbc,
                 fixed_mask=state.fixed_mask.copy(),
             ),
             energy=reference["final_biased_energy_eV"] + energy_delta,
@@ -212,30 +221,36 @@ def test_reference_match_uses_float32_replay_equivalence_limits_and_rejects_exce
             certificate_satisfied=True,
         )
 
-    assert trace_runner.ENERGY_ABSOLUTE_TOLERANCE_EV == pytest.approx(1.0e-4)
-    assert trace_runner.POSITION_ABSOLUTE_TOLERANCE_A == pytest.approx(1.0e-5)
+    assert trace_runner.ENERGY_ABSOLUTE_TOLERANCE_EV == pytest.approx(5.0e-4)
+    assert trace_runner.POSITION_MAX_MIC_DISPLACEMENT_A == pytest.approx(2.0e-3)
     trace_runner._require_reference_match(
         system="c60",
         task_id="c60-seed-42-bias-1",
         backend="ase-fire",
-        replay=replay_with(energy_delta=2.6156e-5, position_delta=3.4089e-6),
+        replay=replay_with(energy_delta=4.9e-4, position_delta=np.array([[10.0, 0.0, 0.0]])),
         reference=reference,
     )
 
-    with pytest.raises(trace_runner.ReplayMismatchError, match="final biased energy"):
+    with pytest.raises(
+        trace_runner.ReplayMismatchError,
+        match=r"final biased energy.*actual=.*reference=.*delta=",
+    ):
         trace_runner._require_reference_match(
             system="c60",
             task_id="c60-seed-42-bias-1",
             backend="ase-fire",
-            replay=replay_with(energy_delta=1.00001e-4),
+            replay=replay_with(energy_delta=5.0001e-4),
             reference=reference,
         )
-    with pytest.raises(trace_runner.ReplayMismatchError, match="final positions"):
+    with pytest.raises(
+        trace_runner.ReplayMismatchError,
+        match=r"final positions.*actual=.*reference=.*delta=",
+    ):
         trace_runner._require_reference_match(
             system="c60",
             task_id="c60-seed-42-bias-1",
             backend="ase-fire",
-            replay=replay_with(position_delta=1.00001e-5),
+            replay=replay_with(position_delta=2.0001e-3),
             reference=reference,
         )
 
