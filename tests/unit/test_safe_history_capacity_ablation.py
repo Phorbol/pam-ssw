@@ -83,21 +83,29 @@ def test_runner_module_is_created_for_the_ablation_contract():
     assert _RUNNER_PATH.is_file()
 
 
-def test_default_output_path_is_absent_and_run_local_ignore_covers_generated_ledger():
+def test_default_output_path_is_untracked_and_run_local_ignore_covers_generated_ledger():
     runner = _runner_module()
     output_path = runner.RUN_ROOT / "output"
     ignore_path = runner.RUN_ROOT / ".gitignore"
+    output_relative = output_path.relative_to(runner.REPO_ROOT)
 
     assert runner.OUTPUT_DIR == output_path
-    assert not output_path.exists()
     assert ignore_path.read_text(encoding="utf-8") == "output/\n"
+    tracked = subprocess.run(
+        ["git", "ls-files", "--", str(output_relative)],
+        cwd=runner.REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert tracked.stdout == ""
     ignored = subprocess.run(
         [
             "git",
             "check-ignore",
             "--quiet",
             "--no-index",
-            str((output_path / "summary.json").relative_to(runner.REPO_ROOT)),
+            str(output_relative / "hypothetical-result.json"),
         ],
         cwd=runner.REPO_ROOT,
     )
