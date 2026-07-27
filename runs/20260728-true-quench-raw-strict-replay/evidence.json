@@ -1,0 +1,683 @@
+{
+  "claim_boundary": {
+    "endpoint_energy_speed_comparison": "not a controlled speed comparison because optimizers may end in different local minima",
+    "global_search_performance": "not measured",
+    "measured": "fixed raw-landing local true-PES strict-quench convergence and cost on one frozen C60/PdO corpus",
+    "production_default": "not selected by this replay alone"
+  },
+  "overall": {
+    "arms": {
+      "ase-fire": {
+        "failure_count": 10,
+        "final_max_force_eV_per_A": {
+          "max": 0.3371899364249453,
+          "median": 0.009662318913820158
+        },
+        "max_force_evaluations": 402,
+        "median_energy_drop_eV": 3.065093994140625,
+        "median_force_evaluations": 184.5,
+        "median_wall_time_s": 3.5587442005053163,
+        "p90_force_evaluations": 401.0,
+        "success_count": 22,
+        "success_rate": 0.6875,
+        "task_count": 32,
+        "termination_reasons": {
+          "converged": 22,
+          "maxiter": 10
+        },
+        "total_energy_drop_eV": 123.63888549804688,
+        "total_force_evaluations": 7199,
+        "total_wall_time_s": 131.07289507298265
+      },
+      "ase-fire2": {
+        "failure_count": 11,
+        "final_max_force_eV_per_A": {
+          "max": 0.12445011036518809,
+          "median": 0.00992896442598194
+        },
+        "max_force_evaluations": 422,
+        "median_energy_drop_eV": 3.063629150390625,
+        "median_force_evaluations": 205.5,
+        "median_wall_time_s": 4.130448539493955,
+        "p90_force_evaluations": 422.0,
+        "success_count": 21,
+        "success_rate": 0.65625,
+        "task_count": 32,
+        "termination_reasons": {
+          "converged": 21,
+          "maxiter": 11
+        },
+        "total_energy_drop_eV": 123.25558471679688,
+        "total_force_evaluations": 7868,
+        "total_wall_time_s": 143.31711125103175
+      },
+      "ase-lbfgs": {
+        "failure_count": 4,
+        "final_max_force_eV_per_A": {
+          "max": 1.5024154058149428,
+          "median": 0.00932591315499556
+        },
+        "max_force_evaluations": 402,
+        "median_energy_drop_eV": 3.513702392578125,
+        "median_force_evaluations": 112.5,
+        "median_wall_time_s": 2.1935478530067485,
+        "p90_force_evaluations": 396.70000000000005,
+        "success_count": 28,
+        "success_rate": 0.875,
+        "task_count": 32,
+        "termination_reasons": {
+          "converged": 28,
+          "maxiter": 4
+        },
+        "total_energy_drop_eV": 126.3397216796875,
+        "total_force_evaluations": 5096,
+        "total_wall_time_s": 98.84687816997757
+      },
+      "safe-lbfgs-total": {
+        "failure_count": 14,
+        "final_max_force_eV_per_A": {
+          "max": 0.06623466741980648,
+          "median": 0.009666032517630969
+        },
+        "max_force_evaluations": 259,
+        "median_energy_drop_eV": 3.84552001953125,
+        "median_force_evaluations": 101.0,
+        "median_wall_time_s": 1.8496602594968863,
+        "p90_force_evaluations": 213.20000000000002,
+        "success_count": 18,
+        "success_rate": 0.5625,
+        "task_count": 32,
+        "termination_reasons": {
+          "converged": 18,
+          "line_search_failed": 14
+        },
+        "total_energy_drop_eV": 131.46353149414062,
+        "total_force_evaluations": 3664,
+        "total_wall_time_s": 67.53322840988403
+      },
+      "scipy-lbfgsb": {
+        "failure_count": 25,
+        "final_max_force_eV_per_A": {
+          "max": 0.05246993937166018,
+          "median": 0.019164371751702935
+        },
+        "max_force_evaluations": 243,
+        "median_energy_drop_eV": 3.5526123046875,
+        "median_force_evaluations": 83.0,
+        "median_wall_time_s": 1.6044925565074664,
+        "p90_force_evaluations": 202.10000000000005,
+        "success_count": 7,
+        "success_rate": 0.21875,
+        "task_count": 32,
+        "termination_reasons": {
+          "converged": 7,
+          "unconverged": 25
+        },
+        "total_energy_drop_eV": 130.28594970703125,
+        "total_force_evaluations": 3301,
+        "total_wall_time_s": 72.13620580194402
+      }
+    },
+    "best_success_count": 28,
+    "single_arm_full_coverage": [],
+    "strongest_single_arm_by_success": [
+      "ase-lbfgs"
+    ]
+  },
+  "schema_version": 1,
+  "systems": {
+    "c60": {
+      "arms": {
+        "ase-fire": {
+          "failure_count": 9,
+          "final_max_force_eV_per_A": {
+            "max": 0.10839133884935408,
+            "median": 0.031765259261303594
+          },
+          "max_force_evaluations": 401,
+          "median_energy_drop_eV": 3.80145263671875,
+          "median_force_evaluations": 401.0,
+          "median_wall_time_s": 6.648406271502608,
+          "p90_force_evaluations": 401.0,
+          "success_count": 7,
+          "success_rate": 0.4375,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 7,
+            "maxiter": 9
+          },
+          "total_energy_drop_eV": 70.40548706054688,
+          "total_force_evaluations": 4904,
+          "total_wall_time_s": 82.29555719398195
+        },
+        "ase-fire2": {
+          "failure_count": 10,
+          "final_max_force_eV_per_A": {
+            "max": 0.12445011036518809,
+            "median": 0.05040436579591936
+          },
+          "max_force_evaluations": 422,
+          "median_energy_drop_eV": 3.7974853515625,
+          "median_force_evaluations": 420.5,
+          "median_wall_time_s": 7.041558299504686,
+          "p90_force_evaluations": 422.0,
+          "success_count": 6,
+          "success_rate": 0.375,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 6,
+            "maxiter": 10
+          },
+          "total_energy_drop_eV": 69.94143676757812,
+          "total_force_evaluations": 5349,
+          "total_wall_time_s": 89.68766802703612
+        },
+        "ase-lbfgs": {
+          "failure_count": 2,
+          "final_max_force_eV_per_A": {
+            "max": 1.5024154058149428,
+            "median": 0.009188160154718123
+          },
+          "max_force_evaluations": 401,
+          "median_energy_drop_eV": 3.8454132080078125,
+          "median_force_evaluations": 115.0,
+          "median_wall_time_s": 1.94828515300469,
+          "p90_force_evaluations": 331.5,
+          "success_count": 14,
+          "success_rate": 0.875,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 14,
+            "maxiter": 2
+          },
+          "total_energy_drop_eV": 69.62530517578125,
+          "total_force_evaluations": 2490,
+          "total_wall_time_s": 42.58624181896448
+        },
+        "safe-lbfgs-total": {
+          "failure_count": 10,
+          "final_max_force_eV_per_A": {
+            "max": 0.06623466741980648,
+            "median": 0.021770380555510054
+          },
+          "max_force_evaluations": 259,
+          "median_energy_drop_eV": 3.84552001953125,
+          "median_force_evaluations": 132.5,
+          "median_wall_time_s": 2.201155923496117,
+          "p90_force_evaluations": 218.5,
+          "success_count": 6,
+          "success_rate": 0.375,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 6,
+            "line_search_failed": 10
+          },
+          "total_energy_drop_eV": 72.36856079101562,
+          "total_force_evaluations": 2137,
+          "total_wall_time_s": 35.42980584895122
+        },
+        "scipy-lbfgsb": {
+          "failure_count": 16,
+          "final_max_force_eV_per_A": {
+            "max": 0.05246993937166018,
+            "median": 0.021546166177359646
+          },
+          "max_force_evaluations": 221,
+          "median_energy_drop_eV": 3.8454437255859375,
+          "median_force_evaluations": 109.5,
+          "median_wall_time_s": 1.8928120089840377,
+          "p90_force_evaluations": 190.0,
+          "success_count": 0,
+          "success_rate": 0.0,
+          "task_count": 16,
+          "termination_reasons": {
+            "unconverged": 16
+          },
+          "total_energy_drop_eV": 72.36273193359375,
+          "total_force_evaluations": 1807,
+          "total_wall_time_s": 40.64033721399028
+        }
+      },
+      "taskwise_coverage": {
+        "all_arms": 0,
+        "any_arm": 16,
+        "by_task": {
+          "0": {
+            "success_count": 4,
+            "successful_arms": [
+              "safe-lbfgs-total",
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "1": {
+            "success_count": 4,
+            "successful_arms": [
+              "safe-lbfgs-total",
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "10": {
+            "success_count": 1,
+            "successful_arms": [
+              "ase-lbfgs"
+            ]
+          },
+          "11": {
+            "success_count": 2,
+            "successful_arms": [
+              "ase-fire",
+              "ase-fire2"
+            ]
+          },
+          "12": {
+            "success_count": 1,
+            "successful_arms": [
+              "ase-lbfgs"
+            ]
+          },
+          "13": {
+            "success_count": 1,
+            "successful_arms": [
+              "ase-lbfgs"
+            ]
+          },
+          "14": {
+            "success_count": 2,
+            "successful_arms": [
+              "safe-lbfgs-total",
+              "ase-lbfgs"
+            ]
+          },
+          "15": {
+            "success_count": 1,
+            "successful_arms": [
+              "ase-lbfgs"
+            ]
+          },
+          "2": {
+            "success_count": 3,
+            "successful_arms": [
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "3": {
+            "success_count": 3,
+            "successful_arms": [
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "4": {
+            "success_count": 3,
+            "successful_arms": [
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "5": {
+            "success_count": 2,
+            "successful_arms": [
+              "safe-lbfgs-total",
+              "ase-fire"
+            ]
+          },
+          "6": {
+            "success_count": 2,
+            "successful_arms": [
+              "safe-lbfgs-total",
+              "ase-lbfgs"
+            ]
+          },
+          "7": {
+            "success_count": 2,
+            "successful_arms": [
+              "safe-lbfgs-total",
+              "ase-lbfgs"
+            ]
+          },
+          "8": {
+            "success_count": 1,
+            "successful_arms": [
+              "ase-lbfgs"
+            ]
+          },
+          "9": {
+            "success_count": 1,
+            "successful_arms": [
+              "ase-lbfgs"
+            ]
+          }
+        },
+        "task_count": 16
+      }
+    },
+    "pdo": {
+      "arms": {
+        "ase-fire": {
+          "failure_count": 1,
+          "final_max_force_eV_per_A": {
+            "max": 0.3371899364249453,
+            "median": 0.009437739577166707
+          },
+          "max_force_evaluations": 402,
+          "median_energy_drop_eV": 2.9156494140625,
+          "median_force_evaluations": 140.5,
+          "median_wall_time_s": 3.006028203002643,
+          "p90_force_evaluations": 215.5,
+          "success_count": 15,
+          "success_rate": 0.9375,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 15,
+            "maxiter": 1
+          },
+          "total_energy_drop_eV": 53.2333984375,
+          "total_force_evaluations": 2295,
+          "total_wall_time_s": 48.7773378790007
+        },
+        "ase-fire2": {
+          "failure_count": 1,
+          "final_max_force_eV_per_A": {
+            "max": 0.018059738313474374,
+            "median": 0.009593045300393177
+          },
+          "max_force_evaluations": 420,
+          "median_energy_drop_eV": 2.91748046875,
+          "median_force_evaluations": 140.0,
+          "median_wall_time_s": 3.0151622489938745,
+          "p90_force_evaluations": 289.0,
+          "success_count": 15,
+          "success_rate": 0.9375,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 15,
+            "maxiter": 1
+          },
+          "total_energy_drop_eV": 53.31414794921875,
+          "total_force_evaluations": 2519,
+          "total_wall_time_s": 53.62944322399562
+        },
+        "ase-lbfgs": {
+          "failure_count": 2,
+          "final_max_force_eV_per_A": {
+            "max": 0.6754785533151101,
+            "median": 0.009411283799095834
+          },
+          "max_force_evaluations": 402,
+          "median_energy_drop_eV": 3.123260498046875,
+          "median_force_evaluations": 107.0,
+          "median_wall_time_s": 2.3172518455103273,
+          "p90_force_evaluations": 380.0,
+          "success_count": 14,
+          "success_rate": 0.875,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 14,
+            "maxiter": 2
+          },
+          "total_energy_drop_eV": 56.71441650390625,
+          "total_force_evaluations": 2606,
+          "total_wall_time_s": 56.26063635101309
+        },
+        "safe-lbfgs-total": {
+          "failure_count": 4,
+          "final_max_force_eV_per_A": {
+            "max": 0.020385151233768457,
+            "median": 0.009177733461002145
+          },
+          "max_force_evaluations": 230,
+          "median_energy_drop_eV": 3.57440185546875,
+          "median_force_evaluations": 64.5,
+          "median_wall_time_s": 1.348315848998027,
+          "p90_force_evaluations": 196.5,
+          "success_count": 12,
+          "success_rate": 0.75,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 12,
+            "line_search_failed": 4
+          },
+          "total_energy_drop_eV": 59.094970703125,
+          "total_force_evaluations": 1527,
+          "total_wall_time_s": 32.10342256093281
+        },
+        "scipy-lbfgsb": {
+          "failure_count": 9,
+          "final_max_force_eV_per_A": {
+            "max": 0.041664351339512254,
+            "median": 0.010706214620670028
+          },
+          "max_force_evaluations": 243,
+          "median_energy_drop_eV": 3.263702392578125,
+          "median_force_evaluations": 66.5,
+          "median_wall_time_s": 1.4136420529976021,
+          "p90_force_evaluations": 190.5,
+          "success_count": 7,
+          "success_rate": 0.4375,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 7,
+            "unconverged": 9
+          },
+          "total_energy_drop_eV": 57.9232177734375,
+          "total_force_evaluations": 1494,
+          "total_wall_time_s": 31.495868587953737
+        }
+      },
+      "taskwise_coverage": {
+        "all_arms": 5,
+        "any_arm": 16,
+        "by_task": {
+          "0": {
+            "success_count": 4,
+            "successful_arms": [
+              "scipy-lbfgsb",
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "1": {
+            "success_count": 5,
+            "successful_arms": [
+              "scipy-lbfgsb",
+              "safe-lbfgs-total",
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "10": {
+            "success_count": 4,
+            "successful_arms": [
+              "safe-lbfgs-total",
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "11": {
+            "success_count": 4,
+            "successful_arms": [
+              "safe-lbfgs-total",
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "12": {
+            "success_count": 5,
+            "successful_arms": [
+              "scipy-lbfgsb",
+              "safe-lbfgs-total",
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "13": {
+            "success_count": 4,
+            "successful_arms": [
+              "safe-lbfgs-total",
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "14": {
+            "success_count": 5,
+            "successful_arms": [
+              "scipy-lbfgsb",
+              "safe-lbfgs-total",
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "15": {
+            "success_count": 4,
+            "successful_arms": [
+              "safe-lbfgs-total",
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "2": {
+            "success_count": 5,
+            "successful_arms": [
+              "scipy-lbfgsb",
+              "safe-lbfgs-total",
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "3": {
+            "success_count": 3,
+            "successful_arms": [
+              "safe-lbfgs-total",
+              "ase-fire",
+              "ase-fire2"
+            ]
+          },
+          "4": {
+            "success_count": 1,
+            "successful_arms": [
+              "safe-lbfgs-total"
+            ]
+          },
+          "5": {
+            "success_count": 4,
+            "successful_arms": [
+              "safe-lbfgs-total",
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "6": {
+            "success_count": 3,
+            "successful_arms": [
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "7": {
+            "success_count": 3,
+            "successful_arms": [
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "8": {
+            "success_count": 4,
+            "successful_arms": [
+              "scipy-lbfgsb",
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          },
+          "9": {
+            "success_count": 5,
+            "successful_arms": [
+              "scipy-lbfgsb",
+              "safe-lbfgs-total",
+              "ase-fire",
+              "ase-fire2",
+              "ase-lbfgs"
+            ]
+          }
+        },
+        "task_count": 16
+      }
+    }
+  },
+  "validation": {
+    "corpus_sha256": "100759e1871cdefb54972f91751c452763f74d0e34ee576f268a5808219a552b",
+    "cost_scope": "unconditional_all_attempts_including_successes_and_failures",
+    "evaluation_counts": {
+      "biased_proposal_relax": 0,
+      "bootstrap_true_quench": 0,
+      "direction_oracle": 0,
+      "escape_true_pes_check": 0,
+      "landing_true_quench": 27128,
+      "post_relax_validation": 0,
+      "starter_true_quench": 0,
+      "unattributed": 0
+    },
+    "execution_commit": "e3141c46b53e0a646fbe3da95678f04e389b4613",
+    "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+    "provenance": {
+      "calculator": {
+        "default_dtype": "float32",
+        "device": "cuda",
+        "enable_cueq": false,
+        "inference_precision": "float32"
+      },
+      "cuda": {
+        "available": true,
+        "device_name": "NVIDIA GeForce RTX 3060",
+        "runtime_version": "12.8"
+      },
+      "inputs": {
+        "c60": {
+          "path": "/mnt/d/download/trae-research-code/ssw/runs/20260428-c60-mace-production/prerelaxed_c60.xyz",
+          "sha256": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9"
+        },
+        "pdo": {
+          "path": "/mnt/d/download/trae-research-code/ssw/PdO.xyz",
+          "sha256": "68243ceb7c0fbb6ba7a9454d680287eb98c4e5210efbd9ebb63517ba79aaa8b0"
+        }
+      },
+      "model": {
+        "path": "/root/.cache/mace/mace-omat-0-small.model",
+        "sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5"
+      },
+      "runtime_versions": {
+        "ase": "3.25.0",
+        "mace": "0.3.14",
+        "numpy": "2.1.3",
+        "python": "3.12.12",
+        "scipy": "1.17.1",
+        "torch": "2.8.0"
+      }
+    },
+    "row_count": 160,
+    "rows_sha256": "b9c12ca40f2fa183d8573a46b66ec630aeb25ab54ea8eacfc3e88640d163e1ac",
+    "status": "passed",
+    "strict_fmax_eV_per_A": 0.01,
+    "summary_sha256": "3e15c150ef20ad85e143346a55918aa7510ec3eeadae727168cd36a6e33c9b36"
+  }
+}
