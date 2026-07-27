@@ -162,19 +162,31 @@ def _assert_closed_physical_ledger(result) -> None:
 
 
 @pytest.mark.parametrize(
-    ("config_factory", "softening_enabled", "force_evaluations", "landing_energy", "landing_positions"),
+    (
+        "config_factory",
+        "softening_enabled",
+        "force_evaluations",
+        "direction_oracle_evaluations",
+        "escape_true_pes_evaluations",
+        "landing_energy",
+        "landing_positions",
+    ),
     [
         (
             _base_config,
             False,
-            15,
+            13,
+            6,
+            2,
             1.0750373417042004e-34,
             _SSW_COMPLETED_LANDING,
         ),
         (
             _ls_base_config,
             True,
-            63,
+            61,
+            8,
+            2,
             2.0427020177514484e-09,
             _LS_SSW_COMPLETED_LANDING,
         ),
@@ -185,6 +197,8 @@ def test_real_worker_purpose_ledger_preserves_completed_analytic_baselines(
     config_factory,
     softening_enabled,
     force_evaluations,
+    direction_oracle_evaluations,
+    escape_true_pes_evaluations,
     landing_energy,
     landing_positions,
 ):
@@ -202,6 +216,8 @@ def test_real_worker_purpose_ledger_preserves_completed_analytic_baselines(
     assert diagnostic_stats["proposal_optimizer"] == config.proposal_optimizer
     assert diagnostic_stats["proposal_relax_count"] >= 1
     assert diagnostic_stats["force_evaluations"] == result.force_evaluations
+    assert result.evaluation_counts.count(EvaluationPurpose.DIRECTION_ORACLE) == direction_oracle_evaluations
+    assert result.evaluation_counts.count(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK) == escape_true_pes_evaluations
     _assert_terminal_baseline(
         result,
         calculators[0],
@@ -243,7 +259,7 @@ def test_new_proposal_optimizers_preserve_exact_analytic_worker_ledger(proposal_
         result,
         calculators[0],
         status=AttemptStatus.COMPLETED,
-        force_evaluations=15,
+        force_evaluations=13,
         landing_energy=1.0750373417042004e-34,
         landing_positions=_SSW_COMPLETED_LANDING,
     )
@@ -254,8 +270,8 @@ def test_new_proposal_optimizers_preserve_exact_analytic_worker_ledger(proposal_
 @pytest.mark.parametrize(
     ("config_factory", "softening_enabled", "force_evaluations"),
     [
-        (_base_config, False, 15),
-        (_ls_known_basin_config, True, 43),
+        (_base_config, False, 13),
+        (_ls_known_basin_config, True, 41),
     ],
     ids=("ssw", "ls_ssw"),
 )
@@ -285,8 +301,8 @@ def test_real_worker_purpose_ledger_preserves_duplicate_candidate_baseline(
 @pytest.mark.parametrize(
     ("config_factory", "softening_enabled", "force_evaluations"),
     [
-        (_base_config, False, 15),
-        (_ls_base_config, True, 63),
+        (_base_config, False, 13),
+        (_ls_base_config, True, 61),
     ],
     ids=("ssw", "ls_ssw"),
 )

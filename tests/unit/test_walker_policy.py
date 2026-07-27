@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from pamssw import LSSSWConfig, SSWConfig
-from pamssw.accounting import BudgetExceeded
+from pamssw.accounting import BudgetExceeded, EvalCounter
 from pamssw.archive import MinimaArchive
 from pamssw.bias import GaussianBiasTerm
 from pamssw.calculators import AnalyticCalculator
@@ -1789,7 +1789,11 @@ def test_regularized_ritz_synthesis_adds_anchor_aligned_candidate_without_extra_
         hvp_calls["count"] += 1
         return np.zeros_like(direction)
 
-    monkeypatch.setattr(oracle, "_directional_hvp", fake_hvp)
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda state, proposal, direction: (fake_hvp(state, proposal, direction), None),
+    )
     anchor = np.array([1.0, 1.0, 0.0]) / np.sqrt(2.0)
     choice = oracle.choose_direction(
         state,
@@ -1826,7 +1830,11 @@ def test_regularized_ritz_synthesis_none_keeps_candidate_count_and_never_selects
         hvp_calls["count"] += 1
         return np.zeros_like(direction)
 
-    monkeypatch.setattr(oracle, "_directional_hvp", fake_hvp)
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda state, proposal, direction: (fake_hvp(state, proposal, direction), None),
+    )
     choice = oracle.choose_direction(
         state,
         proposal=ProposalPotential(AnalyticCalculator(Quadratic())),
@@ -1856,7 +1864,11 @@ def test_regularized_ritz_synthesis_can_be_steered_by_previous_direction(monkeyp
         DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([0.0, 1.0, 0.0])),
     ]
 
-    monkeypatch.setattr(oracle, "_directional_hvp", lambda state, proposal, direction: np.zeros_like(direction))
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda state, proposal, direction: (np.zeros_like(direction), None),
+    )
     previous = np.array([1.0, 1.0, 0.0]) / np.sqrt(2.0)
     choice = oracle.choose_direction(
         state,
@@ -1915,6 +1927,7 @@ def test_regularized_ritz_synthesis_reconstructs_projected_hessian_from_nonortho
     assert choice.candidate_count == 3
     assert choice.curvature == pytest.approx(eigenvalues[expected_index], rel=1e-5)
     assert abs(float(np.dot(choice.direction, expected_direction))) == pytest.approx(1.0)
+    assert choice.true_curvature is None
 
 
 def test_regularized_ritz_synthesis_tied_scores_tolerates_top_k_larger_than_candidate_count(monkeypatch):
@@ -1933,7 +1946,11 @@ def test_regularized_ritz_synthesis_tied_scores_tolerates_top_k_larger_than_cand
         DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([0.0, 1.0, 0.0])),
     ]
 
-    monkeypatch.setattr(oracle, "_directional_hvp", lambda state, proposal, direction: np.zeros_like(direction))
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda state, proposal, direction: (np.zeros_like(direction), None),
+    )
     choice = oracle.choose_direction(
         state,
         proposal=ProposalPotential(AnalyticCalculator(Quadratic())),
@@ -1985,6 +2002,11 @@ def test_plateau_evolution_crosses_current_and_history_directions(monkeypatch):
         curvature = -10.0 if abs(float(np.dot(direction, target))) > 0.99 else 10.0
         return curvature * direction
 
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda state, proposal, direction: (fake_hvp(state, proposal, direction), None),
+    )
     monkeypatch.setattr(oracle, "_directional_hvp", fake_hvp)
     choice = oracle.choose_direction(
         state,
@@ -2005,6 +2027,7 @@ def test_plateau_evolution_crosses_current_and_history_directions(monkeypatch):
     expected = np.array([1.0, 1.0, 0.0]) / np.sqrt(2.0)
     assert abs(float(np.dot(choice.direction, expected))) == pytest.approx(1.0)
     assert hvp_calls["count"] == 3
+    assert choice.true_curvature is None
 
 
 def test_plateau_evolution_inactive_keeps_original_candidate_count(monkeypatch):
@@ -2020,7 +2043,11 @@ def test_plateau_evolution_inactive_keeps_original_candidate_count(monkeypatch):
         DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([1.0, 0.0, 0.0])),
         DirectionCandidate(DirectionCandidateKind.BOND, np.array([0.0, 1.0, 0.0])),
     ]
-    monkeypatch.setattr(oracle, "_directional_hvp", lambda state, proposal, direction: 10.0 * direction)
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda state, proposal, direction: (10.0 * direction, None),
+    )
 
     choice = oracle.choose_direction(
         state,
@@ -2076,7 +2103,11 @@ def test_archive_escape_momentum_candidate_can_win_direction_choice(monkeypatch)
         curvature = -5.0 if abs(float(np.dot(direction, target))) > 0.99 else 10.0
         return curvature * direction
 
-    monkeypatch.setattr(oracle, "_directional_hvp", fake_hvp)
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda state, proposal, direction: (fake_hvp(state, proposal, direction), None),
+    )
     choice = oracle.choose_direction(
         state,
         proposal=ProposalPotential(AnalyticCalculator(Quadratic())),
@@ -3612,6 +3643,127 @@ def test_true_curvature_excludes_accumulated_gaussian_bias():
 
     assert biased_curvature < 0.0
     assert true_curvature == pytest.approx(1.0, rel=1e-3)
+
+
+def test_oracle_candidate_hvp_exposes_true_curvature_from_same_parts_evaluations(monkeypatch):
+    """A selected native candidate carries the true-PES curvature already evaluated for its HVP."""
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    calculator = EvalCounter(AnalyticCalculator(Quadratic()))
+    oracle = SoftModeOracle(calculator, np.random.default_rng(0), candidates=1)
+    direction = np.array([1.0, 0.0, 0.0])
+    candidate = DirectionCandidate(DirectionCandidateKind.RANDOM, direction)
+    monkeypatch.setattr(oracle.generator, "generate", lambda *args, **kwargs: [candidate])
+    proposal = ProposalPotential(
+        calculator,
+        biases=[GaussianBiasTerm(center=state.flatten_positions(), direction=direction, sigma=1.0, weight=4.0)],
+    )
+
+    choice = oracle.choose_direction(state, proposal, previous_direction=None)
+
+    assert calculator.force_evaluations == 2
+    assert choice.curvature == pytest.approx(-3.0, rel=1e-3)
+    assert choice.true_curvature == pytest.approx(1.0, rel=1e-3)
+
+
+def test_walk_uses_native_oracle_true_curvature_without_a_second_central_hvp(monkeypatch):
+    """The walker must not re-evaluate true curvature when its own oracle selected the candidate."""
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(max_steps_per_walk=1, oracle_candidates=1, n_bond_pairs=0, rng_seed=0),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0])
+    candidate = DirectionCandidate(DirectionCandidateKind.RANDOM, direction)
+    monkeypatch.setattr(walker.oracle.generator, "generate_initial_direction", lambda *args, **kwargs: direction)
+    monkeypatch.setattr(walker.oracle.generator, "generate", lambda *args, **kwargs: [candidate])
+    monkeypatch.setattr(
+        walker,
+        "_true_directional_curvature",
+        lambda *args, **kwargs: pytest.fail("native candidate must reuse its oracle true curvature"),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(task.initial_state, energy=0.0, gradient_norm=0.0, n_iter=0),
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    assert walker.calculator.force_evaluations == 4
+
+
+def test_walk_reuses_true_after_only_for_the_identical_next_step_state(monkeypatch):
+    """The next step consumes the previous true-after result exactly once, saving one true-PES evaluation."""
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(max_steps_per_walk=2, oracle_candidates=1, n_bond_pairs=0, rng_seed=0),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0])
+    monkeypatch.setattr(walker.oracle.generator, "generate_initial_direction", lambda *args, **kwargs: direction)
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=direction,
+            curvature=1.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+    monkeypatch.setattr(walker, "_true_directional_curvature", lambda *args, **kwargs: 1.0)
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(task.initial_state, energy=0.0, gradient_norm=0.0, n_iter=0),
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    assert walker.calculator.force_evaluations == 3
+
+
+def test_external_direction_choice_falls_back_to_a_direct_true_curvature_hvp(monkeypatch):
+    """A DirectionChoice not produced by the native candidate loop carries no reuse evidence."""
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(max_steps_per_walk=1, oracle_candidates=1, n_bond_pairs=0, rng_seed=0),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0])
+    true_curvature_calls = []
+    monkeypatch.setattr(walker.oracle.generator, "generate_initial_direction", lambda *args, **kwargs: direction)
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=direction,
+            curvature=1.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_true_directional_curvature",
+        lambda *args, **kwargs: true_curvature_calls.append(1) or 1.0,
+    )
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(task.initial_state, energy=0.0, gradient_norm=0.0, n_iter=0),
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    assert true_curvature_calls == [1]
 
 
 def test_geometry_validator_rejects_nan_positions_and_nonfinite_energy():

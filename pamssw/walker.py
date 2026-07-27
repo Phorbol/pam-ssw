@@ -199,6 +199,7 @@ class DirectionChoice:
     score: float | None = None
     evolved_candidate_count: int = 0
     archive_momentum_candidate_count: int = 0
+    true_curvature: float | None = None
 
 
 @dataclass(frozen=True)
@@ -1235,6 +1236,7 @@ class SoftModeOracle:
     ) -> DirectionChoice:
         best_direction: np.ndarray | None = None
         best_curvature: float | None = None
+        best_true_curvature: float | None = None
         best_score: float | None = None
         candidates = self.generator.generate(
             state,
@@ -1258,9 +1260,12 @@ class SoftModeOracle:
         for candidate in candidates:
             rigid_overlap_sum += candidate.rigid_body_overlap
             post_projection_rigid_overlap_sum += candidate.post_projection_rigid_body_overlap
-            hvp = self._directional_hvp(state, proposal, candidate.direction)
+            hvp, true_hvp = self._candidate_directional_hvps(state, proposal, candidate.direction)
             candidate_hvps.append(hvp)
             curvature = float(np.dot(hvp, candidate.direction))
+            candidate_true_curvature = (
+                None if true_hvp is None else float(np.dot(true_hvp, candidate.direction))
+            )
             candidate_score_sigma = self._candidate_score_sigma(
                 curvature=curvature,
                 score_sigma=score_sigma,
@@ -1284,6 +1289,7 @@ class SoftModeOracle:
             if best_score is None or score > best_score:
                 best_score = score
                 best_curvature = curvature
+                best_true_curvature = candidate_true_curvature
                 best_direction = candidate.direction
                 best_kind = candidate.kind
         if self.direction_probe_enabled:
@@ -1301,6 +1307,7 @@ class SoftModeOracle:
             )
             if best is not None:
                 best_direction, best_curvature, best_kind, best_score = best
+                best_true_curvature = None
         synthetic_count = 0
         evolved_candidates = self._plateau_evolution_candidates(
             scored_candidates,
@@ -1326,6 +1333,7 @@ class SoftModeOracle:
             if best_score is None or evolved_score > best_score:
                 best_score = evolved_score
                 best_curvature = evolved_curvature
+                best_true_curvature = None
                 best_direction = evolved_candidate.direction
                 best_kind = evolved_candidate.kind
         if self.direction_synthesis_mode == "regularized_ritz":
@@ -1366,6 +1374,7 @@ class SoftModeOracle:
                 if best_score is None or ritz_reg_score > best_score:
                     best_score = ritz_reg_score
                     best_curvature = ritz_reg_curvature
+                    best_true_curvature = None
                     best_direction = ritz_reg_direction
                     best_kind = DirectionCandidateKind.RITZ_REG
         if self.direction_selection_mode == "rayleigh_ritz":
@@ -1396,6 +1405,7 @@ class SoftModeOracle:
                 if best_score is None or ritz_score > best_score:
                     best_score = ritz_score
                     best_curvature = ritz_curvature
+                    best_true_curvature = None
                     best_direction = ritz_direction
                     best_kind = DirectionCandidateKind.RITZ
         assert best_direction is not None and best_curvature is not None and best_kind is not None
@@ -1410,6 +1420,7 @@ class SoftModeOracle:
             score=best_score,
             evolved_candidate_count=len(evolved_candidates),
             archive_momentum_candidate_count=len(archive_momentum_candidates),
+            true_curvature=best_true_curvature,
         )
 
     def _archive_momentum_candidates(
@@ -1811,6 +1822,31 @@ class SoftModeOracle:
         _, grad_plus = proposal.evaluate(plus.flatten_positions(), plus)
         _, grad_minus = proposal.evaluate(minus.flatten_positions(), minus)
         return (grad_plus - grad_minus) / (2.0 * epsilon)
+
+    def _candidate_directional_hvps(
+        self,
+        state: State,
+        proposal: ProposalPotential,
+        direction: np.ndarray,
+        epsilon: float | None = None,
+    ) -> tuple[np.ndarray, np.ndarray | None]:
+        """Evaluate a native candidate's total and true-PES central HVP together.
+
+        The candidate loop is the only caller: it always evaluates the same
+        central finite-difference stencil used for direction scoring.
+        """
+
+        epsilon = self.hvp_epsilon if epsilon is None else epsilon
+        coordinates = CartesianCoordinates.from_state(state)
+        tangent = TangentVector(direction)
+        plus = coordinates.displace(tangent, epsilon)
+        minus = coordinates.displace(tangent, -epsilon)
+        plus_parts = proposal.evaluate_parts(plus.flatten_positions(), plus)
+        minus_parts = proposal.evaluate_parts(minus.flatten_positions(), minus)
+        scale = 2.0 * epsilon
+        total_hvp = (plus_parts.total_gradient - minus_parts.total_gradient) / scale
+        true_hvp = (plus_parts.true_gradient - minus_parts.true_gradient) / scale
+        return total_hvp, true_hvp
 
     @staticmethod
     def _step_scale_from_curvature(curvature: float) -> float:
@@ -2643,6 +2679,8 @@ class SurfaceWalker:
         biases: list[GaussianBiasTerm] = []
         sigma_scale = 1.0
         weight_scale = 1.0
+        pending_true_after_state: State | None = None
+        pending_true_after = None
 
         for step_index in range(self.config.max_steps_per_walk):
             if anchor_direction is None:
@@ -2724,7 +2762,11 @@ class SurfaceWalker:
                 softening = self._build_softening(current, choice.direction)
                 proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
             with self.calculator.purpose(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK):
-                true_curvature = self._true_directional_curvature(current, choice.direction)
+                true_curvature = (
+                    choice.true_curvature
+                    if choice.true_curvature is not None
+                    else self._true_directional_curvature(current, choice.direction)
+                )
             with self.calculator.purpose(EvaluationPurpose.DIRECTION_ORACLE):
                 inner_curvature = (
                     choice.curvature
@@ -2742,7 +2784,12 @@ class SurfaceWalker:
             weight = self._bias_weight(inner_curvature, sigma) * weight_scale
             self._record_bias_weight(weight)
             with self.calculator.purpose(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK):
-                true_before = self.calculator.evaluate(current)
+                if pending_true_after_state is current:
+                    true_before = pending_true_after
+                else:
+                    true_before = self.calculator.evaluate(current)
+            pending_true_after_state = None
+            pending_true_after = None
             true_energy_before = true_before.energy
             g_parallel = float(np.dot(true_before.gradient.reshape(-1), choice.direction))
             biases.append(
@@ -2795,7 +2842,8 @@ class SurfaceWalker:
             if not self.geometry_validator.is_valid_state(current_candidate):
                 break
             with self.calculator.purpose(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK):
-                true_energy_after = self.calculator.evaluate(current_candidate).energy
+                true_after = self.calculator.evaluate(current_candidate)
+            true_energy_after = true_after.energy
             if not np.isfinite(true_energy_after):
                 break
             proposal_relax = replace(
@@ -2838,6 +2886,8 @@ class SurfaceWalker:
             current = current_candidate
             if clipped:
                 break
+            pending_true_after_state = current_candidate
+            pending_true_after = true_after
         return current
 
     def _walk_from_seed(self, seed_state: State) -> RelaxResult:
