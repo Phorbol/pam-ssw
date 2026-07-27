@@ -151,6 +151,28 @@ def test_plot_is_byte_deterministic_and_matches_committed_svg(tmp_path: Path) ->
     assert first.read_bytes() == COMMITTED_SVG.read_bytes()
 
 
+def test_render_plot_closes_figure_when_savefig_fails(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    plotter = _module(PLOTTER, "safe_history_capacity_plotter_cleanup")
+    rows = plotter.load_validated_ledger(RAW_DIR)
+    import matplotlib.pyplot as plt
+
+    plt.close("all")
+
+    def fail_savefig(*args: object, **kwargs: object) -> None:
+        raise OSError("injected savefig failure")
+
+    monkeypatch.setattr("matplotlib.figure.Figure.savefig", fail_savefig)
+    try:
+        with pytest.raises(OSError, match="injected savefig failure"):
+            plotter.render_plot(rows, tmp_path / "history_capacity_curves.svg")
+        assert plt.get_fignums() == []
+    finally:
+        plt.close("all")
+
+
 def test_analysis_anchors_are_fixed_to_the_reviewed_execution() -> None:
     analyzer = _module(ANALYZER, "safe_history_capacity_analysis_anchors")
 

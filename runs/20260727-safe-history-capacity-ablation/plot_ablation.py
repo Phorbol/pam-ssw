@@ -306,12 +306,14 @@ def render_plot(rows: Sequence[Mapping[str, Any]], output_path: Path) -> None:
         semantic_legend.set_gid("legend-trace-semantics")
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        figure.savefig(
-            output_path,
-            format="svg",
-            metadata=SVG_METADATA,
-        )
-        plt.close(figure)
+        try:
+            figure.savefig(
+                output_path,
+                format="svg",
+                metadata=SVG_METADATA,
+            )
+        finally:
+            plt.close(figure)
         svg = output_path.read_text(encoding="utf-8")
         output_path.write_text(
             "\n".join(line.rstrip() for line in svg.splitlines()) + "\n",
