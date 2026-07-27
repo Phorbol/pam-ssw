@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 from contextlib import contextmanager
+import importlib.util
 import os
 from pathlib import Path
 import sys
@@ -15,10 +16,21 @@ import numpy as np
 
 
 RUN_ROOT = Path(__file__).resolve().parent
-if str(RUN_ROOT) not in sys.path:
-    sys.path.insert(0, str(RUN_ROOT))
+_ANALYZER_PATH = RUN_ROOT / "analyze_ablation.py"
+_ANALYZER_SPEC = importlib.util.spec_from_file_location(
+    "safe_lbfgs_scale_decomposition_analyzer",
+    _ANALYZER_PATH,
+)
+if _ANALYZER_SPEC is None or _ANALYZER_SPEC.loader is None:
+    raise ImportError(f"cannot load scale-decomposition analyzer: {_ANALYZER_PATH}")
+_ANALYZER = importlib.util.module_from_spec(_ANALYZER_SPEC)
+sys.modules[_ANALYZER_SPEC.name] = _ANALYZER
+_ANALYZER_SPEC.loader.exec_module(_ANALYZER)
 
-from analyze_ablation import ARMS, SEEDS, SYSTEMS, load_validated_ledger
+ARMS = _ANALYZER.ARMS
+SEEDS = _ANALYZER.SEEDS
+SYSTEMS = _ANALYZER.SYSTEMS
+load_validated_ledger = _ANALYZER.load_validated_ledger
 
 
 SYSTEM_LABELS = {"c60": "C60", "pdo": "PdO"}
