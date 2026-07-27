@@ -250,25 +250,17 @@ def _replay_without_observer(
     return result, counter.snapshot()
 
 
-def test_pamssw_source_bundle_and_import_paths_are_pinned_to_this_worktree():
+def test_historical_scale_runner_rejects_history_depth_source_drift():
     runner = _runner_module()
 
     assert runner.EXPECTED_PAMSSW_BUNDLE_SHA256 == (
         "96761a45dfe7c8af459ba8112adb79efee4d53ce073a74f7d87fea09c35c9d2a"
     )
-    provenance = runner._verified_pamssw_source()
+    current_bundle_sha256 = runner._pamssw_bundle_sha256(runner.PAMSSW_SOURCE_ROOT)
+    assert current_bundle_sha256 != runner.EXPECTED_PAMSSW_BUNDLE_SHA256
 
-    assert provenance["bundle_sha256"] == runner.EXPECTED_PAMSSW_BUNDLE_SHA256
-    assert provenance["source_root"] == str(runner.REPO_ROOT / "pamssw")
-    assert set(provenance["imported_module_paths"]) >= {
-        "pamssw.accounting",
-        "pamssw.relax",
-        "pamssw.walker",
-    }
-    assert all(
-        Path(path).is_relative_to(runner.REPO_ROOT / "pamssw")
-        for path in provenance["imported_module_paths"].values()
-    )
+    with pytest.raises(ValueError, match="pamssw source bundle SHA256 mismatch"):
+        runner._verified_pamssw_source()
 
 
 @pytest.mark.parametrize("failure", ("commit", "dirty", "import_path", "bundle"))

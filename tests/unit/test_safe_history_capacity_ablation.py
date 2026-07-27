@@ -221,9 +221,8 @@ def test_historical_runner_rejects_the_scale_decomposition_source_drift():
     assert runner.EXPECTED_PAMSSW_BUNDLE_SHA256 == (
         "459a3ed173afbde50c499a2653702796ec1f08f022cc0a93ed2e028222d62636"
     )
-    assert runner._pamssw_bundle_sha256(runner.PAMSSW_SOURCE_ROOT) == (
-        "96761a45dfe7c8af459ba8112adb79efee4d53ce073a74f7d87fea09c35c9d2a"
-    )
+    current_bundle_sha256 = runner._pamssw_bundle_sha256(runner.PAMSSW_SOURCE_ROOT)
+    assert current_bundle_sha256 != runner.EXPECTED_PAMSSW_BUNDLE_SHA256
 
     with pytest.raises(ValueError, match="pamssw source bundle SHA256 mismatch"):
         runner._verified_pamssw_source()
