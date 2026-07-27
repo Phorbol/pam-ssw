@@ -8,7 +8,9 @@ import subprocess
 import numpy as np
 import pytest
 
+from pamssw.accounting import EvaluationCounts
 from pamssw.bias import GaussianBiasTerm
+from pamssw.result import RelaxResult, RelaxTelemetry
 from pamssw.state import State
 from pamssw.walker import ProposalRelaxationTask
 
@@ -176,6 +178,66 @@ def test_trace_runner_binds_the_reviewed_source_and_cap400_reference_hashes():
     assert trace_runner.EXPECTED_REFERENCE_SUMMARY_SHA256 == (
         "a11cd8ee1a1dae9cc71cac0038008149b1c0f0cb67ae72ceba8afc821cbdf370"
     )
+
+
+def test_reference_match_uses_float32_replay_equivalence_limits_and_rejects_excess_drift():
+    trace_runner = _trace_runner_module()
+    state = _state()
+    reference = {
+        "force_evaluations": 75,
+        "certificate_satisfied": True,
+        "termination_reason": "converged",
+        "final_biased_energy_eV": -464.6608064065233,
+        "final_positions": state.positions.tolist(),
+    }
+
+    def replay_with(*, energy_delta=0.0, position_delta=0.0):
+        result = RelaxResult(
+            state=State(
+                numbers=state.numbers.copy(),
+                positions=state.positions + position_delta,
+                fixed_mask=state.fixed_mask.copy(),
+            ),
+            energy=reference["final_biased_energy_eV"] + energy_delta,
+            gradient_norm=0.01,
+            n_iter=1,
+            telemetry=RelaxTelemetry(termination_reason="converged"),
+        )
+        return trace_runner.TraceReplayResult(
+            result=result,
+            evaluation_counts=EvaluationCounts.unattributed(75),
+            wall_time_s=0.0,
+            trace_records=[],
+            accepted_callback_hashes=(),
+            certificate_satisfied=True,
+        )
+
+    assert trace_runner.ENERGY_ABSOLUTE_TOLERANCE_EV == pytest.approx(1.0e-4)
+    assert trace_runner.POSITION_ABSOLUTE_TOLERANCE_A == pytest.approx(1.0e-5)
+    trace_runner._require_reference_match(
+        system="c60",
+        task_id="c60-seed-42-bias-1",
+        backend="ase-fire",
+        replay=replay_with(energy_delta=2.6156e-5, position_delta=3.4089e-6),
+        reference=reference,
+    )
+
+    with pytest.raises(trace_runner.ReplayMismatchError, match="final biased energy"):
+        trace_runner._require_reference_match(
+            system="c60",
+            task_id="c60-seed-42-bias-1",
+            backend="ase-fire",
+            replay=replay_with(energy_delta=1.00001e-4),
+            reference=reference,
+        )
+    with pytest.raises(trace_runner.ReplayMismatchError, match="final positions"):
+        trace_runner._require_reference_match(
+            system="c60",
+            task_id="c60-seed-42-bias-1",
+            backend="ase-fire",
+            replay=replay_with(position_delta=1.00001e-5),
+            reference=reference,
+        )
 
 
 def test_model_provenance_hashes_local_files_before_any_calculator_warmup(tmp_path):
