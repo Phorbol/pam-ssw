@@ -2,19 +2,21 @@
 
 ## Purpose
 
-Determine whether retained accepted secant history is a positive contributor to
-the observed fixed-proposal efficiency of `safe-lbfgs-total`.
+Determine whether the complete history-enabled inverse-BFGS mechanism is a
+positive contributor to the observed fixed-proposal efficiency of
+`safe-lbfgs-total`.
 
-This is a single-mechanism ablation. It does not introduce a new production
-optimizer, tune optimizer constants, change the biased objective, or test
-analytic bias-Hessian corrections.
+This is a bounded mechanism-removal ablation. It does not introduce a new
+production optimizer, tune optimizer constants, change the biased objective,
+or test analytic bias-Hessian corrections.
 
 ## Frozen comparison
 
 Compare two arms on the same 16 frozen C60/PdO
 `ProposalRelaxationTask` payloads:
 
-- `safe-total-gradient-history10`: the current safe L-BFGS kernel;
+- `safe-total-gradient-history10`: the current history-enabled safe L-BFGS
+  kernel;
 - `safe-total-gradient-history0`: the same kernel with no retained secant
   history.
 
@@ -28,8 +30,18 @@ Both arms must use the same:
 - PBC/MIC branch handling, curvature acceptance diagnostics, observer, and
   budget accounting.
 
-The only permitted algorithmic difference is whether an accepted secant remains
-available to the next outer iteration.
+The explicit intervention is whether an accepted secant remains available to
+the next outer iteration. Because the existing two-loop implementation derives
+its initial inverse-Hessian scale from the latest retained pair, this
+intervention necessarily changes both the adaptive scalar scale
+
+\[
+\gamma_k = \frac{s_k^\top y_k}{y_k^\top y_k}
+\]
+
+and the two-loop low-rank corrections. With an empty history it instead uses
+the fixed scale \(1/70\). The experiment therefore identifies the combined
+history-enabled mechanism, not retained multi-secant history alone.
 
 ## Minimal production interface
 
@@ -129,9 +141,9 @@ Results are reported separately for C60 and PdO and at task level.
 
 ## Claim ceiling
 
-This experiment can determine whether retaining prior accepted total-gradient
-secants changes cost and certificate coverage for the frozen biased-proposal
-matrix.
+This experiment can determine whether enabling the existing accepted
+total-gradient history mechanism changes cost and certificate coverage for the
+frozen biased-proposal matrix.
 
 It cannot establish:
 

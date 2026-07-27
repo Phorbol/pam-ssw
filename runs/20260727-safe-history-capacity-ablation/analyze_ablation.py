@@ -1013,7 +1013,7 @@ def _conclusion(evidence: Mapping[str, Any]) -> str:
         "",
         "## Fixed-matrix interpretation ceiling",
         "",
-        "The positive retained-history contribution is limited to this fixed matrix: the history-10 arm preserves the certificate-qualified outcomes and incurs fewer recorded evaluator calls than the history-0 arm.  This is not a generic result, a same-basin equivalence result, a full-SSW performance result, or an inferential claim.",
+        "The positive history-enabled mechanism contribution is limited to this fixed matrix: the history-10 arm preserves the certificate-qualified outcomes and incurs fewer recorded evaluator calls than the history-0 arm.  A nonempty history changes both the adaptive initial inverse-Hessian scale and the two-loop secant corrections, so this result does not isolate retained multi-secant history.  This is not a generic result, a same-basin equivalence result, a full-SSW performance result, or an inferential claim.",
         "",
         f"The history-0 arm recorded {history0_secants} accepted secants, but those secants are not retained history.  Accepted-state and explicit-finalization records are reported as accounting annotations.",
         "The trace figure visualizes exact evaluations and callback-observed annotations for accounting.  A callback-observed label is not an optimizer acceptance rule.  The figure supports no endpoint-equivalence inference.",

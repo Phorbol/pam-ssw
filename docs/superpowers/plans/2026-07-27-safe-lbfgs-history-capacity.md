@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Isolate whether retained L-BFGS secant history reduces force-evaluation cost on the frozen C60/PdO biased-proposal matrix.
+**Goal:** Test whether the existing history-enabled L-BFGS mechanism, comprising adaptive inverse scaling and two-loop secant corrections, reduces force-evaluation cost on the frozen C60/PdO biased-proposal matrix.
 
 **Architecture:** Add one private, fail-closed injection to the existing safe total-gradient relaxation kernel; do not add a new configured optimizer. A run-local CUDA driver replays the same immutable tasks with history capacity 10 and 0 through the same evaluator, observer, and accounting path, then a deterministic analyzer reports paired evidence without a composite score.
 
@@ -350,5 +350,6 @@ git status --short
 
 Push `experiment/safe-history-capacity-ablation` and create a PR with base
 `experiment/proposal-energy-traces`. Report exact tests, CUDA provenance,
-evidence boundaries, and whether retained history was positive, neutral, or
-negative on each fixed system without promoting a new default.
+evidence boundaries, and whether the combined history-enabled mechanism was
+positive, neutral, or negative on each fixed system without promoting a new
+default.

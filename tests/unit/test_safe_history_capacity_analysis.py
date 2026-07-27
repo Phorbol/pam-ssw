@@ -330,7 +330,8 @@ def test_real_ledger_yields_canonical_pairwise_mic_and_certificate_first_evidenc
         "Each arm cost includes all 16 rows; the history-0 cost includes its incomplete rows "
         "and is not a cheap-success comparison."
     ) in conclusion
-    assert "positive retained-history contribution" in conclusion
+    assert "positive history-enabled mechanism contribution" in conclusion
+    assert "does not isolate retained multi-secant history" in conclusion
     assert "not retained" in conclusion
     assert "statistical" not in conclusion.lower()
     assert "no trace curve" not in conclusion.lower()
