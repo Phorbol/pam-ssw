@@ -38,6 +38,29 @@ ARMS = (
 ARM_LIMITS = dict(ARMS)
 SHA256_RE = re.compile(r"[0-9a-f]{64}")
 GIT_SHA_RE = re.compile(r"[0-9a-f]{40}")
+ROW_KEYS = frozenset(
+    {
+        "accepted_callback_hashes",
+        "arm_id",
+        "certificate_satisfied",
+        "endpoint",
+        "force_evaluations",
+        "history_limit",
+        "kernel",
+        "objective_descriptor",
+        "purpose_counts",
+        "replay_maxiter",
+        "seed",
+        "source_task_maxiter",
+        "system",
+        "task_id",
+        "task_sha256",
+        "telemetry",
+        "termination_reason",
+        "trace_records",
+        "wall_time_s",
+    }
+)
 
 TELEMETRY_INTEGER_FIELDS = (
     "accepted_secants",
@@ -147,7 +170,26 @@ def _canonical_json(payload: object) -> str:
     return json.dumps(payload, sort_keys=True, indent=2, ensure_ascii=False, allow_nan=False) + "\n"
 
 
-def _validate_provenance(summary: Mapping[str, Any]) -> tuple[str, dict[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool]]]]:
+def canonical_task_sha256(task_payload: Mapping[str, Any]) -> str:
+    """Return the canonical source-task hash recorded by the execution runner."""
+
+    if not isinstance(task_payload, Mapping):
+        raise ValueError("task payload must be a mapping")
+    try:
+        serialized = json.dumps(
+            task_payload,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+    except (TypeError, ValueError) as error:
+        raise ValueError("task payload is not canonical JSON") from error
+    return sha256(serialized.encode("utf-8")).hexdigest()
+
+
+def _validate_provenance(
+    summary: Mapping[str, Any],
+) -> tuple[str, dict[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool], str]]]:
     """Validate historical provenance and recover PBC state from pinned source."""
 
     if summary.get("schema_version") != 1:
@@ -231,14 +273,16 @@ def _validate_provenance(summary: Mapping[str, Any]) -> tuple[str, dict[tuple[st
     return current_commit, states
 
 
-def _source_task_states(source_summary: Mapping[str, Any]) -> dict[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool]]]:
+def _source_task_states(
+    source_summary: Mapping[str, Any],
+) -> dict[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool], str]]:
     entries = source_summary.get("systems")
     if not isinstance(entries, list) or tuple(
         entry.get("system") if isinstance(entry, Mapping) else None for entry in entries
     ) != SYSTEMS:
         raise ValueError("pinned source summary must contain ordered c60 and pdo task states")
 
-    states: dict[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool]]] = {}
+    states: dict[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool], str]] = {}
     for system, entry in zip(SYSTEMS, entries, strict=True):
         assert isinstance(entry, Mapping)
         tasks = entry.get("tasks")
@@ -260,7 +304,7 @@ def _source_task_states(source_summary: Mapping[str, Any]) -> dict[tuple[str, st
             pbc = tuple(pbc_value)
             if any(pbc) and abs(float(np.linalg.det(cell))) < 1.0e-12:
                 raise ValueError(f"pinned source periodic cell {task_id} is singular")
-            states[(system, task_id)] = (cell, pbc)
+            states[(system, task_id)] = (cell, pbc, canonical_task_sha256(payload))
     return states
 
 
@@ -288,15 +332,14 @@ def _validate_row(
     row: object,
     *,
     expected_system: str,
-    expected_key_set: set[str],
-    states: Mapping[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool]]],
+    states: Mapping[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool], str]],
     descriptor: Mapping[str, Any],
 ) -> dict[str, Any]:
     record = _require_mapping(row, "ledger row")
     label = f"{expected_system}/{record.get('task_id', '<missing>')}"
-    if set(record) != expected_key_set:
-        missing = sorted(expected_key_set - set(record))
-        extra = sorted(set(record) - expected_key_set)
+    if set(record) != ROW_KEYS:
+        missing = sorted(ROW_KEYS - set(record))
+        extra = sorted(set(record) - ROW_KEYS)
         raise ValueError(f"{label} ledger row keys differ; missing={missing}, extra={extra}")
     if record.get("system") != expected_system:
         raise ValueError(f"{label} system does not match its ledger file")
@@ -306,6 +349,10 @@ def _validate_row(
         raise ValueError(f"{label} is not a reviewed fixed task")
     if (expected_system, task_id) not in states:
         raise ValueError(f"{label} lacks a pinned source task state")
+    if _require_sha256(record.get("task_sha256"), f"{label}.task_sha256") != states[
+        (expected_system, task_id)
+    ][2]:
+        raise ValueError(f"{label}.task_sha256 differs from the pinned source task payload")
     arm_id = _require_string(record.get("arm_id"), f"{label}.arm_id")
     if arm_id not in ARM_LIMITS:
         raise ValueError(f"{label} arm is outside the exact fixed matrix")
@@ -313,7 +360,6 @@ def _validate_row(
         raise ValueError(f"{label} kernel/history limit does not match its fixed arm")
     if record.get("objective_descriptor") != descriptor:
         raise ValueError(f"{label} objective descriptor differs from the reviewed kernel")
-    _require_sha256(record.get("task_sha256"), f"{label}.task_sha256")
     if record.get("replay_maxiter") != MAXITER:
         raise ValueError(f"{label}.replay_maxiter must be exactly {MAXITER}")
     _require_int(record.get("source_task_maxiter"), f"{label}.source_task_maxiter", minimum=1)
@@ -371,9 +417,8 @@ def _validate_row(
 def _validated_rows(
     ledger_dir: Path,
     summary: Mapping[str, Any],
-    states: Mapping[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool]]],
+    states: Mapping[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool], str]],
 ) -> list[dict[str, Any]]:
-    expected_keys: set[str] | None = None
     rows: list[dict[str, Any]] = []
     descriptor = _require_mapping(summary.get("safe_kernel_descriptor"), "safe_kernel_descriptor")
     for system in SYSTEMS:
@@ -388,14 +433,10 @@ def _validated_rows(
         ):
             raise ValueError(f"{system} ledger violates the fixed task-arm matrix: expected exactly 16 rows")
         for raw_row in payload["rows"]:
-            if expected_keys is None:
-                candidate = _require_mapping(raw_row, "ledger row")
-                expected_keys = set(candidate)
             rows.append(
                 _validate_row(
                     raw_row,
                     expected_system=system,
-                    expected_key_set=expected_keys,
                     states=states,
                     descriptor=descriptor,
                 )
@@ -476,7 +517,7 @@ def _by_system_arm(rows: Sequence[Mapping[str, Any]]) -> dict[str, dict[str, dic
 
 def _paired_tasks(
     rows: Sequence[Mapping[str, Any]],
-    states: Mapping[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool]]],
+    states: Mapping[tuple[str, str], tuple[np.ndarray, tuple[bool, bool, bool], str]],
 ) -> list[dict[str, Any]]:
     by_key = {(row["system"], row["task_id"], row["arm_id"]): row for row in rows}
     pairs: list[dict[str, Any]] = []
@@ -487,7 +528,7 @@ def _paired_tasks(
             history0 = by_key[(system, task_id, "safe-total-gradient-history0")]
             if history10["task_sha256"] != history0["task_sha256"]:
                 raise ValueError(f"{system}/{task_id} task SHA256 must match across the paired arms")
-            cell, pbc = states[(system, task_id)]
+            cell, pbc, _ = states[(system, task_id)]
             positions10 = np.asarray(history10["_endpoint_positions"], dtype=float)
             positions0 = np.asarray(history0["_endpoint_positions"], dtype=float)
             if positions10.shape != positions0.shape:
@@ -588,6 +629,18 @@ def _conclusion(evidence: Mapping[str, Any]) -> str:
     history0_wall = sum(float(aggregate[system][history0]["wall_time_s"]["sum"]) for system in SYSTEMS)
     history10_wall = sum(float(aggregate[system][history10]["wall_time_s"]["sum"]) for system in SYSTEMS)
     history0_secants = sum(int(aggregate[system][history0]["telemetry"]["accepted_secants"]) for system in SYSTEMS)
+    history10_rows = sum(int(aggregate[system][history10]["count"]) for system in SYSTEMS)
+    history0_rows = sum(int(aggregate[system][history0]["count"]) for system in SYSTEMS)
+    history10_certificates = sum(
+        int(aggregate[system][history10]["certificate"]["satisfied_count"]) for system in SYSTEMS
+    )
+    history0_certificates = sum(
+        int(aggregate[system][history0]["certificate"]["satisfied_count"]) for system in SYSTEMS
+    )
+    history0_maxiter = sum(
+        int(aggregate[system][history0]["termination_reasons"].get("maxiter", 0))
+        for system in SYSTEMS
+    )
     lines = [
         "# Safe L-BFGS history-capacity ablation — evidence-limited conclusion",
         "",
@@ -595,9 +648,13 @@ def _conclusion(evidence: Mapping[str, Any]) -> str:
         "",
         f"The frozen 16-task C60/PdO matrix produced {certificate['satisfied_count']}/32 certificate-satisfied rows and {certificate['unsatisfied_count']}/32 finite `maxiter` rows.  A `certificate_satisfied: false` / `maxiter` record is retained as a valid, incomplete outcome; it is not converted into convergence.",
         "",
+        f"History 10: {history10_certificates}/{history10_rows} certificate-satisfied rows and {history10_calls} evaluator calls.",
+        f"History 0: {history0_certificates}/{history0_rows} certificate-satisfied rows, {history0_maxiter} finite {chr(96)}maxiter{chr(96)} rows, and {history0_calls} evaluator calls.",
+        "",
         "## Cost outcome",
         "",
         f"Across this fixed matrix, history 10 used {history10_calls} evaluator calls and {history10_wall:.6f} s, while history 0 used {history0_calls} calls and {history0_wall:.6f} s.  These are recorded replay costs, not an optimization score.",
+        f"Each arm cost includes all {history0_rows} rows; the history-0 cost includes its incomplete rows and is not a cheap-success comparison.",
         "",
         "## Fixed-matrix interpretation ceiling",
         "",
