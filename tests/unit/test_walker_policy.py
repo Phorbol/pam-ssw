@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from pamssw import LSSSWConfig, SSWConfig
-from pamssw.accounting import BudgetExceeded, EvalCounter
+from pamssw.accounting import BudgetExceeded, EvalCounter, EvaluationPurpose
 from pamssw.archive import MinimaArchive
 from pamssw.bias import GaussianBiasTerm
 from pamssw.calculators import AnalyticCalculator
@@ -289,6 +289,152 @@ def test_relax_true_minimum_uses_configured_quench_maxiter(monkeypatch):
     walker.relax_true_minimum(state)
 
     assert recorded["maxiter"] == 123
+
+
+def test_relax_true_minimum_records_only_fallback_final_and_charges_both_attempts(
+    monkeypatch,
+):
+    starts: dict[str, list[float]] = {"scipy-lbfgsb": [], "ase-fire": []}
+
+    class ScriptedRelaxer:
+        def __init__(self, evaluator, optimizer):
+            self.evaluator = evaluator
+            self.optimizer = optimizer
+
+        def relax(self, state, fmax, maxiter, trajectory_callback=None, trajectory_stride=1):
+            starts[self.optimizer].append(float(state.positions[0, 0]))
+            self.evaluator(state.flatten_positions(), state)
+            if self.optimizer == "scipy-lbfgsb":
+                terminal = State(
+                    numbers=state.numbers.copy(),
+                    positions=np.array([[1.0, 0.0, 0.0]]),
+                )
+                return RelaxResult(
+                    state=terminal,
+                    energy=1.0,
+                    gradient_norm=2.0 * fmax,
+                    n_iter=20,
+                )
+            terminal = State(
+                numbers=state.numbers.copy(),
+                positions=np.array([[2.0, 0.0, 0.0]]),
+            )
+            return RelaxResult(
+                state=terminal,
+                energy=0.5,
+                gradient_norm=0.5 * fmax,
+                n_iter=4,
+            )
+
+    monkeypatch.setattr("pamssw.walker.Relaxer", ScriptedRelaxer)
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            quench_fmax=0.01,
+            quench_fallback_optimizer="ase-fire",
+        ),
+        softening_enabled=False,
+    )
+
+    result = walker.relax_true_minimum(
+        State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    )
+
+    assert result.gradient_norm == pytest.approx(0.005)
+    assert starts == {"scipy-lbfgsb": [0.0], "ase-fire": [1.0]}
+    counts = walker.calculator.snapshot()
+    assert counts.count(EvaluationPurpose.LANDING_TRUE_QUENCH) == 2
+    assert counts.count(EvaluationPurpose.POST_RELAX_VALIDATION) == 1
+    diagnostics = walker.relaxation_diagnostics()
+    assert diagnostics["true_quench_count"] == 1
+    assert diagnostics["true_quench_mean_iterations"] == pytest.approx(4.0)
+    assert diagnostics["true_quench_unconverged"] == 0
+    assert diagnostics["quench_fallback_optimizer"] == "ase-fire"
+    assert diagnostics["quench_fallback_attempts"] == 1
+    assert diagnostics["quench_fallback_converged"] == 1
+
+
+def test_relax_true_minimum_counts_uncertified_fallback_as_final_failure(monkeypatch):
+    class UnconvergedRelaxer:
+        def __init__(self, evaluator, optimizer):
+            self.evaluator = evaluator
+            self.optimizer = optimizer
+
+        def relax(self, state, fmax, maxiter, trajectory_callback=None, trajectory_stride=1):
+            self.evaluator(state.flatten_positions(), state)
+            return RelaxResult(
+                state=state,
+                energy=0.0,
+                gradient_norm=2.0 * fmax if self.optimizer == "scipy-lbfgsb" else float("nan"),
+                n_iter=20 if self.optimizer == "scipy-lbfgsb" else 7,
+            )
+
+    monkeypatch.setattr("pamssw.walker.Relaxer", UnconvergedRelaxer)
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            quench_fmax=0.01,
+            quench_fallback_optimizer="ase-fire",
+        ),
+        softening_enabled=False,
+    )
+
+    walker.relax_true_minimum(
+        State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    )
+
+    diagnostics = walker.relaxation_diagnostics()
+    assert diagnostics["true_quench_count"] == 1
+    assert diagnostics["true_quench_mean_iterations"] == pytest.approx(7.0)
+    assert diagnostics["true_quench_unconverged"] == 1
+    assert diagnostics["quench_fallback_attempts"] == 1
+    assert diagnostics["quench_fallback_converged"] == 0
+
+
+def test_relax_true_minimum_counts_fallback_started_before_budget_exhaustion(
+    monkeypatch,
+):
+    optimizer_calls: list[str] = []
+
+    class BudgetedRelaxer:
+        def __init__(self, evaluator, optimizer):
+            self.evaluator = evaluator
+            self.optimizer = optimizer
+
+        def relax(self, state, fmax, maxiter, trajectory_callback=None, trajectory_stride=1):
+            optimizer_calls.append(self.optimizer)
+            self.evaluator(state.flatten_positions(), state)
+            return RelaxResult(
+                state=state,
+                energy=0.0,
+                gradient_norm=2.0 * fmax,
+                n_iter=1,
+            )
+
+    monkeypatch.setattr("pamssw.walker.Relaxer", BudgetedRelaxer)
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            quench_fmax=0.01,
+            quench_fallback_optimizer="ase-fire",
+            max_force_evals=1,
+        ),
+        softening_enabled=False,
+    )
+
+    with pytest.raises(BudgetExceeded, match="force-evaluation budget exhausted") as captured:
+        walker.relax_true_minimum(
+            State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+        )
+
+    assert optimizer_calls == ["scipy-lbfgsb", "ase-fire"]
+    diagnostics = walker.relaxation_diagnostics()
+    assert diagnostics["quench_fallback_attempts"] == 1
+    assert diagnostics["quench_fallback_converged"] == 0
+    counts = walker.calculator.snapshot()
+    assert counts.count(EvaluationPurpose.LANDING_TRUE_QUENCH) == 1
+    assert counts.count(EvaluationPurpose.POST_RELAX_VALIDATION) == 0
+    assert captured.value.evaluation_counts == counts
 
 
 def test_direction_scoring_proposal_can_ignore_inner_bias_curvature():

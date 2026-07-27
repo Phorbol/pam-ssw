@@ -13,7 +13,11 @@ from typing import Callable
 from ..accounting import EvalCounter, EvaluationCounts, EvaluationPurpose
 from ..archive import MinimaArchive
 from ..config import LSSSWConfig, SSWConfig
-from ..relax import Relaxer
+from ..relax import (
+    Relaxer,
+    has_force_convergence_certificate,
+    relax_with_certificate_fallback,
+)
 from ..result import RelaxResult
 from ..state import State
 from ..walker import GeometryValidator
@@ -73,18 +77,31 @@ def _bootstrap_minimum(
         raise TypeError("calculator must provide callable evaluate and evaluate_flat")
 
     counter = EvalCounter(calculator, max_force_evals=total_force_budget)
-    relaxer = Relaxer(counter.evaluate_flat, optimizer=ssw_config.quench_optimizer)
+    primary_relaxer = Relaxer(
+        counter.evaluate_flat,
+        optimizer=ssw_config.quench_optimizer,
+    )
+    fallback_relaxer = (
+        None
+        if ssw_config.quench_fallback_optimizer is None
+        else Relaxer(
+            counter.evaluate_flat,
+            optimizer=ssw_config.quench_fallback_optimizer,
+        )
+    )
     with counter.purpose(EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH):
-        relaxed = relaxer.relax(
+        relaxed = relax_with_certificate_fallback(
+            primary_relaxer,
             deepcopy(initial_state),
             fmax=ssw_config.quench_fmax,
             maxiter=ssw_config.quench_maxiter,
-        )
+            fallback_relaxer=fallback_relaxer,
+        ).final
     with counter.purpose(EvaluationPurpose.POST_RELAX_VALIDATION):
         valid_final_evaluation = geometry_validator.is_valid_evaluation(relaxed.state, counter)
 
     energy = float(relaxed.energy)
-    if not isfinite(relaxed.gradient_norm) or relaxed.gradient_norm > ssw_config.quench_fmax:
+    if not has_force_convergence_certificate(relaxed, ssw_config.quench_fmax):
         raise BootstrapConvergenceError(
             "bootstrap relaxation did not converge to the configured per-atom force tolerance",
             relaxation=relaxed,

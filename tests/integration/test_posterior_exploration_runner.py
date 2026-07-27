@@ -229,6 +229,94 @@ def test_bootstrap_minimum_rejects_an_uncertified_relaxation(monkeypatch):
     )
 
 
+def test_bootstrap_minimum_fallback_succeeds_from_primary_terminal_with_exact_cost(
+    monkeypatch,
+):
+    starts: dict[str, list[float]] = {"scipy-lbfgsb": [], "ase-fire": []}
+
+    class ScriptedRelaxer:
+        def __init__(self, evaluator, optimizer):
+            self.evaluator = evaluator
+            self.optimizer = optimizer
+
+        def relax(self, state, fmax, maxiter, **kwargs):
+            starts[self.optimizer].append(float(state.positions[0, 0]))
+            self.evaluator(state.flatten_positions(), state)
+            if self.optimizer == "scipy-lbfgsb":
+                return RelaxResult(
+                    state=State(
+                        numbers=state.numbers.copy(),
+                        positions=np.array([[1.0, 0.0, 0.0]]),
+                    ),
+                    energy=1.0,
+                    gradient_norm=2.0 * fmax,
+                    n_iter=maxiter,
+                )
+            return RelaxResult(
+                state=State(
+                    numbers=state.numbers.copy(),
+                    positions=np.array([[2.0, 0.0, 0.0]]),
+                ),
+                energy=0.5,
+                gradient_norm=0.5 * fmax,
+                n_iter=3,
+            )
+
+    monkeypatch.setattr("pamssw.exploration.runner.Relaxer", ScriptedRelaxer)
+    initial = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    calculator = CountingAnalyticCalculator()
+
+    relaxed, energy, counts = _bootstrap_minimum(
+        initial,
+        lambda: calculator,
+        SSWConfig(quench_fmax=0.01, quench_fallback_optimizer="ase-fire"),
+        total_force_budget=10,
+    )
+
+    assert relaxed.positions[0, 0] == pytest.approx(2.0)
+    assert energy == pytest.approx(0.5)
+    assert starts == {"scipy-lbfgsb": [0.0], "ase-fire": [1.0]}
+    assert counts.count(EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH) == 2
+    assert counts.count(EvaluationPurpose.POST_RELAX_VALIDATION) == 1
+    assert counts.total == calculator.calls == 3
+
+
+def test_bootstrap_minimum_raises_with_uncertified_fallback_and_exact_cost(monkeypatch):
+    class UnconvergedRelaxer:
+        def __init__(self, evaluator, optimizer):
+            self.evaluator = evaluator
+            self.optimizer = optimizer
+
+        def relax(self, state, fmax, maxiter, **kwargs):
+            self.evaluator(state.flatten_positions(), state)
+            return RelaxResult(
+                state=State(
+                    numbers=state.numbers.copy(),
+                    positions=state.positions + np.array([[1.0, 0.0, 0.0]]),
+                ),
+                energy=1.0,
+                gradient_norm=2.0 * fmax,
+                n_iter=maxiter,
+            )
+
+    monkeypatch.setattr("pamssw.exploration.runner.Relaxer", UnconvergedRelaxer)
+    calculator = CountingAnalyticCalculator()
+
+    with pytest.raises(BootstrapConvergenceError) as captured:
+        _bootstrap_minimum(
+            State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]])),
+            lambda: calculator,
+            SSWConfig(quench_fmax=0.01, quench_fallback_optimizer="ase-fire"),
+            total_force_budget=10,
+        )
+
+    assert captured.value.relaxation.state.positions[0, 0] == pytest.approx(2.0)
+    counts = captured.value.evaluation_counts
+    assert counts.count(EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH) == 2
+    assert counts.count(EvaluationPurpose.POST_RELAX_VALIDATION) == 1
+    assert counts.total == calculator.calls == 3
+
+
 @pytest.mark.parametrize(
     ("initial_state", "calculator_factory", "ssw_config", "total_force_budget", "error_type"),
     [

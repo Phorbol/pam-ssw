@@ -23,7 +23,12 @@ from .config import LSSSWConfig, RelaxConfig, SSWConfig
 from .coordinates import CartesianCoordinates, TangentVector
 from .fingerprint import descriptor_distance, structural_descriptor
 from .pbc import mic_displacement, mic_distance_matrix, wrap_positions
-from .relax import RelaxEvaluation, Relaxer
+from .relax import (
+    RelaxEvaluation,
+    Relaxer,
+    has_force_convergence_certificate,
+    relax_with_certificate_fallback,
+)
 from .result import RelaxOutcomeClass, RelaxResult, SearchResult, StatsValue, WalkRecord
 from .rigid import project_out_rigid_body_modes, rigid_body_overlap
 from .softening import LocalSofteningModel
@@ -2248,15 +2253,34 @@ class SurfaceWalker:
     ) -> RelaxResult:
         if not self.geometry_validator.is_valid_state(state):
             raise BudgetExceeded("invalid geometry before true relaxation")
-        relaxer = Relaxer(self.calculator.evaluate_flat, optimizer=self.config.quench_optimizer)
+        primary_relaxer = Relaxer(
+            self.calculator.evaluate_flat,
+            optimizer=self.config.quench_optimizer,
+        )
+        fallback_relaxer = (
+            None
+            if self.config.quench_fallback_optimizer is None
+            else Relaxer(
+                self.calculator.evaluate_flat,
+                optimizer=self.config.quench_fallback_optimizer,
+            )
+        )
         relax_config = RelaxConfig(fmax=self.config.quench_fmax, maxiter=self.config.quench_maxiter)
         with self.calculator.purpose(quench_purpose):
-            result = relaxer.relax(
+            fallback_result = relax_with_certificate_fallback(
+                primary_relaxer,
                 state,
                 fmax=relax_config.fmax,
                 maxiter=relax_config.maxiter,
+                fallback_relaxer=fallback_relaxer,
+                on_fallback_start=self._record_quench_fallback_start,
                 trajectory_callback=self._relaxation_trajectory_callback(trajectory_name),
                 trajectory_stride=self.config.relaxation_trajectory_stride,
+            )
+        result = fallback_result.final
+        if fallback_result.fallback_used:
+            self._quench_fallback_converged += int(
+                has_force_convergence_certificate(result, relax_config.fmax)
             )
         with self.calculator.purpose(EvaluationPurpose.POST_RELAX_VALIDATION):
             valid_post_relax_state = self.geometry_validator.is_valid_evaluation(result.state, self.calculator)
@@ -2594,6 +2618,9 @@ class SurfaceWalker:
                 "coordinate_system": "cartesian_fixed_cell",
                 "variable_cell_supported": 0,
                 "quench_optimizer": self.config.quench_optimizer,
+                "quench_fallback_optimizer": self.config.quench_fallback_optimizer,
+                "quench_fallback_attempts": self._quench_fallback_attempts,
+                "quench_fallback_converged": self._quench_fallback_converged,
                 "proposal_optimizer": self.config.proposal_optimizer,
                 "proposal_optimizer_alt": self.config.proposal_optimizer_alt,
                 "proposal_optimizer_alt_steps": self._proposal_optimizer_alt_steps,
@@ -3166,6 +3193,8 @@ class SurfaceWalker:
         self._seed_diversity_reseeds = 0
 
     def _reset_relax_stats(self) -> None:
+        self._quench_fallback_attempts = 0
+        self._quench_fallback_converged = 0
         self._relax_stats = {
             "true_quench": {
                 "count": 0,
@@ -3242,6 +3271,9 @@ class SurfaceWalker:
                 },
             },
         }
+
+    def _record_quench_fallback_start(self) -> None:
+        self._quench_fallback_attempts += 1
 
     def _reset_bias_stats(self) -> None:
         self._bias_steps = 0
@@ -3482,7 +3514,9 @@ class SurfaceWalker:
         stats["n_iter_sum"] += result.n_iter
         stats["n_iter_values"].append(result.n_iter)
         stats["max_gradient"] = max(float(stats["max_gradient"]), result.gradient_norm)
-        stats["unconverged"] += int(result.gradient_norm > fmax)
+        stats["unconverged"] += int(
+            not has_force_convergence_certificate(result, fmax)
+        )
         stats["bound_fraction_sum"] += result.active_bound_fraction
         stats["max_bound_fraction"] = max(float(stats["max_bound_fraction"]), result.active_bound_fraction)
         stats["displacement_rms_sum"] += result.displacement_rms
@@ -3691,6 +3725,9 @@ class SurfaceWalker:
         summary: dict[str, StatsValue] = dict(self._relax_stats_summary())
         summary["proposal_optimizer"] = self.config.proposal_optimizer
         summary["quench_optimizer"] = self.config.quench_optimizer
+        summary["quench_fallback_optimizer"] = self.config.quench_fallback_optimizer
+        summary["quench_fallback_attempts"] = self._quench_fallback_attempts
+        summary["quench_fallback_converged"] = self._quench_fallback_converged
         summary["force_evaluations"] = self.calculator.snapshot().total
         return summary
 

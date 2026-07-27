@@ -486,6 +486,31 @@ def test_diagnostic_failure_cannot_change_the_terminal_action_result(monkeypatch
     assert stats["force_evaluations"] == result.force_evaluations
 
 
+def test_worker_retains_true_quench_fallback_diagnostics(monkeypatch):
+    worker, _, _ = _make_worker(
+        monkeypatch,
+        _search_result(
+            stats={
+                "force_evaluations": 3,
+                "budget_exhausted": 0,
+                "fragment_rejections": 0,
+                "quench_optimizer": "scipy-lbfgsb",
+                "quench_fallback_optimizer": "ase-fire",
+                "quench_fallback_attempts": 2,
+                "quench_fallback_converged": 1,
+            }
+        ),
+        config=SSWConfig(quench_fallback_optimizer="ase-fire"),
+    )
+
+    worker(_action(), _state())
+
+    stats = dict(worker.diagnostics_snapshot()[0].stats)
+    assert stats["quench_fallback_optimizer"] == "ase-fire"
+    assert stats["quench_fallback_attempts"] == 2
+    assert stats["quench_fallback_converged"] == 1
+
+
 def test_landing_comes_from_the_walk_record_not_the_search_best_state(monkeypatch):
     landing = _archive_entry(7, x=5.0, energy=9.0)
     worker, _, _ = _make_worker(

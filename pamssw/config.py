@@ -29,6 +29,7 @@ class SSWConfig:
     quench_fmax: float = 1e-3
     quench_maxiter: int = 400
     quench_optimizer: str = "scipy-lbfgsb"
+    quench_fallback_optimizer: str | None = None
     dedup_rmsd_tol: float = 0.1
     dedup_energy_tol: float = 1e-3
     rng_seed: int = 0
@@ -284,6 +285,14 @@ class SSWConfig:
         }
         if self.quench_optimizer not in quench_optimizers:
             raise ValueError("quench_optimizer must be one of scipy-lbfgsb, ase-fire, ase-lbfgs")
+        if (
+            self.quench_fallback_optimizer is not None
+            and self.quench_fallback_optimizer not in quench_optimizers
+        ):
+            raise ValueError(
+                "quench_fallback_optimizer must be one of "
+                "scipy-lbfgsb, ase-fire, ase-lbfgs when set"
+            )
         if self.proposal_optimizer not in proposal_optimizers:
             raise ValueError(
                 "proposal_optimizer must be one of scipy-lbfgsb, ase-fire, "

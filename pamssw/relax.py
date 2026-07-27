@@ -323,6 +323,60 @@ class _EvaluatorCalculator(Calculator):
         self.results["forces"] = -np.asarray(gradient, dtype=float).reshape(state.n_atoms, 3)
 
 
+@dataclass(frozen=True)
+class CertificateFallbackResult:
+    """Primary relaxation and its optional certificate-triggered fallback."""
+
+    primary: RelaxResult
+    fallback: RelaxResult | None
+    final: RelaxResult
+    fallback_used: bool
+
+
+def has_force_convergence_certificate(result: RelaxResult, fmax: float) -> bool:
+    """Return whether the reported active-atom force norm is finite and converged."""
+
+    return bool(np.isfinite(result.gradient_norm) and result.gradient_norm <= fmax)
+
+
+def relax_with_certificate_fallback(
+    primary_relaxer: Relaxer,
+    state: State,
+    *,
+    fmax: float,
+    maxiter: int,
+    fallback_relaxer: Relaxer | None = None,
+    on_fallback_start: Callable[[], None] | None = None,
+    trajectory_callback: Callable[[State], None] | None = None,
+    trajectory_stride: int = 1,
+) -> CertificateFallbackResult:
+    """Run one fallback only when the primary result lacks a force certificate."""
+
+    relax_kwargs = {
+        "fmax": fmax,
+        "maxiter": maxiter,
+        "trajectory_callback": trajectory_callback,
+        "trajectory_stride": trajectory_stride,
+    }
+    primary = primary_relaxer.relax(state, **relax_kwargs)
+    if fallback_relaxer is None or has_force_convergence_certificate(primary, fmax):
+        return CertificateFallbackResult(
+            primary=primary,
+            fallback=None,
+            final=primary,
+            fallback_used=False,
+        )
+    if on_fallback_start is not None:
+        on_fallback_start()
+    fallback = fallback_relaxer.relax(primary.state, **relax_kwargs)
+    return CertificateFallbackResult(
+        primary=primary,
+        fallback=fallback,
+        final=fallback,
+        fallback_used=True,
+    )
+
+
 @dataclass
 class Relaxer:
     evaluator: FlatEvaluator
