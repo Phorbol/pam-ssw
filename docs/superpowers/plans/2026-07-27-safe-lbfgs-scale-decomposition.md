@@ -83,10 +83,12 @@ Write runner tests first. Pin:
 - model, input, CUDA, imported modules, and repository commit;
 - output atomicity and non-overwrite behaviour.
 
-Each arm uses an independent calculator. Record the private flag, resolved
-history limit, resolved scale policy, exact trace records, callback state
-hashes, endpoint, certificate, telemetry, force evaluations, and wall time.
-Fail unless all three accounting totals agree.
+Each system constructs one independent calculator per arm; calculators are
+never shared across arms and are reused only for sequential tasks in the same
+arm. Record the private flag, resolved history limit, resolved scale policy,
+exact trace records, callback state hashes, endpoint, certificate, telemetry,
+force evaluations, and wall time. Fail unless all three accounting totals
+agree.
 
 The raw output directory remains ignored and is published only after all 48
 rows validate.

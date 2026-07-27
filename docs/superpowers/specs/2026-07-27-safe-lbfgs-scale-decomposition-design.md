@@ -107,7 +107,8 @@ Use the pinned source summary
 - seeds 42 through 49;
 - one Gaussian bias per frozen task;
 - 16 tasks, 3 arms, 48 rows;
-- independent calculator per row;
+- independent calculator per arm within each system, never shared across arms;
+  each arm calculator is reused only for its sequential frozen task replays;
 - identical MACE model, device, precision, input, task payload, observer, and
   force certificate;
 - one execution only, without retry, retuning, seed replacement, or arm
