@@ -21,13 +21,13 @@ from pamssw.walker import ProposalPotential, ProposalRelaxationTask
 _RUNNER_PATH = (
     Path(__file__).resolve().parents[2]
     / "runs"
-    / "20260727-safe-history-capacity-ablation"
+    / "20260727-safe-lbfgs-scale-decomposition"
     / "run_gpu_ablation.py"
 )
 
 
 def _runner_module():
-    spec = importlib.util.spec_from_file_location("safe_history_capacity_runner", _RUNNER_PATH)
+    spec = importlib.util.spec_from_file_location("safe_lbfgs_scale_decomposition_runner", _RUNNER_PATH)
     assert spec is not None
     assert spec.loader is not None
     module = importlib.util.module_from_spec(spec)
@@ -116,11 +116,36 @@ def test_arm_contract_is_exact_and_contains_no_other_capacity_or_kernel():
     runner = _runner_module()
 
     assert tuple(
-        (arm.arm_id, arm.kernel, arm.history_limit)
+        (
+            arm.arm_id,
+            arm.kernel,
+            arm.history_limit,
+            arm.adaptive_scale_without_history,
+            arm.scale_policy,
+        )
         for arm in runner.ARMS
     ) == (
-        ("safe-total-gradient-history10", "safe-lbfgs-total", 10),
-        ("safe-total-gradient-history0", "safe-lbfgs-total", 0),
+        (
+            "fixed-scale-history0",
+            "safe-lbfgs-total",
+            0,
+            False,
+            "fixed-1-over-70",
+        ),
+        (
+            "adaptive-scale-history0",
+            "safe-lbfgs-total",
+            0,
+            True,
+            "latest-accepted-secant-gamma",
+        ),
+        (
+            "adaptive-scale-history10",
+            "safe-lbfgs-total",
+            10,
+            False,
+            "latest-history-pair-gamma-plus-two-loop",
+        ),
     )
 
 
@@ -192,7 +217,14 @@ def _trusted_source(tmp_path, calculator_factory):
     }
 
 
-def _replay_without_observer(task, calculator, *, history_limit, maxiter):
+def _replay_without_observer(
+    task,
+    calculator,
+    *,
+    history_limit,
+    adaptive_scale_without_history,
+    maxiter,
+):
     counter = EvalCounter(calculator)
     proposal = ProposalPotential(
         counter,
@@ -211,22 +243,32 @@ def _replay_without_observer(task, calculator, *, history_limit, maxiter):
             maxiter=maxiter,
             coordinate_trust_radius=task.coordinate_trust_radius,
             _safe_lbfgs_history_limit=history_limit,
+            _safe_lbfgs_adaptive_scale_without_history=(
+                adaptive_scale_without_history
+            ),
         )
     return result, counter.snapshot()
 
 
-def test_historical_runner_rejects_the_scale_decomposition_source_drift():
+def test_pamssw_source_bundle_and_import_paths_are_pinned_to_this_worktree():
     runner = _runner_module()
 
     assert runner.EXPECTED_PAMSSW_BUNDLE_SHA256 == (
-        "459a3ed173afbde50c499a2653702796ec1f08f022cc0a93ed2e028222d62636"
-    )
-    assert runner._pamssw_bundle_sha256(runner.PAMSSW_SOURCE_ROOT) == (
         "96761a45dfe7c8af459ba8112adb79efee4d53ce073a74f7d87fea09c35c9d2a"
     )
+    provenance = runner._verified_pamssw_source()
 
-    with pytest.raises(ValueError, match="pamssw source bundle SHA256 mismatch"):
-        runner._verified_pamssw_source()
+    assert provenance["bundle_sha256"] == runner.EXPECTED_PAMSSW_BUNDLE_SHA256
+    assert provenance["source_root"] == str(runner.REPO_ROOT / "pamssw")
+    assert set(provenance["imported_module_paths"]) >= {
+        "pamssw.accounting",
+        "pamssw.relax",
+        "pamssw.walker",
+    }
+    assert all(
+        Path(path).is_relative_to(runner.REPO_ROOT / "pamssw")
+        for path in provenance["imported_module_paths"].values()
+    )
 
 
 @pytest.mark.parametrize("failure", ("commit", "dirty", "import_path", "bundle"))
@@ -286,6 +328,16 @@ def test_safe_kernel_descriptor_has_pinned_literal_values_and_canonical_sha():
     expected = {
         "optimizer": "safe-lbfgs-total",
         "safe_lbfgs_memory": 10,
+        "scale_policies": {
+            "fixed-1-over-70": "gamma=1/70 with empty two-loop history",
+            "latest-accepted-secant-gamma": (
+                "gamma=(s.T@y)/(y.T@y) with empty two-loop history"
+            ),
+            "latest-history-pair-gamma-plus-two-loop": (
+                "gamma=(s.T@y)/(y.T@y) from newest history pair "
+                "plus two-loop corrections"
+            ),
+        },
         "kernel_constants": {
             "_SAFE_LBFGS_EMPTY_HISTORY_SCALE": 1.0 / 70.0,
             "_SAFE_LBFGS_MAX_ATOM_STEP": 0.2,
@@ -299,7 +351,7 @@ def test_safe_kernel_descriptor_has_pinned_literal_values_and_canonical_sha():
 
     assert runner.EXPECTED_SAFE_KERNEL_DESCRIPTOR == expected
     assert runner.EXPECTED_SAFE_KERNEL_DESCRIPTOR_SHA256 == (
-        "1846e340e762b79f50897dfacd40a16288ed52bb481f36f24ab01594c4724102"
+        "ba0c261cd588ce72e8175332385389e69cf8840c00399318723af7e0358e7f24"
     )
     assert runner.canonical_descriptor_sha256(expected) == (
         runner.EXPECTED_SAFE_KERNEL_DESCRIPTOR_SHA256
@@ -425,13 +477,13 @@ def test_tampered_preflight_fails_before_any_calculator_call(tmp_path, monkeypat
     assert calculator_calls == 0
 
 
-def test_atomic_publish_validates_complete_32_rows_and_cleans_staging_on_failure(tmp_path):
+def test_atomic_publish_validates_complete_48_rows_and_cleans_staging_on_failure(tmp_path):
     runner = _runner_module()
     output_dir = tmp_path / "ledger"
     rows = runner._expected_row_keys()
     incomplete = rows[:-1]
 
-    with pytest.raises(ValueError, match="32-row ledger"):
+    with pytest.raises(ValueError, match="48-row ledger"):
         runner.publish_ledger_atomically(output_dir, incomplete, {"schema_version": 1})
 
     assert not output_dir.exists()
@@ -484,6 +536,7 @@ def test_replay_observer_adds_zero_pes_calls_and_closes_the_ledger():
         _task(),
         calculator,
         history_limit=0,
+        adaptive_scale_without_history=True,
     )
 
     assert replay.trace_records
@@ -500,6 +553,7 @@ def test_recording_observer_matches_plain_relaxer_without_extra_pes_calls():
     runner = _runner_module()
     task = _task()
     history_limit = 0
+    adaptive_scale_without_history = True
     plain_calculator = _QuadraticCountingCalculator()
     observed_calculator = _QuadraticCountingCalculator()
 
@@ -507,12 +561,14 @@ def test_recording_observer_matches_plain_relaxer_without_extra_pes_calls():
         task,
         plain_calculator,
         history_limit=history_limit,
+        adaptive_scale_without_history=adaptive_scale_without_history,
         maxiter=runner.MAXITER,
     )
     observed = runner.replay_task_with_trace(
         task,
         observed_calculator,
         history_limit=history_limit,
+        adaptive_scale_without_history=adaptive_scale_without_history,
     )
 
     assert plain_calculator.calls == observed_calculator.calls
@@ -573,10 +629,25 @@ def _fake_replay(task, *, certificate_satisfied, energy=-1.0, trace_records=None
 
 def test_finite_certificate_failure_is_published_as_a_scientific_result(tmp_path, monkeypatch):
     runner = _runner_module()
-    monkeypatch.setattr(runner, "preflight", lambda **_: _fake_preflight_for_full_run(runner))
+    checked = _fake_preflight_for_full_run(runner)
+    calculator_calls = 0
 
-    def finite_maxiter_replay(task, calculator, *, history_limit):
-        del calculator, history_limit
+    def calculator_factory():
+        nonlocal calculator_calls
+        calculator_calls += 1
+        return object()
+
+    checked.source["_calculator"] = calculator_factory
+    monkeypatch.setattr(runner, "preflight", lambda **_: checked)
+
+    def finite_maxiter_replay(
+        task,
+        calculator,
+        *,
+        history_limit,
+        adaptive_scale_without_history,
+    ):
+        del calculator, history_limit, adaptive_scale_without_history
         result, counts, records, certificate = _fake_replay(
             task,
             certificate_satisfied=False,
@@ -591,10 +662,11 @@ def test_finite_certificate_failure_is_published_as_a_scientific_result(tmp_path
         expected_git_commit="f" * 40,
     )
 
-    assert summary["row_count"] == 32
+    assert summary["row_count"] == 48
     assert summary["certificate_all_satisfied"] is False
-    assert summary["certificate_unsatisfied_count"] == 32
-    assert summary["termination_reason_counts"] == {"maxiter": 32}
+    assert summary["certificate_unsatisfied_count"] == 48
+    assert summary["termination_reason_counts"] == {"maxiter": 48}
+    assert calculator_calls == 6
     assert output_dir.is_dir()
     assert not list(tmp_path.glob(".output.staging-*"))
     rows = json.loads((output_dir / "c60.json").read_text(encoding="utf-8"))["rows"]
@@ -602,8 +674,10 @@ def test_finite_certificate_failure_is_published_as_a_scientific_result(tmp_path
         item
         for item in rows
         if item["task_id"] == "c60-seed-44-bias-1"
-        and item["arm_id"] == "safe-total-gradient-history0"
+        and item["arm_id"] == "adaptive-scale-history0"
     )
+    assert row["adaptive_scale_without_history"] is True
+    assert row["scale_policy"] == "latest-accepted-secant-gamma"
     assert row["certificate_satisfied"] is False
     assert row["termination_reason"] == "maxiter"
 
@@ -613,8 +687,14 @@ def test_nonfinite_or_open_ledger_remains_fatal(tmp_path, monkeypatch, failure):
     runner = _runner_module()
     monkeypatch.setattr(runner, "preflight", lambda **_: _fake_preflight_for_full_run(runner))
 
-    def invalid_replay(task, calculator, *, history_limit):
-        del calculator, history_limit
+    def invalid_replay(
+        task,
+        calculator,
+        *,
+        history_limit,
+        adaptive_scale_without_history,
+    ):
+        del calculator, history_limit, adaptive_scale_without_history
         if failure == "nonfinite":
             result, counts, records, certificate = _fake_replay(
                 task,
