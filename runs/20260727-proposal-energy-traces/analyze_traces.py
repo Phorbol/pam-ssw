@@ -16,7 +16,7 @@ import os
 from pathlib import Path
 import sys
 import tempfile
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Mapping, Sequence
 
 import numpy as np
 
@@ -29,6 +29,25 @@ ENERGY_FIELDS = (
     "total_energy_eV",
 )
 FORCE_FIELD = "active_max_total_force_eV_per_A"
+FROZEN_SYSTEMS = ("c60", "pdo")
+FROZEN_BACKENDS = ("ase-fire", "safe-lbfgs-total")
+FROZEN_TASK_IDS = {
+    system: tuple(f"{system}-seed-{seed}-bias-1" for seed in range(42, 50))
+    for system in FROZEN_SYSTEMS
+}
+_REFERENCE_BOOLEAN_FIELDS = (
+    "all_reference_fields_equal",
+    "strict_reference_match",
+    "certificate_equal",
+    "termination_equal",
+    "energy_within_measured_neighborhood",
+    "position_within_measured_neighborhood",
+)
+_REFERENCE_FINITE_FIELDS = (
+    "energy_delta_eV",
+    "max_mic_displacement_A",
+    "rms_mic_displacement_A",
+)
 
 
 def _sha256(path: Path) -> str:
@@ -52,8 +71,44 @@ def _finite_float(value: object, *, label: str) -> float:
 
 
 def _nonnegative_int(value: object, *, label: str) -> int:
-    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+    result = _integer(value, label=label)
+    if result < 0:
         raise ValueError(f"{label} must be a nonnegative integer")
+    return result
+
+
+def _integer(value: object, *, label: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError(f"{label} must be an integer")
+    return value
+
+
+def _nonempty_string(value: object, *, label: str) -> str:
+    if not isinstance(value, str) or not value:
+        raise ValueError(f"{label} must be a nonempty string")
+    return value
+
+
+def _sha256_string(value: object, *, label: str) -> str:
+    return _hex_string(value, label=label, length=64)
+
+
+def _hex_string(value: object, *, label: str, length: int) -> str:
+    text = _nonempty_string(value, label=label)
+    if len(text) != length or any(character not in "0123456789abcdef" for character in text.lower()):
+        raise ValueError(f"{label} must be a {length}-character hexadecimal digest")
+    return text
+
+
+def _boolean(value: object, *, label: str) -> bool:
+    if not isinstance(value, bool):
+        raise ValueError(f"{label} must be a boolean")
+    return value
+
+
+def _mapping(value: object, *, label: str) -> Mapping[str, Any]:
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{label} must be an object")
     return value
 
 
@@ -82,21 +137,83 @@ def _accepted_excess_auc(records: Sequence[Mapping[str, Any]]) -> float:
     return float(np.trapezoid(energy - np.min(energy), x=x))
 
 
+def _validate_top_level_provenance(summary: Mapping[str, Any]) -> None:
+    if _nonnegative_int(summary.get("schema_version"), label="schema_version") != 1:
+        raise ValueError("schema_version must be 1")
+    _hex_string(summary.get("current_git_commit"), label="current_git_commit", length=40)
+    _nonempty_string(summary.get("source_summary"), label="source_summary")
+    _sha256_string(summary.get("source_summary_sha256"), label="source_summary_sha256")
+    _nonempty_string(summary.get("reference_summary"), label="reference_summary")
+    _sha256_string(summary.get("reference_summary_sha256"), label="reference_summary_sha256")
+    if _nonnegative_int(summary.get("observation_maxiter"), label="observation_maxiter") != 400:
+        raise ValueError("observation_maxiter must be the frozen value 400")
+    _finite_float(summary.get("wall_time_total_s"), label="wall_time_total_s")
+    neighborhoods = _mapping(
+        summary.get("historical_reference_neighborhoods"),
+        label="historical_reference_neighborhoods",
+    )
+    for field in (
+        "final_biased_energy_absolute_eV",
+        "final_positions_max_mic_displacement_A",
+    ):
+        if _finite_float(neighborhoods.get(field), label=f"historical_reference_neighborhoods.{field}") < 0.0:
+            raise ValueError(f"historical_reference_neighborhoods.{field} must be nonnegative")
+
+    cuda = _mapping(summary.get("cuda_model_provenance"), label="cuda_model_provenance")
+    _nonempty_string(cuda.get("cuda_device"), label="cuda_model_provenance.cuda_device")
+    if _nonempty_string(cuda.get("device"), label="cuda_model_provenance.device") != "cuda":
+        raise ValueError("cuda_model_provenance.device must be cuda")
+    _nonempty_string(cuda.get("model"), label="cuda_model_provenance.model")
+    model_declared = _sha256_string(
+        cuda.get("model_declared_sha256"),
+        label="cuda_model_provenance.model_declared_sha256",
+    )
+    model_actual = _sha256_string(
+        cuda.get("model_sha256"),
+        label="cuda_model_provenance.model_sha256",
+    )
+    if model_declared != model_actual:
+        raise ValueError("cuda_model_provenance model hashes disagree")
+    _nonempty_string(cuda.get("torch_version"), label="cuda_model_provenance.torch_version")
+    inputs = _mapping(cuda.get("source_system_inputs"), label="cuda_model_provenance.source_system_inputs")
+    if set(inputs) != set(FROZEN_SYSTEMS):
+        raise ValueError("cuda_model_provenance.source_system_inputs must cover frozen systems")
+    for system in FROZEN_SYSTEMS:
+        source_input = _mapping(inputs[system], label=f"cuda_model_provenance.source_system_inputs.{system}")
+        _nonempty_string(source_input.get("input"), label=f"cuda_model_provenance.source_system_inputs.{system}.input")
+        declared = _sha256_string(
+            source_input.get("declared_sha256"),
+            label=f"cuda_model_provenance.source_system_inputs.{system}.declared_sha256",
+        )
+        actual = _sha256_string(
+            source_input.get("sha256"),
+            label=f"cuda_model_provenance.source_system_inputs.{system}.sha256",
+        )
+        if declared != actual:
+            raise ValueError(f"cuda_model_provenance source input hashes disagree for {system}")
+
+
 def _validated_rows(summary: Mapping[str, Any]) -> list[dict[str, Any]]:
+    _validate_top_level_provenance(summary)
     systems = summary.get("systems")
-    if not isinstance(systems, list) or not systems:
-        raise ValueError("summary systems must be a nonempty list")
+    if not isinstance(systems, list) or len(systems) != len(FROZEN_SYSTEMS):
+        raise ValueError("summary must contain exactly the frozen systems")
     rows: list[dict[str, Any]] = []
     seen: set[tuple[str, str, str]] = set()
+    seen_systems: set[str] = set()
     for system_entry in systems:
         if not isinstance(system_entry, Mapping):
             raise ValueError("summary system entry must be an object")
         system = system_entry.get("system")
         raw_rows = system_entry.get("rows")
-        if not isinstance(system, str) or not system:
-            raise ValueError("summary system entry requires a nonempty system")
-        if not isinstance(raw_rows, list) or not raw_rows:
-            raise ValueError(f"summary {system} requires nonempty rows")
+        if system not in FROZEN_SYSTEMS or system in seen_systems:
+            raise ValueError("summary must contain each frozen system exactly once")
+        seen_systems.add(system)
+        task_ids = system_entry.get("task_ids")
+        if not isinstance(task_ids, list) or tuple(task_ids) != FROZEN_TASK_IDS[system]:
+            raise ValueError(f"summary {system} task_ids must equal the frozen task sequence")
+        if not isinstance(raw_rows, list) or len(raw_rows) != len(FROZEN_TASK_IDS[system]) * len(FROZEN_BACKENDS):
+            raise ValueError(f"summary {system} has an incomplete frozen task matrix")
         for row in raw_rows:
             if not isinstance(row, Mapping):
                 raise ValueError(f"summary {system} row must be an object")
@@ -106,6 +223,8 @@ def _validated_rows(summary: Mapping[str, Any]) -> list[dict[str, Any]]:
                 raise ValueError(f"summary {system} row requires task_id")
             if not isinstance(backend, str) or not backend:
                 raise ValueError(f"summary {system}/{task_id} row requires backend")
+            if row.get("system") != system:
+                raise ValueError(f"summary {system}/{task_id} row has mismatched system")
             key = (system, task_id, backend)
             if key in seen:
                 raise ValueError(f"duplicate trace row: {key}")
@@ -113,7 +232,45 @@ def _validated_rows(summary: Mapping[str, Any]) -> list[dict[str, Any]]:
             copied = dict(row)
             copied["system"] = system
             rows.append(copied)
-    return rows
+    if seen_systems != set(FROZEN_SYSTEMS):
+        raise ValueError("summary must contain each frozen system")
+    expected = {
+        (system, task_id, backend)
+        for system in FROZEN_SYSTEMS
+        for task_id in FROZEN_TASK_IDS[system]
+        for backend in FROZEN_BACKENDS
+    }
+    if seen != expected:
+        raise ValueError("summary has an incomplete frozen task matrix")
+    system_order = {system: index for index, system in enumerate(FROZEN_SYSTEMS)}
+    task_order = {
+        (system, task_id): index
+        for system in FROZEN_SYSTEMS
+        for index, task_id in enumerate(FROZEN_TASK_IDS[system])
+    }
+    backend_order = {backend: index for index, backend in enumerate(FROZEN_BACKENDS)}
+    return sorted(rows, key=lambda row: (system_order[row["system"]], task_order[(row["system"], row["task_id"])], backend_order[row["backend"]]))
+
+
+def _explicit_finalization_mask(
+    records: Sequence[Mapping[str, Any]],
+    telemetry: Mapping[str, Any],
+    *,
+    label: str,
+) -> np.ndarray:
+    """Mark the terminal accepted records that came from explicit finalization."""
+
+    finalization_count = _nonnegative_int(
+        telemetry.get("explicit_finalization_calls", 0),
+        label=f"{label}: explicit_finalization_calls",
+    )
+    accepted = np.asarray([_boolean(record.get("accepted_state"), label=f"{label}: accepted_state") for record in records], dtype=bool)
+    if finalization_count > int(np.count_nonzero(accepted)):
+        raise ValueError(f"{label}: explicit finalizations exceed accepted-state records")
+    mask = np.zeros(len(records), dtype=bool)
+    if finalization_count:
+        mask[np.flatnonzero(accepted)[-finalization_count:]] = True
+    return mask
 
 
 def _task_evidence(row: Mapping[str, Any]) -> dict[str, Any]:
@@ -159,15 +316,13 @@ def _task_evidence(row: Mapping[str, Any]) -> dict[str, Any]:
     if len(accepted_records) != accepted_count or accepted_count + nonaccepted_count != len(records):
         raise ValueError(f"{label}: accepted-state count does not match trace labels")
 
-    finalization_count = _nonnegative_int(
-        telemetry.get("explicit_finalization_calls", 0),
-        label=f"{label}: explicit_finalization_calls",
-    )
-    if finalization_count > len(accepted_records):
-        raise ValueError(f"{label}: explicit finalizations exceed accepted-state records")
-    callback_records_excluding_finalization = (
-        accepted_records[:-finalization_count] if finalization_count else accepted_records
-    )
+    finalization_mask = _explicit_finalization_mask(records, telemetry, label=label)
+    finalization_count = int(np.count_nonzero(finalization_mask))
+    callback_records_excluding_finalization = [
+        record
+        for record, is_finalization in zip(records, finalization_mask)
+        if record["accepted_state"] and not is_finalization
+    ]
     if not callback_records_excluding_finalization:
         raise ValueError(f"{label}: no callback-observed optimizer states after finalization separation")
 
@@ -208,20 +363,20 @@ def _task_evidence(row: Mapping[str, Any]) -> dict[str, Any]:
     if not isinstance(reference, Mapping):
         raise ValueError(f"{label}: reference_comparison must be an object")
     reference_summary = {
-        key: reference.get(key)
-        for key in (
-            "all_reference_fields_equal",
-            "strict_reference_match",
-            "call_delta",
-            "certificate_equal",
-            "termination_equal",
-            "energy_delta_eV",
-            "energy_within_measured_neighborhood",
-            "max_mic_displacement_A",
-            "rms_mic_displacement_A",
-            "position_within_measured_neighborhood",
-        )
+        key: _boolean(reference.get(key), label=f"{label}: reference_comparison.{key}")
+        for key in _REFERENCE_BOOLEAN_FIELDS
     }
+    reference_summary["call_delta"] = _integer(
+        reference.get("call_delta"),
+        label=f"{label}: reference_comparison.call_delta",
+    )
+    for field in _REFERENCE_FINITE_FIELDS:
+        reference_summary[field] = _finite_float(
+            reference.get(field),
+            label=f"{label}: reference_comparison.{field}",
+        )
+    if reference_summary["max_mic_displacement_A"] < 0.0 or reference_summary["rms_mic_displacement_A"] < 0.0:
+        raise ValueError(f"{label}: reference comparison displacements must be nonnegative")
 
     return {
         "system": system,
@@ -259,6 +414,11 @@ def _task_evidence(row: Mapping[str, Any]) -> dict[str, Any]:
         "accepted_total_energy_increase_count_including_finalization": accepted_increase_count,
         "accepted_max_total_energy_increase_including_finalization_eV": accepted_max_increase,
         "explicit_finalization_record_count": finalization_count,
+        "explicit_finalization_evaluation_indices": [
+            int(record["evaluation_index"])
+            for record, is_finalization in zip(records, finalization_mask)
+            if is_finalization
+        ],
         "finalization_total_energy_delta_eV": finalization_delta,
         "callback_observed_total_energy_increase_count_excluding_explicit_finalization": callback_increase_count,
         "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": callback_max_increase,
@@ -458,43 +618,73 @@ def _write_curve_plot(summary: Mapping[str, Any], output_path: Path) -> str | No
         return f"matplotlib unavailable: {type(error).__name__}: {error}"
 
     rows = _validated_rows(summary)
-    systems = sorted({str(row["system"]) for row in rows})
-    backends = ("ase-fire", "safe-lbfgs-total")
-    figure, axes = plt.subplots(len(systems), len(backends), figsize=(12, 4.4 * len(systems)), squeeze=False)
-    colors = plt.get_cmap("tab10")
-    for system_index, system in enumerate(systems):
-        for backend_index, backend in enumerate(backends):
-            axis = axes[system_index][backend_index]
-            matching = [
-                row for row in rows if row["system"] == system and row["backend"] == backend
-            ]
-            for row_index, row in enumerate(matching):
-                records = row["trace_records"]
-                x = np.asarray([record["evaluation_index"] for record in records], dtype=float)
-                total = np.asarray([record["total_energy_eV"] for record in records], dtype=float)
-                accepted = np.asarray([record["accepted_state"] for record in records], dtype=bool)
-                color = colors(row_index % 10)
-                axis.plot(x, total - total[0], color=color, alpha=0.30, linewidth=1.0)
-                axis.plot(x[accepted], (total - total[0])[accepted], color=color, linewidth=1.25, label=row["task_id"])
-                if np.any(~accepted):
-                    axis.scatter(
-                        x[~accepted],
-                        (total - total[0])[~accepted],
-                        marker="x",
-                        s=18,
-                        linewidths=0.8,
-                        color=color,
+    with plt.rc_context({"svg.hashsalt": "pamssw-proposal-energy-traces-v1", "svg.fonttype": "none"}):
+        figure, axes = plt.subplots(
+            len(FROZEN_SYSTEMS),
+            len(FROZEN_BACKENDS),
+            figsize=(12, 4.4 * len(FROZEN_SYSTEMS)),
+            squeeze=False,
+        )
+        colors = plt.get_cmap("tab10")
+        for system_index, system in enumerate(FROZEN_SYSTEMS):
+            for backend_index, backend in enumerate(FROZEN_BACKENDS):
+                axis = axes[system_index][backend_index]
+                matching = sorted(
+                    (row for row in rows if row["system"] == system and row["backend"] == backend),
+                    key=lambda row: str(row["task_id"]),
+                )
+                finalization_label_written = False
+                for row_index, row in enumerate(matching):
+                    records = row["trace_records"]
+                    x = np.asarray([record["evaluation_index"] for record in records], dtype=float)
+                    total = np.asarray([record["total_energy_eV"] for record in records], dtype=float)
+                    accepted = np.asarray([record["accepted_state"] for record in records], dtype=bool)
+                    finalization = _explicit_finalization_mask(
+                        records,
+                        _mapping(row.get("telemetry"), label=f"{system}/{row['task_id']}/{backend}: telemetry"),
+                        label=f"{system}/{row['task_id']}/{backend}",
                     )
-            axis.set_title(f"{system} · {backend}")
-            axis.set_xlabel("exact force evaluations")
-            axis.set_ylabel("total biased energy − initial (eV)")
-            axis.grid(alpha=0.22)
-            if matching:
+                    color = colors(row_index % 10)
+                    relative_total = total - total[0]
+                    axis.plot(x, relative_total, color=color, alpha=0.30, linewidth=1.0)
+                    axis.plot(x[accepted], relative_total[accepted], color=color, linewidth=1.25, label=row["task_id"])
+                    if np.any(~accepted):
+                        axis.scatter(
+                            x[~accepted],
+                            relative_total[~accepted],
+                            marker="x",
+                            s=18,
+                            linewidths=0.8,
+                            color=color,
+                        )
+                    if np.any(finalization):
+                        marker = axis.scatter(
+                            x[finalization],
+                            relative_total[finalization],
+                            marker="D",
+                            s=28,
+                            linewidths=0.8,
+                            facecolors="none",
+                            edgecolors="black",
+                            label="explicit finalization recheck" if not finalization_label_written else None,
+                            zorder=4,
+                        )
+                        marker.set_gid(f"explicit-finalization-recheck-{system}-{backend}-{row['task_id']}")
+                        finalization_label_written = True
+                axis.set_title(f"{system} · {backend}")
+                axis.set_xlabel("exact force evaluations")
+                axis.set_ylabel("total biased energy − initial (eV)")
+                axis.grid(alpha=0.22)
                 axis.legend(fontsize=6, ncol=2, frameon=False)
-    figure.suptitle("Frozen one-bias proposal relaxations: evaluated total-objective traces", y=0.998)
-    figure.tight_layout()
-    figure.savefig(output_path, format="svg", bbox_inches="tight")
-    plt.close(figure)
+        figure.suptitle("Frozen one-bias proposal relaxations: evaluated total-objective traces", y=0.998)
+        figure.tight_layout()
+        figure.savefig(
+            output_path,
+            format="svg",
+            bbox_inches="tight",
+            metadata={"Date": "2026-07-27T00:00:00Z"},
+        )
+        plt.close(figure)
     # Matplotlib wraps SVG path data with trailing spaces; remove only those
     # end-of-line formatting bytes so repository whitespace validation stays
     # meaningful without changing XML token boundaries.
@@ -549,6 +739,8 @@ def _conclusion_markdown(evidence: Mapping[str, Any]) -> str:
     reduction = 100.0 * (1.0 - safe_calls / fire_calls)
     wall_reduction = 100.0 * (1.0 - safe_time / fire_time)
 
+    paired_task_count = len(aggregates["paired_fire_safe"])
+    safe_task_count = int(nonaccepted["task_count"])
     return f"""# Fixed proposal energy-trace evidence
 
 ## Execution/protocol facts
@@ -559,11 +751,11 @@ The historical cap-400 run is descriptive only. It has {reference['strict_refere
 
 ## Optimizer evidence for this fixed matrix
 
-Across the paired 16 tasks, FIRE used {fire_calls} exact force evaluations and {fire_time:.3f} s; safe L-BFGS used {safe_calls} and {safe_time:.3f} s. In this matrix that is {reduction:.1f}% fewer evaluator calls and {wall_reduction:.1f}% less wall time for safe L-BFGS. The force certificate holds for {safe_certificates}/{task_count_per_backend} safe traces and {fire_certificates}/{task_count_per_backend} FIRE traces.
+Across the paired {paired_task_count} tasks, FIRE used {fire_calls} exact force evaluations and {fire_time:.3f} s; safe L-BFGS used {safe_calls} and {safe_time:.3f} s. In this matrix that is {reduction:.1f}% fewer evaluator calls and {wall_reduction:.1f}% less wall time for safe L-BFGS. The force certificate holds for {safe_certificates}/{task_count_per_backend} safe traces and {fire_certificates}/{task_count_per_backend} FIRE traces.
 
 FIRE reached the 400-iteration observation cap on {len(maxiter)} traces: {', '.join(f"{item['system']}/{item['task_id']}" for item in maxiter) or 'none'}. Safe L-BFGS had {nonaccepted['non_accepted_evaluation_count']} callback-nonaccepted evaluations and {nonaccepted['telemetry_rejected_steps']} telemetry-reported rejected trials; the counts coincide in this ledger. That numerical equality does not establish that the observer label is a general synonym for a line-search rejection.
 
-For safe L-BFGS, callback states have the expected initial-plus-accepted-step count and are monotone non-increasing in total biased energy for all 16 tasks after explicit finalization evaluations are removed. There are {finalization['positive_finalization_recheck_count']} positive finalization rechecks among {finalization['explicit_finalization_record_count']} explicit rechecks: {', '.join(f"{item['system']}/{item['task_id']} ({item['delta_total_energy_eV']:.8g} eV)" for item in finalization['positive_finalization_rechecks']) or 'none'}. These are recorded terminal re-evaluations, not Armijo-accepted optimizer steps. For FIRE, `accepted_state` remains only a callback-observer label; its positive total-energy changes are therefore neither an acceptance-rule failure nor a comparable line-search statistic.
+For safe L-BFGS, callback states have the expected initial-plus-accepted-step count and are monotone non-increasing in total biased energy for all {safe_task_count} tasks after explicit finalization evaluations are removed. There are {finalization['positive_finalization_recheck_count']} positive finalization rechecks among {finalization['explicit_finalization_record_count']} explicit rechecks: {', '.join(f"{item['system']}/{item['task_id']} ({item['delta_total_energy_eV']:.8g} eV)" for item in finalization['positive_finalization_rechecks']) or 'none'}. These are recorded terminal re-evaluations, not Armijo-accepted optimizer steps. For FIRE, `accepted_state` remains only a callback-observer label; its positive total-energy changes are therefore neither an acceptance-rule failure nor a comparable line-search statistic.
 
 ## What this does not establish
 
