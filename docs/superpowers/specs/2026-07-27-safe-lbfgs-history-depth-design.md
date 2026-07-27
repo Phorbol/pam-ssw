@@ -161,40 +161,37 @@ serially so GPU contention cannot become an uncontrolled treatment.
 The run is one-shot. There is no retry, rescue, arm-specific warm-up, or
 post-result parameter change.
 
-## Budget and accounting contract
+## Minimal ledger and accounting contract
 
-For every row, record and validate:
+The runner is a thin experiment orchestrator, not a general provenance or
+schema framework. For every row it records only source facts:
 
-- source task identity and canonical payload hash;
-- requested and resolved history capacity;
-- scale policy and secant-gradient policy;
-- result energy, final force, iterations, displacement, outcome class,
-  convergence certificate, and termination reason;
-- evaluator call count and purpose count;
-- optimizer telemetry, including line-search evaluations, accepted and
-  rejected steps, accepted and rejected secants, finalization calls, and MIC
-  resets;
-- the complete zero-extra-call energy/force trace.
+- system, seed, task identity, and canonical task-payload hash;
+- arm identity and resolved history capacity;
+- `fmax`, final total biased energy, final active force, iterations,
+  displacement, outcome class, and optimizer telemetry;
+- evaluator call count and purpose counts;
+- the complete zero-extra-call energy/force trace;
+- final coordinates and their deterministic hash;
+- row wall time.
 
-The summary provenance schema is fixed as:
+The runner does not store a second certificate flag or derived termination
+counts. The analyzer derives the force certificate, termination aggregates,
+and all cost summaries from the raw rows. This removes duplicate truth that
+could become internally inconsistent.
 
-- `git_provenance`: expected commit, actual commit, repository root, and clean
-  worktree boolean;
-- `pamssw_source_provenance`: source root, deterministic source-bundle hash,
-  imported module paths, and imported symbol-definition paths;
-- `runner_helper_provenance`: absolute path and SHA-256 for every imported
-  frozen-task, calculator, and trace helper;
-- `runtime_versions`: Python, Python implementation, NumPy, SciPy, ASE,
-  PyTorch, and MACE versions;
-- `platform_provenance`: `sys.platform`, operating-system name and release,
-  and machine architecture;
-- `cuda_model_input_provenance`: requested device, CUDA device name, CUDA
-  runtime version, model path, declared and measured model hashes, and each
-  source input path with declared and measured hashes;
-- `source_summary_sha256` and `safe_kernel_descriptor_sha256`: declared and
-  independently recomputed hashes.
+Preflight keeps only provenance needed to reproduce this fixed execution:
 
-Unknown, missing, mistyped, or non-finite provenance fields fail validation.
+- expected and actual Git commit plus a clean tracked worktree;
+- source-summary, canonical task-payload, pamssw source-bundle, model, and
+  input-structure hashes;
+- the external frozen-task/calculator helper hash;
+- Python, NumPy, SciPy, ASE, PyTorch, and MACE versions from the GPU runtime;
+- requested CUDA device, CUDA availability, CUDA runtime version, and device
+  name.
+
+There is no imported-symbol inventory, operating-system exact schema, generic
+unknown-key rejection, or nested provenance validation framework.
 
 The following closure must hold exactly:
 
@@ -212,13 +209,24 @@ unattributed calls = 0
 ```
 
 Finite `maxiter` and finite `line_search_failed` rows are valid incomplete
-protocol outcomes. They remain in all cost totals and may not be converted
-into successful convergence.
+protocol outcomes. They remain in all cost totals. The analyzer computes
+certificate satisfaction directly from final force and `fmax`; it may not
+convert an incomplete row into convergence.
 
-Any nonfinite row, source/provenance mismatch, duplicate or missing matrix
-cell, open accounting ledger, unknown field, invalid certificate, or partial
-output is fatal. Publish the complete output directory atomically only after
-all 32 rows and the summary validate.
+Before writing a row, the runner checks only the invariants that protect the
+experiment:
+
+- all numeric result and trace values are finite;
+- the task and arm belong to the frozen 32-cell matrix;
+- the accounting equality above holds;
+- final coordinates and hashes are present.
+
+The runner writes to `output.partial` and renames it to `output` only after all
+32 rows are present. It refuses a pre-existing `output` or `output.partial`
+directory. This is a single-process experiment convention, not a
+concurrency-safe publication API; no `ctypes`, `renameat2`, file lock, or race
+handling is added. `summary.json` is the completion marker. The analyzer
+rejects a missing marker or an incomplete/duplicate matrix.
 
 Raw GPU output remains ignored. Committed analysis artifacts must contain
 cryptographic hashes of the raw files and enough reviewed derived data to
@@ -227,8 +235,14 @@ shipping the ignored ledger.
 
 ## Analysis
 
-Use certificate coverage as the first outcome, followed by complete-protocol
-evaluator cost and wall time. Do not compare only converged rows.
+The analyzer is the single owner of derived scientific semantics. It validates
+the required row fields, recomputes force certificates from final force and
+`fmax`, reconstructs termination and cost totals, and rejects a missing or
+duplicate task-arm cell.
+
+Use derived certificate coverage as the first outcome, followed by
+complete-protocol evaluator cost and wall time. Do not compare only converged
+rows.
 
 For each system and for the combined matrix, report:
 

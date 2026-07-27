@@ -181,53 +181,37 @@ git add pamssw/relax.py tests/unit/test_relax.py
 git commit -m "experiment: admit one-pair safe L-BFGS history"
 ```
 
-### Task 2: Fail-closed 32-row runner
+### Task 2: Thin 32-row runner
 
 **Files:**
 
-- Create: `runs/20260727-safe-lbfgs-history-depth-ablation/.gitignore`
-- Create: `runs/20260727-safe-lbfgs-history-depth-ablation/plan.md`
-- Create: `runs/20260727-safe-lbfgs-history-depth-ablation/run_gpu_ablation.py`
-- Create: `tests/unit/test_safe_lbfgs_history_depth.py`
+- Replace: `runs/20260727-safe-lbfgs-history-depth-ablation/run_gpu_ablation.py`
+- Replace: `tests/unit/test_safe_lbfgs_history_depth.py`
+- Modify: `runs/20260727-safe-lbfgs-history-depth-ablation/.gitignore`
+- Modify: `runs/20260727-safe-lbfgs-history-depth-ablation/plan.md`
 
-- [ ] **Step 1: write failing runner-contract tests**
+- [ ] **Step 1: replace defensive tests with behavior tests**
 
-The first tests must require the exact arm contract:
+Keep only tests for:
 
-```python
-assert tuple(
-    (arm.arm_id, arm.kernel, arm.history_limit, arm.scale_policy)
-    for arm in runner.ARMS
-) == (
-    (
-        "adaptive-scale-history1",
-        "safe-lbfgs-total",
-        1,
-        "latest-history-pair-gamma-plus-one-two-loop-correction",
-    ),
-    (
-        "adaptive-scale-history10",
-        "safe-lbfgs-total",
-        10,
-        "latest-history-pair-gamma-plus-up-to-ten-two-loop-corrections",
-    ),
-)
-```
+1. exact history1/history10 arm order and the 32-cell task matrix;
+2. the relaxation call changing only `_safe_lbfgs_history_limit`;
+3. task/source/model/input/pamssw/helper hash preflight before calculator
+   creation;
+4. one calculator per `(system, arm)` and no sharing across arms;
+5. row accounting closure and finite result/trace values;
+6. `output.partial` completion and refusal of pre-existing output paths;
+7. preflight-only returning before calculator construction;
+8. CLI requiring the expected Git commit.
 
-Also require:
+Delete tests for arbitrary unknown nested keys, operating-system schemas,
+`renameat2`, concurrent races, `ctypes`, and duplicated summary certificates.
 
-```python
-assert runner.SYSTEMS == ("c60", "pdo")
-assert runner.SEEDS == tuple(range(42, 50))
-assert runner.MAXITER == 400
-assert runner.EXPECTED_SOURCE_SUMMARY_SHA256 == (
-    "62cc771e2aa24e9addef0e870d0524f901f02bddc34152cf2a2eeea91a671b04"
-)
-```
+- [ ] **Step 2: run RED against the defensive runner**
 
-The runner must not exist before this test is written.
-
-- [ ] **Step 2: run RED runner test**
+The replacement tests must initially fail because the existing runner stores
+derived certificate/summary fields and uses the deleted defensive publication
+and provenance abstractions.
 
 Run:
 
@@ -235,127 +219,112 @@ Run:
 pytest -q tests/unit/test_safe_lbfgs_history_depth.py
 ```
 
-Expected: FAIL because the run directory and runner do not exist.
+- [ ] **Step 3: implement the thin arm and row model**
 
-- [ ] **Step 3: implement immutable runner constants and arm dispatch**
-
-Create a frozen `Arm` dataclass:
+Use one frozen arm type:
 
 ```python
 @dataclass(frozen=True)
 class Arm:
     arm_id: str
-    kernel: str
     history_limit: int
-    scale_policy: str
 ```
 
-The relaxation call must be exactly:
-
-```python
-result = Relaxer(
-    counter.evaluate_flat,
-    optimizer="safe-lbfgs-total",
-    component_evaluator=proposal.evaluate_parts,
-).relax(
-    task.initial_state,
-    fmax=task.fmax,
-    maxiter=400,
-    coordinate_trust_radius=task.coordinate_trust_radius,
-    trajectory_callback=trace_recorder,
-    trajectory_stride=1,
-    _safe_lbfgs_history_limit=arm.history_limit,
-)
-```
-
-Do not pass the scale-only private flag. Assert it remains `False`.
-
-- [ ] **Step 4: add provenance tests before provenance implementation**
-
-Require exact schemas:
-
-```python
-assert set(summary["runtime_versions"]) == {
-    "python", "python_implementation", "numpy", "scipy",
-    "ase", "torch", "mace",
-}
-assert set(summary["platform_provenance"]) == {
-    "sys_platform", "system", "release", "machine",
-}
-assert set(summary["git_provenance"]) == {
-    "expected_git_commit", "actual_git_commit", "repo_root", "worktree_clean",
-}
-```
-
-Require declared/measured hashes for the model, both input structures, source
-summary, source bundle, kernel descriptor, and every imported helper. Tampered
-hashes, a dirty worktree, a non-CUDA device, or an import outside the pinned
-source/helper roots must fail before calculator construction.
-
-- [ ] **Step 5: implement fail-closed provenance**
-
-Use `importlib.metadata.version()` for package versions, with the package names
-explicitly mapped:
+The row contains raw facts only:
 
 ```python
 {
-    "numpy": "numpy",
-    "scipy": "scipy",
-    "ase": "ase",
-    "torch": "torch",
-    "mace": "mace-torch",
+    "system": system,
+    "seed": seed,
+    "task_id": task_id,
+    "task_sha256": task_sha256,
+    "arm_id": arm.arm_id,
+    "history_limit": arm.history_limit,
+    "fmax_eV_per_A": task.fmax,
+    "final_total_biased_energy_eV": result.energy,
+    "final_active_max_force_eV_per_A": result.gradient_norm,
+    "iterations": result.n_iter,
+    "termination_reason": result.telemetry.termination_reason,
+    "displacement_rms_A": result.displacement_rms,
+    "displacement_max_A": result.displacement_max,
+    "outcome_class": result.outcome_class.value,
+    "force_evaluations": counts.total,
+    "purpose_counts": counts.as_dict(),
+    "telemetry": asdict(result.telemetry),
+    "trace": trace_records,
+    "final_positions": result.state.positions.tolist(),
+    "final_positions_sha256": position_hash(result.state),
+    "wall_time_s": wall_time_s,
 }
 ```
 
-Use `platform.system()`, `platform.release()`, `platform.machine()`,
-`sys.platform`, `sys.version`, and `platform.python_implementation()`. Do not
-silently substitute `"unknown"`; a missing required version is fatal.
+Do not store `certificate_satisfied`, certificate counts, termination counts,
+or duplicated resolved scale-policy strings.
 
-- [ ] **Step 6: write accounting and atomic-publication tests**
+- [ ] **Step 4: implement minimal preflight**
 
-Using the deterministic quadratic calculator, require for each row:
+Before calculator construction verify:
+
+- required expected commit equals `HEAD` and tracked worktree is clean;
+- source summary and all 16 canonical task hashes;
+- pamssw source-bundle hash and the single external fixed-replay helper hash;
+- model and two input hashes;
+- CUDA availability, CUDA version, and device name.
+
+Record Python, NumPy, SciPy, ASE, PyTorch, and MACE versions from the selected
+GPU runtime. Do not inventory imported symbols or record OS/platform fields.
+
+- [ ] **Step 5: implement only scientific row checks**
+
+Require:
 
 ```python
-assert len(row["trace_records"]) == row["force_evaluations"]
-assert row["force_evaluations"] == row["telemetry"]["backend_evaluations"]
-assert row["force_evaluations"] == row["purpose_counts"]["biased_proposal_relax"]
-assert row["unattributed_calls"] == 0
+len(row["trace"]) \
+    == row["force_evaluations"] \
+    == row["telemetry"]["backend_evaluations"] \
+    == row["purpose_counts"]["biased_proposal_relax"]
+row["purpose_counts"]["unattributed"] == 0
 ```
 
-Test exactly 32 unique `(system, task_id, arm_id)` cells. Test that an existing
-output directory, partial row, duplicate row, nonfinite value, open
-`EvalCounter` scope, or calculator shared across arms prevents publication.
-Test same-parent temporary-directory rename and non-overwrite behavior.
-Test that `--preflight-only --expected-git-commit <sha>` completes all
-provenance and CUDA gates and returns before the calculator factory is called.
+Require finite energy, force, displacement, wall time, coordinates, and trace
+values. Require task/arm membership in the frozen matrix. The runner does not
+derive a certificate; Task 4 does.
 
-- [ ] **Step 7: implement row validation and one-shot publication**
+- [ ] **Step 6: implement simple single-process completion**
 
-Create all calculators only after every source, runtime, hash, Git, and CUDA
-gate passes. Instantiate one calculator per `(system, arm)` and reuse it only
-for that arm's eight sequential tasks. Write `c60.json`, `pdo.json`, and
-`summary.json` into a same-parent staging directory; validate all three and
-atomically rename the staging directory to `output`.
+Refuse existing `output` or `output.partial`. Write the two system files into
+`output.partial`, verify 32 unique rows, then write `summary.json` last as the
+completion marker and rename the directory to `output` with ordinary
+`Path.rename`.
 
-`.gitignore` must contain exactly:
+The run-local `.gitignore` is:
 
 ```text
 output/
+output.partial/
 ```
 
-- [ ] **Step 8: run GREEN runner tests**
+No concurrency or race guarantee is claimed.
+
+- [ ] **Step 7: run GREEN and enforce the size reduction**
 
 Run:
 
 ```bash
 pytest -q tests/unit/test_safe_lbfgs_history_depth.py
 pytest -q tests/unit/test_relax.py
+pytest -q tests/unit/test_proposal_energy_trace.py
 git diff --check
+wc -l \
+  runs/20260727-safe-lbfgs-history-depth-ablation/run_gpu_ablation.py \
+  tests/unit/test_safe_lbfgs_history_depth.py
 ```
 
-Expected: all pass.
+The final files must be materially smaller than the rejected 1075-line runner
+and 689-line test file. Size is a maintainability check, not an algorithm
+parameter.
 
-- [ ] **Step 9: commit Task 2**
+- [ ] **Step 8: commit the simplification**
 
 ```bash
 git add \
@@ -363,15 +332,11 @@ git add \
   runs/20260727-safe-lbfgs-history-depth-ablation/plan.md \
   runs/20260727-safe-lbfgs-history-depth-ablation/run_gpu_ablation.py \
   tests/unit/test_safe_lbfgs_history_depth.py
-git commit -m "experiment: define safe L-BFGS history-depth GPU ablation"
+git commit -m "refactor: keep history-depth runner experiment focused"
 ```
 
-Record this commit as the only permitted GPU execution commit. The runner
-accepts it through a required `--expected-git-commit` CLI argument and verifies
-it against `git rev-parse HEAD`; do not embed a self-referential commit hash in
-tracked source. The deterministic source-bundle and helper hashes are pinned
-in the runner before this commit, and no tracked change may remain at
-execution.
+Pass the resulting commit through required `--expected-git-commit`; do not
+embed a self-referential commit constant.
 
 ### Task 3: One approved GPU execution
 
@@ -425,8 +390,9 @@ p=Path('runs/20260727-safe-lbfgs-history-depth-ablation/output/summary.json')
 d=json.loads(p.read_text())
 assert d['row_count'] == 32
 assert d['task_count'] == 16
-print(d['termination_reason_counts'])
-print(d['wall_time_total_s'])
+assert d['systems'] == ['c60', 'pdo']
+print(d['execution_commit'])
+print(d['runtime_versions'])
 "
 git check-ignore -v \
   runs/20260727-safe-lbfgs-history-depth-ablation/output/summary.json
@@ -452,18 +418,14 @@ Expected: complete 32-row atomic ledger and ignored raw output.
 
 - [ ] **Step 1: write failing strict-analysis tests**
 
-Require exact 32-row matrix validation, exact schema/type checking, raw-file
-hashes, source/kernel/execution anchors, endpoint-to-last-trace closure,
-certificate/termination consistency, and the three-way accounting equality.
-
-Parameterize corruptions for:
+Require the 32-row matrix, completion marker, raw-file hashes,
+source/task/model/input/execution anchors, finite result/trace values,
+endpoint hash, and the accounting equality. Test only scientifically meaningful
+failures:
 
 ```text
-missing row, duplicate row, unknown field, bool in integer field,
-numeric string, nonfinite energy, negative wall time, task hash,
-source hash, source bundle, kernel descriptor, execution commit,
-trace length, endpoint position hash, endpoint energy, endpoint force,
-purpose count, unattributed call, telemetry count, incomplete publication
+missing row, duplicate row, nonfinite result, task hash mismatch,
+trace/accounting mismatch, endpoint hash mismatch, missing completion marker
 ```
 
 Run:
@@ -476,7 +438,9 @@ Expected: FAIL because the analyzer does not exist.
 
 - [ ] **Step 2: implement strict ledger validation**
 
-The analyzer must compute paired history1-minus-history10 fields:
+The analyzer derives `certificate_satisfied` from
+`final_active_max_force_eV_per_A <= fmax_eV_per_A`, derives termination counts
+from rows, and computes paired history1-minus-history10 fields:
 
 ```python
 {
