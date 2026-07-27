@@ -21,6 +21,18 @@ ANALYZER_PATH = RUN_ROOT / "analyze.py"
 REFERENCE_PATH = RUN_ROOT / "reference.json"
 FROZEN_REFERENCE_SHA256 = "a8c3b9c5aaa0d5085118a1cfa1d62a4c641c9ad1383df49cb1285982ee607864"
 CURRENT_EXECUTION_COMMIT = "26c4118806a2d6ec940ad39d89558847978ad9b1"
+FROZEN_CONFIG_SHA256 = {
+    "c60": "a045ae9d1ae2340845d5bdde2c73d9553dfb83fe6335f5413e2065d13584c876",
+    "pdo": "579bc37c485c01ffa8c3ce3a33886829e38df38ded2381aa0307b8be3a8f9a70",
+}
+OUTPUT_PATH_FIELDS = {
+    "accepted_structures_log",
+    "accepted_structures_dir",
+    "direction_diagnostics_path",
+    "proposal_minima_dir",
+    "relaxation_trajectory_dir",
+    "direction_archive_path",
+}
 
 
 def _load(path: Path, module_name: str):
@@ -35,6 +47,26 @@ def _load(path: Path, module_name: str):
 def _write_json(path: Path, payload) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _config_sha256(config: dict[str, object]) -> str:
+    canonical = json.dumps(
+        {key: value for key, value in config.items() if key not in OUTPUT_PATH_FIELDS},
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+        allow_nan=False,
+    )
+    return sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _config_hashes(root: Path) -> dict[str, str]:
+    return {
+        system: _config_sha256(
+            json.loads((root / system / "summary.json").read_text(encoding="utf-8"))["effective_config"]
+        )
+        for system in ("c60", "pdo")
+    }
 
 
 def _direction_rows() -> list[dict[str, object]]:
@@ -118,7 +150,13 @@ def _write_old_case(root: Path, system: str) -> None:
     )
 
 
-def _write_new_case(root: Path, system: str, reference: dict[str, object]) -> None:
+def _write_new_case(
+    root: Path,
+    system: str,
+    reference: dict[str, object],
+    *,
+    reference_sha256: str,
+) -> None:
     purpose_counts = {
         "bootstrap_true_quench": 0,
         "starter_true_quench": 1,
@@ -134,6 +172,7 @@ def _write_new_case(root: Path, system: str, reference: dict[str, object]) -> No
         {
             "system": system,
             "execution_commit": CURRENT_EXECUTION_COMMIT,
+            "reference_sha256": reference_sha256,
             "old_execution_commit": reference["old_execution_commit"],
             "old_artifact_sha256": reference["old_artifact_sha256"],
             "effective_config": {
@@ -193,6 +232,8 @@ def test_real_reference_is_hash_pinned_to_the_old_execution_artifacts():
     analyzer = _load(ANALYZER_PATH, "direction_oracle_no_loss_analyzer_identity")
     assert analyzer.FROZEN_REFERENCE_SHA256 == FROZEN_REFERENCE_SHA256
     assert analyzer.CURRENT_EXECUTION_COMMIT == CURRENT_EXECUTION_COMMIT
+    assert analyzer.FROZEN_CONFIG_SHA256 == FROZEN_CONFIG_SHA256
+    assert analyzer.OUTPUT_PATH_FIELDS == OUTPUT_PATH_FIELDS
     for system in ("c60", "pdo"):
         case = payload["systems"][system]
         assert case["old_execution_commit"] == "b2dc9c46932533f8f5be9262ca89555538e40159"
@@ -227,11 +268,22 @@ def test_analyzer_reports_numeric_mismatch_without_suppressing_accounting(tmp_pa
         "systems": {system: _reference(system) for system in analyzer.SYSTEMS},
     }
     _write_json(reference_path, reference)
+    expected_reference_sha256 = sha256(reference_path.read_bytes()).hexdigest()
     output_root = tmp_path / "output"
     repeat_root = tmp_path / "repeat"
     for system in analyzer.SYSTEMS:
-        _write_new_case(output_root, system, reference["systems"][system])
-        _write_new_case(repeat_root, system, reference["systems"][system])
+        _write_new_case(
+            output_root,
+            system,
+            reference["systems"][system],
+            reference_sha256=expected_reference_sha256,
+        )
+        _write_new_case(
+            repeat_root,
+            system,
+            reference["systems"][system],
+            reference_sha256=expected_reference_sha256,
+        )
 
     current_energy = _reference("c60")["energy_trace"]
     current_energy[0]["energy_eV"] = -10.001
@@ -268,7 +320,8 @@ def test_analyzer_reports_numeric_mismatch_without_suppressing_accounting(tmp_pa
         reference_path,
         output_root,
         repeat_root,
-        expected_reference_sha256=sha256(reference_path.read_bytes()).hexdigest(),
+        expected_reference_sha256=expected_reference_sha256,
+        expected_config_sha256=_config_hashes(output_root),
     )
 
     c60 = evidence["systems"]["c60"]
@@ -320,9 +373,15 @@ def test_analyzer_fails_closed_for_accounting_errors_even_when_trajectory_differ
         "systems": {system: _reference(system) for system in analyzer.SYSTEMS},
     }
     _write_json(reference_path, reference)
+    expected_reference_sha256 = sha256(reference_path.read_bytes()).hexdigest()
     output_root = tmp_path / "output"
     for system in analyzer.SYSTEMS:
-        _write_new_case(output_root, system, reference["systems"][system])
+        _write_new_case(
+            output_root,
+            system,
+            reference["systems"][system],
+            reference_sha256=expected_reference_sha256,
+        )
 
     summary_path = output_root / "c60" / "summary.json"
     summary = json.loads(summary_path.read_text(encoding="utf-8"))
@@ -334,7 +393,8 @@ def test_analyzer_fails_closed_for_accounting_errors_even_when_trajectory_differ
         analyzer.analyze(
             reference_path,
             output_root,
-            expected_reference_sha256=sha256(reference_path.read_bytes()).hexdigest(),
+            expected_reference_sha256=expected_reference_sha256,
+            expected_config_sha256=_config_hashes(output_root),
         )
 
 
@@ -350,13 +410,19 @@ def test_analyzer_fails_closed_for_unpinned_identity_or_invalid_direction_trace(
     expected_reference_sha256 = sha256(reference_path.read_bytes()).hexdigest()
     output_root = tmp_path / "output"
     for system in analyzer.SYSTEMS:
-        _write_new_case(output_root, system, reference["systems"][system])
+        _write_new_case(
+            output_root,
+            system,
+            reference["systems"][system],
+            reference_sha256=expected_reference_sha256,
+        )
 
     with pytest.raises(ValueError, match="reference SHA"):
         analyzer.analyze(
             reference_path,
             output_root,
             expected_reference_sha256="0" * 64,
+            expected_config_sha256=_config_hashes(output_root),
         )
 
     summary_path = output_root / "c60" / "summary.json"
@@ -368,19 +434,22 @@ def test_analyzer_fails_closed_for_unpinned_identity_or_invalid_direction_trace(
             reference_path,
             output_root,
             expected_reference_sha256=expected_reference_sha256,
+            expected_config_sha256=_config_hashes(output_root),
         )
 
     summary["execution_commit"] = CURRENT_EXECUTION_COMMIT
-    summary["effective_config"]["proposal_fmax"] = 0.1
+    expected_config_sha256 = _config_hashes(output_root)
+    summary["effective_config"]["oracle_candidates"] = 99
     _write_json(summary_path, summary)
-    with pytest.raises(ValueError, match="proposal_fmax"):
+    with pytest.raises(ValueError, match="config SHA"):
         analyzer.analyze(
             reference_path,
             output_root,
             expected_reference_sha256=expected_reference_sha256,
+            expected_config_sha256=expected_config_sha256,
         )
 
-    summary["effective_config"]["proposal_fmax"] = 0.05
+    summary["effective_config"].pop("oracle_candidates")
     _write_json(summary_path, summary)
     direction_path = output_root / "c60" / "direction_trace.jsonl"
     invalid_directions = _direction_rows()
@@ -394,6 +463,7 @@ def test_analyzer_fails_closed_for_unpinned_identity_or_invalid_direction_trace(
             reference_path,
             output_root,
             expected_reference_sha256=expected_reference_sha256,
+            expected_config_sha256=expected_config_sha256,
         )
 
     invalid_directions = _direction_rows()
@@ -407,6 +477,7 @@ def test_analyzer_fails_closed_for_unpinned_identity_or_invalid_direction_trace(
             reference_path,
             output_root,
             expected_reference_sha256=expected_reference_sha256,
+            expected_config_sha256=expected_config_sha256,
         )
 
     invalid_directions = _direction_rows()
@@ -419,6 +490,7 @@ def test_analyzer_fails_closed_for_unpinned_identity_or_invalid_direction_trace(
             reference_path,
             output_root,
             expected_reference_sha256=expected_reference_sha256,
+            expected_config_sha256=expected_config_sha256,
         )
 
     summary["purpose_counts"]["direction_oracle"] = 14
@@ -434,4 +506,5 @@ def test_analyzer_fails_closed_for_unpinned_identity_or_invalid_direction_trace(
             reference_path,
             output_root,
             expected_reference_sha256=expected_reference_sha256,
+            expected_config_sha256=expected_config_sha256,
         )

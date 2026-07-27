@@ -1,44 +1,24 @@
 {
-  "config_identity": {
-    "c60": {
-      "direction_curvature_source": "inner",
-      "local_softening_active_count": 3,
-      "local_softening_cutoff": 2.0,
-      "local_softening_cutoff_scale": 1.3,
-      "local_softening_mode": "active_neighbors",
-      "local_softening_penalty": "buckingham_repulsive",
-      "local_softening_strength": 0.15,
-      "local_softening_xi": 0.3,
-      "max_trials": 5,
-      "proposal_fmax": 0.05,
-      "proposal_optimizer": "safe-lbfgs-total",
-      "quench_optimizer": "scipy-lbfgsb",
-      "rng_seed": 42
-    },
-    "pdo": {
-      "direction_curvature_source": "inner",
-      "local_softening_active_count": 5,
-      "local_softening_cutoff": 2.0,
-      "local_softening_cutoff_scale": 1.15,
-      "local_softening_mode": "active_neighbors",
-      "local_softening_penalty": "buckingham_repulsive",
-      "local_softening_strength": 0.15,
-      "local_softening_xi": 0.3,
-      "max_trials": 5,
-      "proposal_fmax": 0.05,
-      "proposal_optimizer": "safe-lbfgs-total",
-      "quench_optimizer": "scipy-lbfgsb",
-      "rng_seed": 42
-    }
-  },
   "cost_baseline_scope": "counterfactual reconstruction from each current run's exact direction trace; the old 200-trial output did not persist per-trial purpose counts",
   "exact_gpu_trajectory_claim_supported": false,
+  "excluded_effective_config_fields": [
+    "accepted_structures_dir",
+    "accepted_structures_log",
+    "direction_archive_path",
+    "direction_diagnostics_path",
+    "proposal_minima_dir",
+    "relaxation_trajectory_dir"
+  ],
+  "expected_effective_config_sha256": {
+    "c60": "a045ae9d1ae2340845d5bdde2c73d9553dfb83fe6335f5413e2065d13584c876",
+    "pdo": "579bc37c485c01ffa8c3ce3a33886829e38df38ded2381aa0307b8be3a8f9a70"
+  },
   "expected_execution_commit": "26c4118806a2d6ec940ad39d89558847978ad9b1",
   "expected_reference_sha256": "a8c3b9c5aaa0d5085118a1cfa1d62a4c641c9ad1383df49cb1285982ee607864",
   "output_root": "runs/20260728-direction-oracle-no-loss-gpu-validation/output",
   "reference_sha256": "a8c3b9c5aaa0d5085118a1cfa1d62a4c641c9ad1383df49cb1285982ee607864",
   "repeat_root": "runs/20260728-direction-oracle-no-loss-gpu-validation/output-repeat",
-  "schema_version": 3,
+  "schema_version": 4,
   "systems": {
     "c60": {
       "comparisons": {
@@ -178,6 +158,7 @@
           "starter_true_quench": 67,
           "unattributed": 0
         },
+        "effective_config_sha256": "a045ae9d1ae2340845d5bdde2c73d9553dfb83fe6335f5413e2065d13584c876",
         "execution_commit": "26c4118806a2d6ec940ad39d89558847978ad9b1",
         "force_evaluations": 2669,
         "mechanism_savings": {
@@ -251,6 +232,7 @@
           "starter_true_quench": 62,
           "unattributed": 0
         },
+        "effective_config_sha256": "a045ae9d1ae2340845d5bdde2c73d9553dfb83fe6335f5413e2065d13584c876",
         "execution_commit": "26c4118806a2d6ec940ad39d89558847978ad9b1",
         "force_evaluations": 2490,
         "mechanism_savings": {
@@ -378,6 +360,7 @@
           "starter_true_quench": 37,
           "unattributed": 0
         },
+        "effective_config_sha256": "579bc37c485c01ffa8c3ce3a33886829e38df38ded2381aa0307b8be3a8f9a70",
         "execution_commit": "26c4118806a2d6ec940ad39d89558847978ad9b1",
         "force_evaluations": 1886,
         "mechanism_savings": {

@@ -8,7 +8,7 @@ from hashlib import sha256
 import json
 from math import isfinite
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Mapping, Sequence
 
 
 RUN_ROOT = Path(__file__).resolve().parent
@@ -19,30 +19,17 @@ MAX_TRIALS = 5
 _TRACE_ARTIFACTS = ("energy_trace", "walk_records", "direction_trace")
 FROZEN_REFERENCE_SHA256 = "a8c3b9c5aaa0d5085118a1cfa1d62a4c641c9ad1383df49cb1285982ee607864"
 CURRENT_EXECUTION_COMMIT = "26c4118806a2d6ec940ad39d89558847978ad9b1"
-_COMMON_CONFIG_IDENTITY = {
-    "max_trials": MAX_TRIALS,
-    "rng_seed": 42,
-    "proposal_optimizer": "safe-lbfgs-total",
-    "quench_optimizer": "scipy-lbfgsb",
-    "proposal_fmax": 0.05,
-    "local_softening_mode": "active_neighbors",
-    "local_softening_strength": 0.15,
-    "local_softening_penalty": "buckingham_repulsive",
-    "local_softening_xi": 0.3,
-    "local_softening_cutoff": 2.0,
-    "direction_curvature_source": "inner",
+FROZEN_CONFIG_SHA256 = {
+    "c60": "a045ae9d1ae2340845d5bdde2c73d9553dfb83fe6335f5413e2065d13584c876",
+    "pdo": "579bc37c485c01ffa8c3ce3a33886829e38df38ded2381aa0307b8be3a8f9a70",
 }
-_CONFIG_IDENTITY = {
-    "c60": {
-        **_COMMON_CONFIG_IDENTITY,
-        "local_softening_cutoff_scale": 1.3,
-        "local_softening_active_count": 3,
-    },
-    "pdo": {
-        **_COMMON_CONFIG_IDENTITY,
-        "local_softening_cutoff_scale": 1.15,
-        "local_softening_active_count": 5,
-    },
+OUTPUT_PATH_FIELDS = {
+    "accepted_structures_log",
+    "accepted_structures_dir",
+    "direction_diagnostics_path",
+    "proposal_minima_dir",
+    "relaxation_trajectory_dir",
+    "direction_archive_path",
 }
 
 
@@ -56,6 +43,23 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
 
 def _sha256(path: Path) -> str:
     return sha256(path.read_bytes()).hexdigest()
+
+
+def _effective_config_sha256(config: Any) -> str:
+    if not isinstance(config, dict):
+        raise ValueError("effective config is not a mapping")
+    normalized = {key: value for key, value in config.items() if key not in OUTPUT_PATH_FIELDS}
+    try:
+        canonical = json.dumps(
+            normalized,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=True,
+            allow_nan=False,
+        )
+    except (TypeError, ValueError) as error:
+        raise ValueError("effective config is not canonical JSON") from error
+    return sha256(canonical.encode("utf-8")).hexdigest()
 
 
 def _load_reference(reference_path: Path) -> dict[str, Any]:
@@ -92,25 +96,15 @@ def _consecutive_step_edges(direction_trace: list[dict[str, Any]]) -> int:
     return edges
 
 
-def _validate_native_candidate_only(summary: dict[str, Any]) -> None:
-    config = summary["effective_config"]
-    required = {
-        "max_trials": MAX_TRIALS,
-        "direction_selection_mode": "discrete",
-        "direction_synthesis_mode": "none",
-        "direction_probe_enabled": False,
-        "plateau_evolution_enabled": False,
-    }
-    for key, value in required.items():
-        if config.get(key) != value:
-            raise ValueError(f"validation config mismatch: {key}")
-
-
-def _validate_config_identity(summary: dict[str, Any], system: str) -> None:
-    config = summary["effective_config"]
-    for key, value in _CONFIG_IDENTITY[system].items():
-        if config.get(key) != value:
-            raise ValueError(f"validation config mismatch: {key}")
+def _validate_config_identity(
+    summary: dict[str, Any], system: str, expected_config_sha256: Mapping[str, str]
+) -> str:
+    if set(expected_config_sha256) != set(SYSTEMS):
+        raise ValueError("expected config SHA systems mismatch")
+    actual = _effective_config_sha256(summary.get("effective_config"))
+    if actual != expected_config_sha256[system]:
+        raise ValueError(f"{system} effective config SHA mismatch")
+    return actual
 
 
 def _case_paths(output_root: Path, system: str) -> dict[str, Path]:
@@ -280,7 +274,12 @@ def _comparison(reference: dict[str, Any], current: dict[str, Any]) -> dict[str,
 
 
 def _validate_current_run(
-    run: dict[str, Any], expected: dict[str, Any], system: str, expected_execution_commit: str
+    run: dict[str, Any],
+    expected: dict[str, Any],
+    system: str,
+    expected_reference_sha256: str,
+    expected_execution_commit: str,
+    expected_config_sha256: Mapping[str, str],
 ) -> dict[str, Any]:
     summary = run["summary"]
     if summary.get("system") != system:
@@ -291,10 +290,13 @@ def _validate_current_run(
         raise ValueError(f"{system} old execution provenance mismatch")
     if summary.get("old_artifact_sha256") != expected["old_artifact_sha256"]:
         raise ValueError(f"{system} old artifact provenance mismatch")
+    if summary.get("reference_sha256") != expected_reference_sha256:
+        raise ValueError(f"{system} reference SHA provenance mismatch")
     if summary.get("execution_commit") != expected_execution_commit:
         raise ValueError(f"{system} execution commit mismatch")
-    _validate_native_candidate_only(summary)
-    _validate_config_identity(summary, system)
+    config_sha256 = _validate_config_identity(
+        summary, system, expected_config_sha256
+    )
     if len(run["energy_trace"]) != MAX_TRIALS + 1:
         raise ValueError(f"{system} energy trace does not contain five trials")
     if len(run["walk_records"]) != MAX_TRIALS:
@@ -335,6 +337,7 @@ def _validate_current_run(
         raise ValueError(f"{system} escape saving does not match trace-derived mechanisms")
     return {
         "execution_commit": summary["execution_commit"],
+        "effective_config_sha256": config_sha256,
         "new_raw_sha256": {name: _sha256(path) for name, path in run["paths"].items()},
         "force_evaluations": force_evaluations,
         "purpose_counts": purpose_counts,
@@ -349,12 +352,19 @@ def _analyze_system(
     output_root: Path,
     repeat_root: Path | None,
     system: str,
+    expected_reference_sha256: str,
     expected_execution_commit: str,
+    expected_config_sha256: Mapping[str, str],
 ) -> dict[str, Any]:
     expected = reference["systems"][system]
     current = _load_run(output_root, system)
     current_validation = _validate_current_run(
-        current, expected, system, expected_execution_commit
+        current,
+        expected,
+        system,
+        expected_reference_sha256,
+        expected_execution_commit,
+        expected_config_sha256,
     )
     old_vs_current = _comparison(expected, current)
 
@@ -363,7 +373,12 @@ def _analyze_system(
     if repeat_root is not None and (repeat_root / system).is_dir():
         repeat = _load_run(repeat_root, system)
         repeat_validation = _validate_current_run(
-            repeat, expected, system, expected_execution_commit
+            repeat,
+            expected,
+            system,
+            expected_reference_sha256,
+            expected_execution_commit,
+            expected_config_sha256,
         )
         if repeat_validation["execution_commit"] != current_validation["execution_commit"]:
             raise ValueError(f"{system} repeat execution commit differs from current run")
@@ -404,6 +419,7 @@ def analyze(
     *,
     expected_reference_sha256: str = FROZEN_REFERENCE_SHA256,
     expected_execution_commit: str = CURRENT_EXECUTION_COMMIT,
+    expected_config_sha256: Mapping[str, str] = FROZEN_CONFIG_SHA256,
 ) -> dict[str, Any]:
     reference_path = Path(reference_path)
     reference_sha256 = _sha256(reference_path)
@@ -419,17 +435,20 @@ def analyze(
             output_root,
             None if repeat_root is None else Path(repeat_root),
             system,
+            expected_reference_sha256,
             expected_execution_commit,
+            expected_config_sha256,
         )
         for system in SYSTEMS
     }
     return {
-        "schema_version": 3,
+        "schema_version": 4,
         "trial_count": MAX_TRIALS,
         "reference_sha256": reference_sha256,
         "expected_reference_sha256": expected_reference_sha256,
         "expected_execution_commit": expected_execution_commit,
-        "config_identity": _CONFIG_IDENTITY,
+        "expected_effective_config_sha256": dict(expected_config_sha256),
+        "excluded_effective_config_fields": sorted(OUTPUT_PATH_FIELDS),
         "output_root": str(output_root),
         "repeat_root": None if repeat_root is None else str(repeat_root),
         "trajectory_exact": all(payload["trajectory_exact"] for payload in systems.values()),
