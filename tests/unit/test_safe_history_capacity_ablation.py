@@ -4,6 +4,7 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import subprocess
 import sys
 
 import numpy as np
@@ -79,6 +80,27 @@ def _sha256(path: Path) -> str:
 
 def test_runner_module_is_created_for_the_ablation_contract():
     assert _RUNNER_PATH.is_file()
+
+
+def test_default_output_path_is_absent_and_run_local_ignore_covers_generated_ledger():
+    runner = _runner_module()
+    output_path = runner.RUN_ROOT / "output"
+    ignore_path = runner.RUN_ROOT / ".gitignore"
+
+    assert runner.OUTPUT_DIR == output_path
+    assert not output_path.exists()
+    assert ignore_path.read_text(encoding="utf-8") == "output/\n"
+    ignored = subprocess.run(
+        [
+            "git",
+            "check-ignore",
+            "--quiet",
+            "--no-index",
+            str((output_path / "summary.json").relative_to(runner.REPO_ROOT)),
+        ],
+        cwd=runner.REPO_ROOT,
+    )
+    assert ignored.returncode == 0
 
 
 def test_arm_contract_is_exact_and_contains_no_other_capacity_or_kernel():

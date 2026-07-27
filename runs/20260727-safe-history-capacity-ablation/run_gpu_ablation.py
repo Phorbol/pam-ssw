@@ -37,7 +37,7 @@ from pamssw.walker import ProposalRelaxationTask
 RUN_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = RUN_ROOT.parents[1]
 PAMSSW_SOURCE_ROOT = REPO_ROOT / "pamssw"
-OUTPUT_DIR = RUN_ROOT / "output" / "ledger"
+OUTPUT_DIR = RUN_ROOT / "output"
 SOURCE_SUMMARY_PATH = Path(
     "/tmp/SSW-worktrees/fixed-proposal-replay/"
     "runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json"
