@@ -1,0 +1,3 @@
+# GPU-generated ledger; the runner publishes this directory atomically.
+*
+!.gitignore
