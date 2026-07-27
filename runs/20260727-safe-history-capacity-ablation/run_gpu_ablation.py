@@ -38,6 +38,11 @@ SOURCE_SUMMARY_PATH = Path(
     "runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json"
 )
 FIXED_REPLAY_DRIVER = SOURCE_SUMMARY_PATH.parent.parent / "run_fixed_replay.py"
+G1_DRIVER_PATH = (
+    FIXED_REPLAY_DRIVER.parent.parent
+    / "20260727-014407-bias-relaxation-gpu-g1"
+    / "run_g1.py"
+)
 TRACE_RECORDER_PATH = (
     RUN_ROOT.parent / "20260727-proposal-energy-traces" / "trace_recorder.py"
 )
@@ -47,6 +52,7 @@ SEEDS = tuple(range(42, 50))
 MAXITER = 400
 EXPECTED_SOURCE_SUMMARY_SHA256 = "62cc771e2aa24e9addef0e870d0524f901f02bddc34152cf2a2eeea91a671b04"
 EXPECTED_FIXED_REPLAY_DRIVER_SHA256 = "f9c9602e42985891a6ca2a84ca70dda69c52b9d794a6ea6c76857c398345fa8f"
+EXPECTED_G1_DRIVER_SHA256 = "0e69736d5d92372a2f4e449c440c09307613a55f0028126c7bb36d77296bbfbb"
 EXPECTED_TRACE_RECORDER_SHA256 = "c6feeaabf0062f6654f8ea4b4fff610b258dcab754e1907dd3f4c3779e7165de"
 EXPECTED_SAFE_KERNEL_DESCRIPTOR = {
     "optimizer": "safe-lbfgs-total",
@@ -293,6 +299,11 @@ def _verified_helper_provenance() -> dict[str, dict[str, str]]:
             expected_sha256=EXPECTED_FIXED_REPLAY_DRIVER_SHA256,
             label="fixed replay driver",
         ),
+        "g1_driver": _verified_helper_file(
+            G1_DRIVER_PATH,
+            expected_sha256=EXPECTED_G1_DRIVER_SHA256,
+            label="G1 driver",
+        ),
         "trace_recorder": _verified_helper_file(
             TRACE_RECORDER_PATH,
             expected_sha256=EXPECTED_TRACE_RECORDER_SHA256,
@@ -306,6 +317,11 @@ def _fixed_replay_source() -> Mapping[str, Any]:
         FIXED_REPLAY_DRIVER,
         expected_sha256=EXPECTED_FIXED_REPLAY_DRIVER_SHA256,
         label="fixed replay driver",
+    )
+    _verified_helper_file(
+        G1_DRIVER_PATH,
+        expected_sha256=EXPECTED_G1_DRIVER_SHA256,
+        label="G1 driver",
     )
     helpers = runpy.run_path(str(FIXED_REPLAY_DRIVER))
     source_factory = helpers.get("_source")

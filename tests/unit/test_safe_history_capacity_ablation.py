@@ -220,10 +220,14 @@ def test_helper_file_provenance_is_pinned_and_fails_before_calculator_factory(
     assert runner.EXPECTED_TRACE_RECORDER_SHA256 == (
         "c6feeaabf0062f6654f8ea4b4fff610b258dcab754e1907dd3f4c3779e7165de"
     )
+    assert runner.EXPECTED_G1_DRIVER_SHA256 == (
+        "0e69736d5d92372a2f4e449c440c09307613a55f0028126c7bb36d77296bbfbb"
+    )
     assert _sha256(runner.FIXED_REPLAY_DRIVER) == runner.EXPECTED_FIXED_REPLAY_DRIVER_SHA256
     assert _sha256(runner.TRACE_RECORDER_PATH) == runner.EXPECTED_TRACE_RECORDER_SHA256
+    assert _sha256(runner.G1_DRIVER_PATH) == runner.EXPECTED_G1_DRIVER_SHA256
 
-    for path_name in ("FIXED_REPLAY_DRIVER", "TRACE_RECORDER_PATH"):
+    for path_name in ("FIXED_REPLAY_DRIVER", "G1_DRIVER_PATH", "TRACE_RECORDER_PATH"):
         calculator_calls = 0
 
         def forbidden_calculator_factory():
