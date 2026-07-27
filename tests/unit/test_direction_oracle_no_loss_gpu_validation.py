@@ -20,6 +20,7 @@ RUNNER_PATH = RUN_ROOT / "run_validation.py"
 ANALYZER_PATH = RUN_ROOT / "analyze.py"
 REFERENCE_PATH = RUN_ROOT / "reference.json"
 FROZEN_REFERENCE_SHA256 = "a8c3b9c5aaa0d5085118a1cfa1d62a4c641c9ad1383df49cb1285982ee607864"
+CURRENT_EXECUTION_COMMIT = "26c4118806a2d6ec940ad39d89558847978ad9b1"
 
 
 def _load(path: Path, module_name: str):
@@ -132,11 +133,23 @@ def _write_new_case(root: Path, system: str, reference: dict[str, object]) -> No
         root / system / "summary.json",
         {
             "system": system,
-            "execution_commit": "n" * 40,
+            "execution_commit": CURRENT_EXECUTION_COMMIT,
             "old_execution_commit": reference["old_execution_commit"],
             "old_artifact_sha256": reference["old_artifact_sha256"],
             "effective_config": {
                 "max_trials": 5,
+                "rng_seed": 42,
+                "proposal_optimizer": "safe-lbfgs-total",
+                "quench_optimizer": "scipy-lbfgsb",
+                "proposal_fmax": 0.05,
+                "local_softening_mode": "active_neighbors",
+                "local_softening_strength": 0.15,
+                "local_softening_penalty": "buckingham_repulsive",
+                "local_softening_xi": 0.3,
+                "local_softening_cutoff": 2.0,
+                "local_softening_cutoff_scale": 1.3 if system == "c60" else 1.15,
+                "local_softening_active_count": 3 if system == "c60" else 5,
+                "direction_curvature_source": "inner",
                 "direction_selection_mode": "discrete",
                 "direction_synthesis_mode": "none",
                 "direction_probe_enabled": False,
@@ -177,6 +190,9 @@ def test_real_reference_is_hash_pinned_to_the_old_execution_artifacts():
 
     assert sha256(REFERENCE_PATH.read_bytes()).hexdigest() == FROZEN_REFERENCE_SHA256
     assert payload["trial_count"] == 5
+    analyzer = _load(ANALYZER_PATH, "direction_oracle_no_loss_analyzer_identity")
+    assert analyzer.FROZEN_REFERENCE_SHA256 == FROZEN_REFERENCE_SHA256
+    assert analyzer.CURRENT_EXECUTION_COMMIT == CURRENT_EXECUTION_COMMIT
     for system in ("c60", "pdo"):
         case = payload["systems"][system]
         assert case["old_execution_commit"] == "b2dc9c46932533f8f5be9262ca89555538e40159"
@@ -248,7 +264,12 @@ def test_analyzer_reports_numeric_mismatch_without_suppressing_accounting(tmp_pa
     repeat_summary["force_evaluations"] += 2
     _write_json(repeat_summary_path, repeat_summary)
 
-    evidence = analyzer.analyze(reference_path, output_root, repeat_root)
+    evidence = analyzer.analyze(
+        reference_path,
+        output_root,
+        repeat_root,
+        expected_reference_sha256=sha256(reference_path.read_bytes()).hexdigest(),
+    )
 
     c60 = evidence["systems"]["c60"]
     assert c60["trajectory_exact"] is False
@@ -310,4 +331,107 @@ def test_analyzer_fails_closed_for_accounting_errors_even_when_trajectory_differ
     _write_json(summary_path, summary)
 
     with pytest.raises(ValueError, match="unattributed"):
-        analyzer.analyze(reference_path, output_root)
+        analyzer.analyze(
+            reference_path,
+            output_root,
+            expected_reference_sha256=sha256(reference_path.read_bytes()).hexdigest(),
+        )
+
+
+def test_analyzer_fails_closed_for_unpinned_identity_or_invalid_direction_trace(tmp_path):
+    analyzer = _load(ANALYZER_PATH, "direction_oracle_no_loss_analyzer_validation")
+    reference_path = tmp_path / "reference.json"
+    reference = {
+        "schema_version": 1,
+        "trial_count": 5,
+        "systems": {system: _reference(system) for system in analyzer.SYSTEMS},
+    }
+    _write_json(reference_path, reference)
+    expected_reference_sha256 = sha256(reference_path.read_bytes()).hexdigest()
+    output_root = tmp_path / "output"
+    for system in analyzer.SYSTEMS:
+        _write_new_case(output_root, system, reference["systems"][system])
+
+    with pytest.raises(ValueError, match="reference SHA"):
+        analyzer.analyze(
+            reference_path,
+            output_root,
+            expected_reference_sha256="0" * 64,
+        )
+
+    summary_path = output_root / "c60" / "summary.json"
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    summary["execution_commit"] = "f" * 40
+    _write_json(summary_path, summary)
+    with pytest.raises(ValueError, match="execution commit"):
+        analyzer.analyze(
+            reference_path,
+            output_root,
+            expected_reference_sha256=expected_reference_sha256,
+        )
+
+    summary["execution_commit"] = CURRENT_EXECUTION_COMMIT
+    summary["effective_config"]["proposal_fmax"] = 0.1
+    _write_json(summary_path, summary)
+    with pytest.raises(ValueError, match="proposal_fmax"):
+        analyzer.analyze(
+            reference_path,
+            output_root,
+            expected_reference_sha256=expected_reference_sha256,
+        )
+
+    summary["effective_config"]["proposal_fmax"] = 0.05
+    _write_json(summary_path, summary)
+    direction_path = output_root / "c60" / "direction_trace.jsonl"
+    invalid_directions = _direction_rows()
+    invalid_directions[1]["step"] = 0
+    direction_path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in invalid_directions),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="duplicate"):
+        analyzer.analyze(
+            reference_path,
+            output_root,
+            expected_reference_sha256=expected_reference_sha256,
+        )
+
+    invalid_directions = _direction_rows()
+    invalid_directions[0]["candidate_count"] = 0
+    direction_path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in invalid_directions),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="candidate_count"):
+        analyzer.analyze(
+            reference_path,
+            output_root,
+            expected_reference_sha256=expected_reference_sha256,
+        )
+
+    invalid_directions = _direction_rows()
+    direction_path.write_text("", encoding="utf-8")
+    summary["purpose_counts"]["direction_oracle"] = 0
+    summary["force_evaluations"] -= 14
+    _write_json(summary_path, summary)
+    with pytest.raises(ValueError, match="direction trace is empty"):
+        analyzer.analyze(
+            reference_path,
+            output_root,
+            expected_reference_sha256=expected_reference_sha256,
+        )
+
+    summary["purpose_counts"]["direction_oracle"] = 14
+    summary["purpose_counts"]["biased_proposal_relax"] = -1
+    summary["force_evaluations"] = sum(summary["purpose_counts"].values())
+    _write_json(summary_path, summary)
+    direction_path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in _direction_rows()),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="negative"):
+        analyzer.analyze(
+            reference_path,
+            output_root,
+            expected_reference_sha256=expected_reference_sha256,
+        )

@@ -17,6 +17,33 @@ DEFAULT_OUTPUT_ROOT = RUN_ROOT / "output"
 SYSTEMS = ("c60", "pdo")
 MAX_TRIALS = 5
 _TRACE_ARTIFACTS = ("energy_trace", "walk_records", "direction_trace")
+FROZEN_REFERENCE_SHA256 = "a8c3b9c5aaa0d5085118a1cfa1d62a4c641c9ad1383df49cb1285982ee607864"
+CURRENT_EXECUTION_COMMIT = "26c4118806a2d6ec940ad39d89558847978ad9b1"
+_COMMON_CONFIG_IDENTITY = {
+    "max_trials": MAX_TRIALS,
+    "rng_seed": 42,
+    "proposal_optimizer": "safe-lbfgs-total",
+    "quench_optimizer": "scipy-lbfgsb",
+    "proposal_fmax": 0.05,
+    "local_softening_mode": "active_neighbors",
+    "local_softening_strength": 0.15,
+    "local_softening_penalty": "buckingham_repulsive",
+    "local_softening_xi": 0.3,
+    "local_softening_cutoff": 2.0,
+    "direction_curvature_source": "inner",
+}
+_CONFIG_IDENTITY = {
+    "c60": {
+        **_COMMON_CONFIG_IDENTITY,
+        "local_softening_cutoff_scale": 1.3,
+        "local_softening_active_count": 3,
+    },
+    "pdo": {
+        **_COMMON_CONFIG_IDENTITY,
+        "local_softening_cutoff_scale": 1.15,
+        "local_softening_active_count": 5,
+    },
+}
 
 
 def _read_json(path: Path) -> Any:
@@ -79,6 +106,13 @@ def _validate_native_candidate_only(summary: dict[str, Any]) -> None:
             raise ValueError(f"validation config mismatch: {key}")
 
 
+def _validate_config_identity(summary: dict[str, Any], system: str) -> None:
+    config = summary["effective_config"]
+    for key, value in _CONFIG_IDENTITY[system].items():
+        if config.get(key) != value:
+            raise ValueError(f"validation config mismatch: {key}")
+
+
 def _case_paths(output_root: Path, system: str) -> dict[str, Path]:
     case_dir = output_root / system
     return {
@@ -111,6 +145,34 @@ def _energy(row: dict[str, Any], field: str, *, label: str) -> float:
     if not isfinite(value):
         raise ValueError(f"{label} lacks finite {field}")
     return value
+
+
+def _nonnegative_int(row: dict[str, Any], field: str, *, label: str) -> int:
+    value = row.get(field)
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise ValueError(f"{label} has invalid {field}")
+    return value
+
+
+def _validate_direction_trace(direction_trace: list[dict[str, Any]], system: str) -> None:
+    if not direction_trace:
+        raise ValueError(f"{system} direction trace is empty")
+    previous: tuple[int, int, int] | None = None
+    for index, row in enumerate(direction_trace):
+        label = f"{system} direction trace row {index}"
+        for field in ("trial", "proposal", "step", "selected_kind", "curvature", "candidate_count"):
+            if field not in row:
+                raise ValueError(f"{label} lacks {field}")
+        key = tuple(_nonnegative_int(row, field, label=label) for field in ("trial", "proposal", "step"))
+        if previous is not None and key <= previous:
+            reason = "duplicate" if key == previous else "out of order"
+            raise ValueError(f"{label} is {reason}")
+        if not isinstance(row["selected_kind"], str) or not row["selected_kind"]:
+            raise ValueError(f"{label} has invalid selected_kind")
+        if _nonnegative_int(row, "candidate_count", label=label) == 0:
+            raise ValueError(f"{label} has invalid candidate_count")
+        _energy(row, "curvature", label=label)
+        previous = key
 
 
 def _first_sequence_mismatch(
@@ -218,7 +280,7 @@ def _comparison(reference: dict[str, Any], current: dict[str, Any]) -> dict[str,
 
 
 def _validate_current_run(
-    run: dict[str, Any], expected: dict[str, Any], system: str
+    run: dict[str, Any], expected: dict[str, Any], system: str, expected_execution_commit: str
 ) -> dict[str, Any]:
     summary = run["summary"]
     if summary.get("system") != system:
@@ -229,20 +291,33 @@ def _validate_current_run(
         raise ValueError(f"{system} old execution provenance mismatch")
     if summary.get("old_artifact_sha256") != expected["old_artifact_sha256"]:
         raise ValueError(f"{system} old artifact provenance mismatch")
-    if not isinstance(summary.get("execution_commit"), str):
-        raise ValueError(f"{system} lacks execution commit")
+    if summary.get("execution_commit") != expected_execution_commit:
+        raise ValueError(f"{system} execution commit mismatch")
     _validate_native_candidate_only(summary)
+    _validate_config_identity(summary, system)
     if len(run["energy_trace"]) != MAX_TRIALS + 1:
         raise ValueError(f"{system} energy trace does not contain five trials")
     if len(run["walk_records"]) != MAX_TRIALS:
         raise ValueError(f"{system} walk records do not contain five trials")
 
-    purpose_counts = {key: int(value) for key, value in summary["purpose_counts"].items()}
+    raw_purpose_counts = summary["purpose_counts"]
+    if not isinstance(raw_purpose_counts, dict):
+        raise ValueError(f"{system} purpose accounting is not a mapping")
+    purpose_counts: dict[str, int] = {}
+    for purpose, value in raw_purpose_counts.items():
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError(f"{system} purpose accounting has invalid {purpose} count")
+        if value < 0:
+            raise ValueError(f"{system} purpose accounting contains negative evaluations")
+        purpose_counts[purpose] = value
     force_evaluations = int(summary["force_evaluations"])
+    if force_evaluations < 0:
+        raise ValueError(f"{system} force evaluations are negative")
     if sum(purpose_counts.values()) != force_evaluations:
         raise ValueError(f"{system} purpose accounting does not close")
     if purpose_counts.get("unattributed") != 0:
         raise ValueError(f"{system} purpose accounting contains unattributed evaluations")
+    _validate_direction_trace(run["direction_trace"], system)
     candidate_count = sum(int(row["candidate_count"]) for row in run["direction_trace"])
     if purpose_counts.get("direction_oracle") != 2 * candidate_count:
         raise ValueError(f"{system} direction oracle accounting does not match its central-HVP trace")
@@ -270,18 +345,26 @@ def _validate_current_run(
 
 
 def _analyze_system(
-    reference: dict[str, Any], output_root: Path, repeat_root: Path | None, system: str
+    reference: dict[str, Any],
+    output_root: Path,
+    repeat_root: Path | None,
+    system: str,
+    expected_execution_commit: str,
 ) -> dict[str, Any]:
     expected = reference["systems"][system]
     current = _load_run(output_root, system)
-    current_validation = _validate_current_run(current, expected, system)
+    current_validation = _validate_current_run(
+        current, expected, system, expected_execution_commit
+    )
     old_vs_current = _comparison(expected, current)
 
     repeat_validation = None
     current_vs_repeat = None
     if repeat_root is not None and (repeat_root / system).is_dir():
         repeat = _load_run(repeat_root, system)
-        repeat_validation = _validate_current_run(repeat, expected, system)
+        repeat_validation = _validate_current_run(
+            repeat, expected, system, expected_execution_commit
+        )
         if repeat_validation["execution_commit"] != current_validation["execution_commit"]:
             raise ValueError(f"{system} repeat execution commit differs from current run")
         current_vs_repeat = _comparison(current, repeat)
@@ -318,19 +401,35 @@ def analyze(
     reference_path: Path,
     output_root: Path,
     repeat_root: Path | None = None,
+    *,
+    expected_reference_sha256: str = FROZEN_REFERENCE_SHA256,
+    expected_execution_commit: str = CURRENT_EXECUTION_COMMIT,
 ) -> dict[str, Any]:
-    reference = _load_reference(Path(reference_path))
+    reference_path = Path(reference_path)
+    reference_sha256 = _sha256(reference_path)
+    if reference_sha256 != expected_reference_sha256:
+        raise ValueError("reference SHA mismatch")
+    reference = _load_reference(reference_path)
     output_root = Path(output_root)
     if repeat_root is not None and not Path(repeat_root).is_dir():
         raise FileNotFoundError(repeat_root)
     systems = {
-        system: _analyze_system(reference, output_root, None if repeat_root is None else Path(repeat_root), system)
+        system: _analyze_system(
+            reference,
+            output_root,
+            None if repeat_root is None else Path(repeat_root),
+            system,
+            expected_execution_commit,
+        )
         for system in SYSTEMS
     }
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "trial_count": MAX_TRIALS,
-        "reference_sha256": _sha256(Path(reference_path)),
+        "reference_sha256": reference_sha256,
+        "expected_reference_sha256": expected_reference_sha256,
+        "expected_execution_commit": expected_execution_commit,
+        "config_identity": _CONFIG_IDENTITY,
         "output_root": str(output_root),
         "repeat_root": None if repeat_root is None else str(repeat_root),
         "trajectory_exact": all(payload["trajectory_exact"] for payload in systems.values()),
@@ -387,6 +486,8 @@ def write_conclusion(evidence: dict[str, Any], path: Path) -> None:
 def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reference", type=Path, default=DEFAULT_REFERENCE_PATH)
+    parser.add_argument("--expected-reference-sha256", default=FROZEN_REFERENCE_SHA256)
+    parser.add_argument("--expected-execution-commit", default=CURRENT_EXECUTION_COMMIT)
     parser.add_argument("--output-root", type=Path, default=DEFAULT_OUTPUT_ROOT)
     parser.add_argument("--repeat-root", type=Path)
     parser.add_argument("--evidence", type=Path, default=RUN_ROOT / "evidence.json")
@@ -396,7 +497,13 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 def main(argv: Sequence[str] | None = None) -> None:
     args = _parse_args(argv)
-    evidence = analyze(args.reference, args.output_root, args.repeat_root)
+    evidence = analyze(
+        args.reference,
+        args.output_root,
+        args.repeat_root,
+        expected_reference_sha256=args.expected_reference_sha256,
+        expected_execution_commit=args.expected_execution_commit,
+    )
     args.evidence.write_text(
         json.dumps(evidence, indent=2, sort_keys=True, allow_nan=False) + "\n",
         encoding="utf-8",
