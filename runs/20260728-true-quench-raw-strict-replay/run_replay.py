@@ -44,6 +44,7 @@ MAXITER = 400
 OBJECTIVE = "true_mace_pes_no_bias_no_softening"
 SAFE_LBFGS_HISTORY_LIMIT = 10
 FROZEN_CORPUS_SHA256 = "100759e1871cdefb54972f91751c452763f74d0e34ee576f268a5808219a552b"
+EXPECTED_MODEL_SHA256 = "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5"
 RUNTIME_PACKAGES = {
     "numpy": "numpy",
     "scipy": "scipy",
@@ -320,6 +321,9 @@ def preflight(
     production = _production_module()
     if not production.MODEL_PATH.is_file():
         raise FileNotFoundError(production.MODEL_PATH)
+    model_sha256 = _sha256(production.MODEL_PATH)
+    if model_sha256 != EXPECTED_MODEL_SHA256:
+        raise ValueError("frozen model SHA-256 mismatch")
     for system in SYSTEMS:
         if not production.INPUT_PATHS[system].is_file():
             raise FileNotFoundError(production.INPUT_PATHS[system])
@@ -339,7 +343,7 @@ def preflight(
             },
             "model": {
                 "path": _display_path(production.MODEL_PATH),
-                "sha256": _sha256(production.MODEL_PATH),
+                "sha256": model_sha256,
             },
             "inputs": {
                 system: {

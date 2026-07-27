@@ -45,6 +45,9 @@ def test_protocol_is_fixed_to_raw_corpus_and_five_strict_true_pes_arms():
     assert getattr(runner, "FROZEN_CORPUS_SHA256", None) == (
         "100759e1871cdefb54972f91751c452763f74d0e34ee576f268a5808219a552b"
     )
+    assert getattr(runner, "EXPECTED_MODEL_SHA256", None) == (
+        "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5"
+    )
     assert [
         (arm.arm_id, arm.optimizer, arm.safe_history_limit)
         for arm in runner.ARMS
@@ -157,6 +160,12 @@ def test_preflight_requires_pinned_clean_tracked_corpus_and_records_provenance(
         sha256(corpus_path.read_bytes()).hexdigest(),
         raising=False,
     )
+    monkeypatch.setattr(
+        runner,
+        "EXPECTED_MODEL_SHA256",
+        sha256(model_path.read_bytes()).hexdigest(),
+        raising=False,
+    )
 
     checked = runner.preflight(
         expected_git_commit="a" * 40,
@@ -183,6 +192,15 @@ def test_preflight_requires_pinned_clean_tracked_corpus_and_records_provenance(
         )
 
     monkeypatch.setattr(runner, "_tracked_worktree_clean", lambda: True)
+    monkeypatch.setattr(runner, "EXPECTED_MODEL_SHA256", "e" * 64)
+    with pytest.raises(ValueError, match="frozen model SHA-256 mismatch"):
+        runner.preflight(
+            expected_git_commit="a" * 40,
+            corpus_path=corpus_path,
+            runtime_probe=lambda: {},
+            cuda_probe=lambda: {"available": True},
+        )
+
     monkeypatch.setattr(runner, "FROZEN_CORPUS_SHA256", "d" * 64)
     with pytest.raises(ValueError, match="frozen corpus SHA-256 mismatch"):
         runner.preflight(
