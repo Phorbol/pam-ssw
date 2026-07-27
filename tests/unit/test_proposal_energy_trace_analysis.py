@@ -321,5 +321,10 @@ def test_svg_marks_finalization_rechecks_and_is_byte_deterministic(tmp_path):
     assert first.read_bytes() == second.read_bytes()
     svg = first.read_text(encoding="utf-8")
     assert "2026-07-27T00:00:00Z" in svg
+    assert "trace semantics" in svg
+    assert "all exact evaluations (faint line)" in svg
+    assert "callback-observed accepted_state (not optimizer acceptance rule)" in svg
+    assert "callback-nonaccepted evaluation" in svg
     assert "explicit finalization recheck" in svg
     assert "explicit-finalization-recheck" in svg
+    assert "task ID (color)" in svg

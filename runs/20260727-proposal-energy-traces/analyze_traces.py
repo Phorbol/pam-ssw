@@ -614,6 +614,7 @@ def _write_curve_plot(summary: Mapping[str, Any], output_path: Path) -> str | No
 
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
+        from matplotlib.lines import Line2D
     except Exception as error:  # pragma: no cover - host-specific optional path
         return f"matplotlib unavailable: {type(error).__name__}: {error}"
 
@@ -626,6 +627,35 @@ def _write_curve_plot(summary: Mapping[str, Any], output_path: Path) -> str | No
             squeeze=False,
         )
         colors = plt.get_cmap("tab10")
+        semantic_handles = (
+            Line2D([], [], color="black", alpha=0.30, linewidth=1.0, label="all exact evaluations (faint line)"),
+            Line2D(
+                [],
+                [],
+                color="black",
+                linewidth=1.25,
+                label="callback-observed accepted_state (not optimizer acceptance rule)",
+            ),
+            Line2D(
+                [],
+                [],
+                color="black",
+                marker="x",
+                linestyle="None",
+                markersize=5,
+                label="callback-nonaccepted evaluation",
+            ),
+            Line2D(
+                [],
+                [],
+                color="black",
+                marker="D",
+                markerfacecolor="none",
+                linestyle="None",
+                markersize=5,
+                label="explicit finalization recheck",
+            ),
+        )
         for system_index, system in enumerate(FROZEN_SYSTEMS):
             for backend_index, backend in enumerate(FROZEN_BACKENDS):
                 axis = axes[system_index][backend_index]
@@ -633,7 +663,6 @@ def _write_curve_plot(summary: Mapping[str, Any], output_path: Path) -> str | No
                     (row for row in rows if row["system"] == system and row["backend"] == backend),
                     key=lambda row: str(row["task_id"]),
                 )
-                finalization_label_written = False
                 for row_index, row in enumerate(matching):
                     records = row["trace_records"]
                     x = np.asarray([record["evaluation_index"] for record in records], dtype=float)
@@ -666,18 +695,25 @@ def _write_curve_plot(summary: Mapping[str, Any], output_path: Path) -> str | No
                             linewidths=0.8,
                             facecolors="none",
                             edgecolors="black",
-                            label="explicit finalization recheck" if not finalization_label_written else None,
                             zorder=4,
                         )
                         marker.set_gid(f"explicit-finalization-recheck-{system}-{backend}-{row['task_id']}")
-                        finalization_label_written = True
                 axis.set_title(f"{system} · {backend}")
                 axis.set_xlabel("exact force evaluations")
                 axis.set_ylabel("total biased energy − initial (eV)")
                 axis.grid(alpha=0.22)
-                axis.legend(fontsize=6, ncol=2, frameon=False)
+                axis.legend(title="task ID (color)", fontsize=6, title_fontsize=6, ncol=2, frameon=False)
         figure.suptitle("Frozen one-bias proposal relaxations: evaluated total-objective traces", y=0.998)
-        figure.tight_layout()
+        figure.legend(
+            handles=semantic_handles,
+            title="trace semantics",
+            loc="lower center",
+            ncol=2,
+            fontsize=7,
+            title_fontsize=7,
+            frameon=False,
+        )
+        figure.tight_layout(rect=(0.0, 0.085, 1.0, 0.97))
         figure.savefig(
             output_path,
             format="svg",
