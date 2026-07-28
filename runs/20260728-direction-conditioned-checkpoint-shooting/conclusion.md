@@ -206,7 +206,8 @@ fixed, and first isolate whether the direction solve uses the exact physical
 anchor:
 
 1. current detached lowest-Ritz block (control);
-2. unrefined exact random-plus-bond anchor (zero-HVP cost control);
+2. unrefined exact random-plus-bond anchor (one central HVP, or two force
+   evaluations, to preserve the existing curvature-conditioned uphiller);
 3. a single-anchor Lanczos space seeded by that exact anchor, with the same
    total 12-HVP budget.
 
