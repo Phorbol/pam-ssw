@@ -146,7 +146,8 @@ def test_block_krylov_reuses_solver_hvps_for_selection_and_true_curvature():
         ),
     )
 
-    assert choice.candidate_count == 2
+    assert choice.candidate_count == 0
+    assert choice.diagnostics["krylov_blocks"] == 2
     assert choice.true_curvature is not None
     assert choice.diagnostics["krylov_hvp_count"] == 6
     assert choice.diagnostics["krylov_dimensions"] == [3, 3]

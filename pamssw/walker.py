@@ -1592,7 +1592,7 @@ class SoftModeOracle:
             direction=selected.direction,
             curvature=selected.curvature,
             kind=DirectionCandidateKind.BLOCK_RITZ,
-            candidate_count=len(results),
+            candidate_count=0,
             score=None,
             true_curvature=selected.true_curvature,
             diagnostics=diagnostics,
@@ -2969,11 +2969,11 @@ class SurfaceWalker:
                 )
             choice.diagnostics.update(
                 {
-                    "oracle_direction_force_evaluations_delta": int(
+                    "oracle_selection_force_evaluations_delta": int(
                         self.calculator.snapshot().count(EvaluationPurpose.DIRECTION_ORACLE)
                         - oracle_force_evaluations_before
                     ),
-                    "oracle_wall_seconds": float(perf_counter() - oracle_started),
+                    "oracle_selection_wall_seconds": float(perf_counter() - oracle_started),
                 }
             )
             if selected_direction_kinds is not None:
@@ -2987,13 +2987,6 @@ class SurfaceWalker:
                 anchor_direction=anchor_direction,
             )
             self._record_direction_choice(choice)
-            self._record_direction_diagnostics(
-                trial_index=trial_index,
-                proposal_index=proposal_index,
-                step_index=step_index,
-                choice=choice,
-                anchor_direction=anchor_direction,
-            )
             rebuild_softening_for_choice = self._should_rebuild_softening_for_choice(anchor_direction, choice.direction)
             if rebuild_softening_for_choice:
                 softening = self._build_softening(current, choice.direction)
@@ -3007,9 +3000,29 @@ class SurfaceWalker:
             with self.calculator.purpose(EvaluationPurpose.DIRECTION_ORACLE):
                 inner_curvature = (
                     choice.curvature
-                    if self.config.direction_curvature_source == "inner" and not rebuild_softening_for_choice
+                    if not rebuild_softening_for_choice
+                    and (
+                        choice.kind is DirectionCandidateKind.BLOCK_RITZ
+                        or self.config.direction_curvature_source == "inner"
+                    )
                     else self.oracle._directional_curvature(current, proposal, choice.direction)
                 )
+            choice.diagnostics.update(
+                {
+                    "oracle_direction_force_evaluations_delta": int(
+                        self.calculator.snapshot().count(EvaluationPurpose.DIRECTION_ORACLE)
+                        - oracle_force_evaluations_before
+                    ),
+                    "oracle_wall_seconds": float(perf_counter() - oracle_started),
+                }
+            )
+            self._record_direction_diagnostics(
+                trial_index=trial_index,
+                proposal_index=proposal_index,
+                step_index=step_index,
+                choice=choice,
+                anchor_direction=anchor_direction,
+            )
             sigma = self._execution_step_scale(
                 current,
                 choice.direction,
@@ -3767,8 +3780,7 @@ class SurfaceWalker:
 
     def _record_direction_choice(self, choice: DirectionChoice) -> None:
         self._direction_choices += 1
-        if choice.kind is not DirectionCandidateKind.BLOCK_RITZ:
-            self._direction_candidate_evaluations += choice.candidate_count
+        self._direction_candidate_evaluations += choice.candidate_count
         self._direction_selected[choice.kind] += 1
         self._direction_rigid_overlap_sum += choice.mean_rigid_body_overlap
         self._direction_post_projection_rigid_overlap_sum += choice.mean_post_projection_rigid_body_overlap
