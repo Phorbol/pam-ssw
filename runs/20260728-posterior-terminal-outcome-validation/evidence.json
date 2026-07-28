@@ -1,0 +1,271 @@
+{
+  "claim_ceiling": "The tested analytic one-action ThreadPool path persisted one terminal outcome per worker action, closed force-evaluation accounting, and replayed the live starter-productivity posterior. It does not compare starter-policy performance or establish equilibrium-unbiased sampling.",
+  "git_commit": "cc7efc16907ae8dc319020c348edd40f79507525",
+  "invariants": {
+    "matrix_action_ids_close": true,
+    "matrix_live_replay_match": true,
+    "matrix_observation_rule_preserved": true,
+    "matrix_one_attempt_per_outcome": true,
+    "matrix_replay_observation_count": true,
+    "matrix_statuses_preserved": true,
+    "matrix_terminal_fields_preserved": true,
+    "matrix_zero_cost_not_observed": true,
+    "real_action_counts_close": true,
+    "real_attempt_partition_closes": true,
+    "real_batches_committed": true,
+    "real_bootstrap_counts_close": true,
+    "real_bootstrap_counts_nonnegative": true,
+    "real_budget_closes": true,
+    "real_observation_count_replays": true,
+    "real_posterior_replays": true,
+    "real_total_counts_close": true,
+    "real_unattributed_zero": true,
+    "real_worker_actions_equal_event_actions": true
+  },
+  "real_campaign": {
+    "action_costs": [
+      11,
+      30,
+      11,
+      30,
+      11,
+      11
+    ],
+    "action_evaluations": 104,
+    "action_ids": [
+      "batch-00000000-slot-0000",
+      "batch-00000000-slot-0001",
+      "batch-00000000-slot-0002",
+      "batch-00000001-slot-0000",
+      "batch-00000001-slot-0001",
+      "batch-00000002-slot-0000"
+    ],
+    "action_purpose_counts": {
+      "biased_proposal_relax": 50,
+      "bootstrap_true_quench": 0,
+      "direction_oracle": 24,
+      "escape_true_pes_check": 10,
+      "landing_true_quench": 4,
+      "post_relax_validation": 10,
+      "starter_true_quench": 6,
+      "unattributed": 0
+    },
+    "batch_widths": [
+      3,
+      2,
+      1
+    ],
+    "benchmark_eligible": true,
+    "benchmark_ineligibility_reasons": [],
+    "bootstrap_evaluations": 2,
+    "campaign_purpose_counts": {
+      "biased_proposal_relax": 50,
+      "bootstrap_true_quench": 1,
+      "direction_oracle": 24,
+      "escape_true_pes_check": 10,
+      "landing_true_quench": 4,
+      "post_relax_validation": 11,
+      "starter_true_quench": 6,
+      "unattributed": 0
+    },
+    "configuration": {
+      "action_force_budget": 30,
+      "batch_size": 3,
+      "master_seed": 37,
+      "max_workers": 2,
+      "policy_name": "uniform",
+      "potential": "DoubleWell2D",
+      "proposal_pool_size": 1,
+      "ssw_rng_seed": 19,
+      "total_force_budget": 130
+    },
+    "derived_bootstrap_purpose_counts": {
+      "biased_proposal_relax": 0,
+      "bootstrap_true_quench": 1,
+      "direction_oracle": 0,
+      "escape_true_pes_check": 0,
+      "landing_true_quench": 0,
+      "post_relax_validation": 1,
+      "starter_true_quench": 0,
+      "unattributed": 0
+    },
+    "live_posterior": {
+      "0": [
+        2,
+        1
+      ],
+      "1": [
+        1,
+        1
+      ],
+      "2": [
+        1,
+        0
+      ],
+      "3": [
+        0,
+        0
+      ]
+    },
+    "posterior_observed_attempts": 6,
+    "replayed_posterior": {
+      "0": [
+        2,
+        1
+      ],
+      "1": [
+        1,
+        1
+      ],
+      "2": [
+        1,
+        0
+      ],
+      "3": [
+        0,
+        0
+      ]
+    },
+    "stop_reason": "budget_tail",
+    "terminal_status_counts": {
+      "budget_exhausted": 2,
+      "completed": 4
+    },
+    "total_evaluations": 106,
+    "unused_force_budget": 24
+  },
+  "schema_version": 1,
+  "terminal_matrix": {
+    "live_posterior": {
+      "0": [
+        1,
+        3
+      ],
+      "1": [
+        0,
+        0
+      ]
+    },
+    "replayed_posterior": {
+      "0": [
+        1,
+        3
+      ],
+      "1": [
+        0,
+        0
+      ]
+    },
+    "rows": [
+      {
+        "case": "completed",
+        "cost_is_exact": true,
+        "evaluation_counts": {
+          "biased_proposal_relax": 0,
+          "bootstrap_true_quench": 0,
+          "direction_oracle": 3,
+          "escape_true_pes_check": 0,
+          "landing_true_quench": 0,
+          "post_relax_validation": 0,
+          "starter_true_quench": 0,
+          "unattributed": 0
+        },
+        "failure_reason": null,
+        "force_evaluations": 3,
+        "posterior_observed": true,
+        "status": "completed"
+      },
+      {
+        "case": "invalid_after_pes",
+        "cost_is_exact": true,
+        "evaluation_counts": {
+          "biased_proposal_relax": 2,
+          "bootstrap_true_quench": 0,
+          "direction_oracle": 0,
+          "escape_true_pes_check": 0,
+          "landing_true_quench": 0,
+          "post_relax_validation": 0,
+          "starter_true_quench": 0,
+          "unattributed": 0
+        },
+        "failure_reason": "invalid_after_pes",
+        "force_evaluations": 2,
+        "posterior_observed": true,
+        "status": "invalid"
+      },
+      {
+        "case": "fragmented_after_pes",
+        "cost_is_exact": true,
+        "evaluation_counts": {
+          "biased_proposal_relax": 0,
+          "bootstrap_true_quench": 0,
+          "direction_oracle": 0,
+          "escape_true_pes_check": 1,
+          "landing_true_quench": 0,
+          "post_relax_validation": 0,
+          "starter_true_quench": 0,
+          "unattributed": 0
+        },
+        "failure_reason": "fragmented_after_pes",
+        "force_evaluations": 1,
+        "posterior_observed": true,
+        "status": "fragmented"
+      },
+      {
+        "case": "budget_exhausted",
+        "cost_is_exact": true,
+        "evaluation_counts": {
+          "biased_proposal_relax": 0,
+          "bootstrap_true_quench": 0,
+          "direction_oracle": 2,
+          "escape_true_pes_check": 0,
+          "landing_true_quench": 0,
+          "post_relax_validation": 0,
+          "starter_true_quench": 0,
+          "unattributed": 0
+        },
+        "failure_reason": "budget_exhausted",
+        "force_evaluations": 2,
+        "posterior_observed": true,
+        "status": "budget_exhausted"
+      },
+      {
+        "case": "invalid_before_pes",
+        "cost_is_exact": true,
+        "evaluation_counts": {
+          "biased_proposal_relax": 0,
+          "bootstrap_true_quench": 0,
+          "direction_oracle": 0,
+          "escape_true_pes_check": 0,
+          "landing_true_quench": 0,
+          "post_relax_validation": 0,
+          "starter_true_quench": 0,
+          "unattributed": 0
+        },
+        "failure_reason": "invalid_before_pes",
+        "force_evaluations": 0,
+        "posterior_observed": false,
+        "status": "invalid"
+      },
+      {
+        "case": "worker_error",
+        "cost_is_exact": true,
+        "evaluation_counts": {
+          "biased_proposal_relax": 0,
+          "bootstrap_true_quench": 0,
+          "direction_oracle": 0,
+          "escape_true_pes_check": 0,
+          "landing_true_quench": 0,
+          "post_relax_validation": 0,
+          "starter_true_quench": 0,
+          "unattributed": 0
+        },
+        "failure_reason": "worker_error",
+        "force_evaluations": 0,
+        "posterior_observed": false,
+        "status": "worker_error"
+      }
+    ]
+  },
+  "validation_scope": "analytic one-proposal fixed-budget ThreadPool execution and terminal credit/replay semantics"
+}
