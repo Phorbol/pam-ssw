@@ -49,6 +49,8 @@ NATIVE_DIRECTION_AND_HVP_FIELDS = (
     "bond_formation_max_distance",
     "bond_breaking_max_distance",
     "bond_distance_threshold",
+    "use_archive_acquisition",
+    "seed_selection_mode",
     "proposal_optimizer",
     "proposal_fmax",
     "target_uphill_energy",
@@ -219,6 +221,8 @@ def _validate_pair_protocol(
         expected = {
             "max_trials": MAX_TRIALS,
             "proposal_optimizer": "safe-lbfgs-total",
+            "use_archive_acquisition": True,
+            "seed_selection_mode": "archive_ucb",
             "direction_synthesis_mode": "none",
             "direction_type_ucb_enabled": False,
             "direction_archive_enabled": False,
@@ -247,6 +251,11 @@ def _validate_pair_protocol(
             "archive_escape_momentum_enabled": False,
         },
         "runtime_cost_source": "purpose_counts.direction_oracle",
+        "true_curvature_definition": "native_central_fd_true_hvp_subspace_projection",
+        "direct_mixed_direction_stencil_note": (
+            "on a nonlinear PES this reused projection differs from a direct "
+            "mixed-direction central-FD stencil by O(hvp_epsilon**2)"
+        ),
         "legacy_candidate_count_note": (
             "direction_trace.candidate_count includes a zero-HVP synthetic Ritz "
             "candidate when plain Rayleigh-Ritz is constructed"
@@ -619,6 +628,14 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 def main(argv: Sequence[str] | None = None) -> None:
     args = _parse_args(argv)
+    if (
+        not args.preflight_only
+        and args.total_force_budget != PRODUCTION_TOTAL_FORCE_BUDGET
+    ):
+        raise ValueError(
+            "production execution requires --total-force-budget "
+            f"{PRODUCTION_TOTAL_FORCE_BUDGET}"
+        )
     summary = run(
         arm=args.arm,
         system=args.system,

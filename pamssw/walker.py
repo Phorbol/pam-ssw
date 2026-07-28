@@ -1827,17 +1827,20 @@ class SoftModeOracle:
             eigenvalues, eigenvectors = np.linalg.eigh(projected)
         except np.linalg.LinAlgError:
             return None
-        direction = q @ eigenvectors[:, int(np.argmin(eigenvalues))]
+        eigenvector = eigenvectors[:, int(np.argmin(eigenvalues))]
+        direction = q @ eigenvector
         norm = float(np.linalg.norm(direction))
         if norm <= 1e-12:
             return None
         direction = direction / norm
-        eigenvector = eigenvectors[:, int(np.argmin(eigenvalues))]
         curvature = float(eigenvalues[int(np.argmin(eigenvalues))])
         true_curvature: float | None = None
         if true_hvps is not None and all(hvp is not None for hvp in true_hvps):
             true_h_directions = np.column_stack(true_hvps)
-            native_coefficients = coeffs @ eigenvector
+            # This is the native central-FD true-HVP subspace projection.  On a
+            # nonlinear PES it differs from a direct mixed-direction stencil by
+            # O(epsilon**2), which is intentional: no extra HVP is evaluated.
+            native_coefficients = (coeffs @ eigenvector) / norm
             true_hvp = true_h_directions @ native_coefficients
             true_curvature = float(np.dot(direction, true_hvp))
         return direction, curvature, true_curvature

@@ -632,8 +632,8 @@ def test_soft_mode_oracle_can_select_rayleigh_ritz_subspace_direction():
     assert abs(float(np.dot(choice.direction, np.array([1.0, 1.0, 0.0]) / np.sqrt(2.0)))) == pytest.approx(1.0)
 
 
-def test_rayleigh_ritz_reuses_native_true_hvps_for_exact_true_curvature(monkeypatch):
-    """The Ritz vector inherits true curvature from the same native HVP stencil."""
+def test_rayleigh_ritz_reuses_native_true_hvps_for_projected_true_curvature(monkeypatch):
+    """The Ritz vector inherits a native-HVP subspace projection of true curvature."""
 
     state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
     oracle = SoftModeOracle(
@@ -665,6 +665,55 @@ def test_rayleigh_ritz_reuses_native_true_hvps_for_exact_true_curvature(monkeypa
     assert choice.kind == DirectionCandidateKind.RITZ
     assert choice.curvature == pytest.approx(0.2, rel=1e-12)
     assert choice.true_curvature == pytest.approx(2.5, rel=1e-12)
+
+
+def test_rayleigh_ritz_projected_true_curvature_has_second_order_difference_from_direct_mixed_stencil():
+    """On a nonlinear analytic PES, projection/direct-stencil mismatch scales as epsilon squared."""
+
+    class QuarticPotential:
+        coefficient = 3.0
+
+        def energy_gradient(self, flat_positions, state):
+            x, y, z = np.asarray(flat_positions, dtype=float)
+            energy = 0.5 * (x * x + y * y + 5.0 * z * z) + 0.25 * self.coefficient * x**4
+            return energy, np.array([x + self.coefficient * x**3, y, 5.0 * z])
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    potential = QuarticPotential()
+    oracle = SoftModeOracle(AnalyticCalculator(potential), np.random.default_rng(0), candidates=0)
+    candidates = [
+        DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([1.0, 0.0, 0.0])),
+        DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([0.0, 1.0, 0.0])),
+    ]
+    total_hessian = np.array([[1.0, -0.8, 0.0], [-0.8, 1.0, 0.0], [0.0, 0.0, 5.0]])
+    total_hvps = [total_hessian @ candidate.direction for candidate in candidates]
+
+    def true_hvp(direction, epsilon):
+        plus = state.flatten_positions() + epsilon * direction
+        minus = state.flatten_positions() - epsilon * direction
+        _, gradient_plus = potential.energy_gradient(plus, state)
+        _, gradient_minus = potential.energy_gradient(minus, state)
+        return (gradient_plus - gradient_minus) / (2.0 * epsilon)
+
+    def projected_and_direct(epsilon):
+        projected = oracle._rayleigh_ritz_candidate(
+            candidates,
+            total_hvps,
+            [true_hvp(candidate.direction, epsilon) for candidate in candidates],
+        )
+        assert projected is not None
+        direction, _, projected_true_curvature = projected
+        assert projected_true_curvature is not None
+        direct_true_curvature = float(np.dot(direction, true_hvp(direction, epsilon)))
+        return projected_true_curvature, direct_true_curvature
+
+    projected_coarse, direct_coarse = projected_and_direct(4e-2)
+    projected_fine, direct_fine = projected_and_direct(2e-2)
+    coarse_error = abs(projected_coarse - direct_coarse)
+    fine_error = abs(projected_fine - direct_fine)
+
+    assert coarse_error > 0.0
+    assert 0.20 * coarse_error < fine_error < 0.30 * coarse_error
 
 
 def test_walk_ritz_reuses_true_curvature_without_extra_escape_true_pes_check(monkeypatch):

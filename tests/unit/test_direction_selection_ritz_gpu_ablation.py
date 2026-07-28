@@ -52,6 +52,8 @@ class FakeBaseRunner:
             proposal_optimizer="safe-lbfgs-total",
             proposal_fmax=0.05,
             target_uphill_energy=0.8,
+            use_archive_acquisition=True,
+            seed_selection_mode="archive_ucb",
             quench_optimizer="scipy-lbfgsb",
             quench_fallback_optimizer=None,
             quench_fmax=0.01 if system == "c60" else 0.03,
@@ -201,11 +203,15 @@ def test_pair_config_changes_only_selection_and_preserves_frozen_protocol(tmp_pa
         "rng_seed": [42, 77],
     }
     assert protocol["same_native_candidate_and_hvp_protocol"] is True
+    assert protocol["true_curvature_definition"] == "native_central_fd_true_hvp_subspace_projection"
+    assert "O(hvp_epsilon**2)" in protocol["direct_mixed_direction_stencil_note"]
     for field in (
         "hvp_epsilon",
         "oracle_candidates",
         "proposal_optimizer",
         "target_uphill_energy",
+        "use_archive_acquisition",
+        "seed_selection_mode",
         "quench_optimizer",
         "local_softening_mode",
     ):
@@ -228,6 +234,29 @@ def test_pair_config_changes_only_selection_and_preserves_frozen_protocol(tmp_pa
     )
     assert pdo["oracle_candidates"] == 8
     assert pdo_pair_diff == {"direction_selection_mode": ["discrete", "rayleigh_ritz"]}
+
+
+def test_real_frozen_production_projection_has_archive_ucb_and_expected_oracle_counts(tmp_path):
+    """This pure-config smoke imports the real frozen runner without CUDA preflight."""
+
+    runner = load_runner("ritz_real_frozen_projection")
+    target = runner._load_target_runtime(Path(__file__).resolve().parents[2])
+
+    for system, expected_oracle in (("c60", 12), ("pdo", 8)):
+        source, effective, _, pair_diff, protocol = runner.config_projection(
+            arm="rayleigh_ritz",
+            system=system,
+            case_dir=tmp_path / system,
+            total_force_budget=6000,
+            seed=42,
+            base_runner=target.base_runner,
+        )
+        assert source["oracle_candidates"] == effective["oracle_candidates"] == expected_oracle
+        assert source["use_archive_acquisition"] is effective["use_archive_acquisition"] is True
+        assert source["seed_selection_mode"] == effective["seed_selection_mode"] == "archive_ucb"
+        assert protocol["matched_fields"]["use_archive_acquisition"] is True
+        assert protocol["matched_fields"]["seed_selection_mode"] == "archive_ucb"
+        assert pair_diff == {"direction_selection_mode": ["discrete", "rayleigh_ritz"]}
 
 
 def test_cpu_fake_run_records_direction_cost_without_equating_legacy_candidate_count_to_hvp(tmp_path):
@@ -287,7 +316,7 @@ def _summary(module, *, arm: str, system: str, seed: int, output: str) -> dict:
         arm=arm,
         system=system,
         case_dir=Path(output),
-        total_force_budget=20,
+        total_force_budget=6000,
         seed=seed,
         base_runner=FakeBaseRunner(),
     )
@@ -297,8 +326,8 @@ def _summary(module, *, arm: str, system: str, seed: int, output: str) -> dict:
         "arm": arm,
         "system": system,
         "seed": seed,
-        "total_force_budget": 20,
-        "force_evaluations": 20,
+        "total_force_budget": 6000,
+        "force_evaluations": 6000,
         "base_preflight": {
             "execution_commit": "e" * 40,
             "input_sha256": "a" * 64,
@@ -315,7 +344,7 @@ def _summary(module, *, arm: str, system: str, seed: int, output: str) -> dict:
         "purpose_counts": {
             "bootstrap_true_quench": 2,
             "direction_oracle": 6,
-            "biased_proposal_relax": 12,
+            "biased_proposal_relax": 5992,
             "landing_true_quench": 0,
             "unattributed": 0,
         },
@@ -378,14 +407,74 @@ def test_analyzer_pairs_case_summaries_and_marks_energy_auc_unsupported_without_
     evidence = analyzer.build_evidence(tmp_path)
 
     assert len(evidence["pairs"]) == 2
-    assert evidence["pairs"][0]["arms"]["rayleigh_ritz"]["direction_fe_fraction"] == pytest.approx(0.3)
+    assert evidence["pairs"][0]["arms"]["rayleigh_ritz"]["direction_fe_fraction"] == pytest.approx(0.001)
     assert evidence["pairs"][0]["arms"]["discrete"]["best_energy_auc_eV_force_evals"] is None
     assert evidence["pairs"][0]["arms"]["discrete"]["best_energy_auc_reason"] == "unsupported_no_cumulative_total_force_evaluations_in_energy_trace"
     assert evidence["pairs"][0]["arms"]["discrete"]["duplicates"] is None
     assert evidence["pairs"][0]["arms"]["discrete"]["failures"] is None
-    assert "不证明平衡态无偏性" in analyzer.render_conclusion(evidence)
+    conclusion = analyzer.render_conclusion(evidence)
+    assert "不证明平衡态无偏性" in conclusion
+    assert "O(hvp_epsilon^2)" in conclusion
 
     output = tmp_path / "analysis"
     written = analyzer.write_evidence(input_dir=tmp_path, output_dir=output)
     assert json.loads((output / "evidence.json").read_text(encoding="utf-8")) == written
     assert "claim ceiling" in (output / "conclusion.md").read_text(encoding="utf-8")
+
+
+def test_analyzer_rejects_nonproduction_budget_and_unexercised_ritz_mode(tmp_path):
+    runner = load_runner("ritz_analyzer_rejections_runner")
+    analyzer = _load(ANALYZER_PATH, "ritz_analyzer_rejections")
+    for arm in ("discrete", "rayleigh_ritz"):
+        case = tmp_path / arm
+        case.mkdir()
+        (case / "summary.json").write_text(
+            json.dumps(_summary(runner, arm=arm, system="c60", seed=42, output=str(case))),
+            encoding="utf-8",
+        )
+        (case / "energy_trace.json").write_text(
+            json.dumps(
+                [
+                    {"trial": 0, "energy_eV": -1.0, "best_energy_eV": -1.0},
+                    {"trial": 1, "energy_eV": -2.0, "best_energy_eV": -2.0},
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+    ritz_summary = tmp_path / "rayleigh_ritz" / "summary.json"
+    payload = json.loads(ritz_summary.read_text(encoding="utf-8"))
+    payload["direction_selection_audit"]["selected_kind_counts"] = {"random": 1}
+    ritz_summary.write_text(json.dumps(payload), encoding="utf-8")
+    with pytest.raises(analyzer.EvidenceError, match="mode_not_exercised"):
+        analyzer.build_evidence(tmp_path)
+
+    payload["direction_selection_audit"]["selected_kind_counts"] = {"ritz": 1}
+    payload["total_force_budget"] = 20
+    payload["force_evaluations"] = 20
+    ritz_summary.write_text(json.dumps(payload), encoding="utf-8")
+    with pytest.raises(analyzer.EvidenceError, match="6000"):
+        analyzer.build_evidence(tmp_path)
+
+
+def test_cli_rejects_nonproduction_budget_before_invoking_runner(monkeypatch, tmp_path):
+    runner = load_runner("ritz_cli_budget")
+    monkeypatch.setattr(runner, "run", lambda **_: pytest.fail("runner must not be invoked"))
+
+    with pytest.raises(ValueError, match="6000"):
+        runner.main(
+            [
+                "--system",
+                "c60",
+                "--arm",
+                "discrete",
+                "--seed",
+                "42",
+                "--total-force-budget",
+                "20",
+                "--output-dir",
+                str(tmp_path / "output"),
+                "--expected-git-commit",
+                "e" * 40,
+            ]
+        )

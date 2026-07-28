@@ -13,6 +13,7 @@ from typing import Any, Mapping, Sequence
 
 RUN_ROOT = Path(__file__).resolve().parent
 ARMS = ("discrete", "rayleigh_ritz")
+PRODUCTION_TOTAL_FORCE_BUDGET = 6000
 OUTPUT_PATH_FIELDS = {
     "accepted_structures_dir",
     "accepted_structures_log",
@@ -110,6 +111,10 @@ def _load_case(summary_path: Path) -> dict[str, Any]:
         total_fe == _exact_int(summary.get("total_force_budget"), f"{label}: total_force_budget", minimum=1),
         f"{label}: force-evaluation budget does not close",
     )
+    _require(
+        total_fe == PRODUCTION_TOTAL_FORCE_BUDGET,
+        f"{label}: formal evidence requires exactly {PRODUCTION_TOTAL_FORCE_BUDGET} force evaluations",
+    )
     purpose_counts = summary.get("purpose_counts")
     _require(isinstance(purpose_counts, dict), f"{label}: purpose_counts is missing")
     for purpose, count in purpose_counts.items():
@@ -137,6 +142,18 @@ def _load_case(summary_path: Path) -> dict[str, Any]:
         == purpose_counts["direction_oracle"],
         f"{label}: direction-oracle audit does not match purpose ledger",
     )
+    selected_kind_counts = audit.get("selected_kind_counts")
+    _require(
+        isinstance(selected_kind_counts, dict),
+        f"{label}: selected_kind_counts is missing",
+    )
+    for kind, count in selected_kind_counts.items():
+        _exact_int(count, f"{label}: selected_kind_counts.{kind}")
+    if arm == "rayleigh_ritz":
+        _require(
+            _exact_int(selected_kind_counts.get("ritz", 0), f"{label}: selected_kind_counts.ritz") > 0,
+            f"mode_not_exercised: {label}: rayleigh_ritz arm selected no ritz direction",
+        )
     _require(summary.get("paired_arm_config_diff") == PAIR_DIFF, f"{label}: paired config diff is not selection-only")
     protocol = summary.get("plain_ritz_hvp_contract")
     _require(isinstance(protocol, dict), f"{label}: plain Ritz HVP contract is missing")
@@ -270,10 +287,11 @@ def build_evidence(input_dir: Path) -> dict[str, Any]:
             "input_dir": str(input_dir),
             "completed_case_summaries": len(cases),
             "paired_system_seed_cases": len(pairs),
-            "claim_ceiling": "selection_representation_under_matched_native_candidate_and_hvp_protocol_only",
+            "claim_ceiling": "selection_representation_under_matched_native_candidate_and_hvp_protocol_only_with_projected_native_true_hvp_curvature",
         },
         "validated_contract": {
             "paired_effective_config_diff": PAIR_DIFF,
+            "formal_total_force_budget": PRODUCTION_TOTAL_FORCE_BUDGET,
             "same_native_candidate_and_hvp_protocol": True,
             "direction_cost_source": "purpose_counts.direction_oracle",
             "legacy_candidate_count_includes_zero_hvp_synthetic_ritz": True,
@@ -310,14 +328,17 @@ def render_conclusion(evidence: Mapping[str, Any]) -> str:
             "每一对仅在 `direction_selection_mode` 上不同（`discrete` 对 `rayleigh_ritz`）；"
             "native candidate generation、central HVP 协议、oracle_candidates、starter selector、"
             "safe-LBFGS proposal、uphill policy、true quench、LS softening 与总 FE budget 均经配置比对。",
-            "真实方向成本取 purpose-resolved `direction_oracle` FE；legacy `candidate_count` 在 Ritz 成功时"
-            "包含零-HVP synthetic candidate，不能据此推断 Ritz 的 HVP 成本。",
+            "Ritz true curvature 是复用 native central-FD true-HVP 的子空间投影；在非线性 PES 上，"
+            "它与 direct mixed-direction central-FD stencil 相差 `O(hvp_epsilon^2)`。真实方向成本取"
+            "purpose-resolved `direction_oracle` FE；legacy `candidate_count` 在 Ritz 成功时包含零-HVP "
+            "synthetic candidate，不能据此推断 Ritz 的 HVP 成本。",
             "",
             "| system | seed | delta best energy (eV) | delta energy drop (eV) | delta direction FE | delta trials | delta wall (s) | escape true-PES FE (D / RR) |",
             "|---|---:|---:|---:|---:|---:|---:|---:|",
             *rows,
             "",
-            "claim ceiling：本实验只比较相同方向候选/HVP 协议下的选择表示；不证明平衡态无偏性，也不证明一般系统优越性。"
+            "claim ceiling：本实验只比较相同方向候选/HVP 协议、并使用 projected native true-HVP curvature 的选择表示；"
+            "不证明平衡态无偏性，也不证明一般系统优越性。"
             "能量 AUC 仅在 energy trace 提供 cumulative total FE 时报告；缺失时明确标记 unsupported。",
             "",
         ]
