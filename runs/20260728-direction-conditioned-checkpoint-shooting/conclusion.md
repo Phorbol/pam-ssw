@@ -165,22 +165,56 @@ Consequently:
    starter-seed observations, even though it is clearly better on the locked
    plateau state.
 
+## Verified anchor/softening disconnect
+
+A post-run read-only audit identified a more elementary mechanism than Ritz
+branch tracking:
+
+1. `generate_krylov_intents` is called before the macro loop and consumes
+   independently sampled random axes plus independently selected pair axes.
+2. The random-plus-bond `anchor_direction` is generated later and is not a
+   column of those Krylov intent blocks.
+3. Local softening is built from that separate anchor, whereas block-Krylov
+   selects the lowest-curvature Ritz vector without using anchor overlap in
+   its variational selection.
+4. `choice_aligned_softening_enabled` was false in the frozen experiment, so
+   the softening coordinate was not rebuilt around the selected Ritz vector.
+5. The original Krylov intent blocks are reused at subsequent macro steps even
+   as the structure changes.
+
+The observed directions are correspondingly almost orthogonal to the physical
+anchor:
+
+| Arm | Median absolute anchor cosine | Fraction below 0.1 |
+|---|---:|---:|
+| balanced | 0.050 | 74.2% |
+| deep | 0.067 | 69.2% |
+
+Thus the current block-Krylov experiment is not yet a faithful test of the
+original CBD/SSW principle of softening a mode while retaining the
+random-plus-bond initial intent.  It commonly softens one coordinate and walks
+along another nearly orthogonal coordinate.  This disconnect is a simpler
+candidate cause than inadequate depth, a terminal stopping error, or a
+missing statistical selector.
+
 ## Decision
 
 Do not prioritize a new uphiller termination heuristic, and do not add a
 selector or promote TS/UCB from this audit.  The next clean ablation should
-hold starter, uphiller, 12-HVP budget, and quench fixed, and isolate how the
-initial random/bond direction is transformed:
+hold starter, uphiller, 12-HVP budget ceiling, quench, and softening definition
+fixed, and first isolate whether the direction solve uses the exact physical
+anchor:
 
-1. unrefined initial random/bond anchor;
-2. current lowest-Ritz deep refinement;
-3. an anchor-connected Ritz/Lanczos continuation that follows the mode branch
-   continuously from the initial physical anchor rather than selecting the
-   globally softest Ritz vector at each refinement.
+1. current detached lowest-Ritz block (control);
+2. unrefined exact random-plus-bond anchor (zero-HVP cost control);
+3. a single-anchor Lanczos space seeded by that exact anchor, with the same
+   total 12-HVP budget.
 
-This directly tests the original CBD/SSW principle—find a softer mode without
-discarding the intended initial displacement—without introducing posterior
-selection or multiple coupled heuristics.  Only after this direction
-transformation has a measured terminal-outcome advantage should its
-state-conditioned outcomes feed a posterior arm selector.
-
+This removes the independent-intent mismatch without adding an overlap
+threshold, penalty weight, posterior selector, or choice-aligned-softening
+threshold.  If anchor-seeded lowest Ritz still loses the physical intent, a
+second, separately preregistered ablation can compare lowest-Ritz selection
+with parameter-free eigenbranch continuation inside the *same* anchored
+subspace.  Only after one of these direction transformations has a measured
+terminal-outcome advantage should its state-conditioned outcomes feed a
+posterior arm selector.
