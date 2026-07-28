@@ -1,0 +1,531 @@
+{
+  "artifact_provenance": {
+    "analyzer_path_repo_relative": "runs/20260728-safe-lbfgs-strict-quench-200-production/analyze_production.py",
+    "analyzer_sha256": "c07ece34a7ccf0c3569a1e723ea06c61e2d9bfd303a6ff33a75bef8a87ab74c7",
+    "content_sha256_excluding_self": "5adef5ff021e327b74a5e3f6c581e48913b5ee5d17bb50d0f83dfbb4d7b32c6a"
+  },
+  "baseline_production": {
+    "c60": {
+      "archive_entries": 160,
+      "best_energy_eV": -514.519775390625,
+      "case_dir": "output-baseline-current-c60-seed42",
+      "cost": {
+        "purpose_counts": {
+          "biased_proposal_relax": 51208,
+          "bootstrap_true_quench": 0,
+          "direction_oracle": 28226,
+          "escape_true_pes_check": 1242,
+          "landing_true_quench": 11778,
+          "post_relax_validation": 201,
+          "starter_true_quench": 52,
+          "unattributed": 0
+        },
+        "purpose_fractions": {
+          "biased_proposal_relax": 0.5523638991661902,
+          "bootstrap_true_quench": 0.0,
+          "direction_oracle": 0.30446460353587107,
+          "escape_true_pes_check": 0.013397046609209661,
+          "landing_true_quench": 0.12704542267574184,
+          "post_relax_validation": 0.0021681210696063943,
+          "starter_true_quench": 0.0005609069433807587,
+          "unattributed": 0.0
+        },
+        "purpose_total": 92707,
+        "unattributed": 0
+      },
+      "duplicate_rate": 0.2,
+      "effective_config": {
+        "max_trials": 200,
+        "proposal_fmax": 0.05,
+        "proposal_optimizer": "safe-lbfgs-total",
+        "quench_fallback_optimizer": null,
+        "quench_fmax": 0.01,
+        "quench_maxiter": 400,
+        "quench_optimizer": "scipy-lbfgsb",
+        "rng_seed": 42
+      },
+      "energy_drop_eV": 39.8505859375,
+      "execution_commit": "32980ad9154ec6481b310477dd7b85597cefd49a",
+      "force_evaluations": 92707,
+      "fragment_rejections": 1,
+      "identity": {
+        "calculator": {
+          "default_dtype": "float32",
+          "device": "cuda",
+          "enable_cueq": false,
+          "inference_precision": "float32"
+        },
+        "cuda": {
+          "available": true,
+          "device_name": "NVIDIA GeForce RTX 3060",
+          "runtime_version": "12.8"
+        },
+        "input_path_repo_relative": "runs/20260428-c60-mace-production/prerelaxed_c60.xyz",
+        "input_sha256": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9",
+        "model_path": "/root/.cache/mace/mace-omat-0-small.model",
+        "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+        "runtime_versions": {
+          "ase": "3.25.0",
+          "mace": "0.3.14",
+          "numpy": "2.1.3",
+          "python": "3.12.12",
+          "scipy": "1.17.1",
+          "torch": "2.8.0"
+        },
+        "safe_lbfgs_default_history_limit": 10
+      },
+      "initial_energy_eV": -474.669189453125,
+      "raw_sha256": {
+        "energy_trace": "5dd804255228382b991644b3919d20f732f3685bd005499b714a7c98edd48e69",
+        "optimizer_diagnostics": "d656f2f7827f023aef48957ea1a8080482a73e7daa9ffdf306843a99cac51297",
+        "summary": "75c9580f149dc6e5c4e666c5b484d2b2e38dbf823f979d66268fb737d631a3ef",
+        "walk_records": "70bbb0a7a434189ac73d567cce0103e82b05921a0eebd132cb67e0c474511957"
+      },
+      "recorded_trials": 199,
+      "trials": 200,
+      "true_quench": {
+        "certified": 40,
+        "count": 201,
+        "fallback_counts": {
+          "attempts": 0,
+          "converged": 0
+        },
+        "max_gradient_eV_per_angstrom": 0.19272678129261245,
+        "termination_counts": {
+          "converged": 40,
+          "maxiter": 0,
+          "optimizer_stopped": 0,
+          "unconverged": 161,
+          "unknown": 0
+        },
+        "unconverged": 161
+      },
+      "unlogged_accounted_by": {
+        "fragment_rejections": 1
+      },
+      "unlogged_trials": 1,
+      "walk_records": 199,
+      "wall_time_s": 1592.6946986370021
+    },
+    "pdo": {
+      "archive_entries": 181,
+      "best_energy_eV": -576.04296875,
+      "case_dir": "output-baseline-current-pdo-seed42",
+      "cost": {
+        "purpose_counts": {
+          "biased_proposal_relax": 34011,
+          "bootstrap_true_quench": 0,
+          "direction_oracle": 6368,
+          "escape_true_pes_check": 504,
+          "landing_true_quench": 13538,
+          "post_relax_validation": 201,
+          "starter_true_quench": 37,
+          "unattributed": 0
+        },
+        "purpose_fractions": {
+          "biased_proposal_relax": 0.6222397043487806,
+          "bootstrap_true_quench": 0.0,
+          "direction_oracle": 0.11650414387383597,
+          "escape_true_pes_check": 0.009220805356848827,
+          "landing_true_quench": 0.24768107722424487,
+          "post_relax_validation": 0.003677344993505187,
+          "starter_true_quench": 0.0006769242027845369,
+          "unattributed": 0.0
+        },
+        "purpose_total": 54659,
+        "unattributed": 0
+      },
+      "duplicate_rate": 0.09950248756218906,
+      "effective_config": {
+        "max_trials": 200,
+        "proposal_fmax": 0.05,
+        "proposal_optimizer": "safe-lbfgs-total",
+        "quench_fallback_optimizer": null,
+        "quench_fmax": 0.03,
+        "quench_maxiter": 400,
+        "quench_optimizer": "scipy-lbfgsb",
+        "rng_seed": 42
+      },
+      "energy_drop_eV": 7.64605712890625,
+      "execution_commit": "32980ad9154ec6481b310477dd7b85597cefd49a",
+      "force_evaluations": 54659,
+      "fragment_rejections": 0,
+      "identity": {
+        "calculator": {
+          "default_dtype": "float32",
+          "device": "cuda",
+          "enable_cueq": false,
+          "inference_precision": "float32"
+        },
+        "cuda": {
+          "available": true,
+          "device_name": "NVIDIA GeForce RTX 3060",
+          "runtime_version": "12.8"
+        },
+        "input_path_repo_relative": "PdO.xyz",
+        "input_sha256": "68243ceb7c0fbb6ba7a9454d680287eb98c4e5210efbd9ebb63517ba79aaa8b0",
+        "model_path": "/root/.cache/mace/mace-omat-0-small.model",
+        "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+        "runtime_versions": {
+          "ase": "3.25.0",
+          "mace": "0.3.14",
+          "numpy": "2.1.3",
+          "python": "3.12.12",
+          "scipy": "1.17.1",
+          "torch": "2.8.0"
+        },
+        "safe_lbfgs_default_history_limit": 10
+      },
+      "initial_energy_eV": -568.3969116210938,
+      "raw_sha256": {
+        "energy_trace": "4def8d9e5bbc71af3b6ab4ff0fff59a170a967e8d0cf3593067926308d293512",
+        "optimizer_diagnostics": "368ca68bf6f18d63019a7f237661ff8432ecec4506df650fb2dd379826fa352d",
+        "summary": "194388bde7b4ec0945959522a450956b5c9325f41a076c6d4310db1dab1b606c",
+        "walk_records": "4c23dbf6ac01b4706ea3f6cdaabee666f1c721b24a5449b00411c3b1da464ab5"
+      },
+      "recorded_trials": 200,
+      "trials": 200,
+      "true_quench": {
+        "certified": 201,
+        "count": 201,
+        "fallback_counts": {
+          "attempts": 0,
+          "converged": 0
+        },
+        "max_gradient_eV_per_angstrom": 0.028366026145977018,
+        "termination_counts": {
+          "converged": 201,
+          "maxiter": 0,
+          "optimizer_stopped": 0,
+          "unconverged": 0,
+          "unknown": 0
+        },
+        "unconverged": 0
+      },
+      "unlogged_accounted_by": {},
+      "unlogged_trials": 0,
+      "walk_records": 200,
+      "wall_time_s": 1215.0948604349978
+    }
+  },
+  "comparison": {
+    "c60": {
+      "config_scope": "same quench_fmax=0.01; the intended config delta is the true-quench optimizer plus certificate-triggered FIRE fallback",
+      "configuration_identity": {
+        "baseline_matches_strict_source_after_normalizing": [
+          "accepted_structures_dir",
+          "accepted_structures_log",
+          "direction_diagnostics_path"
+        ],
+        "strict_summary_matches_wrapper_effective": true
+      },
+      "delta": {
+        "archive_entries": -20,
+        "best_energy_eV": 6.44146728515625,
+        "duplicate_rate": 0.10348258706467661,
+        "energy_drop_eV": -6.44195556640625,
+        "force_evaluations": -1217,
+        "initial_energy_eV": -0.00048828125,
+        "wall_time_s": -26.116009821009357
+      },
+      "fallback_attempt_delta": 6,
+      "strict_minus_baseline": true,
+      "trajectory_boundary": "SSW trajectories diverge after changed quenches; one seed is descriptive, not a causal performance estimate.",
+      "true_quench_certificate_delta": 161
+    },
+    "pdo": {
+      "config_scope": "quench optimizer and quench_fmax both changed (0.03 to 0.01); this is not an optimizer-only comparison",
+      "configuration_identity": {
+        "baseline_matches_strict_source_after_normalizing": [
+          "accepted_structures_dir",
+          "accepted_structures_log",
+          "direction_diagnostics_path"
+        ],
+        "strict_summary_matches_wrapper_effective": true
+      },
+      "delta": {
+        "archive_entries": -12,
+        "best_energy_eV": 0.87774658203125,
+        "duplicate_rate": 0.059701492537313425,
+        "energy_drop_eV": -0.87860107421875,
+        "force_evaluations": 10872,
+        "initial_energy_eV": -0.0008544921875,
+        "wall_time_s": 238.46660336799687
+      },
+      "fallback_attempt_delta": 7,
+      "strict_minus_baseline": true,
+      "trajectory_boundary": "SSW trajectories diverge after changed quenches; one seed is descriptive, not a causal performance estimate.",
+      "true_quench_certificate_delta": 0
+    }
+  },
+  "comparison_scope": {
+    "baseline_execution_commit": "32980ad9154ec6481b310477dd7b85597cefd49a",
+    "interpretation": "All costs are counted force evaluations; wall time is recorded separately and is not a substitute for FE accounting.",
+    "same_commit": true,
+    "seed": 42,
+    "strict_execution_commit": "32980ad9154ec6481b310477dd7b85597cefd49a",
+    "systems": [
+      "c60",
+      "pdo"
+    ]
+  },
+  "schema_version": 1,
+  "strict_production": {
+    "c60": {
+      "archive_entries": 140,
+      "best_energy_eV": -508.07830810546875,
+      "case_dir": "output-c60-seed42",
+      "config_diff": {
+        "quench_fallback_optimizer": [
+          null,
+          "ase-fire"
+        ],
+        "quench_optimizer": [
+          "scipy-lbfgsb",
+          "ase-lbfgs"
+        ]
+      },
+      "cost": {
+        "purpose_counts": {
+          "biased_proposal_relax": 47201,
+          "bootstrap_true_quench": 0,
+          "direction_oracle": 29058,
+          "escape_true_pes_check": 1278,
+          "landing_true_quench": 13704,
+          "post_relax_validation": 201,
+          "starter_true_quench": 48,
+          "unattributed": 0
+        },
+        "purpose_fractions": {
+          "biased_proposal_relax": 0.5159143075745983,
+          "bootstrap_true_quench": 0.0,
+          "direction_oracle": 0.31760848180128975,
+          "escape_true_pes_check": 0.013968739752978467,
+          "landing_true_quench": 0.14978686195212593,
+          "post_relax_validation": 0.0021969614165482567,
+          "starter_true_quench": 0.0005246475024592852,
+          "unattributed": 0.0
+        },
+        "purpose_total": 91490,
+        "unattributed": 0
+      },
+      "duplicate_rate": 0.3034825870646766,
+      "effective_config": {
+        "max_trials": 200,
+        "proposal_fmax": 0.05,
+        "proposal_optimizer": "safe-lbfgs-total",
+        "quench_fallback_optimizer": "ase-fire",
+        "quench_fmax": 0.01,
+        "quench_maxiter": 400,
+        "quench_optimizer": "ase-lbfgs",
+        "rng_seed": 42
+      },
+      "energy_drop_eV": 33.40863037109375,
+      "execution_commit": "32980ad9154ec6481b310477dd7b85597cefd49a",
+      "force_evaluations": 91490,
+      "fragment_rejections": 0,
+      "identity": {
+        "calculator": {
+          "default_dtype": "float32",
+          "device": "cuda",
+          "enable_cueq": false,
+          "inference_precision": "float32"
+        },
+        "cuda": {
+          "available": true,
+          "device_name": "NVIDIA GeForce RTX 3060",
+          "runtime_version": "12.8"
+        },
+        "input_path_repo_relative": "runs/20260428-c60-mace-production/prerelaxed_c60.xyz",
+        "input_sha256": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9",
+        "model_path": "/root/.cache/mace/mace-omat-0-small.model",
+        "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+        "runtime_versions": {
+          "ase": "3.25.0",
+          "mace": "0.3.14",
+          "numpy": "2.1.3",
+          "python": "3.12.12",
+          "scipy": "1.17.1",
+          "torch": "2.8.0"
+        },
+        "safe_lbfgs_default_history_limit": 10
+      },
+      "initial_energy_eV": -474.669677734375,
+      "raw_sha256": {
+        "energy_trace": "52a9e9a8c230e2c2e6c09ab7666de72bc5e1cfb454bed399137a99ad2610b249",
+        "optimizer_diagnostics": "8f9e20807ddfe3ce94740bed9d65b159b67120de1024a284c80797b4c19bf8b0",
+        "summary": "40d1f0d1c1cf81c374df6107fc4c31316dc313dd2b783cb503250ba931bf78cb",
+        "walk_records": "afde9f7bcc27beef6ab997128bffc49755ac7eb98a86641aafc8194f4d5aa969"
+      },
+      "recorded_trials": 200,
+      "strict_quench_wrapper": {
+        "base_runner": {
+          "path_repo_relative": "runs/20260728-safe-lbfgs-200-production/run_production.py",
+          "sha256": "d44588e06b56c1a996525c12518998d56303dc9a360e4e740662e098cd5081aa"
+        },
+        "fallback_counts": {
+          "attempts": 6,
+          "converged": 6
+        },
+        "overrides": {
+          "quench_fallback_optimizer": "ase-fire",
+          "quench_fmax": 0.01,
+          "quench_maxiter": 400,
+          "quench_optimizer": "ase-lbfgs"
+        }
+      },
+      "trials": 200,
+      "true_quench": {
+        "certified": 201,
+        "count": 201,
+        "fallback_counts": {
+          "attempts": 6,
+          "converged": 6
+        },
+        "max_gradient_eV_per_angstrom": 0.009986017574409629,
+        "termination_counts": {
+          "converged": 201,
+          "maxiter": 0,
+          "optimizer_stopped": 0,
+          "unconverged": 0,
+          "unknown": 0
+        },
+        "unconverged": 0
+      },
+      "unlogged_accounted_by": {},
+      "unlogged_trials": 0,
+      "walk_records": 200,
+      "wall_time_s": 1566.5786888159928
+    },
+    "pdo": {
+      "archive_entries": 169,
+      "best_energy_eV": -575.1652221679688,
+      "case_dir": "output-pdo-seed42",
+      "config_diff": {
+        "quench_fallback_optimizer": [
+          null,
+          "ase-fire"
+        ],
+        "quench_fmax": [
+          0.03,
+          0.01
+        ],
+        "quench_optimizer": [
+          "scipy-lbfgsb",
+          "ase-lbfgs"
+        ]
+      },
+      "cost": {
+        "purpose_counts": {
+          "biased_proposal_relax": 30491,
+          "bootstrap_true_quench": 0,
+          "direction_oracle": 6098,
+          "escape_true_pes_check": 497,
+          "landing_true_quench": 28161,
+          "post_relax_validation": 201,
+          "starter_true_quench": 83,
+          "unattributed": 0
+        },
+        "purpose_fractions": {
+          "biased_proposal_relax": 0.4652912362088172,
+          "bootstrap_true_quench": 0.0,
+          "direction_oracle": 0.09305519525110253,
+          "escape_true_pes_check": 0.007584196792357815,
+          "landing_true_quench": 0.4297355450092323,
+          "post_relax_validation": 0.0030672506142131206,
+          "starter_true_quench": 0.0012665761242770597,
+          "unattributed": 0.0
+        },
+        "purpose_total": 65531,
+        "unattributed": 0
+      },
+      "duplicate_rate": 0.15920398009950248,
+      "effective_config": {
+        "max_trials": 200,
+        "proposal_fmax": 0.05,
+        "proposal_optimizer": "safe-lbfgs-total",
+        "quench_fallback_optimizer": "ase-fire",
+        "quench_fmax": 0.01,
+        "quench_maxiter": 400,
+        "quench_optimizer": "ase-lbfgs",
+        "rng_seed": 42
+      },
+      "energy_drop_eV": 6.7674560546875,
+      "execution_commit": "32980ad9154ec6481b310477dd7b85597cefd49a",
+      "force_evaluations": 65531,
+      "fragment_rejections": 0,
+      "identity": {
+        "calculator": {
+          "default_dtype": "float32",
+          "device": "cuda",
+          "enable_cueq": false,
+          "inference_precision": "float32"
+        },
+        "cuda": {
+          "available": true,
+          "device_name": "NVIDIA GeForce RTX 3060",
+          "runtime_version": "12.8"
+        },
+        "input_path_repo_relative": "PdO.xyz",
+        "input_sha256": "68243ceb7c0fbb6ba7a9454d680287eb98c4e5210efbd9ebb63517ba79aaa8b0",
+        "model_path": "/root/.cache/mace/mace-omat-0-small.model",
+        "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+        "runtime_versions": {
+          "ase": "3.25.0",
+          "mace": "0.3.14",
+          "numpy": "2.1.3",
+          "python": "3.12.12",
+          "scipy": "1.17.1",
+          "torch": "2.8.0"
+        },
+        "safe_lbfgs_default_history_limit": 10
+      },
+      "initial_energy_eV": -568.3977661132812,
+      "raw_sha256": {
+        "energy_trace": "5387442ca99959beb9bb9d63cd1da9f111c929f26234cd36fd86ea5340002fd1",
+        "optimizer_diagnostics": "507b1f2b852f93f214013db1cc897e0c9bed8c12894289829cc1d60626369461",
+        "summary": "b34b45c0607e8b7a246ba398c30c68235be1d8e76af50f9d868bb0bce1da3c79",
+        "walk_records": "aec1b034d6fffbaf9bc2333e9b652f4740e755f0b958152e4950eddd6233eb19"
+      },
+      "recorded_trials": 200,
+      "strict_quench_wrapper": {
+        "base_runner": {
+          "path_repo_relative": "runs/20260728-safe-lbfgs-200-production/run_production.py",
+          "sha256": "d44588e06b56c1a996525c12518998d56303dc9a360e4e740662e098cd5081aa"
+        },
+        "fallback_counts": {
+          "attempts": 7,
+          "converged": 7
+        },
+        "overrides": {
+          "quench_fallback_optimizer": "ase-fire",
+          "quench_fmax": 0.01,
+          "quench_maxiter": 400,
+          "quench_optimizer": "ase-lbfgs"
+        }
+      },
+      "trials": 200,
+      "true_quench": {
+        "certified": 201,
+        "count": 201,
+        "fallback_counts": {
+          "attempts": 7,
+          "converged": 7
+        },
+        "max_gradient_eV_per_angstrom": 0.00999113740450941,
+        "termination_counts": {
+          "converged": 201,
+          "maxiter": 0,
+          "optimizer_stopped": 0,
+          "unconverged": 0,
+          "unknown": 0
+        },
+        "unconverged": 0
+      },
+      "unlogged_accounted_by": {},
+      "unlogged_trials": 0,
+      "walk_records": 200,
+      "wall_time_s": 1453.5614638029947
+    }
+  }
+}
