@@ -138,3 +138,15 @@ def test_inputs_are_defensive_and_solver_rejects_invalid_budget_or_hvp():
         solve_krylov_block(intent, lambda vector: (vector, np.zeros(3)), depth=1)
     with pytest.raises(ValueError, match="finite"):
         solve_krylov_block(intent, lambda vector: (vector, np.full_like(vector, np.nan)), depth=1)
+
+
+def test_depth_is_accepted_as_a_positional_argument():
+    hessian = np.diag([1.0, 3.0])
+
+    def hvp(vector: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        product = hessian @ vector
+        return product, product
+
+    result = solve_krylov_block(IntentBlock(np.array([[1.0], [0.0]])), hvp, 1)
+
+    assert result.curvature == pytest.approx(1.0)

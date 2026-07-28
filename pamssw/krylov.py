@@ -107,7 +107,7 @@ def _evaluate_hvp(hvp: Hvp, vector: np.ndarray) -> tuple[np.ndarray, np.ndarray]
     return total, true
 
 
-def solve_krylov_block(intent: IntentBlock, hvp: Hvp, *, depth: int) -> KrylovResult:
+def solve_krylov_block(intent: IntentBlock, hvp: Hvp, depth: int) -> KrylovResult:
     """Return the lowest Ritz vector in a fixed-depth block Krylov space.
 
     Every basis column that survives into the returned space is evaluated once;
