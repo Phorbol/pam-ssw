@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import asdict, replace
+from hashlib import sha256
 import importlib.util
 import json
 import math
@@ -101,6 +102,14 @@ def _write_json(path: Path, payload: Any) -> None:
         json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n",
         encoding="utf-8",
     )
+
+
+def _sha256(path: Path) -> str:
+    digest = sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def _read_direction_rows(path: Path) -> list[dict[str, Any]]:
@@ -367,6 +376,97 @@ def build_evidence(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     }
 
 
+def build_strict_evidence(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    expected = {
+        (row["state_id"], row["seed"], row["arm"])
+        for row in case_matrix()
+    }
+    if len(rows) != 36:
+        raise ValueError("strict evidence requires exactly 36 cases")
+    observed = {
+        (row.get("state_id"), row.get("seed"), row.get("arm"))
+        for row in rows
+    }
+    if observed != expected or len(observed) != len(rows):
+        raise ValueError("strict case cohort differs from the preregistration")
+    for row in rows:
+        purposes = row.get("purpose_counts")
+        if (
+            row.get("status") != "completed"
+            or not isinstance(purposes, Mapping)
+            or sum(int(value) for value in purposes.values()) != row.get("force_evaluations")
+            or purposes.get("unattributed") != 0
+            or purposes.get("landing_true_quench", 0) <= 0
+            or purposes.get("direction_oracle", 0) != 0
+            or purposes.get("biased_proposal_relax", 0) != 0
+        ):
+            raise ValueError("strict-refine purpose ledger does not close")
+
+    arm_results: dict[str, dict[str, Any]] = {}
+    for arm in ARMS:
+        arm_rows = [row for row in rows if row["arm"] == arm]
+        certified = [row for row in arm_rows if row["certificate"]]
+        arm_results[arm] = {
+            "completed_cases": len(arm_rows),
+            "certificate_count": len(certified),
+            "fallback_count": sum(bool(row["fallback_used"]) for row in arm_rows),
+            "new_basin_count": sum(bool(row["is_new_basin"]) for row in certified),
+            "downhill_landing_count": sum(
+                _finite(row["landing_delta_eV"], "landing delta") < 0.0
+                for row in certified
+            ),
+            "median_landing_delta_eV": (
+                None
+                if not certified
+                else statistics.median(
+                    _finite(row["landing_delta_eV"], "landing delta")
+                    for row in certified
+                )
+            ),
+            "median_quench_force_evaluations": statistics.median(
+                int(row["purpose_counts"]["landing_true_quench"])
+                for row in arm_rows
+            ),
+            "state_results": {
+                state_id: {
+                    "certificate_count": sum(
+                        bool(row["certificate"])
+                        for row in arm_rows
+                        if row["state_id"] == state_id
+                    ),
+                    "new_basin_count": sum(
+                        bool(row["certificate"] and row["is_new_basin"])
+                        for row in arm_rows
+                        if row["state_id"] == state_id
+                    ),
+                    "median_landing_delta_eV": statistics.median(
+                        _finite(row["landing_delta_eV"], "landing delta")
+                        for row in arm_rows
+                        if row["state_id"] == state_id and row["certificate"]
+                    ),
+                }
+                for state_id in STATE_IDS
+            },
+        }
+    return {
+        "schema_version": 1,
+        "cohort": {
+            "states": list(STATE_IDS),
+            "seeds": list(SEEDS),
+            "arms": list(ARMS),
+            "completed_cases": len(rows),
+        },
+        "certificate_count": sum(bool(row["certificate"]) for row in rows),
+        "arm_results": arm_results,
+        "production_default_changed": False,
+        "claim_ceiling": (
+            "strict true-quench replay of fixed stored escape configurations; "
+            "directions and uphill walks were not rerun"
+        ),
+        "cases": list(rows),
+    }
+
+
 def run(*, output_dir: Path, expected_git_commit: str) -> dict[str, Any]:
     actual_commit = _current_commit()
     if actual_commit != expected_git_commit:
@@ -420,19 +520,203 @@ def run(*, output_dir: Path, expected_git_commit: str) -> dict[str, Any]:
     return evidence
 
 
+def run_strict_refine(
+    *,
+    input_dir: Path,
+    output_dir: Path,
+    expected_git_commit: str,
+) -> dict[str, Any]:
+    from ase.io import read
+
+    from pamssw.archive import MinimaArchive
+    from pamssw.fingerprint import descriptor_distance, structural_descriptor
+    from pamssw.relax import has_force_convergence_certificate
+    from pamssw.state import State
+    from pamssw.walker import SurfaceWalker
+
+    actual_commit = _current_commit()
+    if actual_commit != expected_git_commit:
+        raise RuntimeError(
+            f"execution commit mismatch: expected {expected_git_commit}, got {actual_commit}"
+        )
+    if not _tracked_worktree_clean():
+        raise RuntimeError("tracked worktree is not clean")
+    input_dir = Path(input_dir)
+    source_evidence_path = input_dir / "evidence.json"
+    source_evidence = json.loads(source_evidence_path.read_text(encoding="utf-8"))
+    if (
+        source_evidence.get("execution_commit") is None
+        or source_evidence.get("cohort", {}).get("completed_cases") != 36
+    ):
+        raise RuntimeError("source escape evidence is incomplete")
+    output_dir = Path(output_dir)
+    if output_dir.exists():
+        raise FileExistsError(output_dir)
+    output_dir.mkdir(parents=True)
+
+    states, shared_calculator, base_runner, bootstrap_provenance = _load_fixed_states()
+    source_rows = {
+        (row["state_id"], row["seed"], row["arm"]): row
+        for row in source_evidence["cases"]
+    }
+    rows: list[dict[str, Any]] = []
+    for case in case_matrix():
+        state_id = case["state_id"]
+        seed = case["seed"]
+        arm = case["arm"]
+        starter_state, state_provenance = states[state_id]
+        source_case_dir = (
+            input_dir
+            / "cases"
+            / f"{state_id}-seed{seed}-{arm}"
+        )
+        escape_path = source_case_dir / "escape.xyz"
+        source_row = source_rows[(state_id, seed, arm)]
+        atoms = read(escape_path)
+        escape_state = State(
+            numbers=np.asarray(atoms.numbers, dtype=int),
+            positions=np.asarray(atoms.positions, dtype=float),
+            cell=None if starter_state.cell is None else starter_state.cell.copy(),
+            pbc=starter_state.pbc,
+            fixed_mask=starter_state.fixed_mask.copy(),
+            metadata={"source_escape": str(escape_path)},
+        )
+        case_dir = (
+            output_dir
+            / "cases"
+            / f"{state_id}-seed{seed}-{arm}"
+        )
+        config = replace(
+            base_runner.build_config("c60", case_dir),
+            max_trials=1,
+            max_force_evals=None,
+            rng_seed=seed,
+            quench_optimizer="ase-lbfgs",
+            quench_fallback_optimizer="ase-fire",
+            quench_fmax=0.01,
+            **ARMS[arm],
+        )
+        walker = SurfaceWalker(
+            calculator=shared_calculator,
+            config=config,
+            softening_enabled=True,
+        )
+        print(
+            f"[strict-refine] {state_id} seed={seed} arm={arm}",
+            flush=True,
+        )
+        started = perf_counter()
+        landing = walker.relax_true_minimum(
+            escape_state,
+            trajectory_name=f"{state_id}-{seed}-{arm}-strict",
+        )
+        wall_time = float(perf_counter() - started)
+        certificate = bool(
+            has_force_convergence_certificate(landing, config.quench_fmax)
+        )
+        starter_energy = _finite(
+            source_row["starter_energy_eV"],
+            "source starter energy",
+        )
+        archive = MinimaArchive(
+            energy_tol=config.dedup_energy_tol,
+            rmsd_tol=config.dedup_rmsd_tol,
+            max_prototypes=config.max_prototypes,
+        )
+        seed_entry = archive.add(starter_state, starter_energy, parent_id=None)
+        before_count = len(archive.entries)
+        landing_entry = archive.add(
+            landing.state,
+            float(landing.energy),
+            parent_id=seed_entry.entry_id,
+        )
+        purpose_counts = walker.calculator.snapshot().as_dict()
+        force_evaluations = int(sum(purpose_counts.values()))
+        if (
+            purpose_counts["unattributed"] != 0
+            or purpose_counts["direction_oracle"] != 0
+            or purpose_counts["biased_proposal_relax"] != 0
+            or purpose_counts["landing_true_quench"] <= 0
+        ):
+            raise RuntimeError("strict-refine purpose ledger does not close")
+        diagnostics = walker.relaxation_diagnostics()
+        case_dir.mkdir(parents=True, exist_ok=True)
+        base_runner.write_state(case_dir / "landing_strict.xyz", landing.state)
+        row = {
+            "state_id": state_id,
+            "state_sha256": state_provenance["state_sha256"],
+            "seed": seed,
+            "arm": arm,
+            "status": "completed",
+            "source_execution_commit": source_evidence["execution_commit"],
+            "source_escape_path": str(escape_path),
+            "source_escape_sha256": _sha256(escape_path),
+            "starter_energy_eV": starter_energy,
+            "landing_energy_eV": float(landing.energy),
+            "landing_delta_eV": float(landing.energy) - starter_energy,
+            "certificate": certificate,
+            "final_max_force_eV_per_A": float(landing.gradient_norm),
+            "is_new_basin": len(archive.entries) > before_count,
+            "landing_entry_id": int(landing_entry.entry_id),
+            "descriptor_delta": float(
+                descriptor_distance(
+                    structural_descriptor(starter_state),
+                    structural_descriptor(landing.state),
+                )
+            ),
+            "fallback_used": bool(diagnostics["quench_fallback_attempts"]),
+            "quench_iterations": int(landing.n_iter),
+            "termination_reason": landing.telemetry.termination_reason,
+            "force_evaluations": force_evaluations,
+            "purpose_counts": purpose_counts,
+            "wall_time_s": wall_time,
+        }
+        _write_json(case_dir / "summary.json", row)
+        rows.append(row)
+        _write_json(
+            output_dir / "raw.json",
+            {
+                "schema_version": 1,
+                "execution_commit": actual_commit,
+                "source_evidence_sha256": _sha256(source_evidence_path),
+                "bootstrap_provenance": bootstrap_provenance,
+                "cases": rows,
+            },
+        )
+    evidence = build_strict_evidence(rows)
+    evidence["execution_commit"] = actual_commit
+    evidence["source_execution_commit"] = source_evidence["execution_commit"]
+    evidence["source_evidence_sha256"] = _sha256(source_evidence_path)
+    _write_json(output_dir / "evidence.json", evidence)
+    return evidence
+
+
 def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--mode",
+        choices=("escape", "strict-refine"),
+        default="escape",
+    )
     parser.add_argument("--output-dir", type=Path, default=RUN_ROOT / "output")
+    parser.add_argument("--input-dir", type=Path, default=RUN_ROOT / "output")
     parser.add_argument("--expected-git-commit", required=True)
     return parser.parse_args(argv)
 
 
 def main(argv: Sequence[str] | None = None) -> None:
     args = _parse_args(argv)
-    evidence = run(
-        output_dir=args.output_dir,
-        expected_git_commit=args.expected_git_commit,
-    )
+    if args.mode == "strict-refine":
+        evidence = run_strict_refine(
+            input_dir=args.input_dir,
+            output_dir=args.output_dir,
+            expected_git_commit=args.expected_git_commit,
+        )
+    else:
+        evidence = run(
+            output_dir=args.output_dir,
+            expected_git_commit=args.expected_git_commit,
+        )
     print(json.dumps(evidence["arm_results"], indent=2, sort_keys=True))
 
 

@@ -122,3 +122,47 @@ def test_evidence_rejects_incomplete_or_unclosed_cases():
     rows[0]["purpose_counts"]["direction_oracle"] = 23
     with pytest.raises(ValueError, match="purpose ledger"):
         module.build_evidence(rows)
+
+
+def test_strict_refine_evidence_requires_certificates_and_closed_quench_ledgers():
+    module = _load_module()
+    rows = [
+        {
+            "state_id": case["state_id"],
+            "seed": case["seed"],
+            "arm": case["arm"],
+            "status": "completed",
+            "certificate": True,
+            "starter_energy_eV": -10.0,
+            "landing_energy_eV": -11.0,
+            "landing_delta_eV": -1.0,
+            "is_new_basin": True,
+            "fallback_used": False,
+            "force_evaluations": 21,
+            "purpose_counts": {
+                "direction_oracle": 0,
+                "biased_proposal_relax": 0,
+                "landing_true_quench": 20,
+                "escape_true_pes_check": 0,
+                "post_relax_validation": 1,
+                "starter_true_quench": 0,
+                "bootstrap_true_quench": 0,
+                "unattributed": 0,
+            },
+        }
+        for case in module.case_matrix()
+    ]
+
+    evidence = module.build_strict_evidence(rows)
+
+    assert evidence["cohort"]["completed_cases"] == 36
+    assert evidence["certificate_count"] == 36
+    assert evidence["arm_results"]["deep_refinement"]["new_basin_count"] == 9
+
+    rows[0]["certificate"] = False
+    evidence = module.build_strict_evidence(rows)
+    assert evidence["certificate_count"] == 35
+
+    rows[0]["purpose_counts"]["unattributed"] = 1
+    with pytest.raises(ValueError, match="purpose ledger"):
+        module.build_strict_evidence(rows)
