@@ -368,6 +368,63 @@ def _strict_bootstrap_config(
     return config, dict(effective), dict(config_diff)
 
 
+def _validate_bootstrap_runtime_files(
+    *,
+    system: str,
+    entry: Mapping[str, Any],
+    origin_summary: Mapping[str, Any],
+    base_runner: ModuleType,
+) -> dict[str, str]:
+    """Pin the exact input and model bytes before loading either runtime object."""
+
+    input_paths = getattr(base_runner, "INPUT_PATHS", None)
+    if not isinstance(input_paths, Mapping) or system not in input_paths:
+        raise RuntimeError(f"frozen base runner lacks the {system} raw input path")
+    raw_input_path = Path(input_paths[system])
+    expected_input_paths = {
+        str(raw_input_path),
+        str(origin_summary.get("input_path")),
+        str(entry.get("raw_input_path")),
+    }
+    if len(expected_input_paths) != 1:
+        raise RuntimeError(f"{system} raw input path differs across runtime provenance")
+    if not raw_input_path.is_file():
+        raise FileNotFoundError(f"{system} raw input path is absent: {raw_input_path}")
+    raw_input_sha256 = _sha256(raw_input_path)
+    if {
+        raw_input_sha256,
+        origin_summary.get("input_sha256"),
+        entry.get("raw_input_sha256"),
+    } != {raw_input_sha256}:
+        raise RuntimeError(f"{system} raw input checksum differs across runtime provenance")
+
+    base_model_path = Path(getattr(base_runner, "MODEL_PATH", MODEL_PATH))
+    expected_model_paths = {
+        str(base_model_path),
+        str(MODEL_PATH),
+        str(origin_summary.get("model_path")),
+        str(entry.get("model_path")),
+    }
+    if len(expected_model_paths) != 1:
+        raise RuntimeError(f"{system} model path differs across runtime provenance")
+    if not MODEL_PATH.is_file():
+        raise FileNotFoundError(f"model path is absent: {MODEL_PATH}")
+    model_sha256 = _sha256(MODEL_PATH)
+    if {
+        model_sha256,
+        MODEL_SHA256,
+        origin_summary.get("model_sha256"),
+        entry.get("model_sha256"),
+    } != {model_sha256}:
+        raise RuntimeError(f"{system} model checksum differs across runtime provenance")
+    return {
+        "raw_input_path": str(raw_input_path),
+        "raw_input_sha256": raw_input_sha256,
+        "model_path": str(MODEL_PATH),
+        "model_sha256": model_sha256,
+    }
+
+
 def _validate_origin(system: str, registry: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     if system not in FIXED_STATE_REGISTRY:
         raise ValueError(f"unknown fixed-state system {system!r}")
@@ -700,6 +757,12 @@ def _reconstruct_bootstrap(
     base_runner: ModuleType,
     origin_summary: Mapping[str, Any],
 ) -> tuple[State, object, dict[str, Any], State]:
+    runtime_files = _validate_bootstrap_runtime_files(
+        system=system,
+        entry=entry,
+        origin_summary=origin_summary,
+        base_runner=base_runner,
+    )
     template = base_runner.load_state(system)
     with tempfile.TemporaryDirectory(prefix=f"block-krylov-{system}-bootstrap-") as temporary_root:
         config, effective_config, config_diff = _strict_bootstrap_config(
@@ -738,8 +801,7 @@ def _reconstruct_bootstrap(
     provenance = dict(entry)
     provenance.update(
         {
-            "raw_input_path": origin_summary["input_path"],
-            "raw_input_sha256": origin_summary["input_sha256"],
+            **runtime_files,
             "strict_wrapper_runtime_path": str(FROZEN_STRICT_QUENCH_WRAPPER),
             "strict_wrapper_path": entry["strict_wrapper_path"],
             "strict_wrapper_sha256": _sha256(FROZEN_STRICT_QUENCH_WRAPPER),
@@ -804,8 +866,8 @@ def _run_fixed_states() -> list[dict[str, Any]]:
         )
         calculator_provenance = {
             "kind": "mace_omat_0_small",
-            "model_path": str(MODEL_PATH),
-            "model_sha256": MODEL_SHA256,
+            "model_path": bootstrap_provenance["model_path"],
+            "model_sha256": bootstrap_provenance["model_sha256"],
             "device": "cuda",
             "precision": "float32",
             "dtype": "float32",
@@ -856,7 +918,7 @@ def _runtime_metadata(analytic_only: bool) -> dict[str, Any]:
             {
                 "dtype": "float32",
                 "model_path": str(MODEL_PATH),
-                "model_sha256": MODEL_SHA256,
+                "model_sha256": _sha256(MODEL_PATH),
             }
         )
     return metadata

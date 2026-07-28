@@ -126,6 +126,7 @@ def _validate_row(row: Mapping[str, Any], index: int) -> dict[str, Any]:
         "case",
         "kind",
         "arm",
+        "intent_seed",
         "force_evaluations",
         "krylov_hvp_count",
         "purpose_counts",
@@ -143,6 +144,7 @@ def _validate_row(row: Mapping[str, Any], index: int) -> dict[str, Any]:
     arm = row["arm"]
     if arm not in ALLOCATIONS:
         raise RuntimeError(f"{label}.arm is not preregistered: {arm!r}")
+    intent_seed = _nonnegative_int(row["intent_seed"], f"{label}.intent_seed")
     force_evaluations = _nonnegative_int(row["force_evaluations"], f"{label}.force_evaluations")
     hvp_count = _nonnegative_int(row["krylov_hvp_count"], f"{label}.krylov_hvp_count")
     if force_evaluations != 2 * hvp_count:
@@ -210,6 +212,7 @@ def _validate_row(row: Mapping[str, Any], index: int) -> dict[str, Any]:
         "system": row.get("system", "analytic"),
         "state_id": row.get("state_id", row["case"]),
         "arm": arm,
+        "intent_seed": intent_seed,
         "force_evaluations": force_evaluations,
         "krylov_hvp_count": hvp_count,
         "curvature": selection.get("curvature"),
@@ -253,6 +256,7 @@ def _fixed_registry_lookup(
                 raise RuntimeError(f"{entry_label}.origin_commit must be a full commit SHA")
             if entry["model_path"] != runtime["model_path"] or entry["model_sha256"] != runtime["model_sha256"]:
                 raise RuntimeError(f"{entry_label} model provenance does not match raw runtime")
+            _nonnegative_int(entry.get("intent_seed"), f"{entry_label}.intent_seed")
             if source == "locked_accepted_structure":
                 _required_string(entry, "structure_path", entry_label)
                 _sha256_digest(entry.get("structure_sha256"), f"{entry_label}.structure_sha256")
@@ -274,6 +278,38 @@ def _fixed_registry_lookup(
     }:
         raise RuntimeError("fixed-state registry does not close to the locked cohort")
     return lookup
+
+
+def _validate_group_fairness(
+    rows: Sequence[Mapping[str, Any]],
+    fixed_lookup: Mapping[tuple[str, str], Mapping[str, Any]] | None,
+) -> None:
+    groups: dict[tuple[str, str, str], list[tuple[str, int]]] = {}
+    for index, row in enumerate(rows):
+        kind = str(row["kind"])
+        system = str(row.get("system", "analytic"))
+        identifier = str(row.get("state_id", row["case"])) if kind == "fixed_state" else str(row["case"])
+        seed = _nonnegative_int(row.get("intent_seed"), f"rows[{index}].intent_seed")
+        groups.setdefault((kind, system, identifier), []).append((str(row["arm"]), seed))
+
+    expected_arms = set(ALLOCATIONS)
+    for (kind, system, identifier), arm_seeds in groups.items():
+        arms = [arm for arm, _ in arm_seeds]
+        label = f"{kind}:{system}:{identifier}"
+        if len(arms) != len(expected_arms) or set(arms) != expected_arms:
+            raise RuntimeError(f"{label} must contain exactly all four arms once")
+        seeds = {seed for _, seed in arm_seeds}
+        if len(seeds) != 1:
+            raise RuntimeError(f"{label} must use one common intent_seed across all arms")
+        if kind == "fixed_state":
+            if fixed_lookup is None or (system, identifier) not in fixed_lookup:
+                raise RuntimeError(f"{label} lacks fixed-state registry provenance")
+            expected_seed = _nonnegative_int(
+                fixed_lookup[(system, identifier)].get("intent_seed"),
+                f"fixed_state_registry.{system}.{identifier}.intent_seed",
+            )
+            if seeds != {expected_seed}:
+                raise RuntimeError(f"{label} does not match registry intent_seed")
 
 
 def _validate_fixed_provenance(
@@ -436,6 +472,7 @@ def project_evidence(raw: Mapping[str, Any]) -> dict[str, Any]:
         if row.get("kind") == "fixed_state"
     ]
     fixed_provenance: dict[str, list[dict[str, Any]]] = {}
+    fixed_lookup: Mapping[tuple[str, str], Mapping[str, Any]] | None = None
     if mode == "analytic_only":
         if fixed_rows:
             raise RuntimeError("analytic_only runtime mode must not contain fixed-state rows")
@@ -444,7 +481,7 @@ def project_evidence(raw: Mapping[str, Any]) -> dict[str, Any]:
     else:
         if not fixed_rows:
             raise RuntimeError("full_fixed_state runtime mode requires the exact fixed-state cohort")
-        lookup = _fixed_registry_lookup(fixed_state_registry, runtime)
+        fixed_lookup = _fixed_registry_lookup(fixed_state_registry, runtime)
         expected_cohort = {
             (system, state_id, arm)
             for system in FIXED_SYSTEMS
@@ -456,9 +493,9 @@ def project_evidence(raw: Mapping[str, Any]) -> dict[str, Any]:
         for index, row in fixed_rows:
             system = _required_string(row, "system", f"rows[{index}]")
             state_id = _required_string(row, "state_id", f"rows[{index}]")
-            if (system, state_id) not in lookup:
+            if (system, state_id) not in fixed_lookup:
                 raise RuntimeError(f"rows[{index}] fixed-state system/state_id is not preregistered")
-            summary = _validate_fixed_provenance(row, index, lookup[(system, state_id)], runtime)
+            summary = _validate_fixed_provenance(row, index, fixed_lookup[(system, state_id)], runtime)
             observed_cohort.append((system, state_id, str(row["arm"])))
             existing = by_state.setdefault((system, state_id), summary)
             if existing != summary:
@@ -469,6 +506,7 @@ def project_evidence(raw: Mapping[str, Any]) -> dict[str, Any]:
             system: [by_state[(system, state_id)] for state_id in FIXED_STATE_PROTOCOL]
             for system in FIXED_SYSTEMS
         }
+    _validate_group_fairness(raw_rows, fixed_lookup)
 
     analytic_cases = sorted({row["case"] for row in projected_rows if row["kind"] == "analytic"})
     c60_states = sorted(

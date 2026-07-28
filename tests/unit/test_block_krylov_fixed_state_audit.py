@@ -6,6 +6,7 @@ import importlib.util
 from copy import deepcopy
 from pathlib import Path
 import sys
+from types import SimpleNamespace
 
 import pytest
 
@@ -49,6 +50,7 @@ def _row(name: str, arm: str) -> dict[str, object]:
         "case": name,
         "kind": "analytic",
         "arm": arm,
+        "intent_seed": 123,
         "force_evaluations": 2 * hvp_count,
         "krylov_hvp_count": hvp_count,
         "purpose_counts": {"direction_oracle": 2 * hvp_count, "unattributed": 0},
@@ -101,9 +103,9 @@ def _fixed_registry() -> dict[str, list[dict[str, object]]]:
         ("plateau_accepted", "plateau", "locked_accepted_structure"),
     )
     registry: dict[str, list[dict[str, object]]] = {}
-    for system in ("c60", "pdo"):
+    for system_index, system in enumerate(("c60", "pdo")):
         entries: list[dict[str, object]] = []
-        for state_id, phase, source in states:
+        for state_index, (state_id, phase, source) in enumerate(states):
             entry: dict[str, object] = {
                 "state_id": state_id,
                 "phase": phase,
@@ -113,6 +115,7 @@ def _fixed_registry() -> dict[str, list[dict[str, object]]]:
                 "origin_commit": "b" * 40,
                 "model_path": "/models/mace.model",
                 "model_sha256": "m" * 64,
+                "intent_seed": 71001 + 1000 * system_index + state_index,
             }
             if source == "locked_accepted_structure":
                 entry.update(
@@ -191,6 +194,7 @@ def _fixed_raw() -> dict[str, object]:
                     kind="fixed_state",
                     system=system,
                     state_id=entry["state_id"],
+                    intent_seed=entry["intent_seed"],
                     case_metadata={"phase": entry["phase"]},
                     state_sha256=state_sha256,
                     state_provenance=_fixed_state_provenance(entry, state_sha256=state_sha256),
@@ -265,6 +269,92 @@ def test_strict_bootstrap_config_uses_wrapper_effective_protocol_for_c60_and_pdo
         assert config_diff == summary["strict_quench_wrapper"]["config_diff"]
 
 
+def test_bootstrap_rejects_tampered_raw_input_before_loading_state_or_calculator(
+    tmp_path, monkeypatch
+):
+    runner = _load_runner()
+    raw_input = tmp_path / "input.xyz"
+    raw_input.write_text("tampered input", encoding="utf-8")
+    model = tmp_path / "model.bin"
+    model.write_bytes(b"model")
+    model_sha256 = runner._sha256(model)
+    monkeypatch.setattr(runner, "MODEL_PATH", model)
+    monkeypatch.setattr(runner, "MODEL_SHA256", model_sha256)
+    calls: list[str] = []
+    base_runner = SimpleNamespace(
+        INPUT_PATHS={"c60": raw_input},
+        MODEL_PATH=model,
+        load_state=lambda system: calls.append(f"load_state:{system}"),
+        _calculator=lambda: calls.append("calculator"),
+    )
+    entry = {
+        "raw_input_path": str(raw_input),
+        "raw_input_sha256": "0" * 64,
+        "model_path": str(model),
+        "model_sha256": model_sha256,
+    }
+    origin_summary = {
+        "input_path": str(raw_input),
+        "input_sha256": "0" * 64,
+        "model_path": str(model),
+        "model_sha256": model_sha256,
+    }
+
+    with pytest.raises(RuntimeError, match="raw input checksum"):
+        runner._reconstruct_bootstrap(
+            system="c60",
+            entry=entry,
+            strict_wrapper=SimpleNamespace(),
+            base_runner=base_runner,
+            origin_summary=origin_summary,
+        )
+
+    assert calls == []
+
+
+def test_bootstrap_rejects_model_checksum_drift_before_loading_state_or_calculator(
+    tmp_path, monkeypatch
+):
+    runner = _load_runner()
+    raw_input = tmp_path / "input.xyz"
+    raw_input.write_text("input", encoding="utf-8")
+    input_sha256 = runner._sha256(raw_input)
+    model = tmp_path / "model.bin"
+    model.write_bytes(b"tampered model")
+    monkeypatch.setattr(runner, "MODEL_PATH", model)
+    monkeypatch.setattr(runner, "MODEL_SHA256", "0" * 64)
+    calls: list[str] = []
+    base_runner = SimpleNamespace(
+        INPUT_PATHS={"c60": raw_input},
+        MODEL_PATH=model,
+        load_state=lambda system: calls.append(f"load_state:{system}"),
+        _calculator=lambda: calls.append("calculator"),
+    )
+    entry = {
+        "raw_input_path": str(raw_input),
+        "raw_input_sha256": input_sha256,
+        "model_path": str(model),
+        "model_sha256": "0" * 64,
+    }
+    origin_summary = {
+        "input_path": str(raw_input),
+        "input_sha256": input_sha256,
+        "model_path": str(model),
+        "model_sha256": "0" * 64,
+    }
+
+    with pytest.raises(RuntimeError, match="model checksum"):
+        runner._reconstruct_bootstrap(
+            system="c60",
+            entry=entry,
+            strict_wrapper=SimpleNamespace(),
+            base_runner=base_runner,
+            origin_summary=origin_summary,
+        )
+
+    assert calls == []
+
+
 def test_analyzer_accepts_only_exact_fixed_cohort_and_projects_provenance_summary():
     analyzer = _load_analyzer()
 
@@ -290,6 +380,38 @@ def test_analyzer_rejects_fixed_rows_when_runtime_mode_is_analytic_only():
     raw["runtime"]["mode"] = "analytic_only"
 
     with pytest.raises(RuntimeError, match="analytic_only"):
+        analyzer.project_evidence(raw)
+
+
+def test_analyzer_rejects_per_arm_intent_seed_drift():
+    analyzer = _load_analyzer()
+    raw = _raw()
+    raw["rows"][0]["intent_seed"] = 999
+
+    with pytest.raises(RuntimeError, match="common intent_seed"):
+        analyzer.project_evidence(raw)
+
+
+@pytest.mark.parametrize("mutation", ["missing", "duplicate"])
+def test_analyzer_requires_each_analytic_group_to_have_exactly_four_unique_arms(mutation):
+    analyzer = _load_analyzer()
+    raw = _raw()
+    if mutation == "missing":
+        raw["rows"].pop()
+    else:
+        raw["rows"].append(deepcopy(raw["rows"][0]))
+
+    with pytest.raises(RuntimeError, match="exactly all four arms"):
+        analyzer.project_evidence(raw)
+
+
+def test_analyzer_rejects_fixed_seed_that_differs_from_registry():
+    analyzer = _load_analyzer()
+    raw = _fixed_raw()
+    for row in raw["rows"][:4]:
+        row["intent_seed"] = 999
+
+    with pytest.raises(RuntimeError, match="registry intent_seed"):
         analyzer.project_evidence(raw)
 
 
