@@ -162,7 +162,20 @@ def test_strict_refine_evidence_requires_certificates_and_closed_quench_ledgers(
     assert evidence["cohort"]["completed_cases"] == 36
     assert evidence["certificate_count"] == 36
     assert evidence["exact_starter_reference_count"] == 36
+    assert evidence["meaningful_energy_drop_threshold_eV"] == pytest.approx(0.001)
+    assert (
+        evidence["arm_results"]["discrete"]["meaningful_downhill_new_basin_count"]
+        == 9
+    )
     assert evidence["arm_results"]["deep_refinement"]["new_basin_count"] == 9
+
+    rows[0]["landing_delta_eV"] = -1.0e-5
+    evidence = module.build_strict_evidence(rows)
+    assert evidence["arm_results"]["discrete"]["downhill_landing_count"] == 9
+    assert (
+        evidence["arm_results"]["discrete"]["meaningful_downhill_new_basin_count"]
+        == 8
+    )
 
     rows[0]["certificate"] = False
     evidence = module.build_strict_evidence(rows)

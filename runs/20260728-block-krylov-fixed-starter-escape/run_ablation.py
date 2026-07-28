@@ -53,6 +53,7 @@ ARMS: dict[str, dict[str, object]] = {
         "block_krylov_depth": 6,
     },
 }
+MEANINGFUL_ENERGY_DROP_EV = 0.001
 
 
 def _load_module(path: Path, name: str):
@@ -329,6 +330,13 @@ def _finite(value: Any, label: str) -> float:
     return float(value)
 
 
+def _is_meaningful_downhill(row: Mapping[str, Any]) -> bool:
+    return (
+        _finite(row["landing_delta_eV"], "landing delta")
+        < -MEANINGFUL_ENERGY_DROP_EV
+    )
+
+
 def build_evidence(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     expected = {
         (row["state_id"], row["seed"], row["arm"])
@@ -380,6 +388,13 @@ def build_evidence(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
                 _finite(row["landing_delta_eV"], "landing delta") < 0.0
                 for row in arm_rows
             ),
+            "meaningful_downhill_landing_count": sum(
+                _is_meaningful_downhill(row) for row in arm_rows
+            ),
+            "meaningful_downhill_new_basin_count": sum(
+                bool(row["is_new_basin"]) and _is_meaningful_downhill(row)
+                for row in arm_rows
+            ),
             "median_landing_delta_eV": statistics.median(
                 _finite(row["landing_delta_eV"], "landing delta")
                 for row in arm_rows
@@ -418,6 +433,7 @@ def build_evidence(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
             "arms": list(ARMS),
             "completed_cases": len(rows),
         },
+        "meaningful_energy_drop_threshold_eV": MEANINGFUL_ENERGY_DROP_EV,
         "arm_results": arm_results,
         "production_default_changed": False,
         "claim_ceiling": (
@@ -467,6 +483,13 @@ def build_strict_evidence(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
                 _finite(row["landing_delta_eV"], "landing delta") < 0.0
                 for row in certified
             ),
+            "meaningful_downhill_landing_count": sum(
+                _is_meaningful_downhill(row) for row in certified
+            ),
+            "meaningful_downhill_new_basin_count": sum(
+                bool(row["is_new_basin"]) and _is_meaningful_downhill(row)
+                for row in certified
+            ),
             "median_landing_delta_eV": (
                 None
                 if not certified
@@ -512,6 +535,7 @@ def build_strict_evidence(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "exact_starter_reference_count": sum(
             bool(row.get("exact_starter_reference")) for row in rows
         ),
+        "meaningful_energy_drop_threshold_eV": MEANINGFUL_ENERGY_DROP_EV,
         "arm_results": arm_results,
         "production_default_changed": False,
         "claim_ceiling": (
