@@ -1328,6 +1328,12 @@ class SoftModeOracle:
     ) -> DirectionChoice:
         if self.direction_selection_mode == "block_krylov":
             return self._choose_block_krylov_direction(state, proposal, krylov_intents)
+        if self.direction_selection_mode == "exact_anchor":
+            return self._choose_exact_anchor_direction(
+                state,
+                proposal,
+                anchor_direction,
+            )
 
         best_direction: np.ndarray | None = None
         best_curvature: float | None = None
@@ -1600,6 +1606,36 @@ class SoftModeOracle:
             score=None,
             true_curvature=selected.true_curvature,
             diagnostics=diagnostics,
+        )
+
+    def _choose_exact_anchor_direction(
+        self,
+        state: State,
+        proposal: ProposalPotential,
+        anchor_direction: np.ndarray | None,
+    ) -> DirectionChoice:
+        if anchor_direction is None:
+            raise ValueError(
+                "anchor_direction is required for exact_anchor mode"
+            )
+        anchor = self._normalized_or_none(anchor_direction)
+        if anchor is None or anchor.shape != (state.positions.size,):
+            raise ValueError(
+                "anchor_direction must be a finite nonzero full direction"
+            )
+        total_hvp, true_hvp = self._candidate_directional_hvps(
+            state,
+            proposal,
+            anchor,
+        )
+        return DirectionChoice(
+            direction=anchor,
+            curvature=float(np.dot(anchor, total_hvp)),
+            kind=DirectionCandidateKind.ANCHOR,
+            candidate_count=1,
+            score=None,
+            true_curvature=float(np.dot(anchor, true_hvp)),
+            diagnostics={"direction_hvp_count": 1},
         )
 
     def _archive_momentum_candidates(

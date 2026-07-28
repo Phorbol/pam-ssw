@@ -320,16 +320,33 @@ class SSWConfig:
             )
         if self.direction_curvature_source not in {"inner", "true"}:
             raise ValueError("direction_curvature_source must be inner or true")
-        if self.direction_selection_mode not in {"discrete", "rayleigh_ritz", "block_krylov"}:
-            raise ValueError("direction_selection_mode must be discrete, rayleigh_ritz, or block_krylov")
+        direction_selection_modes = {
+            "discrete",
+            "rayleigh_ritz",
+            "block_krylov",
+            "exact_anchor",
+            "anchor_krylov",
+        }
+        if self.direction_selection_mode not in direction_selection_modes:
+            raise ValueError(
+                "direction_selection_mode must be discrete, rayleigh_ritz, "
+                "block_krylov, exact_anchor, or anchor_krylov"
+            )
         if self.direction_synthesis_mode not in {"none", "regularized_ritz"}:
             raise ValueError("direction_synthesis_mode must be none or regularized_ritz")
         if (
-            self.direction_selection_mode in {"rayleigh_ritz", "block_krylov"}
+            self.direction_selection_mode
+            in {
+                "rayleigh_ritz",
+                "block_krylov",
+                "exact_anchor",
+                "anchor_krylov",
+            }
             and self.direction_synthesis_mode == "regularized_ritz"
         ):
             raise ValueError(
-                "direction_selection_mode rayleigh_ritz and block_krylov cannot be combined with regularized_ritz synthesis"
+                "explicit direction_selection_mode cannot be combined with "
+                "regularized_ritz synthesis"
             )
         if self.direction_score_sigma_mode not in {"adaptive", "trust_scaled", "fixed_reference"}:
             raise ValueError("direction_score_sigma_mode must be adaptive, trust_scaled, or fixed_reference")

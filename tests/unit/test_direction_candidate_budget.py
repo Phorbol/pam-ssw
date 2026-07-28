@@ -154,6 +154,36 @@ def test_block_krylov_reuses_solver_hvps_for_selection_and_true_curvature():
     assert calculator.force_evaluations == 12
 
 
+def test_exact_anchor_mode_uses_one_curvature_hvp():
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[0.0, 0.0, 0.0]]),
+    )
+    calculator = EvalCounter(AnalyticCalculator(Quadratic()))
+    oracle = SoftModeOracle(
+        calculator,
+        np.random.default_rng(0),
+        candidates=0,
+        direction_selection_mode="exact_anchor",
+    )
+    anchor = np.array([0.0, -1.0, 0.0])
+
+    choice = oracle.choose_direction(
+        state,
+        ProposalPotential(calculator),
+        previous_direction=None,
+        anchor_direction=anchor,
+    )
+
+    assert choice.kind is DirectionCandidateKind.ANCHOR
+    np.testing.assert_array_equal(choice.direction, anchor)
+    assert choice.curvature == pytest.approx(1.0)
+    assert choice.true_curvature == pytest.approx(1.0)
+    assert choice.candidate_count == 1
+    assert choice.diagnostics == {"direction_hvp_count": 1}
+    assert calculator.force_evaluations == 2
+
+
 def test_block_krylov_projects_hvps_back_into_fixed_and_internal_subspace():
     class FixedCoupledQuadratic:
         def __init__(self):

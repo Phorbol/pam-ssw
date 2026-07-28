@@ -380,6 +380,8 @@ def test_config_validates_direction_selection_mode():
     assert SSWConfig(direction_selection_mode="discrete").direction_selection_mode == "discrete"
     assert SSWConfig(direction_selection_mode="rayleigh_ritz").direction_selection_mode == "rayleigh_ritz"
     assert SSWConfig(direction_selection_mode="block_krylov").direction_selection_mode == "block_krylov"
+    assert SSWConfig(direction_selection_mode="exact_anchor").direction_selection_mode == "exact_anchor"
+    assert SSWConfig(direction_selection_mode="anchor_krylov").direction_selection_mode == "anchor_krylov"
 
     with pytest.raises(ValueError, match="direction_selection_mode"):
         SSWConfig(direction_selection_mode="unknown")
@@ -399,10 +401,17 @@ def test_config_rejects_unimplemented_direction_synthesis_modes():
 
 
 def test_config_rejects_ambiguous_ritz_selector_and_synthesis_combo():
-    with pytest.raises(ValueError, match="direction_selection_mode"):
-        SSWConfig(direction_selection_mode="rayleigh_ritz", direction_synthesis_mode="regularized_ritz")
-    with pytest.raises(ValueError, match="direction_selection_mode"):
-        SSWConfig(direction_selection_mode="block_krylov", direction_synthesis_mode="regularized_ritz")
+    for mode in (
+        "rayleigh_ritz",
+        "block_krylov",
+        "exact_anchor",
+        "anchor_krylov",
+    ):
+        with pytest.raises(ValueError, match="direction_selection_mode"):
+            SSWConfig(
+                direction_selection_mode=mode,
+                direction_synthesis_mode="regularized_ritz",
+            )
 
 
 def test_config_validates_block_krylov_controls():
