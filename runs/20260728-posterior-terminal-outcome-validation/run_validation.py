@@ -132,6 +132,7 @@ def _committed_batches(path: Path) -> list[dict[str, Any]]:
                 isinstance(row["policy_name"], str) and bool(row["policy_name"]),
                 "invalid policy name",
             )
+            _require(row["policy_name"] == "uniform", "unexpected policy name")
             probabilities = row["probabilities"]
             starters = row["eligible_starter_ids"]
             _require(row["support_complete"] is True, "incomplete policy support")
@@ -161,7 +162,12 @@ def _committed_batches(path: Path) -> list[dict[str, Any]]:
                 "invalid policy probability",
             )
             _require(
-                isclose(fsum(float(value) for value in probabilities), 1.0, abs_tol=1e-12),
+                isclose(
+                    fsum(float(value) for value in probabilities),
+                    1.0,
+                    rel_tol=0.0,
+                    abs_tol=1e-12,
+                ),
                 "policy probabilities do not normalize",
             )
             active = {"snapshot": row, "attempts": []}
@@ -220,11 +226,7 @@ def _committed_batches(path: Path) -> list[dict[str, Any]]:
             )
             _require(starter_id in probability_by_starter, "starter outside support")
             _require(
-                isclose(
-                    float(selection_probability),
-                    float(probability_by_starter[starter_id]),
-                    abs_tol=1e-15,
-                ),
+                selection_probability == probability_by_starter[starter_id],
                 "saved selection probability mismatch",
             )
             counts = row["evaluation_counts"]
