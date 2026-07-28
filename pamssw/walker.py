@@ -3000,11 +3000,8 @@ class SurfaceWalker:
             with self.calculator.purpose(EvaluationPurpose.DIRECTION_ORACLE):
                 inner_curvature = (
                     choice.curvature
-                    if not rebuild_softening_for_choice
-                    and (
-                        choice.kind is DirectionCandidateKind.BLOCK_RITZ
-                        or self.config.direction_curvature_source == "inner"
-                    )
+                    if self.config.direction_curvature_source == "inner"
+                    and not rebuild_softening_for_choice
                     else self.oracle._directional_curvature(current, proposal, choice.direction)
                 )
             choice.diagnostics.update(

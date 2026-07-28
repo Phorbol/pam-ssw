@@ -732,7 +732,7 @@ def test_block_krylov_selects_lowest_block_without_native_scoring(monkeypatch):
 
 @pytest.mark.parametrize(
     ("force_softening_rebuild", "extra_direction_evaluations"),
-    [(False, 0), (True, 2)],
+    [(False, 2), (True, 2)],
 )
 def test_block_krylov_walk_reuses_one_intent_batch_and_records_exact_diagnostics(
     monkeypatch,
@@ -762,6 +762,7 @@ def test_block_krylov_walk_reuses_one_intent_batch_and_records_exact_diagnostics
             block_krylov_blocks=2,
             block_krylov_depth=2,
             direction_curvature_source="true",
+            target_negative_curvature=10.0,
             direction_diagnostics_enabled=True,
             direction_diagnostics_path=str(diagnostic_path),
         ),
@@ -770,7 +771,11 @@ def test_block_krylov_walk_reuses_one_intent_batch_and_records_exact_diagnostics
     generated_intents = []
     original_generate = walker.oracle.generator.generate_krylov_intents
     original_choose = walker.oracle.choose_direction
+    original_directional_curvature = walker.oracle._directional_curvature
+    original_bias_weight = walker._bias_weight
     chosen_intents = []
+    inner_curvatures = []
+    bias_weight_inputs = []
 
     def generate_krylov_intents(current, *, n_blocks):
         intents = original_generate(current, n_blocks=n_blocks)
@@ -781,8 +786,28 @@ def test_block_krylov_walk_reuses_one_intent_batch_and_records_exact_diagnostics
         chosen_intents.append(kwargs["krylov_intents"])
         return original_choose(*args, **kwargs)
 
+    def record_inner_curvature(current, proposal, direction):
+        curvature = original_directional_curvature(current, proposal, direction)
+        inner_curvatures.append((len(proposal.biases), curvature))
+        return curvature
+
+    def record_bias_weight(curvature, sigma):
+        weight = original_bias_weight(curvature, sigma)
+        bias_weight_inputs.append((curvature, sigma, weight))
+        return weight
+
+    def relax_to_newest_bias_center(task, **kwargs):
+        return RelaxResult(
+            task.initial_state.with_flat_positions(task.biases[-1].center),
+            energy=0.0,
+            gradient_norm=0.0,
+            n_iter=0,
+        )
+
     monkeypatch.setattr(walker.oracle.generator, "generate_krylov_intents", generate_krylov_intents)
     monkeypatch.setattr(walker.oracle, "choose_direction", choose_direction)
+    monkeypatch.setattr(walker.oracle, "_directional_curvature", record_inner_curvature)
+    monkeypatch.setattr(walker, "_bias_weight", record_bias_weight)
     if force_softening_rebuild:
         monkeypatch.setattr(
             walker,
@@ -792,7 +817,7 @@ def test_block_krylov_walk_reuses_one_intent_batch_and_records_exact_diagnostics
     monkeypatch.setattr(
         walker,
         "_relax_proposal_task",
-        lambda task, **kwargs: RelaxResult(task.initial_state, energy=0.0, gradient_norm=0.0, n_iter=0),
+        relax_to_newest_bias_center,
     )
 
     walker._walk_candidate_from_seed(state)
@@ -837,6 +862,14 @@ def test_block_krylov_walk_reuses_one_intent_batch_and_records_exact_diagnostics
     assert all(
         row["oracle_wall_seconds"] >= row["oracle_selection_wall_seconds"] >= 0.0
         for row in rows
+    )
+    assert [bias_count for bias_count, _ in inner_curvatures] == [0, 1]
+    assert [curvature for curvature, _, _ in bias_weight_inputs] == pytest.approx(
+        [curvature for _, curvature in inner_curvatures]
+    )
+    assert inner_curvatures[1][1] < rows[1]["selected_curvature"] - 5.0
+    assert bias_weight_inputs[1][2] == pytest.approx(
+        original_bias_weight(inner_curvatures[1][1], bias_weight_inputs[1][1])
     )
     assert walker.calculator.snapshot().count(EvaluationPurpose.DIRECTION_ORACLE) == sum(
         row["oracle_direction_force_evaluations_delta"] for row in rows
