@@ -22,6 +22,7 @@ from .bias import GaussianBiasTerm
 from .config import LSSSWConfig, RelaxConfig, SSWConfig
 from .coordinates import CartesianCoordinates, TangentVector
 from .fingerprint import descriptor_distance, structural_descriptor
+from .krylov import IntentBlock
 from .pbc import mic_displacement, mic_distance_matrix, wrap_positions
 from .relax import (
     RelaxEvaluation,
@@ -800,6 +801,48 @@ class CandidateDirectionGenerator:
         self.last_random_bond_pairs_generated = 0
         self.last_fallback_bond_pairs_generated = 0
         self.last_random_bond_candidates_valid = 0
+
+    def generate_krylov_intents(self, state: State, *, n_blocks: int) -> tuple[IntentBlock, ...]:
+        if n_blocks <= 0:
+            raise ValueError("n_blocks must be positive")
+
+        coordinates = CartesianCoordinates.from_state(state)
+        movable_indices = np.where(state.movable_mask)[0]
+        pairs = [
+            (int(atom_i), int(atom_j))
+            for left_index, atom_i in enumerate(movable_indices)
+            for atom_j in movable_indices[left_index + 1 :]
+        ]
+        pair_order = self.rng.permutation(len(pairs))
+
+        intents: list[IntentBlock] = []
+        for block_index in range(n_blocks):
+            active = self._random_active_direction(state, coordinates)
+            active /= np.linalg.norm(active) + 1e-12
+            random_direction = coordinates.full_tangent_from_active(active).values
+            random_axis = self._candidate(state, DirectionCandidateKind.RANDOM, random_direction).direction
+
+            pair: tuple[int, int] | None = None
+            columns = [random_axis]
+            if block_index < len(pair_order):
+                candidate_pair = pairs[int(pair_order[block_index])]
+                local_pair_direction = self._pair_direction(state, *candidate_pair, sign=1.0)
+                if local_pair_direction is not None:
+                    pair_axis = self._candidate(
+                        state,
+                        DirectionCandidateKind.BOND_FORM,
+                        local_pair_direction,
+                    ).direction
+                    pair_orthogonal = pair_axis.copy()
+                    for _ in range(2):
+                        pair_orthogonal -= float(np.dot(random_axis, pair_orthogonal)) * random_axis
+                    pair_norm = np.linalg.norm(pair_orthogonal)
+                    if pair_norm > 1e-12:
+                        columns.append(pair_orthogonal / pair_norm)
+                        pair = candidate_pair
+
+            intents.append(IntentBlock(basis=np.column_stack(columns), pair=pair))
+        return tuple(intents)
 
     def generate(
         self,

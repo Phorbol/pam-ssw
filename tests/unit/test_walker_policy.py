@@ -2629,6 +2629,77 @@ def test_anchor_candidate_enabled_is_deprecated_noop():
     assert kinds.count(DirectionCandidateKind.RANDOM) == 4
 
 
+def test_krylov_intent_generator_returns_unique_orthonormal_random_pair_blocks():
+    state = State(
+        numbers=np.array([6, 6, 6]),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.4, 0.0, 0.0],
+                [0.0, 1.2, 0.0],
+            ]
+        ),
+    )
+    generator = CandidateDirectionGenerator(np.random.default_rng(27), n_random=0)
+
+    intents = generator.generate_krylov_intents(state, n_blocks=2)
+
+    assert isinstance(intents, tuple)
+    assert len(intents) == 2
+    assert all(intent.basis.shape == (9, 2) for intent in intents)
+    assert all(intent.pair is not None for intent in intents)
+    assert len({intent.pair for intent in intents}) == 2
+    for intent in intents:
+        np.testing.assert_allclose(intent.basis.T @ intent.basis, np.eye(2), atol=1e-12)
+
+
+def test_krylov_intent_generator_returns_random_only_rank_one_block_for_one_movable_atom():
+    state = State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.4, 0.0, 0.0]]),
+        fixed_mask=np.array([False, True]),
+    )
+    generator = CandidateDirectionGenerator(np.random.default_rng(27), n_random=0)
+
+    [intent] = generator.generate_krylov_intents(state, n_blocks=1)
+
+    assert intent.pair is None
+    assert intent.basis.shape == (6, 1)
+    assert np.linalg.norm(intent.basis[:, 0]) == pytest.approx(1.0)
+
+
+def test_krylov_intent_generator_requires_positive_block_count():
+    state = State(numbers=np.array([6]), positions=np.array([[0.0, 0.0, 0.0]]))
+    generator = CandidateDirectionGenerator(np.random.default_rng(27), n_random=0)
+
+    with pytest.raises(ValueError, match="positive"):
+        generator.generate_krylov_intents(state, n_blocks=0)
+
+
+def test_krylov_intent_generator_does_not_use_non_neighbor_or_closest_pair_sampling(monkeypatch):
+    state = State(
+        numbers=np.array([6, 6, 6]),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.4, 0.0, 0.0],
+                [0.0, 1.2, 0.0],
+            ]
+        ),
+    )
+    generator = CandidateDirectionGenerator(np.random.default_rng(27), n_random=0)
+
+    def unexpected_legacy_pair_sampling(*args, **kwargs):
+        raise AssertionError("Krylov intent generation must not use legacy pair sampling")
+
+    monkeypatch.setattr(generator, "_random_non_neighbor_pairs", unexpected_legacy_pair_sampling)
+    monkeypatch.setattr(generator, "_closest_mic_pairs", unexpected_legacy_pair_sampling)
+
+    intents = generator.generate_krylov_intents(state, n_blocks=2)
+
+    assert len(intents) == 2
+
+
 class FixedNormalRng:
     def __init__(self, values):
         self.values = np.asarray(values, dtype=float)
