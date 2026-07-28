@@ -4,7 +4,10 @@ import importlib.util
 from pathlib import Path
 import sys
 
+import numpy as np
 import pytest
+
+from pamssw.state import State
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -133,6 +136,7 @@ def test_strict_refine_evidence_requires_certificates_and_closed_quench_ledgers(
             "arm": case["arm"],
             "status": "completed",
             "certificate": True,
+            "exact_starter_reference": True,
             "starter_energy_eV": -10.0,
             "landing_energy_eV": -11.0,
             "landing_delta_eV": -1.0,
@@ -157,6 +161,7 @@ def test_strict_refine_evidence_requires_certificates_and_closed_quench_ledgers(
 
     assert evidence["cohort"]["completed_cases"] == 36
     assert evidence["certificate_count"] == 36
+    assert evidence["exact_starter_reference_count"] == 36
     assert evidence["arm_results"]["deep_refinement"]["new_basin_count"] == 9
 
     rows[0]["certificate"] = False
@@ -166,3 +171,26 @@ def test_strict_refine_evidence_requires_certificates_and_closed_quench_ledgers(
     rows[0]["purpose_counts"]["unattributed"] = 1
     with pytest.raises(ValueError, match="purpose ledger"):
         module.build_strict_evidence(rows)
+
+
+def test_starter_snapshot_round_trips_the_exact_state(tmp_path):
+    module = _load_module()
+    state = State(
+        numbers=np.array([6, 8]),
+        positions=np.array(
+            [
+                [0.1234567890123456, -0.25, 1.0],
+                [2.0, 3.0, 4.0],
+            ]
+        ),
+        cell=np.diag([5.0, 6.0, 7.0]),
+        pbc=(True, False, True),
+        fixed_mask=np.array([True, False]),
+        metadata={"ignored": "snapshot identity is structural"},
+    )
+    path = tmp_path / "starter.json"
+
+    module._write_state_snapshot(path, state)
+    restored = module._read_state_snapshot(path)
+
+    assert module._state_sha256(restored) == module._state_sha256(state)

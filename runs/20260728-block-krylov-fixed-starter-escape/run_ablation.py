@@ -112,6 +112,57 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _state_sha256(state) -> str:
+    digest = sha256()
+    for values in (
+        np.asarray(state.numbers, dtype="<i8"),
+        np.asarray(state.positions, dtype="<f8"),
+        np.asarray(state.fixed_mask, dtype=np.uint8),
+        np.asarray(
+            state.cell if state.cell is not None else np.zeros((3, 3)),
+            dtype="<f8",
+        ),
+        np.asarray(state.pbc, dtype=np.uint8),
+    ):
+        digest.update(values.tobytes())
+    return digest.hexdigest()
+
+
+def _write_state_snapshot(path: Path, state) -> None:
+    _write_json(
+        path,
+        {
+            "numbers": np.asarray(state.numbers, dtype=int).tolist(),
+            "positions": np.asarray(state.positions, dtype=float).tolist(),
+            "cell": (
+                None
+                if state.cell is None
+                else np.asarray(state.cell, dtype=float).tolist()
+            ),
+            "pbc": [bool(value) for value in state.pbc],
+            "fixed_mask": np.asarray(state.fixed_mask, dtype=bool).tolist(),
+        },
+    )
+
+
+def _read_state_snapshot(path: Path):
+    from pamssw.state import State
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return State(
+        numbers=np.asarray(payload["numbers"], dtype=int),
+        positions=np.asarray(payload["positions"], dtype=float),
+        cell=(
+            None
+            if payload["cell"] is None
+            else np.asarray(payload["cell"], dtype=float)
+        ),
+        pbc=tuple(bool(value) for value in payload["pbc"]),
+        fixed_mask=np.asarray(payload["fixed_mask"], dtype=bool),
+        metadata={"source_snapshot": str(path)},
+    )
+
+
 def _read_direction_rows(path: Path) -> list[dict[str, Any]]:
     return [
         json.loads(line)
@@ -233,6 +284,7 @@ def _run_case(
     starter_descriptor = structural_descriptor(state)
     landing_descriptor = structural_descriptor(landing.state)
     case_dir.mkdir(parents=True, exist_ok=True)
+    _write_state_snapshot(case_dir / "starter.json", state)
     base_runner.write_state(case_dir / "escape.xyz", escape_state)
     base_runner.write_state(case_dir / "landing.xyz", landing.state)
     row = {
@@ -457,6 +509,9 @@ def build_strict_evidence(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
             "completed_cases": len(rows),
         },
         "certificate_count": sum(bool(row["certificate"]) for row in rows),
+        "exact_starter_reference_count": sum(
+            bool(row.get("exact_starter_reference")) for row in rows
+        ),
         "arm_results": arm_results,
         "production_default_changed": False,
         "claim_ceiling": (
@@ -564,7 +619,7 @@ def run_strict_refine(
         state_id = case["state_id"]
         seed = case["seed"]
         arm = case["arm"]
-        starter_state, state_provenance = states[state_id]
+        starter_state, _state_provenance = states[state_id]
         source_case_dir = (
             input_dir
             / "cases"
@@ -572,6 +627,22 @@ def run_strict_refine(
         )
         escape_path = source_case_dir / "escape.xyz"
         source_row = source_rows[(state_id, seed, arm)]
+        source_state_sha256 = str(source_row["state_sha256"])
+        starter_snapshot_path = source_case_dir / "starter.json"
+        if starter_snapshot_path.exists():
+            starter_state = _read_state_snapshot(starter_snapshot_path)
+            starter_reference_mode = "source_snapshot"
+        else:
+            starter_reference_mode = "legacy_registry_reconstruction"
+        starter_reference_sha256 = _state_sha256(starter_state)
+        exact_starter_reference = (
+            starter_reference_sha256 == source_state_sha256
+        )
+        if (
+            starter_reference_mode == "source_snapshot"
+            and not exact_starter_reference
+        ):
+            raise RuntimeError("stored starter snapshot does not match source state")
         atoms = read(escape_path)
         escape_state = State(
             numbers=np.asarray(atoms.numbers, dtype=int),
@@ -644,7 +715,10 @@ def run_strict_refine(
         base_runner.write_state(case_dir / "landing_strict.xyz", landing.state)
         row = {
             "state_id": state_id,
-            "state_sha256": state_provenance["state_sha256"],
+            "state_sha256": source_state_sha256,
+            "starter_reference_sha256": starter_reference_sha256,
+            "starter_reference_mode": starter_reference_mode,
+            "exact_starter_reference": exact_starter_reference,
             "seed": seed,
             "arm": arm,
             "status": "completed",
