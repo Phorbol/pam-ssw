@@ -218,3 +218,26 @@ def test_checkpoint_discovery_rejects_incomplete_or_wrong_files(
 
     with pytest.raises(ValueError):
         module.discover_checkpoint_paths(tmp_path)
+
+
+def test_effective_checkpoint_delegates_to_core_walk_clip():
+    module = _load_module()
+    starter = object()
+    raw_checkpoint = object()
+    effective = object()
+    calls = []
+
+    def core_clipper(reference, candidate, max_displacement):
+        calls.append((reference, candidate, max_displacement))
+        return effective, True
+
+    result, clipped = module.effective_checkpoint_state(
+        starter,
+        raw_checkpoint,
+        max_displacement=5.0,
+        _clipper=core_clipper,
+    )
+
+    assert clipped is True
+    assert result is effective
+    assert calls == [(starter, raw_checkpoint, 5.0)]

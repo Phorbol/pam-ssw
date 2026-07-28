@@ -34,14 +34,18 @@ whereas deep refinement was consistently productive on the plateau state.
 The existing relaxation-trajectory interface is sufficient. For each proposal
 walk, PAM-SSW already writes one
 `trial0001_proposal001_stepNNN_proposal_relax.xyz` file per macro bias step.
-The last frame of each file is the relaxed state after that bias step and is the
-checkpoint used by this audit.
+The last frame of each file is the optimizer result for that bias step. The
+walker subsequently applies its existing per-atom `walk_trust_radius` clip
+against the original starter and terminates the walk when clipping occurs.
+The audit must apply that same core transformation before treating the frame as
+the effective macro checkpoint.
 
 The runner shall:
 
 1. reconstruct the locked starter;
 2. run exactly one frozen proposal walk with trajectory output enabled;
-3. extract the last frame of every macro-step trajectory file;
+3. extract the last frame of every macro-step trajectory file and apply the
+   existing walker clip, rejecting a clipped nonterminal step;
 4. evaluate each checkpoint once on the true PES;
 5. strictly quench every checkpoint independently using ASE-LBFGS at
    `fmax=0.01 eV/A`, with the already validated ASE-FIRE certificate fallback;

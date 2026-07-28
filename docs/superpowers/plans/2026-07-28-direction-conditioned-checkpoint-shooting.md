@@ -201,6 +201,8 @@ The runner shall reuse:
   `runs/20260728-block-krylov-direction-gpu-ablation/run_ablation.py`;
 - `SurfaceWalker._proposal_pool` for one frozen uphill trajectory;
 - existing `write_relaxation_trajectories=True` with stride 1;
+- `SurfaceWalker._clip_walk_displacement` to transform every raw optimizer
+  last-frame into the effective macro checkpoint;
 - `SurfaceWalker.relax_true_minimum` configured with ASE-LBFGS primary,
   ASE-FIRE fallback, `fmax=0.01 eV/A`, and 400 iterations.
 
@@ -215,6 +217,11 @@ checkpoint_state = State(
     pbc=starter_state.pbc,
     fixed_mask=starter_state.fixed_mask,
     metadata={"checkpoint_path": str(path)},
+)
+checkpoint_state, clipped = SurfaceWalker._clip_walk_displacement(
+    starter_state,
+    checkpoint_state,
+    config.walk_trust_radius,
 )
 ```
 

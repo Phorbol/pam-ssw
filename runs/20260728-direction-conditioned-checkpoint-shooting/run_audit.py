@@ -363,6 +363,24 @@ def _state_from_checkpoint(path: Path, starter_state):
     )
 
 
+def effective_checkpoint_state(
+    starter_state,
+    raw_checkpoint_state,
+    *,
+    max_displacement: float,
+    _clipper=None,
+):
+    if _clipper is None:
+        from pamssw.walker import SurfaceWalker
+
+        _clipper = SurfaceWalker._clip_walk_displacement
+    return _clipper(
+        starter_state,
+        raw_checkpoint_state,
+        max_displacement,
+    )
+
+
 def _run_checkpoint(
     *,
     checkpoint_path: Path,
@@ -557,7 +575,54 @@ def _run_case(
         allow_duplicate_rescue=False,
     )[0]
     generation_wall_time = float(perf_counter() - started)
-    checkpoint_paths = discover_checkpoint_paths(trajectory_dir)
+    raw_checkpoint_paths = discover_checkpoint_paths(trajectory_dir)
+    checkpoint_paths = []
+    checkpoint_source_records = []
+    for step_index, raw_checkpoint_path in enumerate(
+        raw_checkpoint_paths,
+        start=1,
+    ):
+        raw_checkpoint = _state_from_checkpoint(
+            raw_checkpoint_path,
+            starter_state,
+        )
+        effective_checkpoint, clipped = effective_checkpoint_state(
+            starter_state,
+            raw_checkpoint,
+            max_displacement=config.walk_trust_radius,
+        )
+        if clipped and step_index != len(raw_checkpoint_paths):
+            raise RuntimeError(
+                "a nonterminal macro checkpoint requires walk clipping"
+            )
+        correction = float(
+            np.max(
+                np.abs(
+                    effective_checkpoint.positions
+                    - raw_checkpoint.positions
+                )
+            )
+        )
+        effective_path = (
+            case_dir
+            / "macro_checkpoints"
+            / f"step{step_index:03d}_checkpoint.xyz"
+        )
+        effective_path.parent.mkdir(parents=True, exist_ok=True)
+        base_runner.write_state(effective_path, effective_checkpoint)
+        checkpoint_paths.append(effective_path)
+        checkpoint_source_records.append(
+            {
+                "raw_optimizer_checkpoint_path": str(
+                    raw_checkpoint_path
+                ),
+                "raw_optimizer_checkpoint_sha256": _sha256(
+                    raw_checkpoint_path
+                ),
+                "walk_trust_radius_clipped": bool(clipped),
+                "walk_trust_radius_correction_A": correction,
+            }
+        )
     final_checkpoint = _state_from_checkpoint(
         checkpoint_paths[-1],
         starter_state,
@@ -623,6 +688,7 @@ def _run_case(
             config=config,
             case_dir=case_dir,
         )
+        checkpoint.update(checkpoint_source_records[step_index - 1])
         checkpoints.append(checkpoint)
         _write_json(
             case_dir / "partial_checkpoints.json",
