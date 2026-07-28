@@ -10,6 +10,7 @@ from enum import Enum
 from math import log1p, sqrt
 from numbers import Real
 from pathlib import Path
+from time import perf_counter
 
 from ase import Atoms
 from ase.data import atomic_masses
@@ -1574,6 +1575,11 @@ class SoftModeOracle:
             "krylov_blocks": int(len(results)),
             "krylov_selected_block": int(selected_block),
             "krylov_hvp_count": int(sum(result.hvp_count for result in results)),
+            "krylov_hvp_requested": int(
+                sum(intent.basis.shape[1] for intent in krylov_intents)
+                * self.block_krylov_depth
+            ),
+            "krylov_hvp_consumed": int(sum(result.hvp_count for result in results)),
             "krylov_dimensions": [int(result.dimension) for result in results],
             "krylov_initial_ranks": [int(result.initial_rank) for result in results],
             "krylov_residual_norm": float(selected.residual_norm),
@@ -2886,6 +2892,14 @@ class SurfaceWalker:
         weight_scale = 1.0
         pending_true_after_state: State | None = None
         pending_true_after = None
+        krylov_intents = (
+            self.oracle.generator.generate_krylov_intents(
+                current,
+                n_blocks=self.config.block_krylov_blocks,
+            )
+            if self.config.direction_selection_mode == "block_krylov"
+            else None
+        )
 
         for step_index in range(self.config.max_steps_per_walk):
             if anchor_direction is None:
@@ -2905,6 +2919,10 @@ class SurfaceWalker:
             score_sigma_fn = self._direction_score_sigma_fn(sigma_scale, step_target=step_target)
             if plateau_evolution_active:
                 self._plateau_evolution_active_steps += 1
+            oracle_force_evaluations_before = self.calculator.snapshot().count(
+                EvaluationPurpose.DIRECTION_ORACLE
+            )
+            oracle_started = perf_counter()
             with self.calculator.purpose(EvaluationPurpose.DIRECTION_ORACLE):
                 choice = self.oracle.choose_direction(
                     current,
@@ -2943,7 +2961,21 @@ class SurfaceWalker:
                     plateau_evolution_mutation_count=self.config.plateau_evolution_mutation_count,
                     archive_momentum_history=self._archive_momentum_history_for_seed(seed_entry_id),
                     archive_momentum_limit=self.config.archive_escape_momentum_limit,
+                    **(
+                        {"krylov_intents": krylov_intents}
+                        if krylov_intents is not None
+                        else {}
+                    ),
                 )
+            choice.diagnostics.update(
+                {
+                    "oracle_direction_force_evaluations_delta": int(
+                        self.calculator.snapshot().count(EvaluationPurpose.DIRECTION_ORACLE)
+                        - oracle_force_evaluations_before
+                    ),
+                    "oracle_wall_seconds": float(perf_counter() - oracle_started),
+                }
+            )
             if selected_direction_kinds is not None:
                 selected_direction_kinds.add(choice.kind)
             self._capture_direction_record(
@@ -3536,13 +3568,17 @@ class SurfaceWalker:
             "step": int(step_index),
             "selected_kind": choice.kind.value,
             "curvature": float(choice.curvature),
+            "selected_curvature": float(choice.curvature),
+            "true_curvature": (
+                None if choice.true_curvature is None else float(choice.true_curvature)
+            ),
             "candidate_count": int(choice.candidate_count),
             "anchor_cosine": anchor_cosine,
         }
         payload.update(choice.diagnostics)
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(payload, sort_keys=True) + "\n")
+            handle.write(json.dumps(payload, sort_keys=True, allow_nan=False) + "\n")
 
     def _prepare_structure_output_dirs(self) -> None:
         for path_value in (
@@ -3731,7 +3767,8 @@ class SurfaceWalker:
 
     def _record_direction_choice(self, choice: DirectionChoice) -> None:
         self._direction_choices += 1
-        self._direction_candidate_evaluations += choice.candidate_count
+        if choice.kind is not DirectionCandidateKind.BLOCK_RITZ:
+            self._direction_candidate_evaluations += choice.candidate_count
         self._direction_selected[choice.kind] += 1
         self._direction_rigid_overlap_sum += choice.mean_rigid_body_overlap
         self._direction_post_projection_rigid_overlap_sum += choice.mean_post_projection_rigid_body_overlap

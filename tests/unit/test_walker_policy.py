@@ -710,6 +710,8 @@ def test_block_krylov_selects_lowest_block_without_native_scoring(monkeypatch):
         "krylov_blocks",
         "krylov_selected_block",
         "krylov_hvp_count",
+        "krylov_hvp_requested",
+        "krylov_hvp_consumed",
         "krylov_dimensions",
         "krylov_initial_ranks",
         "krylov_residual_norm",
@@ -721,9 +723,162 @@ def test_block_krylov_selects_lowest_block_without_native_scoring(monkeypatch):
     assert choice.diagnostics["krylov_blocks"] == 2
     assert choice.diagnostics["krylov_selected_block"] == 0
     assert choice.diagnostics["krylov_hvp_count"] == 2
+    assert choice.diagnostics["krylov_hvp_requested"] == 6
+    assert choice.diagnostics["krylov_hvp_consumed"] == 2
     assert choice.diagnostics["krylov_dimensions"] == [1, 1]
     assert choice.diagnostics["krylov_initial_ranks"] == [1, 1]
     assert choice.diagnostics["direction_participation_ratio"] == pytest.approx(1.0)
+
+
+def test_block_krylov_walk_reuses_one_intent_batch_and_records_auditable_diagnostics(
+    monkeypatch,
+    tmp_path,
+):
+    class TwoAtomQuadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.diag([1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
+            gradient = hessian @ flat_positions
+            return 0.5 * float(flat_positions @ gradient), gradient
+
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.75, 0.0, 0.0], [0.75, 0.0, 0.0]]),
+    )
+    diagnostic_path = tmp_path / "block_krylov_directions.jsonl"
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(TwoAtomQuadratic()),
+        config=SSWConfig(
+            max_steps_per_walk=2,
+            oracle_candidates=1,
+            n_bond_pairs=0,
+            proposal_relax_steps=0,
+            direction_selection_mode="block_krylov",
+            block_krylov_blocks=2,
+            block_krylov_depth=2,
+            direction_diagnostics_enabled=True,
+            direction_diagnostics_path=str(diagnostic_path),
+        ),
+        softening_enabled=False,
+    )
+    generated_intents = []
+    original_generate = walker.oracle.generator.generate_krylov_intents
+    original_choose = walker.oracle.choose_direction
+    chosen_intents = []
+
+    def generate_krylov_intents(current, *, n_blocks):
+        intents = original_generate(current, n_blocks=n_blocks)
+        generated_intents.append(intents)
+        return intents
+
+    def choose_direction(*args, **kwargs):
+        chosen_intents.append(kwargs["krylov_intents"])
+        return original_choose(*args, **kwargs)
+
+    monkeypatch.setattr(walker.oracle.generator, "generate_krylov_intents", generate_krylov_intents)
+    monkeypatch.setattr(walker.oracle, "choose_direction", choose_direction)
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(task.initial_state, energy=0.0, gradient_norm=0.0, n_iter=0),
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    assert len(generated_intents) == 1
+    assert chosen_intents == [generated_intents[0], generated_intents[0]]
+    assert all(intents is generated_intents[0] for intents in chosen_intents)
+    rows = [json.loads(line) for line in diagnostic_path.read_text().splitlines()]
+    assert len(rows) == 2
+    required = {
+        "selected_kind",
+        "krylov_selected_block",
+        "selected_curvature",
+        "true_curvature",
+        "krylov_residual_norm",
+        "krylov_initial_span_overlap",
+        "direction_participation_ratio",
+        "krylov_antisymmetry",
+        "krylov_hvp_requested",
+        "krylov_hvp_consumed",
+        "oracle_direction_force_evaluations_delta",
+        "oracle_wall_seconds",
+    }
+    assert all(required <= set(row) for row in rows)
+    assert all(row["selected_kind"] == "block_ritz" for row in rows)
+    requested_hvps = sum(intent.basis.shape[1] for intent in generated_intents[0]) * 2
+    assert all(row["krylov_hvp_requested"] == requested_hvps for row in rows)
+    assert all(row["krylov_hvp_consumed"] >= 1 for row in rows)
+    assert all(
+        row["oracle_direction_force_evaluations_delta"] == 2 * row["krylov_hvp_consumed"]
+        for row in rows
+    )
+    assert all(row["oracle_wall_seconds"] >= 0.0 for row in rows)
+
+    stats = walker._direction_stats_summary()
+    assert stats["direction_candidate_evaluations"] == 0
+
+
+def test_discrete_walk_never_generates_or_passes_block_krylov_intents(monkeypatch):
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.75, 0.0, 0.0], [0.75, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            n_bond_pairs=0,
+            proposal_relax_steps=0,
+        ),
+        softening_enabled=False,
+    )
+    saw_krylov_keyword = []
+    choose_direction = walker.oracle.choose_direction
+    monkeypatch.setattr(
+        walker.oracle.generator,
+        "generate_krylov_intents",
+        lambda *args, **kwargs: pytest.fail("discrete walk generated Krylov intents"),
+    )
+
+    def record_choose(*args, **kwargs):
+        saw_krylov_keyword.append("krylov_intents" in kwargs)
+        return choose_direction(*args, **kwargs)
+
+    monkeypatch.setattr(walker.oracle, "choose_direction", record_choose)
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(task.initial_state, energy=0.0, gradient_norm=0.0, n_iter=0),
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    assert saw_krylov_keyword == [False]
+
+
+def test_direction_diagnostics_reject_nonfinite_values(tmp_path):
+    path = tmp_path / "direction_trace.jsonl"
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(direction_diagnostics_enabled=True, direction_diagnostics_path=str(path)),
+        softening_enabled=False,
+    )
+
+    with pytest.raises(ValueError, match="Out of range float values"):
+        walker._record_direction_diagnostics(
+            trial_index=0,
+            proposal_index=0,
+            step_index=0,
+            choice=DirectionChoice(
+                direction=np.array([1.0, 0.0, 0.0]),
+                curvature=1.0,
+                kind=DirectionCandidateKind.RANDOM,
+                candidate_count=1,
+                diagnostics={"nonfinite": np.nan},
+            ),
+            anchor_direction=None,
+        )
 
 
 def test_block_krylov_requires_nonempty_intents():
