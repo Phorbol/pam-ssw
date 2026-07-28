@@ -225,6 +225,11 @@ checkpoint_state, clipped = SurfaceWalker._clip_walk_displacement(
 )
 ```
 
+After materializing all attempted macro states, retain the longest prefix whose
+last state matches the returned proposal endpoint within `1e-8 A`. Record later
+rejected attempts and keep their generation cost, but do not shoot them as
+walker-reachable checkpoints.
+
 Use a new accounted `SurfaceWalker` for each checkpoint. Evaluate its true-PES
 energy under `ESCAPE_TRUE_PES_CHECK`, run the strict quench, add the landing to
 a fresh two-state archive seeded only with the shared starter, and record the

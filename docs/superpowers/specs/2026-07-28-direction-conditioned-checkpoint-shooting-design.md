@@ -38,18 +38,24 @@ The last frame of each file is the optimizer result for that bias step. The
 walker subsequently applies its existing per-atom `walk_trust_radius` clip
 against the original starter and terminates the walk when clipping occurs.
 The audit must apply that same core transformation before treating the frame as
-the effective macro checkpoint.
+an effective macro checkpoint. A trajectory file can also represent a
+relaxation attempt that the subsequent geometry or true-PES validation rejects.
+The accepted checkpoint sequence is therefore the longest prefix ending at the
+actual `proposal.state`; later attempted frames remain charged to generation
+but are not quenchable checkpoints reached by the walker.
 
 The runner shall:
 
 1. reconstruct the locked starter;
 2. run exactly one frozen proposal walk with trajectory output enabled;
 3. extract the last frame of every macro-step trajectory file and apply the
-   existing walker clip, rejecting a clipped nonterminal step;
-4. evaluate each checkpoint once on the true PES;
-5. strictly quench every checkpoint independently using ASE-LBFGS at
+   existing walker clip;
+4. retain the longest attempted prefix whose endpoint matches the actual
+   proposal endpoint, recording later rejected attempts without shooting them;
+5. evaluate each accepted checkpoint once on the true PES;
+6. strictly quench every checkpoint independently using ASE-LBFGS at
    `fmax=0.01 eV/A`, with the already validated ASE-FIRE certificate fallback;
-6. compare every certified landing against the same starter archive.
+7. compare every certified landing against the same starter archive.
 
 No callback or checkpoint feature is added to `pamssw/`.
 

@@ -381,6 +381,41 @@ def effective_checkpoint_state(
     )
 
 
+def accepted_checkpoint_prefix(
+    checkpoints: Sequence[Any],
+    proposal_endpoint,
+    *,
+    tolerance: float,
+) -> tuple[list[Any], list[float]]:
+    if not checkpoints:
+        raise ValueError("at least one attempted checkpoint is required")
+    endpoint_positions = np.asarray(
+        proposal_endpoint.positions,
+        dtype=float,
+    )
+    errors = [
+        float(
+            np.max(
+                np.abs(
+                    np.asarray(checkpoint.positions, dtype=float)
+                    - endpoint_positions
+                )
+            )
+        )
+        for checkpoint in checkpoints
+    ]
+    matches = [
+        index for index, error in enumerate(errors) if error <= tolerance
+    ]
+    if not matches:
+        raise RuntimeError(
+            "proposal endpoint does not match any attempted macro "
+            f"checkpoint: {errors}"
+        )
+    accepted_count = matches[-1] + 1
+    return list(checkpoints[:accepted_count]), errors
+
+
 def _run_checkpoint(
     *,
     checkpoint_path: Path,
@@ -576,7 +611,8 @@ def _run_case(
     )[0]
     generation_wall_time = float(perf_counter() - started)
     raw_checkpoint_paths = discover_checkpoint_paths(trajectory_dir)
-    checkpoint_paths = []
+    attempted_checkpoint_paths = []
+    attempted_checkpoint_states = []
     checkpoint_source_records = []
     for step_index, raw_checkpoint_path in enumerate(
         raw_checkpoint_paths,
@@ -610,7 +646,8 @@ def _run_case(
         )
         effective_path.parent.mkdir(parents=True, exist_ok=True)
         base_runner.write_state(effective_path, effective_checkpoint)
-        checkpoint_paths.append(effective_path)
+        attempted_checkpoint_paths.append(effective_path)
+        attempted_checkpoint_states.append(effective_checkpoint)
         checkpoint_source_records.append(
             {
                 "raw_optimizer_checkpoint_path": str(
@@ -623,22 +660,28 @@ def _run_case(
                 "walk_trust_radius_correction_A": correction,
             }
         )
-    final_checkpoint = _state_from_checkpoint(
-        checkpoint_paths[-1],
-        starter_state,
+    accepted_states, endpoint_errors = accepted_checkpoint_prefix(
+        attempted_checkpoint_states,
+        proposal.state,
+        tolerance=1.0e-8,
     )
-    final_position_error = float(
-        np.max(
-            np.abs(
-                final_checkpoint.positions - proposal.state.positions
-            )
-        )
-    )
-    if final_position_error > 1.0e-8:
-        raise RuntimeError(
-            "last checkpoint differs from proposal endpoint: "
-            f"{final_position_error}"
-        )
+    accepted_count = len(accepted_states)
+    checkpoint_paths = attempted_checkpoint_paths[:accepted_count]
+    discarded_attempts = [
+        {
+            **checkpoint_source_records[index],
+            "effective_checkpoint_path": str(
+                attempted_checkpoint_paths[index]
+            ),
+            "effective_checkpoint_sha256": _sha256(
+                attempted_checkpoint_paths[index]
+            ),
+            "endpoint_position_error_A": endpoint_errors[index],
+        }
+        for index in range(accepted_count, len(attempted_checkpoint_paths))
+    ]
+    checkpoint_source_records = checkpoint_source_records[:accepted_count]
+    final_position_error = endpoint_errors[accepted_count - 1]
 
     direction_rows = _read_direction_rows(
         Path(config.direction_diagnostics_path)
@@ -718,7 +761,13 @@ def _run_case(
         ),
         "direction_trace": direction_rows,
         "effective_config": asdict(config),
+        "attempted_macro_step_count": len(
+            attempted_checkpoint_paths
+        ),
         "checkpoint_count": len(checkpoints),
+        "discarded_attempt_count": len(discarded_attempts),
+        "discarded_attempts": discarded_attempts,
+        "attempted_endpoint_position_errors_A": endpoint_errors,
         "final_checkpoint_position_error_A": final_position_error,
         "checkpoints": checkpoints,
         "classification": classification,

@@ -4,6 +4,7 @@ from copy import deepcopy
 import importlib.util
 from pathlib import Path
 import sys
+from types import SimpleNamespace
 
 import pytest
 
@@ -241,3 +242,22 @@ def test_effective_checkpoint_delegates_to_core_walk_clip():
     assert clipped is True
     assert result is effective
     assert calls == [(starter, raw_checkpoint, 5.0)]
+
+
+def test_accepted_checkpoint_prefix_stops_at_the_proposal_endpoint():
+    module = _load_module()
+    checkpoints = [
+        SimpleNamespace(positions=[[1.0, 0.0, 0.0]]),
+        SimpleNamespace(positions=[[2.0, 0.0, 0.0]]),
+        SimpleNamespace(positions=[[3.0, 0.0, 0.0]]),
+    ]
+    endpoint = SimpleNamespace(positions=[[2.0, 0.0, 0.0]])
+
+    accepted, errors = module.accepted_checkpoint_prefix(
+        checkpoints,
+        endpoint,
+        tolerance=1.0e-8,
+    )
+
+    assert accepted == checkpoints[:2]
+    assert errors == pytest.approx([1.0, 0.0, 1.0])
