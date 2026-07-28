@@ -3,6 +3,7 @@ import pytest
 
 from pamssw.accounting import EvalCounter
 from pamssw.calculators import AnalyticCalculator
+from pamssw.config import SSWConfig
 from pamssw.krylov import IntentBlock
 from pamssw.rigid import project_out_rigid_body_modes
 from pamssw.state import State
@@ -11,6 +12,7 @@ from pamssw.walker import (
     DirectionCandidateKind,
     ProposalPotential,
     SoftModeOracle,
+    SurfaceWalker,
 )
 
 
@@ -182,6 +184,93 @@ def test_exact_anchor_mode_uses_one_curvature_hvp():
     assert choice.candidate_count == 1
     assert choice.diagnostics == {"direction_hvp_count": 1}
     assert calculator.force_evaluations == 2
+
+
+def test_anchor_krylov_reuses_exact_anchor_block_for_full_hvp_budget():
+    class CoupledQuadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.array(
+                [
+                    [2.0, 1.0, 0.0],
+                    [1.0, 3.0, 1.0],
+                    [0.0, 1.0, 4.0],
+                ]
+            )
+            gradient = hessian @ flat_positions
+            return 0.5 * float(flat_positions @ gradient), gradient
+
+    state = State(numbers=np.array([1]), positions=np.zeros((1, 3)))
+    calculator = EvalCounter(AnalyticCalculator(CoupledQuadratic()))
+    oracle = SoftModeOracle(
+        calculator,
+        np.random.default_rng(0),
+        candidates=0,
+        direction_selection_mode="anchor_krylov",
+        block_krylov_depth=3,
+    )
+    anchor = np.array([1.0, 0.0, 0.0])
+
+    choice = oracle.choose_direction(
+        state,
+        ProposalPotential(calculator),
+        previous_direction=None,
+        anchor_direction=anchor,
+        krylov_intents=(IntentBlock(anchor[:, None]),),
+    )
+
+    assert choice.kind is DirectionCandidateKind.BLOCK_RITZ
+    assert choice.diagnostics["krylov_initial_basis_columns"] == [1]
+    assert choice.diagnostics["krylov_hvp_consumed"] == 3
+    assert calculator.force_evaluations == 6
+
+
+def test_direction_modes_generate_the_same_anchor_before_arm_specific_intents():
+    state = State(
+        numbers=np.array([6, 6, 6, 6]),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.4, 0.0, 0.0],
+                [0.0, 1.4, 0.0],
+                [0.0, 0.0, 1.4],
+            ]
+        ),
+    )
+
+    def context(mode):
+        walker = SurfaceWalker(
+            calculator=AnalyticCalculator(Quadratic()),
+            config=SSWConfig(
+                rng_seed=17,
+                direction_selection_mode=mode,
+                block_krylov_blocks=1,
+                block_krylov_depth=3,
+            ),
+            softening_enabled=False,
+        )
+        return walker._initialize_walk_direction_context(
+            state,
+            trial_index=0,
+        )
+
+    detached_anchor, detached_intents = context("block_krylov")
+    exact_anchor, exact_intents = context("exact_anchor")
+    lanczos_anchor, lanczos_intents = context("anchor_krylov")
+
+    np.testing.assert_array_equal(detached_anchor, exact_anchor)
+    np.testing.assert_array_equal(exact_anchor, lanczos_anchor)
+    assert detached_intents is not None
+    assert exact_intents is None
+    assert lanczos_intents is not None
+    assert len(lanczos_intents) == 1
+    assert lanczos_intents[0].basis.shape == (
+        state.positions.size,
+        1,
+    )
+    np.testing.assert_array_equal(
+        lanczos_intents[0].basis[:, 0],
+        lanczos_anchor,
+    )
 
 
 def test_block_krylov_projects_hvps_back_into_fixed_and_internal_subspace():

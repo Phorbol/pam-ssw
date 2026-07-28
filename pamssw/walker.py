@@ -1326,7 +1326,10 @@ class SoftModeOracle:
         archive_momentum_limit: int = 0,
         krylov_intents: tuple[IntentBlock, ...] | None = None,
     ) -> DirectionChoice:
-        if self.direction_selection_mode == "block_krylov":
+        if self.direction_selection_mode in {
+            "block_krylov",
+            "anchor_krylov",
+        }:
             return self._choose_block_krylov_direction(state, proposal, krylov_intents)
         if self.direction_selection_mode == "exact_anchor":
             return self._choose_exact_anchor_direction(
@@ -2925,34 +2928,21 @@ class SurfaceWalker:
     ) -> State:
         current = seed_state
         previous_direction: np.ndarray | None = None
-        anchor_direction: np.ndarray | None = None
         previous_relax_outcome: RelaxOutcomeClass | None = None
         biases: list[GaussianBiasTerm] = []
         sigma_scale = 1.0
         weight_scale = 1.0
         pending_true_after_state: State | None = None
         pending_true_after = None
-        krylov_intents = (
-            self.oracle.generator.generate_krylov_intents(
-                current,
-                n_blocks=self.config.block_krylov_blocks,
-            )
-            if self.config.direction_selection_mode == "block_krylov"
-            else None
+        (
+            anchor_direction,
+            krylov_intents,
+        ) = self._initialize_walk_direction_context(
+            current,
+            trial_index=trial_index,
         )
 
         for step_index in range(self.config.max_steps_per_walk):
-            if anchor_direction is None:
-                anchor_progress_index = 0 if trial_index is None else max(0, min(trial_index, self.config.max_trials - 1))
-                anchor_direction = self.oracle.generator.generate_initial_direction(
-                    current,
-                    step_index=anchor_progress_index,
-                    max_steps=self.config.max_trials,
-                    lambda_start=self.config.lambda_bond_start,
-                    lambda_end=self.config.lambda_bond_end,
-                    n_bond_pairs=self.config.n_bond_pairs,
-                    bond_distance_threshold=self.config.bond_distance_threshold,
-                )
             softening = self._build_softening(current, anchor_direction)
             proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
             scoring_proposal = self._direction_scoring_proposal(proposal)
@@ -3176,6 +3166,48 @@ class SurfaceWalker:
             pending_true_after_state = current_candidate
             pending_true_after = true_after
         return current
+
+    def _initialize_walk_direction_context(
+        self,
+        state: State,
+        *,
+        trial_index: int | None,
+    ) -> tuple[np.ndarray, tuple[IntentBlock, ...] | None]:
+        anchor_progress_index = (
+            0
+            if trial_index is None
+            else max(
+                0,
+                min(trial_index, self.config.max_trials - 1),
+            )
+        )
+        anchor_direction = (
+            self.oracle.generator.generate_initial_direction(
+                state,
+                step_index=anchor_progress_index,
+                max_steps=self.config.max_trials,
+                lambda_start=self.config.lambda_bond_start,
+                lambda_end=self.config.lambda_bond_end,
+                n_bond_pairs=self.config.n_bond_pairs,
+                bond_distance_threshold=(
+                    self.config.bond_distance_threshold
+                ),
+            )
+        )
+        if self.config.direction_selection_mode == "block_krylov":
+            krylov_intents = (
+                self.oracle.generator.generate_krylov_intents(
+                    state,
+                    n_blocks=self.config.block_krylov_blocks,
+                )
+            )
+        elif self.config.direction_selection_mode == "anchor_krylov":
+            krylov_intents = (
+                IntentBlock(basis=anchor_direction[:, None]),
+            )
+        else:
+            krylov_intents = None
+        return anchor_direction, krylov_intents
 
     def _walk_from_seed(self, seed_state: State) -> RelaxResult:
         return self.relax_true_minimum(self._walk_candidate_from_seed(seed_state))
