@@ -1573,6 +1573,7 @@ class SoftModeOracle:
         participation_ratio = 1.0 / participation_denominator
         diagnostics: dict[str, object] = {
             "krylov_blocks": int(len(results)),
+            "krylov_depth": int(self.block_krylov_depth),
             "krylov_selected_block": int(selected_block),
             "krylov_hvp_count": int(sum(result.hvp_count for result in results)),
             "krylov_hvp_requested": int(
@@ -1580,6 +1581,9 @@ class SoftModeOracle:
                 * self.block_krylov_depth
             ),
             "krylov_hvp_consumed": int(sum(result.hvp_count for result in results)),
+            "krylov_initial_basis_columns": [
+                int(intent.basis.shape[1]) for intent in krylov_intents
+            ],
             "krylov_dimensions": [int(result.dimension) for result in results],
             "krylov_initial_ranks": [int(result.initial_rank) for result in results],
             "krylov_residual_norm": float(selected.residual_norm),

@@ -16,6 +16,7 @@ import importlib.util
 import json
 import math
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 from time import perf_counter
@@ -24,6 +25,7 @@ from typing import Any, Callable, Mapping, Sequence
 
 RUN_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = RUN_ROOT.parents[1]
+ANALYZER_PATH = RUN_ROOT / "analyze_evidence.py"
 FROZEN_RUNNER_RELATIVE = Path("runs/20260728-safe-lbfgs-200-production/run_production.py")
 SYSTEMS = ("c60", "pdo")
 # Insertion order is the preregistered Stage-2 arm order.
@@ -47,6 +49,7 @@ ARMS: dict[str, dict[str, object]] = {
 }
 SEEDS = (42, 43, 44)
 TOTAL_FORCE_BUDGET = 6000
+EVIDENCE_SCHEMA_ID = "block_krylov_stage2_v1"
 MAX_TRIALS = 200
 EXPECTED_ORACLE_CANDIDATES = {"c60": 12, "pdo": 8}
 OUTPUT_PATH_FIELDS = {
@@ -65,6 +68,8 @@ BLOCK_TRACE_KEYS = {
     "selected_kind",
     "candidate_count",
     "krylov_blocks",
+    "krylov_depth",
+    "krylov_initial_basis_columns",
     "krylov_hvp_requested",
     "krylov_hvp_consumed",
     "krylov_hvp_count",
@@ -373,11 +378,20 @@ def validate_direction_trace(*, arm: str, direction_rows: Sequence[Mapping[str, 
         if not isinstance(kind, str):
             raise RuntimeError(f"direction row {index} has no selected_kind")
         selected_kind_counts[kind] = selected_kind_counts.get(kind, 0) + 1
+        oracle_delta = _exact_int(
+            row.get("oracle_selection_force_evaluations_delta"),
+            f"direction row {index} oracle selection FE delta",
+        )
         if arm == "discrete":
-            present = BLOCK_TRACE_KEYS - {"selected_kind", "candidate_count"}
+            present = BLOCK_TRACE_KEYS - {
+                "selected_kind",
+                "candidate_count",
+                "oracle_selection_force_evaluations_delta",
+            }
             forbidden = sorted(key for key in present if key in row)
             if forbidden:
                 raise RuntimeError(f"discrete direction row {index} contains block keys: {forbidden}")
+            direction_force_evaluations += oracle_delta
             continue
         missing = sorted(key for key in BLOCK_TRACE_KEYS if key not in row)
         if missing:
@@ -389,16 +403,24 @@ def validate_direction_trace(*, arm: str, direction_rows: Sequence[Mapping[str, 
         blocks = _exact_int(row["krylov_blocks"], f"direction row {index} krylov_blocks", minimum=1)
         if blocks != expected["block_krylov_blocks"]:
             raise RuntimeError(f"block direction row {index} has unexpected krylov_blocks")
+        depth = _exact_int(row["krylov_depth"], f"direction row {index} krylov_depth", minimum=1)
+        if depth != expected["block_krylov_depth"]:
+            raise RuntimeError(f"block direction row {index} has unexpected krylov_depth")
+        basis_columns = row["krylov_initial_basis_columns"]
+        if (
+            not isinstance(basis_columns, list)
+            or len(basis_columns) != blocks
+            or any(type(value) is not int or value <= 0 for value in basis_columns)
+        ):
+            raise RuntimeError(
+                f"block direction row {index} has invalid krylov_initial_basis_columns"
+            )
         requested = _exact_int(row["krylov_hvp_requested"], f"direction row {index} krylov_hvp_requested")
         consumed = _exact_int(row["krylov_hvp_consumed"], f"direction row {index} krylov_hvp_consumed")
         count = _exact_int(row["krylov_hvp_count"], f"direction row {index} krylov_hvp_count")
-        expected_requested = int(expected["block_krylov_blocks"]) * int(expected["block_krylov_depth"])
+        expected_requested = sum(basis_columns) * depth
         if requested != expected_requested or requested > 12 or consumed > 12 or consumed > requested or count != consumed:
             raise RuntimeError(f"block direction row {index} violates requested/consumed HVP contract")
-        oracle_delta = _exact_int(
-            row["oracle_selection_force_evaluations_delta"],
-            f"direction row {index} oracle selection FE delta",
-        )
         if oracle_delta != 2 * consumed:
             raise RuntimeError("oracle_selection_force_evaluations_delta must equal 2 * krylov_hvp_consumed")
         direction_force_evaluations += oracle_delta
@@ -458,10 +480,48 @@ def _validate_run_closure(*, result: Any, walker: Any, arm: str, direction_path:
     choices = _exact_int(result.stats.get("direction_choices", 0), "direction_choices")
     if choices != audit["selection_count"]:
         raise RuntimeError("direction diagnostics do not close against direction choices")
-    if arm != "discrete" and purposes["direction_oracle"] != audit["direction_oracle_force_evaluations"]:
-        raise RuntimeError("direction-oracle purpose ledger does not close against block trace")
+    if purposes["direction_oracle"] != audit["direction_oracle_force_evaluations"]:
+        raise RuntimeError("direction-oracle purpose ledger does not close against direction trace")
     audit["direction_rows"] = rows
     return purposes, audit
+
+
+def validate_c60_evidence(path: Path, *, arm: str) -> str:
+    evidence_path = Path(path)
+    if not evidence_path.is_file():
+        raise RuntimeError("PdO execution requires C60 evidence")
+    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    if not isinstance(evidence, dict):
+        raise RuntimeError("C60 evidence is not a mapping")
+    expected = {
+        "schema_version": 1,
+        "schema_id": EVIDENCE_SCHEMA_ID,
+        "system": "c60",
+        "pdo_status": "not_run_pending_selected_c60_survivor",
+    }
+    for key, value in expected.items():
+        if evidence.get(key) != value:
+            raise RuntimeError(f"C60 evidence has invalid {key}")
+    cohort = evidence.get("cohort")
+    if not isinstance(cohort, dict) or cohort != {
+        "arms": list(ARMS),
+        "seeds": list(SEEDS),
+        "completed_cases": len(ARMS) * len(SEEDS),
+    }:
+        raise RuntimeError("C60 evidence cohort is not the preregistered schema")
+    provenance = evidence.get("provenance")
+    if (
+        not isinstance(provenance, dict)
+        or provenance.get("analyzer_sha256") != _sha256(ANALYZER_PATH)
+    ):
+        raise RuntimeError("C60 evidence was not produced by the current analyzer")
+    selected = evidence.get("selected_pdo_transfer_arm")
+    survivors = evidence.get("c60_survivors")
+    if selected not in ARMS or selected == "discrete" or not isinstance(survivors, list) or selected not in survivors:
+        raise RuntimeError("C60 evidence has no valid selected survivor")
+    if arm not in {"discrete", selected}:
+        raise RuntimeError(f"PdO arm must be discrete or selected survivor {selected}")
+    return str(selected)
 
 
 def run(
@@ -473,11 +533,16 @@ def run(
     code_root: Path,
     output_dir: Path,
     expected_git_commit: str,
+    c60_evidence: Path | None = None,
     preflight_only: bool = False,
     target_loader: Callable[[Path], TargetRuntime] = _load_target_runtime,
     preflight_fn: Callable[..., dict[str, Any]] = preflight,
 ) -> dict[str, Any]:
     output_dir = Path(output_dir)
+    if system == "pdo":
+        if c60_evidence is None:
+            raise RuntimeError("PdO execution requires --c60-evidence")
+        validate_c60_evidence(c60_evidence, arm=arm)
     if not preflight_only and output_dir.exists():
         raise FileExistsError(output_dir)
     checked = preflight_fn(
@@ -502,51 +567,70 @@ def run(
     config = replace(target.base_runner.build_config(system, output_dir), max_force_evals=total_force_budget, rng_seed=seed, **ARMS[arm])
     if _json_config(config) != effective:
         raise RuntimeError("walker config does not equal preflight effective config")
-    output_dir.mkdir(parents=True)
-    walker = target.walker_class(
-        calculator=target.calculator_wrapper(target.base_runner._calculator()),
-        config=config,
-        softening_enabled=True,
-    )
-    started = perf_counter()
-    result = walker.run(target.base_runner.load_state(system))
-    wall_time_s = perf_counter() - started
-    purposes, direction_audit = _validate_run_closure(
-        result=result, walker=walker, arm=arm, direction_path=Path(config.direction_diagnostics_path)
-    )
-    force_evaluations = _exact_int(result.stats["force_evaluations"], "force_evaluations")
-    energy_trace = _energy_trace(result, force_evaluations)
-    initial = _finite(energy_trace[0]["energy_eV"], "initial energy")
-    best = _finite(result.best_energy, "best energy")
-    summary = {
-        **checked,
-        "effective_config": effective,
-        "force_evaluations": force_evaluations,
-        "purpose_counts": purposes,
-        "stats": result.stats,
-        "archive_size": len(result.archive.entries),
-        "unique_minima": _exact_int(result.stats["n_minima"], "n_minima", minimum=1),
-        "duplicate_fraction": _finite(result.stats.get("duplicate_rate", 0.0), "duplicate_rate"),
-        "terminal_failure_count": result.stats.get("failure_count"),
-        "terminal_failure_count_reason": "unsupported_by_current_result_stats" if "failure_count" not in result.stats else None,
-        "direction_selection_audit": direction_audit,
-        "initial_energy_eV": initial,
-        "best_energy_eV": best,
-        "energy_drop_eV": initial - best,
-        "optimizer_diagnostics": walker.relaxation_diagnostics(),
-        "timing": {"total_wall_time_s": wall_time_s},
-        "termination": {"reason": "force_budget_exhausted", "budget_exhausted": True},
-        "walk_records": _walk_records(result),
-    }
-    target.write_state(output_dir / "best_minimum.xyz", result.best_state)
-    _write_json(output_dir / "energy_trace.json", energy_trace)
-    _write_json(output_dir / "walk_records.json", summary["walk_records"])
-    _write_json(output_dir / "optimizer_diagnostics.json", summary["optimizer_diagnostics"])
-    _write_json(output_dir / "summary.json", summary)
-    for filename in REQUIRED_OUTPUTS:
-        if not (output_dir / filename).is_file():
-            raise RuntimeError(f"required output was not written: {filename}")
-    return summary
+    temporary_dir = output_dir.with_name(f".{output_dir.name}.tmp")
+    if temporary_dir.exists():
+        shutil.rmtree(temporary_dir)
+    try:
+        temporary_dir.mkdir(parents=True)
+        runtime_output_paths = {}
+        for field in OUTPUT_PATH_FIELDS:
+            value = getattr(config, field)
+            if value is not None:
+                relative = Path(value).relative_to(output_dir)
+                runtime_output_paths[field] = str(temporary_dir / relative)
+        runtime_config = replace(config, **runtime_output_paths)
+        walker = target.walker_class(
+            calculator=target.calculator_wrapper(target.base_runner._calculator()),
+            config=runtime_config,
+            softening_enabled=True,
+        )
+        started = perf_counter()
+        result = walker.run(target.base_runner.load_state(system))
+        wall_time_s = perf_counter() - started
+        purposes, direction_audit = _validate_run_closure(
+            result=result,
+            walker=walker,
+            arm=arm,
+            direction_path=Path(runtime_config.direction_diagnostics_path),
+        )
+        force_evaluations = _exact_int(result.stats["force_evaluations"], "force_evaluations")
+        energy_trace = _energy_trace(result, force_evaluations)
+        initial = _finite(energy_trace[0]["energy_eV"], "initial energy")
+        best = _finite(result.best_energy, "best energy")
+        summary = {
+            **checked,
+            "effective_config": effective,
+            "force_evaluations": force_evaluations,
+            "purpose_counts": purposes,
+            "stats": result.stats,
+            "archive_size": len(result.archive.entries),
+            "unique_minima": _exact_int(result.stats["n_minima"], "n_minima", minimum=1),
+            "duplicate_fraction": _finite(result.stats.get("duplicate_rate", 0.0), "duplicate_rate"),
+            "terminal_failure_count": result.stats.get("failure_count"),
+            "terminal_failure_count_reason": "unsupported_by_current_result_stats" if "failure_count" not in result.stats else None,
+            "direction_selection_audit": direction_audit,
+            "initial_energy_eV": initial,
+            "best_energy_eV": best,
+            "energy_drop_eV": initial - best,
+            "optimizer_diagnostics": walker.relaxation_diagnostics(),
+            "timing": {"total_wall_time_s": wall_time_s},
+            "termination": {"reason": "force_budget_exhausted", "budget_exhausted": True},
+            "walk_records": _walk_records(result),
+        }
+        target.write_state(temporary_dir / "best_minimum.xyz", result.best_state)
+        _write_json(temporary_dir / "energy_trace.json", energy_trace)
+        _write_json(temporary_dir / "walk_records.json", summary["walk_records"])
+        _write_json(temporary_dir / "optimizer_diagnostics.json", summary["optimizer_diagnostics"])
+        _write_json(temporary_dir / "summary.json", summary)
+        for filename in REQUIRED_OUTPUTS:
+            if not (temporary_dir / filename).is_file():
+                raise RuntimeError(f"required output was not written: {filename}")
+        temporary_dir.replace(output_dir)
+        return summary
+    except BaseException:
+        if temporary_dir.exists():
+            shutil.rmtree(temporary_dir)
+        raise
 
 
 def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
@@ -558,6 +642,7 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--device", default="cuda", choices=("cuda",))
     parser.add_argument("--output-dir", required=True, type=Path)
     parser.add_argument("--expected-git-commit", required=True)
+    parser.add_argument("--c60-evidence", type=Path)
     parser.add_argument("--preflight-only", action="store_true")
     return parser.parse_args(argv)
 
@@ -569,6 +654,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     summary = run(
         arm=args.arm, system=args.system, seed=args.seed, total_force_budget=args.force_budget,
         code_root=REPO_ROOT, output_dir=args.output_dir, expected_git_commit=args.expected_git_commit,
+        c60_evidence=args.c60_evidence,
         preflight_only=args.preflight_only,
     )
     print(json.dumps(summary, indent=2, sort_keys=True, allow_nan=False))

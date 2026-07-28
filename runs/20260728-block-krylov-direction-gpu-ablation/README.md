@@ -55,6 +55,7 @@ for arm in discrete "$selected"; do
       --seed "$seed" \
       --force-budget 6000 \
       --device cuda \
+      --c60-evidence runs/20260728-block-krylov-direction-gpu-ablation/evidence.json \
       --output-dir "runs/20260728-block-krylov-direction-gpu-ablation/cases/pdo-${arm}-seed${seed}" \
       --expected-git-commit "$commit"
   done

@@ -708,10 +708,12 @@ def test_block_krylov_selects_lowest_block_without_native_scoring(monkeypatch):
     assert choice.true_curvature == pytest.approx(1.0)
     assert set(choice.diagnostics) == {
         "krylov_blocks",
+        "krylov_depth",
         "krylov_selected_block",
         "krylov_hvp_count",
         "krylov_hvp_requested",
         "krylov_hvp_consumed",
+        "krylov_initial_basis_columns",
         "krylov_dimensions",
         "krylov_initial_ranks",
         "krylov_residual_norm",
@@ -721,10 +723,12 @@ def test_block_krylov_selects_lowest_block_without_native_scoring(monkeypatch):
         "direction_participation_ratio",
     }
     assert choice.diagnostics["krylov_blocks"] == 2
+    assert choice.diagnostics["krylov_depth"] == 3
     assert choice.diagnostics["krylov_selected_block"] == 0
     assert choice.diagnostics["krylov_hvp_count"] == 2
     assert choice.diagnostics["krylov_hvp_requested"] == 6
     assert choice.diagnostics["krylov_hvp_consumed"] == 2
+    assert choice.diagnostics["krylov_initial_basis_columns"] == [1, 1]
     assert choice.diagnostics["krylov_dimensions"] == [1, 1]
     assert choice.diagnostics["krylov_initial_ranks"] == [1, 1]
     assert choice.diagnostics["direction_participation_ratio"] == pytest.approx(1.0)

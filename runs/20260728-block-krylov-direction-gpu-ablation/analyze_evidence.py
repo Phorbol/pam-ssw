@@ -20,6 +20,7 @@ ARMS = ("discrete", "variational_breadth", "balanced_refinement", "deep_refineme
 BLOCK_ARMS = ARMS[1:]
 SEEDS = (42, 43, 44)
 TOTAL_FORCE_BUDGET = 6000
+EVIDENCE_SCHEMA_ID = "block_krylov_stage2_v1"
 TIE_BREAK_ORDER = ("deep_refinement", "balanced_refinement", "variational_breadth")
 
 
@@ -186,6 +187,44 @@ def _validate_case_shape(case: Mapping[str, Any], *, system: str) -> None:
     _exact_int(case.get("archive_size"), "case archive size", minimum=1)
     _require(case.get("budget_closed") is True, "case budget is not closed")
     _require(case.get("total_force_evaluations") == TOTAL_FORCE_BUDGET, "case total FE is not preregistered budget")
+    for key in ("_source_config", "_effective_config", "_runtime_identity"):
+        _require(isinstance(case.get(key), Mapping), f"case {key} is missing")
+
+
+def _validate_cohort_contract(cases: Sequence[Mapping[str, Any]]) -> None:
+    runner = _load_runner()
+    reference_runtime = cases[0]["_runtime_identity"]
+    reference_source = cases[0]["_source_config"]
+    reference_effective = cases[0]["_effective_config"]
+    allowed_effective = {
+        "direction_selection_mode",
+        "block_krylov_blocks",
+        "block_krylov_depth",
+        "rng_seed",
+    }
+    for case in cases:
+        _require(case["_runtime_identity"] == reference_runtime, "cohort runtime identity mismatch")
+        _require(case["_source_config"] == reference_source, "cohort source config mismatch")
+        effective = case["_effective_config"]
+        _require(effective.keys() == reference_effective.keys(), "cohort effective config fields mismatch")
+        changed = {
+            key
+            for key in effective
+            if effective[key] != reference_effective[key]
+        }
+        _require(changed <= allowed_effective, "cohort effective config differs beyond preregistered direction fields")
+        expected = runner.ARMS[str(case["arm"])]
+        for key, value in expected.items():
+            _require(effective.get(key) == value, f"effective config missed {key}={value!r}")
+        _require(effective.get("rng_seed") == case["seed"], "effective config rng_seed mismatch")
+        _require(effective.get("max_force_evals") == TOTAL_FORCE_BUDGET, "effective config force budget mismatch")
+        source = case["_source_config"]
+        _require(source.keys() == effective.keys(), "source/effective config fields mismatch")
+        source_changed = {key for key in source if source[key] != effective[key]}
+        _require(
+            source_changed <= allowed_effective | {"max_force_evals"},
+            "source/effective config differs beyond preregistered fields",
+        )
 
 
 def build_evidence_from_cases(
@@ -196,6 +235,8 @@ def build_evidence_from_cases(
     _require(system in ("c60", "pdo"), "unsupported cohort")
     for case in cases:
         _validate_case_shape(case, system=system)
+    _require(bool(cases), "cohort is empty")
+    _validate_cohort_contract(cases)
     grouped: dict[int, dict[str, Mapping[str, Any]]] = {}
     for case in cases:
         seed = int(case["seed"])
@@ -205,7 +246,7 @@ def build_evidence_from_cases(
     if system == "c60":
         _require(set(grouped) == set(SEEDS), "C60 cohort must contain exactly seeds 42, 43, 44")
         for seed, arms in grouped.items():
-            _require(tuple(arms) == ARMS, f"C60 seed {seed} must contain exactly the four preregistered arms")
+            _require(set(arms) == set(ARMS), f"C60 seed {seed} must contain exactly the four preregistered arms")
         arm_rows: dict[str, list[dict[str, Any]]] = {arm: [] for arm in BLOCK_ARMS}
         for seed in SEEDS:
             discrete = grouped[seed]["discrete"]
@@ -250,6 +291,7 @@ def build_evidence_from_cases(
         ) if survivors else None
         return {
             "schema_version": 1,
+            "schema_id": EVIDENCE_SCHEMA_ID,
             "system": "c60",
             "cohort": {"arms": list(ARMS), "seeds": list(SEEDS), "completed_cases": len(cases)},
             "c60_arm_results": arm_summary,
@@ -257,6 +299,7 @@ def build_evidence_from_cases(
             "selected_pdo_transfer_arm": selected,
             "pdo_status": "not_run_pending_selected_c60_survivor" if selected else "not_run_no_c60_survivor",
             "claim_ceiling": "three seeds are a preregistered survivor gate, not a significance claim; production default remains discrete",
+            "runs": [_public(grouped[seed][arm]) for seed in SEEDS for arm in ARMS],
         }
     _require(selected_pdo_transfer_arm in BLOCK_ARMS, "PDO analysis requires analyzer-produced selected_pdo_transfer_arm")
     expected_arms = {"discrete", selected_pdo_transfer_arm}
@@ -265,6 +308,7 @@ def build_evidence_from_cases(
     _require(set(grouped) == set(SEEDS), "PdO cohort must contain exactly seeds 42, 43, 44")
     return {
         "schema_version": 1,
+        "schema_id": EVIDENCE_SCHEMA_ID,
         "system": "pdo",
         "cohort": {"arms": ["discrete", selected_pdo_transfer_arm], "seeds": list(SEEDS), "completed_cases": len(cases)},
         "selected_pdo_transfer_arm": selected_pdo_transfer_arm,
@@ -281,7 +325,6 @@ def build_evidence(*, input_dir: Path, system: str, selected_pdo_transfer_arm: s
     if system == "c60":
         _require(selected_pdo_transfer_arm is None, "manual PDO arm selection is forbidden")
         return build_evidence_from_cases(cases, system="c60") | {
-            "runs": [_public(case) for case in cases],
             "provenance": {"analyzer_sha256": _sha256(Path(__file__).resolve())},
         }
     _require(selected_pdo_transfer_arm in BLOCK_ARMS, "PDO requires selected_pdo_transfer_arm from C60 evidence")
@@ -298,6 +341,12 @@ def write_evidence(*, input_dir: Path, output_dir: Path, system: str) -> dict[st
         existing_path = output_dir / "evidence.json"
         _require(existing_path.is_file(), "PdO analysis requires committed C60 evidence.json")
         existing = json.loads(existing_path.read_text(encoding="utf-8"))
+        _require(existing.get("schema_id") == EVIDENCE_SCHEMA_ID, "PdO analysis requires current C60 evidence schema")
+        _require(
+            existing.get("provenance", {}).get("analyzer_sha256")
+            == _sha256(Path(__file__).resolve()),
+            "PdO analysis requires evidence from the current analyzer",
+        )
         selected = existing.get("selected_pdo_transfer_arm")
         _require(selected in BLOCK_ARMS, "PdO analysis has no analyzer-produced C60 survivor")
         _require(existing.get("pdo_status") == "not_run_pending_selected_c60_survivor", "PdO transfer has already been resolved or was not allowed")
@@ -306,8 +355,20 @@ def write_evidence(*, input_dir: Path, output_dir: Path, system: str) -> dict[st
         evidence["pdo_transfer"] = pdo
         evidence["pdo_status"] = pdo["pdo_status"]
     output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / "evidence.json").write_text(json.dumps(evidence, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8")
-    (output_dir / "conclusion.md").write_text(render_conclusion(evidence), encoding="utf-8")
+    evidence_temporary = output_dir / ".evidence.json.tmp"
+    conclusion_temporary = output_dir / ".conclusion.md.tmp"
+    try:
+        evidence_temporary.write_text(
+            json.dumps(evidence, indent=2, sort_keys=True, allow_nan=False) + "\n",
+            encoding="utf-8",
+        )
+        conclusion_temporary.write_text(render_conclusion(evidence), encoding="utf-8")
+        evidence_temporary.replace(output_dir / "evidence.json")
+        conclusion_temporary.replace(output_dir / "conclusion.md")
+    except BaseException:
+        evidence_temporary.unlink(missing_ok=True)
+        conclusion_temporary.unlink(missing_ok=True)
+        raise
     return evidence
 
 
