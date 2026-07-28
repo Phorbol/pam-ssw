@@ -1,0 +1,14 @@
+[
+  {
+    "best_energy_eV": -474.66949462890625,
+    "cumulative_total_force_evaluations": 0,
+    "energy_eV": -474.66949462890625,
+    "trial": 0
+  },
+  {
+    "best_energy_eV": -493.30999755859375,
+    "cumulative_total_force_evaluations": 6000,
+    "energy_eV": -493.30999755859375,
+    "trial": 12
+  }
+]

@@ -1,0 +1,633 @@
+{
+  "c60_arm_results": {
+    "balanced_refinement": {
+      "improvements": 1,
+      "median_paired_best_energy_auc_improvement_eV_force_evals": -25980.194091796875,
+      "median_paired_best_energy_delta_eV": 8.6595458984375,
+      "paired_rows": [
+        {
+          "budget_closed": true,
+          "coverage_ok": false,
+          "coverage_ratio": 0.75,
+          "delta_block_minus_discrete_best_energy_eV": 10.0396728515625,
+          "improved": false,
+          "paired_best_energy_auc_improvement_eV_force_evals": -30120.941162109375,
+          "seed": 42
+        },
+        {
+          "budget_closed": true,
+          "coverage_ok": true,
+          "coverage_ratio": 1.0,
+          "delta_block_minus_discrete_best_energy_eV": -5.769439697265625,
+          "improved": true,
+          "paired_best_energy_auc_improvement_eV_force_evals": 17308.868408203125,
+          "seed": 43
+        },
+        {
+          "budget_closed": true,
+          "coverage_ok": true,
+          "coverage_ratio": 1.4444444444444444,
+          "delta_block_minus_discrete_best_energy_eV": 8.6595458984375,
+          "improved": false,
+          "paired_best_energy_auc_improvement_eV_force_evals": -25980.194091796875,
+          "seed": 44
+        }
+      ],
+      "survives_c60": false
+    },
+    "deep_refinement": {
+      "improvements": 1,
+      "median_paired_best_energy_auc_improvement_eV_force_evals": -1920.59326171875,
+      "median_paired_best_energy_delta_eV": 0.639617919921875,
+      "paired_rows": [
+        {
+          "budget_closed": true,
+          "coverage_ok": true,
+          "coverage_ratio": 0.8333333333333334,
+          "delta_block_minus_discrete_best_energy_eV": 0.639617919921875,
+          "improved": false,
+          "paired_best_energy_auc_improvement_eV_force_evals": -1920.59326171875,
+          "seed": 42
+        },
+        {
+          "budget_closed": true,
+          "coverage_ok": true,
+          "coverage_ratio": 0.8181818181818182,
+          "delta_block_minus_discrete_best_energy_eV": -8.5316162109375,
+          "improved": true,
+          "paired_best_energy_auc_improvement_eV_force_evals": 25596.6796875,
+          "seed": 43
+        },
+        {
+          "budget_closed": true,
+          "coverage_ok": true,
+          "coverage_ratio": 1.0,
+          "delta_block_minus_discrete_best_energy_eV": 10.448822021484375,
+          "improved": false,
+          "paired_best_energy_auc_improvement_eV_force_evals": -31348.388671875,
+          "seed": 44
+        }
+      ],
+      "survives_c60": false
+    },
+    "variational_breadth": {
+      "improvements": 0,
+      "median_paired_best_energy_auc_improvement_eV_force_evals": -4568.756103515625,
+      "median_paired_best_energy_delta_eV": 1.52288818359375,
+      "paired_rows": [
+        {
+          "budget_closed": true,
+          "coverage_ok": true,
+          "coverage_ratio": 1.0833333333333333,
+          "delta_block_minus_discrete_best_energy_eV": 1.52288818359375,
+          "improved": false,
+          "paired_best_energy_auc_improvement_eV_force_evals": -4568.756103515625,
+          "seed": 42
+        },
+        {
+          "budget_closed": true,
+          "coverage_ok": true,
+          "coverage_ratio": 1.1818181818181819,
+          "delta_block_minus_discrete_best_energy_eV": 3.978759765625,
+          "improved": false,
+          "paired_best_energy_auc_improvement_eV_force_evals": -11934.99755859375,
+          "seed": 43
+        },
+        {
+          "budget_closed": true,
+          "coverage_ok": true,
+          "coverage_ratio": 1.5555555555555556,
+          "delta_block_minus_discrete_best_energy_eV": 0.735198974609375,
+          "improved": false,
+          "paired_best_energy_auc_improvement_eV_force_evals": -2206.4208984375,
+          "seed": 44
+        }
+      ],
+      "survives_c60": false
+    }
+  },
+  "c60_survivors": [],
+  "claim_ceiling": "three seeds are a preregistered survivor gate, not a significance claim; production default remains discrete",
+  "cohort": {
+    "arms": [
+      "discrete",
+      "variational_breadth",
+      "balanced_refinement",
+      "deep_refinement"
+    ],
+    "completed_cases": 12,
+    "seeds": [
+      42,
+      43,
+      44
+    ]
+  },
+  "pdo_status": "not_run_no_c60_survivor",
+  "provenance": {
+    "analyzer_sha256": "17145e1f7002e1ab1256b3e87b3a2665099a9965e3ccf13aea193afeeec0e5b3"
+  },
+  "runs": [
+    {
+      "archive_size": 12,
+      "arm": "discrete",
+      "best_energy_auc_eV_force_evals": -2908507.2326660156,
+      "best_energy_eV": -494.8328857421875,
+      "budget_closed": true,
+      "direction_selection_audit": {
+        "direction_oracle_force_evaluations": 1752,
+        "maximum_complete_selection_force_evaluations": 24,
+        "selected_kind_counts": {
+          "bond": 4,
+          "momentum": 58,
+          "random": 11
+        },
+        "selection_count": 73,
+        "strict_block_trace_validated": false,
+        "terminal_untraced_direction_oracle_force_evaluations": 0
+      },
+      "duplicate_fraction": 0.07692307692307693,
+      "energy_drop_eV": 20.163360595703125,
+      "energy_trace_sha256": "7f5efa72fd447d86f2e8a31ce88fd17e954287ed7f80829c0a04090527776064",
+      "initial_energy_eV": -474.6695251464844,
+      "purpose_counts": {
+        "biased_proposal_relax": 3392,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 1752,
+        "escape_true_pes_check": 83,
+        "landing_true_quench": 681,
+        "post_relax_validation": 13,
+        "starter_true_quench": 79,
+        "unattributed": 0
+      },
+      "run": "runs/20260728-block-krylov-direction-gpu-ablation/cases/c60-discrete-seed42",
+      "seed": 42,
+      "summary_sha256": "ea7f45818becb7a4fe8df418fd8beb59f72b2316853818003579a84d2e0e5ee3",
+      "system": "c60",
+      "terminal_failure_count": null,
+      "terminal_failure_count_reason": "unsupported_by_current_result_stats",
+      "terminal_untraced_direction_oracle_force_evaluations": 0,
+      "total_force_evaluations": 6000,
+      "unique_minima": 12,
+      "wall_time_s": 105.39258536399575
+    },
+    {
+      "archive_size": 13,
+      "arm": "variational_breadth",
+      "best_energy_auc_eV_force_evals": -2903938.4765625,
+      "best_energy_eV": -493.30999755859375,
+      "budget_closed": true,
+      "direction_selection_audit": {
+        "direction_oracle_force_evaluations": 1320,
+        "maximum_complete_selection_force_evaluations": 24,
+        "selected_kind_counts": {
+          "block_ritz": 55
+        },
+        "selection_count": 55,
+        "strict_block_trace_validated": true,
+        "terminal_untraced_direction_oracle_force_evaluations": 0
+      },
+      "duplicate_fraction": 0.0,
+      "energy_drop_eV": 18.6405029296875,
+      "energy_trace_sha256": "a1482546efb5008a08c3b7a58128d73a59857333d2ec8119da5b4a83dfcf93ed",
+      "initial_energy_eV": -474.66949462890625,
+      "purpose_counts": {
+        "biased_proposal_relax": 3839,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 1320,
+        "escape_true_pes_check": 64,
+        "landing_true_quench": 704,
+        "post_relax_validation": 13,
+        "starter_true_quench": 60,
+        "unattributed": 0
+      },
+      "run": "runs/20260728-block-krylov-direction-gpu-ablation/cases/c60-variational_breadth-seed42",
+      "seed": 42,
+      "summary_sha256": "110a41d7986c2f99e1aa223db2c6ee6efb58c9ed5d21551ecf773e19eb127467",
+      "system": "c60",
+      "terminal_failure_count": null,
+      "terminal_failure_count_reason": "unsupported_by_current_result_stats",
+      "terminal_untraced_direction_oracle_force_evaluations": 0,
+      "total_force_evaluations": 6000,
+      "unique_minima": 13,
+      "wall_time_s": 104.5778019859863
+    },
+    {
+      "archive_size": 9,
+      "arm": "balanced_refinement",
+      "best_energy_auc_eV_force_evals": -2878386.2915039062,
+      "best_energy_eV": -484.793212890625,
+      "budget_closed": true,
+      "direction_selection_audit": {
+        "direction_oracle_force_evaluations": 1416,
+        "maximum_complete_selection_force_evaluations": 24,
+        "selected_kind_counts": {
+          "block_ritz": 59
+        },
+        "selection_count": 59,
+        "strict_block_trace_validated": true,
+        "terminal_untraced_direction_oracle_force_evaluations": 0
+      },
+      "duplicate_fraction": 0.0,
+      "energy_drop_eV": 10.12432861328125,
+      "energy_trace_sha256": "b5184e8117c72d40caed44a601aa6ce3a2a4efc6eca8b67f4e55eb3d9c04b94a",
+      "initial_energy_eV": -474.66888427734375,
+      "purpose_counts": {
+        "biased_proposal_relax": 3680,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 1416,
+        "escape_true_pes_check": 65,
+        "landing_true_quench": 783,
+        "post_relax_validation": 9,
+        "starter_true_quench": 47,
+        "unattributed": 0
+      },
+      "run": "runs/20260728-block-krylov-direction-gpu-ablation/cases/c60-balanced_refinement-seed42",
+      "seed": 42,
+      "summary_sha256": "16517a6da6708fa5e42e009dc2629624576f75891458e46b3d9646f44bdec58a",
+      "system": "c60",
+      "terminal_failure_count": null,
+      "terminal_failure_count_reason": "unsupported_by_current_result_stats",
+      "terminal_untraced_direction_oracle_force_evaluations": 0,
+      "total_force_evaluations": 6000,
+      "unique_minima": 9,
+      "wall_time_s": 101.16555800498463
+    },
+    {
+      "archive_size": 10,
+      "arm": "deep_refinement",
+      "best_energy_auc_eV_force_evals": -2906586.639404297,
+      "best_energy_eV": -494.1932678222656,
+      "budget_closed": true,
+      "direction_selection_audit": {
+        "direction_oracle_force_evaluations": 1848,
+        "maximum_complete_selection_force_evaluations": 24,
+        "selected_kind_counts": {
+          "block_ritz": 77
+        },
+        "selection_count": 77,
+        "strict_block_trace_validated": true,
+        "terminal_untraced_direction_oracle_force_evaluations": 1
+      },
+      "duplicate_fraction": 0.23076923076923078,
+      "energy_drop_eV": 19.524322509765625,
+      "energy_trace_sha256": "2ba88d06d19e433d23e7e9eeeb1098de07604ffb3f13ad53316b14c0a20affc2",
+      "initial_energy_eV": -474.6689453125,
+      "purpose_counts": {
+        "biased_proposal_relax": 3290,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 1849,
+        "escape_true_pes_check": 84,
+        "landing_true_quench": 719,
+        "post_relax_validation": 13,
+        "starter_true_quench": 45,
+        "unattributed": 0
+      },
+      "run": "runs/20260728-block-krylov-direction-gpu-ablation/cases/c60-deep_refinement-seed42",
+      "seed": 42,
+      "summary_sha256": "e78de7446f3632094e26f9d247cf2c22a4f08d25a2d18967031d934881133f81",
+      "system": "c60",
+      "terminal_failure_count": null,
+      "terminal_failure_count_reason": "unsupported_by_current_result_stats",
+      "terminal_untraced_direction_oracle_force_evaluations": 1,
+      "total_force_evaluations": 6000,
+      "unique_minima": 10,
+      "wall_time_s": 101.65295064100064
+    },
+    {
+      "archive_size": 11,
+      "arm": "discrete",
+      "best_energy_auc_eV_force_evals": -2879441.9860839844,
+      "best_energy_eV": -485.14501953125,
+      "budget_closed": true,
+      "direction_selection_audit": {
+        "direction_oracle_force_evaluations": 1776,
+        "maximum_complete_selection_force_evaluations": 24,
+        "selected_kind_counts": {
+          "bond": 5,
+          "momentum": 56,
+          "random": 13
+        },
+        "selection_count": 74,
+        "strict_block_trace_validated": false,
+        "terminal_untraced_direction_oracle_force_evaluations": 0
+      },
+      "duplicate_fraction": 0.0,
+      "energy_drop_eV": 10.476043701171875,
+      "energy_trace_sha256": "06f74235849d814d80d21e3b8f620026b76df17da069b78e47c941a795c49269",
+      "initial_energy_eV": -474.6689758300781,
+      "purpose_counts": {
+        "biased_proposal_relax": 3433,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 1776,
+        "escape_true_pes_check": 81,
+        "landing_true_quench": 650,
+        "post_relax_validation": 11,
+        "starter_true_quench": 49,
+        "unattributed": 0
+      },
+      "run": "runs/20260728-block-krylov-direction-gpu-ablation/cases/c60-discrete-seed43",
+      "seed": 43,
+      "summary_sha256": "0f0c69e7aa805f8e606d842d40fbbc000282ab63eab08eaf52aed5b92943617b",
+      "system": "c60",
+      "terminal_failure_count": null,
+      "terminal_failure_count_reason": "unsupported_by_current_result_stats",
+      "terminal_untraced_direction_oracle_force_evaluations": 0,
+      "total_force_evaluations": 6000,
+      "unique_minima": 11,
+      "wall_time_s": 105.01769939402584
+    },
+    {
+      "archive_size": 13,
+      "arm": "variational_breadth",
+      "best_energy_auc_eV_force_evals": -2867506.9885253906,
+      "best_energy_eV": -481.166259765625,
+      "budget_closed": true,
+      "direction_selection_audit": {
+        "direction_oracle_force_evaluations": 1248,
+        "maximum_complete_selection_force_evaluations": 24,
+        "selected_kind_counts": {
+          "block_ritz": 52
+        },
+        "selection_count": 52,
+        "strict_block_trace_validated": true,
+        "terminal_untraced_direction_oracle_force_evaluations": 23
+      },
+      "duplicate_fraction": 0.07142857142857142,
+      "energy_drop_eV": 6.496856689453125,
+      "energy_trace_sha256": "1fcab796a5879b11976d7879751426e3bca7ddc009dcbb1129166e1590f4b5fa",
+      "initial_energy_eV": -474.6694030761719,
+      "purpose_counts": {
+        "biased_proposal_relax": 3648,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 1271,
+        "escape_true_pes_check": 58,
+        "landing_true_quench": 957,
+        "post_relax_validation": 14,
+        "starter_true_quench": 52,
+        "unattributed": 0
+      },
+      "run": "runs/20260728-block-krylov-direction-gpu-ablation/cases/c60-variational_breadth-seed43",
+      "seed": 43,
+      "summary_sha256": "088ea75215d3c9b38b0e2d6a09b9919aba8e627f407e7d9a72095f50d798af25",
+      "system": "c60",
+      "terminal_failure_count": null,
+      "terminal_failure_count_reason": "unsupported_by_current_result_stats",
+      "terminal_untraced_direction_oracle_force_evaluations": 23,
+      "total_force_evaluations": 6000,
+      "unique_minima": 13,
+      "wall_time_s": 102.52368562400807
+    },
+    {
+      "archive_size": 11,
+      "arm": "balanced_refinement",
+      "best_energy_auc_eV_force_evals": -2896750.8544921875,
+      "best_energy_eV": -490.9144592285156,
+      "budget_closed": true,
+      "direction_selection_audit": {
+        "direction_oracle_force_evaluations": 1608,
+        "maximum_complete_selection_force_evaluations": 24,
+        "selected_kind_counts": {
+          "block_ritz": 67
+        },
+        "selection_count": 67,
+        "strict_block_trace_validated": true,
+        "terminal_untraced_direction_oracle_force_evaluations": 0
+      },
+      "duplicate_fraction": 0.15384615384615385,
+      "energy_drop_eV": 16.24530029296875,
+      "energy_trace_sha256": "09af3690000145ebd63262a464605cdcca9839e9d0f899b64362020d7206bd98",
+      "initial_energy_eV": -474.6691589355469,
+      "purpose_counts": {
+        "biased_proposal_relax": 3589,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 1608,
+        "escape_true_pes_check": 75,
+        "landing_true_quench": 650,
+        "post_relax_validation": 13,
+        "starter_true_quench": 65,
+        "unattributed": 0
+      },
+      "run": "runs/20260728-block-krylov-direction-gpu-ablation/cases/c60-balanced_refinement-seed43",
+      "seed": 43,
+      "summary_sha256": "efd5976e410bc993cc0e840f38b01e244836eec681bd07ae0fdbff2a3cf21c72",
+      "system": "c60",
+      "terminal_failure_count": null,
+      "terminal_failure_count_reason": "unsupported_by_current_result_stats",
+      "terminal_untraced_direction_oracle_force_evaluations": 0,
+      "total_force_evaluations": 6000,
+      "unique_minima": 11,
+      "wall_time_s": 104.45650211398606
+    },
+    {
+      "archive_size": 9,
+      "arm": "deep_refinement",
+      "best_energy_auc_eV_force_evals": -2905038.6657714844,
+      "best_energy_eV": -493.6766357421875,
+      "budget_closed": true,
+      "direction_selection_audit": {
+        "direction_oracle_force_evaluations": 2016,
+        "maximum_complete_selection_force_evaluations": 24,
+        "selected_kind_counts": {
+          "block_ritz": 84
+        },
+        "selection_count": 84,
+        "strict_block_trace_validated": true,
+        "terminal_untraced_direction_oracle_force_evaluations": 0
+      },
+      "duplicate_fraction": 0.3076923076923077,
+      "energy_drop_eV": 19.007049560546875,
+      "energy_trace_sha256": "309735eb190d9171173ed7845b6b331a6372a74210b4e82b8ad0089bbbbc0c2a",
+      "initial_energy_eV": -474.6695861816406,
+      "purpose_counts": {
+        "biased_proposal_relax": 3186,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 2016,
+        "escape_true_pes_check": 93,
+        "landing_true_quench": 621,
+        "post_relax_validation": 13,
+        "starter_true_quench": 71,
+        "unattributed": 0
+      },
+      "run": "runs/20260728-block-krylov-direction-gpu-ablation/cases/c60-deep_refinement-seed43",
+      "seed": 43,
+      "summary_sha256": "6b5379ed8b219faf00b4a39ffc807a7561fa521c6db5d59afd5c186fd891d5e5",
+      "system": "c60",
+      "terminal_failure_count": null,
+      "terminal_failure_count_reason": "unsupported_by_current_result_stats",
+      "terminal_untraced_direction_oracle_force_evaluations": 0,
+      "total_force_evaluations": 6000,
+      "unique_minima": 9,
+      "wall_time_s": 102.63799900902086
+    },
+    {
+      "archive_size": 9,
+      "arm": "discrete",
+      "best_energy_auc_eV_force_evals": -2905665.069580078,
+      "best_energy_eV": -493.88543701171875,
+      "budget_closed": true,
+      "direction_selection_audit": {
+        "direction_oracle_force_evaluations": 1464,
+        "maximum_complete_selection_force_evaluations": 24,
+        "selected_kind_counts": {
+          "bond": 5,
+          "momentum": 44,
+          "random": 12
+        },
+        "selection_count": 61,
+        "strict_block_trace_validated": false,
+        "terminal_untraced_direction_oracle_force_evaluations": 0
+      },
+      "duplicate_fraction": 0.1,
+      "energy_drop_eV": 19.215850830078125,
+      "energy_trace_sha256": "c0b27e2a79bdab02ca03f2cec7a067f515e0cc9ee717cfe76ac3e5dfb7b23c35",
+      "initial_energy_eV": -474.6695861816406,
+      "purpose_counts": {
+        "biased_proposal_relax": 3650,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 1464,
+        "escape_true_pes_check": 69,
+        "landing_true_quench": 740,
+        "post_relax_validation": 10,
+        "starter_true_quench": 67,
+        "unattributed": 0
+      },
+      "run": "runs/20260728-block-krylov-direction-gpu-ablation/cases/c60-discrete-seed44",
+      "seed": 44,
+      "summary_sha256": "da427d07d7689a2e2f8700a97e41603d3e85bd99e287e487ef3197f95bd7e43c",
+      "system": "c60",
+      "terminal_failure_count": null,
+      "terminal_failure_count_reason": "unsupported_by_current_result_stats",
+      "terminal_untraced_direction_oracle_force_evaluations": 0,
+      "total_force_evaluations": 6000,
+      "unique_minima": 9,
+      "wall_time_s": 105.47001894100686
+    },
+    {
+      "archive_size": 14,
+      "arm": "variational_breadth",
+      "best_energy_auc_eV_force_evals": -2903458.6486816406,
+      "best_energy_eV": -493.1502380371094,
+      "budget_closed": true,
+      "direction_selection_audit": {
+        "direction_oracle_force_evaluations": 1512,
+        "maximum_complete_selection_force_evaluations": 24,
+        "selected_kind_counts": {
+          "block_ritz": 63
+        },
+        "selection_count": 63,
+        "strict_block_trace_validated": true,
+        "terminal_untraced_direction_oracle_force_evaluations": 14
+      },
+      "duplicate_fraction": 0.0,
+      "energy_drop_eV": 18.480926513671875,
+      "energy_trace_sha256": "3a5d243808c77538a2ede83b877bb5a709fba48349cff77140ae94404f3e23fb",
+      "initial_energy_eV": -474.6693115234375,
+      "purpose_counts": {
+        "biased_proposal_relax": 3661,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 1526,
+        "escape_true_pes_check": 71,
+        "landing_true_quench": 673,
+        "post_relax_validation": 14,
+        "starter_true_quench": 55,
+        "unattributed": 0
+      },
+      "run": "runs/20260728-block-krylov-direction-gpu-ablation/cases/c60-variational_breadth-seed44",
+      "seed": 44,
+      "summary_sha256": "b8ce2779b03a254201d82f55d11d5434ecafe5c8a1ae4ae9417821dd2b44ed0b",
+      "system": "c60",
+      "terminal_failure_count": null,
+      "terminal_failure_count_reason": "unsupported_by_current_result_stats",
+      "terminal_untraced_direction_oracle_force_evaluations": 14,
+      "total_force_evaluations": 6000,
+      "unique_minima": 14,
+      "wall_time_s": 103.86384218998137
+    },
+    {
+      "archive_size": 13,
+      "arm": "balanced_refinement",
+      "best_energy_auc_eV_force_evals": -2879684.8754882812,
+      "best_energy_eV": -485.22589111328125,
+      "budget_closed": true,
+      "direction_selection_audit": {
+        "direction_oracle_force_evaluations": 1560,
+        "maximum_complete_selection_force_evaluations": 24,
+        "selected_kind_counts": {
+          "block_ritz": 65
+        },
+        "selection_count": 65,
+        "strict_block_trace_validated": true,
+        "terminal_untraced_direction_oracle_force_evaluations": 0
+      },
+      "duplicate_fraction": 0.0,
+      "energy_drop_eV": 10.55682373046875,
+      "energy_trace_sha256": "4f8717486c10addd95d9da3041c341b1df2eca85bd120b591a866ea02319d8af",
+      "initial_energy_eV": -474.6690673828125,
+      "purpose_counts": {
+        "biased_proposal_relax": 3641,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 1560,
+        "escape_true_pes_check": 74,
+        "landing_true_quench": 662,
+        "post_relax_validation": 13,
+        "starter_true_quench": 50,
+        "unattributed": 0
+      },
+      "run": "runs/20260728-block-krylov-direction-gpu-ablation/cases/c60-balanced_refinement-seed44",
+      "seed": 44,
+      "summary_sha256": "f8d2422b20d1e85424f1f397d6e94e780f91d3ae79cb45e2fd626288a42e85d7",
+      "system": "c60",
+      "terminal_failure_count": null,
+      "terminal_failure_count_reason": "unsupported_by_current_result_stats",
+      "terminal_untraced_direction_oracle_force_evaluations": 0,
+      "total_force_evaluations": 6000,
+      "unique_minima": 13,
+      "wall_time_s": 102.77478826098377
+    },
+    {
+      "archive_size": 9,
+      "arm": "deep_refinement",
+      "best_energy_auc_eV_force_evals": -2874316.680908203,
+      "best_energy_eV": -483.4366149902344,
+      "budget_closed": true,
+      "direction_selection_audit": {
+        "direction_oracle_force_evaluations": 1680,
+        "maximum_complete_selection_force_evaluations": 24,
+        "selected_kind_counts": {
+          "block_ritz": 70
+        },
+        "selection_count": 70,
+        "strict_block_trace_validated": true,
+        "terminal_untraced_direction_oracle_force_evaluations": 7
+      },
+      "duplicate_fraction": 0.18181818181818182,
+      "energy_drop_eV": 8.767669677734375,
+      "energy_trace_sha256": "a26c3104bef9b45ed09e99b9fd5666a5ac93845e5e9b3344dab90534c0fe030a",
+      "initial_energy_eV": -474.6689453125,
+      "purpose_counts": {
+        "biased_proposal_relax": 3586,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 1687,
+        "escape_true_pes_check": 79,
+        "landing_true_quench": 587,
+        "post_relax_validation": 11,
+        "starter_true_quench": 50,
+        "unattributed": 0
+      },
+      "run": "runs/20260728-block-krylov-direction-gpu-ablation/cases/c60-deep_refinement-seed44",
+      "seed": 44,
+      "summary_sha256": "124e3893b6a84c5f7ba53a39b92cbd6a339523e46e10c65a6847a5e6da616906",
+      "system": "c60",
+      "terminal_failure_count": null,
+      "terminal_failure_count_reason": "unsupported_by_current_result_stats",
+      "terminal_untraced_direction_oracle_force_evaluations": 7,
+      "total_force_evaluations": 6000,
+      "unique_minima": 9,
+      "wall_time_s": 102.93750260700472
+    }
+  ],
+  "schema_id": "block_krylov_stage2_v1",
+  "schema_version": 1,
+  "selected_pdo_transfer_arm": null,
+  "system": "c60"
+}
