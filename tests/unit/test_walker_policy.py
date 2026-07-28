@@ -506,7 +506,7 @@ def test_soft_mode_oracle_scores_all_candidates_with_fixed_reference_sigma():
             return super().score_candidate(**kwargs)
 
     state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
-    oracle = SoftModeOracle(AnalyticCalculator(Quadratic()), np.random.default_rng(0), candidates=1)
+    oracle = SoftModeOracle(AnalyticCalculator(Quadratic()), np.random.default_rng(0), candidates=2)
     oracle.scorer = CapturingScorer()
 
     oracle.choose_direction(
@@ -539,7 +539,7 @@ def test_soft_mode_oracle_allows_explicit_score_sigma_override():
             return super().score_candidate(**kwargs)
 
     state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
-    oracle = SoftModeOracle(AnalyticCalculator(Quadratic()), np.random.default_rng(0), candidates=1)
+    oracle = SoftModeOracle(AnalyticCalculator(Quadratic()), np.random.default_rng(0), candidates=2)
     oracle.scorer = CapturingScorer()
 
     oracle.choose_direction(
@@ -574,7 +574,7 @@ def test_soft_mode_oracle_can_score_candidates_with_adaptive_sigma():
             return super().score_candidate(**kwargs)
 
     state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
-    oracle = SoftModeOracle(AnalyticCalculator(Quadratic()), np.random.default_rng(0), candidates=1)
+    oracle = SoftModeOracle(AnalyticCalculator(Quadratic()), np.random.default_rng(0), candidates=2)
     oracle.scorer = CapturingScorer()
 
     oracle.choose_direction(
@@ -2425,7 +2425,7 @@ def test_direction_generator_exposes_documented_enabled_and_guarded_kinds():
     candidates = generator.generate(state, previous_direction=np.array([1.0, 0.0, 0.0]))
 
     assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.MOMENTUM) == 1
-    assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.RANDOM) == 2
+    assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.RANDOM) == 1
     assert DirectionCandidateKind.BOND not in [candidate.kind for candidate in candidates]
 
 
@@ -2540,7 +2540,7 @@ def test_direction_generator_anchor_mixing_only_changes_momentum_candidate():
     )
     previous = np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0])
     anchor = np.array([0.0, 1.0, 0.0, 0.0, 0.0, 0.0])
-    generator = CandidateDirectionGenerator(np.random.default_rng(0), n_random=0, bond_pairs=[(0, 1)])
+    generator = CandidateDirectionGenerator(np.random.default_rng(0), n_random=2, bond_pairs=[(0, 1)])
 
     candidates = generator.generate(state, previous_direction=previous, anchor_direction=anchor, anchor_mixing_alpha=0.6)
 
@@ -2903,7 +2903,7 @@ def test_direction_generator_adds_bond_candidate_when_pairs_are_provided():
         numbers=np.array([1, 1]),
         positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
     )
-    generator = CandidateDirectionGenerator(np.random.default_rng(0), n_random=0, bond_pairs=[(0, 1)])
+    generator = CandidateDirectionGenerator(np.random.default_rng(0), n_random=1, bond_pairs=[(0, 1)])
 
     candidates = generator.generate(state, previous_direction=None)
 
@@ -2947,7 +2947,7 @@ def test_bond_form_break_split_rejects_too_far_formation_pairs():
     )
     generator = CandidateDirectionGenerator(
         np.random.default_rng(0),
-        n_random=0,
+        n_random=1,
         enable_bond_form_break_split=True,
         n_bond_formation_pairs=1,
         n_bond_breaking_pairs=0,
@@ -2957,7 +2957,7 @@ def test_bond_form_break_split_rejects_too_far_formation_pairs():
 
     candidates = generator.generate(state, previous_direction=None)
 
-    assert candidates == []
+    assert all(candidate.kind is not DirectionCandidateKind.BOND_FORM for candidate in candidates)
 
 
 def test_bond_form_break_split_generates_break_candidates_for_short_pairs():
@@ -2967,7 +2967,7 @@ def test_bond_form_break_split_generates_break_candidates_for_short_pairs():
     )
     generator = CandidateDirectionGenerator(
         np.random.default_rng(0),
-        n_random=0,
+        n_random=1,
         enable_bond_form_break_split=True,
         n_bond_formation_pairs=0,
         n_bond_breaking_pairs=1,
@@ -2986,7 +2986,7 @@ def test_bond_form_break_split_keeps_explicit_bond_pairs_as_legacy_bond_candidat
     )
     generator = CandidateDirectionGenerator(
         np.random.default_rng(0),
-        n_random=0,
+        n_random=1,
         bond_pairs=[(0, 1)],
         enable_bond_form_break_split=True,
         n_bond_formation_pairs=0,
@@ -3042,7 +3042,7 @@ def test_direction_generator_adds_random_non_neighbor_bond_candidates():
     )
     generator = CandidateDirectionGenerator(
         np.random.default_rng(2),
-        n_random=0,
+        n_random=3,
         n_bond_pairs=3,
         bond_distance_threshold=2.0,
     )
@@ -3090,7 +3090,7 @@ def test_direction_generator_adds_periodic_random_bond_candidates_with_mic_direc
     )
     generator = CandidateDirectionGenerator(
         np.random.default_rng(0),
-        n_random=0,
+        n_random=1,
         n_bond_pairs=1,
         bond_distance_threshold=3.0,
     )
@@ -3123,7 +3123,7 @@ def test_direction_generator_falls_back_to_closest_mic_pairs_when_non_neighbors_
     )
     generator = CandidateDirectionGenerator(
         np.random.default_rng(0),
-        n_random=0,
+        n_random=3,
         n_bond_pairs=3,
         bond_distance_threshold=20.0,
     )
@@ -4486,7 +4486,7 @@ def test_surface_walker_rejects_unphysical_energy_drop_before_archive(monkeypatc
     assert result.stats["energy_sanity_rejections"] == 1
 
 
-def test_standard_surface_walker_generates_bond_candidates():
+def test_standard_surface_walker_respects_one_candidate_budget():
     initial = State(
         numbers=np.full(4, 18),
         positions=np.array(
@@ -4507,7 +4507,7 @@ def test_standard_surface_walker_generates_bond_candidates():
 
     result = walker.run(initial)
 
-    assert result.stats["direction_candidate_evaluations"] > result.stats["direction_choices"]
+    assert result.stats["direction_candidate_evaluations"] == result.stats["direction_choices"]
 
 
 def test_walk_displacement_clip_limits_per_atom_motion():

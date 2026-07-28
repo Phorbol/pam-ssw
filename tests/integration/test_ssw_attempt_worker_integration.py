@@ -126,10 +126,18 @@ _SSW_COMPLETED_LANDING = np.array(
 )
 _LS_SSW_COMPLETED_LANDING = np.array(
     [
-        [-1.000022482285951, 6.456599136324924e-06, -4.048361096694965e-19],
-        [0.8817682755669265, -0.4141983845138378, 2.4491929225442876e-18],
-        [-1.444168895032776e-17, 1.2121320343559643, 2.2941818395826863e-18],
-        [3.058861115081377e-18, 3.3972320780405076e-18, 1.0],
+        [-0.9999728922495554, 2.1110387920091675e-18, 3.735014415926559e-17],
+        [1.4620162511082853, -8.759543837714597e-18, -4.806260488024458e-17],
+        [-3.197519170442773e-18, 1.0, -2.485148728762242e-17],
+        [1.0260346832093245e-16, -2.4851487287622408e-17, 1.0],
+    ]
+)
+_LS_SSW_DUPLICATE_LANDING = np.array(
+    [
+        [-0.9999923871678221, 5.325406716043512e-18, 4.41347816547278e-17],
+        [1.3405858236332273, -7.62222911491232e-18, -4.4565188455938064e-17],
+        [-3.317117156888655e-18, 1.0, -2.5781016613751053e-17],
+        [1.064411836118929e-16, -2.5781016613751053e-17, 1.0],
     ]
 )
 
@@ -184,10 +192,10 @@ def _assert_closed_physical_ledger(result) -> None:
         (
             _ls_base_config,
             True,
-            61,
-            8,
+            56,
+            6,
             2,
-            2.0427020177514484e-09,
+            2.93924085883713e-09,
             _LS_SSW_COMPLETED_LANDING,
         ),
     ],
@@ -268,10 +276,10 @@ def test_new_proposal_optimizers_preserve_exact_analytic_worker_ledger(proposal_
 
 
 @pytest.mark.parametrize(
-    ("config_factory", "softening_enabled", "force_evaluations"),
+    ("config_factory", "softening_enabled", "force_evaluations", "landing_energy", "landing_positions"),
     [
-        (_base_config, False, 13),
-        (_ls_known_basin_config, True, 41),
+        (_base_config, False, 13, 0.0, _state().positions),
+        (_ls_known_basin_config, True, 45, 2.3181909026442303e-10, _LS_SSW_DUPLICATE_LANDING),
     ],
     ids=("ssw", "ls_ssw"),
 )
@@ -279,6 +287,8 @@ def test_real_worker_purpose_ledger_preserves_duplicate_candidate_baseline(
     config_factory,
     softening_enabled,
     force_evaluations,
+    landing_energy,
+    landing_positions,
 ):
     worker, calculators = _worker_with_fresh_calculators(
         replace(config_factory(), dedup_rmsd_tol=10.0),
@@ -292,8 +302,8 @@ def test_real_worker_purpose_ledger_preserves_duplicate_candidate_baseline(
         calculators[0],
         status=AttemptStatus.COMPLETED,
         force_evaluations=force_evaluations,
-        landing_energy=0.0,
-        landing_positions=_state().positions,
+        landing_energy=landing_energy,
+        landing_positions=landing_positions,
     )
     _assert_closed_physical_ledger(result)
 
@@ -302,7 +312,7 @@ def test_real_worker_purpose_ledger_preserves_duplicate_candidate_baseline(
     ("config_factory", "softening_enabled", "force_evaluations"),
     [
         (_base_config, False, 13),
-        (_ls_base_config, True, 61),
+        (_ls_base_config, True, 56),
     ],
     ids=("ssw", "ls_ssw"),
 )

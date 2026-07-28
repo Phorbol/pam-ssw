@@ -811,56 +811,70 @@ class CandidateDirectionGenerator:
     ) -> list[DirectionCandidate]:
         coordinates = CartesianCoordinates.from_state(state)
         candidates: list[DirectionCandidate] = []
-        if self.enable_momentum_candidate and previous_direction is not None:
+        max_candidates = self.n_random
+
+        def append_candidate(kind: DirectionCandidateKind, direction: np.ndarray | None) -> bool:
+            if direction is None or len(candidates) >= max_candidates:
+                return False
+            candidates.append(self._candidate(state, kind, direction))
+            return True
+
+        if (
+            self.enable_momentum_candidate
+            and previous_direction is not None
+            and self._is_usable_full_direction(previous_direction, state)
+        ):
             momentum_direction = self._anchor_mixed_direction(previous_direction, anchor_direction, anchor_mixing_alpha)
-            candidates.append(self._candidate(state, DirectionCandidateKind.MOMENTUM, momentum_direction))
+            if self._is_usable_full_direction(momentum_direction, state):
+                append_candidate(DirectionCandidateKind.MOMENTUM, momentum_direction)
         for atom_i, atom_j in self.bond_pairs:
+            if len(candidates) >= max_candidates:
+                break
             direction = self._bond_direction(state, atom_i, atom_j)
-            if direction is not None:
-                candidates.append(self._candidate(state, DirectionCandidateKind.BOND, direction))
-        dynamic_pairs_count = 0
+            append_candidate(DirectionCandidateKind.BOND, direction)
+        available_bond_slots = max(0, max_candidates - len(candidates))
         if self.enable_bond_form_break_split:
-            n_form_pairs, n_break_pairs = self._split_bond_pair_counts(n_bond_pairs)
+            requested_form_pairs, requested_break_pairs = self._split_bond_pair_counts(n_bond_pairs)
+            requested_bond_pairs = requested_form_pairs + requested_break_pairs
+            dynamic_bond_budget = min(requested_bond_pairs, available_bond_slots)
+            n_form_pairs, n_break_pairs = self._split_bond_pair_counts(dynamic_bond_budget)
             formation_pairs = self._random_bond_formation_pairs(state, n_form_pairs)
             breaking_pairs = self._random_bond_breaking_pairs(state, n_break_pairs)
-            self.last_random_bond_pairs_requested = n_form_pairs + n_break_pairs
+            self.last_random_bond_pairs_requested = requested_bond_pairs
             self.last_random_bond_pairs_generated = len(formation_pairs) + len(breaking_pairs)
             self.last_random_bond_candidates_valid = 0
             for atom_i, atom_j in formation_pairs:
                 direction = self._bond_form_direction(state, atom_i, atom_j)
-                if direction is not None:
-                    candidates.append(self._candidate(state, DirectionCandidateKind.BOND_FORM, direction))
+                if append_candidate(DirectionCandidateKind.BOND_FORM, direction):
                     self.last_random_bond_candidates_valid += 1
             for atom_i, atom_j in breaking_pairs:
                 direction = self._bond_break_direction(state, atom_i, atom_j)
-                if direction is not None:
-                    candidates.append(self._candidate(state, DirectionCandidateKind.BOND_BREAK, direction))
+                if append_candidate(DirectionCandidateKind.BOND_BREAK, direction):
                     self.last_random_bond_candidates_valid += 1
-            dynamic_pairs_count = len(formation_pairs) + len(breaking_pairs)
         else:
+            requested_bond_pairs = self.n_bond_pairs if n_bond_pairs is None else n_bond_pairs
+            dynamic_bond_budget = min(requested_bond_pairs, available_bond_slots)
             dynamic_pairs = self._random_non_neighbor_pairs(
                 state,
-                n_pairs=self.n_bond_pairs if n_bond_pairs is None else n_bond_pairs,
+                n_pairs=dynamic_bond_budget,
                 distance_threshold=self.bond_distance_threshold,
             )
-            self.last_random_bond_pairs_requested = self.n_bond_pairs if n_bond_pairs is None else n_bond_pairs
+            self.last_random_bond_pairs_requested = requested_bond_pairs
             self.last_random_bond_pairs_generated = len(dynamic_pairs)
             self.last_random_bond_candidates_valid = 0
             for atom_i, atom_j in dynamic_pairs:
                 direction = self._bond_direction(state, atom_i, atom_j)
-                if direction is not None:
-                    candidates.append(self._candidate(state, DirectionCandidateKind.BOND, direction))
+                if append_candidate(DirectionCandidateKind.BOND, direction):
                     self.last_random_bond_candidates_valid += 1
-            dynamic_pairs_count = len(dynamic_pairs)
         # Raw anchor as an executable candidate was withdrawn after C60 smokes
         # showed strong anchor-collapse and worse minima.  Keep the config flag
         # as a compatibility no-op; anchor remains available as a prior.
-        n_random = max(0, self.n_random - dynamic_pairs_count)
+        n_random = max(0, max_candidates - len(candidates))
         for _ in range(n_random):
             active = self._random_active_direction(state, coordinates)
             active /= np.linalg.norm(active) + 1e-12
             direction = coordinates.full_tangent_from_active(active).values
-            candidates.append(self._candidate(state, DirectionCandidateKind.RANDOM, direction))
+            append_candidate(DirectionCandidateKind.RANDOM, direction)
         return candidates
 
     def generate_initial_direction(
@@ -937,6 +951,15 @@ class CandidateDirectionGenerator:
     def _normalized(direction: np.ndarray) -> np.ndarray:
         direction = np.asarray(direction, dtype=float)
         return direction / (np.linalg.norm(direction) + 1e-12)
+
+    @staticmethod
+    def _is_usable_full_direction(direction: np.ndarray, state: State) -> bool:
+        values = np.asarray(direction, dtype=float)
+        return (
+            values.shape == (state.positions.size,)
+            and bool(np.all(np.isfinite(values)))
+            and np.linalg.norm(values) > 1e-12
+        )
 
     def _random_active_direction(self, state: State, coordinates: CartesianCoordinates) -> np.ndarray:
         active = self.rng.normal(size=coordinates.active_size)
