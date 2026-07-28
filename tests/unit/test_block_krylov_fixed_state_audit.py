@@ -85,7 +85,7 @@ def _raw() -> dict[str, object]:
         "hvp_epsilon": 1.0e-3,
         "max_hvps": 12,
         "allocations": allocations,
-        "runtime": {"device": "cpu", "precision": "float64"},
+        "runtime": {"mode": "analytic_only", "device": "cpu", "precision": "float64"},
         "rows": [_row("diagonal", arm) for arm in allocations],
         "fixed_state_registry": {"c60": [], "pdo": []},
         "wall_seconds": 0.4,
@@ -174,6 +174,7 @@ def _fixed_raw() -> dict[str, object]:
     registry = _fixed_registry()
     raw["fixed_state_registry"] = registry
     raw["runtime"] = {
+        "mode": "full_fixed_state",
         "device": "cuda",
         "precision": "float32",
         "dtype": "float32",
@@ -272,6 +273,24 @@ def test_analyzer_accepts_only_exact_fixed_cohort_and_projects_provenance_summar
     assert evidence["c60_states"] == ["bootstrap_quenched", "intermediate_accepted", "plateau_accepted"]
     assert evidence["pdo_states"] == ["bootstrap_quenched", "intermediate_accepted", "plateau_accepted"]
     assert set(evidence["fixed_state_provenance"]) == {"c60", "pdo"}
+
+
+def test_analyzer_rejects_full_fixed_state_mode_without_the_exact_cohort():
+    analyzer = _load_analyzer()
+    raw = _raw()
+    raw["runtime"]["mode"] = "full_fixed_state"
+
+    with pytest.raises(RuntimeError, match="cohort"):
+        analyzer.project_evidence(raw)
+
+
+def test_analyzer_rejects_fixed_rows_when_runtime_mode_is_analytic_only():
+    analyzer = _load_analyzer()
+    raw = _fixed_raw()
+    raw["runtime"]["mode"] = "analytic_only"
+
+    with pytest.raises(RuntimeError, match="analytic_only"):
+        analyzer.project_evidence(raw)
 
 
 @pytest.mark.parametrize(

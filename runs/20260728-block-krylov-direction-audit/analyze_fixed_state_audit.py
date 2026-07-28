@@ -416,9 +416,12 @@ def project_evidence(raw: Mapping[str, Any]) -> dict[str, Any]:
     if not isinstance(raw["git_commit"], str) or len(raw["git_commit"]) != 40:
         raise RuntimeError("raw.git_commit must be a full commit SHA")
     runtime = _mapping(raw["runtime"], "raw.runtime")
-    for key in ("device", "precision"):
+    for key in ("mode", "device", "precision"):
         if not isinstance(runtime.get(key), str) or not runtime[key]:
             raise RuntimeError(f"raw.runtime.{key} must be a non-empty string")
+    mode = runtime["mode"]
+    if mode not in {"analytic_only", "full_fixed_state"}:
+        raise RuntimeError("raw.runtime.mode must be analytic_only or full_fixed_state")
     fixed_state_registry = _mapping(raw["fixed_state_registry"], "raw.fixed_state_registry")
     if _finite_number(raw["wall_seconds"], "raw.wall_seconds") < 0.0:
         raise RuntimeError("raw.wall_seconds must be non-negative")
@@ -433,7 +436,14 @@ def project_evidence(raw: Mapping[str, Any]) -> dict[str, Any]:
         if row.get("kind") == "fixed_state"
     ]
     fixed_provenance: dict[str, list[dict[str, Any]]] = {}
-    if fixed_rows:
+    if mode == "analytic_only":
+        if fixed_rows:
+            raise RuntimeError("analytic_only runtime mode must not contain fixed-state rows")
+        if any(row.get("kind") != "analytic" for row in raw_rows):
+            raise RuntimeError("analytic_only runtime mode must contain only analytic rows")
+    else:
+        if not fixed_rows:
+            raise RuntimeError("full_fixed_state runtime mode requires the exact fixed-state cohort")
         lookup = _fixed_registry_lookup(fixed_state_registry, runtime)
         expected_cohort = {
             (system, state_id, arm)
