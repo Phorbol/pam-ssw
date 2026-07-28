@@ -92,6 +92,121 @@ def _raw() -> dict[str, object]:
     }
 
 
+def _fixed_registry() -> dict[str, list[dict[str, object]]]:
+    """Minimal but complete locked cohort provenance for analyzer contracts."""
+
+    states = (
+        ("bootstrap_quenched", "bootstrap", "reconstruct_frozen_starter_true_quench"),
+        ("intermediate_accepted", "intermediate", "locked_accepted_structure"),
+        ("plateau_accepted", "plateau", "locked_accepted_structure"),
+    )
+    registry: dict[str, list[dict[str, object]]] = {}
+    for system in ("c60", "pdo"):
+        entries: list[dict[str, object]] = []
+        for state_id, phase, source in states:
+            entry: dict[str, object] = {
+                "state_id": state_id,
+                "phase": phase,
+                "source": source,
+                "origin_summary_path": f"runs/origin-{system}/summary.json",
+                "origin_summary_sha256": f"{system[0]}" * 64,
+                "origin_commit": "b" * 40,
+                "model_path": "/models/mace.model",
+                "model_sha256": "m" * 64,
+            }
+            if source == "locked_accepted_structure":
+                entry.update(
+                    structure_path=f"runs/origin-{system}/{state_id}.xyz",
+                    structure_sha256=f"{state_id[0]}" * 64,
+                )
+            else:
+                entry.update(
+                    raw_input_path=f"inputs/{system}.xyz",
+                    raw_input_sha256=f"{system[-1]}" * 64,
+                    strict_wrapper_path="runs/strict/run_production.py",
+                    strict_wrapper_sha256="w" * 64,
+                    base_runner_path="runs/base/run_production.py",
+                    base_runner_sha256="r" * 64,
+                    strict_config_diff={
+                        "quench_optimizer": ["scipy-lbfgsb", "ase-lbfgs"],
+                        "quench_fallback_optimizer": [None, "ase-fire"],
+                    },
+                )
+            entries.append(entry)
+        registry[system] = entries
+    return registry
+
+
+def _fixed_state_provenance(entry: dict[str, object], *, state_sha256: str) -> dict[str, object]:
+    provenance = dict(entry)
+    provenance["state_sha256"] = state_sha256
+    if entry["source"] == "locked_accepted_structure":
+        return provenance
+    provenance.update(
+        strict_wrapper_path="runs/strict/run_production.py",
+        strict_wrapper_sha256="w" * 64,
+        base_runner_path="runs/base/run_production.py",
+        base_runner_sha256="r" * 64,
+        effective_config={
+            "quench_optimizer": "ase-lbfgs",
+            "quench_fallback_optimizer": "ase-fire",
+            "quench_fmax": 0.01,
+            "block_krylov_blocks": 2,
+            "block_krylov_depth": 3,
+        },
+        origin_effective_config={
+            "quench_optimizer": "ase-lbfgs",
+            "quench_fallback_optimizer": "ase-fire",
+            "quench_fmax": 0.01,
+        },
+        effective_config_diff=entry["strict_config_diff"],
+        current_config_schema_additions={"block_krylov_blocks": 2, "block_krylov_depth": 3},
+        bootstrap_purpose_counts={"starter_true_quench": 2, "unattributed": 0},
+        bootstrap_force_evaluations=2,
+        bootstrap_wall_seconds=0.1,
+        resulting_state_sha256=state_sha256,
+    )
+    return provenance
+
+
+def _fixed_raw() -> dict[str, object]:
+    raw = _raw()
+    registry = _fixed_registry()
+    raw["fixed_state_registry"] = registry
+    raw["runtime"] = {
+        "device": "cuda",
+        "precision": "float32",
+        "dtype": "float32",
+        "model_path": "/models/mace.model",
+        "model_sha256": "m" * 64,
+    }
+    rows: list[dict[str, object]] = []
+    for system, entries in registry.items():
+        for entry in entries:
+            for arm in raw["allocations"]:
+                row = _row(f"{system}:{entry['state_id']}", arm)
+                state_sha256 = ("f" if system == "c60" else "e") * 64
+                row.update(
+                    kind="fixed_state",
+                    system=system,
+                    state_id=entry["state_id"],
+                    case_metadata={"phase": entry["phase"]},
+                    state_sha256=state_sha256,
+                    state_provenance=_fixed_state_provenance(entry, state_sha256=state_sha256),
+                    calculator={
+                        "kind": "mace_omat_0_small",
+                        "model_path": "/models/mace.model",
+                        "model_sha256": "m" * 64,
+                        "device": "cuda",
+                        "precision": "float32",
+                        "dtype": "float32",
+                    },
+                )
+                rows.append(row)
+    raw["rows"] = rows
+    return raw
+
+
 def test_analyzer_projects_only_budget_closed_direction_evidence():
     assert ANALYZER_PATH.is_file()
     analyzer = _load_analyzer()
@@ -120,6 +235,82 @@ def test_analyzer_rejects_raw_evidence_without_runtime_provenance():
     del raw["runtime"]
 
     with pytest.raises(RuntimeError, match="runtime"):
+        analyzer.project_evidence(raw)
+
+
+def test_strict_bootstrap_config_uses_wrapper_effective_protocol_for_c60_and_pdo(tmp_path):
+    """Regression: bootstrap must not fall back to scipy L-BFGS-B or PdO fmax=.03."""
+
+    runner = _load_runner()
+    strict_wrapper, base_runner = runner._load_frozen_runtime()
+    for system in ("c60", "pdo"):
+        summary_path = (
+            runner.REPO_ROOT
+            / f"runs/20260728-safe-lbfgs-strict-quench-200-production/output-{system}-seed42/summary.json"
+        )
+        summary = __import__("json").loads(summary_path.read_text(encoding="utf-8"))
+        config, effective, config_diff = runner._strict_bootstrap_config(
+            system=system,
+            case_dir=tmp_path / system,
+            strict_wrapper=strict_wrapper,
+            base_runner=base_runner,
+            origin_summary=summary,
+        )
+
+        assert config.quench_optimizer == "ase-lbfgs"
+        assert config.quench_fallback_optimizer == "ase-fire"
+        assert config.quench_fmax == pytest.approx(0.01)
+        assert effective["quench_optimizer"] == "ase-lbfgs"
+        assert config_diff == summary["strict_quench_wrapper"]["config_diff"]
+
+
+def test_analyzer_accepts_only_exact_fixed_cohort_and_projects_provenance_summary():
+    analyzer = _load_analyzer()
+
+    evidence = analyzer.project_evidence(_fixed_raw())
+
+    assert evidence["c60_states"] == ["bootstrap_quenched", "intermediate_accepted", "plateau_accepted"]
+    assert evidence["pdo_states"] == ["bootstrap_quenched", "intermediate_accepted", "plateau_accepted"]
+    assert set(evidence["fixed_state_provenance"]) == {"c60", "pdo"}
+
+
+@pytest.mark.parametrize(
+    ("mutate", "message"),
+    [
+        (
+            lambda raw: raw["rows"][0].update(state_id="forged_state"),
+            "state_id",
+        ),
+        (
+            lambda raw: raw["rows"][0].pop("state_provenance"),
+            "state_provenance",
+        ),
+        (
+            lambda raw: raw["rows"].pop(),
+            "cohort",
+        ),
+        (
+            lambda raw: raw["rows"][0]["state_provenance"].update(state_sha256="0" * 64),
+            "state checksum",
+        ),
+        (
+            lambda raw: raw["rows"][0]["state_provenance"]["effective_config"].update(
+                quench_optimizer="scipy-lbfgsb"
+            ),
+            "strict config",
+        ),
+        (
+            lambda raw: raw["rows"][0].pop("calculator"),
+            "calculator",
+        ),
+    ],
+)
+def test_analyzer_rejects_forged_or_incomplete_fixed_state_provenance(mutate, message):
+    analyzer = _load_analyzer()
+    raw = _fixed_raw()
+    mutate(raw)
+
+    with pytest.raises(RuntimeError, match=message):
         analyzer.project_evidence(raw)
 
 

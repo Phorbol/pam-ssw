@@ -18,6 +18,23 @@ ALLOCATIONS = {
 }
 HVP_EPSILON = 1.0e-3
 MAX_HVPS = 12
+FIXED_SYSTEMS = ("c60", "pdo")
+FIXED_STATE_PROTOCOL = {
+    "bootstrap_quenched": ("bootstrap", "reconstruct_frozen_starter_true_quench"),
+    "intermediate_accepted": ("intermediate", "locked_accepted_structure"),
+    "plateau_accepted": ("plateau", "locked_accepted_structure"),
+}
+STRICT_OUTPUT_CONFIG_FIELDS = frozenset(
+    {
+        "accepted_structures_dir",
+        "accepted_structures_log",
+        "direction_diagnostics_path",
+    }
+)
+CURRENT_CONFIG_SCHEMA_ADDITIONS = {
+    "block_krylov_blocks": 2,
+    "block_krylov_depth": 3,
+}
 REQUIRED_DIAGNOSTICS = {
     "krylov_blocks",
     "krylov_selected_block",
@@ -80,6 +97,27 @@ def _nonnegative_int(value: object, label: str) -> int:
     if isinstance(value, bool) or not isinstance(value, int) or value < 0:
         raise RuntimeError(f"{label} must be a non-negative integer")
     return int(value)
+
+
+def _sha256_digest(value: object, label: str) -> str:
+    if not isinstance(value, str) or len(value) != 64:
+        raise RuntimeError(f"{label} must be a SHA-256 digest")
+    return value
+
+
+def _required_string(mapping: Mapping[str, Any], key: str, label: str) -> str:
+    value = mapping.get(key)
+    if not isinstance(value, str) or not value:
+        raise RuntimeError(f"{label}.{key} must be a non-empty string")
+    return value
+
+
+def _historical_config_projection(config: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        key: value
+        for key, value in config.items()
+        if key not in STRICT_OUTPUT_CONFIG_FIELDS and key not in CURRENT_CONFIG_SCHEMA_ADDITIONS
+    }
 
 
 def _validate_row(row: Mapping[str, Any], index: int) -> dict[str, Any]:
@@ -186,6 +224,178 @@ def _validate_row(row: Mapping[str, Any], index: int) -> dict[str, Any]:
     }
 
 
+def _fixed_registry_lookup(
+    registry: Mapping[str, Any], runtime: Mapping[str, Any]
+) -> dict[tuple[str, str], Mapping[str, Any]]:
+    if set(registry) != set(FIXED_SYSTEMS):
+        raise RuntimeError("fixed-state registry must contain exactly c60 and pdo")
+    for key in ("model_path", "model_sha256", "device", "precision", "dtype"):
+        _required_string(runtime, key, "raw.runtime")
+    lookup: dict[tuple[str, str], Mapping[str, Any]] = {}
+    for system in FIXED_SYSTEMS:
+        entries = registry[system]
+        if not isinstance(entries, list) or len(entries) != len(FIXED_STATE_PROTOCOL):
+            raise RuntimeError(f"fixed-state registry {system} must contain the exact three-state cohort")
+        for entry_index, entry_value in enumerate(entries):
+            entry = _mapping(entry_value, f"fixed_state_registry.{system}[{entry_index}]")
+            state_id = _required_string(entry, "state_id", f"fixed_state_registry.{system}[{entry_index}]")
+            if state_id not in FIXED_STATE_PROTOCOL or (system, state_id) in lookup:
+                raise RuntimeError("fixed-state registry has an unknown or duplicate state_id")
+            phase, source = FIXED_STATE_PROTOCOL[state_id]
+            if entry.get("phase") != phase or entry.get("source") != source:
+                raise RuntimeError("fixed-state registry phase/source does not match the locked cohort")
+            entry_label = f"fixed_state_registry.{system}.{state_id}"
+            for key in ("origin_summary_path", "origin_commit", "model_path"):
+                _required_string(entry, key, entry_label)
+            for key in ("origin_summary_sha256", "model_sha256"):
+                _sha256_digest(entry.get(key), f"{entry_label}.{key}")
+            if len(str(entry["origin_commit"])) != 40:
+                raise RuntimeError(f"{entry_label}.origin_commit must be a full commit SHA")
+            if entry["model_path"] != runtime["model_path"] or entry["model_sha256"] != runtime["model_sha256"]:
+                raise RuntimeError(f"{entry_label} model provenance does not match raw runtime")
+            if source == "locked_accepted_structure":
+                _required_string(entry, "structure_path", entry_label)
+                _sha256_digest(entry.get("structure_sha256"), f"{entry_label}.structure_sha256")
+            else:
+                for key in ("raw_input_path", "strict_wrapper_path", "base_runner_path"):
+                    _required_string(entry, key, entry_label)
+                for key in (
+                    "raw_input_sha256",
+                    "strict_wrapper_sha256",
+                    "base_runner_sha256",
+                ):
+                    _sha256_digest(entry.get(key), f"{entry_label}.{key}")
+                strict_diff = _mapping(entry.get("strict_config_diff"), f"{entry_label}.strict_config_diff")
+                if not strict_diff:
+                    raise RuntimeError(f"{entry_label}.strict_config_diff must not be empty")
+            lookup[(system, state_id)] = entry
+    if set(lookup) != {
+        (system, state_id) for system in FIXED_SYSTEMS for state_id in FIXED_STATE_PROTOCOL
+    }:
+        raise RuntimeError("fixed-state registry does not close to the locked cohort")
+    return lookup
+
+
+def _validate_fixed_provenance(
+    row: Mapping[str, Any],
+    index: int,
+    entry: Mapping[str, Any],
+    runtime: Mapping[str, Any],
+) -> dict[str, Any]:
+    label = f"rows[{index}]"
+    system = _required_string(row, "system", label)
+    state_id = _required_string(row, "state_id", label)
+    phase, source = FIXED_STATE_PROTOCOL[state_id]
+    if row.get("case") != f"{system}:{state_id}":
+        raise RuntimeError(f"{label}.case does not identify its locked fixed state")
+    case_metadata = _mapping(row.get("case_metadata"), f"{label}.case_metadata")
+    if case_metadata.get("phase") != phase:
+        raise RuntimeError(f"{label}.case_metadata.phase does not match the locked state")
+    provenance = _mapping(row.get("state_provenance"), f"{label}.state_provenance")
+    if provenance.get("source") != source:
+        raise RuntimeError(f"{label}.state_provenance.source does not match the locked state")
+    if provenance.get("state_sha256") != row.get("state_sha256"):
+        raise RuntimeError(f"{label} state checksum does not close to state provenance")
+    for key in ("origin_summary_path", "origin_summary_sha256", "origin_commit", "model_path", "model_sha256"):
+        if provenance.get(key) != entry.get(key):
+            raise RuntimeError(f"{label}.state_provenance.{key} does not match fixed-state registry")
+
+    calculator = _mapping(row.get("calculator"), f"{label}.calculator")
+    for key in ("model_path", "model_sha256", "device", "precision", "dtype"):
+        _required_string(calculator, key, f"{label}.calculator")
+        if calculator[key] != runtime[key]:
+            raise RuntimeError(f"{label}.calculator.{key} does not match raw runtime")
+    if calculator["model_path"] != entry["model_path"] or calculator["model_sha256"] != entry["model_sha256"]:
+        raise RuntimeError(f"{label}.calculator model provenance does not match fixed-state registry")
+
+    summary: dict[str, Any] = {
+        "state_id": state_id,
+        "phase": phase,
+        "source": source,
+        "state_sha256": row["state_sha256"],
+        "origin_summary_path": provenance["origin_summary_path"],
+        "origin_summary_sha256": provenance["origin_summary_sha256"],
+        "origin_commit": provenance["origin_commit"],
+        "model_path": provenance["model_path"],
+        "model_sha256": provenance["model_sha256"],
+    }
+    if source == "locked_accepted_structure":
+        for key in ("structure_path", "structure_sha256"):
+            if provenance.get(key) != entry.get(key):
+                raise RuntimeError(f"{label}.state_provenance.{key} does not match fixed-state registry")
+            summary[key] = provenance[key]
+        return summary
+
+    for key in (
+        "raw_input_path",
+        "raw_input_sha256",
+        "strict_wrapper_path",
+        "strict_wrapper_sha256",
+        "base_runner_path",
+        "base_runner_sha256",
+    ):
+        if provenance.get(key) != entry.get(key):
+            raise RuntimeError(f"{label}.state_provenance.{key} does not match fixed-state registry")
+        summary[key] = provenance[key]
+    effective_config = _mapping(provenance.get("effective_config"), f"{label}.state_provenance.effective_config")
+    origin_effective_config = _mapping(
+        provenance.get("origin_effective_config"), f"{label}.state_provenance.origin_effective_config"
+    )
+    if provenance.get("current_config_schema_additions") != CURRENT_CONFIG_SCHEMA_ADDITIONS:
+        raise RuntimeError(f"{label}.state_provenance current config additions drifted")
+    if any(key in origin_effective_config for key in CURRENT_CONFIG_SCHEMA_ADDITIONS):
+        raise RuntimeError(f"{label}.state_provenance origin strict config contains current-only fields")
+    if {key: effective_config.get(key) for key in CURRENT_CONFIG_SCHEMA_ADDITIONS} != CURRENT_CONFIG_SCHEMA_ADDITIONS:
+        raise RuntimeError(f"{label}.state_provenance current strict config additions drifted")
+    if _historical_config_projection(effective_config) != _historical_config_projection(origin_effective_config):
+        raise RuntimeError(f"{label}.state_provenance strict config does not match the origin summary")
+    strict_config = {
+        "quench_optimizer": "ase-lbfgs",
+        "quench_fallback_optimizer": "ase-fire",
+        "quench_fmax": 0.01,
+    }
+    if {key: effective_config.get(key) for key in strict_config} != strict_config:
+        raise RuntimeError(f"{label}.state_provenance strict config is not ASE L-BFGS plus FIRE fallback")
+    if provenance.get("effective_config_diff") != entry.get("strict_config_diff"):
+        raise RuntimeError(f"{label}.state_provenance strict config diff does not match fixed-state registry")
+    purpose_counts = _mapping(
+        provenance.get("bootstrap_purpose_counts"), f"{label}.state_provenance.bootstrap_purpose_counts"
+    )
+    purpose_total = sum(
+        _nonnegative_int(value, f"{label}.state_provenance.bootstrap_purpose_counts[{name!r}]")
+        for name, value in purpose_counts.items()
+    )
+    bootstrap_force_evaluations = _nonnegative_int(
+        provenance.get("bootstrap_force_evaluations"),
+        f"{label}.state_provenance.bootstrap_force_evaluations",
+    )
+    if purpose_total != bootstrap_force_evaluations or purpose_counts.get("unattributed") != 0:
+        raise RuntimeError(f"{label}.state_provenance bootstrap purpose ledger does not close")
+    if _nonnegative_int(purpose_counts.get("starter_true_quench"), f"{label}.bootstrap starter quench") <= 0:
+        raise RuntimeError(f"{label}.state_provenance bootstrap lacks STARTER_TRUE_QUENCH")
+    if _finite_number(provenance.get("bootstrap_wall_seconds"), f"{label}.state_provenance.bootstrap_wall_seconds") < 0.0:
+        raise RuntimeError(f"{label}.state_provenance bootstrap wall time must be non-negative")
+    if provenance.get("resulting_state_sha256") != row.get("state_sha256"):
+        raise RuntimeError(f"{label}.state_provenance resulting state checksum does not close")
+    summary.update(
+        {
+            "raw_input_path": provenance["raw_input_path"],
+            "raw_input_sha256": provenance["raw_input_sha256"],
+            "strict_wrapper_path": provenance["strict_wrapper_path"],
+            "strict_wrapper_sha256": provenance["strict_wrapper_sha256"],
+            "base_runner_path": provenance["base_runner_path"],
+            "base_runner_sha256": provenance["base_runner_sha256"],
+            "effective_config": dict(effective_config),
+            "effective_config_diff": provenance["effective_config_diff"],
+            "bootstrap_purpose_counts": dict(purpose_counts),
+            "bootstrap_force_evaluations": bootstrap_force_evaluations,
+            "bootstrap_wall_seconds": float(provenance["bootstrap_wall_seconds"]),
+            "resulting_state_sha256": provenance["resulting_state_sha256"],
+        }
+    )
+    return summary
+
+
 def project_evidence(raw: Mapping[str, Any]) -> dict[str, Any]:
     raw = _mapping(raw, "raw audit")
     missing = REQUIRED_RAW_FIELDS - raw.keys()
@@ -209,13 +419,46 @@ def project_evidence(raw: Mapping[str, Any]) -> dict[str, Any]:
     for key in ("device", "precision"):
         if not isinstance(runtime.get(key), str) or not runtime[key]:
             raise RuntimeError(f"raw.runtime.{key} must be a non-empty string")
-    _mapping(raw["fixed_state_registry"], "raw.fixed_state_registry")
+    fixed_state_registry = _mapping(raw["fixed_state_registry"], "raw.fixed_state_registry")
     if _finite_number(raw["wall_seconds"], "raw.wall_seconds") < 0.0:
         raise RuntimeError("raw.wall_seconds must be non-negative")
     rows = raw["rows"]
     if not isinstance(rows, list) or not rows:
         raise RuntimeError("raw.rows must be a non-empty list")
-    projected_rows = [_validate_row(_mapping(row, f"rows[{index}]"), index) for index, row in enumerate(rows)]
+    raw_rows = [_mapping(row, f"rows[{index}]") for index, row in enumerate(rows)]
+    projected_rows = [_validate_row(row, index) for index, row in enumerate(raw_rows)]
+    fixed_rows = [
+        (index, row)
+        for index, row in enumerate(raw_rows)
+        if row.get("kind") == "fixed_state"
+    ]
+    fixed_provenance: dict[str, list[dict[str, Any]]] = {}
+    if fixed_rows:
+        lookup = _fixed_registry_lookup(fixed_state_registry, runtime)
+        expected_cohort = {
+            (system, state_id, arm)
+            for system in FIXED_SYSTEMS
+            for state_id in FIXED_STATE_PROTOCOL
+            for arm in ALLOCATIONS
+        }
+        observed_cohort: list[tuple[str, str, str]] = []
+        by_state: dict[tuple[str, str], dict[str, Any]] = {}
+        for index, row in fixed_rows:
+            system = _required_string(row, "system", f"rows[{index}]")
+            state_id = _required_string(row, "state_id", f"rows[{index}]")
+            if (system, state_id) not in lookup:
+                raise RuntimeError(f"rows[{index}] fixed-state system/state_id is not preregistered")
+            summary = _validate_fixed_provenance(row, index, lookup[(system, state_id)], runtime)
+            observed_cohort.append((system, state_id, str(row["arm"])))
+            existing = by_state.setdefault((system, state_id), summary)
+            if existing != summary:
+                raise RuntimeError(f"rows[{index}] fixed-state provenance differs across allocation arms")
+        if len(observed_cohort) != len(expected_cohort) or set(observed_cohort) != expected_cohort:
+            raise RuntimeError("fixed-state cohort has missing, duplicate, or extra system/state/arm rows")
+        fixed_provenance = {
+            system: [by_state[(system, state_id)] for state_id in FIXED_STATE_PROTOCOL]
+            for system in FIXED_SYSTEMS
+        }
 
     analytic_cases = sorted({row["case"] for row in projected_rows if row["kind"] == "analytic"})
     c60_states = sorted(
@@ -236,6 +479,7 @@ def project_evidence(raw: Mapping[str, Any]) -> dict[str, Any]:
         "analytic_cases": analytic_cases,
         "c60_states": c60_states,
         "pdo_states": pdo_states,
+        "fixed_state_provenance": fixed_provenance,
         "accounting_invariants": {
             "all_rows_exact_central_fd": True,
             "all_rows_within_hvp_budget": True,
