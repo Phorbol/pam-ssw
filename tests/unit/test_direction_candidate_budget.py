@@ -4,6 +4,7 @@ import pytest
 from pamssw.accounting import EvalCounter
 from pamssw.calculators import AnalyticCalculator
 from pamssw.krylov import IntentBlock
+from pamssw.rigid import project_out_rigid_body_modes
 from pamssw.state import State
 from pamssw.walker import (
     CandidateDirectionGenerator,
@@ -150,3 +151,65 @@ def test_block_krylov_reuses_solver_hvps_for_selection_and_true_curvature():
     assert choice.diagnostics["krylov_hvp_count"] == 6
     assert choice.diagnostics["krylov_dimensions"] == [3, 3]
     assert calculator.force_evaluations == 12
+
+
+def test_block_krylov_projects_hvps_back_into_fixed_and_internal_subspace():
+    class FixedCoupledQuadratic:
+        def __init__(self):
+            self.hessian = np.diag(np.arange(1.0, 13.0))
+            self.hessian[0, 3] = 4.0
+            self.hessian[3, 0] = 4.0
+
+        def energy_gradient(self, flat_positions, state):
+            gradient = self.hessian @ flat_positions
+            return 0.5 * float(flat_positions @ gradient), gradient
+
+    state = State(
+        numbers=np.ones(4, dtype=int),
+        positions=np.array(
+            [
+                [3.0, 3.0, 3.0],
+                [0.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0],
+            ]
+        ),
+        fixed_mask=np.array([True, False, False, False]),
+    )
+    initial = np.zeros(state.positions.size)
+    initial[3] = 1.0
+    initial = project_out_rigid_body_modes(state, initial)
+    initial[state.fixed_mask.repeat(3)] = 0.0
+    initial /= np.linalg.norm(initial)
+    calculator = EvalCounter(AnalyticCalculator(FixedCoupledQuadratic()))
+    oracle = SoftModeOracle(
+        calculator,
+        np.random.default_rng(0),
+        candidates=0,
+        direction_selection_mode="block_krylov",
+        block_krylov_depth=2,
+    )
+
+    choice = oracle.choose_direction(
+        state,
+        ProposalPotential(calculator),
+        previous_direction=None,
+        krylov_intents=(IntentBlock(initial[:, None]),),
+    )
+
+    direction_by_atom = choice.direction.reshape(state.n_atoms, 3)
+    np.testing.assert_allclose(direction_by_atom[state.fixed_mask], 0.0, rtol=0.0, atol=1e-12)
+    movable_squared_amplitudes = np.sum(
+        np.square(direction_by_atom[state.movable_mask]),
+        axis=1,
+    )
+    expected_participation = 1.0 / float(
+        np.dot(movable_squared_amplitudes, movable_squared_amplitudes)
+    )
+    assert choice.diagnostics["direction_participation_ratio"] == pytest.approx(
+        expected_participation,
+        rel=1e-12,
+    )
+    assert choice.diagnostics["krylov_hvp_count"] == 2
+    assert choice.diagnostics["krylov_dimensions"] == [2]
+    assert calculator.force_evaluations == 4

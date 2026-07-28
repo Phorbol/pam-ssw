@@ -1538,16 +1538,34 @@ class SoftModeOracle:
         if any(intent.basis.shape[0] != expected_dimension for intent in krylov_intents):
             raise ValueError("krylov_intents basis rows must match the state degrees of freedom")
 
-        def directional_hvps(direction: np.ndarray) -> tuple[np.ndarray, np.ndarray | None]:
-            return self._candidate_directional_hvps(state, proposal, direction)
+        def directional_hvps(direction: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+            total_hvp, true_hvp = self._candidate_directional_hvps(state, proposal, direction)
+            projected_total = project_out_rigid_body_modes(state, total_hvp)
+            projected_true = project_out_rigid_body_modes(state, true_hvp)
+            projected_total.reshape(state.n_atoms, 3)[state.fixed_mask] = 0.0
+            projected_true.reshape(state.n_atoms, 3)[state.fixed_mask] = 0.0
+            return projected_total, projected_true
 
         results = [
             solve_krylov_block(intent, directional_hvps, depth=self.block_krylov_depth)
             for intent in krylov_intents
         ]
+        finite_result_fields = (
+            "curvature",
+            "true_curvature",
+            "residual_norm",
+            "initial_span_overlap",
+            "antisymmetry",
+        )
+        for block_index, result in enumerate(results):
+            for field_name in finite_result_fields:
+                if not np.isfinite(getattr(result, field_name)):
+                    raise ValueError(
+                        f"block Krylov result {block_index} {field_name} must be finite"
+                    )
         selected_block, selected = min(enumerate(results), key=lambda item: item[1].curvature)
         atom_squared_amplitudes = np.sum(
-            np.square(selected.direction.reshape(state.n_atoms, 3)),
+            np.square(selected.direction.reshape(state.n_atoms, 3)[state.movable_mask]),
             axis=1,
         )
         participation_denominator = float(np.dot(atom_squared_amplitudes, atom_squared_amplitudes))

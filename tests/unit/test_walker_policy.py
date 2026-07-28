@@ -8,7 +8,7 @@ from pamssw.accounting import BudgetExceeded, EvalCounter, EvaluationPurpose
 from pamssw.archive import MinimaArchive
 from pamssw.bias import GaussianBiasTerm
 from pamssw.calculators import AnalyticCalculator
-from pamssw.krylov import IntentBlock
+from pamssw.krylov import IntentBlock, KrylovResult
 from pamssw.potentials import DoubleWell2D
 from pamssw.result import RelaxOutcomeClass, RelaxResult
 from pamssw.state import State
@@ -744,6 +744,47 @@ def test_block_krylov_requires_nonempty_intents():
                 previous_direction=None,
                 krylov_intents=intents,
             )
+
+
+@pytest.mark.parametrize(
+    "field",
+    ("curvature", "true_curvature", "residual_norm", "initial_span_overlap", "antisymmetry"),
+)
+def test_block_krylov_rejects_nonfinite_solver_results(monkeypatch, field):
+    values = {
+        "direction": np.array([1.0, 0.0, 0.0]),
+        "curvature": 1.0,
+        "true_curvature": 1.0,
+        "residual_norm": 0.0,
+        "initial_span_overlap": 1.0,
+        "antisymmetry": 0.0,
+        "dimension": 1,
+        "initial_rank": 1,
+        "hvp_count": 1,
+        "termination_reason": "krylov_breakdown",
+    }
+    values[field] = np.nan
+    result = KrylovResult(**values)
+    monkeypatch.setattr(
+        "pamssw.walker.solve_krylov_block",
+        lambda *args, **kwargs: result,
+    )
+    state = State(numbers=np.array([1]), positions=np.zeros((1, 3)))
+    calculator = AnalyticCalculator(Quadratic())
+    oracle = SoftModeOracle(
+        calculator,
+        np.random.default_rng(0),
+        candidates=0,
+        direction_selection_mode="block_krylov",
+    )
+
+    with pytest.raises(ValueError, match=field):
+        oracle.choose_direction(
+            state,
+            proposal=ProposalPotential(calculator),
+            previous_direction=None,
+            krylov_intents=(IntentBlock(np.array([[1.0], [0.0], [0.0]])),),
+        )
 
 
 def test_surface_walker_passes_block_krylov_depth_to_oracle():
