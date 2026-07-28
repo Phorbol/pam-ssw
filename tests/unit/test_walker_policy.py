@@ -2650,7 +2650,7 @@ def test_krylov_intent_generator_returns_unique_orthonormal_random_pair_blocks()
     assert all(intent.pair is not None for intent in intents)
     assert len({intent.pair for intent in intents}) == 2
     for intent in intents:
-        np.testing.assert_allclose(intent.basis.T @ intent.basis, np.eye(2), atol=1e-12)
+        np.testing.assert_allclose(intent.basis.T @ intent.basis, np.eye(2), rtol=0.0, atol=1e-12)
 
 
 def test_krylov_intent_generator_returns_random_only_rank_one_block_for_one_movable_atom():
@@ -2660,6 +2660,55 @@ def test_krylov_intent_generator_returns_random_only_rank_one_block_for_one_mova
         fixed_mask=np.array([False, True]),
     )
     generator = CandidateDirectionGenerator(np.random.default_rng(27), n_random=0)
+
+    [intent] = generator.generate_krylov_intents(state, n_blocks=1)
+
+    assert intent.pair is None
+    assert intent.basis.shape == (6, 1)
+    assert np.linalg.norm(intent.basis[:, 0]) == pytest.approx(1.0)
+
+
+def test_krylov_intent_generator_rejects_periodic_single_atom_translation():
+    state = State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.4, 0.0, 0.0]]),
+        cell=np.diag([8.0, 8.0, 8.0]),
+        pbc=(True, True, True),
+        fixed_mask=np.array([False, True]),
+    )
+    generator = CandidateDirectionGenerator(np.random.default_rng(27), n_random=0)
+
+    with pytest.raises(ValueError, match="no projected random direction"):
+        generator.generate_krylov_intents(state, n_blocks=1)
+
+
+def test_krylov_intent_generator_rejects_all_fixed_state():
+    state = State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.4, 0.0, 0.0]]),
+        fixed_mask=np.array([True, True]),
+    )
+    generator = CandidateDirectionGenerator(np.random.default_rng(27), n_random=0)
+
+    with pytest.raises(ValueError, match="no projected random direction"):
+        generator.generate_krylov_intents(state, n_blocks=1)
+
+
+def test_krylov_intent_generator_degrades_dependent_pair_axis_to_rank_one():
+    class PairAlignedRng:
+        def normal(self, size):
+            assert size == 6
+            return np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0])
+
+        def permutation(self, population_size):
+            assert population_size == 1
+            return np.array([0])
+
+    state = State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.4, 0.0, 0.0]]),
+    )
+    generator = CandidateDirectionGenerator(PairAlignedRng(), n_random=0)
 
     [intent] = generator.generate_krylov_intents(state, n_blocks=1)
 

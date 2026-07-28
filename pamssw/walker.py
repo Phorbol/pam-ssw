@@ -818,9 +818,12 @@ class CandidateDirectionGenerator:
         intents: list[IntentBlock] = []
         for block_index in range(n_blocks):
             active = self._random_active_direction(state, coordinates)
-            active /= np.linalg.norm(active) + 1e-12
             random_direction = coordinates.full_tangent_from_active(active).values
-            random_axis = self._candidate(state, DirectionCandidateKind.RANDOM, random_direction).direction
+            random_axis = self._strict_projected_krylov_axis(state, random_direction)
+            if random_axis is None:
+                raise ValueError(
+                    "no projected random direction is available for Krylov intent generation"
+                )
 
             pair: tuple[int, int] | None = None
             columns = [random_axis]
@@ -828,21 +831,33 @@ class CandidateDirectionGenerator:
                 candidate_pair = pairs[int(pair_order[block_index])]
                 local_pair_direction = self._pair_direction(state, *candidate_pair, sign=1.0)
                 if local_pair_direction is not None:
-                    pair_axis = self._candidate(
-                        state,
-                        DirectionCandidateKind.BOND_FORM,
-                        local_pair_direction,
-                    ).direction
-                    pair_orthogonal = pair_axis.copy()
-                    for _ in range(2):
-                        pair_orthogonal -= float(np.dot(random_axis, pair_orthogonal)) * random_axis
-                    pair_norm = np.linalg.norm(pair_orthogonal)
-                    if pair_norm > 1e-12:
-                        columns.append(pair_orthogonal / pair_norm)
-                        pair = candidate_pair
+                    pair_axis = self._strict_projected_krylov_axis(state, local_pair_direction)
+                    if pair_axis is not None:
+                        pair_orthogonal = pair_axis.copy()
+                        for _ in range(2):
+                            pair_orthogonal -= float(np.dot(random_axis, pair_orthogonal)) * random_axis
+                        pair_norm = float(np.linalg.norm(pair_orthogonal))
+                        if np.isfinite(pair_norm) and pair_norm > 1e-12:
+                            columns.append(pair_orthogonal / pair_norm)
+                            pair = candidate_pair
 
             intents.append(IntentBlock(basis=np.column_stack(columns), pair=pair))
         return tuple(intents)
+
+    @staticmethod
+    def _strict_projected_krylov_axis(
+        state: State,
+        direction: np.ndarray,
+    ) -> np.ndarray | None:
+        raw = np.asarray(direction, dtype=float)
+        raw_norm = float(np.linalg.norm(raw))
+        if not np.isfinite(raw_norm) or raw_norm <= 1e-12:
+            return None
+        projected = project_out_rigid_body_modes(state, raw / raw_norm)
+        projected_norm = float(np.linalg.norm(projected))
+        if not np.isfinite(projected_norm) or projected_norm <= 1e-12:
+            return None
+        return projected / projected_norm
 
     def generate(
         self,
