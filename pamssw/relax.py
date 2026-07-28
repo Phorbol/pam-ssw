@@ -201,6 +201,8 @@ _SAFE_LBFGS_CURVATURE_REL = float(np.sqrt(np.finfo(float).eps))
 def _lbfgs_inverse_product(
     gradient: np.ndarray,
     history: list[tuple[np.ndarray, np.ndarray, float]],
+    *,
+    scale_pair: tuple[np.ndarray, np.ndarray, float] | None = None,
 ) -> np.ndarray:
     """Apply the standard limited-memory inverse-BFGS two-loop recursion."""
 
@@ -210,8 +212,9 @@ def _lbfgs_inverse_product(
         alpha = float(rho * np.dot(s, q))
         alphas.append(alpha)
         q -= alpha * y
-    if history:
-        latest_s, latest_y, _ = history[-1]
+    scaling_pair = history[-1] if history else scale_pair
+    if scaling_pair is not None:
+        latest_s, latest_y, _ = scaling_pair
         gamma = float(np.dot(latest_s, latest_y) / np.dot(latest_y, latest_y))
     else:
         gamma = _SAFE_LBFGS_EMPTY_HISTORY_SCALE
@@ -265,14 +268,34 @@ def _resolve_safe_lbfgs_history_limit(
     if (
         isinstance(history_limit, bool)
         or not isinstance(history_limit, int)
-        or history_limit not in {0, _SAFE_LBFGS_MEMORY}
+        or history_limit not in {0, 1, _SAFE_LBFGS_MEMORY}
     ):
-        raise ValueError("_safe_lbfgs_history_limit must be None, 0, or 10")
+        raise ValueError("_safe_lbfgs_history_limit must be None, 0, 1, or 10")
     if optimizer != "safe-lbfgs-total":
         raise ValueError(
             "_safe_lbfgs_history_limit is only supported for optimizer='safe-lbfgs-total'"
         )
     return history_limit
+
+
+def _resolve_safe_lbfgs_adaptive_scale_without_history(
+    enabled: bool,
+    optimizer: RelaxOptimizer,
+    history_limit: int | None,
+) -> bool:
+    if type(enabled) is not bool:
+        raise TypeError(
+            "_safe_lbfgs_adaptive_scale_without_history adaptive scale flag "
+            "must be a literal bool"
+        )
+    if not enabled:
+        return False
+    if optimizer != "safe-lbfgs-total" or history_limit != 0:
+        raise ValueError(
+            "adaptive scale without history requires optimizer='safe-lbfgs-total' "
+            "and explicit _safe_lbfgs_history_limit=0"
+        )
+    return True
 
 
 class _EvaluatorCalculator(Calculator):
@@ -300,6 +323,60 @@ class _EvaluatorCalculator(Calculator):
         self.results["forces"] = -np.asarray(gradient, dtype=float).reshape(state.n_atoms, 3)
 
 
+@dataclass(frozen=True)
+class CertificateFallbackResult:
+    """Primary relaxation and its optional certificate-triggered fallback."""
+
+    primary: RelaxResult
+    fallback: RelaxResult | None
+    final: RelaxResult
+    fallback_used: bool
+
+
+def has_force_convergence_certificate(result: RelaxResult, fmax: float) -> bool:
+    """Return whether the reported active-atom force norm is finite and converged."""
+
+    return bool(np.isfinite(result.gradient_norm) and result.gradient_norm <= fmax)
+
+
+def relax_with_certificate_fallback(
+    primary_relaxer: Relaxer,
+    state: State,
+    *,
+    fmax: float,
+    maxiter: int,
+    fallback_relaxer: Relaxer | None = None,
+    on_fallback_start: Callable[[], None] | None = None,
+    trajectory_callback: Callable[[State], None] | None = None,
+    trajectory_stride: int = 1,
+) -> CertificateFallbackResult:
+    """Run one fallback only when the primary result lacks a force certificate."""
+
+    relax_kwargs = {
+        "fmax": fmax,
+        "maxiter": maxiter,
+        "trajectory_callback": trajectory_callback,
+        "trajectory_stride": trajectory_stride,
+    }
+    primary = primary_relaxer.relax(state, **relax_kwargs)
+    if fallback_relaxer is None or has_force_convergence_certificate(primary, fmax):
+        return CertificateFallbackResult(
+            primary=primary,
+            fallback=None,
+            final=primary,
+            fallback_used=False,
+        )
+    if on_fallback_start is not None:
+        on_fallback_start()
+    fallback = fallback_relaxer.relax(primary.state, **relax_kwargs)
+    return CertificateFallbackResult(
+        primary=primary,
+        fallback=fallback,
+        final=fallback,
+        fallback_used=True,
+    )
+
+
 @dataclass
 class Relaxer:
     evaluator: FlatEvaluator
@@ -316,7 +393,15 @@ class Relaxer:
         trajectory_stride: int = 1,
         *,
         _safe_lbfgs_history_limit: int | None = None,
+        _safe_lbfgs_adaptive_scale_without_history: bool = False,
     ) -> RelaxResult:
+        adaptive_scale_without_history = (
+            _resolve_safe_lbfgs_adaptive_scale_without_history(
+                _safe_lbfgs_adaptive_scale_without_history,
+                self.optimizer,
+                _safe_lbfgs_history_limit,
+            )
+        )
         history_limit = _resolve_safe_lbfgs_history_limit(
             _safe_lbfgs_history_limit,
             self.optimizer,
@@ -395,6 +480,7 @@ class Relaxer:
                 trajectory_callback=trajectory_callback,
                 trajectory_stride=trajectory_stride,
                 history_limit=history_limit,
+                adaptive_scale_without_history=adaptive_scale_without_history,
             )
         if self.optimizer != "scipy-lbfgsb":
             raise ValueError(f"unsupported relax optimizer: {self.optimizer}")
@@ -536,6 +622,7 @@ class Relaxer:
         trajectory_callback: Callable[[State], None] | None,
         trajectory_stride: int,
         history_limit: int,
+        adaptive_scale_without_history: bool,
     ) -> RelaxResult:
         x = state.flatten_active().copy()
         current = state.with_active_positions(x)
@@ -548,6 +635,7 @@ class Relaxer:
         ) = self._safe_lbfgs_evaluate(current, trace)
         initial_energy = float(energy)
         history: list[tuple[np.ndarray, np.ndarray, float]] = []
+        scale_pair: tuple[np.ndarray, np.ndarray, float] | None = None
         n_iter = 0
         rejected_steps = 0
         accepted_secants = 0
@@ -572,7 +660,14 @@ class Relaxer:
                 termination_reason = "converged"
                 break
 
-            direction = -_lbfgs_inverse_product(gradient, history)
+            if adaptive_scale_without_history:
+                direction = -_lbfgs_inverse_product(
+                    gradient,
+                    history,
+                    scale_pair=scale_pair,
+                )
+            else:
+                direction = -_lbfgs_inverse_product(gradient, history)
             direction = _limit_max_atomic_displacement(direction)
             directional_derivative = float(np.dot(gradient, direction))
             if not np.all(np.isfinite(direction)) or not np.isfinite(directional_derivative):
@@ -623,6 +718,7 @@ class Relaxer:
             branch_changed = trial_image_signature != image_signature
             if branch_changed:
                 history.clear()
+                scale_pair = None
                 rejected_secants += 1
                 mic_branch_resets += 1
             else:
@@ -631,9 +727,12 @@ class Relaxer:
                 bias_secant_curvature_sum += float(np.dot(s, bias_y))
             if not branch_changed and _accept_lbfgs_curvature(s, y):
                 curvature = float(np.dot(s, y))
-                history.append((s.copy(), y.copy(), 1.0 / curvature))
+                accepted_pair = (s.copy(), y.copy(), 1.0 / curvature)
+                history.append(accepted_pair)
                 while len(history) > history_limit:
                     history.pop(0)
+                if adaptive_scale_without_history:
+                    scale_pair = accepted_pair
                 accepted_secants += 1
             elif not branch_changed:
                 rejected_secants += 1

@@ -1,0 +1,1256 @@
+{
+  "claim_boundary": "This is a post-SciPy accepted-endpoint refinement/rescue comparison, not a fair replacement comparison against the original landing process.",
+  "energy_resolution": {
+    "float32_reference_energy_eV": -500.0,
+    "float32_ulp_at_reference_energy_eV": 3.0517578125e-05,
+    "interpretation": "This numerical match supports the inference that energy quantization may contribute to Armijo stalling near minima; it does not prove the root cause.",
+    "minimum_nonzero_absolute_final_minus_initial_energy_eV": 3.0517578125e-05,
+    "minimum_step_equals_float32_ulp": true
+  },
+  "initial_force_certificate_counts_by_arm": {
+    "safe-lbfgs-total-rescue": {
+      "0.01": 20,
+      "0.05": 138,
+      "0.10": 142
+    },
+    "scipy-lbfgsb-restart": {
+      "0.01": 20,
+      "0.05": 138,
+      "0.10": 142
+    }
+  },
+  "ledger": {
+    "counter_telemetry_closure_validated": true,
+    "row_count": 286,
+    "task_count": 143
+  },
+  "safe_line_search_failed": {
+    "accepted_steps_total": 521,
+    "count": 84,
+    "evaluator_calls_median": 59.0,
+    "evaluator_calls_total": 7876,
+    "line_search_evaluations_total": 7717,
+    "rejected_steps_total": 7196
+  },
+  "schema_version": 1,
+  "terminal_by_arm": {
+    "safe-lbfgs-total-rescue": {
+      "energy_change_eV": {
+        "decreased_count": 102,
+        "definition": "final_energy_eV_minus_initial_energy_eV",
+        "increased_count": 2,
+        "max": 3.0517578125e-05,
+        "median": -6.103515625e-05,
+        "min": -0.000701904296875,
+        "p90": 0.0,
+        "total": -0.016876220703125,
+        "unchanged_count": 39
+      },
+      "evaluator_calls": {
+        "max": 473,
+        "median": 32.0,
+        "p90": 139.2,
+        "total": 8473
+      },
+      "force_certificate_0.01_count": 59,
+      "terminal_force_eV_per_A": {
+        "max": 0.059874931670228684,
+        "median": 0.011459921553689353,
+        "p90": 0.028635329367807598
+      },
+      "termination_reasons": {
+        "converged": 59,
+        "line_search_failed": 84
+      },
+      "wall_time_s_total": 142.2524490840151
+    },
+    "scipy-lbfgsb-restart": {
+      "energy_change_eV": {
+        "decreased_count": 70,
+        "definition": "final_energy_eV_minus_initial_energy_eV",
+        "increased_count": 26,
+        "max": 0.000152587890625,
+        "median": 0.0,
+        "min": -0.0013427734375,
+        "p90": 3.0517578125e-05,
+        "total": -0.00885009765625,
+        "unchanged_count": 47
+      },
+      "evaluator_calls": {
+        "max": 51,
+        "median": 13.0,
+        "p90": 26.799999999999997,
+        "total": 2188
+      },
+      "force_certificate_0.01_count": 32,
+      "terminal_force_eV_per_A": {
+        "max": 0.0666633967411243,
+        "median": 0.016268036984615212,
+        "p90": 0.03371755135444598
+      },
+      "termination_reasons": {
+        "converged": 32,
+        "unconverged": 111
+      },
+      "wall_time_s_total": 41.008141461672494
+    }
+  },
+  "terminal_pairing": {
+    "different_basin_count": 1,
+    "pairs": [
+      {
+        "absolute_terminal_energy_delta_eV": 0.0001220703125,
+        "discovered_entry_id": 1,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 0,
+        "terminal_kabsch_rmsd_A": 0.0007232304612676627,
+        "trial_index": 1
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0001220703125,
+        "discovered_entry_id": 2,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 1,
+        "terminal_kabsch_rmsd_A": 1.800626444111892e-05,
+        "trial_index": 2
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 3,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 2,
+        "terminal_kabsch_rmsd_A": 1.7142907841514393e-05,
+        "trial_index": 3
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.00030517578125,
+        "discovered_entry_id": 4,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 3,
+        "terminal_kabsch_rmsd_A": 0.0012999981725045522,
+        "trial_index": 4
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.000152587890625,
+        "discovered_entry_id": 5,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 4,
+        "terminal_kabsch_rmsd_A": 0.0006629040568876288,
+        "trial_index": 5
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 6,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 5,
+        "terminal_kabsch_rmsd_A": 8.605017015392452e-10,
+        "trial_index": 6
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 7,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 6,
+        "terminal_kabsch_rmsd_A": 8.560861054521898e-06,
+        "trial_index": 7
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+        "discovered_entry_id": 8,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 7,
+        "terminal_kabsch_rmsd_A": 0.00016104093347607174,
+        "trial_index": 8
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 9,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 8,
+        "terminal_kabsch_rmsd_A": 4.1427196550217357e-08,
+        "trial_index": 9
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 10,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 9,
+        "terminal_kabsch_rmsd_A": 0.0002743202862716178,
+        "trial_index": 10
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 11,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 10,
+        "terminal_kabsch_rmsd_A": 7.553704838726395e-05,
+        "trial_index": 12
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 12,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 11,
+        "terminal_kabsch_rmsd_A": 2.207180606523039e-09,
+        "trial_index": 13
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.000213623046875,
+        "discovered_entry_id": 13,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 12,
+        "terminal_kabsch_rmsd_A": 0.0011250529237879685,
+        "trial_index": 14
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 14,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 13,
+        "terminal_kabsch_rmsd_A": 8.178091743300146e-05,
+        "trial_index": 15
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 15,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 14,
+        "terminal_kabsch_rmsd_A": 5.770404475549182e-05,
+        "trial_index": 16
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0001220703125,
+        "discovered_entry_id": 16,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 15,
+        "terminal_kabsch_rmsd_A": 6.898443451067236e-05,
+        "trial_index": 17
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 17,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 16,
+        "terminal_kabsch_rmsd_A": 1.6441528111250258e-05,
+        "trial_index": 19
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+        "discovered_entry_id": 18,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 17,
+        "terminal_kabsch_rmsd_A": 5.48971197328934e-05,
+        "trial_index": 20
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 19,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 18,
+        "terminal_kabsch_rmsd_A": 9.295063128204627e-05,
+        "trial_index": 21
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.000274658203125,
+        "discovered_entry_id": 20,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 19,
+        "terminal_kabsch_rmsd_A": 0.001552351935522079,
+        "trial_index": 22
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.00018310546875,
+        "discovered_entry_id": 21,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 20,
+        "terminal_kabsch_rmsd_A": 0.0005903526355028394,
+        "trial_index": 23
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 22,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 21,
+        "terminal_kabsch_rmsd_A": 1.1980823195151251e-06,
+        "trial_index": 24
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 23,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 22,
+        "terminal_kabsch_rmsd_A": 0.00012621718804703267,
+        "trial_index": 25
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 24,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 23,
+        "terminal_kabsch_rmsd_A": 9.21168819637804e-16,
+        "trial_index": 26
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 25,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 24,
+        "terminal_kabsch_rmsd_A": 1.5159089036476364e-08,
+        "trial_index": 28
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 26,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 25,
+        "terminal_kabsch_rmsd_A": 0.00016809439309480744,
+        "trial_index": 29
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 27,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 26,
+        "terminal_kabsch_rmsd_A": 1.0587440107770413e-14,
+        "trial_index": 30
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+        "discovered_entry_id": 28,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 27,
+        "terminal_kabsch_rmsd_A": 5.19579797458167e-05,
+        "trial_index": 32
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 29,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 28,
+        "terminal_kabsch_rmsd_A": 1.231723217803711e-15,
+        "trial_index": 33
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+        "discovered_entry_id": 30,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 29,
+        "terminal_kabsch_rmsd_A": 8.110578170757838e-05,
+        "trial_index": 34
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0001220703125,
+        "discovered_entry_id": 31,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 30,
+        "terminal_kabsch_rmsd_A": 0.00024448392938735937,
+        "trial_index": 35
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0001220703125,
+        "discovered_entry_id": 32,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 31,
+        "terminal_kabsch_rmsd_A": 0.00018981257535607296,
+        "trial_index": 39
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 33,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 32,
+        "terminal_kabsch_rmsd_A": 2.258648942421609e-09,
+        "trial_index": 40
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 34,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 33,
+        "terminal_kabsch_rmsd_A": 0.00013828912644670008,
+        "trial_index": 42
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 35,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 34,
+        "terminal_kabsch_rmsd_A": 3.510923856371714e-05,
+        "trial_index": 45
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 36,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 35,
+        "terminal_kabsch_rmsd_A": 1.3261682320695095e-06,
+        "trial_index": 46
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.000152587890625,
+        "discovered_entry_id": 37,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 36,
+        "terminal_kabsch_rmsd_A": 2.0064658010371827e-06,
+        "trial_index": 47
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 38,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 37,
+        "terminal_kabsch_rmsd_A": 3.1533531954335224e-09,
+        "trial_index": 48
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.00030517578125,
+        "discovered_entry_id": 39,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 38,
+        "terminal_kabsch_rmsd_A": 0.001057271477423814,
+        "trial_index": 49
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.001190185546875,
+        "discovered_entry_id": 40,
+        "same_basin_current_archive_semantics": false,
+        "task_index": 39,
+        "terminal_kabsch_rmsd_A": 0.015511285768790148,
+        "trial_index": 50
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 41,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 40,
+        "terminal_kabsch_rmsd_A": 1.826750832560143e-05,
+        "trial_index": 52
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 42,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 41,
+        "terminal_kabsch_rmsd_A": 6.969246983661668e-10,
+        "trial_index": 53
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 43,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 42,
+        "terminal_kabsch_rmsd_A": 9.563845887840174e-05,
+        "trial_index": 56
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.00018310546875,
+        "discovered_entry_id": 44,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 43,
+        "terminal_kabsch_rmsd_A": 0.0013845732507532607,
+        "trial_index": 57
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 45,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 44,
+        "terminal_kabsch_rmsd_A": 0.00017887874959638406,
+        "trial_index": 58
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 46,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 45,
+        "terminal_kabsch_rmsd_A": 6.6210078976245e-05,
+        "trial_index": 62
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.000152587890625,
+        "discovered_entry_id": 47,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 46,
+        "terminal_kabsch_rmsd_A": 1.3115278347063087e-15,
+        "trial_index": 63
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 48,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 47,
+        "terminal_kabsch_rmsd_A": 0.0001237633555503817,
+        "trial_index": 64
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 49,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 48,
+        "terminal_kabsch_rmsd_A": 0.0003690651605431138,
+        "trial_index": 66
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 50,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 49,
+        "terminal_kabsch_rmsd_A": 5.313612119458122e-05,
+        "trial_index": 67
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.000213623046875,
+        "discovered_entry_id": 51,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 50,
+        "terminal_kabsch_rmsd_A": 0.0011086419431316516,
+        "trial_index": 68
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+        "discovered_entry_id": 52,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 51,
+        "terminal_kabsch_rmsd_A": 1.222426144574272e-05,
+        "trial_index": 69
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 53,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 52,
+        "terminal_kabsch_rmsd_A": 3.284459942505134e-09,
+        "trial_index": 70
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 54,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 53,
+        "terminal_kabsch_rmsd_A": 3.7666214671187173e-07,
+        "trial_index": 71
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0001220703125,
+        "discovered_entry_id": 55,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 54,
+        "terminal_kabsch_rmsd_A": 2.157978869403778e-06,
+        "trial_index": 72
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+        "discovered_entry_id": 56,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 55,
+        "terminal_kabsch_rmsd_A": 0.00010025933882545976,
+        "trial_index": 73
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 57,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 56,
+        "terminal_kabsch_rmsd_A": 2.501157764693458e-11,
+        "trial_index": 74
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.00018310546875,
+        "discovered_entry_id": 58,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 57,
+        "terminal_kabsch_rmsd_A": 5.306699618200523e-05,
+        "trial_index": 75
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0001220703125,
+        "discovered_entry_id": 59,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 58,
+        "terminal_kabsch_rmsd_A": 0.001315913790314762,
+        "trial_index": 76
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+        "discovered_entry_id": 60,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 59,
+        "terminal_kabsch_rmsd_A": 6.124747300464061e-05,
+        "trial_index": 77
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.000152587890625,
+        "discovered_entry_id": 61,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 60,
+        "terminal_kabsch_rmsd_A": 0.0001760612148587511,
+        "trial_index": 78
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 62,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 61,
+        "terminal_kabsch_rmsd_A": 1.7484592186706698e-08,
+        "trial_index": 80
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 63,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 62,
+        "terminal_kabsch_rmsd_A": 0.00012929205825896694,
+        "trial_index": 81
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 64,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 63,
+        "terminal_kabsch_rmsd_A": 8.92106621190851e-06,
+        "trial_index": 82
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0001220703125,
+        "discovered_entry_id": 65,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 64,
+        "terminal_kabsch_rmsd_A": 0.00017947422102515312,
+        "trial_index": 83
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 66,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 65,
+        "terminal_kabsch_rmsd_A": 7.074704363579102e-05,
+        "trial_index": 86
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 67,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 66,
+        "terminal_kabsch_rmsd_A": 0.0001381984053177158,
+        "trial_index": 87
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 68,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 67,
+        "terminal_kabsch_rmsd_A": 6.964975309157106e-05,
+        "trial_index": 90
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.000335693359375,
+        "discovered_entry_id": 69,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 68,
+        "terminal_kabsch_rmsd_A": 0.0009400291147840904,
+        "trial_index": 91
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+        "discovered_entry_id": 70,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 69,
+        "terminal_kabsch_rmsd_A": 2.175994330218368e-07,
+        "trial_index": 92
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 71,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 70,
+        "terminal_kabsch_rmsd_A": 1.2565377824307872e-15,
+        "trial_index": 93
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 72,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 71,
+        "terminal_kabsch_rmsd_A": 5.046440300343195e-05,
+        "trial_index": 94
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+        "discovered_entry_id": 73,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 72,
+        "terminal_kabsch_rmsd_A": 5.454389724587657e-07,
+        "trial_index": 95
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 74,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 73,
+        "terminal_kabsch_rmsd_A": 8.253198317426581e-05,
+        "trial_index": 98
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 75,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 74,
+        "terminal_kabsch_rmsd_A": 1.029859126770139e-15,
+        "trial_index": 99
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 76,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 75,
+        "terminal_kabsch_rmsd_A": 0.00022713813357603483,
+        "trial_index": 101
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 77,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 76,
+        "terminal_kabsch_rmsd_A": 5.533167351836904e-07,
+        "trial_index": 104
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+        "discovered_entry_id": 78,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 77,
+        "terminal_kabsch_rmsd_A": 0.000591205445233249,
+        "trial_index": 105
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 79,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 78,
+        "terminal_kabsch_rmsd_A": 2.6458229272257626e-05,
+        "trial_index": 106
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 80,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 79,
+        "terminal_kabsch_rmsd_A": 2.4472073076913487e-15,
+        "trial_index": 108
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 81,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 80,
+        "terminal_kabsch_rmsd_A": 0.0001828464642416859,
+        "trial_index": 110
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0001220703125,
+        "discovered_entry_id": 82,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 81,
+        "terminal_kabsch_rmsd_A": 1.2299546100490064e-07,
+        "trial_index": 113
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0001220703125,
+        "discovered_entry_id": 83,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 82,
+        "terminal_kabsch_rmsd_A": 0.0004086391497435435,
+        "trial_index": 115
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 84,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 83,
+        "terminal_kabsch_rmsd_A": 3.496793150264874e-08,
+        "trial_index": 117
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 85,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 84,
+        "terminal_kabsch_rmsd_A": 5.311577979914139e-06,
+        "trial_index": 118
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 86,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 85,
+        "terminal_kabsch_rmsd_A": 0.00018832050880389053,
+        "trial_index": 119
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 87,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 86,
+        "terminal_kabsch_rmsd_A": 4.2962293045161684e-05,
+        "trial_index": 120
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 88,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 87,
+        "terminal_kabsch_rmsd_A": 0.00011327009064281009,
+        "trial_index": 121
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 89,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 88,
+        "terminal_kabsch_rmsd_A": 5.357896716767737e-06,
+        "trial_index": 122
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+        "discovered_entry_id": 90,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 89,
+        "terminal_kabsch_rmsd_A": 0.0004428871630589294,
+        "trial_index": 123
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.00018310546875,
+        "discovered_entry_id": 91,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 90,
+        "terminal_kabsch_rmsd_A": 0.0009832482233015452,
+        "trial_index": 124
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.00018310546875,
+        "discovered_entry_id": 92,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 91,
+        "terminal_kabsch_rmsd_A": 7.396266535979124e-07,
+        "trial_index": 125
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 93,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 92,
+        "terminal_kabsch_rmsd_A": 0.0003967428272867072,
+        "trial_index": 127
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 94,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 93,
+        "terminal_kabsch_rmsd_A": 6.436938321396344e-05,
+        "trial_index": 129
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 95,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 94,
+        "terminal_kabsch_rmsd_A": 0.00015843250829993344,
+        "trial_index": 130
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0001220703125,
+        "discovered_entry_id": 96,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 95,
+        "terminal_kabsch_rmsd_A": 5.563688329263559e-05,
+        "trial_index": 131
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 97,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 96,
+        "terminal_kabsch_rmsd_A": 0.0006463697992304911,
+        "trial_index": 132
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.00018310546875,
+        "discovered_entry_id": 98,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 97,
+        "terminal_kabsch_rmsd_A": 0.0020667544844055613,
+        "trial_index": 133
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+        "discovered_entry_id": 99,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 98,
+        "terminal_kabsch_rmsd_A": 9.853309575483282e-11,
+        "trial_index": 134
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 100,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 99,
+        "terminal_kabsch_rmsd_A": 9.656194947079985e-05,
+        "trial_index": 137
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 101,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 100,
+        "terminal_kabsch_rmsd_A": 5.144132524760778e-12,
+        "trial_index": 138
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 102,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 101,
+        "terminal_kabsch_rmsd_A": 3.320020830720523e-05,
+        "trial_index": 139
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 103,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 102,
+        "terminal_kabsch_rmsd_A": 4.5242692492877865e-05,
+        "trial_index": 140
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 104,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 103,
+        "terminal_kabsch_rmsd_A": 6.446689819267476e-07,
+        "trial_index": 141
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 105,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 104,
+        "terminal_kabsch_rmsd_A": 6.872899129469163e-05,
+        "trial_index": 143
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 106,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 105,
+        "terminal_kabsch_rmsd_A": 0.00032197689782967586,
+        "trial_index": 145
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.000396728515625,
+        "discovered_entry_id": 107,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 106,
+        "terminal_kabsch_rmsd_A": 0.002698400625511042,
+        "trial_index": 146
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 108,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 107,
+        "terminal_kabsch_rmsd_A": 5.744323144904011e-07,
+        "trial_index": 147
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 109,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 108,
+        "terminal_kabsch_rmsd_A": 1.8414760330829353e-08,
+        "trial_index": 149
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 110,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 109,
+        "terminal_kabsch_rmsd_A": 9.948615151470976e-10,
+        "trial_index": 150
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0001220703125,
+        "discovered_entry_id": 111,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 110,
+        "terminal_kabsch_rmsd_A": 0.00014084331349327976,
+        "trial_index": 151
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 112,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 111,
+        "terminal_kabsch_rmsd_A": 1.1826881028418907e-07,
+        "trial_index": 153
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 113,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 112,
+        "terminal_kabsch_rmsd_A": 6.784875864429349e-16,
+        "trial_index": 154
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.000335693359375,
+        "discovered_entry_id": 114,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 113,
+        "terminal_kabsch_rmsd_A": 0.0017011047397225733,
+        "trial_index": 155
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0001220703125,
+        "discovered_entry_id": 115,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 114,
+        "terminal_kabsch_rmsd_A": 2.028710382428646e-05,
+        "trial_index": 156
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+        "discovered_entry_id": 116,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 115,
+        "terminal_kabsch_rmsd_A": 0.0002174818003948263,
+        "trial_index": 158
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 117,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 116,
+        "terminal_kabsch_rmsd_A": 3.36148542362987e-05,
+        "trial_index": 159
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 118,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 117,
+        "terminal_kabsch_rmsd_A": 1.4499140099865268e-15,
+        "trial_index": 162
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 119,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 118,
+        "terminal_kabsch_rmsd_A": 1.181413483634277e-07,
+        "trial_index": 166
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 120,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 119,
+        "terminal_kabsch_rmsd_A": 7.032495042491661e-07,
+        "trial_index": 167
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 121,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 120,
+        "terminal_kabsch_rmsd_A": 0.0001236564901907562,
+        "trial_index": 168
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+        "discovered_entry_id": 122,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 121,
+        "terminal_kabsch_rmsd_A": 4.5605179628121616e-05,
+        "trial_index": 171
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 123,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 122,
+        "terminal_kabsch_rmsd_A": 7.860389793160367e-05,
+        "trial_index": 172
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 124,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 123,
+        "terminal_kabsch_rmsd_A": 1.2970573657381148e-15,
+        "trial_index": 173
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 125,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 124,
+        "terminal_kabsch_rmsd_A": 9.031294759589352e-05,
+        "trial_index": 175
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 126,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 125,
+        "terminal_kabsch_rmsd_A": 2.491328963394257e-09,
+        "trial_index": 176
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.000518798828125,
+        "discovered_entry_id": 127,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 126,
+        "terminal_kabsch_rmsd_A": 0.0028682896861978798,
+        "trial_index": 177
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.000152587890625,
+        "discovered_entry_id": 128,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 127,
+        "terminal_kabsch_rmsd_A": 0.0006610654357926761,
+        "trial_index": 179
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 129,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 128,
+        "terminal_kabsch_rmsd_A": 2.1943274624422044e-07,
+        "trial_index": 180
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 130,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 129,
+        "terminal_kabsch_rmsd_A": 5.801674704296697e-05,
+        "trial_index": 181
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 131,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 130,
+        "terminal_kabsch_rmsd_A": 1.3542433782954136e-07,
+        "trial_index": 182
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 132,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 131,
+        "terminal_kabsch_rmsd_A": 7.03508683954154e-05,
+        "trial_index": 183
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.00030517578125,
+        "discovered_entry_id": 133,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 132,
+        "terminal_kabsch_rmsd_A": 0.002084784497251517,
+        "trial_index": 184
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 134,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 133,
+        "terminal_kabsch_rmsd_A": 0.0008281519070336457,
+        "trial_index": 188
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.000213623046875,
+        "discovered_entry_id": 135,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 134,
+        "terminal_kabsch_rmsd_A": 0.0016852855303959742,
+        "trial_index": 190
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 136,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 135,
+        "terminal_kabsch_rmsd_A": 0.00020854973086158833,
+        "trial_index": 191
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 137,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 136,
+        "terminal_kabsch_rmsd_A": 0.00010103849828922485,
+        "trial_index": 193
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.00030517578125,
+        "discovered_entry_id": 138,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 137,
+        "terminal_kabsch_rmsd_A": 0.001564324055459362,
+        "trial_index": 195
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+        "discovered_entry_id": 139,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 138,
+        "terminal_kabsch_rmsd_A": 7.552429060921642e-05,
+        "trial_index": 196
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.000244140625,
+        "discovered_entry_id": 140,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 139,
+        "terminal_kabsch_rmsd_A": 0.00051699650910679,
+        "trial_index": 197
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+        "discovered_entry_id": 141,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 140,
+        "terminal_kabsch_rmsd_A": 7.07719260890839e-05,
+        "trial_index": 198
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0003662109375,
+        "discovered_entry_id": 142,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 141,
+        "terminal_kabsch_rmsd_A": 0.0012244787026878601,
+        "trial_index": 199
+      },
+      {
+        "absolute_terminal_energy_delta_eV": 0.0,
+        "discovered_entry_id": 143,
+        "same_basin_current_archive_semantics": true,
+        "task_index": 142,
+        "terminal_kabsch_rmsd_A": 4.3103346679625156e-05,
+        "trial_index": 200
+      }
+    ],
+    "same_basin_count": 142,
+    "same_basin_definition": "abs_energy_delta_eV<=0.001_and_kabsch_rmsd_A<=0.15",
+    "semantic_scope": "current_c60_archive_energy_plus_kabsch_thresholds",
+    "strict_force_certificate_0.01_contingency": {
+      "both": 25,
+      "neither": 77,
+      "safe_only": 34,
+      "scipy_only": 7
+    }
+  }
+}

@@ -191,11 +191,18 @@ def test_config_allows_disabling_proposal_coordinate_box():
 
 
 def test_config_validates_relaxation_optimizers():
-    config = SSWConfig(proposal_optimizer="ase-fire", proposal_optimizer_alt="ase-lbfgs", quench_optimizer="ase-lbfgs")
+    config = SSWConfig(
+        proposal_optimizer="ase-fire",
+        proposal_optimizer_alt="ase-lbfgs",
+        quench_optimizer="ase-lbfgs",
+        quench_fallback_optimizer="ase-fire",
+    )
 
     assert config.proposal_optimizer == "ase-fire"
     assert config.proposal_optimizer_alt == "ase-lbfgs"
     assert config.quench_optimizer == "ase-lbfgs"
+    assert config.quench_fallback_optimizer == "ase-fire"
+    assert SSWConfig().quench_fallback_optimizer is None
 
     with pytest.raises(ValueError):
         SSWConfig(proposal_optimizer="unknown")
@@ -203,6 +210,8 @@ def test_config_validates_relaxation_optimizers():
         SSWConfig(proposal_optimizer_alt="unknown")
     with pytest.raises(ValueError):
         SSWConfig(quench_optimizer="unknown")
+    with pytest.raises(ValueError, match="quench_fallback_optimizer"):
+        SSWConfig(quench_fallback_optimizer="unknown")
 
 
 def test_safe_lbfgs_is_proposal_only_and_opt_in():

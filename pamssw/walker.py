@@ -23,7 +23,12 @@ from .config import LSSSWConfig, RelaxConfig, SSWConfig
 from .coordinates import CartesianCoordinates, TangentVector
 from .fingerprint import descriptor_distance, structural_descriptor
 from .pbc import mic_displacement, mic_distance_matrix, wrap_positions
-from .relax import RelaxEvaluation, Relaxer
+from .relax import (
+    RelaxEvaluation,
+    Relaxer,
+    has_force_convergence_certificate,
+    relax_with_certificate_fallback,
+)
 from .result import RelaxOutcomeClass, RelaxResult, SearchResult, StatsValue, WalkRecord
 from .rigid import project_out_rigid_body_modes, rigid_body_overlap
 from .softening import LocalSofteningModel
@@ -199,6 +204,7 @@ class DirectionChoice:
     score: float | None = None
     evolved_candidate_count: int = 0
     archive_momentum_candidate_count: int = 0
+    true_curvature: float | None = None
 
 
 @dataclass(frozen=True)
@@ -805,56 +811,70 @@ class CandidateDirectionGenerator:
     ) -> list[DirectionCandidate]:
         coordinates = CartesianCoordinates.from_state(state)
         candidates: list[DirectionCandidate] = []
-        if self.enable_momentum_candidate and previous_direction is not None:
+        max_candidates = self.n_random
+
+        def append_candidate(kind: DirectionCandidateKind, direction: np.ndarray | None) -> bool:
+            if direction is None or len(candidates) >= max_candidates:
+                return False
+            candidates.append(self._candidate(state, kind, direction))
+            return True
+
+        if (
+            self.enable_momentum_candidate
+            and previous_direction is not None
+            and self._is_usable_full_direction(previous_direction, state)
+        ):
             momentum_direction = self._anchor_mixed_direction(previous_direction, anchor_direction, anchor_mixing_alpha)
-            candidates.append(self._candidate(state, DirectionCandidateKind.MOMENTUM, momentum_direction))
+            if self._is_usable_full_direction(momentum_direction, state):
+                append_candidate(DirectionCandidateKind.MOMENTUM, momentum_direction)
         for atom_i, atom_j in self.bond_pairs:
+            if len(candidates) >= max_candidates:
+                break
             direction = self._bond_direction(state, atom_i, atom_j)
-            if direction is not None:
-                candidates.append(self._candidate(state, DirectionCandidateKind.BOND, direction))
-        dynamic_pairs_count = 0
+            append_candidate(DirectionCandidateKind.BOND, direction)
+        available_bond_slots = max(0, max_candidates - len(candidates))
         if self.enable_bond_form_break_split:
-            n_form_pairs, n_break_pairs = self._split_bond_pair_counts(n_bond_pairs)
+            requested_form_pairs, requested_break_pairs = self._split_bond_pair_counts(n_bond_pairs)
+            requested_bond_pairs = requested_form_pairs + requested_break_pairs
+            dynamic_bond_budget = min(requested_bond_pairs, available_bond_slots)
+            n_form_pairs, n_break_pairs = self._split_bond_pair_counts(dynamic_bond_budget)
             formation_pairs = self._random_bond_formation_pairs(state, n_form_pairs)
             breaking_pairs = self._random_bond_breaking_pairs(state, n_break_pairs)
-            self.last_random_bond_pairs_requested = n_form_pairs + n_break_pairs
+            self.last_random_bond_pairs_requested = requested_bond_pairs
             self.last_random_bond_pairs_generated = len(formation_pairs) + len(breaking_pairs)
             self.last_random_bond_candidates_valid = 0
             for atom_i, atom_j in formation_pairs:
                 direction = self._bond_form_direction(state, atom_i, atom_j)
-                if direction is not None:
-                    candidates.append(self._candidate(state, DirectionCandidateKind.BOND_FORM, direction))
+                if append_candidate(DirectionCandidateKind.BOND_FORM, direction):
                     self.last_random_bond_candidates_valid += 1
             for atom_i, atom_j in breaking_pairs:
                 direction = self._bond_break_direction(state, atom_i, atom_j)
-                if direction is not None:
-                    candidates.append(self._candidate(state, DirectionCandidateKind.BOND_BREAK, direction))
+                if append_candidate(DirectionCandidateKind.BOND_BREAK, direction):
                     self.last_random_bond_candidates_valid += 1
-            dynamic_pairs_count = len(formation_pairs) + len(breaking_pairs)
         else:
+            requested_bond_pairs = self.n_bond_pairs if n_bond_pairs is None else n_bond_pairs
+            dynamic_bond_budget = min(requested_bond_pairs, available_bond_slots)
             dynamic_pairs = self._random_non_neighbor_pairs(
                 state,
-                n_pairs=self.n_bond_pairs if n_bond_pairs is None else n_bond_pairs,
+                n_pairs=dynamic_bond_budget,
                 distance_threshold=self.bond_distance_threshold,
             )
-            self.last_random_bond_pairs_requested = self.n_bond_pairs if n_bond_pairs is None else n_bond_pairs
+            self.last_random_bond_pairs_requested = requested_bond_pairs
             self.last_random_bond_pairs_generated = len(dynamic_pairs)
             self.last_random_bond_candidates_valid = 0
             for atom_i, atom_j in dynamic_pairs:
                 direction = self._bond_direction(state, atom_i, atom_j)
-                if direction is not None:
-                    candidates.append(self._candidate(state, DirectionCandidateKind.BOND, direction))
+                if append_candidate(DirectionCandidateKind.BOND, direction):
                     self.last_random_bond_candidates_valid += 1
-            dynamic_pairs_count = len(dynamic_pairs)
         # Raw anchor as an executable candidate was withdrawn after C60 smokes
         # showed strong anchor-collapse and worse minima.  Keep the config flag
         # as a compatibility no-op; anchor remains available as a prior.
-        n_random = max(0, self.n_random - dynamic_pairs_count)
+        n_random = max(0, max_candidates - len(candidates))
         for _ in range(n_random):
             active = self._random_active_direction(state, coordinates)
             active /= np.linalg.norm(active) + 1e-12
             direction = coordinates.full_tangent_from_active(active).values
-            candidates.append(self._candidate(state, DirectionCandidateKind.RANDOM, direction))
+            append_candidate(DirectionCandidateKind.RANDOM, direction)
         return candidates
 
     def generate_initial_direction(
@@ -931,6 +951,15 @@ class CandidateDirectionGenerator:
     def _normalized(direction: np.ndarray) -> np.ndarray:
         direction = np.asarray(direction, dtype=float)
         return direction / (np.linalg.norm(direction) + 1e-12)
+
+    @staticmethod
+    def _is_usable_full_direction(direction: np.ndarray, state: State) -> bool:
+        values = np.asarray(direction, dtype=float)
+        return (
+            values.shape == (state.positions.size,)
+            and bool(np.all(np.isfinite(values)))
+            and np.linalg.norm(values) > 1e-12
+        )
 
     def _random_active_direction(self, state: State, coordinates: CartesianCoordinates) -> np.ndarray:
         active = self.rng.normal(size=coordinates.active_size)
@@ -1235,6 +1264,7 @@ class SoftModeOracle:
     ) -> DirectionChoice:
         best_direction: np.ndarray | None = None
         best_curvature: float | None = None
+        best_true_curvature: float | None = None
         best_score: float | None = None
         candidates = self.generator.generate(
             state,
@@ -1258,9 +1288,12 @@ class SoftModeOracle:
         for candidate in candidates:
             rigid_overlap_sum += candidate.rigid_body_overlap
             post_projection_rigid_overlap_sum += candidate.post_projection_rigid_body_overlap
-            hvp = self._directional_hvp(state, proposal, candidate.direction)
+            hvp, true_hvp = self._candidate_directional_hvps(state, proposal, candidate.direction)
             candidate_hvps.append(hvp)
             curvature = float(np.dot(hvp, candidate.direction))
+            candidate_true_curvature = (
+                None if true_hvp is None else float(np.dot(true_hvp, candidate.direction))
+            )
             candidate_score_sigma = self._candidate_score_sigma(
                 curvature=curvature,
                 score_sigma=score_sigma,
@@ -1284,6 +1317,7 @@ class SoftModeOracle:
             if best_score is None or score > best_score:
                 best_score = score
                 best_curvature = curvature
+                best_true_curvature = candidate_true_curvature
                 best_direction = candidate.direction
                 best_kind = candidate.kind
         if self.direction_probe_enabled:
@@ -1301,6 +1335,7 @@ class SoftModeOracle:
             )
             if best is not None:
                 best_direction, best_curvature, best_kind, best_score = best
+                best_true_curvature = None
         synthetic_count = 0
         evolved_candidates = self._plateau_evolution_candidates(
             scored_candidates,
@@ -1326,6 +1361,7 @@ class SoftModeOracle:
             if best_score is None or evolved_score > best_score:
                 best_score = evolved_score
                 best_curvature = evolved_curvature
+                best_true_curvature = None
                 best_direction = evolved_candidate.direction
                 best_kind = evolved_candidate.kind
         if self.direction_synthesis_mode == "regularized_ritz":
@@ -1366,6 +1402,7 @@ class SoftModeOracle:
                 if best_score is None or ritz_reg_score > best_score:
                     best_score = ritz_reg_score
                     best_curvature = ritz_reg_curvature
+                    best_true_curvature = None
                     best_direction = ritz_reg_direction
                     best_kind = DirectionCandidateKind.RITZ_REG
         if self.direction_selection_mode == "rayleigh_ritz":
@@ -1396,6 +1433,7 @@ class SoftModeOracle:
                 if best_score is None or ritz_score > best_score:
                     best_score = ritz_score
                     best_curvature = ritz_curvature
+                    best_true_curvature = None
                     best_direction = ritz_direction
                     best_kind = DirectionCandidateKind.RITZ
         assert best_direction is not None and best_curvature is not None and best_kind is not None
@@ -1410,6 +1448,7 @@ class SoftModeOracle:
             score=best_score,
             evolved_candidate_count=len(evolved_candidates),
             archive_momentum_candidate_count=len(archive_momentum_candidates),
+            true_curvature=best_true_curvature,
         )
 
     def _archive_momentum_candidates(
@@ -1812,6 +1851,31 @@ class SoftModeOracle:
         _, grad_minus = proposal.evaluate(minus.flatten_positions(), minus)
         return (grad_plus - grad_minus) / (2.0 * epsilon)
 
+    def _candidate_directional_hvps(
+        self,
+        state: State,
+        proposal: ProposalPotential,
+        direction: np.ndarray,
+        epsilon: float | None = None,
+    ) -> tuple[np.ndarray, np.ndarray | None]:
+        """Evaluate a native candidate's total and true-PES central HVP together.
+
+        The candidate loop is the only caller: it always evaluates the same
+        central finite-difference stencil used for direction scoring.
+        """
+
+        epsilon = self.hvp_epsilon if epsilon is None else epsilon
+        coordinates = CartesianCoordinates.from_state(state)
+        tangent = TangentVector(direction)
+        plus = coordinates.displace(tangent, epsilon)
+        minus = coordinates.displace(tangent, -epsilon)
+        plus_parts = proposal.evaluate_parts(plus.flatten_positions(), plus)
+        minus_parts = proposal.evaluate_parts(minus.flatten_positions(), minus)
+        scale = 2.0 * epsilon
+        total_hvp = (plus_parts.total_gradient - minus_parts.total_gradient) / scale
+        true_hvp = (plus_parts.true_gradient - minus_parts.true_gradient) / scale
+        return total_hvp, true_hvp
+
     @staticmethod
     def _step_scale_from_curvature(curvature: float) -> float:
         effective = max(abs(curvature), 1e-4)
@@ -2212,15 +2276,34 @@ class SurfaceWalker:
     ) -> RelaxResult:
         if not self.geometry_validator.is_valid_state(state):
             raise BudgetExceeded("invalid geometry before true relaxation")
-        relaxer = Relaxer(self.calculator.evaluate_flat, optimizer=self.config.quench_optimizer)
+        primary_relaxer = Relaxer(
+            self.calculator.evaluate_flat,
+            optimizer=self.config.quench_optimizer,
+        )
+        fallback_relaxer = (
+            None
+            if self.config.quench_fallback_optimizer is None
+            else Relaxer(
+                self.calculator.evaluate_flat,
+                optimizer=self.config.quench_fallback_optimizer,
+            )
+        )
         relax_config = RelaxConfig(fmax=self.config.quench_fmax, maxiter=self.config.quench_maxiter)
         with self.calculator.purpose(quench_purpose):
-            result = relaxer.relax(
+            fallback_result = relax_with_certificate_fallback(
+                primary_relaxer,
                 state,
                 fmax=relax_config.fmax,
                 maxiter=relax_config.maxiter,
+                fallback_relaxer=fallback_relaxer,
+                on_fallback_start=self._record_quench_fallback_start,
                 trajectory_callback=self._relaxation_trajectory_callback(trajectory_name),
                 trajectory_stride=self.config.relaxation_trajectory_stride,
+            )
+        result = fallback_result.final
+        if fallback_result.fallback_used:
+            self._quench_fallback_converged += int(
+                has_force_convergence_certificate(result, relax_config.fmax)
             )
         with self.calculator.purpose(EvaluationPurpose.POST_RELAX_VALIDATION):
             valid_post_relax_state = self.geometry_validator.is_valid_evaluation(result.state, self.calculator)
@@ -2558,6 +2641,9 @@ class SurfaceWalker:
                 "coordinate_system": "cartesian_fixed_cell",
                 "variable_cell_supported": 0,
                 "quench_optimizer": self.config.quench_optimizer,
+                "quench_fallback_optimizer": self.config.quench_fallback_optimizer,
+                "quench_fallback_attempts": self._quench_fallback_attempts,
+                "quench_fallback_converged": self._quench_fallback_converged,
                 "proposal_optimizer": self.config.proposal_optimizer,
                 "proposal_optimizer_alt": self.config.proposal_optimizer_alt,
                 "proposal_optimizer_alt_steps": self._proposal_optimizer_alt_steps,
@@ -2643,6 +2729,8 @@ class SurfaceWalker:
         biases: list[GaussianBiasTerm] = []
         sigma_scale = 1.0
         weight_scale = 1.0
+        pending_true_after_state: State | None = None
+        pending_true_after = None
 
         for step_index in range(self.config.max_steps_per_walk):
             if anchor_direction is None:
@@ -2724,7 +2812,11 @@ class SurfaceWalker:
                 softening = self._build_softening(current, choice.direction)
                 proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
             with self.calculator.purpose(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK):
-                true_curvature = self._true_directional_curvature(current, choice.direction)
+                true_curvature = (
+                    choice.true_curvature
+                    if choice.true_curvature is not None
+                    else self._true_directional_curvature(current, choice.direction)
+                )
             with self.calculator.purpose(EvaluationPurpose.DIRECTION_ORACLE):
                 inner_curvature = (
                     choice.curvature
@@ -2742,7 +2834,12 @@ class SurfaceWalker:
             weight = self._bias_weight(inner_curvature, sigma) * weight_scale
             self._record_bias_weight(weight)
             with self.calculator.purpose(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK):
-                true_before = self.calculator.evaluate(current)
+                if pending_true_after_state is current:
+                    true_before = pending_true_after
+                else:
+                    true_before = self.calculator.evaluate(current)
+            pending_true_after_state = None
+            pending_true_after = None
             true_energy_before = true_before.energy
             g_parallel = float(np.dot(true_before.gradient.reshape(-1), choice.direction))
             biases.append(
@@ -2795,7 +2892,8 @@ class SurfaceWalker:
             if not self.geometry_validator.is_valid_state(current_candidate):
                 break
             with self.calculator.purpose(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK):
-                true_energy_after = self.calculator.evaluate(current_candidate).energy
+                true_after = self.calculator.evaluate(current_candidate)
+            true_energy_after = true_after.energy
             if not np.isfinite(true_energy_after):
                 break
             proposal_relax = replace(
@@ -2838,6 +2936,8 @@ class SurfaceWalker:
             current = current_candidate
             if clipped:
                 break
+            pending_true_after_state = current_candidate
+            pending_true_after = true_after
         return current
 
     def _walk_from_seed(self, seed_state: State) -> RelaxResult:
@@ -3116,6 +3216,8 @@ class SurfaceWalker:
         self._seed_diversity_reseeds = 0
 
     def _reset_relax_stats(self) -> None:
+        self._quench_fallback_attempts = 0
+        self._quench_fallback_converged = 0
         self._relax_stats = {
             "true_quench": {
                 "count": 0,
@@ -3192,6 +3294,9 @@ class SurfaceWalker:
                 },
             },
         }
+
+    def _record_quench_fallback_start(self) -> None:
+        self._quench_fallback_attempts += 1
 
     def _reset_bias_stats(self) -> None:
         self._bias_steps = 0
@@ -3432,7 +3537,9 @@ class SurfaceWalker:
         stats["n_iter_sum"] += result.n_iter
         stats["n_iter_values"].append(result.n_iter)
         stats["max_gradient"] = max(float(stats["max_gradient"]), result.gradient_norm)
-        stats["unconverged"] += int(result.gradient_norm > fmax)
+        stats["unconverged"] += int(
+            not has_force_convergence_certificate(result, fmax)
+        )
         stats["bound_fraction_sum"] += result.active_bound_fraction
         stats["max_bound_fraction"] = max(float(stats["max_bound_fraction"]), result.active_bound_fraction)
         stats["displacement_rms_sum"] += result.displacement_rms
@@ -3641,6 +3748,9 @@ class SurfaceWalker:
         summary: dict[str, StatsValue] = dict(self._relax_stats_summary())
         summary["proposal_optimizer"] = self.config.proposal_optimizer
         summary["quench_optimizer"] = self.config.quench_optimizer
+        summary["quench_fallback_optimizer"] = self.config.quench_fallback_optimizer
+        summary["quench_fallback_attempts"] = self._quench_fallback_attempts
+        summary["quench_fallback_converged"] = self._quench_fallback_converged
         summary["force_evaluations"] = self.calculator.snapshot().total
         return summary
 

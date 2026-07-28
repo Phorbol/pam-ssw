@@ -5,7 +5,8 @@ from pamssw.calculators import AnalyticCalculator
 from pamssw.potentials import DoubleWell2D
 
 
-def test_ssw_finds_multiple_basins_from_single_seed():
+def test_ssw_without_momentum_finds_multiple_basins_from_single_seed():
+    """Exercise the random/bond baseline without asserting momentum portfolio quality."""
     state = State(
         numbers=np.array([1]),
         positions=np.array([[-1.0, 0.0, 0.0]]),
@@ -20,6 +21,7 @@ def test_ssw_finds_multiple_basins_from_single_seed():
             target_negative_curvature=0.4,
             max_step_scale=2.5,
             rng_seed=7,
+            enable_momentum_candidate=False,
         ),
     )
 

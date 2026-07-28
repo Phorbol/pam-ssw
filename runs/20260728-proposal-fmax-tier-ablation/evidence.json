@@ -1,0 +1,407 @@
+{
+  "claim_boundary": {
+    "capture_eligibility_conditioned": true,
+    "capture_eligibility_may_filter_direction_kinds": true,
+    "fixed_one_bias_local_ablation": true,
+    "full_ssw_superiority_supported": false,
+    "shared_bootstrap_true_pes_fmax_eV_per_A": 0.05,
+    "softening_disabled": true
+  },
+  "schema_version": 1,
+  "source_execution_commit": "6e0a29484617b121df97be9b1cbb04ecaa2749a0",
+  "systems": {
+    "c60": {
+      "archive_matcher": {
+        "dedup_energy_tol_eV": 0.001,
+        "dedup_rmsd_tol_A": 0.15,
+        "definition": "current MinimaArchive energy-plus-RMSD rule"
+      },
+      "capture_selection": {
+        "candidate_seed_prefix": [
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49
+        ],
+        "eligible_direction_kind_counts": {
+          "bond": 1,
+          "random": 7
+        },
+        "ineligible_attempts": [],
+        "ineligible_direction_kind_counts": {},
+        "selected_seeds": [
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49
+        ]
+      },
+      "comparisons": [
+        {
+          "landing_energy_abs_delta_eV": 0.383270263671875,
+          "landing_rmsd_A": 0.08815923641678117,
+          "landing_rmsd_status": "finite",
+          "landing_same_basin": false,
+          "loose_landing_certificate": true,
+          "loose_proposal_calls": 66,
+          "loose_proposal_certificate": true,
+          "proposal_call_savings": 17,
+          "seed": 42,
+          "strict_landing_certificate": true,
+          "strict_proposal_calls": 83,
+          "strict_proposal_certificate": false
+        },
+        {
+          "landing_energy_abs_delta_eV": 9.1552734375e-05,
+          "landing_rmsd_A": 0.0018176736560550288,
+          "landing_rmsd_status": "finite",
+          "landing_same_basin": true,
+          "loose_landing_certificate": true,
+          "loose_proposal_calls": 44,
+          "loose_proposal_certificate": true,
+          "proposal_call_savings": 8,
+          "seed": 43,
+          "strict_landing_certificate": true,
+          "strict_proposal_calls": 52,
+          "strict_proposal_certificate": true
+        },
+        {
+          "landing_energy_abs_delta_eV": 3.797821044921875,
+          "landing_rmsd_A": 0.5876205842946091,
+          "landing_rmsd_status": "finite",
+          "landing_same_basin": false,
+          "loose_landing_certificate": true,
+          "loose_proposal_calls": 42,
+          "loose_proposal_certificate": true,
+          "proposal_call_savings": 41,
+          "seed": 44,
+          "strict_landing_certificate": true,
+          "strict_proposal_calls": 83,
+          "strict_proposal_certificate": false
+        },
+        {
+          "landing_energy_abs_delta_eV": 3.0517578125e-05,
+          "landing_rmsd_A": 0.004964751809755937,
+          "landing_rmsd_status": "finite",
+          "landing_same_basin": true,
+          "loose_landing_certificate": true,
+          "loose_proposal_calls": 76,
+          "loose_proposal_certificate": true,
+          "proposal_call_savings": 6,
+          "seed": 45,
+          "strict_landing_certificate": true,
+          "strict_proposal_calls": 82,
+          "strict_proposal_certificate": false
+        },
+        {
+          "landing_energy_abs_delta_eV": 0.000823974609375,
+          "landing_rmsd_A": 0.005591857129809485,
+          "landing_rmsd_status": "finite",
+          "landing_same_basin": true,
+          "loose_landing_certificate": true,
+          "loose_proposal_calls": 51,
+          "loose_proposal_certificate": true,
+          "proposal_call_savings": 30,
+          "seed": 46,
+          "strict_landing_certificate": true,
+          "strict_proposal_calls": 81,
+          "strict_proposal_certificate": false
+        },
+        {
+          "landing_energy_abs_delta_eV": 0.533538818359375,
+          "landing_rmsd_A": 0.3676658159355347,
+          "landing_rmsd_status": "finite",
+          "landing_same_basin": false,
+          "loose_landing_certificate": true,
+          "loose_proposal_calls": 44,
+          "loose_proposal_certificate": true,
+          "proposal_call_savings": 39,
+          "seed": 47,
+          "strict_landing_certificate": true,
+          "strict_proposal_calls": 83,
+          "strict_proposal_certificate": false
+        },
+        {
+          "landing_energy_abs_delta_eV": 0.00018310546875,
+          "landing_rmsd_A": 0.0029647201264091125,
+          "landing_rmsd_status": "finite",
+          "landing_same_basin": true,
+          "loose_landing_certificate": true,
+          "loose_proposal_calls": 54,
+          "loose_proposal_certificate": true,
+          "proposal_call_savings": 12,
+          "seed": 48,
+          "strict_landing_certificate": true,
+          "strict_proposal_calls": 66,
+          "strict_proposal_certificate": true
+        },
+        {
+          "landing_energy_abs_delta_eV": 1.83355712890625,
+          "landing_rmsd_A": 0.27635429209647216,
+          "landing_rmsd_status": "finite",
+          "landing_same_basin": false,
+          "loose_landing_certificate": true,
+          "loose_proposal_calls": 46,
+          "loose_proposal_certificate": true,
+          "proposal_call_savings": 36,
+          "seed": 49,
+          "strict_landing_certificate": true,
+          "strict_proposal_calls": 82,
+          "strict_proposal_certificate": false
+        }
+      ],
+      "paired": {
+        "arm_costs": {
+          "fmax-0.05": {
+            "combined_force_evaluations": 1041,
+            "combined_wall_time_s": 17.428421001008246,
+            "landing_force_evaluations": 429,
+            "landing_wall_time_s": 6.949479339004029,
+            "proposal_force_evaluations": 612,
+            "proposal_wall_time_s": 10.478941662004218
+          },
+          "fmax-0.10": {
+            "combined_force_evaluations": 824,
+            "combined_wall_time_s": 13.617981680901721,
+            "landing_force_evaluations": 401,
+            "landing_wall_time_s": 6.376243336941116,
+            "proposal_force_evaluations": 423,
+            "proposal_wall_time_s": 7.241738343960606
+          }
+        },
+        "both_landing_certified_count": 8,
+        "both_proposal_certified_count": 2,
+        "combined_force_evaluation_savings": 217,
+        "combined_force_evaluation_savings_fraction": 0.2084534101825168,
+        "landing_equivalence_rate": 0.5,
+        "landing_same_basin_count": 4,
+        "loose_equal_proposal_calls_count": 0,
+        "loose_higher_proposal_calls_count": 0,
+        "loose_lower_proposal_calls_count": 8,
+        "proposal_call_savings_median": 23.5,
+        "proposal_call_savings_total": 189,
+        "task_count": 8
+      },
+      "shared_pre_arm_costs": {
+        "bootstrap_force_evaluations": 37,
+        "bootstrap_wall_time_s": 6.200705338007538,
+        "capture_force_evaluations": 216,
+        "combined_force_evaluations": 253
+      }
+    },
+    "pdo": {
+      "archive_matcher": {
+        "dedup_energy_tol_eV": 0.001,
+        "dedup_rmsd_tol_A": 0.4,
+        "definition": "current MinimaArchive energy-plus-RMSD rule"
+      },
+      "capture_selection": {
+        "candidate_seed_prefix": [
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50
+        ],
+        "eligible_direction_kind_counts": {
+          "random": 8
+        },
+        "ineligible_attempts": [
+          {
+            "force_evaluations": 19,
+            "purpose_counts": {
+              "biased_proposal_relax": 0,
+              "bootstrap_true_quench": 0,
+              "direction_oracle": 16,
+              "escape_true_pes_check": 3,
+              "landing_true_quench": 0,
+              "post_relax_validation": 0,
+              "starter_true_quench": 0,
+              "unattributed": 0
+            },
+            "reason": "trial_state_geometry_invalid",
+            "seed": 46,
+            "selected_direction_kind": "bond"
+          }
+        ],
+        "ineligible_direction_kind_counts": {
+          "bond": 1
+        },
+        "selected_seeds": [
+          42,
+          43,
+          44,
+          45,
+          47,
+          48,
+          49,
+          50
+        ]
+      },
+      "comparisons": [
+        {
+          "landing_energy_abs_delta_eV": 0.0013427734375,
+          "landing_rmsd_A": 0.00415806683502637,
+          "landing_rmsd_status": "finite",
+          "landing_same_basin": false,
+          "loose_landing_certificate": true,
+          "loose_proposal_calls": 97,
+          "loose_proposal_certificate": true,
+          "proposal_call_savings": 4,
+          "seed": 42,
+          "strict_landing_certificate": true,
+          "strict_proposal_calls": 101,
+          "strict_proposal_certificate": true
+        },
+        {
+          "landing_energy_abs_delta_eV": 0.01019287109375,
+          "landing_rmsd_A": 0.023678309857726385,
+          "landing_rmsd_status": "finite",
+          "landing_same_basin": false,
+          "loose_landing_certificate": true,
+          "loose_proposal_calls": 66,
+          "loose_proposal_certificate": true,
+          "proposal_call_savings": 1,
+          "seed": 43,
+          "strict_landing_certificate": true,
+          "strict_proposal_calls": 67,
+          "strict_proposal_certificate": true
+        },
+        {
+          "landing_energy_abs_delta_eV": 0.79986572265625,
+          "landing_rmsd_A": 0.24756037018549323,
+          "landing_rmsd_status": "finite",
+          "landing_same_basin": false,
+          "loose_landing_certificate": true,
+          "loose_proposal_calls": 122,
+          "loose_proposal_certificate": true,
+          "proposal_call_savings": 57,
+          "seed": 44,
+          "strict_landing_certificate": true,
+          "strict_proposal_calls": 179,
+          "strict_proposal_certificate": true
+        },
+        {
+          "landing_energy_abs_delta_eV": 0.0,
+          "landing_rmsd_A": 0.0023894177752544444,
+          "landing_rmsd_status": "finite",
+          "landing_same_basin": true,
+          "loose_landing_certificate": true,
+          "loose_proposal_calls": 76,
+          "loose_proposal_certificate": true,
+          "proposal_call_savings": 0,
+          "seed": 45,
+          "strict_landing_certificate": true,
+          "strict_proposal_calls": 76,
+          "strict_proposal_certificate": true
+        },
+        {
+          "landing_energy_abs_delta_eV": 0.00115966796875,
+          "landing_rmsd_A": 0.005518146276256624,
+          "landing_rmsd_status": "finite",
+          "landing_same_basin": false,
+          "loose_landing_certificate": true,
+          "loose_proposal_calls": 58,
+          "loose_proposal_certificate": true,
+          "proposal_call_savings": 9,
+          "seed": 47,
+          "strict_landing_certificate": true,
+          "strict_proposal_calls": 67,
+          "strict_proposal_certificate": true
+        },
+        {
+          "landing_energy_abs_delta_eV": 0.00128173828125,
+          "landing_rmsd_A": 0.007599611662648227,
+          "landing_rmsd_status": "finite",
+          "landing_same_basin": false,
+          "loose_landing_certificate": true,
+          "loose_proposal_calls": 100,
+          "loose_proposal_certificate": true,
+          "proposal_call_savings": 11,
+          "seed": 48,
+          "strict_landing_certificate": true,
+          "strict_proposal_calls": 111,
+          "strict_proposal_certificate": true
+        },
+        {
+          "landing_energy_abs_delta_eV": 0.00140380859375,
+          "landing_rmsd_A": 0.005226043691816248,
+          "landing_rmsd_status": "finite",
+          "landing_same_basin": false,
+          "loose_landing_certificate": true,
+          "loose_proposal_calls": 85,
+          "loose_proposal_certificate": true,
+          "proposal_call_savings": 6,
+          "seed": 49,
+          "strict_landing_certificate": true,
+          "strict_proposal_calls": 91,
+          "strict_proposal_certificate": true
+        },
+        {
+          "landing_energy_abs_delta_eV": 0.001220703125,
+          "landing_rmsd_A": 0.01913702352632374,
+          "landing_rmsd_status": "finite",
+          "landing_same_basin": false,
+          "loose_landing_certificate": true,
+          "loose_proposal_calls": 82,
+          "loose_proposal_certificate": true,
+          "proposal_call_savings": 37,
+          "seed": 50,
+          "strict_landing_certificate": true,
+          "strict_proposal_calls": 119,
+          "strict_proposal_certificate": true
+        }
+      ],
+      "paired": {
+        "arm_costs": {
+          "fmax-0.05": {
+            "combined_force_evaluations": 1231,
+            "combined_wall_time_s": 26.42964485095581,
+            "landing_force_evaluations": 420,
+            "landing_wall_time_s": 8.932075413962593,
+            "proposal_force_evaluations": 811,
+            "proposal_wall_time_s": 17.497569436993217
+          },
+          "fmax-0.10": {
+            "combined_force_evaluations": 1086,
+            "combined_wall_time_s": 23.371643938997295,
+            "landing_force_evaluations": 400,
+            "landing_wall_time_s": 8.533080314024119,
+            "proposal_force_evaluations": 686,
+            "proposal_wall_time_s": 14.838563624973176
+          }
+        },
+        "both_landing_certified_count": 8,
+        "both_proposal_certified_count": 8,
+        "combined_force_evaluation_savings": 145,
+        "combined_force_evaluation_savings_fraction": 0.11779041429731925,
+        "landing_equivalence_rate": 0.125,
+        "landing_same_basin_count": 1,
+        "loose_equal_proposal_calls_count": 1,
+        "loose_higher_proposal_calls_count": 0,
+        "loose_lower_proposal_calls_count": 7,
+        "proposal_call_savings_median": 7.5,
+        "proposal_call_savings_total": 125,
+        "task_count": 8
+      },
+      "shared_pre_arm_costs": {
+        "bootstrap_force_evaluations": 34,
+        "bootstrap_wall_time_s": 0.7497705040150322,
+        "capture_force_evaluations": 171,
+        "combined_force_evaluations": 205
+      }
+    }
+  }
+}

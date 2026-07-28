@@ -206,12 +206,17 @@ class SSWAttemptWorker:
                 "fragment_rejections",
                 "proposal_optimizer",
                 "quench_optimizer",
+                "quench_fallback_optimizer",
+                "quench_fallback_attempts",
+                "quench_fallback_converged",
             }
         }
         if "proposal_optimizer" not in retained:
             retained["proposal_optimizer"] = self.config.proposal_optimizer
         if "quench_optimizer" not in retained:
             retained["quench_optimizer"] = self.config.quench_optimizer
+        if "quench_fallback_optimizer" not in retained:
+            retained["quench_fallback_optimizer"] = self.config.quench_fallback_optimizer
         retained["force_evaluations"] = force_evaluations
         retained["diagnostic_stage"] = stage
         diagnostic = AttemptDiagnostics(
@@ -250,6 +255,7 @@ class SSWAttemptWorker:
                             "force_evaluations": force_evaluations,
                             "proposal_optimizer": self.config.proposal_optimizer,
                             "quench_optimizer": self.config.quench_optimizer,
+                            "quench_fallback_optimizer": self.config.quench_fallback_optimizer,
                         }.items()
                     )
                 ),

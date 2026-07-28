@@ -1,0 +1,275 @@
+{
+  "arms": {
+    "ase-fire": {
+      "fallback": {
+        "certificate_failure_count": 0,
+        "certificate_success_count": 4,
+        "certificate_success_rate": 1.0,
+        "energy_change_eV": {
+          "count": 4,
+          "max": -0.002227783203125,
+          "mean": -0.777618408203125,
+          "median": -0.176300048828125,
+          "min": -2.755645751953125,
+          "total": -3.1104736328125
+        },
+        "final_max_force_eV_per_A": {
+          "count": 4,
+          "max": 0.009658264173362019,
+          "mean": 0.008464842219753086,
+          "median": 0.009133348354163164,
+          "min": 0.005934407997324001,
+          "total": 0.03385936887901234
+        },
+        "task_count": 4,
+        "termination_reason_counts": {
+          "converged": 4
+        },
+        "total_force_evaluations": 494,
+        "total_wall_time_s": 9.318819406005787
+      },
+      "optimizer": "ase-fire",
+      "pipeline": {
+        "certificate_success_count": 32,
+        "certificate_success_rate": 1.0,
+        "continuous_projected_increment_force_evaluations": 490,
+        "continuous_projected_increment_fraction_of_primary": 0.09615384615384616,
+        "continuous_projected_total_force_evaluations": 5586,
+        "continuous_projection_avoided_terminal_evaluations": 4,
+        "offline_increment_force_evaluations": 494,
+        "offline_increment_fraction_of_primary": 0.09693877551020408,
+        "offline_total_force_evaluations": 5590,
+        "primary_force_evaluations": 5096,
+        "task_count": 32
+      },
+      "safe_history_limit": null
+    },
+    "ase-lbfgs-restart": {
+      "fallback": {
+        "certificate_failure_count": 1,
+        "certificate_success_count": 3,
+        "certificate_success_rate": 0.75,
+        "energy_change_eV": {
+          "count": 4,
+          "max": 0.01495361328125,
+          "mean": -0.9191131591796875,
+          "median": -0.46728515625,
+          "min": -2.7568359375,
+          "total": -3.67645263671875
+        },
+        "final_max_force_eV_per_A": {
+          "count": 4,
+          "max": 0.21396582476660964,
+          "mean": 0.059761621415465795,
+          "median": 0.00961300827342839,
+          "min": 0.005854644348396752,
+          "total": 0.23904648566186318
+        },
+        "task_count": 4,
+        "termination_reason_counts": {
+          "converged": 3,
+          "maxiter": 1
+        },
+        "total_force_evaluations": 720,
+        "total_wall_time_s": 26.403613940026844
+      },
+      "optimizer": "ase-lbfgs",
+      "pipeline": {
+        "certificate_success_count": 31,
+        "certificate_success_rate": 0.96875,
+        "continuous_projected_increment_force_evaluations": 716,
+        "continuous_projected_increment_fraction_of_primary": 0.14050235478806908,
+        "continuous_projected_total_force_evaluations": 5812,
+        "continuous_projection_avoided_terminal_evaluations": 4,
+        "offline_increment_force_evaluations": 720,
+        "offline_increment_fraction_of_primary": 0.141287284144427,
+        "offline_total_force_evaluations": 5816,
+        "primary_force_evaluations": 5096,
+        "task_count": 32
+      },
+      "safe_history_limit": null
+    },
+    "safe-lbfgs-total": {
+      "fallback": {
+        "certificate_failure_count": 3,
+        "certificate_success_count": 1,
+        "certificate_success_rate": 0.25,
+        "energy_change_eV": {
+          "count": 4,
+          "max": -0.000732421875,
+          "mean": -0.9229202270507812,
+          "median": -0.4671783447265625,
+          "min": -2.756591796875,
+          "total": -3.691680908203125
+        },
+        "final_max_force_eV_per_A": {
+          "count": 4,
+          "max": 0.045187628790084255,
+          "mean": 0.021232292415827584,
+          "median": 0.015910836914390616,
+          "min": 0.007919867044444848,
+          "total": 0.08492916966331034
+        },
+        "task_count": 4,
+        "termination_reason_counts": {
+          "converged": 1,
+          "line_search_failed": 3
+        },
+        "total_force_evaluations": 274,
+        "total_wall_time_s": 5.2007844829931855
+      },
+      "optimizer": "safe-lbfgs-total",
+      "pipeline": {
+        "certificate_success_count": 29,
+        "certificate_success_rate": 0.90625,
+        "continuous_projected_increment_force_evaluations": 270,
+        "continuous_projected_increment_fraction_of_primary": 0.052982731554160126,
+        "continuous_projected_total_force_evaluations": 5366,
+        "continuous_projection_avoided_terminal_evaluations": 4,
+        "offline_increment_force_evaluations": 274,
+        "offline_increment_fraction_of_primary": 0.05376766091051805,
+        "offline_total_force_evaluations": 5370,
+        "primary_force_evaluations": 5096,
+        "task_count": 32
+      },
+      "safe_history_limit": 10
+    }
+  },
+  "claim_boundary": {
+    "continuous_cost": "projection assuming cached terminal evaluation; not measured by this offline replay",
+    "endpoint_energy_comparison": "not a fair speed comparison because fallback endpoints differ",
+    "global_search_performance": "not measured",
+    "production_default": "not selected"
+  },
+  "next_step": "minimally integrate ASE-LBFGS primary plus certificate-triggered FIRE fallback, then run fixed-budget end-to-end validation; add no extra fallback layer or parameter",
+  "schema_version": 1,
+  "selection_statement": {
+    "only_full_coverage_fallback_on_fixed_corpus": "ase-fire",
+    "production_default_selected": false
+  },
+  "validation": {
+    "artifacts": {
+      "corpus": {
+        "path": "runs/20260728-true-quench-sequential-rescue/corpus.json",
+        "sha256": "82b475eb0bcf0a6fb631bff0ee47cdd0223401db0db6262090c6f721d8624e67"
+      },
+      "rows": {
+        "path": "runs/20260728-true-quench-sequential-rescue/output/rows.json",
+        "sha256": "57d1e178feef072ccaa20c5e56e017ceba09c82a06bc4b564644476d9c4deb0a"
+      },
+      "summary": {
+        "path": "runs/20260728-true-quench-sequential-rescue/output/summary.json",
+        "sha256": "a7532e0117199b87ad8c65a3a2e705244612902e7db97bf2484e9283a6c77d6e"
+      }
+    },
+    "execution_commit": "42054840dd58701e89005ef06a6f0eb082cd2603",
+    "fallback_evaluation_counts": {
+      "biased_proposal_relax": 0,
+      "bootstrap_true_quench": 0,
+      "direction_oracle": 0,
+      "escape_true_pes_check": 0,
+      "landing_true_quench": 1488,
+      "post_relax_validation": 0,
+      "starter_true_quench": 0,
+      "unattributed": 0
+    },
+    "matrix": "4_fixed_primary_certificate_failures_x_3_fallback_arms",
+    "primary_cohort": {
+      "by_system": {
+        "c60": {
+          "certificate_success_count": 14,
+          "task_count": 16,
+          "total_force_evaluations": 2490,
+          "total_wall_time_s": 42.58624181896448,
+          "trigger_count": 2
+        },
+        "pdo": {
+          "certificate_success_count": 14,
+          "task_count": 16,
+          "total_force_evaluations": 2606,
+          "total_wall_time_s": 56.26063635101309,
+          "trigger_count": 2
+        }
+      },
+      "overall": {
+        "certificate_success_count": 28,
+        "task_count": 32,
+        "total_force_evaluations": 5096,
+        "total_wall_time_s": 98.84687816997757,
+        "trigger_count": 4
+      }
+    },
+    "provenance": {
+      "calculator": {
+        "default_dtype": "float32",
+        "device": "cuda",
+        "enable_cueq": false,
+        "inference_precision": "float32"
+      },
+      "cuda": {
+        "available": true,
+        "device_name": "NVIDIA GeForce RTX 3060",
+        "runtime_version": "12.8"
+      },
+      "model": {
+        "path": "/root/.cache/mace/mace-omat-0-small.model",
+        "sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5"
+      },
+      "runtime_versions": {
+        "ase": "3.25.0",
+        "mace": "0.3.14",
+        "numpy": "2.1.3",
+        "python": "3.12.12",
+        "scipy": "1.17.1",
+        "torch": "2.8.0"
+      },
+      "source_replay": {
+        "calculator": {
+          "default_dtype": "float32",
+          "device": "cuda",
+          "enable_cueq": false,
+          "inference_precision": "float32"
+        },
+        "cuda": {
+          "available": true,
+          "device_name": "NVIDIA GeForce RTX 3060",
+          "runtime_version": "12.8"
+        },
+        "execution_commit": "e3141c46b53e0a646fbe3da95678f04e389b4613",
+        "inputs": {
+          "c60": {
+            "path": "/mnt/d/download/trae-research-code/ssw/runs/20260428-c60-mace-production/prerelaxed_c60.xyz",
+            "sha256": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9"
+          },
+          "pdo": {
+            "path": "/mnt/d/download/trae-research-code/ssw/PdO.xyz",
+            "sha256": "68243ceb7c0fbb6ba7a9454d680287eb98c4e5210efbd9ebb63517ba79aaa8b0"
+          }
+        },
+        "model": {
+          "path": "/root/.cache/mace/mace-omat-0-small.model",
+          "sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5"
+        },
+        "raw_landing_corpus_sha256": "100759e1871cdefb54972f91751c452763f74d0e34ee576f268a5808219a552b",
+        "rows": {
+          "path": "runs/20260728-true-quench-raw-strict-replay/output/rows.json",
+          "sha256": "b9c12ca40f2fa183d8573a46b66ec630aeb25ab54ea8eacfc3e88640d163e1ac"
+        },
+        "runtime_versions": {
+          "ase": "3.25.0",
+          "mace": "0.3.14",
+          "numpy": "2.1.3",
+          "python": "3.12.12",
+          "scipy": "1.17.1",
+          "torch": "2.8.0"
+        },
+        "summary": {
+          "path": "runs/20260728-true-quench-raw-strict-replay/output/summary.json",
+          "sha256": "3e15c150ef20ad85e143346a55918aa7510ec3eeadae727168cd36a6e33c9b36"
+        }
+      }
+    },
+    "row_count": 12,
+    "status": "passed"
+  }
+}

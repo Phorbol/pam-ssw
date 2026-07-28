@@ -1,0 +1,3 @@
+output*/
+*.partial/
+__pycache__/

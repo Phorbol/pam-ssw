@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from pamssw import LSSSWConfig, SSWConfig
-from pamssw.accounting import BudgetExceeded
+from pamssw.accounting import BudgetExceeded, EvalCounter, EvaluationPurpose
 from pamssw.archive import MinimaArchive
 from pamssw.bias import GaussianBiasTerm
 from pamssw.calculators import AnalyticCalculator
@@ -291,6 +291,152 @@ def test_relax_true_minimum_uses_configured_quench_maxiter(monkeypatch):
     assert recorded["maxiter"] == 123
 
 
+def test_relax_true_minimum_records_only_fallback_final_and_charges_both_attempts(
+    monkeypatch,
+):
+    starts: dict[str, list[float]] = {"scipy-lbfgsb": [], "ase-fire": []}
+
+    class ScriptedRelaxer:
+        def __init__(self, evaluator, optimizer):
+            self.evaluator = evaluator
+            self.optimizer = optimizer
+
+        def relax(self, state, fmax, maxiter, trajectory_callback=None, trajectory_stride=1):
+            starts[self.optimizer].append(float(state.positions[0, 0]))
+            self.evaluator(state.flatten_positions(), state)
+            if self.optimizer == "scipy-lbfgsb":
+                terminal = State(
+                    numbers=state.numbers.copy(),
+                    positions=np.array([[1.0, 0.0, 0.0]]),
+                )
+                return RelaxResult(
+                    state=terminal,
+                    energy=1.0,
+                    gradient_norm=2.0 * fmax,
+                    n_iter=20,
+                )
+            terminal = State(
+                numbers=state.numbers.copy(),
+                positions=np.array([[2.0, 0.0, 0.0]]),
+            )
+            return RelaxResult(
+                state=terminal,
+                energy=0.5,
+                gradient_norm=0.5 * fmax,
+                n_iter=4,
+            )
+
+    monkeypatch.setattr("pamssw.walker.Relaxer", ScriptedRelaxer)
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            quench_fmax=0.01,
+            quench_fallback_optimizer="ase-fire",
+        ),
+        softening_enabled=False,
+    )
+
+    result = walker.relax_true_minimum(
+        State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    )
+
+    assert result.gradient_norm == pytest.approx(0.005)
+    assert starts == {"scipy-lbfgsb": [0.0], "ase-fire": [1.0]}
+    counts = walker.calculator.snapshot()
+    assert counts.count(EvaluationPurpose.LANDING_TRUE_QUENCH) == 2
+    assert counts.count(EvaluationPurpose.POST_RELAX_VALIDATION) == 1
+    diagnostics = walker.relaxation_diagnostics()
+    assert diagnostics["true_quench_count"] == 1
+    assert diagnostics["true_quench_mean_iterations"] == pytest.approx(4.0)
+    assert diagnostics["true_quench_unconverged"] == 0
+    assert diagnostics["quench_fallback_optimizer"] == "ase-fire"
+    assert diagnostics["quench_fallback_attempts"] == 1
+    assert diagnostics["quench_fallback_converged"] == 1
+
+
+def test_relax_true_minimum_counts_uncertified_fallback_as_final_failure(monkeypatch):
+    class UnconvergedRelaxer:
+        def __init__(self, evaluator, optimizer):
+            self.evaluator = evaluator
+            self.optimizer = optimizer
+
+        def relax(self, state, fmax, maxiter, trajectory_callback=None, trajectory_stride=1):
+            self.evaluator(state.flatten_positions(), state)
+            return RelaxResult(
+                state=state,
+                energy=0.0,
+                gradient_norm=2.0 * fmax if self.optimizer == "scipy-lbfgsb" else float("nan"),
+                n_iter=20 if self.optimizer == "scipy-lbfgsb" else 7,
+            )
+
+    monkeypatch.setattr("pamssw.walker.Relaxer", UnconvergedRelaxer)
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            quench_fmax=0.01,
+            quench_fallback_optimizer="ase-fire",
+        ),
+        softening_enabled=False,
+    )
+
+    walker.relax_true_minimum(
+        State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    )
+
+    diagnostics = walker.relaxation_diagnostics()
+    assert diagnostics["true_quench_count"] == 1
+    assert diagnostics["true_quench_mean_iterations"] == pytest.approx(7.0)
+    assert diagnostics["true_quench_unconverged"] == 1
+    assert diagnostics["quench_fallback_attempts"] == 1
+    assert diagnostics["quench_fallback_converged"] == 0
+
+
+def test_relax_true_minimum_counts_fallback_started_before_budget_exhaustion(
+    monkeypatch,
+):
+    optimizer_calls: list[str] = []
+
+    class BudgetedRelaxer:
+        def __init__(self, evaluator, optimizer):
+            self.evaluator = evaluator
+            self.optimizer = optimizer
+
+        def relax(self, state, fmax, maxiter, trajectory_callback=None, trajectory_stride=1):
+            optimizer_calls.append(self.optimizer)
+            self.evaluator(state.flatten_positions(), state)
+            return RelaxResult(
+                state=state,
+                energy=0.0,
+                gradient_norm=2.0 * fmax,
+                n_iter=1,
+            )
+
+    monkeypatch.setattr("pamssw.walker.Relaxer", BudgetedRelaxer)
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            quench_fmax=0.01,
+            quench_fallback_optimizer="ase-fire",
+            max_force_evals=1,
+        ),
+        softening_enabled=False,
+    )
+
+    with pytest.raises(BudgetExceeded, match="force-evaluation budget exhausted") as captured:
+        walker.relax_true_minimum(
+            State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+        )
+
+    assert optimizer_calls == ["scipy-lbfgsb", "ase-fire"]
+    diagnostics = walker.relaxation_diagnostics()
+    assert diagnostics["quench_fallback_attempts"] == 1
+    assert diagnostics["quench_fallback_converged"] == 0
+    counts = walker.calculator.snapshot()
+    assert counts.count(EvaluationPurpose.LANDING_TRUE_QUENCH) == 1
+    assert counts.count(EvaluationPurpose.POST_RELAX_VALIDATION) == 0
+    assert captured.value.evaluation_counts == counts
+
+
 def test_direction_scoring_proposal_can_ignore_inner_bias_curvature():
     state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
     calculator = AnalyticCalculator(Quadratic())
@@ -360,7 +506,7 @@ def test_soft_mode_oracle_scores_all_candidates_with_fixed_reference_sigma():
             return super().score_candidate(**kwargs)
 
     state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
-    oracle = SoftModeOracle(AnalyticCalculator(Quadratic()), np.random.default_rng(0), candidates=1)
+    oracle = SoftModeOracle(AnalyticCalculator(Quadratic()), np.random.default_rng(0), candidates=2)
     oracle.scorer = CapturingScorer()
 
     oracle.choose_direction(
@@ -393,7 +539,7 @@ def test_soft_mode_oracle_allows_explicit_score_sigma_override():
             return super().score_candidate(**kwargs)
 
     state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
-    oracle = SoftModeOracle(AnalyticCalculator(Quadratic()), np.random.default_rng(0), candidates=1)
+    oracle = SoftModeOracle(AnalyticCalculator(Quadratic()), np.random.default_rng(0), candidates=2)
     oracle.scorer = CapturingScorer()
 
     oracle.choose_direction(
@@ -428,7 +574,7 @@ def test_soft_mode_oracle_can_score_candidates_with_adaptive_sigma():
             return super().score_candidate(**kwargs)
 
     state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
-    oracle = SoftModeOracle(AnalyticCalculator(Quadratic()), np.random.default_rng(0), candidates=1)
+    oracle = SoftModeOracle(AnalyticCalculator(Quadratic()), np.random.default_rng(0), candidates=2)
     oracle.scorer = CapturingScorer()
 
     oracle.choose_direction(
@@ -1789,7 +1935,11 @@ def test_regularized_ritz_synthesis_adds_anchor_aligned_candidate_without_extra_
         hvp_calls["count"] += 1
         return np.zeros_like(direction)
 
-    monkeypatch.setattr(oracle, "_directional_hvp", fake_hvp)
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda state, proposal, direction: (fake_hvp(state, proposal, direction), None),
+    )
     anchor = np.array([1.0, 1.0, 0.0]) / np.sqrt(2.0)
     choice = oracle.choose_direction(
         state,
@@ -1826,7 +1976,11 @@ def test_regularized_ritz_synthesis_none_keeps_candidate_count_and_never_selects
         hvp_calls["count"] += 1
         return np.zeros_like(direction)
 
-    monkeypatch.setattr(oracle, "_directional_hvp", fake_hvp)
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda state, proposal, direction: (fake_hvp(state, proposal, direction), None),
+    )
     choice = oracle.choose_direction(
         state,
         proposal=ProposalPotential(AnalyticCalculator(Quadratic())),
@@ -1856,7 +2010,11 @@ def test_regularized_ritz_synthesis_can_be_steered_by_previous_direction(monkeyp
         DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([0.0, 1.0, 0.0])),
     ]
 
-    monkeypatch.setattr(oracle, "_directional_hvp", lambda state, proposal, direction: np.zeros_like(direction))
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda state, proposal, direction: (np.zeros_like(direction), None),
+    )
     previous = np.array([1.0, 1.0, 0.0]) / np.sqrt(2.0)
     choice = oracle.choose_direction(
         state,
@@ -1915,6 +2073,7 @@ def test_regularized_ritz_synthesis_reconstructs_projected_hessian_from_nonortho
     assert choice.candidate_count == 3
     assert choice.curvature == pytest.approx(eigenvalues[expected_index], rel=1e-5)
     assert abs(float(np.dot(choice.direction, expected_direction))) == pytest.approx(1.0)
+    assert choice.true_curvature is None
 
 
 def test_regularized_ritz_synthesis_tied_scores_tolerates_top_k_larger_than_candidate_count(monkeypatch):
@@ -1933,7 +2092,11 @@ def test_regularized_ritz_synthesis_tied_scores_tolerates_top_k_larger_than_cand
         DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([0.0, 1.0, 0.0])),
     ]
 
-    monkeypatch.setattr(oracle, "_directional_hvp", lambda state, proposal, direction: np.zeros_like(direction))
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda state, proposal, direction: (np.zeros_like(direction), None),
+    )
     choice = oracle.choose_direction(
         state,
         proposal=ProposalPotential(AnalyticCalculator(Quadratic())),
@@ -1985,6 +2148,11 @@ def test_plateau_evolution_crosses_current_and_history_directions(monkeypatch):
         curvature = -10.0 if abs(float(np.dot(direction, target))) > 0.99 else 10.0
         return curvature * direction
 
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda state, proposal, direction: (fake_hvp(state, proposal, direction), None),
+    )
     monkeypatch.setattr(oracle, "_directional_hvp", fake_hvp)
     choice = oracle.choose_direction(
         state,
@@ -2005,6 +2173,7 @@ def test_plateau_evolution_crosses_current_and_history_directions(monkeypatch):
     expected = np.array([1.0, 1.0, 0.0]) / np.sqrt(2.0)
     assert abs(float(np.dot(choice.direction, expected))) == pytest.approx(1.0)
     assert hvp_calls["count"] == 3
+    assert choice.true_curvature is None
 
 
 def test_plateau_evolution_inactive_keeps_original_candidate_count(monkeypatch):
@@ -2020,7 +2189,11 @@ def test_plateau_evolution_inactive_keeps_original_candidate_count(monkeypatch):
         DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([1.0, 0.0, 0.0])),
         DirectionCandidate(DirectionCandidateKind.BOND, np.array([0.0, 1.0, 0.0])),
     ]
-    monkeypatch.setattr(oracle, "_directional_hvp", lambda state, proposal, direction: 10.0 * direction)
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda state, proposal, direction: (10.0 * direction, None),
+    )
 
     choice = oracle.choose_direction(
         state,
@@ -2076,7 +2249,11 @@ def test_archive_escape_momentum_candidate_can_win_direction_choice(monkeypatch)
         curvature = -5.0 if abs(float(np.dot(direction, target))) > 0.99 else 10.0
         return curvature * direction
 
-    monkeypatch.setattr(oracle, "_directional_hvp", fake_hvp)
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda state, proposal, direction: (fake_hvp(state, proposal, direction), None),
+    )
     choice = oracle.choose_direction(
         state,
         proposal=ProposalPotential(AnalyticCalculator(Quadratic())),
@@ -2248,7 +2425,7 @@ def test_direction_generator_exposes_documented_enabled_and_guarded_kinds():
     candidates = generator.generate(state, previous_direction=np.array([1.0, 0.0, 0.0]))
 
     assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.MOMENTUM) == 1
-    assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.RANDOM) == 2
+    assert [candidate.kind for candidate in candidates].count(DirectionCandidateKind.RANDOM) == 1
     assert DirectionCandidateKind.BOND not in [candidate.kind for candidate in candidates]
 
 
@@ -2363,7 +2540,7 @@ def test_direction_generator_anchor_mixing_only_changes_momentum_candidate():
     )
     previous = np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0])
     anchor = np.array([0.0, 1.0, 0.0, 0.0, 0.0, 0.0])
-    generator = CandidateDirectionGenerator(np.random.default_rng(0), n_random=0, bond_pairs=[(0, 1)])
+    generator = CandidateDirectionGenerator(np.random.default_rng(0), n_random=2, bond_pairs=[(0, 1)])
 
     candidates = generator.generate(state, previous_direction=previous, anchor_direction=anchor, anchor_mixing_alpha=0.6)
 
@@ -2726,7 +2903,7 @@ def test_direction_generator_adds_bond_candidate_when_pairs_are_provided():
         numbers=np.array([1, 1]),
         positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
     )
-    generator = CandidateDirectionGenerator(np.random.default_rng(0), n_random=0, bond_pairs=[(0, 1)])
+    generator = CandidateDirectionGenerator(np.random.default_rng(0), n_random=1, bond_pairs=[(0, 1)])
 
     candidates = generator.generate(state, previous_direction=None)
 
@@ -2770,7 +2947,7 @@ def test_bond_form_break_split_rejects_too_far_formation_pairs():
     )
     generator = CandidateDirectionGenerator(
         np.random.default_rng(0),
-        n_random=0,
+        n_random=1,
         enable_bond_form_break_split=True,
         n_bond_formation_pairs=1,
         n_bond_breaking_pairs=0,
@@ -2780,7 +2957,7 @@ def test_bond_form_break_split_rejects_too_far_formation_pairs():
 
     candidates = generator.generate(state, previous_direction=None)
 
-    assert candidates == []
+    assert all(candidate.kind is not DirectionCandidateKind.BOND_FORM for candidate in candidates)
 
 
 def test_bond_form_break_split_generates_break_candidates_for_short_pairs():
@@ -2790,7 +2967,7 @@ def test_bond_form_break_split_generates_break_candidates_for_short_pairs():
     )
     generator = CandidateDirectionGenerator(
         np.random.default_rng(0),
-        n_random=0,
+        n_random=1,
         enable_bond_form_break_split=True,
         n_bond_formation_pairs=0,
         n_bond_breaking_pairs=1,
@@ -2809,7 +2986,7 @@ def test_bond_form_break_split_keeps_explicit_bond_pairs_as_legacy_bond_candidat
     )
     generator = CandidateDirectionGenerator(
         np.random.default_rng(0),
-        n_random=0,
+        n_random=1,
         bond_pairs=[(0, 1)],
         enable_bond_form_break_split=True,
         n_bond_formation_pairs=0,
@@ -2865,7 +3042,7 @@ def test_direction_generator_adds_random_non_neighbor_bond_candidates():
     )
     generator = CandidateDirectionGenerator(
         np.random.default_rng(2),
-        n_random=0,
+        n_random=3,
         n_bond_pairs=3,
         bond_distance_threshold=2.0,
     )
@@ -2913,7 +3090,7 @@ def test_direction_generator_adds_periodic_random_bond_candidates_with_mic_direc
     )
     generator = CandidateDirectionGenerator(
         np.random.default_rng(0),
-        n_random=0,
+        n_random=1,
         n_bond_pairs=1,
         bond_distance_threshold=3.0,
     )
@@ -2946,7 +3123,7 @@ def test_direction_generator_falls_back_to_closest_mic_pairs_when_non_neighbors_
     )
     generator = CandidateDirectionGenerator(
         np.random.default_rng(0),
-        n_random=0,
+        n_random=3,
         n_bond_pairs=3,
         bond_distance_threshold=20.0,
     )
@@ -3614,6 +3791,127 @@ def test_true_curvature_excludes_accumulated_gaussian_bias():
     assert true_curvature == pytest.approx(1.0, rel=1e-3)
 
 
+def test_oracle_candidate_hvp_exposes_true_curvature_from_same_parts_evaluations(monkeypatch):
+    """A selected native candidate carries the true-PES curvature already evaluated for its HVP."""
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    calculator = EvalCounter(AnalyticCalculator(Quadratic()))
+    oracle = SoftModeOracle(calculator, np.random.default_rng(0), candidates=1)
+    direction = np.array([1.0, 0.0, 0.0])
+    candidate = DirectionCandidate(DirectionCandidateKind.RANDOM, direction)
+    monkeypatch.setattr(oracle.generator, "generate", lambda *args, **kwargs: [candidate])
+    proposal = ProposalPotential(
+        calculator,
+        biases=[GaussianBiasTerm(center=state.flatten_positions(), direction=direction, sigma=1.0, weight=4.0)],
+    )
+
+    choice = oracle.choose_direction(state, proposal, previous_direction=None)
+
+    assert calculator.force_evaluations == 2
+    assert choice.curvature == pytest.approx(-3.0, rel=1e-3)
+    assert choice.true_curvature == pytest.approx(1.0, rel=1e-3)
+
+
+def test_walk_uses_native_oracle_true_curvature_without_a_second_central_hvp(monkeypatch):
+    """The walker must not re-evaluate true curvature when its own oracle selected the candidate."""
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(max_steps_per_walk=1, oracle_candidates=1, n_bond_pairs=0, rng_seed=0),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0])
+    candidate = DirectionCandidate(DirectionCandidateKind.RANDOM, direction)
+    monkeypatch.setattr(walker.oracle.generator, "generate_initial_direction", lambda *args, **kwargs: direction)
+    monkeypatch.setattr(walker.oracle.generator, "generate", lambda *args, **kwargs: [candidate])
+    monkeypatch.setattr(
+        walker,
+        "_true_directional_curvature",
+        lambda *args, **kwargs: pytest.fail("native candidate must reuse its oracle true curvature"),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(task.initial_state, energy=0.0, gradient_norm=0.0, n_iter=0),
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    assert walker.calculator.force_evaluations == 4
+
+
+def test_walk_reuses_true_after_only_for_the_identical_next_step_state(monkeypatch):
+    """The next step consumes the previous true-after result exactly once, saving one true-PES evaluation."""
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(max_steps_per_walk=2, oracle_candidates=1, n_bond_pairs=0, rng_seed=0),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0])
+    monkeypatch.setattr(walker.oracle.generator, "generate_initial_direction", lambda *args, **kwargs: direction)
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=direction,
+            curvature=1.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+    monkeypatch.setattr(walker, "_true_directional_curvature", lambda *args, **kwargs: 1.0)
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(task.initial_state, energy=0.0, gradient_norm=0.0, n_iter=0),
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    assert walker.calculator.force_evaluations == 3
+
+
+def test_external_direction_choice_falls_back_to_a_direct_true_curvature_hvp(monkeypatch):
+    """A DirectionChoice not produced by the native candidate loop carries no reuse evidence."""
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(max_steps_per_walk=1, oracle_candidates=1, n_bond_pairs=0, rng_seed=0),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0])
+    true_curvature_calls = []
+    monkeypatch.setattr(walker.oracle.generator, "generate_initial_direction", lambda *args, **kwargs: direction)
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=direction,
+            curvature=1.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_true_directional_curvature",
+        lambda *args, **kwargs: true_curvature_calls.append(1) or 1.0,
+    )
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(task.initial_state, energy=0.0, gradient_norm=0.0, n_iter=0),
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    assert true_curvature_calls == [1]
+
+
 def test_geometry_validator_rejects_nan_positions_and_nonfinite_energy():
     valid = GeometryValidator(min_distance=0.5)
     bad_positions = State(numbers=np.array([1]), positions=np.array([[np.nan, 0.0, 0.0]]))
@@ -4188,7 +4486,7 @@ def test_surface_walker_rejects_unphysical_energy_drop_before_archive(monkeypatc
     assert result.stats["energy_sanity_rejections"] == 1
 
 
-def test_standard_surface_walker_generates_bond_candidates():
+def test_standard_surface_walker_respects_one_candidate_budget():
     initial = State(
         numbers=np.full(4, 18),
         positions=np.array(
@@ -4209,7 +4507,7 @@ def test_standard_surface_walker_generates_bond_candidates():
 
     result = walker.run(initial)
 
-    assert result.stats["direction_candidate_evaluations"] > result.stats["direction_choices"]
+    assert result.stats["direction_candidate_evaluations"] == result.stats["direction_choices"]
 
 
 def test_walk_displacement_clip_limits_per_atom_motion():
