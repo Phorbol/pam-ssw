@@ -176,3 +176,45 @@ def test_evidence_rejects_unclosed_or_misordered_rows(mutation, match):
 
     with pytest.raises(ValueError, match=match):
         module.build_evidence(corrupted)
+
+
+def test_checkpoint_discovery_returns_consecutive_macro_steps(tmp_path):
+    module = _load_module()
+    expected = []
+    for step_index in (1, 2, 3):
+        path = (
+            tmp_path
+            / (
+                "trial0001_proposal001_"
+                f"step{step_index:03d}_proposal_relax.xyz"
+            )
+        )
+        path.write_text("", encoding="utf-8")
+        expected.append(path)
+
+    assert module.discover_checkpoint_paths(tmp_path) == expected
+
+
+@pytest.mark.parametrize("failure", ["empty", "gap", "unexpected"])
+def test_checkpoint_discovery_rejects_incomplete_or_wrong_files(
+    tmp_path,
+    failure,
+):
+    module = _load_module()
+    if failure == "gap":
+        for step_index in (1, 3):
+            (
+                tmp_path
+                / (
+                    "trial0001_proposal001_"
+                    f"step{step_index:03d}_proposal_relax.xyz"
+                )
+            ).write_text("", encoding="utf-8")
+    elif failure == "unexpected":
+        (
+            tmp_path
+            / "trial0002_proposal001_step001_proposal_relax.xyz"
+        ).write_text("", encoding="utf-8")
+
+    with pytest.raises(ValueError):
+        module.discover_checkpoint_paths(tmp_path)
