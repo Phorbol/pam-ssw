@@ -1284,12 +1284,14 @@ class SoftModeOracle:
         rigid_overlap_sum = 0.0
         post_projection_rigid_overlap_sum = 0.0
         candidate_hvps: list[np.ndarray] = []
+        candidate_true_hvps: list[np.ndarray | None] = []
         scored_candidates: list[tuple[DirectionCandidate, np.ndarray, float, float]] = []
         for candidate in candidates:
             rigid_overlap_sum += candidate.rigid_body_overlap
             post_projection_rigid_overlap_sum += candidate.post_projection_rigid_body_overlap
             hvp, true_hvp = self._candidate_directional_hvps(state, proposal, candidate.direction)
             candidate_hvps.append(hvp)
+            candidate_true_hvps.append(true_hvp)
             curvature = float(np.dot(hvp, candidate.direction))
             candidate_true_curvature = (
                 None if true_hvp is None else float(np.dot(true_hvp, candidate.direction))
@@ -1406,9 +1408,14 @@ class SoftModeOracle:
                     best_direction = ritz_reg_direction
                     best_kind = DirectionCandidateKind.RITZ_REG
         if self.direction_selection_mode == "rayleigh_ritz":
-            ritz = self._rayleigh_ritz_candidate(candidates, candidate_hvps)
+            ritz = self._rayleigh_ritz_candidate(
+                candidates,
+                candidate_hvps,
+                candidate_true_hvps,
+            )
             if ritz is not None:
-                ritz_direction, ritz_curvature = ritz
+                ritz_direction, ritz_curvature = ritz[:2]
+                ritz_true_curvature = ritz[2] if len(ritz) == 3 else None
                 ritz_candidate = DirectionCandidate(DirectionCandidateKind.RITZ, ritz_direction)
                 synthetic_count += 1
                 ritz_score_sigma = self._candidate_score_sigma(
@@ -1433,7 +1440,7 @@ class SoftModeOracle:
                 if best_score is None or ritz_score > best_score:
                     best_score = ritz_score
                     best_curvature = ritz_curvature
-                    best_true_curvature = None
+                    best_true_curvature = ritz_true_curvature
                     best_direction = ritz_direction
                     best_kind = DirectionCandidateKind.RITZ
         assert best_direction is not None and best_curvature is not None and best_kind is not None
@@ -1793,8 +1800,11 @@ class SoftModeOracle:
         self,
         candidates: list[DirectionCandidate],
         hvps: list[np.ndarray],
-    ) -> tuple[np.ndarray, float] | None:
+        true_hvps: list[np.ndarray | None] | None = None,
+    ) -> tuple[np.ndarray, float, float | None] | None:
         if len(candidates) < 2 or len(candidates) != len(hvps):
+            return None
+        if true_hvps is not None and len(candidates) != len(true_hvps):
             return None
         directions = np.column_stack([candidate.direction for candidate in candidates])
         h_directions = np.column_stack(hvps)
@@ -1822,8 +1832,15 @@ class SoftModeOracle:
         if norm <= 1e-12:
             return None
         direction = direction / norm
+        eigenvector = eigenvectors[:, int(np.argmin(eigenvalues))]
         curvature = float(eigenvalues[int(np.argmin(eigenvalues))])
-        return direction, curvature
+        true_curvature: float | None = None
+        if true_hvps is not None and all(hvp is not None for hvp in true_hvps):
+            true_h_directions = np.column_stack(true_hvps)
+            native_coefficients = coeffs @ eigenvector
+            true_hvp = true_h_directions @ native_coefficients
+            true_curvature = float(np.dot(direction, true_hvp))
+        return direction, curvature, true_curvature
 
     def _directional_curvature(
         self,

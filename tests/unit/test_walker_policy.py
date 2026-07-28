@@ -632,6 +632,108 @@ def test_soft_mode_oracle_can_select_rayleigh_ritz_subspace_direction():
     assert abs(float(np.dot(choice.direction, np.array([1.0, 1.0, 0.0]) / np.sqrt(2.0)))) == pytest.approx(1.0)
 
 
+def test_rayleigh_ritz_reuses_native_true_hvps_for_exact_true_curvature(monkeypatch):
+    """The Ritz vector inherits true curvature from the same native HVP stencil."""
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    oracle = SoftModeOracle(
+        AnalyticCalculator(Quadratic()),
+        np.random.default_rng(0),
+        candidates=0,
+        direction_selection_mode="rayleigh_ritz",
+    )
+    candidates = [
+        DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([1.0, 0.0, 0.0])),
+        DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([0.0, 1.0, 0.0])),
+    ]
+    total_hessian = np.array([[1.0, -0.8, 0.0], [-0.8, 1.0, 0.0], [0.0, 0.0, 5.0]])
+    true_hessian = np.diag([1.0, 4.0, 9.0])
+    monkeypatch.setattr(oracle.generator, "generate", lambda *args, **kwargs: candidates)
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda _state, _proposal, direction: (total_hessian @ direction, true_hessian @ direction),
+    )
+
+    choice = oracle.choose_direction(
+        state,
+        proposal=ProposalPotential(AnalyticCalculator(Quadratic())),
+        previous_direction=None,
+        score_sigma=1.0,
+    )
+
+    assert choice.kind == DirectionCandidateKind.RITZ
+    assert choice.curvature == pytest.approx(0.2, rel=1e-12)
+    assert choice.true_curvature == pytest.approx(2.5, rel=1e-12)
+
+
+def test_walk_ritz_reuses_true_curvature_without_extra_escape_true_pes_check(monkeypatch):
+    """Plain Ritz must not add a fallback true-HVP after native candidates were evaluated."""
+
+    class CoupledQuadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.array(
+                [[1.0, -0.8, 0.0], [-0.8, 1.0, 0.0], [0.0, 0.0, 5.0]]
+            )
+            gradient = hessian @ flat_positions
+            return 0.5 * float(flat_positions @ gradient), gradient
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(CoupledQuadratic()),
+        config=LSSSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=2,
+            n_bond_pairs=0,
+            rng_seed=0,
+            direction_selection_mode="rayleigh_ritz",
+            direction_synthesis_mode="none",
+            direction_curvature_source="inner",
+            choice_aligned_softening_enabled=False,
+            anchor_weight=1e-12,
+            continuity_weight=0.0,
+            history_push_weight=0.0,
+        ),
+        softening_enabled=False,
+    )
+    directions = [
+        DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([1.0, 0.0, 0.0])),
+        DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([0.0, 1.0, 0.0])),
+    ]
+    monkeypatch.setattr(
+        walker.oracle.generator,
+        "generate_initial_direction",
+        lambda *args, **kwargs: np.array([1.0, 0.0, 0.0]),
+    )
+    monkeypatch.setattr(walker.oracle.generator, "generate", lambda *args, **kwargs: directions)
+    selected = []
+    original_choose_direction = walker.oracle.choose_direction
+
+    def capture_choice(*args, **kwargs):
+        choice = original_choose_direction(*args, **kwargs)
+        selected.append(choice)
+        return choice
+
+    monkeypatch.setattr(walker.oracle, "choose_direction", capture_choice)
+    monkeypatch.setattr(
+        walker,
+        "_true_directional_curvature",
+        lambda *args, **kwargs: pytest.fail("Ritz must reuse native true curvature"),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(task.initial_state, energy=0.0, gradient_norm=0.0, n_iter=0),
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    counts = walker.calculator.snapshot().as_dict()
+    assert selected[0].kind == DirectionCandidateKind.RITZ
+    assert counts[EvaluationPurpose.DIRECTION_ORACLE.value] == 4
+    assert counts[EvaluationPurpose.ESCAPE_TRUE_PES_CHECK.value] == 2
+
+
 class KindScoreScorer(DirectionScorer):
     def __init__(self, scores):
         super().__init__()
