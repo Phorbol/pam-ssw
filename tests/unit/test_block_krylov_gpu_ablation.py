@@ -123,6 +123,58 @@ def test_discrete_trace_closes_nonzero_direction_oracle_force_ledger():
         )
 
 
+def test_exact_budget_allows_one_terminal_partial_direction_selection(tmp_path):
+    runner = _load(RUNNER_PATH, "terminal_partial_direction_contract")
+    direction_path = tmp_path / "direction_trace.jsonl"
+    direction_path.write_text(
+        json.dumps(
+            {
+                "selected_kind": "block_ritz",
+                "candidate_count": 0,
+                "krylov_blocks": 6,
+                "krylov_depth": 1,
+                "krylov_initial_basis_columns": [2, 2, 2, 2, 2, 2],
+                "krylov_hvp_requested": 12,
+                "krylov_hvp_consumed": 12,
+                "krylov_hvp_count": 12,
+                "oracle_selection_force_evaluations_delta": 24,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    result = SimpleNamespace(
+        stats={
+            "force_evaluations": 6000,
+            "budget_exhausted": 1,
+            "direction_choices": 1,
+        }
+    )
+
+    class Counts:
+        total = 6000
+
+        @staticmethod
+        def as_dict():
+            return {
+                "direction_oracle": 44,
+                "biased_proposal_relax": 5956,
+                "unattributed": 0,
+            }
+
+    walker = SimpleNamespace(calculator=SimpleNamespace(snapshot=lambda: Counts()))
+    purposes, audit = runner._validate_run_closure(
+        result=result,
+        walker=walker,
+        arm="variational_breadth",
+        direction_path=direction_path,
+    )
+
+    assert purposes["direction_oracle"] == 24 + 20
+    assert audit["direction_oracle_force_evaluations"] == 24
+    assert audit["terminal_untraced_direction_oracle_force_evaluations"] == 20
+
+
 def test_analyzer_accepts_realistically_shuffled_c60_case_order():
     analyzer = _load(ANALYZER_PATH, "block_krylov_evidence_contract")
     cases = []
@@ -251,7 +303,7 @@ def test_failed_case_does_not_claim_final_output_and_can_retry(monkeypatch, tmp_
 
         @staticmethod
         def as_dict():
-            return {"direction_oracle": 6, "biased_proposal_relax": 5994, "unattributed": 0}
+            return {"direction_oracle": 44, "biased_proposal_relax": 5956, "unattributed": 0}
 
     class FakeWalker:
         def __init__(self, *, calculator, config, softening_enabled):
@@ -264,10 +316,10 @@ def test_failed_case_does_not_claim_final_output_and_can_retry(monkeypatch, tmp_
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(
                 json.dumps(
-                    {
-                        "selected_kind": "random",
-                        "candidate_count": 3,
-                        "oracle_selection_force_evaluations_delta": 6,
+                        {
+                            "selected_kind": "random",
+                            "candidate_count": 12,
+                            "oracle_selection_force_evaluations_delta": 24,
                     }
                 )
                 + "\n",
@@ -328,6 +380,18 @@ def test_failed_case_does_not_claim_final_output_and_can_retry(monkeypatch, tmp_
         "effective_config": effective,
         "source_to_effective_config_diff": source_diff,
         "paired_arm_config_diffs": arm_diffs,
+        "arm": "discrete",
+        "system": "c60",
+        "seed": 42,
+        "total_force_budget": 6000,
+        "base_preflight": {
+            "execution_commit": "e" * 40,
+            "input_sha256": "i" * 64,
+            "model_sha256": "m" * 64,
+            "runtime_versions": {"python": "test"},
+            "cuda": {"available": True},
+            "calculator": {"device": "cuda"},
+        },
     }
     kwargs = dict(
         arm="discrete",
@@ -348,8 +412,17 @@ def test_failed_case_does_not_claim_final_output_and_can_retry(monkeypatch, tmp_
 
     summary = runner.run(**kwargs)
     assert summary["force_evaluations"] == 6000
+    assert (
+        summary["direction_selection_audit"][
+            "terminal_untraced_direction_oracle_force_evaluations"
+        ]
+        == 20
+    )
     assert (final / "summary.json").is_file()
     assert not final.with_name(f".{final.name}.tmp").exists()
+    analyzer = _load(ANALYZER_PATH, "terminal_partial_direction_analysis")
+    loaded = analyzer._load_case(final / "summary.json")
+    assert loaded["terminal_untraced_direction_oracle_force_evaluations"] == 20
 
 
 def test_analyzer_replaces_fully_written_temporary_files(monkeypatch, tmp_path):

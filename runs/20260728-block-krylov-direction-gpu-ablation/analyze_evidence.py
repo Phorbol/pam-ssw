@@ -123,7 +123,37 @@ def _load_case(summary_path: Path) -> dict[str, Any]:
         direction_audit = runner.validate_direction_trace(arm=arm, direction_rows=rows)
     except RuntimeError as error:
         raise EvidenceError(f"{label}: {error}") from error
-    _require(direction_audit["direction_oracle_force_evaluations"] == purposes["direction_oracle"], f"{label}: direction FE does not close against trace")
+    terminal_untraced = (
+        purposes["direction_oracle"]
+        - direction_audit["direction_oracle_force_evaluations"]
+    )
+    _require(
+        terminal_untraced >= 0,
+        f"{label}: terminal untraced direction FE must be non-negative",
+    )
+    if terminal_untraced:
+        stats = raw.get("stats")
+        termination = raw.get("termination")
+        _require(total == budget, f"{label}: terminal partial selection requires exact budget exhaustion")
+        _require(
+            isinstance(stats, dict) and stats.get("budget_exhausted") == 1,
+            f"{label}: terminal partial selection requires budget_exhausted stats",
+        )
+        _require(
+            isinstance(termination, dict) and termination.get("budget_exhausted") is True,
+            f"{label}: terminal partial selection requires budget exhaustion termination",
+        )
+        _require(
+            terminal_untraced
+            < direction_audit["maximum_complete_selection_force_evaluations"],
+            f"{label}: terminal partial selection is not smaller than one complete selection",
+        )
+    direction_audit["terminal_untraced_direction_oracle_force_evaluations"] = terminal_untraced
+    _require(
+        direction_audit["direction_oracle_force_evaluations"] + terminal_untraced
+        == purposes["direction_oracle"],
+        f"{label}: completed trace plus terminal partial direction FE does not close",
+    )
     effective = raw.get("effective_config")
     source = raw.get("source_config")
     _require(isinstance(effective, dict) and isinstance(source, dict), f"{label}: configs are missing")
@@ -159,6 +189,7 @@ def _load_case(summary_path: Path) -> dict[str, Any]:
         "total_force_evaluations": total,
         "budget_closed": True,
         "purpose_counts": purposes,
+        "terminal_untraced_direction_oracle_force_evaluations": terminal_untraced,
         "direction_selection_audit": direction_audit,
         "wall_time_s": _finite(raw.get("timing", {}).get("total_wall_time_s"), f"{label}: wall time"),
         "_effective_config": runner._normalise_config(effective),

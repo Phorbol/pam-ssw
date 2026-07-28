@@ -372,6 +372,7 @@ def validate_direction_trace(*, arm: str, direction_rows: Sequence[Mapping[str, 
         raise RuntimeError("direction diagnostics contain no selections")
     selected_kind_counts: dict[str, int] = {}
     direction_force_evaluations = 0
+    maximum_complete_selection_force_evaluations = 0
     expected = ARMS[arm]
     for index, row in enumerate(direction_rows, start=1):
         kind = row.get("selected_kind")
@@ -391,7 +392,20 @@ def validate_direction_trace(*, arm: str, direction_rows: Sequence[Mapping[str, 
             forbidden = sorted(key for key in present if key in row)
             if forbidden:
                 raise RuntimeError(f"discrete direction row {index} contains block keys: {forbidden}")
+            candidate_count = _exact_int(
+                row.get("candidate_count"),
+                f"direction row {index} candidate_count",
+                minimum=1,
+            )
+            if oracle_delta != 2 * candidate_count:
+                raise RuntimeError(
+                    "oracle_selection_force_evaluations_delta must equal 2 * candidate_count"
+                )
             direction_force_evaluations += oracle_delta
+            maximum_complete_selection_force_evaluations = max(
+                maximum_complete_selection_force_evaluations,
+                2 * candidate_count,
+            )
             continue
         missing = sorted(key for key in BLOCK_TRACE_KEYS if key not in row)
         if missing:
@@ -424,10 +438,15 @@ def validate_direction_trace(*, arm: str, direction_rows: Sequence[Mapping[str, 
         if oracle_delta != 2 * consumed:
             raise RuntimeError("oracle_selection_force_evaluations_delta must equal 2 * krylov_hvp_consumed")
         direction_force_evaluations += oracle_delta
+        maximum_complete_selection_force_evaluations = max(
+            maximum_complete_selection_force_evaluations,
+            2 * requested,
+        )
     return {
         "selection_count": len(direction_rows),
         "selected_kind_counts": selected_kind_counts,
         "direction_oracle_force_evaluations": direction_force_evaluations,
+        "maximum_complete_selection_force_evaluations": maximum_complete_selection_force_evaluations,
         "strict_block_trace_validated": arm != "discrete",
     }
 
@@ -480,8 +499,15 @@ def _validate_run_closure(*, result: Any, walker: Any, arm: str, direction_path:
     choices = _exact_int(result.stats.get("direction_choices", 0), "direction_choices")
     if choices != audit["selection_count"]:
         raise RuntimeError("direction diagnostics do not close against direction choices")
-    if purposes["direction_oracle"] != audit["direction_oracle_force_evaluations"]:
-        raise RuntimeError("direction-oracle purpose ledger does not close against direction trace")
+    terminal_untraced = purposes["direction_oracle"] - audit["direction_oracle_force_evaluations"]
+    if terminal_untraced < 0:
+        raise RuntimeError("terminal untraced direction-oracle force evaluations must be non-negative")
+    if terminal_untraced >= audit["maximum_complete_selection_force_evaluations"]:
+        raise RuntimeError(
+            "terminal untraced direction-oracle force evaluations must be strictly less "
+            "than one complete selection"
+        )
+    audit["terminal_untraced_direction_oracle_force_evaluations"] = terminal_untraced
     audit["direction_rows"] = rows
     return purposes, audit
 
