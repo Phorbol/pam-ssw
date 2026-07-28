@@ -8,6 +8,7 @@ from pamssw.accounting import BudgetExceeded, EvalCounter, EvaluationPurpose
 from pamssw.archive import MinimaArchive
 from pamssw.bias import GaussianBiasTerm
 from pamssw.calculators import AnalyticCalculator
+from pamssw.krylov import IntentBlock
 from pamssw.potentials import DoubleWell2D
 from pamssw.result import RelaxOutcomeClass, RelaxResult
 from pamssw.state import State
@@ -665,6 +666,94 @@ def test_rayleigh_ritz_reuses_native_true_hvps_for_projected_true_curvature(monk
     assert choice.kind == DirectionCandidateKind.RITZ
     assert choice.curvature == pytest.approx(0.2, rel=1e-12)
     assert choice.true_curvature == pytest.approx(2.5, rel=1e-12)
+
+
+def test_block_krylov_selects_lowest_block_without_native_scoring(monkeypatch):
+    class AnisotropicQuadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.diag([1.0, 3.0, 7.0])
+            gradient = hessian @ flat_positions
+            return 0.5 * float(flat_positions @ gradient), gradient
+
+    state = State(numbers=np.array([1]), positions=np.zeros((1, 3)))
+    calculator = AnalyticCalculator(AnisotropicQuadratic())
+    oracle = SoftModeOracle(
+        calculator,
+        np.random.default_rng(0),
+        candidates=2,
+        direction_selection_mode="block_krylov",
+        block_krylov_depth=3,
+    )
+    monkeypatch.setattr(oracle.generator, "generate", lambda *args, **kwargs: pytest.fail("native generation ran"))
+    monkeypatch.setattr(
+        DirectionScorer,
+        "score_candidate",
+        lambda *args, **kwargs: pytest.fail("native scoring ran"),
+    )
+
+    choice = oracle.choose_direction(
+        state,
+        proposal=ProposalPotential(calculator),
+        previous_direction=None,
+        krylov_intents=(
+            IntentBlock(np.array([[1.0], [0.0], [0.0]])),
+            IntentBlock(np.array([[0.0], [1.0], [0.0]])),
+        ),
+    )
+
+    assert choice.kind is DirectionCandidateKind.BLOCK_RITZ
+    assert choice.score is None
+    assert choice.candidate_count == 2
+    assert choice.curvature == pytest.approx(1.0)
+    assert choice.true_curvature == pytest.approx(1.0)
+    assert set(choice.diagnostics) == {
+        "krylov_blocks",
+        "krylov_selected_block",
+        "krylov_hvp_count",
+        "krylov_dimensions",
+        "krylov_initial_ranks",
+        "krylov_residual_norm",
+        "krylov_initial_span_overlap",
+        "krylov_antisymmetry",
+        "krylov_termination",
+        "direction_participation_ratio",
+    }
+    assert choice.diagnostics["krylov_blocks"] == 2
+    assert choice.diagnostics["krylov_selected_block"] == 0
+    assert choice.diagnostics["krylov_hvp_count"] == 2
+    assert choice.diagnostics["krylov_dimensions"] == [1, 1]
+    assert choice.diagnostics["krylov_initial_ranks"] == [1, 1]
+    assert choice.diagnostics["direction_participation_ratio"] == pytest.approx(1.0)
+
+
+def test_block_krylov_requires_nonempty_intents():
+    state = State(numbers=np.array([1]), positions=np.zeros((1, 3)))
+    calculator = AnalyticCalculator(Quadratic())
+    oracle = SoftModeOracle(
+        calculator,
+        np.random.default_rng(0),
+        candidates=0,
+        direction_selection_mode="block_krylov",
+    )
+
+    for intents in (None, (), (object(),)):
+        with pytest.raises(ValueError, match="krylov_intents"):
+            oracle.choose_direction(
+                state,
+                proposal=ProposalPotential(calculator),
+                previous_direction=None,
+                krylov_intents=intents,
+            )
+
+
+def test_surface_walker_passes_block_krylov_depth_to_oracle():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(block_krylov_depth=4),
+        softening_enabled=False,
+    )
+
+    assert walker.oracle.block_krylov_depth == 4
 
 
 def test_rayleigh_ritz_projected_true_curvature_has_second_order_difference_from_direct_mixed_stencil():
@@ -4713,6 +4802,7 @@ def test_surface_walker_reports_direction_acquisition_diagnostics():
     assert result.stats["direction_selected_random"] >= 1
     assert result.stats["direction_selected_momentum"] >= 0
     assert result.stats["direction_selected_bond"] >= 0
+    assert result.stats["direction_selected_block_ritz"] == 0
     assert "walk_displacement_clips" in result.stats
     assert "fragment_rejections" in result.stats
     assert "direction_bond_pairs_requested" in result.stats

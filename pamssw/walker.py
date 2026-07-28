@@ -22,7 +22,7 @@ from .bias import GaussianBiasTerm
 from .config import LSSSWConfig, RelaxConfig, SSWConfig
 from .coordinates import CartesianCoordinates, TangentVector
 from .fingerprint import descriptor_distance, structural_descriptor
-from .krylov import IntentBlock
+from .krylov import IntentBlock, solve_krylov_block
 from .pbc import mic_displacement, mic_distance_matrix, wrap_positions
 from .relax import (
     RelaxEvaluation,
@@ -206,6 +206,7 @@ class DirectionChoice:
     evolved_candidate_count: int = 0
     archive_momentum_candidate_count: int = 0
     true_curvature: float | None = None
+    diagnostics: dict[str, object] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -575,6 +576,7 @@ class DirectionCandidateKind(str, Enum):
     BOND_BREAK = "bond_break"
     RITZ = "ritz"
     RITZ_REG = "ritz_reg"
+    BLOCK_RITZ = "block_ritz"
     EVOLVED = "evolved"
     ARCHIVE_MOMENTUM = "archive_momentum"
 
@@ -1253,6 +1255,7 @@ class SoftModeOracle:
         bond_formation_max_distance: float = 4.0,
         bond_breaking_max_distance: float = 2.0,
         direction_selection_mode: str = "discrete",
+        block_krylov_depth: int = 3,
         direction_synthesis_mode: str = "none",
         regularized_ritz_top_k: int = 5,
         direction_probe_enabled: bool = False,
@@ -1268,6 +1271,7 @@ class SoftModeOracle:
         self.hvp_epsilon = hvp_epsilon
         self.anchor_mixing_alpha = anchor_mixing_alpha
         self.direction_selection_mode = direction_selection_mode
+        self.block_krylov_depth = block_krylov_depth
         self.direction_synthesis_mode = direction_synthesis_mode
         self.regularized_ritz_top_k = regularized_ritz_top_k
         self.direction_probe_enabled = direction_probe_enabled
@@ -1319,7 +1323,11 @@ class SoftModeOracle:
         plateau_evolution_mutation_count: int = 0,
         archive_momentum_history: list[DirectionRecord] | None = None,
         archive_momentum_limit: int = 0,
+        krylov_intents: tuple[IntentBlock, ...] | None = None,
     ) -> DirectionChoice:
+        if self.direction_selection_mode == "block_krylov":
+            return self._choose_block_krylov_direction(state, proposal, krylov_intents)
+
         best_direction: np.ndarray | None = None
         best_curvature: float | None = None
         best_true_curvature: float | None = None
@@ -1514,6 +1522,56 @@ class SoftModeOracle:
             evolved_candidate_count=len(evolved_candidates),
             archive_momentum_candidate_count=len(archive_momentum_candidates),
             true_curvature=best_true_curvature,
+        )
+
+    def _choose_block_krylov_direction(
+        self,
+        state: State,
+        proposal: ProposalPotential,
+        krylov_intents: tuple[IntentBlock, ...] | None,
+    ) -> DirectionChoice:
+        if not isinstance(krylov_intents, tuple) or not krylov_intents:
+            raise ValueError("krylov_intents must be a non-empty tuple for block_krylov mode")
+        if any(not isinstance(intent, IntentBlock) for intent in krylov_intents):
+            raise ValueError("krylov_intents must contain only IntentBlock values")
+        expected_dimension = state.positions.size
+        if any(intent.basis.shape[0] != expected_dimension for intent in krylov_intents):
+            raise ValueError("krylov_intents basis rows must match the state degrees of freedom")
+
+        def directional_hvps(direction: np.ndarray) -> tuple[np.ndarray, np.ndarray | None]:
+            return self._candidate_directional_hvps(state, proposal, direction)
+
+        results = [
+            solve_krylov_block(intent, directional_hvps, depth=self.block_krylov_depth)
+            for intent in krylov_intents
+        ]
+        selected_block, selected = min(enumerate(results), key=lambda item: item[1].curvature)
+        atom_squared_amplitudes = np.sum(
+            np.square(selected.direction.reshape(state.n_atoms, 3)),
+            axis=1,
+        )
+        participation_denominator = float(np.dot(atom_squared_amplitudes, atom_squared_amplitudes))
+        participation_ratio = 1.0 / participation_denominator
+        diagnostics: dict[str, object] = {
+            "krylov_blocks": int(len(results)),
+            "krylov_selected_block": int(selected_block),
+            "krylov_hvp_count": int(sum(result.hvp_count for result in results)),
+            "krylov_dimensions": [int(result.dimension) for result in results],
+            "krylov_initial_ranks": [int(result.initial_rank) for result in results],
+            "krylov_residual_norm": float(selected.residual_norm),
+            "krylov_initial_span_overlap": float(selected.initial_span_overlap),
+            "krylov_antisymmetry": float(selected.antisymmetry),
+            "krylov_termination": selected.termination_reason,
+            "direction_participation_ratio": float(participation_ratio),
+        }
+        return DirectionChoice(
+            direction=selected.direction,
+            curvature=selected.curvature,
+            kind=DirectionCandidateKind.BLOCK_RITZ,
+            candidate_count=len(results),
+            score=None,
+            true_curvature=selected.true_curvature,
+            diagnostics=diagnostics,
         )
 
     def _archive_momentum_candidates(
@@ -1989,6 +2047,7 @@ class SurfaceWalker:
             bond_formation_max_distance=config.bond_formation_max_distance,
             bond_breaking_max_distance=config.bond_breaking_max_distance,
             direction_selection_mode=config.direction_selection_mode,
+            block_krylov_depth=config.block_krylov_depth,
             direction_synthesis_mode=config.direction_synthesis_mode,
             regularized_ritz_top_k=config.regularized_ritz_top_k,
             direction_probe_enabled=config.direction_probe_enabled,
@@ -3462,6 +3521,7 @@ class SurfaceWalker:
             "candidate_count": int(choice.candidate_count),
             "anchor_cosine": anchor_cosine,
         }
+        payload.update(choice.diagnostics)
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(payload, sort_keys=True) + "\n")
@@ -3730,6 +3790,7 @@ class SurfaceWalker:
             "direction_selected_anchor": self._direction_selected[DirectionCandidateKind.ANCHOR],
             "direction_selected_ritz": self._direction_selected[DirectionCandidateKind.RITZ],
             "direction_selected_ritz_reg": self._direction_selected[DirectionCandidateKind.RITZ_REG],
+            "direction_selected_block_ritz": self._direction_selected[DirectionCandidateKind.BLOCK_RITZ],
             "direction_selected_evolved": self._direction_selected[DirectionCandidateKind.EVOLVED],
             "direction_selected_archive_momentum": self._direction_selected[DirectionCandidateKind.ARCHIVE_MOMENTUM],
             "plateau_evolution_enabled": int(self.config.plateau_evolution_enabled),

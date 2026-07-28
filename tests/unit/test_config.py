@@ -379,6 +379,7 @@ def test_config_validates_direction_selection_mode():
     assert SSWConfig().direction_selection_mode == "discrete"
     assert SSWConfig(direction_selection_mode="discrete").direction_selection_mode == "discrete"
     assert SSWConfig(direction_selection_mode="rayleigh_ritz").direction_selection_mode == "rayleigh_ritz"
+    assert SSWConfig(direction_selection_mode="block_krylov").direction_selection_mode == "block_krylov"
 
     with pytest.raises(ValueError, match="direction_selection_mode"):
         SSWConfig(direction_selection_mode="unknown")
@@ -400,6 +401,21 @@ def test_config_rejects_unimplemented_direction_synthesis_modes():
 def test_config_rejects_ambiguous_ritz_selector_and_synthesis_combo():
     with pytest.raises(ValueError, match="direction_selection_mode"):
         SSWConfig(direction_selection_mode="rayleigh_ritz", direction_synthesis_mode="regularized_ritz")
+    with pytest.raises(ValueError, match="direction_selection_mode"):
+        SSWConfig(direction_selection_mode="block_krylov", direction_synthesis_mode="regularized_ritz")
+
+
+def test_config_validates_block_krylov_controls():
+    config = SSWConfig()
+
+    assert config.block_krylov_blocks == 2
+    assert config.block_krylov_depth == 3
+    assert SSWConfig(block_krylov_blocks=4, block_krylov_depth=5).block_krylov_blocks == 4
+
+    for name in ("block_krylov_blocks", "block_krylov_depth"):
+        for value in (0, -1, 1.5, True):
+            with pytest.raises(ValueError, match=name):
+                SSWConfig(**{name: value})
 
 
 def test_config_validates_regularized_ritz_top_k():

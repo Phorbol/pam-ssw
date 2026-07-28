@@ -3,6 +3,7 @@ import pytest
 
 from pamssw.accounting import EvalCounter
 from pamssw.calculators import AnalyticCalculator
+from pamssw.krylov import IntentBlock
 from pamssw.state import State
 from pamssw.walker import (
     CandidateDirectionGenerator,
@@ -109,3 +110,43 @@ def test_subsequent_oracle_step_keeps_two_central_hvps_for_a_budget_of_two():
 
     assert choice.candidate_count == 2
     assert calculator.force_evaluations == 4
+
+
+def test_block_krylov_reuses_solver_hvps_for_selection_and_true_curvature():
+    class CoupledQuadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.array(
+                [
+                    [2.0, 1.0, 0.0],
+                    [1.0, 3.0, 1.0],
+                    [0.0, 1.0, 4.0],
+                ]
+            )
+            gradient = hessian @ flat_positions
+            return 0.5 * float(flat_positions @ gradient), gradient
+
+    state = State(numbers=np.array([1]), positions=np.zeros((1, 3)))
+    calculator = EvalCounter(AnalyticCalculator(CoupledQuadratic()))
+    oracle = SoftModeOracle(
+        calculator,
+        np.random.default_rng(0),
+        candidates=0,
+        direction_selection_mode="block_krylov",
+        block_krylov_depth=3,
+    )
+
+    choice = oracle.choose_direction(
+        state,
+        ProposalPotential(calculator),
+        previous_direction=None,
+        krylov_intents=(
+            IntentBlock(np.array([[1.0], [0.0], [0.0]])),
+            IntentBlock(np.array([[0.0], [1.0], [0.0]])),
+        ),
+    )
+
+    assert choice.candidate_count == 2
+    assert choice.true_curvature is not None
+    assert choice.diagnostics["krylov_hvp_count"] == 6
+    assert choice.diagnostics["krylov_dimensions"] == [3, 3]
+    assert calculator.force_evaluations == 12
