@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 import importlib.util
 from pathlib import Path
 import sys
@@ -85,3 +86,93 @@ def test_classification_rejects_empty_or_nonconsecutive_checkpoints():
                 {"step_index": 3, "productive": True},
             ]
         )
+
+
+def _evidence_row(case):
+    checkpoints = []
+    for step_index, productive in ((1, True), (2, False)):
+        checkpoints.append(
+            {
+                "step_index": step_index,
+                "status": "completed",
+                "certificate": True,
+                "is_new_basin": productive,
+                "landing_delta_eV": -1.0 if productive else 0.5,
+                "productive": productive,
+                "force_evaluations": 22,
+                "purpose_counts": {
+                    "direction_oracle": 0,
+                    "biased_proposal_relax": 0,
+                    "landing_true_quench": 20,
+                    "escape_true_pes_check": 1,
+                    "post_relax_validation": 1,
+                    "starter_true_quench": 0,
+                    "bootstrap_true_quench": 0,
+                    "unattributed": 0,
+                },
+            }
+        )
+    return {
+        **case,
+        "status": "completed",
+        "generation_force_evaluations": 77,
+        "generation_purpose_counts": {
+            "direction_oracle": 24,
+            "biased_proposal_relax": 50,
+            "landing_true_quench": 0,
+            "escape_true_pes_check": 3,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "bootstrap_true_quench": 0,
+            "unattributed": 0,
+        },
+        "direction_selection_count": 1,
+        "checkpoints": checkpoints,
+        "classification": "overshoot",
+    }
+
+
+def test_evidence_closes_generation_and_checkpoint_ledgers():
+    module = _load_module()
+    rows = [_evidence_row(case) for case in module.case_matrix()]
+
+    evidence = module.build_evidence(rows)
+
+    assert evidence["cohort"]["completed_cases"] == 12
+    assert evidence["cohort"]["checkpoint_count"] == 24
+    assert evidence["classification_counts"]["overshoot"] == 12
+    assert evidence["certificate_count"] == 24
+    assert evidence["meaningful_checkpoint_count"] == 12
+    assert evidence["production_default_changed"] is False
+    assert evidence["meaningful_energy_drop_threshold_eV"] == pytest.approx(0.001)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "match"),
+    [
+        (
+            lambda rows: rows[0].update(generation_force_evaluations=76),
+            "generation purpose ledger",
+        ),
+        (
+            lambda rows: rows[0]["checkpoints"][0].update(force_evaluations=21),
+            "checkpoint purpose ledger",
+        ),
+        (
+            lambda rows: rows[0].update(direction_selection_count=2),
+            "direction ledger",
+        ),
+        (
+            lambda rows: rows[0]["checkpoints"][1].update(step_index=3),
+            "consecutive",
+        ),
+    ],
+)
+def test_evidence_rejects_unclosed_or_misordered_rows(mutation, match):
+    module = _load_module()
+    rows = [_evidence_row(case) for case in module.case_matrix()]
+    corrupted = deepcopy(rows)
+    mutation(corrupted)
+
+    with pytest.raises(ValueError, match=match):
+        module.build_evidence(corrupted)
