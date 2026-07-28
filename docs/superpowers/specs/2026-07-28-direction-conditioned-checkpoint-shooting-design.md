@@ -119,7 +119,7 @@ parallelize the same tasks without changing the experiment semantics.
   classification, 1 meV improvement semantics, and closed purpose ledgers.
 - The runner pins the full Git commit, source-state hashes, model hash, frozen
   configuration, and per-case random seed.
-- Evidence generation rejects missing checkpoints, uncertified ledger fields,
-  duplicate case keys, or direction selections whose HVP ledger does not
-  close.
+- Evidence generation rejects missing checkpoints, missing certificate or
+  ledger fields, duplicate case keys, or direction selections whose HVP ledger
+  does not close. An explicitly uncertified landing remains a recorded outcome.
 - Production defaults remain unchanged.
