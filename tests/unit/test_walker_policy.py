@@ -5302,6 +5302,30 @@ def test_energy_bounded_anchor_uses_the_exact_all_atom_execution_step():
     assert energy_target == pytest.approx(0.6)
 
 
+def test_energy_bounded_anchor_caps_infeasible_execution_step_from_energy():
+    requested = 0.9424517674661126
+    curvature = 2.2436482352245
+    target = 0.8
+
+    capped = SurfaceWalker._energy_bounded_execution_step_scale(
+        requested_step_scale=requested,
+        true_curvature=curvature,
+        energy_target=target,
+    )
+
+    assert capped == pytest.approx(np.sqrt(2.0 * target / curvature))
+    assert capped < requested
+    assert 0.5 * capped * capped * curvature == pytest.approx(target)
+    assert (
+        SurfaceWalker._energy_bounded_execution_step_scale(
+            requested_step_scale=0.5,
+            true_curvature=curvature,
+            energy_target=target,
+        )
+        == pytest.approx(0.5)
+    )
+
+
 def test_per_atom_rms_active_scope_uses_only_active_movable_atoms():
     state = State(
         numbers=np.array([1, 1, 1, 1]),

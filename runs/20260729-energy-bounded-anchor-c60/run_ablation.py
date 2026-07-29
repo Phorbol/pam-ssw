@@ -179,6 +179,9 @@ def _validate_direction_trace(
                 "energy_bounded_anchor_exact_curvature",
                 "energy_bounded_anchor_step_scale",
                 "energy_bounded_anchor_energy_target",
+                "energy_bounded_anchor_requested_step_scale",
+                "energy_bounded_anchor_execution_step_scale",
+                "energy_bounded_anchor_execution_quadratic_energy",
             ):
                 _finite(row.get(key), key)
             if row.get("energy_bounded_anchor_feasible") not in {
@@ -191,6 +194,11 @@ def _validate_direction_trace(
                 False,
             }:
                 raise RuntimeError("energy-bound activity is missing")
+            if row.get("energy_bounded_anchor_step_capped") not in {
+                True,
+                False,
+            }:
+                raise RuntimeError("energy-bound step-cap state is missing")
             if (
                 abs(
                     _finite(row["anchor_cosine"], "anchor cosine")
@@ -214,10 +222,11 @@ def _validate_direction_trace(
             ):
                 raise RuntimeError("recorded true curvatures disagree")
             if (
-                row["energy_bounded_anchor_feasible"]
-                and _finite(
-                    row["energy_bounded_anchor_quadratic_energy"],
-                    "quadratic energy",
+                _finite(
+                    row[
+                        "energy_bounded_anchor_execution_quadratic_energy"
+                    ],
+                    "execution quadratic energy",
                 )
                 > _finite(
                     row["energy_bounded_anchor_energy_target"],
@@ -225,7 +234,7 @@ def _validate_direction_trace(
                 )
                 + 1.0e-8
             ):
-                raise RuntimeError("feasible direction exceeds energy target")
+                raise RuntimeError("executed step exceeds energy target")
         direction_force_evaluations += selection_delta
     return {
         "selection_count": len(direction_rows),
@@ -386,6 +395,14 @@ def build_evidence(
                         )
                         for trace in traces
                     ),
+                    "capped_selection_count": sum(
+                        bool(
+                            trace[
+                                "energy_bounded_anchor_step_capped"
+                            ]
+                        )
+                        for trace in traces
+                    ),
                     "median_quadratic_energy_eV": _median(
                         [
                             _finite(
@@ -396,6 +413,26 @@ def build_evidence(
                             )
                             for trace in traces
                         ]
+                    ),
+                    "median_execution_quadratic_energy_eV": _median(
+                        [
+                            _finite(
+                                trace[
+                                    "energy_bounded_anchor_execution_quadratic_energy"
+                                ],
+                                "execution quadratic energy",
+                            )
+                            for trace in traces
+                        ]
+                    ),
+                    "maximum_execution_quadratic_energy_eV": max(
+                        _finite(
+                            trace[
+                                "energy_bounded_anchor_execution_quadratic_energy"
+                            ],
+                            "execution quadratic energy",
+                        )
+                        for trace in traces
                     ),
                     "median_exact_anchor_curvature": _median(
                         [

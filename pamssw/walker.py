@@ -3231,19 +3231,43 @@ class SurfaceWalker:
                     "oracle_wall_seconds": float(perf_counter() - oracle_started),
                 }
             )
-            self._record_direction_diagnostics(
-                trial_index=trial_index,
-                proposal_index=proposal_index,
-                step_index=step_index,
-                choice=choice,
-                anchor_direction=anchor_direction,
-            )
             sigma = self._execution_step_scale(
                 current,
                 choice.direction,
                 true_curvature,
                 sigma_scale,
                 step_target=step_target,
+            )
+            if self.config.direction_selection_mode == "energy_bounded_anchor":
+                assert energy_bound_target is not None
+                requested_sigma = sigma
+                sigma = self._energy_bounded_execution_step_scale(
+                    requested_step_scale=requested_sigma,
+                    true_curvature=true_curvature,
+                    energy_target=energy_bound_target,
+                )
+                choice.diagnostics.update(
+                    {
+                        "energy_bounded_anchor_requested_step_scale": float(
+                            requested_sigma
+                        ),
+                        "energy_bounded_anchor_execution_step_scale": float(
+                            sigma
+                        ),
+                        "energy_bounded_anchor_execution_quadratic_energy": float(
+                            0.5 * sigma * sigma * true_curvature
+                        ),
+                        "energy_bounded_anchor_step_capped": bool(
+                            sigma < requested_sigma
+                        ),
+                    }
+                )
+            self._record_direction_diagnostics(
+                trial_index=trial_index,
+                proposal_index=proposal_index,
+                step_index=step_index,
+                choice=choice,
+                anchor_direction=anchor_direction,
             )
             self._record_step_displacement_metrics(current, choice.direction, sigma)
             weight = self._bias_weight(inner_curvature, sigma) * weight_scale
@@ -3513,6 +3537,20 @@ class SurfaceWalker:
         direction_rms = max(float(metrics[rms_key]), 1e-12)
         target_rms = min(self.config.target_step_rms * sigma_scale, self.config.max_step_rms)
         return float(target_rms / direction_rms)
+
+    @staticmethod
+    def _energy_bounded_execution_step_scale(
+        *,
+        requested_step_scale: float,
+        true_curvature: float,
+        energy_target: float,
+    ) -> float:
+        if true_curvature <= 0.0:
+            return requested_step_scale
+        return min(
+            requested_step_scale,
+            sqrt(2.0 * energy_target / true_curvature),
+        )
 
     def _energy_bounded_direction_inputs(
         self,

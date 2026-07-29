@@ -98,9 +98,26 @@ For a normalized full-coordinate direction under `all_atoms`,
 )\sqrt{N_{\mathrm{atoms}}}.
 \]
 
-This is exactly the step that the current execution path will apply.  The mode
-must reject other step semantics instead of silently using an approximate
-scale.
+This is the requested execution step.  If the paid Krylov subspace contains a
+direction satisfying the energy bound, the execution path applies it exactly.
+If the subspace is infeasible at that requested step, direction selection
+returns the lowest true-curvature subspace direction and execution shortens
+the step to
+
+\[
+\sigma_{\mathrm{exec}} =
+\min\left(
+  \sigma_{\mathrm{requested}},
+  \sqrt{\frac{2E_{\mathrm{target}}}
+             {n^\mathsf{T}H_{\mathrm{true}}n}}
+\right)
+\]
+
+for positive curvature.  Thus the physical contract is a joint direction-step
+constraint: it never executes a locally predicted uphill displacement above
+the existing energy target merely because the requested RMS step is
+infeasible.  Negative-curvature directions need no cap.  The mode must reject
+other step semantics instead of silently using an approximate scale.
 
 ## Projected solve
 
@@ -135,8 +152,9 @@ Choose the root continuously connected to the anchor and reconstruct
 \(n=QVy/\|QVy\|\).  Orient \(n\) so that \(a^\mathsf{T}n\ge0\).
 
 If the paid subspace contains no direction satisfying the curvature bound,
-return its lowest true-curvature direction and mark the selection infeasible.
-This is a defined physical fallback, not a second scoring policy.
+return its lowest true-curvature direction, mark the selection infeasible, and
+apply the analytic execution-step cap above.  This is a defined physical
+fallback, not a second scoring policy or a new tunable parameter.
 
 ## Required diagnostics
 
@@ -151,6 +169,10 @@ Each direction record must contain:
 - `energy_bounded_anchor_exact_curvature`;
 - `energy_bounded_anchor_step_scale`;
 - `energy_bounded_anchor_energy_target`;
+- `energy_bounded_anchor_requested_step_scale`;
+- `energy_bounded_anchor_execution_step_scale`;
+- `energy_bounded_anchor_execution_quadratic_energy`;
+- `energy_bounded_anchor_step_capped`;
 - the unchanged Krylov HVP request and consumption counts.
 
 The complete Ritz spectrum remains diagnostic.  No unexecuted direction

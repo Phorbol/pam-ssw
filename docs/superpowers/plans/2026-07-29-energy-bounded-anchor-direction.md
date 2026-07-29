@@ -138,7 +138,9 @@ scope.  At the walker seam, use an analytic quadratic calculator and require:
 - exactly the configured 12 HVPs and 24 direction force evaluations;
 - no extra HVP for the projected selection;
 - the direction satisfies the quadratic energy bound;
-- the recorded step scale equals the actual execution step;
+- the recorded requested and actual execution steps agree when feasible;
+- an infeasible requested step is analytically shortened so that the executed
+  quadratic energy still satisfies the same bound;
 - the control `anchor_krylov` direction and diagnostics remain unchanged.
 
 - [ ] **Step 2: Run focused tests and verify RED**
@@ -186,7 +188,10 @@ energy_limit = (
 
 Pass those values only for the new mode.  In the oracle, invoke
 `select_energy_bounded_anchor` using the already stored Krylov basis and true
-Hessian products.  Record all diagnostics specified by the design.
+Hessian products.  If the returned direction is infeasible at the requested
+step, cap the execution step using the selected true curvature and the same
+energy target.  Record requested and executed step diagnostics specified by
+the design.
 
 - [ ] **Step 6: Run focused tests and verify GREEN**
 
