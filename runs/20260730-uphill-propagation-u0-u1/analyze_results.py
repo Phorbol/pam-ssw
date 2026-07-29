@@ -146,8 +146,15 @@ def _validate_row(row: Mapping[str, object]) -> None:
         "task_id",
         "arm_id",
         "source_task_sha256",
+        "optimizer",
+        "proposal_fmax",
+        "proposal_maxiter",
+        "last_bias_sigma",
+        "last_bias_weight",
         "certificate_satisfied",
         "biased_proposal_relax_force_evaluations",
+        "force_evaluations",
+        "purpose_counts",
         "wall_time_s",
         "initial",
         "final",
@@ -163,6 +170,8 @@ def _validate_row(row: Mapping[str, object]) -> None:
     for label in ("system", "task_id"):
         if not isinstance(row[label], str) or not row[label]:
             raise ValueError(f"{label} must be a non-empty string")
+    if not isinstance(row["optimizer"], str) or not row["optimizer"]:
+        raise ValueError("optimizer must be a non-empty string")
     if row["arm_id"] not in ARM_IDS:
         raise ValueError("unknown arm_id")
     for label in ("source_task_sha256", "endpoint_position_sha256"):
@@ -179,6 +188,38 @@ def _validate_row(row: Mapping[str, object]) -> None:
         raise ValueError("force evaluations must be a non-negative integer")
     if row["observer_only_force_evaluations"] != 0:
         raise ValueError("observer-only force evaluations must be zero")
+    total_evaluations = row["force_evaluations"]
+    if (
+        isinstance(total_evaluations, bool)
+        or not isinstance(total_evaluations, int)
+        or total_evaluations < 0
+    ):
+        raise ValueError("total force evaluations must be non-negative")
+    purpose_counts = row["purpose_counts"]
+    if not isinstance(purpose_counts, Mapping):
+        raise ValueError("purpose_counts must be a mapping")
+    if sum(int(value) for value in purpose_counts.values()) != total_evaluations:
+        raise ValueError("purpose counts do not close")
+    if int(purpose_counts.get("unattributed", -1)) != 0:
+        raise ValueError("purpose counts contain unattributed evaluations")
+    if force_evaluations != total_evaluations:
+        raise ValueError("proposal and total force evaluations differ")
+    _finite(row["proposal_fmax"], "proposal_fmax")
+    _finite(row["last_bias_sigma"], "last_bias_sigma")
+    _finite(row["last_bias_weight"], "last_bias_weight")
+    if float(row["proposal_fmax"]) <= 0.0:
+        raise ValueError("proposal_fmax must be positive")
+    if float(row["last_bias_sigma"]) <= 0.0:
+        raise ValueError("last_bias_sigma must be positive")
+    if float(row["last_bias_weight"]) < 0.0:
+        raise ValueError("last_bias_weight must be non-negative")
+    proposal_maxiter = row["proposal_maxiter"]
+    if (
+        isinstance(proposal_maxiter, bool)
+        or not isinstance(proposal_maxiter, int)
+        or proposal_maxiter < 0
+    ):
+        raise ValueError("proposal_maxiter must be non-negative")
     for label in (
         "wall_time_s",
         "direction_progress",
@@ -216,4 +257,3 @@ def _is_sha256(value: object) -> bool:
     except ValueError:
         return False
     return True
-

@@ -163,6 +163,7 @@ def run_task_arms(
             calculator_factory(),
             optimizer=optimizer,
         )
+        counts = replay.evaluation_counts
         rows.append(
             {
                 "schema_version": 1,
@@ -170,12 +171,19 @@ def run_task_arms(
                 "task_id": task_id,
                 "arm_id": arm_id,
                 "source_task_sha256": source_hash,
+                "optimizer": optimizer,
+                "proposal_fmax": float(task.fmax),
+                "proposal_maxiter": int(task.maxiter),
+                "last_bias_sigma": float(task.biases[-1].sigma),
+                "last_bias_weight": float(task.biases[-1].weight),
                 "certificate_satisfied": replay.certificate_satisfied,
                 "biased_proposal_relax_force_evaluations": (
-                    replay.evaluation_counts.count(
+                    counts.count(
                         EvaluationPurpose.BIASED_PROPOSAL_RELAX
                     )
                 ),
+                "force_evaluations": counts.total,
+                "purpose_counts": counts.as_dict(),
                 "wall_time_s": replay.wall_time_s,
                 "initial": _point_payload(replay.initial),
                 "final": _point_payload(replay.final),

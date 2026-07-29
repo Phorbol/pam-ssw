@@ -163,8 +163,22 @@ def _row(task_id: str, arm_id: str) -> dict:
         "task_id": task_id,
         "arm_id": arm_id,
         "source_task_sha256": "a" * 64,
+        "optimizer": "ase-fire",
+        "proposal_fmax": 0.05,
+        "proposal_maxiter": 10,
+        "last_bias_sigma": 0.3,
+        "last_bias_weight": 0.2,
         "certificate_satisfied": True,
         "biased_proposal_relax_force_evaluations": 10,
+        "force_evaluations": 10,
+        "purpose_counts": {
+            purpose.value: (
+                10
+                if purpose is EvaluationPurpose.BIASED_PROPOSAL_RELAX
+                else 0
+            )
+            for purpose in EvaluationPurpose
+        },
         "wall_time_s": 0.1,
         "initial": {
             "true_energy": 1.0,
@@ -235,9 +249,45 @@ def test_run_task_arms_writes_one_exactly_accounted_row_per_arm():
         )
         for row in rows
     )
+    assert all(
+        row["force_evaluations"]
+        == row["biased_proposal_relax_force_evaluations"]
+        for row in rows
+    )
+    assert all(
+        row["purpose_counts"][EvaluationPurpose.UNATTRIBUTED.value] == 0
+        for row in rows
+    )
+    assert rows[0]["last_bias_sigma"] == pytest.approx(
+        source.biases[-1].sigma
+    )
+    assert rows[0]["last_bias_weight"] == pytest.approx(
+        source.biases[-1].weight
+    )
+    assert all(row["optimizer"] == "ase-fire" for row in rows)
     summary = analyzer.analyze_rows(rows)
     assert summary["row_count"] == 3
     assert summary["systems"]["analytic"]["task_count"] == 1
+
+
+def test_gpu_screen_protocol_is_pre_registered_and_disjoint():
+    screen = _load("uphill_u0_u1_gpu_screen", "run_gpu_screen.py")
+
+    assert screen.CALIBRATION_SEEDS == (1001, 1002, 1003, 1004)
+    assert screen.EVALUATION_SPECS == (
+        (2001, 1),
+        (2002, 3),
+        (2003, 5),
+        (2004, 8),
+        (2005, 1),
+        (2006, 3),
+        (2007, 5),
+        (2008, 8),
+    )
+    calibration = set(screen.CALIBRATION_SEEDS)
+    evaluation = {seed for seed, _ in screen.EVALUATION_SPECS}
+    assert calibration.isdisjoint(evaluation)
+    assert set(screen.SYSTEMS) == {"c60", "pdo"}
 
 
 def test_base_sigma_and_inner_curvature_are_recomputed_from_frozen_prefix():
