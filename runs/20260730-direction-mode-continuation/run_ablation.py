@@ -338,12 +338,13 @@ def _precompute_shared_initial_direction(
     state_id: str,
     seed: int,
     shared_dir: Path,
+    system: str = "c60",
 ):
     from pamssw.accounting import EvaluationPurpose
     from pamssw.walker import ProposalPotential, SurfaceWalker
 
     config = replace(
-        base_runner.build_config("c60", shared_dir),
+        base_runner.build_config(system, shared_dir),
         max_trials=1,
         max_force_evals=None,
         rng_seed=seed,
@@ -419,6 +420,8 @@ def _run_case(
     arm: str,
     case_dir: Path,
     initial_direction_choice,
+    system: str = "c60",
+    fragmentation_applicable: bool = True,
 ) -> dict[str, Any]:
     from pamssw.accounting import EvaluationPurpose
     from pamssw.archive import MinimaArchive
@@ -430,7 +433,7 @@ def _run_case(
     from pamssw.walker import SurfaceWalker
 
     config = replace(
-        base_runner.build_config("c60", case_dir),
+        base_runner.build_config(system, case_dir),
         max_trials=1,
         max_force_evals=None,
         rng_seed=seed,
@@ -540,8 +543,11 @@ def _run_case(
                 structural_descriptor(landing.state),
             )
         ),
+        "fragmentation_applicable": fragmentation_applicable,
         "fragmented": bool(
             walker._is_fragmented_cluster(state, landing.state)
+            if fragmentation_applicable
+            else False
         ),
         "landing_geometry_valid": bool(
             walker.geometry_validator.is_valid_state(landing.state)
