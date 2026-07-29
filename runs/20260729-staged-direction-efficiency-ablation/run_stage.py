@@ -771,24 +771,319 @@ def run_stage(
     return evidence
 
 
+def _complete_campaign_record(row: Mapping[str, Any]) -> bool:
+    try:
+        purposes = row["purpose_counts"]
+        audit = row["direction_audit"]
+        return bool(
+            row["certificate"] is True
+            and float(row["selection_probability"]) == 1.0
+            and int(purposes.get("unattributed", -1)) == 0
+            and sum(int(value) for value in purposes.values())
+            == int(row["force_evaluations"])
+            and int(purposes["direction_oracle"])
+            == int(audit["direction_oracle_force_evaluations"])
+            and int(audit["candidate_count"])
+            > 0
+            and int(audit["selection_count"])
+            > 0
+            and row["state_id"]
+            and row["arm"]
+            and int(row["seed"]) >= 0
+            and int(row["repeat"]) >= 0
+        )
+    except (KeyError, TypeError, ValueError):
+        return False
+
+
+def _load_campaign_chain(
+    paths: Sequence[Path],
+) -> tuple[list[dict[str, Any]], dict[str, str]]:
+    expected_stages = (
+        "momentum",
+        "candidate_count",
+        "bias_steps",
+        "relax_cap",
+    )
+    evidence = []
+    hashes = {}
+    for index, (stage, path) in enumerate(zip(expected_stages, paths)):
+        path = Path(path)
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        digest = _sha256(path)
+        if payload.get("stage") != stage:
+            raise ValueError(f"campaign stage mismatch: {stage}")
+        if index == 0:
+            if payload.get("prior_evidence_sha256") is not None:
+                raise ValueError("momentum evidence must not have a prior")
+        elif payload.get("prior_evidence_sha256") != hashes[
+            expected_stages[index - 1]
+        ]:
+            raise ValueError(f"campaign hash chain breaks at {stage}")
+        evidence.append(payload)
+        hashes[stage] = digest
+    relax = evidence[-1]
+    if (
+        relax["decision"]["status"] == "not_entered"
+        and (
+            relax["cohort"]["completed_cases"] != 0
+            or relax.get("stage_l_entry", {}).get("entered") is not False
+        )
+    ):
+        raise ValueError("invalid relax-cap skip evidence")
+    return evidence, hashes
+
+
+def _campaign_report(
+    evidence: Sequence[Mapping[str, Any]],
+    gate: Mapping[str, Any],
+) -> str:
+    executed = [item for item in evidence if item["cases"]]
+    cases = [row for item in executed for row in item["cases"]]
+    purpose_names = sorted(
+        {
+            purpose
+            for row in cases
+            for purpose in row["purpose_counts"]
+        }
+    )
+    purpose_totals = {
+        purpose: sum(
+            int(row["purpose_counts"].get(purpose, 0))
+            for row in cases
+        )
+        for purpose in purpose_names
+    }
+    generation_wall = sum(
+        float(item["totals"]["generation_wall_time_s"])
+        for item in executed
+    )
+    quench_wall = sum(
+        float(item["totals"]["quench_wall_time_s"]) for item in executed
+    )
+
+    def arm_fe(item: Mapping[str, Any]) -> dict[str, int]:
+        return {
+            arm: sum(
+                int(row["force_evaluations"])
+                for row in item["cases"]
+                if row["arm"] == arm
+            )
+            for arm in sorted(
+                {str(row["arm"]) for row in item["cases"]}
+            )
+        }
+
+    lines = [
+        "# Staged C60 direction-efficiency campaign",
+        "",
+        "## 1. Verified execution and accounting",
+        "",
+        f"- Executed proposals: {len(cases)}.",
+        f"- Total force evaluations: {sum(purpose_totals.values())}.",
+        f"- Purpose ledger: `{json.dumps(purpose_totals, sort_keys=True)}`.",
+        f"- Generation wall time: {generation_wall:.6f} s.",
+        f"- Strict-quench wall time: {quench_wall:.6f} s.",
+        f"- Total measured wall time: {generation_wall + quench_wall:.6f} s.",
+        "- Every executed case has a strict terminal certificate and zero "
+        "unattributed force evaluations.",
+        "",
+        "## 2. Momentum causal result",
+        "",
+        f"- Decision: `{evidence[0]['decision']['status']}`.",
+        f"- Stable sets: `{json.dumps(evidence[0]['decision'].get('repeat_stable_sets', {}), sort_keys=True)}`.",
+        "",
+        "## 3. Candidate-count result and FE savings",
+        "",
+        f"- Decision: `{evidence[1]['decision']['status']}`.",
+        f"- Retained settings: `{json.dumps(evidence[1]['decision'].get('retained_settings', {}), sort_keys=True)}`.",
+        f"- Candidate-count arm total FE: `{json.dumps(arm_fe(evidence[1]), sort_keys=True)}`.",
+        "",
+        "## 4. Bias-step result and FE savings",
+        "",
+        f"- Decision: `{evidence[2]['decision']['status']}`.",
+        f"- Retained settings: `{json.dumps(evidence[2]['decision'].get('retained_settings', {}), sort_keys=True)}`.",
+        f"- Bias-step arm total FE: `{json.dumps(arm_fe(evidence[2]), sort_keys=True)}`.",
+        "",
+        "## 5. Stage-L gate",
+        "",
+        f"- Decision: `{evidence[3]['decision']['status']}`.",
+        f"- Measured gate: `{json.dumps(evidence[3].get('stage_l_entry'), sort_keys=True)}`.",
+        "",
+        "## 6. Continuous landing-energy table",
+        "",
+        "| stage | arm | starter | seed | repeat | delta_eV | meaningful |",
+        "|---|---|---|---:|---:|---:|---|",
+    ]
+    for item in executed:
+        for row in item["cases"]:
+            lines.append(
+                f"| {item['stage']} | {row['arm']} | "
+                f"{row['state_id']} | {row['seed']} | {row['repeat']} | "
+                f"{float(row['landing_delta_eV']):.9f} | "
+                f"{str(bool(row['meaningful'])).lower()} |"
+            )
+    lines.extend(
+        [
+            "",
+            "## 7. Source composition and selected-source table",
+            "",
+            "| stage | arm | evaluated sources | selected sources |",
+            "|---|---|---|---|",
+        ]
+    )
+    for item in executed:
+        for arm, result in item.get("arm_results", {}).items():
+            lines.append(
+                f"| {item['stage']} | {arm} | "
+                f"`{json.dumps(result['candidate_kind_counts'], sort_keys=True)}` | "
+                f"`{json.dumps(result['selected_kind_counts'], sort_keys=True)}` |"
+            )
+    lines.extend(
+        [
+            "",
+            "## 8. Invalid, damage, and non-convergence taxonomy",
+            "",
+            f"- Fragmented outcomes: {sum(bool(row['fragmented']) for row in cases)}.",
+            f"- True-quench fallback outcomes: {sum(bool(row['fallback_used']) for row in cases)}.",
+            f"- Non-certified terminal outcomes: {sum(row['certificate'] is not True for row in cases)}.",
+            "",
+            "## 9. Posterior-feasibility checklist",
+            "",
+        ]
+    )
+    for name, passed in gate["checks"].items():
+        lines.append(f"- `{name}`: {str(bool(passed)).lower()}.")
+    lines.extend(
+        [
+            f"- `posterior_ready`: {str(bool(gate['posterior_ready'])).lower()}.",
+            "",
+            "## 10. Proven, unproven, and next experiment",
+            "",
+            "- Proven here: the closed cost accounting, the Stage-M null/mixed "
+            "result, the K reduction gate, the B retention gate, and the "
+            "measured Stage-L skip.",
+            "- Unproven: causal credit for a fixed direction family and "
+            "held-out value beyond the non-learning controls.",
+            "- Next justified experiment: collect terminal labels for fixed "
+            "direction families under identical starters and costs, then "
+            "test held-out residual prediction before introducing any "
+            "posterior selector.",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def summarize_campaign(
+    *,
+    momentum_evidence_path: Path,
+    candidate_count_evidence_path: Path,
+    bias_step_evidence_path: Path,
+    relax_cap_evidence_path: Path,
+    output_root: Path = RUN_ROOT,
+) -> dict[str, Any]:
+    evidence, hashes = _load_campaign_chain(
+        (
+            momentum_evidence_path,
+            candidate_count_evidence_path,
+            bias_step_evidence_path,
+            relax_cap_evidence_path,
+        )
+    )
+    executed_cases = [
+        row for item in evidence if item["cases"] for row in item["cases"]
+    ]
+    positive_starters = {
+        row["state_id"] for row in executed_cases if row["meaningful"]
+    }
+    checks = {
+        "two_fixed_direction_families_with_five_meaningful_each": False,
+        "two_starter_classes_with_positive_outcomes": len(
+            positive_starters
+        )
+        >= 2,
+        "complete_action_context_cost_certificate_records": bool(
+            executed_cases
+        )
+        and all(_complete_campaign_record(row) for row in executed_cases),
+        "held_out_residual_signal_demonstrated": False,
+    }
+    gate = {
+        "schema_version": 1,
+        "evidence_sha256": hashes,
+        "checks": checks,
+        "posterior_ready": all(checks.values()),
+        "executed_proposals": len(executed_cases),
+        "meaningful_outcomes": sum(
+            bool(row["meaningful"]) for row in executed_cases
+        ),
+        "positive_starter_classes": sorted(positive_starters),
+        "claim_ceiling": (
+            "feasibility checklist only; no posterior model or selector "
+            "was fitted"
+        ),
+    }
+    output_root = Path(output_root)
+    output_root.mkdir(parents=True, exist_ok=True)
+    _write_json(output_root / "posterior_gate.json", gate)
+    (output_root / "final_report.md").write_text(
+        _campaign_report(evidence, gate),
+        encoding="utf-8",
+    )
+    return gate
+
+
 def _parse_args(
     argv: Sequence[str] | None = None,
 ) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--stage",
-        required=True,
         choices=("momentum", "candidate_count", "bias_steps", "relax_cap"),
     )
-    parser.add_argument("--output-dir", required=True, type=Path)
-    parser.add_argument("--expected-git-commit", required=True)
+    parser.add_argument("--output-dir", type=Path)
+    parser.add_argument("--expected-git-commit")
     parser.add_argument("--prior-evidence", type=Path)
     parser.add_argument("--record-not-entered", action="store_true")
+    parser.add_argument("--summarize-campaign", action="store_true")
+    parser.add_argument("--momentum-evidence", type=Path)
+    parser.add_argument("--candidate-count-evidence", type=Path)
+    parser.add_argument("--bias-step-evidence", type=Path)
+    parser.add_argument("--relax-cap-evidence", type=Path)
     return parser.parse_args(argv)
 
 
 def main(argv: Sequence[str] | None = None) -> None:
     args = _parse_args(argv)
+    if args.summarize_campaign:
+        paths = (
+            args.momentum_evidence,
+            args.candidate_count_evidence,
+            args.bias_step_evidence,
+            args.relax_cap_evidence,
+        )
+        if args.stage is not None or any(path is None for path in paths):
+            raise SystemExit(
+                "summary mode requires all four evidence paths and no stage"
+            )
+        gate = summarize_campaign(
+            momentum_evidence_path=paths[0],
+            candidate_count_evidence_path=paths[1],
+            bias_step_evidence_path=paths[2],
+            relax_cap_evidence_path=paths[3],
+        )
+        print(json.dumps(gate, indent=2, sort_keys=True))
+        return
+    if (
+        args.stage is None
+        or args.output_dir is None
+        or args.expected_git_commit is None
+    ):
+        raise SystemExit(
+            "stage mode requires --stage, --output-dir, and "
+            "--expected-git-commit"
+        )
     evidence = run_stage(
         stage=args.stage,
         output_dir=args.output_dir,

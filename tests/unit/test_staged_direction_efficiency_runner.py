@@ -776,3 +776,101 @@ def test_stage_context_revalidates_prior_evidence_and_stage_l_gate(
             prior_evidence_path=prior_path,
             record_not_entered=True,
         )
+
+
+def test_campaign_summary_keeps_posterior_gate_closed(tmp_path):
+    runner = load_runner("_staged_campaign_summary_runner")
+
+    def case(state_id):
+        return {
+            "state_id": state_id,
+            "meaningful": True,
+            "certificate": True,
+            "selection_probability": 1.0,
+            "force_evaluations": 12,
+            "purpose_counts": {
+                "direction_oracle": 8,
+                "landing_true_quench": 4,
+                "unattributed": 0,
+            },
+            "direction_audit": {
+                "candidate_count": 4,
+                "selection_count": 1,
+                "direction_oracle_force_evaluations": 8,
+            },
+            "landing_delta_eV": -1.0,
+            "arm": "fake",
+            "seed": 42,
+            "repeat": 0,
+            "is_new_basin": True,
+            "fragmented": False,
+            "fallback_used": False,
+        }
+
+    paths = {}
+    previous_path = None
+    for stage, state_id in (
+        ("momentum", "intermediate_accepted"),
+        ("candidate_count", "plateau_accepted"),
+        ("bias_steps", "plateau_accepted"),
+    ):
+        path = tmp_path / f"{stage}.json"
+        payload = {
+            "stage": stage,
+            "cohort": {"completed_cases": 1},
+            "decision": {"status": "fake"},
+            "totals": {
+                "force_evaluations": 12,
+                "purpose_counts": case(state_id)["purpose_counts"],
+                "generation_wall_time_s": 1.0,
+                "quench_wall_time_s": 0.5,
+            },
+            "arm_results": {},
+            "cases": [case(state_id)],
+            "prior_evidence_sha256": (
+                None
+                if previous_path is None
+                else runner._sha256(previous_path)
+            ),
+        }
+        runner._write_json(path, payload)
+        paths[stage] = path
+        previous_path = path
+    relax_path = tmp_path / "relax_cap.json"
+    runner._write_json(
+        relax_path,
+        {
+            "stage": "relax_cap",
+            "cohort": {"completed_cases": 0},
+            "decision": {"status": "not_entered"},
+            "stage_l_entry": {"entered": False},
+            "cases": [],
+            "prior_evidence_sha256": runner._sha256(previous_path),
+        },
+    )
+
+    gate = runner.summarize_campaign(
+        momentum_evidence_path=paths["momentum"],
+        candidate_count_evidence_path=paths["candidate_count"],
+        bias_step_evidence_path=paths["bias_steps"],
+        relax_cap_evidence_path=relax_path,
+        output_root=tmp_path / "summary",
+    )
+
+    assert gate["checks"] == {
+        "two_fixed_direction_families_with_five_meaningful_each": False,
+        "two_starter_classes_with_positive_outcomes": True,
+        "complete_action_context_cost_certificate_records": True,
+        "held_out_residual_signal_demonstrated": False,
+    }
+    assert gate["posterior_ready"] is False
+    assert "model" not in gate
+    assert "scalar_reward" not in gate
+    assert (tmp_path / "summary" / "final_report.md").is_file()
+    assert json.loads(
+        (tmp_path / "summary" / "posterior_gate.json").read_text()
+    ) == gate
+    report = (tmp_path / "summary" / "final_report.md").read_text()
+    assert "Generation wall time: 3.000000 s" in report
+    assert "Candidate-count arm total FE" in report
+    assert "Bias-step arm total FE" in report
