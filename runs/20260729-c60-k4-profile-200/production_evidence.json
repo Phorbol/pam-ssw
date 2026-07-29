@@ -1,0 +1,247 @@
+{
+  "comparison": {
+    "best_drop_auc_delta_eV_trial": -937.3597564697266,
+    "best_energy_delta_eV": 1.531829833984375,
+    "direction_force_evaluations_saved": 19042,
+    "duplicate_rate_delta": -0.11940298507462688,
+    "energy_drop_delta_eV": -1.531951904296875,
+    "minima_delta": 24,
+    "non_direction_force_evaluations_delta": 6392,
+    "total_force_evaluations_saved": 12650,
+    "wall_time_delta_s": 647.2167429109686
+  },
+  "decision": {
+    "k4_improved_final_best_energy": false,
+    "k4_improved_wall_time": false,
+    "k4_reduced_total_force_evaluations": true,
+    "next_algorithmic_target": "landing-quality-aware direction construction/selection under a frozen cost budget; do not add a posterior selector until out-of-sample prediction beats the fixed physics baseline",
+    "profile_completed_200_trials": true,
+    "promote_direction_posterior_now": false,
+    "purpose_ledger_closed": true,
+    "unattributed_force_evaluations": 0
+  },
+  "k12_historical": {
+    "artifact_sha256": {
+      "energy_trace": "52a9e9a8c230e2c2e6c09ab7666de72bc5e1cfb454bed399137a99ad2610b249",
+      "summary": "40d1f0d1c1cf81c374df6107fc4c31316dc313dd2b783cb503250ba931bf78cb"
+    },
+    "cost": {
+      "energy_drop_per_1000_force_evaluations_eV": 0.36516155176624493,
+      "force_evaluations": 91490,
+      "minima_per_1000_force_evaluations": 1.530221882172915,
+      "purpose_counts": {
+        "biased_proposal_relax": 47201,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 29058,
+        "escape_true_pes_check": 1278,
+        "landing_true_quench": 13704,
+        "post_relax_validation": 201,
+        "starter_true_quench": 48,
+        "unattributed": 0
+      },
+      "purpose_fractions": {
+        "biased_proposal_relax": 0.5159143075745983,
+        "bootstrap_true_quench": 0.0,
+        "direction_oracle": 0.31760848180128975,
+        "escape_true_pes_check": 0.013968739752978467,
+        "landing_true_quench": 0.14978686195212593,
+        "post_relax_validation": 0.0021969614165482567,
+        "starter_true_quench": 0.0005246475024592852,
+        "unattributed": 0.0
+      },
+      "wall_time_per_trial_s": 7.832893444079964,
+      "wall_time_s": 1566.5786888159928
+    },
+    "direction": {
+      "bias_steps": 1133,
+      "candidate_evaluations": 14529,
+      "selection": {
+        "bond": {
+          "count": 63,
+          "fraction": 0.05560458958517211
+        },
+        "momentum": {
+          "count": 832,
+          "fraction": 0.7343336275375111
+        },
+        "random": {
+          "count": 238,
+          "fraction": 0.21006178287731686
+        }
+      }
+    },
+    "execution_commit": "32980ad9154ec6481b310477dd7b85597cefd49a",
+    "identity": {
+      "calculator": {
+        "default_dtype": "float32",
+        "device": "cuda",
+        "enable_cueq": false,
+        "inference_precision": "float32"
+      },
+      "input_sha256": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9",
+      "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+      "runtime_versions": {
+        "ase": "3.25.0",
+        "mace": "0.3.14",
+        "numpy": "2.1.3",
+        "python": "3.12.12",
+        "scipy": "1.17.1",
+        "torch": "2.8.0"
+      }
+    },
+    "optimizer": {
+      "proposal_relax_mean_iterations": 38.45640074211503,
+      "proposal_relax_median_iterations": 27.0,
+      "proposal_relax_p90_iterations": 80.0,
+      "proposal_relax_termination_maxiter": 205,
+      "quench_fallback_attempts": 6,
+      "quench_fallback_converged": 6,
+      "true_quench_mean_iterations": 55.44776119402985,
+      "true_quench_median_iterations": 43.0,
+      "true_quench_p90_iterations": 83.0,
+      "true_quench_termination_converged": 201,
+      "true_quench_termination_unconverged": 0
+    },
+    "progress": {
+      "best_drop_auc_eV_trial": 6188.496643066406,
+      "first_drop_10_eV_trial": 4,
+      "first_drop_20_eV_trial": 6,
+      "first_drop_30_eV_trial": 25,
+      "mean_best_drop_eV": 30.87164655846743
+    },
+    "raw_initial_quench_ledger": {
+      "bootstrap_true_quench": 0,
+      "semantic_note": "SurfaceWalker.run labels its one initial raw-State quench as starter_true_quench in this execution; it is budgeted but the ledger name is not the intended bootstrap_true_quench label.",
+      "starter_true_quench": 48
+    },
+    "terminal": {
+      "best_energy_eV": -508.07830810546875,
+      "duplicate_rate": 0.3034825870646766,
+      "energy_drop_eV": 33.40863037109375,
+      "initial_energy_eV": -474.669677734375,
+      "last_best_trial": 194,
+      "n_minima": 140,
+      "n_trials": 200
+    }
+  },
+  "k4_public_profile": {
+    "artifact_sha256": {
+      "energy_trace": "2d097c24424fcd790e18d9bb11aec1373915e6eca3241f987e51bc173f0c9c34",
+      "summary": "9c8e5d08758506ac4d5e6093ef4d43d037f668037be1ce5a614c4209c6d99a29"
+    },
+    "cost": {
+      "energy_drop_per_1000_force_evaluations_eV": 0.4043211373261907,
+      "force_evaluations": 78840,
+      "minima_per_1000_force_evaluations": 2.080162354134957,
+      "purpose_counts": {
+        "biased_proposal_relax": 52007,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 10016,
+        "escape_true_pes_check": 1404,
+        "landing_true_quench": 15164,
+        "post_relax_validation": 201,
+        "starter_true_quench": 48,
+        "unattributed": 0
+      },
+      "purpose_fractions": {
+        "biased_proposal_relax": 0.6596524606798579,
+        "bootstrap_true_quench": 0.0,
+        "direction_oracle": 0.12704211060375445,
+        "escape_true_pes_check": 0.01780821917808219,
+        "landing_true_quench": 0.19233891425672248,
+        "post_relax_validation": 0.002549467275494673,
+        "starter_true_quench": 0.0006088280060882801,
+        "unattributed": 0.0
+      },
+      "wall_time_per_trial_s": 11.068977158634807,
+      "wall_time_s": 2213.7954317269614
+    },
+    "direction": {
+      "bias_steps": 1252,
+      "candidate_evaluations": 5008,
+      "selection": {
+        "bond": {
+          "count": 153,
+          "fraction": 0.12220447284345048
+        },
+        "momentum": {
+          "count": 989,
+          "fraction": 0.7899361022364217
+        },
+        "random": {
+          "count": 110,
+          "fraction": 0.0878594249201278
+        }
+      }
+    },
+    "execution_commit": "111c9d2967cdb6ffd2f3bb4ca167c48bd60ff30c",
+    "identity": {
+      "calculator": {
+        "default_dtype": "float32",
+        "device": "cuda",
+        "enable_cueq": false,
+        "inference_precision": "float32"
+      },
+      "input_sha256": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9",
+      "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+      "runtime_versions": {
+        "ase": "3.25.0",
+        "mace": "0.3.14",
+        "numpy": "2.1.3",
+        "python": "3.12.12",
+        "scipy": "1.17.1",
+        "torch": "2.8.0"
+      }
+    },
+    "optimizer": {
+      "proposal_relax_mean_iterations": 38.87624584717608,
+      "proposal_relax_median_iterations": 30.0,
+      "proposal_relax_p90_iterations": 80.0,
+      "proposal_relax_termination_maxiter": 193,
+      "quench_fallback_attempts": 4,
+      "quench_fallback_converged": 4,
+      "true_quench_mean_iterations": 66.70149253731343,
+      "true_quench_median_iterations": 52.0,
+      "true_quench_p90_iterations": 102.0,
+      "true_quench_termination_converged": 201,
+      "true_quench_termination_unconverged": 0
+    },
+    "progress": {
+      "best_drop_auc_eV_trial": 5251.13688659668,
+      "first_drop_10_eV_trial": 8,
+      "first_drop_20_eV_trial": 50,
+      "first_drop_30_eV_trial": 75,
+      "mean_best_drop_eV": 26.204354357363574
+    },
+    "raw_initial_quench_ledger": {
+      "bootstrap_true_quench": 0,
+      "semantic_note": "SurfaceWalker.run labels its one initial raw-State quench as starter_true_quench in this execution; it is budgeted but the ledger name is not the intended bootstrap_true_quench label.",
+      "starter_true_quench": 48
+    },
+    "terminal": {
+      "best_energy_eV": -506.5464782714844,
+      "duplicate_rate": 0.18407960199004975,
+      "energy_drop_eV": 31.876678466796875,
+      "initial_energy_eV": -474.6697998046875,
+      "last_best_trial": 130,
+      "n_minima": 164,
+      "n_trials": 200
+    }
+  },
+  "protocol": {
+    "comparison_status": "descriptive historical comparison, not a same-commit paired single-variable causal ablation",
+    "same_execution_commit": false,
+    "same_input_model_runtime": true,
+    "schema_only_k4_fields": {
+      "block_krylov_blocks": 2,
+      "block_krylov_depth": 3
+    },
+    "scientific_config_diff": {
+      "oracle_candidates": [
+        12,
+        4
+      ]
+    }
+  },
+  "schema_version": 1
+}
