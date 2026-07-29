@@ -65,6 +65,7 @@ def _rows(module, *, arm_signal: bool) -> list[dict]:
                     "n_bond_pairs": (
                         module.ARM_SETTINGS[case.arm].n_bond_pairs
                     ),
+                    "stagnation_bond_pair_boost": 0,
                     "expected_kind": expected_kind,
                 },
                 "selection_probability": 1.0,
@@ -115,6 +116,10 @@ def test_case_matrix_is_paired_and_has_only_one_direction_family_per_arm():
     assert module.ARM_SETTINGS["random_only"].expected_kind == "random"
     assert module.ARM_SETTINGS["bond_only"].n_bond_pairs == 4
     assert module.ARM_SETTINGS["bond_only"].expected_kind == "bond"
+    assert all(
+        case.settings.stagnation_bond_pair_boost == 0
+        for case in cases
+    )
 
 
 def test_stable_labels_require_both_repeats_to_be_meaningful():

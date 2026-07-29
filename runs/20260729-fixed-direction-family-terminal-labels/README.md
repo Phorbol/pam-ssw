@@ -28,6 +28,10 @@ The only changed control is `n_bond_pairs`:
 - `bond_only`: momentum disabled and `n_bond_pairs=4`, yielding four bond
   candidates.
 
+The outcome-gated `stagnation_bond_pair_boost` is frozen to zero in both arms;
+otherwise an unproductive relaxation could silently add bond candidates to
+the `random_only` arm.
+
 Every direction selection therefore costs exactly four central HVPs, or eight
 force evaluations. The runner fails if either arm contains a mixed candidate
 family.

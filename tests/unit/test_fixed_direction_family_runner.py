@@ -39,6 +39,7 @@ def test_case_base_runner_changes_only_the_family_generation_control(
     @dataclass(frozen=True)
     class Config:
         n_bond_pairs: int = 2
+        stagnation_bond_pair_boost: int = 2
         oracle_candidates: int = 12
         max_steps_per_walk: int = 8
 
@@ -69,6 +70,8 @@ def test_case_base_runner_changes_only_the_family_generation_control(
 
     assert random_config.n_bond_pairs == 0
     assert bond_config.n_bond_pairs == 4
+    assert random_config.stagnation_bond_pair_boost == 0
+    assert bond_config.stagnation_bond_pair_boost == 0
     assert random_config.oracle_candidates == 12
     assert bond_config.max_steps_per_walk == 8
 
@@ -125,6 +128,7 @@ def test_case_annotation_exposes_the_only_arm_specific_config_change():
         row,
         case=case,
         baseline_n_bond_pairs=2,
+        baseline_stagnation_bond_pair_boost=2,
     )
 
     assert annotated["ablation_control"] == {
@@ -136,3 +140,9 @@ def test_case_annotation_exposes_the_only_arm_specific_config_change():
     assert annotated["source_to_effective_config_diff"][
         "n_bond_pairs"
     ] == [2, 4]
+    assert annotated["source_to_effective_config_diff"][
+        "stagnation_bond_pair_boost"
+    ] == [2, 0]
+    assert annotated["frozen_feedback_controls"] == {
+        "stagnation_bond_pair_boost": 0,
+    }

@@ -109,6 +109,9 @@ class CaseBaseRunner:
         return replace(
             source,
             n_bond_pairs=self._case.settings.n_bond_pairs,
+            stagnation_bond_pair_boost=(
+                self._case.settings.stagnation_bond_pair_boost
+            ),
         )
 
     def write_state(self, path: Path, state):
@@ -120,6 +123,7 @@ def annotate_case_row(
     *,
     case,
     baseline_n_bond_pairs: int,
+    baseline_stagnation_bond_pair_boost: int,
 ) -> dict[str, Any]:
     annotated = dict(row)
     config_diff = dict(
@@ -129,12 +133,21 @@ def annotate_case_row(
         int(baseline_n_bond_pairs),
         int(case.settings.n_bond_pairs),
     ]
+    config_diff["stagnation_bond_pair_boost"] = [
+        int(baseline_stagnation_bond_pair_boost),
+        int(case.settings.stagnation_bond_pair_boost),
+    ]
     annotated["source_to_effective_config_diff"] = config_diff
     annotated["ablation_control"] = {
         "field": "n_bond_pairs",
         "source_value": int(baseline_n_bond_pairs),
         "effective_value": int(case.settings.n_bond_pairs),
         "expected_direction_kind": case.settings.expected_kind,
+    }
+    annotated["frozen_feedback_controls"] = {
+        "stagnation_bond_pair_boost": int(
+            case.settings.stagnation_bond_pair_boost
+        ),
     }
     return annotated
 
@@ -164,6 +177,9 @@ def _execute_case(
         row,
         case=case,
         baseline_n_bond_pairs=baseline_config.n_bond_pairs,
+        baseline_stagnation_bond_pair_boost=(
+            baseline_config.stagnation_bond_pair_boost
+        ),
     )
     _load_protocol().validate_case_row(case, row)
     _write_json(Path(case_dir) / "summary.json", row)

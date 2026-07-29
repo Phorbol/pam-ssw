@@ -19,6 +19,7 @@ class FamilySettings:
     max_steps_per_walk: int
     proposal_relax_steps: int
     n_bond_pairs: int
+    stagnation_bond_pair_boost: int
     expected_kind: str
 
 
@@ -29,6 +30,7 @@ ARM_SETTINGS = {
         max_steps_per_walk=8,
         proposal_relax_steps=80,
         n_bond_pairs=0,
+        stagnation_bond_pair_boost=0,
         expected_kind="random",
     ),
     "bond_only": FamilySettings(
@@ -37,6 +39,7 @@ ARM_SETTINGS = {
         max_steps_per_walk=8,
         proposal_relax_steps=80,
         n_bond_pairs=4,
+        stagnation_bond_pair_boost=0,
         expected_kind="bond",
     ),
 }
@@ -301,6 +304,7 @@ def build_evidence(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
             "max_steps_per_walk": 8,
             "proposal_relax_steps": 80,
             "enable_momentum_candidate": False,
+            "stagnation_bond_pair_boost": 0,
         },
         "stable_labels": labels,
         "stable_meaningful_by_family": {
