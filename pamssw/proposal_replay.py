@@ -11,6 +11,7 @@ import numpy as np
 from .accounting import EvalCounter, EvaluationCounts, EvaluationPurpose
 from .bias import GaussianBiasTerm
 from .config import SSWConfig
+from .coordinates import CartesianCoordinates, TangentVector
 from .relax import Relaxer
 from .result import RelaxResult
 from .state import State
@@ -80,6 +81,56 @@ def capture_proposal_task(
             evaluation_counts=walker.calculator.snapshot(),
         )
     raise RuntimeError("walk terminated before the requested proposal task")
+
+
+def retarget_last_gaussian(
+    task: ProposalRelaxationTask,
+    *,
+    sigma: float,
+    weight: float,
+) -> ProposalRelaxationTask:
+    """Change only the newest Gaussian and its explicit starting displacement."""
+    if not task.biases:
+        raise ValueError("proposal task has no Gaussian bias")
+    if not np.isfinite(sigma) or sigma <= 0.0:
+        raise ValueError("sigma must be finite and positive")
+    if not np.isfinite(weight) or weight < 0.0:
+        raise ValueError("weight must be finite and non-negative")
+
+    last = task.biases[-1]
+    center_state = State(
+        numbers=task.initial_state.numbers.copy(),
+        positions=last.center.reshape(task.initial_state.n_atoms, 3).copy(),
+        cell=(
+            None
+            if task.initial_state.cell is None
+            else task.initial_state.cell.copy()
+        ),
+        pbc=task.initial_state.pbc,
+        fixed_mask=task.initial_state.fixed_mask.copy(),
+        metadata=task.initial_state.metadata.copy(),
+    )
+    trial_state = CartesianCoordinates.from_state(center_state).displace(
+        TangentVector(last.direction),
+        sigma,
+    )
+    biases = (
+        *task.biases[:-1],
+        GaussianBiasTerm(
+            center=last.center,
+            direction=last.direction,
+            sigma=sigma,
+            weight=weight,
+        ),
+    )
+    return ProposalRelaxationTask(
+        initial_state=trial_state,
+        biases=biases,
+        softening=task.softening,
+        fmax=task.fmax,
+        maxiter=task.maxiter,
+        coordinate_trust_radius=task.coordinate_trust_radius,
+    )
 
 
 def replay_proposal_task(

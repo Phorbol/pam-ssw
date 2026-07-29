@@ -1,15 +1,19 @@
 import numpy as np
+import pytest
 
 from pamssw.proposal_replay import (
     capture_proposal_task,
     proposal_task_from_payload,
     proposal_task_to_payload,
+    retarget_last_gaussian,
     replay_proposal_task,
 )
 from pamssw.accounting import EvaluationPurpose
+from pamssw.bias import GaussianBiasTerm
 from pamssw.calculators import AnalyticCalculator
 from pamssw.config import SSWConfig
 from pamssw.state import State
+from pamssw.walker import ProposalRelaxationTask
 
 
 class Quadratic:
@@ -105,3 +109,66 @@ def test_replay_returns_exact_force_call_ledger_and_certificate():
     assert replay.result.gradient_norm <= task.fmax
     assert replay.certificate_satisfied
     assert replay.wall_time_s >= 0.0
+
+
+def test_retarget_last_gaussian_changes_only_last_bias_and_explicit_displacement():
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[1.0, 0.0, 0.0]]),
+    )
+    task = capture_proposal_task(
+        state,
+        AnalyticCalculator(Quadratic()),
+        SSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            proposal_relax_steps=4,
+            proposal_fmax=0.05,
+            rng_seed=19,
+        ),
+        target_bias_count=1,
+    ).task
+    prefix = GaussianBiasTerm(
+        center=task.biases[-1].center - 0.1 * task.biases[-1].direction,
+        direction=task.biases[-1].direction,
+        sigma=0.1,
+        weight=0.2,
+    )
+    task = ProposalRelaxationTask(
+        initial_state=task.initial_state,
+        biases=(prefix, *task.biases),
+        softening=task.softening,
+        fmax=task.fmax,
+        maxiter=task.maxiter,
+        coordinate_trust_radius=task.coordinate_trust_radius,
+    )
+    source_sigma = task.biases[-1].sigma
+    source_weight = task.biases[-1].weight
+    source_prefix_center = task.biases[0].center.copy()
+    source_positions = task.initial_state.positions.copy()
+
+    retargeted = retarget_last_gaussian(
+        task,
+        sigma=0.25,
+        weight=0.4,
+    )
+
+    assert task.biases[-1].sigma == source_sigma
+    assert task.biases[-1].weight == source_weight
+    np.testing.assert_allclose(task.initial_state.positions, source_positions)
+    assert retargeted.biases[0].sigma == task.biases[0].sigma
+    assert retargeted.biases[0].weight == task.biases[0].weight
+    np.testing.assert_allclose(retargeted.biases[0].center, source_prefix_center)
+    assert retargeted.biases[-1].sigma == 0.25
+    assert retargeted.biases[-1].weight == 0.4
+    delta = (
+        retargeted.initial_state.flatten_positions()
+        - retargeted.biases[-1].center
+    )
+    progress = float(np.dot(delta, retargeted.biases[-1].direction))
+    assert progress == pytest.approx(0.25)
+    np.testing.assert_allclose(
+        delta - progress * retargeted.biases[-1].direction,
+        0.0,
+        atol=1.0e-12,
+    )
