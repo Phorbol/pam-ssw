@@ -175,6 +175,10 @@ Each direction record must contain:
 - `energy_bounded_anchor_step_capped`;
 - the unchanged Krylov HVP request and consumption counts.
 
+`energy_bounded_anchor_step_capped` ignores relative changes at or below
+`1e-12`, so an active constraint that differs from the requested step only by
+floating-point roundoff is not reported as a physical cap.
+
 The complete Ritz spectrum remains diagnostic.  No unexecuted direction
 receives a terminal outcome label.
 

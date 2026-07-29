@@ -3259,6 +3259,12 @@ class SurfaceWalker:
                         ),
                         "energy_bounded_anchor_step_capped": bool(
                             sigma < requested_sigma
+                            and not np.isclose(
+                                sigma,
+                                requested_sigma,
+                                rtol=1.0e-12,
+                                atol=0.0,
+                            )
                         ),
                     }
                 )
