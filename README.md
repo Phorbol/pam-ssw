@@ -118,7 +118,71 @@ pip install -e '.[dev]'
 pytest -q tests/unit tests/integration
 ```
 
-## Recommended Production Presets
+## Evidence-Backed C60 Profile
+
+The public profile
+`c60_direction_efficient_validated_20260729` packages the exact C60 controls
+retained by the July 2026 fixed-starter campaign:
+
+- native discrete direction selection with four candidates;
+- momentum candidate retained;
+- eight Gaussian-bias micro-steps;
+- `safe-lbfgs-total` proposal relaxation;
+- strict ASE-LBFGS true quench with an ASE-FIRE certificate fallback;
+- all posterior, direction-type UCB, direction-probe, plateau-evolution, and
+  archive-momentum experiments disabled.
+
+It is explicit and opt-in; constructing it does not change `LSSSWConfig`
+defaults. The evidence establishes strict terminal accounting and the
+fixed-starter C60 mechanism comparison. It does not establish a universal
+cluster/slab default, canonical sampling, or a 200-trial K=4 superiority
+claim.
+
+```python
+from pathlib import Path
+
+from mace.calculators import MACECalculator
+
+from pamssw import (
+    read_state,
+    run_ls_ssw,
+    validated_ls_ssw_config,
+    validated_profile_metadata,
+    write_state,
+)
+from pamssw.calculators import ASECalculator
+
+profile = "c60_direction_efficient_validated_20260729"
+outdir = Path("runs/c60-validated")
+state = read_state("C60.xyz")
+calculator = ASECalculator(
+    MACECalculator(
+        model_paths=["/path/to/mace-omat-0-small.model"],
+        device="cuda",
+        default_dtype="float32",
+    )
+)
+config = validated_ls_ssw_config(
+    profile,
+    output_dir=outdir,
+    max_trials=200,
+    rng_seed=42,
+    max_force_evals=None,
+)
+
+result = run_ls_ssw(state, calculator, config)
+outdir.mkdir(parents=True, exist_ok=True)
+write_state(outdir / "best_minimum.xyz", result.best_state)
+
+print(validated_profile_metadata(profile))
+print(result.best_energy, result.stats)
+```
+
+The profile writes accepted-minimum and direction diagnostics below
+`output_dir`. Users should record the structure, model, and calculator
+provenance alongside the returned `result.stats`.
+
+## Manual Starting Parameters
 
 After extensive testing on C60 clusters and PdO slabs with MACE OMAT small, the
 following parameters are recommended starting presets for `LS-SSW`.  The walker

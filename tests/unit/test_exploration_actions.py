@@ -36,6 +36,7 @@ def test_package_root_exports_only_the_public_posterior_exploration_types():
         "SearchResult",
         "StarterProductivityPosterior",
         "State",
+        "available_validated_profiles",
         "read_state",
         "relax_minimum",
         "run_ls_ssw",
@@ -44,6 +45,8 @@ def test_package_root_exports_only_the_public_posterior_exploration_types():
         "run_ssw",
         "state_from_atoms",
         "state_to_atoms",
+        "validated_ls_ssw_config",
+        "validated_profile_metadata",
         "write_state",
     }
     assert callable(pamssw.run_posterior_ssw)
