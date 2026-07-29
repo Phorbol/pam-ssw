@@ -572,6 +572,10 @@ class StepTargetController:
         return float(np.clip(self.eta_energy_scale * scale, self.min_target, self.max_target))
 
 
+class ContinuationDirectionDegenerate(RuntimeError):
+    """The stored continuation mode has no admissible movable component."""
+
+
 class DirectionCandidateKind(str, Enum):
     MOMENTUM = "momentum"
     ANCHOR = "anchor"
@@ -582,6 +586,8 @@ class DirectionCandidateKind(str, Enum):
     RITZ = "ritz"
     RITZ_REG = "ritz_reg"
     BLOCK_RITZ = "block_ritz"
+    TRANSPORTED = "transported"
+    CONTINUATION_RITZ = "continuation_ritz"
     ENERGY_BOUNDED_ANCHOR = "energy_bounded_anchor"
     EVOLVED = "evolved"
     ARCHIVE_MOMENTUM = "archive_momentum"
@@ -1794,6 +1800,40 @@ class SoftModeOracle:
             score=None,
             true_curvature=selected_true_curvature,
             diagnostics=diagnostics,
+        )
+
+    def choose_transported_direction(
+        self,
+        state: State,
+        proposal: ProposalPotential,
+        direction: np.ndarray,
+        reference: np.ndarray,
+    ) -> DirectionChoice:
+        projected = project_out_rigid_body_modes(state, direction)
+        projected.reshape(state.n_atoms, 3)[state.fixed_mask] = 0.0
+        normalized = self._normalized_or_none(projected)
+        if normalized is None:
+            raise ContinuationDirectionDegenerate(
+                "continuation direction vanished after projection"
+            )
+        if float(np.dot(normalized, reference)) < 0.0:
+            normalized = -normalized
+        total_hvp, true_hvp = self._candidate_directional_hvps(
+            state,
+            proposal,
+            normalized,
+        )
+        return DirectionChoice(
+            direction=normalized,
+            curvature=float(np.dot(normalized, total_hvp)),
+            kind=DirectionCandidateKind.TRANSPORTED,
+            candidate_count=1,
+            score=None,
+            true_curvature=float(np.dot(normalized, true_hvp)),
+            diagnostics={
+                "direction_hvp_count": 1,
+                "continuation_source": "selected_mode",
+            },
         )
 
     def _choose_exact_anchor_direction(

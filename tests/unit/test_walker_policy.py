@@ -15,6 +15,7 @@ from pamssw.state import State
 from pamssw.softening import LocalSofteningModel, PairSofteningTerm
 from pamssw.walker import (
     CandidateDirectionGenerator,
+    ContinuationDirectionDegenerate,
     DirectionCandidateKind,
     DirectionCandidate,
     DirectionScorer,
@@ -752,6 +753,71 @@ def test_block_krylov_selects_lowest_block_without_native_scoring(monkeypatch):
         for point in spectrum
     )
     assert choice.diagnostics["krylov_hvp_count"] == 2
+
+
+def test_transport_direction_projects_aligns_and_spends_one_hvp():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            direction_selection_mode="transported_direction",
+            n_bond_pairs=0,
+        ),
+        softening_enabled=False,
+    )
+    previous = np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0])
+    proposal = ProposalPotential(walker.calculator)
+    before = walker.calculator.snapshot().count(
+        EvaluationPurpose.DIRECTION_ORACLE
+    )
+
+    with walker.calculator.purpose(EvaluationPurpose.DIRECTION_ORACLE):
+        choice = walker.oracle.choose_transported_direction(
+            state,
+            proposal,
+            -previous,
+            previous,
+        )
+
+    after = walker.calculator.snapshot().count(
+        EvaluationPurpose.DIRECTION_ORACLE
+    )
+    assert after - before == 2
+    assert np.dot(choice.direction, previous) > 0.0
+    assert choice.kind is DirectionCandidateKind.TRANSPORTED
+    assert choice.diagnostics["direction_hvp_count"] == 1
+    assert choice.diagnostics["continuation_source"] == "selected_mode"
+
+
+def test_continuation_projection_rejects_direction_removed_by_fixed_mask():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]),
+        fixed_mask=np.array([True, True]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            direction_selection_mode="transported_direction",
+            n_bond_pairs=0,
+        ),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0])
+
+    with pytest.raises(
+        ContinuationDirectionDegenerate,
+        match="vanished after projection",
+    ):
+        walker.oracle.choose_transported_direction(
+            state,
+            ProposalPotential(walker.calculator),
+            direction,
+            direction,
+        )
 
 
 @pytest.mark.parametrize(
