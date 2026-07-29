@@ -1,0 +1,21 @@
+{
+  "execution_commit": "88dd4def973f2f7a7c656c87227dd64e41407f9c",
+  "stable_meaningful_by_family": {
+    "bond_only": 1,
+    "random_only": 3
+  },
+  "held_out_audit": {
+    "starter_only_brier": 0.14814814814814817,
+    "starter_plus_family_brier": 0.13541666666666666,
+    "all_folds_improved": false,
+    "held_out_residual_signal": false
+  },
+  "posterior_gate": {
+    "minimum_stable_meaningful_per_family": 5,
+    "enough_stable_labels": false,
+    "held_out_residual_signal": false,
+    "enter_posterior_stage": false,
+    "reason": "insufficient_stable_meaningful_labels_per_family"
+  },
+  "production_default_changed": false
+}

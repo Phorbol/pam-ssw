@@ -3,7 +3,7 @@
 ## Question
 
 Does direction-family identity explain strict terminal outcomes after starter
-identity and all measured computational controls are frozen?
+identity, per-selection oracle cost, and all algorithmic controls are frozen?
 
 This is the evidence gate before any direction-family UCB, Thompson sampler,
 classifier, or regressor is considered.
@@ -34,7 +34,9 @@ the `random_only` arm.
 
 Every direction selection therefore costs exactly four central HVPs, or eight
 force evaluations. The runner fails if either arm contains a mixed candidate
-family.
+family. Total realized force evaluations may differ because an action can
+change walk length, proposal-relaxation work, and true-quench difficulty; those
+differences are retained as outcomes rather than normalized away.
 
 ## Pre-registered posterior gate
 
