@@ -8,6 +8,7 @@ import importlib.util
 import json
 import math
 from pathlib import Path
+import statistics
 import sys
 from typing import Any, Mapping, Sequence
 
@@ -65,6 +66,17 @@ def _finite(value: Any, label: str) -> float:
     return float(value)
 
 
+def _median_absolute_anchor_overlap(
+    direction_rows: Sequence[Mapping[str, Any]],
+) -> float:
+    return float(
+        statistics.median(
+            abs(_finite(row.get("anchor_cosine"), "anchor cosine"))
+            for row in direction_rows
+        )
+    )
+
+
 def _validate_detached_trace(
     direction_rows: Sequence[Mapping[str, Any]],
 ) -> dict[str, Any]:
@@ -108,6 +120,7 @@ def _configured_base_runner():
         "_energy_bounded_vs_detached_base_runner",
     )
     energy_bounded_validator = base._validate_direction_trace
+    base_build_evidence = base.build_evidence
 
     def validate_direction_trace(
         *,
@@ -124,6 +137,24 @@ def _configured_base_runner():
     base.ARMS = ARMS
     base.EXPECTED_HVP_PER_SELECTION = EXPECTED_HVP_PER_SELECTION
     base._validate_direction_trace = validate_direction_trace
+
+    def build_evidence(
+        rows: Sequence[Mapping[str, Any]],
+    ) -> dict[str, Any]:
+        evidence = base_build_evidence(rows)
+        for arm in ARMS:
+            traces = [
+                trace
+                for row in rows
+                if row["arm"] == arm
+                for trace in row["direction_trace"]
+            ]
+            evidence["arm_results"][arm][
+                "median_absolute_anchor_overlap"
+            ] = _median_absolute_anchor_overlap(traces)
+        return evidence
+
+    base.build_evidence = build_evidence
     return base
 
 

@@ -63,6 +63,18 @@ def test_energy_bounded_vs_detached_matrix_is_exact_and_hvp_paired() -> None:
     ) == 12
 
 
+def test_detached_direction_overlap_summary_is_sign_invariant() -> None:
+    runner = _load_runner()
+
+    assert runner._median_absolute_anchor_overlap(
+        [
+            {"anchor_cosine": -0.8},
+            {"anchor_cosine": 0.4},
+            {"anchor_cosine": -0.2},
+        ]
+    ) == pytest.approx(0.4)
+
+
 def test_energy_bounded_vs_detached_evidence_contract_after_execution() -> None:
     if not EVIDENCE_PATH.is_file():
         pytest.skip("locked GPU evidence has not been generated yet")
