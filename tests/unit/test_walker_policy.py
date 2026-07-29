@@ -1009,6 +1009,90 @@ def test_continuation_walk_stops_without_fallback_on_degenerate_projection(
     )
 
 
+def test_walk_executes_a_shared_initial_direction_without_recomputing_it(
+    monkeypatch,
+    tmp_path,
+):
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]),
+    )
+    diagnostic_path = tmp_path / "shared-initial.jsonl"
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            rng_seed=42,
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            n_bond_pairs=0,
+            proposal_relax_steps=0,
+            direction_selection_mode="transported_direction",
+            block_krylov_blocks=1,
+            block_krylov_depth=6,
+            target_negative_curvature=10.0,
+            direction_diagnostics_enabled=True,
+            direction_diagnostics_path=str(diagnostic_path),
+        ),
+        softening_enabled=False,
+    )
+    direction = (
+        np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0])
+        / np.sqrt(2.0)
+    )
+    shared_choice = DirectionChoice(
+        direction=direction,
+        curvature=1.0,
+        kind=DirectionCandidateKind.BLOCK_RITZ,
+        candidate_count=0,
+        true_curvature=1.0,
+        diagnostics={
+            "krylov_blocks": 1,
+            "krylov_depth": 6,
+            "krylov_hvp_count": 12,
+            "krylov_hvp_requested": 12,
+            "krylov_hvp_consumed": 12,
+            "krylov_initial_basis_columns": [2],
+        },
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "_choose_block_krylov_direction",
+        lambda *args, **kwargs: pytest.fail(
+            "shared initial direction was recomputed"
+        ),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(
+            task.initial_state,
+            energy=0.0,
+            gradient_norm=0.0,
+            n_iter=0,
+        ),
+    )
+
+    walker._walk_candidate_from_seed(
+        state,
+        initial_direction_choice=shared_choice,
+    )
+
+    [row] = [
+        json.loads(line)
+        for line in diagnostic_path.read_text().splitlines()
+    ]
+    assert row["shared_initial_direction"] is True
+    assert row["oracle_selection_force_evaluations_delta"] == 0
+    assert row["selected_direction_sha256"] == (
+        SurfaceWalker._continuation_diagnostics(
+            direction,
+            None,
+            None,
+            direction,
+        )["selected_direction_sha256"]
+    )
+
+
 @pytest.mark.parametrize(
     ("force_softening_rebuild", "extra_direction_evaluations"),
     [(False, 2), (True, 2)],

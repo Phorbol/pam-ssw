@@ -256,12 +256,13 @@ def _validate_direction_trace(
                 or row.get("krylov_hvp_consumed") != 12
                 or row.get("krylov_hvp_count") != 12
                 or row.get("oracle_selection_force_evaluations_delta")
-                != 24
+                != 0
+                or row.get("shared_initial_direction") is not True
             ):
                 raise RuntimeError(
                     "direction trace violates the common step-zero contract"
                 )
-            row_hvps = 12
+            row_hvps = 0
         elif arm == "transported_direction":
             if (
                 row.get("selected_kind") != "transported"
@@ -320,6 +321,84 @@ def _validate_direction_trace(
     }
 
 
+def _precompute_shared_initial_direction(
+    *,
+    state,
+    shared_calculator,
+    base_runner,
+    state_id: str,
+    seed: int,
+    shared_dir: Path,
+):
+    from pamssw.accounting import EvaluationPurpose
+    from pamssw.walker import ProposalPotential, SurfaceWalker
+
+    config = replace(
+        base_runner.build_config("c60", shared_dir),
+        max_trials=1,
+        max_force_evals=None,
+        rng_seed=seed,
+        direction_selection_mode="block_krylov",
+        block_krylov_blocks=1,
+        block_krylov_depth=6,
+    )
+    walker = SurfaceWalker(
+        calculator=shared_calculator,
+        config=config,
+        softening_enabled=True,
+    )
+    anchor_direction, krylov_intents = (
+        walker._initialize_walk_direction_context(
+            state,
+            trial_index=0,
+        )
+    )
+    softening = walker._build_softening(state, anchor_direction)
+    proposal = ProposalPotential(
+        walker.calculator,
+        biases=[],
+        softening=softening,
+    )
+    scoring_proposal = walker._direction_scoring_proposal(proposal)
+    with walker.calculator.purpose(
+        EvaluationPurpose.DIRECTION_ORACLE
+    ):
+        choice = walker.oracle._choose_block_krylov_direction(
+            state,
+            scoring_proposal,
+            krylov_intents,
+            anchor_direction,
+            None,
+            None,
+            depth=6,
+        )
+    purposes = walker.calculator.snapshot().as_dict()
+    if (
+        purposes["direction_oracle"] != 24
+        or sum(purposes.values()) != 24
+        or choice.diagnostics.get("krylov_hvp_consumed") != 12
+    ):
+        raise RuntimeError(
+            "shared initial direction did not consume exactly 12 HVPs"
+        )
+    direction = np.asarray(choice.direction, dtype=float)
+    direction = direction / np.linalg.norm(direction)
+    direction_hash = sha256(
+        np.asarray(direction, dtype="<f8").tobytes()
+    ).hexdigest()
+    return choice, {
+        "state_id": state_id,
+        "seed": seed,
+        "direction_sha256": direction_hash,
+        "direction": direction.tolist(),
+        "curvature": float(choice.curvature),
+        "true_curvature": float(choice.true_curvature),
+        "force_evaluations": 24,
+        "purpose_counts": purposes,
+        "diagnostics": choice.diagnostics,
+    }
+
+
 def _run_case(
     *,
     state,
@@ -330,6 +409,7 @@ def _run_case(
     seed: int,
     arm: str,
     case_dir: Path,
+    initial_direction_choice,
 ) -> dict[str, Any]:
     from pamssw.accounting import EvaluationPurpose
     from pamssw.archive import MinimaArchive
@@ -369,15 +449,15 @@ def _run_case(
         starter_evaluation = walker.calculator.evaluate(state)
     starter_energy = float(starter_evaluation.energy)
     seed_entry = archive.add(state, starter_energy, parent_id=None)
-    proposal = walker._proposal_pool(
+    escape_state = walker._walk_candidate_from_seed(
         state,
         archive,
+        walker.step_target_controller.target(archive),
         trial_index=0,
-        step_target=walker.step_target_controller.target(archive),
+        proposal_index=0,
         seed_entry_id=seed_entry.entry_id,
-        allow_duplicate_rescue=False,
-    )[0]
-    escape_state = proposal.state
+        initial_direction_choice=initial_direction_choice,
+    )
     with walker.calculator.purpose(
         EvaluationPurpose.ESCAPE_TRUE_PES_CHECK
     ):
@@ -474,6 +554,9 @@ def _run_case(
         ),
         "direction_hvp_count": int(direction_audit["hvp_count"]),
         "direction_trace_valid": True,
+        "shared_initial_direction_sha256": direction_rows[0][
+            "selected_direction_sha256"
+        ],
         "generation_wall_time_s": generation_wall_time,
         "quench_wall_time_s": quench_wall_time,
         "starter_path": str(starter_path),
@@ -511,45 +594,73 @@ def run(
     ) = _load_locked_runtime(locked_source)
     rows: list[dict[str, Any]] = []
     total_force_evaluations = 0
-    for case in case_matrix():
-        state_id = str(case["state_id"])
-        seed = int(case["seed"])
-        arm = str(case["arm"])
-        case_dir = (
-            output_dir
-            / "cases"
-            / f"{state_id}-seed{seed}-{arm}"
-        )
-        print(
-            f"[continuation-audit] {state_id} seed={seed} arm={arm}",
-            flush=True,
-        )
-        row = _run_case(
-            state=states[state_id],
-            state_provenance=state_provenance[state_id],
-            shared_calculator=shared_calculator,
-            base_runner=base_runner,
-            state_id=state_id,
-            seed=seed,
-            arm=arm,
-            case_dir=case_dir,
-        )
-        rows.append(row)
-        total_force_evaluations += int(row["force_evaluations"])
-        if total_force_evaluations > MAX_TOTAL_FORCE_EVALUATIONS:
-            raise RuntimeError(
-                "C1 exceeded the 10000 force-evaluation stop"
+    shared_initial_directions: list[dict[str, Any]] = []
+    for state_id in STATE_IDS:
+        for seed in SEEDS:
+            initial_choice, shared_record = (
+                _precompute_shared_initial_direction(
+                    state=states[state_id],
+                    shared_calculator=shared_calculator,
+                    base_runner=base_runner,
+                    state_id=state_id,
+                    seed=seed,
+                    shared_dir=(
+                        output_dir
+                        / "shared-initial"
+                        / f"{state_id}-seed{seed}"
+                    ),
+                )
             )
-        _write_json(
-            output_dir / "raw.json",
-            {
-                "schema_version": 1,
-                "execution_commit": execution_commit,
-                "shared_provenance": shared_provenance,
-                "state_provenance": state_provenance,
-                "cases": rows,
-            },
-        )
+            shared_initial_directions.append(shared_record)
+            total_force_evaluations += int(
+                shared_record["force_evaluations"]
+            )
+            for arm in ARMS:
+                case_dir = (
+                    output_dir
+                    / "cases"
+                    / f"{state_id}-seed{seed}-{arm}"
+                )
+                print(
+                    f"[continuation-audit] {state_id} seed={seed} "
+                    f"arm={arm}",
+                    flush=True,
+                )
+                row = _run_case(
+                    state=states[state_id],
+                    state_provenance=state_provenance[state_id],
+                    shared_calculator=shared_calculator,
+                    base_runner=base_runner,
+                    state_id=state_id,
+                    seed=seed,
+                    arm=arm,
+                    case_dir=case_dir,
+                    initial_direction_choice=initial_choice,
+                )
+                rows.append(row)
+                total_force_evaluations += int(
+                    row["force_evaluations"]
+                )
+                if (
+                    total_force_evaluations
+                    > MAX_TOTAL_FORCE_EVALUATIONS
+                ):
+                    raise RuntimeError(
+                        "C1 exceeded the 10000 force-evaluation stop"
+                    )
+                _write_json(
+                    output_dir / "raw.json",
+                    {
+                        "schema_version": 2,
+                        "execution_commit": execution_commit,
+                        "shared_provenance": shared_provenance,
+                        "state_provenance": state_provenance,
+                        "shared_initial_directions": (
+                            shared_initial_directions
+                        ),
+                        "cases": rows,
+                    },
+                )
     return {
         "execution_commit": execution_commit,
         "completed_cases": len(rows),

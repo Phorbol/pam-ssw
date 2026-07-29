@@ -3222,6 +3222,7 @@ class SurfaceWalker:
         proposal_optimizer_override: str | None = None,
         selected_direction_kinds: set[DirectionCandidateKind] | None = None,
         plateau_evolution_active: bool = False,
+        initial_direction_choice: DirectionChoice | None = None,
     ) -> State:
         current = seed_state
         previous_direction: np.ndarray | None = None
@@ -3269,7 +3270,14 @@ class SurfaceWalker:
                     "transported_direction",
                     "continuation_krylov",
                 }
-                if continuation_mode and step_index == 0:
+                if step_index == 0 and initial_direction_choice is not None:
+                    choice = deepcopy(initial_direction_choice)
+                    choice.direction = np.asarray(
+                        initial_direction_choice.direction,
+                        dtype=float,
+                    ).copy()
+                    choice.diagnostics["shared_initial_direction"] = True
+                elif continuation_mode and step_index == 0:
                     choice = self.oracle._choose_block_krylov_direction(
                         current,
                         scoring_proposal,

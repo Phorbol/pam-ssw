@@ -92,7 +92,8 @@ def _step_zero_row(direction_hash="common"):
         "krylov_hvp_requested": 12,
         "krylov_hvp_consumed": 12,
         "krylov_hvp_count": 12,
-        "oracle_selection_force_evaluations_delta": 24,
+        "oracle_selection_force_evaluations_delta": 0,
+        "shared_initial_direction": True,
         "selected_direction_sha256": direction_hash,
         "selected_curvature": -0.2,
         "true_curvature": -0.1,
@@ -105,6 +106,8 @@ def _later_row(arm):
     if arm == "fixed_intent_ritz":
         row = _step_zero_row(direction_hash="later-control")
         row["step"] = 1
+        row["oracle_selection_force_evaluations_delta"] = 24
+        row.pop("shared_initial_direction")
         row["selected_to_previous_selected_abs_cosine"] = 0.4
         return row
     if arm == "transported_direction":
@@ -143,9 +146,9 @@ def _later_row(arm):
 @pytest.mark.parametrize(
     ("arm", "expected_hvps", "expected_force_evaluations"),
     [
-        ("fixed_intent_ritz", 24, 48),
-        ("transported_direction", 13, 26),
-        ("continuation_lanczos", 24, 48),
+        ("fixed_intent_ritz", 12, 24),
+        ("transported_direction", 1, 2),
+        ("continuation_lanczos", 12, 24),
     ],
 )
 def test_direction_trace_contract_supports_variable_post_step_zero_cost(
@@ -301,3 +304,32 @@ def test_persisted_locked_c60_state_round_trips_with_the_same_state_hash(
     loaded = runner._load_persisted_c60_state(path)
 
     assert runner._state_sha256(loaded) == runner._state_sha256(state)
+
+
+def test_shared_initial_direction_ledger_is_exactly_six_paid_selections():
+    analyzer = _load_analyzer()
+    records = [
+        {
+            "state_id": state_id,
+            "seed": seed,
+            "direction_sha256": f"{state_id}-{seed}",
+            "force_evaluations": 24,
+            "purpose_counts": {
+                "direction_oracle": 24,
+                "unattributed": 0,
+            },
+        }
+        for state_id in (
+            "intermediate_accepted",
+            "plateau_accepted",
+        )
+        for seed in (42, 43, 44)
+    ]
+
+    audit = analyzer.validate_shared_initial_directions(
+        records,
+        _fake_cohort(),
+    )
+
+    assert audit["selection_count"] == 6
+    assert audit["force_evaluations"] == 144

@@ -62,6 +62,55 @@ def _condition(row: Mapping[str, Any]) -> tuple[str, int]:
     return str(row["state_id"]), int(row["seed"])
 
 
+def validate_shared_initial_directions(
+    records: Sequence[Mapping[str, Any]],
+    rows: Sequence[Mapping[str, Any]],
+) -> dict[str, int]:
+    expected = {
+        (state_id, seed)
+        for state_id in (
+            "intermediate_accepted",
+            "plateau_accepted",
+        )
+        for seed in (42, 43, 44)
+    }
+    observed = {
+        (str(record.get("state_id")), int(record.get("seed")))
+        for record in records
+    }
+    if len(records) != 6 or observed != expected:
+        raise ValueError(
+            "shared initial ledger requires six paired selections"
+        )
+    by_condition = {
+        (str(record["state_id"]), int(record["seed"])): record
+        for record in records
+    }
+    for condition in expected:
+        record = by_condition[condition]
+        purposes = record.get("purpose_counts")
+        hashes = {
+            str(row["direction_trace"][0]["selected_direction_sha256"])
+            for row in rows
+            if _condition(row) == condition
+        }
+        if (
+            record.get("force_evaluations") != 24
+            or not isinstance(purposes, Mapping)
+            or purposes.get("direction_oracle") != 24
+            or purposes.get("unattributed") != 0
+            or sum(int(value) for value in purposes.values()) != 24
+            or hashes != {str(record["direction_sha256"])}
+        ):
+            raise ValueError(
+                "shared initial direction ledger does not close"
+            )
+    return {
+        "selection_count": 6,
+        "force_evaluations": 144,
+    }
+
+
 def analyze_rows(
     rows: Sequence[Mapping[str, Any]],
 ) -> dict[str, Any]:
@@ -344,6 +393,20 @@ def analyze_output(output_dir: Path) -> dict[str, Any]:
     raw_path = output_dir / "raw.json"
     raw = json.loads(raw_path.read_text(encoding="utf-8"))
     evidence = analyze_rows(raw["cases"])
+    shared_audit = validate_shared_initial_directions(
+        raw["shared_initial_directions"],
+        raw["cases"],
+    )
+    evidence["shared_initial_direction"] = shared_audit
+    evidence["totals"]["case_force_evaluations"] = evidence[
+        "totals"
+    ]["force_evaluations"]
+    evidence["totals"]["force_evaluations"] += shared_audit[
+        "force_evaluations"
+    ]
+    evidence["totals"]["purpose_counts"]["direction_oracle"] += (
+        shared_audit["force_evaluations"]
+    )
     evidence["execution_commit"] = raw["execution_commit"]
     evidence["shared_provenance"] = raw["shared_provenance"]
     evidence["state_provenance"] = raw["state_provenance"]
