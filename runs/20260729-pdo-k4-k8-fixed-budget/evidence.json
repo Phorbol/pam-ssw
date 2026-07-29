@@ -1,0 +1,305 @@
+{
+  "aggregate_descriptive_only": {
+    "k4": {
+      "mean_archive_minima": 75.5,
+      "mean_completed_trials": 106.5,
+      "mean_duplicate_rate": 0.2970832612082396,
+      "mean_energy_drop_eV": 6.60833740234375
+    },
+    "k8": {
+      "mean_archive_minima": 65,
+      "mean_completed_trials": 77.5,
+      "mean_duplicate_rate": 0.16997720612178444,
+      "mean_energy_drop_eV": 5.905487060546875
+    }
+  },
+  "arms": [
+    {
+      "arm": "k4",
+      "directions": {
+        "candidate_evaluations": 624,
+        "choices": 156,
+        "selected": {
+          "bond": 62,
+          "momentum": 47,
+          "random": 47
+        }
+      },
+      "energy": {
+        "best_eV": -576.778076171875,
+        "drop_eV": 8.381103515625,
+        "initial_eV": -568.39697265625
+      },
+      "execution_commit": "3f4af5abe97abc729199f2722021c12e89680f1d",
+      "force_evaluations": {
+        "by_purpose": {
+          "biased_proposal_relax": 13429,
+          "bootstrap_true_quench": 37,
+          "direction_oracle": 1248,
+          "escape_true_pes_check": 220,
+          "landing_true_quench": 4957,
+          "post_relax_validation": 109,
+          "starter_true_quench": 0,
+          "unattributed": 0
+        },
+        "total": 20000
+      },
+      "proposal_relaxation": {
+        "count": 111,
+        "mean_iterations": 81.91891891891892,
+        "median_iterations": 74.0,
+        "p90_iterations": 129.0,
+        "unconverged": 9
+      },
+      "quench_certificates": {
+        "complete": true,
+        "converged": 109,
+        "count": 109,
+        "fraction": 1.0,
+        "unconverged": 0
+      },
+      "search_output": {
+        "archive_minima": 72,
+        "budget_exhausted": true,
+        "completed_trials": 108,
+        "duplicate_rate": 0.3394495412844037,
+        "first_best_trial": 50
+      },
+      "seed": 42,
+      "true_quench": {
+        "max_gradient": 0.025323268379203647,
+        "mean_iterations": 40.6605504587156,
+        "median_iterations": 39.0,
+        "p90_iterations": 88.4
+      },
+      "wall_time_s": 450.12159956700634
+    },
+    {
+      "arm": "k8",
+      "directions": {
+        "candidate_evaluations": 1176,
+        "choices": 147,
+        "selected": {
+          "bond": 28,
+          "momentum": 63,
+          "random": 56
+        }
+      },
+      "energy": {
+        "best_eV": -574.8525390625,
+        "drop_eV": 6.45562744140625,
+        "initial_eV": -568.3969116210938
+      },
+      "execution_commit": "3f4af5abe97abc729199f2722021c12e89680f1d",
+      "force_evaluations": {
+        "by_purpose": {
+          "biased_proposal_relax": 12277,
+          "bootstrap_true_quench": 37,
+          "direction_oracle": 2352,
+          "escape_true_pes_check": 196,
+          "landing_true_quench": 5055,
+          "post_relax_validation": 83,
+          "starter_true_quench": 0,
+          "unattributed": 0
+        },
+        "total": 20000
+      },
+      "proposal_relaxation": {
+        "count": 113,
+        "mean_iterations": 81.929203539823,
+        "median_iterations": 75.0,
+        "p90_iterations": 136.59999999999997,
+        "unconverged": 5
+      },
+      "quench_certificates": {
+        "complete": true,
+        "converged": 83,
+        "count": 83,
+        "fraction": 1.0,
+        "unconverged": 0
+      },
+      "search_output": {
+        "archive_minima": 66,
+        "budget_exhausted": true,
+        "completed_trials": 82,
+        "duplicate_rate": 0.20481927710843373,
+        "first_best_trial": 82
+      },
+      "seed": 42,
+      "true_quench": {
+        "max_gradient": 0.023069104308392024,
+        "mean_iterations": 55.493975903614455,
+        "median_iterations": 58.0,
+        "p90_iterations": 98.6
+      },
+      "wall_time_s": 450.0677501439932
+    },
+    {
+      "arm": "k4",
+      "directions": {
+        "candidate_evaluations": 628,
+        "choices": 157,
+        "selected": {
+          "bond": 59,
+          "momentum": 51,
+          "random": 47
+        }
+      },
+      "energy": {
+        "best_eV": -573.2325439453125,
+        "drop_eV": 4.8355712890625,
+        "initial_eV": -568.39697265625
+      },
+      "execution_commit": "3f4af5abe97abc729199f2722021c12e89680f1d",
+      "force_evaluations": {
+        "by_purpose": {
+          "biased_proposal_relax": 12739,
+          "bootstrap_true_quench": 37,
+          "direction_oracle": 1256,
+          "escape_true_pes_check": 218,
+          "landing_true_quench": 5644,
+          "post_relax_validation": 106,
+          "starter_true_quench": 0,
+          "unattributed": 0
+        },
+        "total": 20000
+      },
+      "proposal_relaxation": {
+        "count": 112,
+        "mean_iterations": 85.34821428571429,
+        "median_iterations": 79.0,
+        "p90_iterations": 133.60000000000002,
+        "unconverged": 3
+      },
+      "quench_certificates": {
+        "complete": false,
+        "converged": 105,
+        "count": 106,
+        "fraction": 0.9905660377358491,
+        "unconverged": 1
+      },
+      "search_output": {
+        "archive_minima": 79,
+        "budget_exhausted": true,
+        "completed_trials": 105,
+        "duplicate_rate": 0.25471698113207547,
+        "first_best_trial": 102
+      },
+      "seed": 43,
+      "true_quench": {
+        "max_gradient": 0.9662160304381154,
+        "mean_iterations": 48.528301886792455,
+        "median_iterations": 49.5,
+        "p90_iterations": 102.0
+      },
+      "wall_time_s": 448.6800841370132
+    },
+    {
+      "arm": "k8",
+      "directions": {
+        "candidate_evaluations": 1144,
+        "choices": 143,
+        "selected": {
+          "bond": 16,
+          "momentum": 64,
+          "random": 63
+        }
+      },
+      "energy": {
+        "best_eV": -573.7523193359375,
+        "drop_eV": 5.3553466796875,
+        "initial_eV": -568.39697265625
+      },
+      "execution_commit": "3f4af5abe97abc729199f2722021c12e89680f1d",
+      "force_evaluations": {
+        "by_purpose": {
+          "biased_proposal_relax": 12761,
+          "bootstrap_true_quench": 37,
+          "direction_oracle": 2288,
+          "escape_true_pes_check": 191,
+          "landing_true_quench": 4649,
+          "post_relax_validation": 74,
+          "starter_true_quench": 0,
+          "unattributed": 0
+        },
+        "total": 20000
+      },
+      "proposal_relaxation": {
+        "count": 117,
+        "mean_iterations": 86.38461538461539,
+        "median_iterations": 79.0,
+        "p90_iterations": 136.4,
+        "unconverged": 1
+      },
+      "quench_certificates": {
+        "complete": false,
+        "converged": 73,
+        "count": 74,
+        "fraction": 0.9864864864864865,
+        "unconverged": 1
+      },
+      "search_output": {
+        "archive_minima": 64,
+        "budget_exhausted": true,
+        "completed_trials": 73,
+        "duplicate_rate": 0.13513513513513514,
+        "first_best_trial": 18
+      },
+      "seed": 43,
+      "true_quench": {
+        "max_gradient": 0.27290974514620586,
+        "mean_iterations": 58.189189189189186,
+        "median_iterations": 56.5,
+        "p90_iterations": 96.7
+      },
+      "wall_time_s": 453.4169682819629
+    }
+  ],
+  "claim_boundary": {
+    "note": "Two paired seeds diagnose mechanism and reject/retain the pre-registered promotion gate; they do not establish a population-level performance difference.",
+    "paired_seed_count": 2,
+    "statistical_inference": false
+  },
+  "experiment": "PdO K4/K8 fixed-total-force-budget ablation",
+  "paired_differences": [
+    {
+      "delta_k4_minus_k8": {
+        "archive_minima": 6,
+        "completed_trials": 26,
+        "direction_force_evaluations": -1104,
+        "duplicate_rate": 0.13463026417596996,
+        "energy_drop_eV": 1.92547607421875,
+        "landing_force_evaluations": -98,
+        "proposal_force_evaluations": 1152,
+        "wall_time_s": 0.05384942301316187
+      },
+      "seed": 42
+    },
+    {
+      "delta_k4_minus_k8": {
+        "archive_minima": 15,
+        "completed_trials": 32,
+        "direction_force_evaluations": -1032,
+        "duplicate_rate": 0.11958184599694033,
+        "energy_drop_eV": -0.519775390625,
+        "landing_force_evaluations": 995,
+        "proposal_force_evaluations": -22,
+        "wall_time_s": -4.736884144949727
+      },
+      "seed": 43
+    }
+  ],
+  "promotion": {
+    "energy_gate_by_seed": {
+      "42": true,
+      "43": false
+    },
+    "promote_k4": false,
+    "rule": "K4 must match or beat K8 energy drop and complete at least as many trials in both paired seeds.",
+    "trial_gate_by_seed": {
+      "42": true,
+      "43": true
+    }
+  },
+  "schema_version": 1
+}
