@@ -2,7 +2,12 @@ import importlib.util
 from pathlib import Path
 import sys
 
+from ase import Atoms
+from ase.io import write
+import numpy as np
 import pytest
+
+from pamssw.state import State
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -270,3 +275,29 @@ def test_analysis_advances_transport_only_for_a_paired_terminal_gain():
 
     assert evidence["decision"] == "transported_direction_survives"
     assert evidence["survivors"] == ["transported_direction"]
+
+
+def test_persisted_locked_c60_state_round_trips_with_the_same_state_hash(
+    tmp_path,
+):
+    runner = _load_runner()
+    state = State(
+        numbers=np.array([6, 6]),
+        positions=np.array(
+            [[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]
+        ),
+    )
+    path = tmp_path / "starter.xyz"
+    write(
+        path,
+        Atoms(
+            numbers=state.numbers,
+            positions=state.positions,
+            pbc=False,
+        ),
+        format="extxyz",
+    )
+
+    loaded = runner._load_persisted_c60_state(path)
+
+    assert runner._state_sha256(loaded) == runner._state_sha256(state)

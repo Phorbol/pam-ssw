@@ -140,7 +140,90 @@ def _read_direction_rows(path: Path) -> list[dict[str, Any]]:
     ]
 
 
-def _load_locked_runtime():
+def _load_persisted_c60_state(path: Path):
+    from ase.io import read
+
+    from pamssw.state import State
+
+    atoms = read(path)
+    cell = np.asarray(atoms.cell.array, dtype=float)
+    return State(
+        numbers=np.asarray(atoms.numbers, dtype=int),
+        positions=np.asarray(atoms.positions, dtype=float),
+        cell=None if not np.any(cell) else cell,
+        pbc=tuple(bool(value) for value in atoms.pbc),
+        fixed_mask=np.zeros(len(atoms), dtype=bool),
+        metadata=dict(atoms.info),
+    )
+
+
+def _load_persisted_locked_runtime(source_dir: Path):
+    from pamssw.calculators import ASECalculator
+
+    checkpoint_source = _load_module(
+        LOCKED_STATE_RUNNER_PATH,
+        "_direction_continuation_checkpoint_source",
+    )
+    audit = _load_module(
+        checkpoint_source.FIXED_STATE_AUDIT_PATH,
+        "_direction_continuation_fixed_state_audit",
+    )
+    _strict_wrapper, base_runner = audit._load_frozen_runtime()
+    raw = json.loads((source_dir / "raw.json").read_text(encoding="utf-8"))
+    states = {}
+    provenance = {}
+    for state_id in STATE_IDS:
+        case_dir = (
+            source_dir
+            / "cases"
+            / f"{state_id}-seed42-detached_ritz"
+        )
+        summary = json.loads(
+            (case_dir / "summary.json").read_text(encoding="utf-8")
+        )
+        starter_path = case_dir / "starter.xyz"
+        if _sha256(starter_path) != summary["starter_file_sha256"]:
+            raise RuntimeError(
+                f"persisted starter checksum drifted for {state_id}"
+            )
+        state = _load_persisted_c60_state(starter_path)
+        state_hash = _state_sha256(state)
+        if (
+            state_hash != summary["state_sha256"]
+            or state_hash
+            != raw["state_provenance"][state_id]["state_sha256"]
+        ):
+            raise RuntimeError(
+                f"persisted starter state hash drifted for {state_id}"
+            )
+        states[state_id] = state
+        provenance[state_id] = {
+            **raw["state_provenance"][state_id],
+            "persisted_starter_path": str(starter_path),
+            "persisted_starter_sha256": _sha256(starter_path),
+        }
+    shared = {
+        **raw["shared_provenance"],
+        "bootstrap_force_evaluations": 0,
+        "bootstrap_skipped": True,
+        "locked_source_output": str(source_dir),
+        "selection_rationale": (
+            "exact state-hash-matched starters persisted by the preceding "
+            "validated 18-case cohort"
+        ),
+    }
+    return (
+        states,
+        ASECalculator(base_runner._calculator()),
+        base_runner,
+        provenance,
+        shared,
+    )
+
+
+def _load_locked_runtime(source_dir: Path | None = None):
+    if source_dir is not None:
+        return _load_persisted_locked_runtime(Path(source_dir))
     source = _load_module(
         LOCKED_STATE_RUNNER_PATH,
         "_direction_continuation_locked_state_source",
@@ -404,7 +487,11 @@ def _run_case(
     return row
 
 
-def run(output_dir: Path) -> dict[str, Any]:
+def run(
+    output_dir: Path,
+    *,
+    locked_source: Path | None = None,
+) -> dict[str, Any]:
     execution_commit = _current_commit()
     if not _tracked_worktree_clean():
         raise RuntimeError("tracked worktree is not clean")
@@ -419,7 +506,7 @@ def run(output_dir: Path) -> dict[str, Any]:
         base_runner,
         state_provenance,
         shared_provenance,
-    ) = _load_locked_runtime()
+    ) = _load_locked_runtime(locked_source)
     rows: list[dict[str, Any]] = []
     total_force_evaluations = 0
     for case in case_matrix():
@@ -477,6 +564,15 @@ def _parse_args(
         type=Path,
         default=RUN_ROOT / "output",
     )
+    parser.add_argument(
+        "--locked-source",
+        type=Path,
+        default=None,
+        help=(
+            "validated preceding cohort output containing exact persisted "
+            "starter states"
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -484,7 +580,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     args = _parse_args(argv)
     print(
         json.dumps(
-            run(args.output),
+            run(args.output, locked_source=args.locked_source),
             indent=2,
             sort_keys=True,
         )
