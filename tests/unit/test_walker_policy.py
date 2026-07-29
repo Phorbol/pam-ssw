@@ -820,6 +820,184 @@ def test_continuation_projection_rejects_direction_removed_by_fixed_mask():
         )
 
 
+def test_continuation_walk_has_common_first_step_and_keeps_selected_mode(
+    monkeypatch,
+    tmp_path,
+):
+    class ThreeAtomQuadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.diag(np.arange(1.0, 10.0))
+            gradient = hessian @ flat_positions
+            return 0.5 * float(flat_positions @ gradient), gradient
+
+    state = State(
+        numbers=np.array([6, 6, 6]),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.4, 0.0, 0.0],
+                [0.0, 1.2, 0.0],
+            ]
+        ),
+    )
+    rows_by_arm = {}
+    arm_settings = {
+        "fixed_intent_ritz": ("block_krylov", 6),
+        "transported_direction": ("transported_direction", 6),
+        "continuation_lanczos": ("continuation_krylov", 12),
+    }
+
+    for arm, (mode, depth) in arm_settings.items():
+        diagnostic_path = tmp_path / f"{arm}.jsonl"
+        walker = SurfaceWalker(
+            calculator=AnalyticCalculator(ThreeAtomQuadratic()),
+            config=SSWConfig(
+                rng_seed=42,
+                max_steps_per_walk=2,
+                oracle_candidates=1,
+                n_bond_pairs=0,
+                proposal_relax_steps=0,
+                direction_selection_mode=mode,
+                block_krylov_blocks=1,
+                block_krylov_depth=depth,
+                direction_curvature_source="true",
+                target_negative_curvature=10.0,
+                direction_diagnostics_enabled=True,
+                direction_diagnostics_path=str(diagnostic_path),
+            ),
+            softening_enabled=False,
+        )
+
+        def relax_with_transverse_component(task, **kwargs):
+            positions = task.initial_state.positions.copy()
+            positions[0, 1] += 0.02
+            positions[1, 1] -= 0.02
+            return RelaxResult(
+                task.initial_state.with_flat_positions(positions.reshape(-1)),
+                energy=0.0,
+                gradient_norm=0.0,
+                n_iter=0,
+            )
+
+        monkeypatch.setattr(
+            walker,
+            "_relax_proposal_task",
+            relax_with_transverse_component,
+        )
+        walker._walk_candidate_from_seed(state)
+        rows_by_arm[arm] = [
+            json.loads(line)
+            for line in diagnostic_path.read_text().splitlines()
+        ]
+
+    first_hashes = {
+        rows[0]["selected_direction_sha256"]
+        for rows in rows_by_arm.values()
+    }
+    assert len(first_hashes) == 1
+    assert all(
+        rows[0]["selected_kind"] == "block_ritz"
+        for rows in rows_by_arm.values()
+    )
+    assert (
+        rows_by_arm["transported_direction"][1][
+            "direction_hvp_count"
+        ]
+        == 1
+    )
+    assert (
+        rows_by_arm["transported_direction"][1][
+            "continuation_source"
+        ]
+        == "selected_mode"
+    )
+    assert (
+        rows_by_arm["continuation_lanczos"][1][
+            "krylov_initial_basis_columns"
+        ]
+        == [1]
+    )
+    assert (
+        rows_by_arm["continuation_lanczos"][1][
+            "continuation_source"
+        ]
+        == "selected_mode"
+    )
+    selected_cosine = rows_by_arm["transported_direction"][1][
+        "selected_to_previous_selected_abs_cosine"
+    ]
+    relaxed_cosine = rows_by_arm["transported_direction"][1][
+        "selected_to_previous_relaxed_abs_cosine"
+    ]
+    assert selected_cosine > 0.999
+    assert selected_cosine > relaxed_cosine
+
+
+def test_continuation_walk_stops_without_fallback_on_degenerate_projection(
+    monkeypatch,
+):
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            rng_seed=42,
+            max_steps_per_walk=2,
+            oracle_candidates=1,
+            n_bond_pairs=0,
+            proposal_relax_steps=0,
+            direction_selection_mode="transported_direction",
+            block_krylov_blocks=1,
+            block_krylov_depth=6,
+            target_negative_curvature=10.0,
+        ),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0])
+    monkeypatch.setattr(
+        walker.oracle,
+        "_choose_block_krylov_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=direction / np.linalg.norm(direction),
+            curvature=1.0,
+            kind=DirectionCandidateKind.BLOCK_RITZ,
+            candidate_count=0,
+            true_curvature=1.0,
+        ),
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_transported_direction",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            ContinuationDirectionDegenerate(
+                "continuation direction vanished after projection"
+            )
+        ),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(
+            task.initial_state,
+            energy=0.0,
+            gradient_norm=0.0,
+            n_iter=0,
+        ),
+    )
+
+    result = walker._walk_candidate_from_seed(state)
+
+    assert isinstance(result, State)
+    assert (
+        walker._direction_stats_summary()[
+            "continuation_projection_degenerate"
+        ]
+        == 1
+    )
+
+
 @pytest.mark.parametrize(
     ("force_softening_rebuild", "extra_direction_evaluations"),
     [(False, 2), (True, 2)],

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sys
+from hashlib import sha256
 from copy import deepcopy
 from collections import Counter, deque
 from collections.abc import Callable, Iterable
@@ -574,6 +575,9 @@ class StepTargetController:
 
 class ContinuationDirectionDegenerate(RuntimeError):
     """The stored continuation mode has no admissible movable component."""
+
+
+CONTINUATION_INITIAL_KRYLOV_DEPTH = 6
 
 
 class DirectionCandidateKind(str, Enum):
@@ -1575,6 +1579,8 @@ class SoftModeOracle:
         anchor_direction: np.ndarray | None,
         energy_bound_step_scale: float | None,
         energy_bound_target: float | None,
+        *,
+        depth: int | None = None,
     ) -> DirectionChoice:
         if not isinstance(krylov_intents, tuple) or not krylov_intents:
             raise ValueError("krylov_intents must be a non-empty tuple for block_krylov mode")
@@ -1592,11 +1598,12 @@ class SoftModeOracle:
             projected_true.reshape(state.n_atoms, 3)[state.fixed_mask] = 0.0
             return projected_total, projected_true
 
+        krylov_depth = self.block_krylov_depth if depth is None else depth
         results = [
             solve_krylov_block(
                 intent,
                 directional_hvps,
-                depth=self.block_krylov_depth,
+                depth=krylov_depth,
                 reference_direction=anchor_direction,
             )
             for intent in krylov_intents
@@ -1733,12 +1740,12 @@ class SoftModeOracle:
         ]
         diagnostics: dict[str, object] = {
             "krylov_blocks": int(len(results)),
-            "krylov_depth": int(self.block_krylov_depth),
+            "krylov_depth": int(krylov_depth),
             "krylov_selected_block": int(selected_block),
             "krylov_hvp_count": int(sum(result.hvp_count for result in results)),
             "krylov_hvp_requested": int(
                 sum(intent.basis.shape[1] for intent in krylov_intents)
-                * self.block_krylov_depth
+                * krylov_depth
             ),
             "krylov_hvp_consumed": int(sum(result.hvp_count for result in results)),
             "krylov_initial_basis_columns": [
@@ -1809,15 +1816,11 @@ class SoftModeOracle:
         direction: np.ndarray,
         reference: np.ndarray,
     ) -> DirectionChoice:
-        projected = project_out_rigid_body_modes(state, direction)
-        projected.reshape(state.n_atoms, 3)[state.fixed_mask] = 0.0
-        normalized = self._normalized_or_none(projected)
-        if normalized is None:
-            raise ContinuationDirectionDegenerate(
-                "continuation direction vanished after projection"
-            )
-        if float(np.dot(normalized, reference)) < 0.0:
-            normalized = -normalized
+        normalized = self.project_continuation_direction(
+            state,
+            direction,
+            reference,
+        )
         total_hvp, true_hvp = self._candidate_directional_hvps(
             state,
             proposal,
@@ -1835,6 +1838,23 @@ class SoftModeOracle:
                 "continuation_source": "selected_mode",
             },
         )
+
+    def project_continuation_direction(
+        self,
+        state: State,
+        direction: np.ndarray,
+        reference: np.ndarray,
+    ) -> np.ndarray:
+        projected = project_out_rigid_body_modes(state, direction)
+        projected.reshape(state.n_atoms, 3)[state.fixed_mask] = 0.0
+        normalized = self._normalized_or_none(projected)
+        if normalized is None:
+            raise ContinuationDirectionDegenerate(
+                "continuation direction vanished after projection"
+            )
+        if float(np.dot(normalized, reference)) < 0.0:
+            normalized = -normalized
+        return normalized
 
     def _choose_exact_anchor_direction(
         self,
@@ -2565,6 +2585,41 @@ class SurfaceWalker:
             return None
         return float(np.dot(anchor, chosen) / (anchor_norm * chosen_norm))
 
+    @classmethod
+    def _continuation_diagnostics(
+        cls,
+        selected_direction: np.ndarray,
+        previous_selected_direction: np.ndarray | None,
+        previous_relaxed_direction: np.ndarray | None,
+        anchor_direction: np.ndarray | None,
+    ) -> dict[str, object]:
+        selected = np.asarray(selected_direction, dtype=float).reshape(-1)
+        selected = selected / np.linalg.norm(selected)
+
+        def cosine(reference: np.ndarray | None) -> float | None:
+            return cls._direction_anchor_cosine(reference, selected)
+
+        selected_cosine = cosine(previous_selected_direction)
+        relaxed_cosine = cosine(previous_relaxed_direction)
+        anchor_cosine = cosine(anchor_direction)
+        return {
+            "selected_direction_sha256": sha256(
+                np.asarray(selected, dtype="<f8").tobytes()
+            ).hexdigest(),
+            "selected_to_previous_selected_cosine": selected_cosine,
+            "selected_to_previous_selected_abs_cosine": (
+                None if selected_cosine is None else abs(selected_cosine)
+            ),
+            "selected_to_previous_relaxed_cosine": relaxed_cosine,
+            "selected_to_previous_relaxed_abs_cosine": (
+                None if relaxed_cosine is None else abs(relaxed_cosine)
+            ),
+            "selected_to_anchor_cosine": anchor_cosine,
+            "selected_to_anchor_abs_cosine": (
+                None if anchor_cosine is None else abs(anchor_cosine)
+            ),
+        }
+
     def _capture_direction_record(
         self,
         *,
@@ -3160,6 +3215,7 @@ class SurfaceWalker:
     ) -> State:
         current = seed_state
         previous_direction: np.ndarray | None = None
+        previous_selected_direction: np.ndarray | None = None
         previous_relax_outcome: RelaxOutcomeClass | None = None
         biases: list[GaussianBiasTerm] = []
         sigma_scale = 1.0
@@ -3199,51 +3255,121 @@ class SurfaceWalker:
                     == "energy_bounded_anchor"
                     else (None, None)
                 )
-                choice = self.oracle.choose_direction(
-                    current,
-                    scoring_proposal,
-                    previous_direction,
-                    anchor_direction=anchor_direction,
-                    step_scale_fn=lambda curvature: self._scaled_step_scale(
-                        curvature,
-                        sigma_scale,
-                        step_target=step_target,
-                    ),
-                    archive=archive,
-                    history_gradient=self._history_bias_gradient(current, biases),
-                    continuity_weight=self._continuity_weight_for_outcome(previous_relax_outcome),
-                    n_bond_pairs=self._n_bond_pairs_for_outcome(previous_relax_outcome),
-                    score_sigma=(
-                        None
-                        if score_sigma_fn is not None
-                        else self._direction_score_sigma(sigma_scale, step_target=step_target)
-                    ),
-                    score_sigma_fn=score_sigma_fn,
-                    direction_type_bonus_fn=(
-                        self.direction_type_memory.bonus if self.config.direction_type_ucb_enabled else None
-                    ),
-                    plateau_evolution_active=plateau_evolution_active,
-                    plateau_history=(
-                        self.successful_records(
-                            seed_entry_id=seed_entry_id,
-                            limit=self.config.plateau_evolution_history_limit,
+                continuation_mode = self.config.direction_selection_mode in {
+                    "transported_direction",
+                    "continuation_krylov",
+                }
+                if continuation_mode and step_index == 0:
+                    choice = self.oracle._choose_block_krylov_direction(
+                        current,
+                        scoring_proposal,
+                        krylov_intents,
+                        anchor_direction,
+                        None,
+                        None,
+                        depth=CONTINUATION_INITIAL_KRYLOV_DEPTH,
+                    )
+                elif self.config.direction_selection_mode == "transported_direction":
+                    assert previous_selected_direction is not None
+                    try:
+                        choice = self.oracle.choose_transported_direction(
+                            current,
+                            scoring_proposal,
+                            previous_selected_direction,
+                            previous_selected_direction,
                         )
-                        if plateau_evolution_active
-                        else []
-                    ),
-                    plateau_evolution_children=self.config.plateau_evolution_children,
-                    plateau_evolution_crossover_pairs=self.config.plateau_evolution_crossover_pairs,
-                    plateau_evolution_mutation_count=self.config.plateau_evolution_mutation_count,
-                    archive_momentum_history=self._archive_momentum_history_for_seed(seed_entry_id),
-                    archive_momentum_limit=self.config.archive_escape_momentum_limit,
-                    **(
-                        {"krylov_intents": krylov_intents}
-                        if krylov_intents is not None
-                        else {}
-                    ),
-                    energy_bound_step_scale=energy_bound_step_scale,
-                    energy_bound_target=energy_bound_target,
+                    except ContinuationDirectionDegenerate:
+                        self._continuation_projection_degenerate += 1
+                        break
+                elif self.config.direction_selection_mode == "continuation_krylov":
+                    assert previous_selected_direction is not None
+                    try:
+                        continuation_direction = self.oracle.project_continuation_direction(
+                            current,
+                            previous_selected_direction,
+                            previous_selected_direction,
+                        )
+                    except ContinuationDirectionDegenerate:
+                        self._continuation_projection_degenerate += 1
+                        break
+                    choice = self.oracle._choose_block_krylov_direction(
+                        current,
+                        scoring_proposal,
+                        (IntentBlock(basis=continuation_direction[:, None]),),
+                        previous_selected_direction,
+                        None,
+                        None,
+                    )
+                    if (
+                        float(
+                            np.dot(
+                                choice.direction,
+                                previous_selected_direction,
+                            )
+                        )
+                        < 0.0
+                    ):
+                        choice.direction = -choice.direction
+                    choice.kind = DirectionCandidateKind.CONTINUATION_RITZ
+                    choice.diagnostics["continuation_source"] = "selected_mode"
+                else:
+                    choice = self.oracle.choose_direction(
+                        current,
+                        scoring_proposal,
+                        previous_direction,
+                        anchor_direction=anchor_direction,
+                        step_scale_fn=lambda curvature: self._scaled_step_scale(
+                            curvature,
+                            sigma_scale,
+                            step_target=step_target,
+                        ),
+                        archive=archive,
+                        history_gradient=self._history_bias_gradient(current, biases),
+                        continuity_weight=self._continuity_weight_for_outcome(previous_relax_outcome),
+                        n_bond_pairs=self._n_bond_pairs_for_outcome(previous_relax_outcome),
+                        score_sigma=(
+                            None
+                            if score_sigma_fn is not None
+                            else self._direction_score_sigma(sigma_scale, step_target=step_target)
+                        ),
+                        score_sigma_fn=score_sigma_fn,
+                        direction_type_bonus_fn=(
+                            self.direction_type_memory.bonus if self.config.direction_type_ucb_enabled else None
+                        ),
+                        plateau_evolution_active=plateau_evolution_active,
+                        plateau_history=(
+                            self.successful_records(
+                                seed_entry_id=seed_entry_id,
+                                limit=self.config.plateau_evolution_history_limit,
+                            )
+                            if plateau_evolution_active
+                            else []
+                        ),
+                        plateau_evolution_children=self.config.plateau_evolution_children,
+                        plateau_evolution_crossover_pairs=self.config.plateau_evolution_crossover_pairs,
+                        plateau_evolution_mutation_count=self.config.plateau_evolution_mutation_count,
+                        archive_momentum_history=self._archive_momentum_history_for_seed(seed_entry_id),
+                        archive_momentum_limit=self.config.archive_escape_momentum_limit,
+                        **(
+                            {"krylov_intents": krylov_intents}
+                            if krylov_intents is not None
+                            else {}
+                        ),
+                        energy_bound_step_scale=energy_bound_step_scale,
+                        energy_bound_target=energy_bound_target,
+                    )
+            choice.diagnostics.update(
+                self._continuation_diagnostics(
+                    choice.direction,
+                    previous_selected_direction,
+                    previous_direction,
+                    anchor_direction,
                 )
+            )
+            previous_selected_direction = np.asarray(
+                choice.direction,
+                dtype=float,
+            ).copy()
             choice.diagnostics.update(
                 {
                     "oracle_selection_force_evaluations_delta": int(
@@ -3471,7 +3597,11 @@ class SurfaceWalker:
                 ),
             )
         )
-        if self.config.direction_selection_mode == "block_krylov":
+        if self.config.direction_selection_mode in {
+            "block_krylov",
+            "transported_direction",
+            "continuation_krylov",
+        }:
             krylov_intents = (
                 self.oracle.generator.generate_krylov_intents(
                     state,
@@ -3783,6 +3913,7 @@ class SurfaceWalker:
         self._archive_escape_momentum_candidates_generated = 0
         self._walk_displacement_clips = 0
         self._fragment_rejections = 0
+        self._continuation_projection_degenerate = 0
 
     def _new_direction_type_memory(self) -> DirectionTypeMemory:
         return DirectionTypeMemory(
@@ -4255,6 +4386,7 @@ class SurfaceWalker:
             "direction_bond_candidates_valid": self._direction_bond_candidates_valid,
             "walk_displacement_clips": self._walk_displacement_clips,
             "fragment_rejections": self._fragment_rejections,
+            "continuation_projection_degenerate": self._continuation_projection_degenerate,
             "seed_diversity_reseeds": self._seed_diversity_reseeds,
         }
         summary["direction_type_ucb_enabled"] = int(self.config.direction_type_ucb_enabled)
