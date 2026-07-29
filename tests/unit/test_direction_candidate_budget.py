@@ -224,6 +224,46 @@ def test_anchor_krylov_reuses_exact_anchor_block_for_full_hvp_budget():
     assert calculator.force_evaluations == 6
 
 
+def test_energy_bounded_anchor_reuses_krylov_hvps_and_enforces_energy_limit():
+    class DiagonalQuadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.diag([1.0, 4.0, 9.0])
+            gradient = hessian @ flat_positions
+            return 0.5 * float(flat_positions @ gradient), gradient
+
+    state = State(numbers=np.array([1]), positions=np.zeros((1, 3)))
+    calculator = EvalCounter(AnalyticCalculator(DiagonalQuadratic()))
+    oracle = SoftModeOracle(
+        calculator,
+        np.random.default_rng(0),
+        candidates=0,
+        direction_selection_mode="energy_bounded_anchor",
+        block_krylov_depth=3,
+    )
+    anchor = np.ones(3) / np.sqrt(3.0)
+
+    choice = oracle.choose_direction(
+        state,
+        ProposalPotential(calculator),
+        previous_direction=None,
+        anchor_direction=anchor,
+        krylov_intents=(IntentBlock(anchor[:, None]),),
+        energy_bound_step_scale=0.5,
+        energy_bound_target=0.375,
+    )
+
+    assert choice.kind is DirectionCandidateKind.ENERGY_BOUNDED_ANCHOR
+    assert choice.diagnostics["krylov_hvp_consumed"] == 3
+    assert choice.diagnostics["energy_bounded_anchor_feasible"] is True
+    assert choice.diagnostics["energy_bounded_anchor_active"] is True
+    assert choice.diagnostics["energy_bounded_anchor_step_scale"] == pytest.approx(0.5)
+    assert choice.diagnostics["energy_bounded_anchor_curvature_limit"] == pytest.approx(3.0)
+    assert choice.diagnostics["energy_bounded_anchor_true_curvature"] == pytest.approx(3.0)
+    assert choice.diagnostics["energy_bounded_anchor_quadratic_energy"] == pytest.approx(0.375)
+    assert 0.0 < choice.diagnostics["energy_bounded_anchor_overlap"] < 1.0
+    assert calculator.force_evaluations == 6
+
+
 def test_direction_modes_generate_the_same_anchor_before_arm_specific_intents():
     state = State(
         numbers=np.array([6, 6, 6, 6]),
@@ -256,12 +296,15 @@ def test_direction_modes_generate_the_same_anchor_before_arm_specific_intents():
     detached_anchor, detached_intents = context("block_krylov")
     exact_anchor, exact_intents = context("exact_anchor")
     lanczos_anchor, lanczos_intents = context("anchor_krylov")
+    bounded_anchor, bounded_intents = context("energy_bounded_anchor")
 
     np.testing.assert_array_equal(detached_anchor, exact_anchor)
     np.testing.assert_array_equal(exact_anchor, lanczos_anchor)
+    np.testing.assert_array_equal(lanczos_anchor, bounded_anchor)
     assert detached_intents is not None
     assert exact_intents is None
     assert lanczos_intents is not None
+    assert bounded_intents is not None
     assert len(lanczos_intents) == 1
     assert lanczos_intents[0].basis.shape == (
         state.positions.size,
@@ -270,6 +313,10 @@ def test_direction_modes_generate_the_same_anchor_before_arm_specific_intents():
     np.testing.assert_array_equal(
         lanczos_intents[0].basis[:, 0],
         lanczos_anchor,
+    )
+    np.testing.assert_array_equal(
+        bounded_intents[0].basis[:, 0],
+        bounded_anchor,
     )
 
 

@@ -326,11 +326,13 @@ class SSWConfig:
             "block_krylov",
             "exact_anchor",
             "anchor_krylov",
+            "energy_bounded_anchor",
         }
         if self.direction_selection_mode not in direction_selection_modes:
             raise ValueError(
                 "direction_selection_mode must be discrete, rayleigh_ritz, "
-                "block_krylov, exact_anchor, or anchor_krylov"
+                "block_krylov, exact_anchor, anchor_krylov, or "
+                "energy_bounded_anchor"
             )
         if self.direction_synthesis_mode not in {"none", "regularized_ritz"}:
             raise ValueError("direction_synthesis_mode must be none or regularized_ritz")
@@ -341,6 +343,7 @@ class SSWConfig:
                 "block_krylov",
                 "exact_anchor",
                 "anchor_krylov",
+                "energy_bounded_anchor",
             }
             and self.direction_synthesis_mode == "regularized_ritz"
         ):
@@ -354,6 +357,20 @@ class SSWConfig:
             raise ValueError("step_length_mode must be curvature_adaptive or per_atom_rms")
         if self.step_rms_scope not in {"all_atoms", "active_atoms"}:
             raise ValueError("step_rms_scope must be all_atoms or active_atoms")
+        if (
+            self.direction_selection_mode == "energy_bounded_anchor"
+            and self.step_length_mode != "per_atom_rms"
+        ):
+            raise ValueError(
+                "energy_bounded_anchor requires step_length_mode=per_atom_rms"
+            )
+        if (
+            self.direction_selection_mode == "energy_bounded_anchor"
+            and self.step_rms_scope != "all_atoms"
+        ):
+            raise ValueError(
+                "energy_bounded_anchor requires step_rms_scope=all_atoms"
+            )
         if not isfinite(self.target_step_rms) or self.target_step_rms <= 0:
             raise ValueError("target_step_rms must be positive")
         if not isfinite(self.max_step_rms) or self.max_step_rms <= 0:

@@ -23,7 +23,11 @@ from .bias import GaussianBiasTerm
 from .config import LSSSWConfig, RelaxConfig, SSWConfig
 from .coordinates import CartesianCoordinates, TangentVector
 from .fingerprint import descriptor_distance, structural_descriptor
-from .krylov import IntentBlock, solve_krylov_block
+from .krylov import (
+    IntentBlock,
+    select_energy_bounded_anchor,
+    solve_krylov_block,
+)
 from .pbc import mic_displacement, mic_distance_matrix, wrap_positions
 from .relax import (
     RelaxEvaluation,
@@ -578,6 +582,7 @@ class DirectionCandidateKind(str, Enum):
     RITZ = "ritz"
     RITZ_REG = "ritz_reg"
     BLOCK_RITZ = "block_ritz"
+    ENERGY_BOUNDED_ANCHOR = "energy_bounded_anchor"
     EVOLVED = "evolved"
     ARCHIVE_MOMENTUM = "archive_momentum"
 
@@ -1325,16 +1330,21 @@ class SoftModeOracle:
         archive_momentum_history: list[DirectionRecord] | None = None,
         archive_momentum_limit: int = 0,
         krylov_intents: tuple[IntentBlock, ...] | None = None,
+        energy_bound_step_scale: float | None = None,
+        energy_bound_target: float | None = None,
     ) -> DirectionChoice:
         if self.direction_selection_mode in {
             "block_krylov",
             "anchor_krylov",
+            "energy_bounded_anchor",
         }:
             return self._choose_block_krylov_direction(
                 state,
                 proposal,
                 krylov_intents,
                 anchor_direction,
+                energy_bound_step_scale,
+                energy_bound_target,
             )
         if self.direction_selection_mode == "exact_anchor":
             return self._choose_exact_anchor_direction(
@@ -1545,6 +1555,8 @@ class SoftModeOracle:
         proposal: ProposalPotential,
         krylov_intents: tuple[IntentBlock, ...] | None,
         anchor_direction: np.ndarray | None,
+        energy_bound_step_scale: float | None,
+        energy_bound_target: float | None,
     ) -> DirectionChoice:
         if not isinstance(krylov_intents, tuple) or not krylov_intents:
             raise ValueError("krylov_intents must be a non-empty tuple for block_krylov mode")
@@ -1584,7 +1596,78 @@ class SoftModeOracle:
                     raise ValueError(
                         f"block Krylov result {block_index} {field_name} must be finite"
                     )
-        selected_block, selected = min(enumerate(results), key=lambda item: item[1].curvature)
+        selected_block, selected = min(
+            enumerate(results),
+            key=lambda item: item[1].curvature,
+        )
+        energy_selection = None
+        selected_direction = selected.direction
+        selected_curvature = selected.curvature
+        selected_true_curvature = selected.true_curvature
+        selected_residual_norm = selected.residual_norm
+        selected_initial_span_overlap = selected.initial_span_overlap
+        selected_kind = DirectionCandidateKind.BLOCK_RITZ
+        if self.direction_selection_mode == "energy_bounded_anchor":
+            if len(results) != 1:
+                raise ValueError(
+                    "energy_bounded_anchor requires exactly one Krylov block"
+                )
+            if anchor_direction is None:
+                raise ValueError(
+                    "energy_bounded_anchor requires an anchor direction"
+                )
+            if (
+                energy_bound_step_scale is None
+                or not np.isfinite(energy_bound_step_scale)
+                or energy_bound_step_scale <= 0.0
+            ):
+                raise ValueError(
+                    "energy_bounded_anchor requires a positive finite "
+                    "energy_bound_step_scale"
+                )
+            if (
+                energy_bound_target is None
+                or not np.isfinite(energy_bound_target)
+                or energy_bound_target <= 0.0
+            ):
+                raise ValueError(
+                    "energy_bounded_anchor requires a positive finite "
+                    "energy_bound_target"
+                )
+            if (
+                selected.basis is None
+                or selected.total_products is None
+                or selected.true_products is None
+            ):
+                raise RuntimeError(
+                    "Krylov solve did not retain its paid basis products"
+                )
+            curvature_limit = float(
+                2.0
+                * energy_bound_target
+                / (energy_bound_step_scale * energy_bound_step_scale)
+            )
+            energy_selection = select_energy_bounded_anchor(
+                basis=selected.basis,
+                true_products=selected.true_products,
+                anchor=anchor_direction,
+                curvature_limit=curvature_limit,
+            )
+            selected_direction = energy_selection.direction
+            coefficients = selected.basis.T @ selected_direction
+            total_product = selected.total_products @ coefficients
+            selected_curvature = float(
+                np.dot(selected_direction, total_product)
+            )
+            selected_true_curvature = energy_selection.true_curvature
+            selected_residual_norm = float(
+                np.linalg.norm(
+                    total_product
+                    - selected_curvature * selected_direction
+                )
+            )
+            selected_initial_span_overlap = energy_selection.overlap
+            selected_kind = DirectionCandidateKind.ENERGY_BOUNDED_ANCHOR
 
         def participation_ratio(direction: np.ndarray) -> float:
             atom_squared_amplitudes = np.sum(
@@ -1608,7 +1691,8 @@ class SoftModeOracle:
                 "block_index": int(block_index),
                 "ritz_index": int(ritz_index),
                 "executed": bool(
-                    block_index == selected_block
+                    energy_selection is None
+                    and block_index == selected_block
                     and ritz_index == 0
                 ),
                 "curvature": float(point.curvature),
@@ -1644,22 +1728,56 @@ class SoftModeOracle:
             ],
             "krylov_dimensions": [int(result.dimension) for result in results],
             "krylov_initial_ranks": [int(result.initial_rank) for result in results],
-            "krylov_residual_norm": float(selected.residual_norm),
-            "krylov_initial_span_overlap": float(selected.initial_span_overlap),
+            "krylov_residual_norm": float(selected_residual_norm),
+            "krylov_initial_span_overlap": float(
+                selected_initial_span_overlap
+            ),
             "krylov_antisymmetry": float(selected.antisymmetry),
             "krylov_termination": selected.termination_reason,
             "direction_participation_ratio": float(
-                participation_ratio(selected.direction)
+                participation_ratio(selected_direction)
             ),
             "krylov_ritz_spectrum": spectrum,
         }
+        if energy_selection is not None:
+            diagnostics.update(
+                {
+                    "energy_bounded_anchor_feasible": bool(
+                        energy_selection.feasible
+                    ),
+                    "energy_bounded_anchor_active": bool(
+                        energy_selection.active
+                    ),
+                    "energy_bounded_anchor_overlap": float(
+                        energy_selection.overlap
+                    ),
+                    "energy_bounded_anchor_curvature_limit": float(
+                        energy_selection.curvature_limit
+                    ),
+                    "energy_bounded_anchor_quadratic_energy": float(
+                        0.5
+                        * energy_bound_step_scale
+                        * energy_bound_step_scale
+                        * energy_selection.true_curvature
+                    ),
+                    "energy_bounded_anchor_true_curvature": float(
+                        energy_selection.true_curvature
+                    ),
+                    "energy_bounded_anchor_exact_curvature": float(
+                        energy_selection.exact_anchor_curvature
+                    ),
+                    "energy_bounded_anchor_step_scale": float(
+                        energy_bound_step_scale
+                    ),
+                }
+            )
         return DirectionChoice(
-            direction=selected.direction,
-            curvature=selected.curvature,
-            kind=DirectionCandidateKind.BLOCK_RITZ,
+            direction=selected_direction,
+            curvature=selected_curvature,
+            kind=selected_kind,
             candidate_count=0,
             score=None,
-            true_curvature=selected.true_curvature,
+            true_curvature=selected_true_curvature,
             diagnostics=diagnostics,
         )
 
@@ -3006,6 +3124,19 @@ class SurfaceWalker:
             )
             oracle_started = perf_counter()
             with self.calculator.purpose(EvaluationPurpose.DIRECTION_ORACLE):
+                (
+                    energy_bound_step_scale,
+                    energy_bound_target,
+                ) = (
+                    self._energy_bounded_direction_inputs(
+                        current,
+                        sigma_scale=sigma_scale,
+                        step_target=step_target,
+                    )
+                    if self.config.direction_selection_mode
+                    == "energy_bounded_anchor"
+                    else (None, None)
+                )
                 choice = self.oracle.choose_direction(
                     current,
                     scoring_proposal,
@@ -3048,6 +3179,8 @@ class SurfaceWalker:
                         if krylov_intents is not None
                         else {}
                     ),
+                    energy_bound_step_scale=energy_bound_step_scale,
+                    energy_bound_target=energy_bound_target,
                 )
             choice.diagnostics.update(
                 {
@@ -3253,7 +3386,10 @@ class SurfaceWalker:
                     n_blocks=self.config.block_krylov_blocks,
                 )
             )
-        elif self.config.direction_selection_mode == "anchor_krylov":
+        elif self.config.direction_selection_mode in {
+            "anchor_krylov",
+            "energy_bounded_anchor",
+        }:
             krylov_intents = (
                 IntentBlock(basis=anchor_direction[:, None]),
             )
@@ -3374,6 +3510,25 @@ class SurfaceWalker:
         direction_rms = max(float(metrics[rms_key]), 1e-12)
         target_rms = min(self.config.target_step_rms * sigma_scale, self.config.max_step_rms)
         return float(target_rms / direction_rms)
+
+    def _energy_bounded_direction_inputs(
+        self,
+        state: State,
+        *,
+        sigma_scale: float,
+        step_target: float | None,
+    ) -> tuple[float, float]:
+        target_rms = min(
+            self.config.target_step_rms * sigma_scale,
+            self.config.max_step_rms,
+        )
+        step_scale = float(target_rms * np.sqrt(state.n_atoms))
+        energy_target = (
+            self.config.target_uphill_energy
+            if step_target is None
+            else step_target
+        )
+        return step_scale, float(energy_target)
 
     def _direction_score_sigma(self, sigma_scale: float, step_target: float | None = None) -> float:
         if self.config.direction_score_sigma_mode == "fixed_reference":

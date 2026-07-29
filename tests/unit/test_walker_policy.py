@@ -5274,6 +5274,34 @@ def test_per_atom_rms_step_mode_honors_trust_region_sigma_scale_and_cap():
     assert expanded_rms == pytest.approx(0.35)
 
 
+def test_energy_bounded_anchor_uses_the_exact_all_atom_execution_step():
+    state = State(
+        numbers=np.array([6, 6, 6, 6]),
+        positions=np.zeros((4, 3)),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            direction_selection_mode="energy_bounded_anchor",
+            step_length_mode="per_atom_rms",
+            step_rms_scope="all_atoms",
+            target_step_rms=0.08,
+            max_step_rms=0.15,
+            target_uphill_energy=0.8,
+        ),
+        softening_enabled=False,
+    )
+
+    step_scale, energy_target = walker._energy_bounded_direction_inputs(
+        state,
+        sigma_scale=2.0,
+        step_target=0.6,
+    )
+
+    assert step_scale == pytest.approx(0.15 * np.sqrt(4.0))
+    assert energy_target == pytest.approx(0.6)
+
+
 def test_per_atom_rms_active_scope_uses_only_active_movable_atoms():
     state = State(
         numbers=np.array([1, 1, 1, 1]),

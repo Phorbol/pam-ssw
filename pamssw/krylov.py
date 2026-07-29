@@ -85,6 +85,9 @@ class KrylovResult:
     hvp_count: int
     termination_reason: str
     ritz_points: tuple[KrylovRitzPoint, ...] = ()
+    basis: np.ndarray | None = None
+    total_products: np.ndarray | None = None
+    true_products: np.ndarray | None = None
 
     def __post_init__(self) -> None:
         direction = np.array(self.direction, dtype=float, copy=True)
@@ -93,6 +96,14 @@ class KrylovResult:
         if not np.all(np.isfinite(direction)):
             raise ValueError("direction must contain only finite values")
         object.__setattr__(self, "direction", _readonly_float_copy(direction))
+        for name in ("basis", "total_products", "true_products"):
+            values = getattr(self, name)
+            if values is not None:
+                object.__setattr__(
+                    self,
+                    name,
+                    _readonly_float_copy(values),
+                )
 
 
 @dataclass(frozen=True, eq=False)
@@ -423,4 +434,7 @@ def solve_krylov_block(
         initial_rank=initial_rank,
         hvp_count=len(total_hvps),
         termination_reason=termination_reason,
+        basis=q,
+        total_products=total_hq,
+        true_products=true_hq,
     )
