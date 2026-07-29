@@ -1330,7 +1330,12 @@ class SoftModeOracle:
             "block_krylov",
             "anchor_krylov",
         }:
-            return self._choose_block_krylov_direction(state, proposal, krylov_intents)
+            return self._choose_block_krylov_direction(
+                state,
+                proposal,
+                krylov_intents,
+                anchor_direction,
+            )
         if self.direction_selection_mode == "exact_anchor":
             return self._choose_exact_anchor_direction(
                 state,
@@ -1539,6 +1544,7 @@ class SoftModeOracle:
         state: State,
         proposal: ProposalPotential,
         krylov_intents: tuple[IntentBlock, ...] | None,
+        anchor_direction: np.ndarray | None,
     ) -> DirectionChoice:
         if not isinstance(krylov_intents, tuple) or not krylov_intents:
             raise ValueError("krylov_intents must be a non-empty tuple for block_krylov mode")
@@ -1557,7 +1563,12 @@ class SoftModeOracle:
             return projected_total, projected_true
 
         results = [
-            solve_krylov_block(intent, directional_hvps, depth=self.block_krylov_depth)
+            solve_krylov_block(
+                intent,
+                directional_hvps,
+                depth=self.block_krylov_depth,
+                reference_direction=anchor_direction,
+            )
             for intent in krylov_intents
         ]
         finite_result_fields = (
@@ -1574,12 +1585,50 @@ class SoftModeOracle:
                         f"block Krylov result {block_index} {field_name} must be finite"
                     )
         selected_block, selected = min(enumerate(results), key=lambda item: item[1].curvature)
-        atom_squared_amplitudes = np.sum(
-            np.square(selected.direction.reshape(state.n_atoms, 3)[state.movable_mask]),
-            axis=1,
-        )
-        participation_denominator = float(np.dot(atom_squared_amplitudes, atom_squared_amplitudes))
-        participation_ratio = 1.0 / participation_denominator
+
+        def participation_ratio(direction: np.ndarray) -> float:
+            atom_squared_amplitudes = np.sum(
+                np.square(
+                    direction.reshape(state.n_atoms, 3)[
+                        state.movable_mask
+                    ]
+                ),
+                axis=1,
+            )
+            denominator = float(
+                np.dot(
+                    atom_squared_amplitudes,
+                    atom_squared_amplitudes,
+                )
+            )
+            return 1.0 / denominator
+
+        spectrum = [
+            {
+                "block_index": int(block_index),
+                "ritz_index": int(ritz_index),
+                "executed": bool(
+                    block_index == selected_block
+                    and ritz_index == 0
+                ),
+                "curvature": float(point.curvature),
+                "true_curvature": float(point.true_curvature),
+                "residual_norm": float(point.residual_norm),
+                "initial_span_overlap": float(
+                    point.initial_span_overlap
+                ),
+                "anchor_abs_overlap": (
+                    None
+                    if point.reference_abs_overlap is None
+                    else float(point.reference_abs_overlap)
+                ),
+                "participation_ratio": float(
+                    participation_ratio(point.direction)
+                ),
+            }
+            for block_index, result in enumerate(results)
+            for ritz_index, point in enumerate(result.ritz_points)
+        ]
         diagnostics: dict[str, object] = {
             "krylov_blocks": int(len(results)),
             "krylov_depth": int(self.block_krylov_depth),
@@ -1599,7 +1648,10 @@ class SoftModeOracle:
             "krylov_initial_span_overlap": float(selected.initial_span_overlap),
             "krylov_antisymmetry": float(selected.antisymmetry),
             "krylov_termination": selected.termination_reason,
-            "direction_participation_ratio": float(participation_ratio),
+            "direction_participation_ratio": float(
+                participation_ratio(selected.direction)
+            ),
+            "krylov_ritz_spectrum": spectrum,
         }
         return DirectionChoice(
             direction=selected.direction,

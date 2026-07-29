@@ -78,12 +78,12 @@ class KrylovResult:
     true_curvature: float
     residual_norm: float
     initial_span_overlap: float
-    ritz_points: tuple[KrylovRitzPoint, ...]
     antisymmetry: float
     dimension: int
     initial_rank: int
     hvp_count: int
     termination_reason: str
+    ritz_points: tuple[KrylovRitzPoint, ...] = ()
 
     def __post_init__(self) -> None:
         direction = np.array(self.direction, dtype=float, copy=True)

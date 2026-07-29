@@ -695,6 +695,8 @@ def test_block_krylov_selects_lowest_block_without_native_scoring(monkeypatch):
         state,
         proposal=ProposalPotential(calculator),
         previous_direction=None,
+        anchor_direction=np.array([1.0, 1.0, 0.0])
+        / np.sqrt(2.0),
         krylov_intents=(
             IntentBlock(np.array([[1.0], [0.0], [0.0]])),
             IntentBlock(np.array([[0.0], [1.0], [0.0]])),
@@ -721,6 +723,7 @@ def test_block_krylov_selects_lowest_block_without_native_scoring(monkeypatch):
         "krylov_antisymmetry",
         "krylov_termination",
         "direction_participation_ratio",
+        "krylov_ritz_spectrum",
     }
     assert choice.diagnostics["krylov_blocks"] == 2
     assert choice.diagnostics["krylov_depth"] == 3
@@ -732,6 +735,23 @@ def test_block_krylov_selects_lowest_block_without_native_scoring(monkeypatch):
     assert choice.diagnostics["krylov_dimensions"] == [1, 1]
     assert choice.diagnostics["krylov_initial_ranks"] == [1, 1]
     assert choice.diagnostics["direction_participation_ratio"] == pytest.approx(1.0)
+    spectrum = choice.diagnostics["krylov_ritz_spectrum"]
+    assert len(spectrum) == sum(
+        choice.diagnostics["krylov_dimensions"]
+    )
+    assert sum(point["executed"] for point in spectrum) == 1
+    assert spectrum[0]["executed"] is True
+    assert [
+        point["curvature"] for point in spectrum
+    ] == pytest.approx([1.0, 3.0])
+    assert [
+        point["anchor_abs_overlap"] for point in spectrum
+    ] == pytest.approx([1.0 / np.sqrt(2.0)] * 2)
+    assert all(
+        point["participation_ratio"] == pytest.approx(1.0)
+        for point in spectrum
+    )
+    assert choice.diagnostics["krylov_hvp_count"] == 2
 
 
 @pytest.mark.parametrize(
