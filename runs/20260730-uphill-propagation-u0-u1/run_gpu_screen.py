@@ -23,6 +23,7 @@ from pamssw import validated_ls_ssw_config
 from pamssw.accounting import EvaluationPurpose
 from pamssw.calculators import ASECalculator
 from pamssw.proposal_replay import capture_proposal_task
+from pamssw.relax import has_force_convergence_certificate
 from pamssw.walker import SurfaceWalker
 
 
@@ -197,10 +198,28 @@ def _bootstrap(system: str, calculator, config, base: ModuleType):
     counts = walker.calculator.snapshot()
     if counts.count(EvaluationPurpose.UNATTRIBUTED) != 0:
         raise RuntimeError("bootstrap contains unattributed evaluations")
-    return result.state, {
+    return result.state, _bootstrap_record(
+        result,
+        counts,
+        wall_time_s=wall_time_s,
+        fmax=config.quench_fmax,
+    )
+
+
+def _bootstrap_record(
+    result,
+    counts,
+    *,
+    wall_time_s: float,
+    fmax: float,
+) -> dict[str, Any]:
+    return {
         "energy_eV": float(result.energy),
         "gradient_norm": float(result.gradient_norm),
-        "converged": bool(result.converged),
+        "certificate_satisfied": has_force_convergence_certificate(
+            result,
+            fmax,
+        ),
         "force_evaluations": counts.total,
         "purpose_counts": counts.as_dict(),
         "wall_time_s": wall_time_s,

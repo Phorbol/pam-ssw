@@ -6,9 +6,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from pamssw.accounting import EvaluationPurpose
+from pamssw.accounting import EvaluationCounts, EvaluationPurpose
 from pamssw.bias import GaussianBiasTerm
 from pamssw.calculators import AnalyticCalculator
+from pamssw.result import RelaxResult
 from pamssw.state import State
 from pamssw.walker import ProposalRelaxationTask
 
@@ -288,6 +289,33 @@ def test_gpu_screen_protocol_is_pre_registered_and_disjoint():
     evaluation = {seed for seed, _ in screen.EVALUATION_SPECS}
     assert calibration.isdisjoint(evaluation)
     assert set(screen.SYSTEMS) == {"c60", "pdo"}
+
+
+def test_gpu_screen_bootstrap_record_uses_force_certificate():
+    screen = _load("uphill_u0_u1_gpu_screen_record", "run_gpu_screen.py")
+    state = _task().initial_state
+    result = RelaxResult(
+        state=state,
+        energy=-1.0,
+        gradient_norm=0.04,
+        n_iter=3,
+    )
+    counts = EvaluationCounts.from_mapping(
+        {
+            EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH: 4,
+            EvaluationPurpose.POST_RELAX_VALIDATION: 1,
+        }
+    )
+
+    record = screen._bootstrap_record(
+        result,
+        counts,
+        wall_time_s=1.5,
+        fmax=0.05,
+    )
+
+    assert record["certificate_satisfied"] is True
+    assert record["force_evaluations"] == 5
 
 
 def test_base_sigma_and_inner_curvature_are_recomputed_from_frozen_prefix():
