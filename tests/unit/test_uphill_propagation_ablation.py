@@ -275,6 +275,7 @@ def test_gpu_screen_protocol_is_pre_registered_and_disjoint():
     screen = _load("uphill_u0_u1_gpu_screen", "run_gpu_screen.py")
 
     assert screen.CALIBRATION_SEEDS == (1001, 1002, 1003, 1004)
+    assert screen.MIN_CALIBRATION_TASKS == 2
     assert screen.EVALUATION_SPECS == (
         (2001, 1),
         (2002, 3),

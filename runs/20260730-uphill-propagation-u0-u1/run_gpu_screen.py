@@ -38,6 +38,7 @@ FROZEN_RUNNER_PATH = (
 C60_PROFILE = "c60_direction_efficient_validated_20260729"
 SYSTEMS = ("c60", "pdo")
 CALIBRATION_SEEDS = (1001, 1002, 1003, 1004)
+MIN_CALIBRATION_TASKS = 2
 EVALUATION_SPECS = (
     (2001, 1),
     (2002, 3),
@@ -282,9 +283,11 @@ def run(*, systems: Sequence[str], output: Path) -> dict[str, Any]:
                 "fixed_calibrated",
             ],
             "observer_only_force_evaluations_expected": 0,
+            "minimum_calibration_tasks": MIN_CALIBRATION_TASKS,
             "right_censor_rule": (
-                "a production prefix that terminates before its requested "
-                "bias count is recorded as capture_failed and is not replaced"
+                "a calibration or evaluation prefix that terminates before "
+                "its requested bias count is recorded as capture_failed and "
+                "is not replaced"
             ),
         },
         "provenance": _runtime_provenance(base),
@@ -313,6 +316,7 @@ def run(*, systems: Sequence[str], output: Path) -> dict[str, Any]:
             },
             "bootstrap": bootstrap,
             "calibration_tasks": [],
+            "calibration_failures": [],
             "evaluation_tasks": [],
             "capture_failures": [],
         }
@@ -323,12 +327,28 @@ def run(*, systems: Sequence[str], output: Path) -> dict[str, Any]:
         calibration_records = []
         for seed in CALIBRATION_SEEDS:
             config = _config(system, seed, base)
-            captured = capture_proposal_task(
-                seed_state,
-                calculator,
-                config,
-                target_bias_count=1,
-            )
+            try:
+                captured = capture_proposal_task(
+                    seed_state,
+                    calculator,
+                    config,
+                    target_bias_count=1,
+                )
+            except RuntimeError as error:
+                failure = {
+                    "task_id": f"{system}-cal-{seed}",
+                    "seed": seed,
+                    "target_bias_count": 1,
+                    "error": str(error),
+                }
+                system_payload["calibration_failures"].append(failure)
+                print(
+                    f"[{system}] calibration right-censored "
+                    f"seed={seed}: {error}",
+                    flush=True,
+                )
+                _write(output, payload)
+                continue
             record = _capture_record(
                 system=system,
                 task_id=f"{system}-cal-{seed}",
@@ -345,6 +365,11 @@ def run(*, systems: Sequence[str], output: Path) -> dict[str, Any]:
             )
             _write(output, payload)
 
+        if len(calibration_records) < MIN_CALIBRATION_TASKS:
+            raise RuntimeError(
+                f"{system} produced only {len(calibration_records)} "
+                "calibration tasks"
+            )
         calibration = calibrate_fixed_parameters(calibration_records)[system]
         system_payload["fixed_calibration"] = calibration
         fixed_sigma = float(calibration["sigma"])
