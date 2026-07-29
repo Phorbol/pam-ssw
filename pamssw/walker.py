@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import sys
 from copy import deepcopy
-from collections import deque
+from collections import Counter, deque
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field, replace
 from enum import Enum
@@ -1370,6 +1370,13 @@ class SoftModeOracle:
             archive_momentum_limit,
         )
         candidates.extend(archive_momentum_candidates)
+        evaluated_candidate_kind_counts = dict(
+            sorted(
+                Counter(
+                    candidate.kind.value for candidate in candidates
+                ).items()
+            )
+        )
         scoring_anchor_direction = None if self.anchor_mixing_alpha is not None else anchor_direction
         best_kind: DirectionCandidateKind | None = None
         rigid_overlap_sum = 0.0
@@ -1547,6 +1554,11 @@ class SoftModeOracle:
             evolved_candidate_count=len(evolved_candidates),
             archive_momentum_candidate_count=len(archive_momentum_candidates),
             true_curvature=best_true_curvature,
+            diagnostics={
+                "evaluated_candidate_kind_counts": (
+                    evaluated_candidate_kind_counts
+                ),
+            },
         )
 
     def _choose_block_krylov_direction(

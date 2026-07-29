@@ -115,6 +115,39 @@ def test_subsequent_oracle_step_keeps_two_central_hvps_for_a_budget_of_two():
     assert calculator.force_evaluations == 4
 
 
+def test_discrete_choice_records_exact_evaluated_candidate_source_counts():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+    )
+    calculator = EvalCounter(AnalyticCalculator(Quadratic()))
+    oracle = SoftModeOracle(
+        calculator,
+        np.random.default_rng(7),
+        candidates=4,
+        bond_pairs=[(0, 1)],
+        n_bond_pairs=0,
+        enable_momentum_candidate=True,
+    )
+
+    choice = oracle.choose_direction(
+        state,
+        ProposalPotential(calculator),
+        previous_direction=np.ones(state.positions.size),
+    )
+
+    assert choice.candidate_count == 4
+    assert choice.diagnostics["evaluated_candidate_kind_counts"] == {
+        "bond": 1,
+        "momentum": 1,
+        "random": 2,
+    }
+    assert sum(
+        choice.diagnostics["evaluated_candidate_kind_counts"].values()
+    ) == choice.candidate_count
+    assert calculator.force_evaluations == 2 * choice.candidate_count
+
+
 def test_block_krylov_reuses_solver_hvps_for_selection_and_true_curvature():
     class CoupledQuadratic:
         def energy_gradient(self, flat_positions, state):
