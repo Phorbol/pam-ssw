@@ -1,0 +1,2106 @@
+{
+  "protocol": {
+    "arms": [
+      "current_full",
+      "curvature_matched_no_feedback",
+      "fixed_calibrated"
+    ],
+    "calibration_seeds": [
+      1001,
+      1002,
+      1003,
+      1004
+    ],
+    "curvature_arm_weight_bounds": "shared production bias_weight_min/bias_weight_max",
+    "evaluation_specs": [
+      {
+        "seed": 2001,
+        "target_bias_count": 1
+      },
+      {
+        "seed": 2002,
+        "target_bias_count": 3
+      },
+      {
+        "seed": 2003,
+        "target_bias_count": 5
+      },
+      {
+        "seed": 2004,
+        "target_bias_count": 8
+      },
+      {
+        "seed": 2005,
+        "target_bias_count": 1
+      },
+      {
+        "seed": 2006,
+        "target_bias_count": 3
+      },
+      {
+        "seed": 2007,
+        "target_bias_count": 5
+      },
+      {
+        "seed": 2008,
+        "target_bias_count": 8
+      }
+    ],
+    "failed_capture_accounting": "force evaluations, purposes, and wall time retained",
+    "minimum_calibration_tasks": 2,
+    "observer_only_force_evaluations_expected": 0,
+    "right_censor_rule": "a calibration or evaluation prefix that terminates before its requested bias count is recorded as capture_failed and is not replaced",
+    "systems": [
+      "c60",
+      "pdo"
+    ]
+  },
+  "provenance": {
+    "calculator": {
+      "default_dtype": "float32",
+      "device": "cuda",
+      "enable_cueq": false,
+      "inference_precision": "float32"
+    },
+    "cuda_device": "NVIDIA GeForce RTX 3060",
+    "cuda_runtime": "12.8",
+    "git_commit": "ff379f3d1d9c9a35bc6f015d2cb3e2272fe87111",
+    "inputs": {
+      "c60": {
+        "path": "/mnt/d/download/trae-research-code/ssw/runs/20260428-c60-mace-production/prerelaxed_c60.xyz",
+        "sha256": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9"
+      },
+      "pdo": {
+        "path": "/mnt/d/download/trae-research-code/ssw/PdO.xyz",
+        "sha256": "68243ceb7c0fbb6ba7a9454d680287eb98c4e5210efbd9ebb63517ba79aaa8b0"
+      }
+    },
+    "model_path": "/root/.cache/mace/mace-omat-0-small.model",
+    "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+    "packages": {
+      "ase": "3.25.0",
+      "mace-torch": "0.3.14",
+      "numpy": "2.1.3",
+      "scipy": "1.17.1",
+      "torch": "2.8.0"
+    },
+    "python": "3.12.12",
+    "runner_path": "runs/20260728-safe-lbfgs-200-production/run_production.py",
+    "runner_sha256": "d44588e06b56c1a996525c12518998d56303dc9a360e4e740662e098cd5081aa",
+    "script_sha256": "61392fe0249778c3857ac398ac4d0df51800527695b0e597ec0f12645c3d4e66"
+  },
+  "rows": [
+    {
+      "arm_id": "current_full",
+      "biased_proposal_relax_force_evaluations": 56,
+      "certificate_satisfied": true,
+      "direction_progress": 1.8230759759697959,
+      "endpoint_position_sha256": "90091743250a987b0d0af74d877f24e68b3591364b5bd03d759de1d0200a681b",
+      "final": {
+        "bias_energy": 0.13199029199416032,
+        "softening_energy": 0.0,
+        "total_energy": -473.97216620214647,
+        "true_energy": -474.1041564941406
+      },
+      "force_evaluations": 56,
+      "initial": {
+        "bias_energy": 6.0653065971324,
+        "softening_energy": 0.0,
+        "total_energy": -461.6797190376332,
+        "true_energy": -467.7450256347656
+      },
+      "last_bias_sigma": 0.6196773353938063,
+      "last_bias_weight": 10.0,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 3.4535306588359576,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 56,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "70cbd872c9c0face32a2f0caf56670d00952c44724f465660bf15f8e08a23fce",
+      "system": "c60",
+      "task_id": "c60-eval-2001-bias1",
+      "wall_time_s": 1.2071825020011602
+    },
+    {
+      "arm_id": "curvature_matched_no_feedback",
+      "biased_proposal_relax_force_evaluations": 61,
+      "certificate_satisfied": true,
+      "direction_progress": 1.8190759615331453,
+      "endpoint_position_sha256": "91e95eb5e05866314de70e8e795920d7b86c1429d8f679a55310991e1c570767",
+      "final": {
+        "bias_energy": 0.13451799530475356,
+        "softening_energy": 0.0,
+        "total_energy": -473.9749485574296,
+        "true_energy": -474.1094665527344
+      },
+      "force_evaluations": 61,
+      "initial": {
+        "bias_energy": 6.065306597126333,
+        "softening_energy": 0.0,
+        "total_energy": -461.6797495552174,
+        "true_energy": -467.74505615234375
+      },
+      "last_bias_sigma": 0.6196773353931867,
+      "last_bias_weight": 10.0,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 3.460659330503363,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 61,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "70cbd872c9c0face32a2f0caf56670d00952c44724f465660bf15f8e08a23fce",
+      "system": "c60",
+      "task_id": "c60-eval-2001-bias1",
+      "wall_time_s": 1.245028502000423
+    },
+    {
+      "arm_id": "fixed_calibrated",
+      "biased_proposal_relax_force_evaluations": 56,
+      "certificate_satisfied": true,
+      "direction_progress": 1.8220138543994082,
+      "endpoint_position_sha256": "d2b50110f943cc5478cafe9d784861155d4ccc3d0179d3f68d76d48f32ed7425",
+      "final": {
+        "bias_energy": 0.1326573419268724,
+        "softening_energy": 0.0,
+        "total_energy": -473.97268933776064,
+        "true_energy": -474.1053466796875
+      },
+      "force_evaluations": 56,
+      "initial": {
+        "bias_energy": 6.065306597126333,
+        "softening_energy": 0.0,
+        "total_energy": -461.6797190376393,
+        "true_energy": -467.7450256347656
+      },
+      "last_bias_sigma": 0.6196773353938064,
+      "last_bias_weight": 10.0,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 3.450473621043748,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 56,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "70cbd872c9c0face32a2f0caf56670d00952c44724f465660bf15f8e08a23fce",
+      "system": "c60",
+      "task_id": "c60-eval-2001-bias1",
+      "wall_time_s": 1.0962275020010566
+    },
+    {
+      "arm_id": "current_full",
+      "biased_proposal_relax_force_evaluations": 62,
+      "certificate_satisfied": true,
+      "direction_progress": 0.7783954979765801,
+      "endpoint_position_sha256": "0a067e1800c3eea8f1ee96a1027fb0d17e1e8a52d746036044fcace007e506f9",
+      "final": {
+        "bias_energy": 0.9689752990981506,
+        "softening_energy": 0.0,
+        "total_energy": -475.6233708923081,
+        "true_energy": -476.59234619140625
+      },
+      "force_evaluations": 62,
+      "initial": {
+        "bias_energy": 1.5841497834605631,
+        "softening_energy": 0.0,
+        "total_energy": -471.2026849333363,
+        "true_energy": -472.7868347167969
+      },
+      "last_bias_sigma": 0.35631446785156246,
+      "last_bias_weight": 0.6978670107617382,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 2.1227184362207683,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 62,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "0a07b7d2e2d816fdfd795d0c267050c1240bde77d03b27aac8cc98518d60132c",
+      "system": "c60",
+      "task_id": "c60-eval-2002-bias3",
+      "wall_time_s": 1.2592276020004647
+    },
+    {
+      "arm_id": "curvature_matched_no_feedback",
+      "biased_proposal_relax_force_evaluations": 86,
+      "certificate_satisfied": false,
+      "direction_progress": 1.1529999326088873,
+      "endpoint_position_sha256": "b2fb687770281261490114af70d8850e939b07a311f560b8068e185ea8c0afcb",
+      "final": {
+        "bias_energy": 1.1579147386373991,
+        "softening_energy": 0.0,
+        "total_energy": -475.2088455152689,
+        "true_energy": -476.36676025390625
+      },
+      "force_evaluations": 86,
+      "initial": {
+        "bias_energy": 2.170822607093612,
+        "softening_energy": 0.0,
+        "total_energy": -469.89625502962514,
+        "true_energy": -472.06707763671875
+      },
+      "last_bias_sigma": 0.6196773353931867,
+      "last_bias_weight": 1.8362678019108676,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 3.4339416294959264,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 86,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "0a07b7d2e2d816fdfd795d0c267050c1240bde77d03b27aac8cc98518d60132c",
+      "system": "c60",
+      "task_id": "c60-eval-2002-bias3",
+      "wall_time_s": 1.754118398999708
+    },
+    {
+      "arm_id": "fixed_calibrated",
+      "biased_proposal_relax_force_evaluations": 82,
+      "certificate_satisfied": false,
+      "direction_progress": 1.5788012310644102,
+      "endpoint_position_sha256": "cfe6e7b1f634e2690588f95927f8e74c0cb96e379a06f6201de07c6c26179650",
+      "final": {
+        "bias_energy": 1.1951610987678607,
+        "softening_energy": 0.0,
+        "total_energy": -474.6606433445915,
+        "true_energy": -475.8558044433594
+      },
+      "force_evaluations": 82,
+      "initial": {
+        "bias_energy": 7.122376482917656,
+        "softening_energy": 0.0,
+        "total_energy": -464.9447011538011,
+        "true_energy": -472.06707763671875
+      },
+      "last_bias_sigma": 0.6196773353938064,
+      "last_bias_weight": 10.0,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 4.031621167076168,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 82,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "0a07b7d2e2d816fdfd795d0c267050c1240bde77d03b27aac8cc98518d60132c",
+      "system": "c60",
+      "task_id": "c60-eval-2002-bias3",
+      "wall_time_s": 1.650692799999888
+    },
+    {
+      "arm_id": "current_full",
+      "biased_proposal_relax_force_evaluations": 18,
+      "certificate_satisfied": true,
+      "direction_progress": 0.2456612084332166,
+      "endpoint_position_sha256": "e6a309d66593868fbd977027525ef59d89cb5e890387e4fb8bc22d807307a9a5",
+      "final": {
+        "bias_energy": 0.8353464042665143,
+        "softening_energy": 0.0,
+        "total_energy": -478.028056916046,
+        "true_energy": -478.8634033203125
+      },
+      "force_evaluations": 18,
+      "initial": {
+        "bias_energy": 0.8780357286003476,
+        "softening_energy": 0.0,
+        "total_energy": -477.9728553846809,
+        "true_energy": -478.85089111328125
+      },
+      "last_bias_sigma": 0.17815723392572302,
+      "last_bias_weight": 0.16778232797413156,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 0.2653702385016473,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 18,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "bce63f656dd81761f0e4e2c0e346782c7aac619b3e0cd451f140181af3731138",
+      "system": "c60",
+      "task_id": "c60-eval-2004-bias8",
+      "wall_time_s": 0.35606569800074794
+    },
+    {
+      "arm_id": "curvature_matched_no_feedback",
+      "biased_proposal_relax_force_evaluations": 33,
+      "certificate_satisfied": true,
+      "direction_progress": 1.2148343214110915,
+      "endpoint_position_sha256": "b43b1f2fd605daa45e3318a4d8080ba2b61cf1b8e8a46fbebc4097b39ef90a84",
+      "final": {
+        "bias_energy": 1.0080301410730566,
+        "softening_energy": 0.0,
+        "total_energy": -477.7655904643957,
+        "true_energy": -478.77362060546875
+      },
+      "force_evaluations": 33,
+      "initial": {
+        "bias_energy": 2.0900965517286183,
+        "softening_energy": 0.0,
+        "total_energy": -476.24080554788077,
+        "true_energy": -478.3309020996094
+      },
+      "last_bias_sigma": 0.6196773353931867,
+      "last_bias_weight": 2.029687062446381,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 1.7720146221065012,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 33,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "bce63f656dd81761f0e4e2c0e346782c7aac619b3e0cd451f140181af3731138",
+      "system": "c60",
+      "task_id": "c60-eval-2004-bias8",
+      "wall_time_s": 0.6181606970003486
+    },
+    {
+      "arm_id": "fixed_calibrated",
+      "biased_proposal_relax_force_evaluations": 33,
+      "certificate_satisfied": true,
+      "direction_progress": 1.6382096795439696,
+      "endpoint_position_sha256": "9579194d3d691dafe3624a13c9b5e2a63895ca0621538684f962dd315747bfa7",
+      "final": {
+        "bias_energy": 1.0391649244846513,
+        "softening_energy": 0.0,
+        "total_energy": -477.2828565598904,
+        "true_energy": -478.322021484375
+      },
+      "force_evaluations": 33,
+      "initial": {
+        "bias_energy": 6.924335715859301,
+        "softening_energy": 0.0,
+        "total_energy": -471.4065663837501,
+        "true_energy": -478.3309020996094
+      },
+      "last_bias_sigma": 0.6196773353938064,
+      "last_bias_weight": 10.0,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 2.0956295610063034,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 33,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "bce63f656dd81761f0e4e2c0e346782c7aac619b3e0cd451f140181af3731138",
+      "system": "c60",
+      "task_id": "c60-eval-2004-bias8",
+      "wall_time_s": 0.6386327959990012
+    },
+    {
+      "arm_id": "current_full",
+      "biased_proposal_relax_force_evaluations": 32,
+      "certificate_satisfied": true,
+      "direction_progress": 1.0625884166387123,
+      "endpoint_position_sha256": "22e6deee047d63169985084ab0ff670b66543e37f90476a61c6131a020a00d90",
+      "final": {
+        "bias_energy": 1.8774863911459565,
+        "softening_energy": 0.0,
+        "total_energy": -470.1527565287759,
+        "true_energy": -472.0302429199219
+      },
+      "force_evaluations": 32,
+      "initial": {
+        "bias_energy": 4.953569965700443,
+        "softening_energy": 0.0,
+        "total_energy": -466.6764959522683,
+        "true_energy": -471.63006591796875
+      },
+      "last_bias_sigma": 0.6196773353938063,
+      "last_bias_weight": 8.167056168343457,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 1.4088120366347592,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 32,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "73e130b65afccaa8d95336df7baa3c2b8d0a60a8554af222639ee7dd70c354fa",
+      "system": "c60",
+      "task_id": "c60-eval-2005-bias1",
+      "wall_time_s": 0.6270697970012407
+    },
+    {
+      "arm_id": "curvature_matched_no_feedback",
+      "biased_proposal_relax_force_evaluations": 32,
+      "certificate_satisfied": true,
+      "direction_progress": 1.062613876076699,
+      "endpoint_position_sha256": "70b775ea3cecf9881bba37963df09f3d375b1b3acc93d121d7d01d1aaa493e4a",
+      "final": {
+        "bias_energy": 1.8774878735827583,
+        "softening_energy": 0.0,
+        "total_energy": -470.1526024584485,
+        "true_energy": -472.03009033203125
+      },
+      "force_evaluations": 32,
+      "initial": {
+        "bias_energy": 4.953922874073258,
+        "softening_energy": 0.0,
+        "total_energy": -466.67611252631735,
+        "true_energy": -471.6300354003906
+      },
+      "last_bias_sigma": 0.6196773353931867,
+      "last_bias_weight": 8.167638015892491,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 1.408837333377461,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 32,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "73e130b65afccaa8d95336df7baa3c2b8d0a60a8554af222639ee7dd70c354fa",
+      "system": "c60",
+      "task_id": "c60-eval-2005-bias1",
+      "wall_time_s": 0.6299256959991908
+    },
+    {
+      "arm_id": "fixed_calibrated",
+      "biased_proposal_relax_force_evaluations": 29,
+      "certificate_satisfied": true,
+      "direction_progress": 1.1325862701364948,
+      "endpoint_position_sha256": "19da965f11bb370f7e9539025238d0fa305a219b56ae772c43caddb63e2d364a",
+      "final": {
+        "bias_energy": 1.8820009324404814,
+        "softening_energy": 0.0,
+        "total_energy": -469.7714109327939,
+        "true_energy": -471.6534118652344
+      },
+      "force_evaluations": 29,
+      "initial": {
+        "bias_energy": 6.065306597126332,
+        "softening_energy": 0.0,
+        "total_energy": -465.5646982856862,
+        "true_energy": -471.6300048828125
+      },
+      "last_bias_sigma": 0.6196773353938064,
+      "last_bias_weight": 10.0,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 1.478834961943206,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 29,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "73e130b65afccaa8d95336df7baa3c2b8d0a60a8554af222639ee7dd70c354fa",
+      "system": "c60",
+      "task_id": "c60-eval-2005-bias1",
+      "wall_time_s": 0.5477460969996173
+    },
+    {
+      "arm_id": "current_full",
+      "biased_proposal_relax_force_evaluations": 24,
+      "certificate_satisfied": true,
+      "direction_progress": 0.48793504293293244,
+      "endpoint_position_sha256": "a035f06b522d691a0a7105865105379d8a7cac4090f11e51086737395e6e3863",
+      "final": {
+        "bias_energy": 0.3514926880094611,
+        "softening_energy": 0.0,
+        "total_energy": -474.0398036987093,
+        "true_energy": -474.39129638671875
+      },
+      "force_evaluations": 24,
+      "initial": {
+        "bias_energy": 0.4085316622737397,
+        "softening_energy": 0.0,
+        "total_energy": -473.96060896272627,
+        "true_energy": -474.369140625
+      },
+      "last_bias_sigma": 0.3563144678514415,
+      "last_bias_weight": 0.3970658327391546,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 0.3995393585948667,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 24,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "e7f75fe43f4450382bdb5faba1ba6331914500766f785d735156a09adf2427dd",
+      "system": "c60",
+      "task_id": "c60-eval-2006-bias3",
+      "wall_time_s": 0.4407070979996206
+    },
+    {
+      "arm_id": "curvature_matched_no_feedback",
+      "biased_proposal_relax_force_evaluations": 27,
+      "certificate_satisfied": true,
+      "direction_progress": 0.9439621981968319,
+      "endpoint_position_sha256": "8fdb3f7d69b9d2f833639d6317bf23db8f038472724dbee3a992adccacd241bf",
+      "final": {
+        "bias_energy": 0.5387058442507686,
+        "softening_energy": 0.0,
+        "total_energy": -473.45830343309296,
+        "true_energy": -473.99700927734375
+      },
+      "force_evaluations": 27,
+      "initial": {
+        "bias_energy": 0.864769591094017,
+        "softening_energy": 0.0,
+        "total_energy": -473.2322763073435,
+        "true_energy": -474.0970458984375
+      },
+      "last_bias_sigma": 0.6196773353931868,
+      "last_bias_weight": 1.2001674489506966,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 0.5202354271833207,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 27,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "e7f75fe43f4450382bdb5faba1ba6331914500766f785d735156a09adf2427dd",
+      "system": "c60",
+      "task_id": "c60-eval-2006-bias3",
+      "wall_time_s": 0.5503744969992113
+    },
+    {
+      "arm_id": "fixed_calibrated",
+      "biased_proposal_relax_force_evaluations": 80,
+      "certificate_satisfied": true,
+      "direction_progress": 1.7262165291412483,
+      "endpoint_position_sha256": "a667bf60e4f7710535afd1ac4f8c60470e5201198456ce654d7bcc13138fb53f",
+      "final": {
+        "bias_energy": 0.4509347362506064,
+        "softening_energy": 0.0,
+        "total_energy": -477.0563894824994,
+        "true_energy": -477.50732421875
+      },
+      "force_evaluations": 80,
+      "initial": {
+        "bias_energy": 6.202137833642601,
+        "softening_energy": 0.0,
+        "total_energy": -467.8949080647949,
+        "true_energy": -474.0970458984375
+      },
+      "last_bias_sigma": 0.6196773353938064,
+      "last_bias_weight": 10.0,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 2.658477433318211,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 80,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "e7f75fe43f4450382bdb5faba1ba6331914500766f785d735156a09adf2427dd",
+      "system": "c60",
+      "task_id": "c60-eval-2006-bias3",
+      "wall_time_s": 1.5542031899985886
+    },
+    {
+      "arm_id": "current_full",
+      "biased_proposal_relax_force_evaluations": 82,
+      "certificate_satisfied": false,
+      "direction_progress": -3.0373085762579457,
+      "endpoint_position_sha256": "54bed8df7d1ffd50b80cafa80b10c33f6b4d32307948cd5415a1c869f45279eb",
+      "final": {
+        "bias_energy": 0.09723169358629963,
+        "softening_energy": 0.0,
+        "total_energy": -479.58495824781994,
+        "true_energy": -479.68218994140625
+      },
+      "force_evaluations": 82,
+      "initial": {
+        "bias_energy": 0.6671940932395,
+        "softening_energy": 0.0,
+        "total_energy": -477.47327831886986,
+        "true_energy": -478.1404724121094
+      },
+      "last_bias_sigma": 0.1549193338488354,
+      "last_bias_weight": 0.2235046128949351,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 16.722202445564456,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 82,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "d742e583a1fca845bd4c15f0405624a80ef352a90724c31c0ff72f4e9990ae96",
+      "system": "c60",
+      "task_id": "c60-eval-2007-bias5",
+      "wall_time_s": 1.8267669889992248
+    },
+    {
+      "arm_id": "curvature_matched_no_feedback",
+      "biased_proposal_relax_force_evaluations": 55,
+      "certificate_satisfied": true,
+      "direction_progress": 0.7811123421218396,
+      "endpoint_position_sha256": "083325d1e24a7661a544819d80bdc911b36b5cc476ea2b4fe1c837a18f7f6c00",
+      "final": {
+        "bias_energy": 1.8396283305896977,
+        "softening_energy": 0.0,
+        "total_energy": -475.5950030170666,
+        "true_energy": -477.43463134765625
+      },
+      "force_evaluations": 55,
+      "initial": {
+        "bias_energy": 2.417309796303588,
+        "softening_energy": 0.0,
+        "total_energy": -474.3191098814308,
+        "true_energy": -476.7364196777344
+      },
+      "last_bias_sigma": 0.6196773353931867,
+      "last_bias_weight": 3.107923594152771,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 2.896815398988927,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 55,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "d742e583a1fca845bd4c15f0405624a80ef352a90724c31c0ff72f4e9990ae96",
+      "system": "c60",
+      "task_id": "c60-eval-2007-bias5",
+      "wall_time_s": 1.2048219020016404
+    },
+    {
+      "arm_id": "fixed_calibrated",
+      "biased_proposal_relax_force_evaluations": 54,
+      "certificate_satisfied": true,
+      "direction_progress": 1.2602348708480042,
+      "endpoint_position_sha256": "58f5c156ae4741f42952830af76745d728e89dafde71dffe560dc6b29e7a6be9",
+      "final": {
+        "bias_energy": 1.7332420969204505,
+        "softening_energy": 0.0,
+        "total_energy": -474.06412118432957,
+        "true_energy": -475.79736328125
+      },
+      "force_evaluations": 54,
+      "initial": {
+        "bias_energy": 6.597565445532016,
+        "softening_energy": 0.0,
+        "total_energy": -470.13885423220233,
+        "true_energy": -476.7364196777344
+      },
+      "last_bias_sigma": 0.6196773353938064,
+      "last_bias_weight": 10.0,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 2.5370734255506826,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 54,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "d742e583a1fca845bd4c15f0405624a80ef352a90724c31c0ff72f4e9990ae96",
+      "system": "c60",
+      "task_id": "c60-eval-2007-bias5",
+      "wall_time_s": 1.173863601001358
+    },
+    {
+      "arm_id": "current_full",
+      "biased_proposal_relax_force_evaluations": 73,
+      "certificate_satisfied": true,
+      "direction_progress": -1.3575407529192822,
+      "endpoint_position_sha256": "98b894a3503b4e7c0ee338400f3de85ca44d33629710062a7fd0450d0cdef84d",
+      "final": {
+        "bias_energy": 1.3404134509399632,
+        "softening_energy": 0.0,
+        "total_energy": -476.27524817015376,
+        "true_energy": -477.61566162109375
+      },
+      "force_evaluations": 73,
+      "initial": {
+        "bias_energy": 1.2542770286509872,
+        "softening_energy": 0.0,
+        "total_energy": -475.3009597877553,
+        "true_energy": -476.55523681640625
+      },
+      "last_bias_sigma": 0.7166756659234208,
+      "last_bias_weight": 0.24194829764963557,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 3.08103386885108,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 73,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "663a2e9e08f69a8fcf84ecdfd3c63e3f7a0f8dc44410ae7dd6c615052fa1d7c7",
+      "system": "c60",
+      "task_id": "c60-eval-2008-bias8",
+      "wall_time_s": 1.5924414990004152
+    },
+    {
+      "arm_id": "curvature_matched_no_feedback",
+      "biased_proposal_relax_force_evaluations": 72,
+      "certificate_satisfied": true,
+      "direction_progress": -1.3391258701473343,
+      "endpoint_position_sha256": "1f91c54f774edd9b626e0f30c632c71b35fdeebad9db7cef77f2495ef2fe2cce",
+      "final": {
+        "bias_energy": 1.3111448258928242,
+        "softening_energy": 0.0,
+        "total_energy": -476.3059206037947,
+        "true_energy": -477.6170654296875
+      },
+      "force_evaluations": 72,
+      "initial": {
+        "bias_energy": 1.2176894583227267,
+        "softening_energy": 0.0,
+        "total_energy": -475.412132319021,
+        "true_energy": -476.62982177734375
+      },
+      "last_bias_sigma": 0.6196773353931868,
+      "last_bias_weight": 0.15579955358644001,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 2.5867603111850785,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 72,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "663a2e9e08f69a8fcf84ecdfd3c63e3f7a0f8dc44410ae7dd6c615052fa1d7c7",
+      "system": "c60",
+      "task_id": "c60-eval-2008-bias8",
+      "wall_time_s": 1.5864299000004394
+    },
+    {
+      "arm_id": "fixed_calibrated",
+      "biased_proposal_relax_force_evaluations": 78,
+      "certificate_satisfied": true,
+      "direction_progress": 1.6796209333391072,
+      "endpoint_position_sha256": "95677e463442cd1c74b3224f49ee92083798d3267224c076271b7f94b1b6becc",
+      "final": {
+        "bias_energy": 1.450034175171091,
+        "softening_energy": 0.0,
+        "total_energy": -474.9465417525633,
+        "true_energy": -476.3965759277344
+      },
+      "force_evaluations": 78,
+      "initial": {
+        "bias_energy": 7.188498849429227,
+        "softening_energy": 0.0,
+        "total_energy": -469.44132292791454,
+        "true_energy": -476.62982177734375
+      },
+      "last_bias_sigma": 0.6196773353938064,
+      "last_bias_weight": 10.0,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 9.309963533196738,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 80,
+      "purpose_counts": {
+        "biased_proposal_relax": 78,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "663a2e9e08f69a8fcf84ecdfd3c63e3f7a0f8dc44410ae7dd6c615052fa1d7c7",
+      "system": "c60",
+      "task_id": "c60-eval-2008-bias8",
+      "wall_time_s": 1.6994865990000108
+    },
+    {
+      "arm_id": "current_full",
+      "biased_proposal_relax_force_evaluations": 93,
+      "certificate_satisfied": true,
+      "direction_progress": 2.4075656704212727,
+      "endpoint_position_sha256": "3f84b060bf2603a703281155ea296d5055763d867f5247fb1d8ba9bd299de0c8",
+      "final": {
+        "bias_energy": 1.795244818755062,
+        "softening_energy": 0.0,
+        "total_energy": -564.7910588921825,
+        "true_energy": -566.5863037109375
+      },
+      "force_evaluations": 93,
+      "initial": {
+        "bias_energy": 6.065306597132398,
+        "softening_energy": 0.0,
+        "total_energy": -548.9853525825552,
+        "true_energy": -555.0506591796875
+      },
+      "last_bias_sigma": 1.299038105677957,
+      "last_bias_weight": 10.0,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 4.603644998755645,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 300,
+      "purpose_counts": {
+        "biased_proposal_relax": 93,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "f3efe6cb65f7b089e8415e4e8ae0424bd001ab48286b3e85d5b4c2c8ca43667b",
+      "system": "pdo",
+      "task_id": "pdo-eval-2001-bias1",
+      "wall_time_s": 2.236535301999538
+    },
+    {
+      "arm_id": "curvature_matched_no_feedback",
+      "biased_proposal_relax_force_evaluations": 95,
+      "certificate_satisfied": true,
+      "direction_progress": 2.403372799412928,
+      "endpoint_position_sha256": "06316b2c92b2ae519f38aa4c8bd36605358084342ce97eb0616f85ffc3dd7036",
+      "final": {
+        "bias_energy": 1.8060067372163915,
+        "softening_energy": 0.0,
+        "total_energy": -564.7833487315336,
+        "true_energy": -566.58935546875
+      },
+      "force_evaluations": 95,
+      "initial": {
+        "bias_energy": 6.065306597126332,
+        "softening_energy": 0.0,
+        "total_energy": -548.9854136177174,
+        "true_energy": -555.0507202148438
+      },
+      "last_bias_sigma": 1.2990381056766578,
+      "last_bias_weight": 10.0,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 4.61257092323292,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 300,
+      "purpose_counts": {
+        "biased_proposal_relax": 95,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "f3efe6cb65f7b089e8415e4e8ae0424bd001ab48286b3e85d5b4c2c8ca43667b",
+      "system": "pdo",
+      "task_id": "pdo-eval-2001-bias1",
+      "wall_time_s": 2.294536502000483
+    },
+    {
+      "arm_id": "fixed_calibrated",
+      "biased_proposal_relax_force_evaluations": 93,
+      "certificate_satisfied": true,
+      "direction_progress": 2.4069005661351994,
+      "endpoint_position_sha256": "d4cf9b3d269a753038ef6120bb8ef82a38fe29a0c7ba7e8cd16ff28ab27bfe06",
+      "final": {
+        "bias_energy": 1.796948913892913,
+        "softening_energy": 0.0,
+        "total_energy": -564.7876458126696,
+        "true_energy": -566.5845947265625
+      },
+      "force_evaluations": 93,
+      "initial": {
+        "bias_energy": 6.065306597126332,
+        "softening_energy": 0.0,
+        "total_energy": -548.9853525825612,
+        "true_energy": -555.0506591796875
+      },
+      "last_bias_sigma": 1.29903810567796,
+      "last_bias_weight": 10.0,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 4.606508522701645,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 300,
+      "purpose_counts": {
+        "biased_proposal_relax": 93,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "f3efe6cb65f7b089e8415e4e8ae0424bd001ab48286b3e85d5b4c2c8ca43667b",
+      "system": "pdo",
+      "task_id": "pdo-eval-2001-bias1",
+      "wall_time_s": 2.2203110020000167
+    },
+    {
+      "arm_id": "current_full",
+      "biased_proposal_relax_force_evaluations": 89,
+      "certificate_satisfied": true,
+      "direction_progress": 2.5647079638000765,
+      "endpoint_position_sha256": "468df93f5b1d6f93113aa3826286d08ca506322a1e0c640202235305988f830c",
+      "final": {
+        "bias_energy": 1.4242266472965837,
+        "softening_energy": 0.0,
+        "total_energy": -565.1128827277034,
+        "true_energy": -566.537109375
+      },
+      "force_evaluations": 89,
+      "initial": {
+        "bias_energy": 6.065306597132411,
+        "softening_energy": 0.0,
+        "total_energy": -554.6627207466175,
+        "true_energy": -560.72802734375
+      },
+      "last_bias_sigma": 1.29903810567796,
+      "last_bias_weight": 10.0,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 6.906392643518065,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 300,
+      "purpose_counts": {
+        "biased_proposal_relax": 89,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "c55d593d427d2d986c030e6dad5026e95e9a711f69fcb5dbfdbadbb2adca3f50",
+      "system": "pdo",
+      "task_id": "pdo-eval-2005-bias1",
+      "wall_time_s": 2.147632689000602
+    },
+    {
+      "arm_id": "curvature_matched_no_feedback",
+      "biased_proposal_relax_force_evaluations": 91,
+      "certificate_satisfied": true,
+      "direction_progress": 2.5742889764101244,
+      "endpoint_position_sha256": "60265fa56737ec61e850b7ae9506f8080b3231c2f2bab6e0707d9072834d1a9a",
+      "final": {
+        "bias_energy": 1.4035998851480345,
+        "softening_energy": 0.0,
+        "total_energy": -565.1283825367269,
+        "true_energy": -566.531982421875
+      },
+      "force_evaluations": 91,
+      "initial": {
+        "bias_energy": 6.065306597126332,
+        "softening_energy": 0.0,
+        "total_energy": -554.6627817817799,
+        "true_energy": -560.7280883789062
+      },
+      "last_bias_sigma": 1.299038105676658,
+      "last_bias_weight": 10.0,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 7.054438568970643,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 300,
+      "purpose_counts": {
+        "biased_proposal_relax": 91,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "c55d593d427d2d986c030e6dad5026e95e9a711f69fcb5dbfdbadbb2adca3f50",
+      "system": "pdo",
+      "task_id": "pdo-eval-2005-bias1",
+      "wall_time_s": 2.1787551830002485
+    },
+    {
+      "arm_id": "fixed_calibrated",
+      "biased_proposal_relax_force_evaluations": 89,
+      "certificate_satisfied": true,
+      "direction_progress": 2.566930004979833,
+      "endpoint_position_sha256": "eda938a884cd4d40a6bd7c306dbbe0b41b905a1aa23019ccdece9130cf72e848",
+      "final": {
+        "bias_energy": 1.4194229016929096,
+        "softening_energy": 0.0,
+        "total_energy": -565.1183578600259,
+        "true_energy": -566.5377807617188
+      },
+      "force_evaluations": 89,
+      "initial": {
+        "bias_energy": 6.065306597126328,
+        "softening_energy": 0.0,
+        "total_energy": -554.6627207466237,
+        "true_energy": -560.72802734375
+      },
+      "last_bias_sigma": 1.29903810567796,
+      "last_bias_weight": 10.0,
+      "observer_only_force_evaluations": 0,
+      "optimizer": "safe-lbfgs-total",
+      "orthogonal_displacement_norm": 6.956857470313229,
+      "proposal_fmax": 0.05,
+      "proposal_maxiter": 300,
+      "purpose_counts": {
+        "biased_proposal_relax": 89,
+        "bootstrap_true_quench": 0,
+        "direction_oracle": 0,
+        "escape_true_pes_check": 0,
+        "landing_true_quench": 0,
+        "post_relax_validation": 0,
+        "starter_true_quench": 0,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "source_task_sha256": "c55d593d427d2d986c030e6dad5026e95e9a711f69fcb5dbfdbadbb2adca3f50",
+      "system": "pdo",
+      "task_id": "pdo-eval-2005-bias1",
+      "wall_time_s": 2.1327898819999973
+    }
+  ],
+  "schema_version": 3,
+  "scope": "conditional fixed-prefix Gaussian propagation screen; no local-softening term; not a full-search comparison",
+  "summary": {
+    "row_count": 27,
+    "schema_version": 1,
+    "systems": {
+      "c60": {
+        "arms": {
+          "current_full": {
+            "certificate_rate": 0.8571428571428571,
+            "mean_direction_progress": 0.00040097325342991486,
+            "mean_force_evaluations": 49.57142857142857,
+            "mean_orthogonal_displacement_norm": 3.921886720457648,
+            "mean_relaxation_true_energy_change_from_displaced_initial": -1.8859470912388392,
+            "mean_wall_time_s": 1.0442087407146963
+          },
+          "curvature_matched_no_feedback": {
+            "certificate_rate": 0.8571428571428571,
+            "mean_direction_progress": 0.8050675374001658,
+            "mean_force_evaluations": 52.285714285714285,
+            "mean_orthogonal_displacement_norm": 2.2970377218343683,
+            "mean_relaxation_true_energy_change_from_displaced_initial": -1.8703264508928572,
+            "mean_wall_time_s": 1.0841227990001374
+          },
+          "fixed_calibrated": {
+            "certificate_rate": 0.8571428571428571,
+            "mean_direction_progress": 1.5482404812103776,
+            "mean_force_evaluations": 58.857142857142854,
+            "mean_orthogonal_displacement_norm": 3.6517248147335795,
+            "mean_relaxation_true_energy_change_from_displaced_initial": -1.7716500418526786,
+            "mean_wall_time_s": 1.1944075121427886
+          }
+        },
+        "paired_differences_vs_current": {
+          "curvature_matched_no_feedback": {
+            "certificate_rate": 0.0,
+            "mean_direction_progress": 0.8046665641467359,
+            "mean_final_true_energy": 0.42152186802455355,
+            "mean_force_evaluations": 2.7142857142857144,
+            "mean_orthogonal_displacement_norm": -1.6248489986232795
+          },
+          "fixed_calibrated": {
+            "certificate_rate": 0.0,
+            "mean_direction_progress": 1.5478395079569476,
+            "mean_final_true_energy": 0.5202069963727679,
+            "mean_force_evaluations": 9.285714285714286,
+            "mean_orthogonal_displacement_norm": -0.2701619057240682
+          }
+        },
+        "task_count": 7
+      },
+      "pdo": {
+        "arms": {
+          "current_full": {
+            "certificate_rate": 1.0,
+            "mean_direction_progress": 2.4861368171106744,
+            "mean_force_evaluations": 91,
+            "mean_orthogonal_displacement_norm": 5.755018821136855,
+            "mean_relaxation_true_energy_change_from_displaced_initial": -8.67236328125,
+            "mean_wall_time_s": 2.19208399550007
+          },
+          "curvature_matched_no_feedback": {
+            "certificate_rate": 1.0,
+            "mean_direction_progress": 2.488830887911526,
+            "mean_force_evaluations": 93,
+            "mean_orthogonal_displacement_norm": 5.833504746101782,
+            "mean_relaxation_true_energy_change_from_displaced_initial": -8.6712646484375,
+            "mean_wall_time_s": 2.2366458425003657
+          },
+          "fixed_calibrated": {
+            "certificate_rate": 1.0,
+            "mean_direction_progress": 2.486915285557516,
+            "mean_force_evaluations": 91,
+            "mean_orthogonal_displacement_norm": 5.781682996507437,
+            "mean_relaxation_true_energy_change_from_displaced_initial": -8.671844482421875,
+            "mean_wall_time_s": 2.176550442000007
+          }
+        },
+        "paired_differences_vs_current": {
+          "curvature_matched_no_feedback": {
+            "certificate_rate": 0.0,
+            "mean_direction_progress": 0.0026940708008516,
+            "mean_final_true_energy": 0.00103759765625,
+            "mean_force_evaluations": 2,
+            "mean_orthogonal_displacement_norm": 0.07848592496492657
+          },
+          "fixed_calibrated": {
+            "certificate_rate": 0.0,
+            "mean_direction_progress": 0.0007784684468417069,
+            "mean_final_true_energy": 0.000518798828125,
+            "mean_force_evaluations": 0,
+            "mean_orthogonal_displacement_norm": 0.026664175370581855
+          }
+        },
+        "task_count": 2
+      }
+    }
+  },
+  "systems": {
+    "c60": {
+      "bootstrap": {
+        "certificate_satisfied": true,
+        "energy_eV": -474.6697082519531,
+        "force_evaluations": 49,
+        "gradient_norm": 0.008898363041815427,
+        "purpose_counts": {
+          "biased_proposal_relax": 0,
+          "bootstrap_true_quench": 48,
+          "direction_oracle": 0,
+          "escape_true_pes_check": 0,
+          "landing_true_quench": 0,
+          "post_relax_validation": 1,
+          "starter_true_quench": 0,
+          "unattributed": 0
+        },
+        "wall_time_s": 3.390067177000674
+      },
+      "calibration_failures": [
+        {
+          "error": "walk terminated before the requested proposal task",
+          "force_evaluations": 9,
+          "purpose_counts": {
+            "biased_proposal_relax": 0,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 8,
+            "escape_true_pes_check": 1,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 1004,
+          "target_bias_count": 1,
+          "task_id": "c60-cal-1004",
+          "wall_time_s": 0.19203669999842532
+        }
+      ],
+      "calibration_tasks": [
+        {
+          "force_evaluations": 9,
+          "purpose_counts": {
+            "biased_proposal_relax": 0,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 8,
+            "escape_true_pes_check": 1,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 1001,
+          "sigma": 0.6196773353938164,
+          "source_task_sha256": "bab250395c9107e7f1cc9beee2291169eb29a3c22dc92ef7b61a35a567c4a1c7",
+          "system": "c60",
+          "target_bias_count": 1,
+          "task_id": "c60-cal-1001",
+          "wall_time_s": 0.1989802989992313,
+          "weight": 10.0
+        },
+        {
+          "force_evaluations": 9,
+          "purpose_counts": {
+            "biased_proposal_relax": 0,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 8,
+            "escape_true_pes_check": 1,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 1002,
+          "sigma": 0.6196773353938063,
+          "source_task_sha256": "2a740593402a3535ad6d19dff2273cfd314250eee5b8cdae1ee911595043abb9",
+          "system": "c60",
+          "target_bias_count": 1,
+          "task_id": "c60-cal-1002",
+          "wall_time_s": 0.1882346990005317,
+          "weight": 9.936912310039633
+        },
+        {
+          "force_evaluations": 9,
+          "purpose_counts": {
+            "biased_proposal_relax": 0,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 8,
+            "escape_true_pes_check": 1,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 1003,
+          "sigma": 0.6196773353938064,
+          "source_task_sha256": "9d8867ada8c69568839cec7d0b447099e2131214a5fc5b607a221ecee96df5b1",
+          "system": "c60",
+          "target_bias_count": 1,
+          "task_id": "c60-cal-1003",
+          "wall_time_s": 0.20728529999905732,
+          "weight": 10.0
+        }
+      ],
+      "capture_failures": [
+        {
+          "error": "walk terminated before the requested proposal task",
+          "force_evaluations": 286,
+          "purpose_counts": {
+            "biased_proposal_relax": 249,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 32,
+            "escape_true_pes_check": 5,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 2003,
+          "target_bias_count": 5,
+          "task_id": "c60-eval-2003-bias5",
+          "wall_time_s": 5.430706496999846
+        }
+      ],
+      "config": {
+        "hvp_epsilon": 0.001,
+        "max_step_rms": 0.15,
+        "max_step_scale": 1.2,
+        "max_steps_per_walk": 8,
+        "min_step_scale": 0.1,
+        "oracle_candidates": 4,
+        "proposal_fmax": 0.05,
+        "proposal_optimizer": "safe-lbfgs-total",
+        "proposal_relax_steps": 80,
+        "proposal_trust_radius": 1.5,
+        "quench_fallback_optimizer": "ase-fire",
+        "quench_fmax": 0.01,
+        "quench_maxiter": 400,
+        "quench_optimizer": "ase-lbfgs",
+        "step_active_threshold": 0.0001,
+        "step_error_tolerance": 1.0,
+        "step_gamma_down": 0.5,
+        "step_gamma_up": 1.15,
+        "step_rms_scope": "all_atoms",
+        "target_negative_curvature": 0.05,
+        "target_step_rms": 0.08,
+        "target_uphill_energy": 0.8
+      },
+      "evaluation_tasks": [
+        {
+          "characterization": {
+            "base_sigma": 0.6196773353931867,
+            "force_evaluations": 2,
+            "inner_curvature": 40.325629019848215,
+            "purpose_counts": {
+              "biased_proposal_relax": 0,
+              "bootstrap_true_quench": 0,
+              "direction_oracle": 2,
+              "escape_true_pes_check": 0,
+              "landing_true_quench": 0,
+              "post_relax_validation": 0,
+              "starter_true_quench": 0,
+              "unattributed": 0
+            },
+            "target_negative_curvature": 0.05
+          },
+          "force_evaluations": 9,
+          "purpose_counts": {
+            "biased_proposal_relax": 0,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 8,
+            "escape_true_pes_check": 1,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 2001,
+          "sigma": 0.6196773353938063,
+          "source_task_sha256": "70cbd872c9c0face32a2f0caf56670d00952c44724f465660bf15f8e08a23fce",
+          "system": "c60",
+          "target_bias_count": 1,
+          "task_id": "c60-eval-2001-bias1",
+          "wall_time_s": 0.19483810100064147,
+          "weight": 10.0
+        },
+        {
+          "characterization": {
+            "base_sigma": 0.6196773353931867,
+            "force_evaluations": 2,
+            "inner_curvature": 4.731947400809551,
+            "purpose_counts": {
+              "biased_proposal_relax": 0,
+              "bootstrap_true_quench": 0,
+              "direction_oracle": 2,
+              "escape_true_pes_check": 0,
+              "landing_true_quench": 0,
+              "post_relax_validation": 0,
+              "starter_true_quench": 0,
+              "unattributed": 0
+            },
+            "target_negative_curvature": 0.05
+          },
+          "force_evaluations": 152,
+          "purpose_counts": {
+            "biased_proposal_relax": 125,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 24,
+            "escape_true_pes_check": 3,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 2002,
+          "sigma": 0.35631446785156246,
+          "source_task_sha256": "0a07b7d2e2d816fdfd795d0c267050c1240bde77d03b27aac8cc98518d60132c",
+          "system": "c60",
+          "target_bias_count": 3,
+          "task_id": "c60-eval-2002-bias3",
+          "wall_time_s": 2.8989829040001496,
+          "weight": 0.6978670107617382
+        },
+        {
+          "characterization": {
+            "base_sigma": 0.6196773353931867,
+            "force_evaluations": 2,
+            "inner_curvature": 5.23564339178745,
+            "purpose_counts": {
+              "biased_proposal_relax": 0,
+              "bootstrap_true_quench": 0,
+              "direction_oracle": 2,
+              "escape_true_pes_check": 0,
+              "landing_true_quench": 0,
+              "post_relax_validation": 0,
+              "starter_true_quench": 0,
+              "unattributed": 0
+            },
+            "target_negative_curvature": 0.05
+          },
+          "force_evaluations": 365,
+          "purpose_counts": {
+            "biased_proposal_relax": 293,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 64,
+            "escape_true_pes_check": 8,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 2004,
+          "sigma": 0.17815723392572302,
+          "source_task_sha256": "bce63f656dd81761f0e4e2c0e346782c7aac619b3e0cd451f140181af3731138",
+          "system": "c60",
+          "target_bias_count": 8,
+          "task_id": "c60-eval-2004-bias8",
+          "wall_time_s": 6.80606618999991,
+          "weight": 0.16778232797413156
+        },
+        {
+          "characterization": {
+            "base_sigma": 0.6196773353931867,
+            "force_evaluations": 2,
+            "inner_curvature": 21.219890666386696,
+            "purpose_counts": {
+              "biased_proposal_relax": 0,
+              "bootstrap_true_quench": 0,
+              "direction_oracle": 2,
+              "escape_true_pes_check": 0,
+              "landing_true_quench": 0,
+              "post_relax_validation": 0,
+              "starter_true_quench": 0,
+              "unattributed": 0
+            },
+            "target_negative_curvature": 0.05
+          },
+          "force_evaluations": 9,
+          "purpose_counts": {
+            "biased_proposal_relax": 0,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 8,
+            "escape_true_pes_check": 1,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 2005,
+          "sigma": 0.6196773353938063,
+          "source_task_sha256": "73e130b65afccaa8d95336df7baa3c2b8d0a60a8554af222639ee7dd70c354fa",
+          "system": "c60",
+          "target_bias_count": 1,
+          "task_id": "c60-eval-2005-bias1",
+          "wall_time_s": 0.1615023989998008,
+          "weight": 8.167056168343457
+        },
+        {
+          "characterization": {
+            "base_sigma": 0.6196773353931868,
+            "force_evaluations": 2,
+            "inner_curvature": 3.0754360649757717,
+            "purpose_counts": {
+              "biased_proposal_relax": 0,
+              "bootstrap_true_quench": 0,
+              "direction_oracle": 2,
+              "escape_true_pes_check": 0,
+              "landing_true_quench": 0,
+              "post_relax_validation": 0,
+              "starter_true_quench": 0,
+              "unattributed": 0
+            },
+            "target_negative_curvature": 0.05
+          },
+          "force_evaluations": 101,
+          "purpose_counts": {
+            "biased_proposal_relax": 74,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 24,
+            "escape_true_pes_check": 3,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 2006,
+          "sigma": 0.3563144678514415,
+          "source_task_sha256": "e7f75fe43f4450382bdb5faba1ba6331914500766f785d735156a09adf2427dd",
+          "system": "c60",
+          "target_bias_count": 3,
+          "task_id": "c60-eval-2006-bias3",
+          "wall_time_s": 1.9158291890016699,
+          "weight": 0.3970658327391546
+        },
+        {
+          "characterization": {
+            "base_sigma": 0.6196773353931867,
+            "force_evaluations": 2,
+            "inner_curvature": 8.043551026439507,
+            "purpose_counts": {
+              "biased_proposal_relax": 0,
+              "bootstrap_true_quench": 0,
+              "direction_oracle": 2,
+              "escape_true_pes_check": 0,
+              "landing_true_quench": 0,
+              "post_relax_validation": 0,
+              "starter_true_quench": 0,
+              "unattributed": 0
+            },
+            "target_negative_curvature": 0.05
+          },
+          "force_evaluations": 343,
+          "purpose_counts": {
+            "biased_proposal_relax": 298,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 40,
+            "escape_true_pes_check": 5,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 2007,
+          "sigma": 0.1549193338488354,
+          "source_task_sha256": "d742e583a1fca845bd4c15f0405624a80ef352a90724c31c0ff72f4e9990ae96",
+          "system": "c60",
+          "target_bias_count": 5,
+          "task_id": "c60-eval-2007-bias5",
+          "wall_time_s": 6.58912683500057,
+          "weight": 0.2235046128949351
+        },
+        {
+          "characterization": {
+            "base_sigma": 0.6196773353931868,
+            "force_evaluations": 2,
+            "inner_curvature": 0.3557280041313541,
+            "purpose_counts": {
+              "biased_proposal_relax": 0,
+              "bootstrap_true_quench": 0,
+              "direction_oracle": 2,
+              "escape_true_pes_check": 0,
+              "landing_true_quench": 0,
+              "post_relax_validation": 0,
+              "starter_true_quench": 0,
+              "unattributed": 0
+            },
+            "target_negative_curvature": 0.05
+          },
+          "force_evaluations": 309,
+          "purpose_counts": {
+            "biased_proposal_relax": 237,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 64,
+            "escape_true_pes_check": 8,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 2008,
+          "sigma": 0.7166756659234208,
+          "source_task_sha256": "663a2e9e08f69a8fcf84ecdfd3c63e3f7a0f8dc44410ae7dd6c615052fa1d7c7",
+          "system": "c60",
+          "target_bias_count": 8,
+          "task_id": "c60-eval-2008-bias8",
+          "wall_time_s": 6.5615822069994465,
+          "weight": 0.24194829764963557
+        }
+      ],
+      "fixed_calibration": {
+        "sigma": 0.6196773353938064,
+        "source_task_sha256": [
+          "bab250395c9107e7f1cc9beee2291169eb29a3c22dc92ef7b61a35a567c4a1c7",
+          "2a740593402a3535ad6d19dff2273cfd314250eee5b8cdae1ee911595043abb9",
+          "9d8867ada8c69568839cec7d0b447099e2131214a5fc5b607a221ecee96df5b1"
+        ],
+        "task_ids": [
+          "c60-cal-1001",
+          "c60-cal-1002",
+          "c60-cal-1003"
+        ],
+        "weight": 10.0
+      },
+      "input_state": {
+        "atom_count": 60,
+        "fixed_count": 0,
+        "pbc": [
+          false,
+          false,
+          false
+        ]
+      }
+    },
+    "pdo": {
+      "bootstrap": {
+        "certificate_satisfied": true,
+        "energy_eV": -568.39697265625,
+        "force_evaluations": 38,
+        "gradient_norm": 0.016068217694970077,
+        "purpose_counts": {
+          "biased_proposal_relax": 0,
+          "bootstrap_true_quench": 37,
+          "direction_oracle": 0,
+          "escape_true_pes_check": 0,
+          "landing_true_quench": 0,
+          "post_relax_validation": 1,
+          "starter_true_quench": 0,
+          "unattributed": 0
+        },
+        "wall_time_s": 0.8749554000005446
+      },
+      "calibration_failures": [
+        {
+          "error": "walk terminated before the requested proposal task",
+          "force_evaluations": 9,
+          "purpose_counts": {
+            "biased_proposal_relax": 0,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 8,
+            "escape_true_pes_check": 1,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 1001,
+          "target_bias_count": 1,
+          "task_id": "pdo-cal-1001",
+          "wall_time_s": 0.21902289999889035
+        }
+      ],
+      "calibration_tasks": [
+        {
+          "force_evaluations": 9,
+          "purpose_counts": {
+            "biased_proposal_relax": 0,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 8,
+            "escape_true_pes_check": 1,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 1002,
+          "sigma": 1.299038105677957,
+          "source_task_sha256": "acca9e1c82daada7a2289b6c3e090b4f9b18792b835572f819029f68e780acad",
+          "system": "pdo",
+          "target_bias_count": 1,
+          "task_id": "pdo-cal-1002",
+          "wall_time_s": 0.21536729899889906,
+          "weight": 10.0
+        },
+        {
+          "force_evaluations": 9,
+          "purpose_counts": {
+            "biased_proposal_relax": 0,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 8,
+            "escape_true_pes_check": 1,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 1003,
+          "sigma": 1.29903810567796,
+          "source_task_sha256": "7977214755f3c0bdca0a79ed4497dcb0ba5659d10869137ca596a5e66e933e21",
+          "system": "pdo",
+          "target_bias_count": 1,
+          "task_id": "pdo-cal-1003",
+          "wall_time_s": 0.22563979999904404,
+          "weight": 10.0
+        },
+        {
+          "force_evaluations": 9,
+          "purpose_counts": {
+            "biased_proposal_relax": 0,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 8,
+            "escape_true_pes_check": 1,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 1004,
+          "sigma": 1.2990381056779714,
+          "source_task_sha256": "a3f2896d6bf8825682c8b98d978fb866b1e506b53e825cb057a13b1777792887",
+          "system": "pdo",
+          "target_bias_count": 1,
+          "task_id": "pdo-cal-1004",
+          "wall_time_s": 0.22266760099955718,
+          "weight": 10.0
+        }
+      ],
+      "capture_failures": [
+        {
+          "error": "walk terminated before the requested proposal task",
+          "force_evaluations": 163,
+          "purpose_counts": {
+            "biased_proposal_relax": 153,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 8,
+            "escape_true_pes_check": 2,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 2002,
+          "target_bias_count": 3,
+          "task_id": "pdo-eval-2002-bias3",
+          "wall_time_s": 3.927931576999981
+        },
+        {
+          "error": "walk terminated before the requested proposal task",
+          "force_evaluations": 291,
+          "purpose_counts": {
+            "biased_proposal_relax": 272,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 16,
+            "escape_true_pes_check": 3,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 2003,
+          "target_bias_count": 5,
+          "task_id": "pdo-eval-2003-bias5",
+          "wall_time_s": 6.9271755530007795
+        },
+        {
+          "error": "walk terminated before the requested proposal task",
+          "force_evaluations": 126,
+          "purpose_counts": {
+            "biased_proposal_relax": 116,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 8,
+            "escape_true_pes_check": 2,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 2004,
+          "target_bias_count": 8,
+          "task_id": "pdo-eval-2004-bias8",
+          "wall_time_s": 2.9747409840001637
+        },
+        {
+          "error": "walk terminated before the requested proposal task",
+          "force_evaluations": 77,
+          "purpose_counts": {
+            "biased_proposal_relax": 68,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 8,
+            "escape_true_pes_check": 1,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 2006,
+          "target_bias_count": 3,
+          "task_id": "pdo-eval-2006-bias3",
+          "wall_time_s": 1.854126284000813
+        },
+        {
+          "error": "walk terminated before the requested proposal task",
+          "force_evaluations": 179,
+          "purpose_counts": {
+            "biased_proposal_relax": 160,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 16,
+            "escape_true_pes_check": 3,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 2007,
+          "target_bias_count": 5,
+          "task_id": "pdo-eval-2007-bias5",
+          "wall_time_s": 4.077974963998713
+        },
+        {
+          "error": "walk terminated before the requested proposal task",
+          "force_evaluations": 194,
+          "purpose_counts": {
+            "biased_proposal_relax": 175,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 16,
+            "escape_true_pes_check": 3,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 2008,
+          "target_bias_count": 8,
+          "task_id": "pdo-eval-2008-bias8",
+          "wall_time_s": 4.3783804579998105
+        }
+      ],
+      "config": {
+        "hvp_epsilon": 0.001,
+        "max_step_rms": 0.35,
+        "max_step_scale": 1.2,
+        "max_steps_per_walk": 8,
+        "min_step_scale": 0.05,
+        "oracle_candidates": 4,
+        "proposal_fmax": 0.05,
+        "proposal_optimizer": "safe-lbfgs-total",
+        "proposal_relax_steps": 300,
+        "proposal_trust_radius": 1.5,
+        "quench_fallback_optimizer": null,
+        "quench_fmax": 0.03,
+        "quench_maxiter": 400,
+        "quench_optimizer": "scipy-lbfgsb",
+        "step_active_threshold": 0.0001,
+        "step_error_tolerance": 1.0,
+        "step_gamma_down": 0.5,
+        "step_gamma_up": 1.15,
+        "step_rms_scope": "all_atoms",
+        "target_negative_curvature": 0.05,
+        "target_step_rms": 0.15,
+        "target_uphill_energy": 0.8
+      },
+      "evaluation_tasks": [
+        {
+          "characterization": {
+            "base_sigma": 1.2990381056766578,
+            "force_evaluations": 2,
+            "inner_curvature": 6.963767041107991,
+            "purpose_counts": {
+              "biased_proposal_relax": 0,
+              "bootstrap_true_quench": 0,
+              "direction_oracle": 2,
+              "escape_true_pes_check": 0,
+              "landing_true_quench": 0,
+              "post_relax_validation": 0,
+              "starter_true_quench": 0,
+              "unattributed": 0
+            },
+            "target_negative_curvature": 0.05
+          },
+          "force_evaluations": 9,
+          "purpose_counts": {
+            "biased_proposal_relax": 0,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 8,
+            "escape_true_pes_check": 1,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 2001,
+          "sigma": 1.299038105677957,
+          "source_task_sha256": "f3efe6cb65f7b089e8415e4e8ae0424bd001ab48286b3e85d5b4c2c8ca43667b",
+          "system": "pdo",
+          "target_bias_count": 1,
+          "task_id": "pdo-eval-2001-bias1",
+          "wall_time_s": 0.2167797000001883,
+          "weight": 10.0
+        },
+        {
+          "characterization": {
+            "base_sigma": 1.299038105676658,
+            "force_evaluations": 2,
+            "inner_curvature": 8.425444671355335,
+            "purpose_counts": {
+              "biased_proposal_relax": 0,
+              "bootstrap_true_quench": 0,
+              "direction_oracle": 2,
+              "escape_true_pes_check": 0,
+              "landing_true_quench": 0,
+              "post_relax_validation": 0,
+              "starter_true_quench": 0,
+              "unattributed": 0
+            },
+            "target_negative_curvature": 0.05
+          },
+          "force_evaluations": 9,
+          "purpose_counts": {
+            "biased_proposal_relax": 0,
+            "bootstrap_true_quench": 0,
+            "direction_oracle": 8,
+            "escape_true_pes_check": 1,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "starter_true_quench": 0,
+            "unattributed": 0
+          },
+          "seed": 2005,
+          "sigma": 1.29903810567796,
+          "source_task_sha256": "c55d593d427d2d986c030e6dad5026e95e9a711f69fcb5dbfdbadbb2adca3f50",
+          "system": "pdo",
+          "target_bias_count": 1,
+          "task_id": "pdo-eval-2005-bias1",
+          "wall_time_s": 0.22671759900003963,
+          "weight": 10.0
+        }
+      ],
+      "fixed_calibration": {
+        "sigma": 1.29903810567796,
+        "source_task_sha256": [
+          "acca9e1c82daada7a2289b6c3e090b4f9b18792b835572f819029f68e780acad",
+          "7977214755f3c0bdca0a79ed4497dcb0ba5659d10869137ca596a5e66e933e21",
+          "a3f2896d6bf8825682c8b98d978fb866b1e506b53e825cb057a13b1777792887"
+        ],
+        "task_ids": [
+          "pdo-cal-1002",
+          "pdo-cal-1003",
+          "pdo-cal-1004"
+        ],
+        "weight": 10.0
+      },
+      "input_state": {
+        "atom_count": 115,
+        "fixed_count": 40,
+        "pbc": [
+          true,
+          true,
+          false
+        ]
+      }
+    }
+  },
+  "total_wall_time_s": 101.46921521500008,
+  "validation": {
+    "accounted_force_evaluations": 4474,
+    "attempted_task_count": 16,
+    "completed_task_count": 9,
+    "observer_only_force_evaluations": 0,
+    "row_count": 27,
+    "unattributed_force_evaluations": 0
+  }
+}

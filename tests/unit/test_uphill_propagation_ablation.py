@@ -1,0 +1,436 @@
+from __future__ import annotations
+
+import importlib.util
+from pathlib import Path
+
+import numpy as np
+import pytest
+
+from pamssw.accounting import EvaluationCounts, EvaluationPurpose
+from pamssw.bias import GaussianBiasTerm
+from pamssw.calculators import AnalyticCalculator
+from pamssw.result import RelaxResult
+from pamssw.state import State
+from pamssw.walker import ProposalRelaxationTask
+
+
+ROOT = Path(__file__).resolve().parents[2]
+RUN_ROOT = ROOT / "runs" / "20260730-uphill-propagation-u0-u1"
+
+
+def _load(name: str, filename: str):
+    spec = importlib.util.spec_from_file_location(name, RUN_ROOT / filename)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
+def _task() -> ProposalRelaxationTask:
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.4, 0.0, 0.0], [0.0, 0.0, 0.0]]),
+        fixed_mask=np.array([False, True]),
+    )
+    prefix = GaussianBiasTerm(
+        center=np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+        direction=np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+        sigma=0.2,
+        weight=0.1,
+    )
+    newest = GaussianBiasTerm(
+        center=np.array([0.1, 0.0, 0.0, 0.0, 0.0, 0.0]),
+        direction=np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+        sigma=0.3,
+        weight=0.2,
+    )
+    return ProposalRelaxationTask(
+        initial_state=state,
+        biases=(prefix, newest),
+        softening=None,
+        fmax=0.05,
+        maxiter=10,
+        coordinate_trust_radius=1.0,
+    )
+
+
+def test_arm_construction_changes_only_the_last_gaussian():
+    runner = _load("uphill_u0_u1_runner", "run_ablation.py")
+    source = _task()
+
+    current = runner.build_arm_task(
+        source,
+        arm_id="current_full",
+    )
+    matched = runner.build_arm_task(
+        source,
+        arm_id="curvature_matched_no_feedback",
+        base_sigma=0.25,
+        inner_curvature=0.2,
+        target_negative_curvature=0.05,
+    )
+    fixed = runner.build_arm_task(
+        source,
+        arm_id="fixed_calibrated",
+        fixed_sigma=0.4,
+        fixed_weight=0.6,
+    )
+
+    assert runner.ARM_IDS == (
+        "current_full",
+        "curvature_matched_no_feedback",
+        "fixed_calibrated",
+    )
+    assert current is source
+    assert matched.biases[-1].sigma == pytest.approx(0.25)
+    assert matched.biases[-1].weight == pytest.approx(
+        0.25**2 * (0.2 + 0.05)
+    )
+    assert fixed.biases[-1].sigma == pytest.approx(0.4)
+    assert fixed.biases[-1].weight == pytest.approx(0.6)
+    for candidate in (matched, fixed):
+        assert candidate.biases[0].sigma == source.biases[0].sigma
+        assert candidate.biases[0].weight == source.biases[0].weight
+        np.testing.assert_allclose(
+            candidate.biases[0].center,
+            source.biases[0].center,
+        )
+
+
+def test_curvature_matched_arm_preserves_shared_production_weight_bounds():
+    runner = _load("uphill_u0_u1_runner_bounded", "run_ablation.py")
+
+    matched = runner.build_arm_task(
+        _task(),
+        arm_id="curvature_matched_no_feedback",
+        base_sigma=1.0,
+        inner_curvature=20.0,
+        target_negative_curvature=0.05,
+        bias_weight_min=0.0,
+        bias_weight_max=10.0,
+    )
+
+    assert matched.biases[-1].weight == pytest.approx(10.0)
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "fragment"),
+    [
+        (
+            {
+                "arm_id": "fixed_calibrated",
+                "fixed_sigma": np.nan,
+                "fixed_weight": 0.1,
+            },
+            "sigma",
+        ),
+        (
+            {
+                "arm_id": "curvature_matched_no_feedback",
+                "base_sigma": 0.2,
+                "inner_curvature": np.inf,
+                "target_negative_curvature": 0.05,
+            },
+            "curvature",
+        ),
+        ({"arm_id": "unknown"}, "arm"),
+    ],
+)
+def test_arm_construction_fails_closed(kwargs, fragment):
+    runner = _load("uphill_u0_u1_runner_invalid", "run_ablation.py")
+    with pytest.raises((TypeError, ValueError), match=fragment):
+        runner.build_arm_task(_task(), **kwargs)
+
+
+def test_fixed_calibration_uses_only_finite_source_tasks_and_component_medians():
+    runner = _load("uphill_u0_u1_runner_calibration", "run_ablation.py")
+    records = [
+        {
+            "system": "c60",
+            "task_id": "c60-cal-0",
+            "sigma": 0.8,
+            "weight": 0.2,
+            "source_task_sha256": "a" * 64,
+        },
+        {
+            "system": "c60",
+            "task_id": "c60-cal-1",
+            "sigma": 1.2,
+            "weight": 0.6,
+            "source_task_sha256": "b" * 64,
+        },
+    ]
+
+    calibration = runner.calibrate_fixed_parameters(records)
+
+    assert calibration["c60"]["sigma"] == pytest.approx(1.0)
+    assert calibration["c60"]["weight"] == pytest.approx(0.4)
+    assert calibration["c60"]["task_ids"] == [
+        "c60-cal-0",
+        "c60-cal-1",
+    ]
+    with pytest.raises(ValueError, match="at least two"):
+        runner.calibrate_fixed_parameters(records[:1])
+
+
+def _row(task_id: str, arm_id: str) -> dict:
+    return {
+        "schema_version": 1,
+        "system": "c60",
+        "task_id": task_id,
+        "arm_id": arm_id,
+        "source_task_sha256": "a" * 64,
+        "optimizer": "ase-fire",
+        "proposal_fmax": 0.05,
+        "proposal_maxiter": 10,
+        "last_bias_sigma": 0.3,
+        "last_bias_weight": 0.2,
+        "certificate_satisfied": True,
+        "biased_proposal_relax_force_evaluations": 10,
+        "force_evaluations": 10,
+        "purpose_counts": {
+            purpose.value: (
+                10
+                if purpose is EvaluationPurpose.BIASED_PROPOSAL_RELAX
+                else 0
+            )
+            for purpose in EvaluationPurpose
+        },
+        "wall_time_s": 0.1,
+        "initial": {
+            "true_energy": 1.0,
+            "bias_energy": 0.5,
+            "softening_energy": 0.0,
+            "total_energy": 1.5,
+        },
+        "final": {
+            "true_energy": 1.2,
+            "bias_energy": 0.1,
+            "softening_energy": 0.0,
+            "total_energy": 1.3,
+        },
+        "direction_progress": 0.3,
+        "orthogonal_displacement_norm": 0.2,
+        "endpoint_position_sha256": "b" * 64,
+        "observer_only_force_evaluations": 0,
+    }
+
+
+def test_analyzer_requires_one_closed_three_arm_matrix_per_source_task():
+    runner = _load("uphill_u0_u1_runner_rows", "run_ablation.py")
+    analyzer = _load("uphill_u0_u1_analyzer", "analyze_results.py")
+    rows = [_row("eval-0", arm) for arm in runner.ARM_IDS]
+
+    summary = analyzer.analyze_rows(rows)
+
+    assert summary["row_count"] == 3
+    assert summary["systems"]["c60"]["task_count"] == 1
+    assert set(summary["systems"]["c60"]["arms"]) == set(runner.ARM_IDS)
+    paired = summary["systems"]["c60"]["paired_differences_vs_current"]
+    assert (
+        paired["fixed_calibrated"]["mean_final_true_energy"]
+        == pytest.approx(0.0)
+    )
+    assert (
+        paired["fixed_calibrated"][
+            "mean_orthogonal_displacement_norm"
+        ]
+        == pytest.approx(0.0)
+    )
+    with pytest.raises(ValueError, match="three-arm matrix"):
+        analyzer.analyze_rows(rows[:-1])
+
+
+class _Quadratic:
+    def energy_gradient(self, flat_positions, state):
+        flat = np.asarray(flat_positions, dtype=float)
+        return 0.5 * float(flat @ flat), flat.copy()
+
+
+def test_run_task_arms_writes_one_exactly_accounted_row_per_arm():
+    runner = _load("uphill_u0_u1_runner_matrix", "run_ablation.py")
+    analyzer = _load("uphill_u0_u1_analyzer_matrix", "analyze_results.py")
+    source = _task()
+
+    rows = runner.run_task_arms(
+        source,
+        system="analytic",
+        task_id="eval-0",
+        calculator_factory=lambda: AnalyticCalculator(_Quadratic()),
+        optimizer="ase-fire",
+        base_sigma=0.25,
+        inner_curvature=0.2,
+        target_negative_curvature=0.05,
+        fixed_sigma=0.4,
+        fixed_weight=0.6,
+    )
+
+    assert [row["arm_id"] for row in rows] == list(runner.ARM_IDS)
+    assert len({row["source_task_sha256"] for row in rows}) == 1
+    assert all(
+        row["observer_only_force_evaluations"] == 0 for row in rows
+    )
+    assert all(
+        isinstance(
+            row["biased_proposal_relax_force_evaluations"],
+            int,
+        )
+        for row in rows
+    )
+    assert all(
+        row["force_evaluations"]
+        == row["biased_proposal_relax_force_evaluations"]
+        for row in rows
+    )
+    assert all(
+        row["purpose_counts"][EvaluationPurpose.UNATTRIBUTED.value] == 0
+        for row in rows
+    )
+    assert rows[0]["last_bias_sigma"] == pytest.approx(
+        source.biases[-1].sigma
+    )
+    assert rows[0]["last_bias_weight"] == pytest.approx(
+        source.biases[-1].weight
+    )
+    assert all(row["optimizer"] == "ase-fire" for row in rows)
+    summary = analyzer.analyze_rows(rows)
+    assert summary["row_count"] == 3
+    assert summary["systems"]["analytic"]["task_count"] == 1
+
+
+def test_gpu_screen_protocol_is_pre_registered_and_disjoint():
+    screen = _load("uphill_u0_u1_gpu_screen", "run_gpu_screen.py")
+
+    assert screen.CALIBRATION_SEEDS == (1001, 1002, 1003, 1004)
+    assert screen.MIN_CALIBRATION_TASKS == 2
+    assert screen.EVALUATION_SPECS == (
+        (2001, 1),
+        (2002, 3),
+        (2003, 5),
+        (2004, 8),
+        (2005, 1),
+        (2006, 3),
+        (2007, 5),
+        (2008, 8),
+    )
+    calibration = set(screen.CALIBRATION_SEEDS)
+    evaluation = {seed for seed, _ in screen.EVALUATION_SPECS}
+    assert calibration.isdisjoint(evaluation)
+    assert set(screen.SYSTEMS) == {"c60", "pdo"}
+
+
+def test_gpu_screen_bootstrap_record_uses_force_certificate():
+    screen = _load("uphill_u0_u1_gpu_screen_record", "run_gpu_screen.py")
+    state = _task().initial_state
+    result = RelaxResult(
+        state=state,
+        energy=-1.0,
+        gradient_norm=0.04,
+        n_iter=3,
+    )
+    counts = EvaluationCounts.from_mapping(
+        {
+            EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH: 4,
+            EvaluationPurpose.POST_RELAX_VALIDATION: 1,
+        }
+    )
+
+    record = screen._bootstrap_record(
+        result,
+        counts,
+        wall_time_s=1.5,
+        fmax=0.05,
+    )
+
+    assert record["certificate_satisfied"] is True
+    assert record["force_evaluations"] == 5
+
+
+def test_gpu_screen_total_cost_includes_censored_prefixes():
+    screen = _load("uphill_u0_u1_gpu_screen_cost", "run_gpu_screen.py")
+    payload = {
+        "systems": {
+            "c60": {
+                "bootstrap": {
+                    "force_evaluations": 5,
+                    "purpose_counts": {"unattributed": 0},
+                },
+                "calibration_tasks": [
+                    {
+                        "force_evaluations": 2,
+                        "purpose_counts": {"unattributed": 0},
+                    }
+                ],
+                "calibration_failures": [
+                    {
+                        "force_evaluations": 3,
+                        "purpose_counts": {"unattributed": 1},
+                    }
+                ],
+                "evaluation_tasks": [
+                    {
+                        "force_evaluations": 7,
+                        "purpose_counts": {"unattributed": 0},
+                        "characterization": {
+                            "force_evaluations": 2,
+                            "purpose_counts": {"unattributed": 0},
+                        },
+                    }
+                ],
+                "capture_failures": [
+                    {
+                        "force_evaluations": 11,
+                        "purpose_counts": {"unattributed": 0},
+                    }
+                ],
+            }
+        },
+        "rows": [
+            {
+                "force_evaluations": 13,
+                "purpose_counts": {"unattributed": 0},
+            },
+            {
+                "force_evaluations": 17,
+                "purpose_counts": {"unattributed": 0},
+            },
+        ],
+    }
+
+    assert screen._accounted_force_evaluations(payload) == 60
+    assert screen._accounted_unattributed_force_evaluations(payload) == 1
+
+
+def test_base_sigma_and_inner_curvature_are_recomputed_from_frozen_prefix():
+    runner = _load("uphill_u0_u1_runner_characterize", "run_ablation.py")
+    source = _task()
+
+    base_sigma = runner.base_sigma_from_task(
+        source,
+        target_step_rms=0.15,
+        max_step_rms=0.35,
+        step_rms_scope="all_atoms",
+        active_threshold=1.0e-4,
+    )
+    curvature, counts = runner.measure_inner_curvature(
+        source,
+        AnalyticCalculator(_Quadratic()),
+        hvp_epsilon=1.0e-4,
+    )
+
+    assert base_sigma == pytest.approx(0.15)
+    expected_prefix_shift = float(
+        np.dot(
+            source.biases[0].direction,
+            source.biases[0].hvp_contribution(
+                source.biases[-1].direction,
+                source.biases[-1].center,
+            ),
+        )
+    )
+    assert curvature == pytest.approx(
+        1.0 + expected_prefix_shift,
+        abs=1.0e-5,
+    )
+    assert counts.total == 2
+    assert counts.count(EvaluationPurpose.DIRECTION_ORACLE) == 2
