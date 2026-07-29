@@ -77,6 +77,60 @@ def test_true_hvp_products_provide_distinct_true_curvature_without_extra_calls()
     assert result.hvp_count == calls == 2
 
 
+def test_full_ritz_spectrum_reuses_hvps_and_preserves_selected_pair():
+    total = np.diag([1.0, 3.0])
+    true = np.diag([4.0, 9.0])
+    reference = np.array([1.0, 1.0]) / np.sqrt(2.0)
+    calls = 0
+
+    def hvp(vector: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        nonlocal calls
+        calls += 1
+        return total @ vector, true @ vector
+
+    result = solve_krylov_block(
+        IntentBlock(np.eye(2)),
+        hvp,
+        depth=1,
+        reference_direction=reference,
+    )
+
+    assert calls == result.hvp_count == 2
+    assert len(result.ritz_points) == 2
+    assert [point.curvature for point in result.ritz_points] == pytest.approx(
+        [1.0, 3.0]
+    )
+    assert [
+        point.true_curvature for point in result.ritz_points
+    ] == pytest.approx([4.0, 9.0])
+    assert [
+        point.reference_abs_overlap for point in result.ritz_points
+    ] == pytest.approx([1.0 / np.sqrt(2.0)] * 2)
+    np.testing.assert_array_equal(
+        result.direction,
+        result.ritz_points[0].direction,
+    )
+    assert all(
+        not point.direction.flags.writeable
+        for point in result.ritz_points
+    )
+
+
+def test_full_ritz_spectrum_reference_is_optional():
+    hessian = np.diag([1.0, 3.0])
+
+    def hvp(vector: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        product = hessian @ vector
+        return product, product
+
+    result = solve_krylov_block(IntentBlock(np.eye(2)), hvp, depth=1)
+
+    assert all(
+        point.reference_abs_overlap is None
+        for point in result.ritz_points
+    )
+
+
 def test_lowest_ritz_curvature_is_nonincreasing_with_krylov_depth():
     hessian = np.array(
         [

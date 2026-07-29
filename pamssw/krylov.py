@@ -51,14 +51,34 @@ class IntentBlock:
 
 
 @dataclass(frozen=True, eq=False)
-class KrylovResult:
-    """The lowest Ritz pair and budget/accounting diagnostics."""
+class KrylovRitzPoint:
+    """One projected Ritz pair reconstructed from the stored Krylov products."""
 
     direction: np.ndarray
     curvature: float
     true_curvature: float
     residual_norm: float
     initial_span_overlap: float
+    reference_abs_overlap: float | None
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "direction",
+            _readonly_float_copy(self.direction),
+        )
+
+
+@dataclass(frozen=True, eq=False)
+class KrylovResult:
+    """The lowest Ritz pair, full spectrum, and budget diagnostics."""
+
+    direction: np.ndarray
+    curvature: float
+    true_curvature: float
+    residual_norm: float
+    initial_span_overlap: float
+    ritz_points: tuple[KrylovRitzPoint, ...]
     antisymmetry: float
     dimension: int
     initial_rank: int
@@ -107,7 +127,12 @@ def _evaluate_hvp(hvp: Hvp, vector: np.ndarray) -> tuple[np.ndarray, np.ndarray]
     return total, true
 
 
-def solve_krylov_block(intent: IntentBlock, hvp: Hvp, depth: int) -> KrylovResult:
+def solve_krylov_block(
+    intent: IntentBlock,
+    hvp: Hvp,
+    depth: int,
+    reference_direction: np.ndarray | None = None,
+) -> KrylovResult:
     """Return the lowest Ritz vector in a fixed-depth block Krylov space.
 
     Every basis column that survives into the returned space is evaluated once;
@@ -124,6 +149,22 @@ def solve_krylov_block(intent: IntentBlock, hvp: Hvp, depth: int) -> KrylovResul
     basis = _orthonormal_initial_columns(intent.basis)
     if not basis:
         raise ValueError("initial basis has numerical rank zero")
+    reference = None
+    if reference_direction is not None:
+        reference = np.asarray(reference_direction, dtype=float)
+        if (
+            reference.ndim != 1
+            or reference.shape[0] != intent.basis.shape[0]
+            or not np.all(np.isfinite(reference))
+        ):
+            raise ValueError(
+                "reference_direction must be a finite vector matching the "
+                "Krylov dimension"
+            )
+        reference_norm = float(np.linalg.norm(reference))
+        if reference_norm <= _ORTHOGONALIZATION_TOLERANCE:
+            raise ValueError("reference_direction must have nonzero norm")
+        reference = reference / reference_norm
     initial_basis = list(basis)
     initial_rank = len(initial_basis)
 
@@ -160,34 +201,63 @@ def solve_krylov_block(intent: IntentBlock, hvp: Hvp, depth: int) -> KrylovResul
         / max(1.0, float(np.linalg.norm(projected_raw)))
     )
     projected_symmetric = 0.5 * (projected_raw + projected_raw.T)
-    eigenvalues, eigenvectors = np.linalg.eigh(projected_symmetric)
-    coefficients = eigenvectors[:, int(np.argmin(eigenvalues))]
-    direction = q @ coefficients
-    direction_norm = float(np.linalg.norm(direction))
-    if not np.isfinite(direction_norm) or direction_norm <= _ORTHOGONALIZATION_TOLERANCE:
-        raise ValueError("projected Ritz vector has numerical rank zero")
-    coefficients = coefficients / direction_norm
-    direction = direction / direction_norm
-
     initial_q = np.column_stack(initial_basis)
-    overlaps = initial_q.T @ direction
-    if overlaps.size and overlaps[int(np.argmax(np.abs(overlaps)))] < 0.0:
-        coefficients = -coefficients
-        direction = -direction
+    _, eigenvectors = np.linalg.eigh(projected_symmetric)
+    ritz_points: list[KrylovRitzPoint] = []
+    for index in range(eigenvectors.shape[1]):
+        coefficients = eigenvectors[:, index]
+        direction = q @ coefficients
+        direction_norm = float(np.linalg.norm(direction))
+        if (
+            not np.isfinite(direction_norm)
+            or direction_norm <= _ORTHOGONALIZATION_TOLERANCE
+        ):
+            raise ValueError("projected Ritz vector has numerical rank zero")
+        coefficients = coefficients / direction_norm
+        direction = direction / direction_norm
 
-    total_product = total_hq @ coefficients
-    true_product = true_hq @ coefficients
-    curvature = float(np.dot(direction, total_product))
-    true_curvature = float(np.dot(direction, true_product))
-    residual_norm = float(np.linalg.norm(total_product - curvature * direction))
-    initial_span_overlap = float(np.linalg.norm(initial_q.T @ direction))
+        overlaps = initial_q.T @ direction
+        if (
+            overlaps.size
+            and overlaps[int(np.argmax(np.abs(overlaps)))] < 0.0
+        ):
+            coefficients = -coefficients
+            direction = -direction
+
+        total_product = total_hq @ coefficients
+        true_product = true_hq @ coefficients
+        curvature = float(np.dot(direction, total_product))
+        ritz_points.append(
+            KrylovRitzPoint(
+                direction=direction,
+                curvature=curvature,
+                true_curvature=float(
+                    np.dot(direction, true_product)
+                ),
+                residual_norm=float(
+                    np.linalg.norm(
+                        total_product - curvature * direction
+                    )
+                ),
+                initial_span_overlap=float(
+                    np.linalg.norm(initial_q.T @ direction)
+                ),
+                reference_abs_overlap=(
+                    None
+                    if reference is None
+                    else abs(float(np.dot(reference, direction)))
+                ),
+            )
+        )
+    selected = ritz_points[0]
 
     return KrylovResult(
-        direction=direction,
-        curvature=curvature,
-        true_curvature=true_curvature,
-        residual_norm=residual_norm,
-        initial_span_overlap=initial_span_overlap,
+        direction=selected.direction,
+        curvature=selected.curvature,
+        true_curvature=selected.true_curvature,
+        residual_norm=selected.residual_norm,
+        initial_span_overlap=selected.initial_span_overlap,
+        ritz_points=tuple(ritz_points),
         antisymmetry=antisymmetry,
         dimension=len(basis),
         initial_rank=initial_rank,
