@@ -1,0 +1,45 @@
+{
+  "aggregate": {
+    "action_force_evaluations_saved": 729,
+    "action_wall_time_saved_s": 16.56079143200259,
+    "bootstrap_force_evaluations": 170,
+    "control_action_force_evaluations": 3011,
+    "control_action_wall_time_s": 67.82784031199844,
+    "control_direction_force_evaluations": 696,
+    "direction_force_evaluations_saved": 670,
+    "shared_initial_direction_force_evaluations": 144,
+    "total_force_evaluations": 5607,
+    "transported_action_force_evaluations": 2282,
+    "transported_action_wall_time_s": 51.267048879995855,
+    "transported_direction_force_evaluations": 26
+  },
+  "bootstrap_state_hashes": [
+    "841af9e2aaa85734ac3e73d6a098343f22ad0e106a87db8b250b263dab44fb5c",
+    "fdf508fa14f40a632d3336e140f21fdeea1d4d5b3c1455d893feb70fae5fe4fa"
+  ],
+  "bootstrap_state_hashes_identical": false,
+  "claim_ceiling": "two complete raw-input PdO repeats with three paired seeds per arm; combined with C60 this supports direction transport as a candidate mechanism, not yet as a 200-step production default",
+  "cohort_decisions": [
+    "transported_direction_supported",
+    "transported_direction_supported"
+  ],
+  "control_certificates": 6,
+  "decision": "repeat_stable_transport_support",
+  "median_paired_landing_improvement_eV": 1.252777099609375,
+  "microsteps": {
+    "fixed_intent_ritz": 35,
+    "transported_direction": 19
+  },
+  "paired_conditions": 6,
+  "paired_landing_improvements_eV": [
+    0.1884765625,
+    2.531982421875,
+    0.59808349609375,
+    1.90740966796875,
+    2.26434326171875,
+    0.59814453125
+  ],
+  "paired_transport_landing_wins": 6,
+  "schema_version": 1,
+  "transported_certificates": 6
+}

@@ -252,3 +252,85 @@ def test_uncertified_terminal_is_recorded_but_never_meaningful():
     analyzer.validate_action_row(row)
 
     assert analyzer._meaningful(row) is False
+
+
+def _supported_raw():
+    purpose_names = (
+        "bootstrap_true_quench",
+        "starter_true_quench",
+        "direction_oracle",
+        "escape_true_pes_check",
+        "biased_proposal_relax",
+        "landing_true_quench",
+        "post_relax_validation",
+        "unattributed",
+    )
+    rows = []
+    for seed in (42, 43, 44):
+        rows.append(
+            _case(
+                seed,
+                "fixed_intent_ritz",
+                landing_delta=-1.0,
+                is_new_basin=True,
+            )
+        )
+        rows.append(
+            _case(
+                seed,
+                "transported_direction",
+                landing_delta=-2.0,
+                is_new_basin=True,
+            )
+        )
+    return {
+        "execution_commit": "abc",
+        "raw_input_sha256": "raw",
+        "bootstrap": {
+            "force_evaluations": 21,
+            "purpose_counts": {
+                name: (
+                    20
+                    if name == "bootstrap_true_quench"
+                    else 1
+                    if name == "post_relax_validation"
+                    else 0
+                )
+                for name in purpose_names
+            },
+            "certificate": True,
+            "geometry_valid": True,
+            "raw_energy_eV": -100.0,
+            "bootstrap_energy_eV": -101.0,
+            "energy_drop_eV": 1.0,
+            "wall_time_s": 3.0,
+        },
+        "shared_initial_directions": [
+            {
+                "seed": seed,
+                "force_evaluations": 24,
+                "purpose_counts": {
+                    name: 24 if name == "direction_oracle" else 0
+                    for name in purpose_names
+                },
+                "direction_sha256": f"shared-{seed}",
+            }
+            for seed in (42, 43, 44)
+        ],
+        "cases": rows,
+    }
+
+
+def test_repeat_comparison_requires_and_reports_paired_terminal_wins():
+    analyzer = _load_analyzer()
+
+    comparison = analyzer.compare_repeats(
+        _supported_raw(),
+        _supported_raw(),
+    )
+
+    assert comparison["decision"] == "repeat_stable_transport_support"
+    assert comparison["paired_transport_landing_wins"] == 6
+    assert comparison["paired_conditions"] == 6
+    assert comparison["aggregate"]["direction_force_evaluations_saved"] > 0
+    assert comparison["aggregate"]["action_force_evaluations_saved"] > 0

@@ -229,6 +229,141 @@ def analyze(raw: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+def compare_repeats(
+    primary_raw: Mapping[str, Any],
+    repeat_raw: Mapping[str, Any],
+) -> dict[str, Any]:
+    for field in ("execution_commit", "raw_input_sha256"):
+        if primary_raw.get(field) != repeat_raw.get(field):
+            raise ValueError(f"repeat provenance differs for {field}")
+    cohorts = (analyze(primary_raw), analyze(repeat_raw))
+    raw_cohorts = (primary_raw, repeat_raw)
+    paired_improvements: list[float] = []
+    transported_certificates = 0
+    control_certificates = 0
+    microsteps = {arm: 0 for arm in ARMS}
+    microsteps_available = True
+    for raw in raw_cohorts:
+        by_key = {
+            (int(row["seed"]), str(row["arm"])): row
+            for row in raw["cases"]
+        }
+        for seed in SEEDS:
+            control = by_key[(seed, "fixed_intent_ritz")]
+            transported = by_key[(seed, "transported_direction")]
+            paired_improvements.append(
+                float(control["landing_delta_eV"])
+                - float(transported["landing_delta_eV"])
+            )
+            control_certificates += int(bool(control["certificate"]))
+            transported_certificates += int(bool(transported["certificate"]))
+        for row in raw["cases"]:
+            trace = row.get("direction_trace")
+            if isinstance(trace, Sequence):
+                microsteps[str(row["arm"])] += len(trace)
+            else:
+                microsteps_available = False
+
+    control_action = sum(
+        int(cohort["arm_results"]["fixed_intent_ritz"]["total_force_evaluations"])
+        for cohort in cohorts
+    )
+    transported_action = sum(
+        int(cohort["arm_results"]["transported_direction"]["total_force_evaluations"])
+        for cohort in cohorts
+    )
+    control_direction = sum(
+        int(cohort["arm_results"]["fixed_intent_ritz"]["direction_force_evaluations"])
+        for cohort in cohorts
+    )
+    transported_direction = sum(
+        int(cohort["arm_results"]["transported_direction"]["direction_force_evaluations"])
+        for cohort in cohorts
+    )
+    control_wall = sum(
+        float(cohort["arm_results"]["fixed_intent_ritz"]["generation_wall_time_s"])
+        + float(cohort["arm_results"]["fixed_intent_ritz"]["quench_wall_time_s"])
+        for cohort in cohorts
+    )
+    transported_wall = sum(
+        float(cohort["arm_results"]["transported_direction"]["generation_wall_time_s"])
+        + float(cohort["arm_results"]["transported_direction"]["quench_wall_time_s"])
+        for cohort in cohorts
+    )
+    stable = bool(
+        all(
+            cohort["decision"] == "transported_direction_supported"
+            for cohort in cohorts
+        )
+        and transported_certificates == len(SEEDS) * len(cohorts)
+        and all(improvement > 0.0 for improvement in paired_improvements)
+        and transported_action < control_action
+        and transported_direction < control_direction
+    )
+    return {
+        "schema_version": 1,
+        "decision": (
+            "repeat_stable_transport_support"
+            if stable
+            else "repeat_unstable_transport_support"
+        ),
+        "cohort_decisions": [
+            str(cohort["decision"]) for cohort in cohorts
+        ],
+        "paired_conditions": len(paired_improvements),
+        "paired_transport_landing_wins": sum(
+            improvement > 0.0 for improvement in paired_improvements
+        ),
+        "paired_landing_improvements_eV": paired_improvements,
+        "median_paired_landing_improvement_eV": float(
+            statistics.median(paired_improvements)
+        ),
+        "control_certificates": control_certificates,
+        "transported_certificates": transported_certificates,
+        "bootstrap_state_hashes": [
+            str(raw["bootstrap"].get("bootstrap_state_sha256"))
+            for raw in raw_cohorts
+        ],
+        "bootstrap_state_hashes_identical": bool(
+            primary_raw["bootstrap"].get("bootstrap_state_sha256")
+            == repeat_raw["bootstrap"].get("bootstrap_state_sha256")
+        ),
+        "microsteps": microsteps if microsteps_available else None,
+        "aggregate": {
+            "bootstrap_force_evaluations": sum(
+                int(cohort["bootstrap"]["force_evaluations"])
+                for cohort in cohorts
+            ),
+            "shared_initial_direction_force_evaluations": sum(
+                int(cohort["shared_initial_direction_force_evaluations"])
+                for cohort in cohorts
+            ),
+            "total_force_evaluations": sum(
+                int(cohort["total_force_evaluations"])
+                for cohort in cohorts
+            ),
+            "control_action_force_evaluations": control_action,
+            "transported_action_force_evaluations": transported_action,
+            "action_force_evaluations_saved": (
+                control_action - transported_action
+            ),
+            "control_direction_force_evaluations": control_direction,
+            "transported_direction_force_evaluations": transported_direction,
+            "direction_force_evaluations_saved": (
+                control_direction - transported_direction
+            ),
+            "control_action_wall_time_s": control_wall,
+            "transported_action_wall_time_s": transported_wall,
+            "action_wall_time_saved_s": control_wall - transported_wall,
+        },
+        "claim_ceiling": (
+            "two complete raw-input PdO repeats with three paired seeds per "
+            "arm; combined with C60 this supports direction transport as a "
+            "candidate mechanism, not yet as a 200-step production default"
+        ),
+    }
+
+
 def _write_json(path: Path, payload: Any) -> None:
     path.write_text(
         json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n",
@@ -275,6 +410,83 @@ def _markdown(evidence: Mapping[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _repeat_markdown(comparison: Mapping[str, Any]) -> str:
+    aggregate = comparison["aggregate"]
+    control_non_direction = (
+        aggregate["control_action_force_evaluations"]
+        - aggregate["control_direction_force_evaluations"]
+    )
+    transported_non_direction = (
+        aggregate["transported_action_force_evaluations"]
+        - aggregate["transported_direction_force_evaluations"]
+    )
+    return "\n".join(
+        [
+            "# Raw-PdO direction-continuation repeat gate",
+            "",
+            f"- Decision: `{comparison['decision']}`",
+            (
+                "- Paired transported landing wins: "
+                f"{comparison['paired_transport_landing_wins']}/"
+                f"{comparison['paired_conditions']}"
+            ),
+            (
+                "- Certificates (control / transported): "
+                f"{comparison['control_certificates']} / "
+                f"{comparison['transported_certificates']}"
+            ),
+            (
+                "- Action FE (control / transported / saved): "
+                f"{aggregate['control_action_force_evaluations']} / "
+                f"{aggregate['transported_action_force_evaluations']} / "
+                f"{aggregate['action_force_evaluations_saved']}"
+            ),
+            (
+                "- Direction FE (control / transported / saved): "
+                f"{aggregate['control_direction_force_evaluations']} / "
+                f"{aggregate['transported_direction_force_evaluations']} / "
+                f"{aggregate['direction_force_evaluations_saved']}"
+            ),
+            (
+                "- Action wall time (control / transported / saved): "
+                f"{aggregate['control_action_wall_time_s']:.3f} / "
+                f"{aggregate['transported_action_wall_time_s']:.3f} / "
+                f"{aggregate['action_wall_time_saved_s']:.3f} s"
+            ),
+            (
+                "- Non-direction action FE (control / transported / saved): "
+                f"{control_non_direction} / {transported_non_direction} / "
+                f"{control_non_direction - transported_non_direction}"
+            ),
+            (
+                "- Microsteps (control / transported): "
+                f"{comparison['microsteps']['fixed_intent_ritz']} / "
+                f"{comparison['microsteps']['transported_direction']}"
+            ),
+            (
+                "- Bootstrap state hashes identical across repeats: "
+                f"{comparison['bootstrap_state_hashes_identical']}"
+            ),
+            "",
+            (
+                "Mechanism: 670 of 729 saved action evaluations come directly "
+                "from replacing repeated 12-HVP Ritz solves with one-HVP "
+                "transport checks. The remaining 59 evaluations come from "
+                "fewer downstream microsteps."
+            ),
+            (
+                "Numerical caveat: the two float32 GPU bootstrap states have "
+                "the same reported energy but different coordinate hashes. "
+                "The mechanism conclusion is repeat-stable, not bitwise "
+                "trajectory-stable."
+            ),
+            "",
+            f"Claim ceiling: {comparison['claim_ceiling']}.",
+            "",
+        ]
+    )
+
+
 def main(argv: Sequence[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -292,11 +504,30 @@ def main(argv: Sequence[str] | None = None) -> None:
         type=Path,
         default=RUN_ROOT / "pdo_raw_conclusion.md",
     )
+    parser.add_argument("--repeat-raw", type=Path)
+    parser.add_argument(
+        "--repeat-comparison",
+        type=Path,
+        default=RUN_ROOT / "pdo_raw_repeat_comparison.json",
+    )
+    parser.add_argument(
+        "--repeat-comparison-conclusion",
+        type=Path,
+        default=RUN_ROOT / "pdo_raw_repeat_comparison.md",
+    )
     args = parser.parse_args(argv)
     raw = json.loads(args.raw.read_text(encoding="utf-8"))
     evidence = analyze(raw)
     _write_json(args.evidence, evidence)
     args.conclusion.write_text(_markdown(evidence), encoding="utf-8")
+    if args.repeat_raw is not None:
+        repeat_raw = json.loads(args.repeat_raw.read_text(encoding="utf-8"))
+        comparison = compare_repeats(raw, repeat_raw)
+        _write_json(args.repeat_comparison, comparison)
+        args.repeat_comparison_conclusion.write_text(
+            _repeat_markdown(comparison),
+            encoding="utf-8",
+        )
     print(json.dumps(evidence, indent=2, sort_keys=True, allow_nan=False))
 
 
