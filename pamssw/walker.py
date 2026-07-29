@@ -3,13 +3,14 @@ from __future__ import annotations
 import json
 import sys
 from copy import deepcopy
-from collections import deque
+from collections import Counter, deque
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field, replace
 from enum import Enum
 from math import log1p, sqrt
 from numbers import Real
 from pathlib import Path
+from time import perf_counter
 
 from ase import Atoms
 from ase.data import atomic_masses
@@ -22,6 +23,11 @@ from .bias import GaussianBiasTerm
 from .config import LSSSWConfig, RelaxConfig, SSWConfig
 from .coordinates import CartesianCoordinates, TangentVector
 from .fingerprint import descriptor_distance, structural_descriptor
+from .krylov import (
+    IntentBlock,
+    select_energy_bounded_anchor,
+    solve_krylov_block,
+)
 from .pbc import mic_displacement, mic_distance_matrix, wrap_positions
 from .relax import (
     RelaxEvaluation,
@@ -205,6 +211,7 @@ class DirectionChoice:
     evolved_candidate_count: int = 0
     archive_momentum_candidate_count: int = 0
     true_curvature: float | None = None
+    diagnostics: dict[str, object] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -574,6 +581,8 @@ class DirectionCandidateKind(str, Enum):
     BOND_BREAK = "bond_break"
     RITZ = "ritz"
     RITZ_REG = "ritz_reg"
+    BLOCK_RITZ = "block_ritz"
+    ENERGY_BOUNDED_ANCHOR = "energy_bounded_anchor"
     EVOLVED = "evolved"
     ARCHIVE_MOMENTUM = "archive_momentum"
 
@@ -800,6 +809,63 @@ class CandidateDirectionGenerator:
         self.last_random_bond_pairs_generated = 0
         self.last_fallback_bond_pairs_generated = 0
         self.last_random_bond_candidates_valid = 0
+
+    def generate_krylov_intents(self, state: State, *, n_blocks: int) -> tuple[IntentBlock, ...]:
+        if n_blocks <= 0:
+            raise ValueError("n_blocks must be positive")
+
+        coordinates = CartesianCoordinates.from_state(state)
+        movable_indices = np.where(state.movable_mask)[0]
+        pairs = [
+            (int(atom_i), int(atom_j))
+            for left_index, atom_i in enumerate(movable_indices)
+            for atom_j in movable_indices[left_index + 1 :]
+        ]
+        pair_order = self.rng.permutation(len(pairs))
+
+        intents: list[IntentBlock] = []
+        for block_index in range(n_blocks):
+            active = self._random_active_direction(state, coordinates)
+            random_direction = coordinates.full_tangent_from_active(active).values
+            random_axis = self._strict_projected_krylov_axis(state, random_direction)
+            if random_axis is None:
+                raise ValueError(
+                    "no projected random direction is available for Krylov intent generation"
+                )
+
+            pair: tuple[int, int] | None = None
+            columns = [random_axis]
+            if block_index < len(pair_order):
+                candidate_pair = pairs[int(pair_order[block_index])]
+                local_pair_direction = self._pair_direction(state, *candidate_pair, sign=1.0)
+                if local_pair_direction is not None:
+                    pair_axis = self._strict_projected_krylov_axis(state, local_pair_direction)
+                    if pair_axis is not None:
+                        pair_orthogonal = pair_axis.copy()
+                        for _ in range(2):
+                            pair_orthogonal -= float(np.dot(random_axis, pair_orthogonal)) * random_axis
+                        pair_norm = float(np.linalg.norm(pair_orthogonal))
+                        if np.isfinite(pair_norm) and pair_norm > 1e-12:
+                            columns.append(pair_orthogonal / pair_norm)
+                            pair = candidate_pair
+
+            intents.append(IntentBlock(basis=np.column_stack(columns), pair=pair))
+        return tuple(intents)
+
+    @staticmethod
+    def _strict_projected_krylov_axis(
+        state: State,
+        direction: np.ndarray,
+    ) -> np.ndarray | None:
+        raw = np.asarray(direction, dtype=float)
+        raw_norm = float(np.linalg.norm(raw))
+        if not np.isfinite(raw_norm) or raw_norm <= 1e-12:
+            return None
+        projected = project_out_rigid_body_modes(state, raw / raw_norm)
+        projected_norm = float(np.linalg.norm(projected))
+        if not np.isfinite(projected_norm) or projected_norm <= 1e-12:
+            return None
+        return projected / projected_norm
 
     def generate(
         self,
@@ -1195,6 +1261,7 @@ class SoftModeOracle:
         bond_formation_max_distance: float = 4.0,
         bond_breaking_max_distance: float = 2.0,
         direction_selection_mode: str = "discrete",
+        block_krylov_depth: int = 3,
         direction_synthesis_mode: str = "none",
         regularized_ritz_top_k: int = 5,
         direction_probe_enabled: bool = False,
@@ -1210,6 +1277,7 @@ class SoftModeOracle:
         self.hvp_epsilon = hvp_epsilon
         self.anchor_mixing_alpha = anchor_mixing_alpha
         self.direction_selection_mode = direction_selection_mode
+        self.block_krylov_depth = block_krylov_depth
         self.direction_synthesis_mode = direction_synthesis_mode
         self.regularized_ritz_top_k = regularized_ritz_top_k
         self.direction_probe_enabled = direction_probe_enabled
@@ -1261,7 +1329,30 @@ class SoftModeOracle:
         plateau_evolution_mutation_count: int = 0,
         archive_momentum_history: list[DirectionRecord] | None = None,
         archive_momentum_limit: int = 0,
+        krylov_intents: tuple[IntentBlock, ...] | None = None,
+        energy_bound_step_scale: float | None = None,
+        energy_bound_target: float | None = None,
     ) -> DirectionChoice:
+        if self.direction_selection_mode in {
+            "block_krylov",
+            "anchor_krylov",
+            "energy_bounded_anchor",
+        }:
+            return self._choose_block_krylov_direction(
+                state,
+                proposal,
+                krylov_intents,
+                anchor_direction,
+                energy_bound_step_scale,
+                energy_bound_target,
+            )
+        if self.direction_selection_mode == "exact_anchor":
+            return self._choose_exact_anchor_direction(
+                state,
+                proposal,
+                anchor_direction,
+            )
+
         best_direction: np.ndarray | None = None
         best_curvature: float | None = None
         best_true_curvature: float | None = None
@@ -1279,17 +1370,26 @@ class SoftModeOracle:
             archive_momentum_limit,
         )
         candidates.extend(archive_momentum_candidates)
+        evaluated_candidate_kind_counts = dict(
+            sorted(
+                Counter(
+                    candidate.kind.value for candidate in candidates
+                ).items()
+            )
+        )
         scoring_anchor_direction = None if self.anchor_mixing_alpha is not None else anchor_direction
         best_kind: DirectionCandidateKind | None = None
         rigid_overlap_sum = 0.0
         post_projection_rigid_overlap_sum = 0.0
         candidate_hvps: list[np.ndarray] = []
+        candidate_true_hvps: list[np.ndarray | None] = []
         scored_candidates: list[tuple[DirectionCandidate, np.ndarray, float, float]] = []
         for candidate in candidates:
             rigid_overlap_sum += candidate.rigid_body_overlap
             post_projection_rigid_overlap_sum += candidate.post_projection_rigid_body_overlap
             hvp, true_hvp = self._candidate_directional_hvps(state, proposal, candidate.direction)
             candidate_hvps.append(hvp)
+            candidate_true_hvps.append(true_hvp)
             curvature = float(np.dot(hvp, candidate.direction))
             candidate_true_curvature = (
                 None if true_hvp is None else float(np.dot(true_hvp, candidate.direction))
@@ -1406,9 +1506,14 @@ class SoftModeOracle:
                     best_direction = ritz_reg_direction
                     best_kind = DirectionCandidateKind.RITZ_REG
         if self.direction_selection_mode == "rayleigh_ritz":
-            ritz = self._rayleigh_ritz_candidate(candidates, candidate_hvps)
+            ritz = self._rayleigh_ritz_candidate(
+                candidates,
+                candidate_hvps,
+                candidate_true_hvps,
+            )
             if ritz is not None:
-                ritz_direction, ritz_curvature = ritz
+                ritz_direction, ritz_curvature = ritz[:2]
+                ritz_true_curvature = ritz[2] if len(ritz) == 3 else None
                 ritz_candidate = DirectionCandidate(DirectionCandidateKind.RITZ, ritz_direction)
                 synthetic_count += 1
                 ritz_score_sigma = self._candidate_score_sigma(
@@ -1433,7 +1538,7 @@ class SoftModeOracle:
                 if best_score is None or ritz_score > best_score:
                     best_score = ritz_score
                     best_curvature = ritz_curvature
-                    best_true_curvature = None
+                    best_true_curvature = ritz_true_curvature
                     best_direction = ritz_direction
                     best_kind = DirectionCandidateKind.RITZ
         assert best_direction is not None and best_curvature is not None and best_kind is not None
@@ -1449,6 +1554,276 @@ class SoftModeOracle:
             evolved_candidate_count=len(evolved_candidates),
             archive_momentum_candidate_count=len(archive_momentum_candidates),
             true_curvature=best_true_curvature,
+            diagnostics={
+                "evaluated_candidate_kind_counts": (
+                    evaluated_candidate_kind_counts
+                ),
+            },
+        )
+
+    def _choose_block_krylov_direction(
+        self,
+        state: State,
+        proposal: ProposalPotential,
+        krylov_intents: tuple[IntentBlock, ...] | None,
+        anchor_direction: np.ndarray | None,
+        energy_bound_step_scale: float | None,
+        energy_bound_target: float | None,
+    ) -> DirectionChoice:
+        if not isinstance(krylov_intents, tuple) or not krylov_intents:
+            raise ValueError("krylov_intents must be a non-empty tuple for block_krylov mode")
+        if any(not isinstance(intent, IntentBlock) for intent in krylov_intents):
+            raise ValueError("krylov_intents must contain only IntentBlock values")
+        expected_dimension = state.positions.size
+        if any(intent.basis.shape[0] != expected_dimension for intent in krylov_intents):
+            raise ValueError("krylov_intents basis rows must match the state degrees of freedom")
+
+        def directional_hvps(direction: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+            total_hvp, true_hvp = self._candidate_directional_hvps(state, proposal, direction)
+            projected_total = project_out_rigid_body_modes(state, total_hvp)
+            projected_true = project_out_rigid_body_modes(state, true_hvp)
+            projected_total.reshape(state.n_atoms, 3)[state.fixed_mask] = 0.0
+            projected_true.reshape(state.n_atoms, 3)[state.fixed_mask] = 0.0
+            return projected_total, projected_true
+
+        results = [
+            solve_krylov_block(
+                intent,
+                directional_hvps,
+                depth=self.block_krylov_depth,
+                reference_direction=anchor_direction,
+            )
+            for intent in krylov_intents
+        ]
+        finite_result_fields = (
+            "curvature",
+            "true_curvature",
+            "residual_norm",
+            "initial_span_overlap",
+            "antisymmetry",
+        )
+        for block_index, result in enumerate(results):
+            for field_name in finite_result_fields:
+                if not np.isfinite(getattr(result, field_name)):
+                    raise ValueError(
+                        f"block Krylov result {block_index} {field_name} must be finite"
+                    )
+        selected_block, selected = min(
+            enumerate(results),
+            key=lambda item: item[1].curvature,
+        )
+        energy_selection = None
+        selected_direction = selected.direction
+        selected_curvature = selected.curvature
+        selected_true_curvature = selected.true_curvature
+        selected_residual_norm = selected.residual_norm
+        selected_initial_span_overlap = selected.initial_span_overlap
+        selected_kind = DirectionCandidateKind.BLOCK_RITZ
+        if self.direction_selection_mode == "energy_bounded_anchor":
+            if len(results) != 1:
+                raise ValueError(
+                    "energy_bounded_anchor requires exactly one Krylov block"
+                )
+            if anchor_direction is None:
+                raise ValueError(
+                    "energy_bounded_anchor requires an anchor direction"
+                )
+            if (
+                energy_bound_step_scale is None
+                or not np.isfinite(energy_bound_step_scale)
+                or energy_bound_step_scale <= 0.0
+            ):
+                raise ValueError(
+                    "energy_bounded_anchor requires a positive finite "
+                    "energy_bound_step_scale"
+                )
+            if (
+                energy_bound_target is None
+                or not np.isfinite(energy_bound_target)
+                or energy_bound_target <= 0.0
+            ):
+                raise ValueError(
+                    "energy_bounded_anchor requires a positive finite "
+                    "energy_bound_target"
+                )
+            if (
+                selected.basis is None
+                or selected.total_products is None
+                or selected.true_products is None
+            ):
+                raise RuntimeError(
+                    "Krylov solve did not retain its paid basis products"
+                )
+            curvature_limit = float(
+                2.0
+                * energy_bound_target
+                / (energy_bound_step_scale * energy_bound_step_scale)
+            )
+            energy_selection = select_energy_bounded_anchor(
+                basis=selected.basis,
+                true_products=selected.true_products,
+                anchor=anchor_direction,
+                curvature_limit=curvature_limit,
+            )
+            selected_direction = energy_selection.direction
+            coefficients = selected.basis.T @ selected_direction
+            total_product = selected.total_products @ coefficients
+            selected_curvature = float(
+                np.dot(selected_direction, total_product)
+            )
+            selected_true_curvature = energy_selection.true_curvature
+            selected_residual_norm = float(
+                np.linalg.norm(
+                    total_product
+                    - selected_curvature * selected_direction
+                )
+            )
+            selected_initial_span_overlap = energy_selection.overlap
+            selected_kind = DirectionCandidateKind.ENERGY_BOUNDED_ANCHOR
+
+        def participation_ratio(direction: np.ndarray) -> float:
+            atom_squared_amplitudes = np.sum(
+                np.square(
+                    direction.reshape(state.n_atoms, 3)[
+                        state.movable_mask
+                    ]
+                ),
+                axis=1,
+            )
+            denominator = float(
+                np.dot(
+                    atom_squared_amplitudes,
+                    atom_squared_amplitudes,
+                )
+            )
+            return 1.0 / denominator
+
+        spectrum = [
+            {
+                "block_index": int(block_index),
+                "ritz_index": int(ritz_index),
+                "executed": bool(
+                    energy_selection is None
+                    and block_index == selected_block
+                    and ritz_index == 0
+                ),
+                "curvature": float(point.curvature),
+                "true_curvature": float(point.true_curvature),
+                "residual_norm": float(point.residual_norm),
+                "initial_span_overlap": float(
+                    point.initial_span_overlap
+                ),
+                "anchor_abs_overlap": (
+                    None
+                    if point.reference_abs_overlap is None
+                    else float(point.reference_abs_overlap)
+                ),
+                "participation_ratio": float(
+                    participation_ratio(point.direction)
+                ),
+            }
+            for block_index, result in enumerate(results)
+            for ritz_index, point in enumerate(result.ritz_points)
+        ]
+        diagnostics: dict[str, object] = {
+            "krylov_blocks": int(len(results)),
+            "krylov_depth": int(self.block_krylov_depth),
+            "krylov_selected_block": int(selected_block),
+            "krylov_hvp_count": int(sum(result.hvp_count for result in results)),
+            "krylov_hvp_requested": int(
+                sum(intent.basis.shape[1] for intent in krylov_intents)
+                * self.block_krylov_depth
+            ),
+            "krylov_hvp_consumed": int(sum(result.hvp_count for result in results)),
+            "krylov_initial_basis_columns": [
+                int(intent.basis.shape[1]) for intent in krylov_intents
+            ],
+            "krylov_dimensions": [int(result.dimension) for result in results],
+            "krylov_initial_ranks": [int(result.initial_rank) for result in results],
+            "krylov_residual_norm": float(selected_residual_norm),
+            "krylov_initial_span_overlap": float(
+                selected_initial_span_overlap
+            ),
+            "krylov_antisymmetry": float(selected.antisymmetry),
+            "krylov_termination": selected.termination_reason,
+            "direction_participation_ratio": float(
+                participation_ratio(selected_direction)
+            ),
+            "krylov_ritz_spectrum": spectrum,
+        }
+        if energy_selection is not None:
+            diagnostics.update(
+                {
+                    "energy_bounded_anchor_feasible": bool(
+                        energy_selection.feasible
+                    ),
+                    "energy_bounded_anchor_active": bool(
+                        energy_selection.active
+                    ),
+                    "energy_bounded_anchor_overlap": float(
+                        energy_selection.overlap
+                    ),
+                    "energy_bounded_anchor_curvature_limit": float(
+                        energy_selection.curvature_limit
+                    ),
+                    "energy_bounded_anchor_quadratic_energy": float(
+                        0.5
+                        * energy_bound_step_scale
+                        * energy_bound_step_scale
+                        * energy_selection.true_curvature
+                    ),
+                    "energy_bounded_anchor_true_curvature": float(
+                        energy_selection.true_curvature
+                    ),
+                    "energy_bounded_anchor_exact_curvature": float(
+                        energy_selection.exact_anchor_curvature
+                    ),
+                    "energy_bounded_anchor_step_scale": float(
+                        energy_bound_step_scale
+                    ),
+                    "energy_bounded_anchor_energy_target": float(
+                        energy_bound_target
+                    ),
+                }
+            )
+        return DirectionChoice(
+            direction=selected_direction,
+            curvature=selected_curvature,
+            kind=selected_kind,
+            candidate_count=0,
+            score=None,
+            true_curvature=selected_true_curvature,
+            diagnostics=diagnostics,
+        )
+
+    def _choose_exact_anchor_direction(
+        self,
+        state: State,
+        proposal: ProposalPotential,
+        anchor_direction: np.ndarray | None,
+    ) -> DirectionChoice:
+        if anchor_direction is None:
+            raise ValueError(
+                "anchor_direction is required for exact_anchor mode"
+            )
+        anchor = self._normalized_or_none(anchor_direction)
+        if anchor is None or anchor.shape != (state.positions.size,):
+            raise ValueError(
+                "anchor_direction must be a finite nonzero full direction"
+            )
+        total_hvp, true_hvp = self._candidate_directional_hvps(
+            state,
+            proposal,
+            anchor,
+        )
+        return DirectionChoice(
+            direction=anchor,
+            curvature=float(np.dot(anchor, total_hvp)),
+            kind=DirectionCandidateKind.ANCHOR,
+            candidate_count=1,
+            score=None,
+            true_curvature=float(np.dot(anchor, true_hvp)),
+            diagnostics={"direction_hvp_count": 1},
         )
 
     def _archive_momentum_candidates(
@@ -1793,8 +2168,11 @@ class SoftModeOracle:
         self,
         candidates: list[DirectionCandidate],
         hvps: list[np.ndarray],
-    ) -> tuple[np.ndarray, float] | None:
+        true_hvps: list[np.ndarray | None] | None = None,
+    ) -> tuple[np.ndarray, float, float | None] | None:
         if len(candidates) < 2 or len(candidates) != len(hvps):
+            return None
+        if true_hvps is not None and len(candidates) != len(true_hvps):
             return None
         directions = np.column_stack([candidate.direction for candidate in candidates])
         h_directions = np.column_stack(hvps)
@@ -1817,13 +2195,23 @@ class SoftModeOracle:
             eigenvalues, eigenvectors = np.linalg.eigh(projected)
         except np.linalg.LinAlgError:
             return None
-        direction = q @ eigenvectors[:, int(np.argmin(eigenvalues))]
+        eigenvector = eigenvectors[:, int(np.argmin(eigenvalues))]
+        direction = q @ eigenvector
         norm = float(np.linalg.norm(direction))
         if norm <= 1e-12:
             return None
         direction = direction / norm
         curvature = float(eigenvalues[int(np.argmin(eigenvalues))])
-        return direction, curvature
+        true_curvature: float | None = None
+        if true_hvps is not None and all(hvp is not None for hvp in true_hvps):
+            true_h_directions = np.column_stack(true_hvps)
+            # This is the native central-FD true-HVP subspace projection.  On a
+            # nonlinear PES it differs from a direct mixed-direction stencil by
+            # O(epsilon**2), which is intentional: no extra HVP is evaluated.
+            native_coefficients = (coeffs @ eigenvector) / norm
+            true_hvp = true_h_directions @ native_coefficients
+            true_curvature = float(np.dot(direction, true_hvp))
+        return direction, curvature, true_curvature
 
     def _directional_curvature(
         self,
@@ -1911,6 +2299,7 @@ class SurfaceWalker:
             bond_formation_max_distance=config.bond_formation_max_distance,
             bond_breaking_max_distance=config.bond_breaking_max_distance,
             direction_selection_mode=config.direction_selection_mode,
+            block_krylov_depth=config.block_krylov_depth,
             direction_synthesis_mode=config.direction_synthesis_mode,
             regularized_ritz_top_k=config.regularized_ritz_top_k,
             direction_probe_enabled=config.direction_probe_enabled,
@@ -2724,33 +3113,45 @@ class SurfaceWalker:
     ) -> State:
         current = seed_state
         previous_direction: np.ndarray | None = None
-        anchor_direction: np.ndarray | None = None
         previous_relax_outcome: RelaxOutcomeClass | None = None
         biases: list[GaussianBiasTerm] = []
         sigma_scale = 1.0
         weight_scale = 1.0
         pending_true_after_state: State | None = None
         pending_true_after = None
+        (
+            anchor_direction,
+            krylov_intents,
+        ) = self._initialize_walk_direction_context(
+            current,
+            trial_index=trial_index,
+        )
 
         for step_index in range(self.config.max_steps_per_walk):
-            if anchor_direction is None:
-                anchor_progress_index = 0 if trial_index is None else max(0, min(trial_index, self.config.max_trials - 1))
-                anchor_direction = self.oracle.generator.generate_initial_direction(
-                    current,
-                    step_index=anchor_progress_index,
-                    max_steps=self.config.max_trials,
-                    lambda_start=self.config.lambda_bond_start,
-                    lambda_end=self.config.lambda_bond_end,
-                    n_bond_pairs=self.config.n_bond_pairs,
-                    bond_distance_threshold=self.config.bond_distance_threshold,
-                )
             softening = self._build_softening(current, anchor_direction)
             proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
             scoring_proposal = self._direction_scoring_proposal(proposal)
             score_sigma_fn = self._direction_score_sigma_fn(sigma_scale, step_target=step_target)
             if plateau_evolution_active:
                 self._plateau_evolution_active_steps += 1
+            oracle_force_evaluations_before = self.calculator.snapshot().count(
+                EvaluationPurpose.DIRECTION_ORACLE
+            )
+            oracle_started = perf_counter()
             with self.calculator.purpose(EvaluationPurpose.DIRECTION_ORACLE):
+                (
+                    energy_bound_step_scale,
+                    energy_bound_target,
+                ) = (
+                    self._energy_bounded_direction_inputs(
+                        current,
+                        sigma_scale=sigma_scale,
+                        step_target=step_target,
+                    )
+                    if self.config.direction_selection_mode
+                    == "energy_bounded_anchor"
+                    else (None, None)
+                )
                 choice = self.oracle.choose_direction(
                     current,
                     scoring_proposal,
@@ -2788,7 +3189,23 @@ class SurfaceWalker:
                     plateau_evolution_mutation_count=self.config.plateau_evolution_mutation_count,
                     archive_momentum_history=self._archive_momentum_history_for_seed(seed_entry_id),
                     archive_momentum_limit=self.config.archive_escape_momentum_limit,
+                    **(
+                        {"krylov_intents": krylov_intents}
+                        if krylov_intents is not None
+                        else {}
+                    ),
+                    energy_bound_step_scale=energy_bound_step_scale,
+                    energy_bound_target=energy_bound_target,
                 )
+            choice.diagnostics.update(
+                {
+                    "oracle_selection_force_evaluations_delta": int(
+                        self.calculator.snapshot().count(EvaluationPurpose.DIRECTION_ORACLE)
+                        - oracle_force_evaluations_before
+                    ),
+                    "oracle_selection_wall_seconds": float(perf_counter() - oracle_started),
+                }
+            )
             if selected_direction_kinds is not None:
                 selected_direction_kinds.add(choice.kind)
             self._capture_direction_record(
@@ -2800,13 +3217,6 @@ class SurfaceWalker:
                 anchor_direction=anchor_direction,
             )
             self._record_direction_choice(choice)
-            self._record_direction_diagnostics(
-                trial_index=trial_index,
-                proposal_index=proposal_index,
-                step_index=step_index,
-                choice=choice,
-                anchor_direction=anchor_direction,
-            )
             rebuild_softening_for_choice = self._should_rebuild_softening_for_choice(anchor_direction, choice.direction)
             if rebuild_softening_for_choice:
                 softening = self._build_softening(current, choice.direction)
@@ -2820,15 +3230,62 @@ class SurfaceWalker:
             with self.calculator.purpose(EvaluationPurpose.DIRECTION_ORACLE):
                 inner_curvature = (
                     choice.curvature
-                    if self.config.direction_curvature_source == "inner" and not rebuild_softening_for_choice
+                    if self.config.direction_curvature_source == "inner"
+                    and not rebuild_softening_for_choice
                     else self.oracle._directional_curvature(current, proposal, choice.direction)
                 )
+            choice.diagnostics.update(
+                {
+                    "oracle_direction_force_evaluations_delta": int(
+                        self.calculator.snapshot().count(EvaluationPurpose.DIRECTION_ORACLE)
+                        - oracle_force_evaluations_before
+                    ),
+                    "oracle_wall_seconds": float(perf_counter() - oracle_started),
+                }
+            )
             sigma = self._execution_step_scale(
                 current,
                 choice.direction,
                 true_curvature,
                 sigma_scale,
                 step_target=step_target,
+            )
+            if self.config.direction_selection_mode == "energy_bounded_anchor":
+                assert energy_bound_target is not None
+                requested_sigma = sigma
+                sigma = self._energy_bounded_execution_step_scale(
+                    requested_step_scale=requested_sigma,
+                    true_curvature=true_curvature,
+                    energy_target=energy_bound_target,
+                )
+                choice.diagnostics.update(
+                    {
+                        "energy_bounded_anchor_requested_step_scale": float(
+                            requested_sigma
+                        ),
+                        "energy_bounded_anchor_execution_step_scale": float(
+                            sigma
+                        ),
+                        "energy_bounded_anchor_execution_quadratic_energy": float(
+                            0.5 * sigma * sigma * true_curvature
+                        ),
+                        "energy_bounded_anchor_step_capped": bool(
+                            sigma < requested_sigma
+                            and not np.isclose(
+                                sigma,
+                                requested_sigma,
+                                rtol=1.0e-12,
+                                atol=0.0,
+                            )
+                        ),
+                    }
+                )
+            self._record_direction_diagnostics(
+                trial_index=trial_index,
+                proposal_index=proposal_index,
+                step_index=step_index,
+                choice=choice,
+                anchor_direction=anchor_direction,
             )
             self._record_step_displacement_metrics(current, choice.direction, sigma)
             weight = self._bias_weight(inner_curvature, sigma) * weight_scale
@@ -2939,6 +3396,51 @@ class SurfaceWalker:
             pending_true_after_state = current_candidate
             pending_true_after = true_after
         return current
+
+    def _initialize_walk_direction_context(
+        self,
+        state: State,
+        *,
+        trial_index: int | None,
+    ) -> tuple[np.ndarray, tuple[IntentBlock, ...] | None]:
+        anchor_progress_index = (
+            0
+            if trial_index is None
+            else max(
+                0,
+                min(trial_index, self.config.max_trials - 1),
+            )
+        )
+        anchor_direction = (
+            self.oracle.generator.generate_initial_direction(
+                state,
+                step_index=anchor_progress_index,
+                max_steps=self.config.max_trials,
+                lambda_start=self.config.lambda_bond_start,
+                lambda_end=self.config.lambda_bond_end,
+                n_bond_pairs=self.config.n_bond_pairs,
+                bond_distance_threshold=(
+                    self.config.bond_distance_threshold
+                ),
+            )
+        )
+        if self.config.direction_selection_mode == "block_krylov":
+            krylov_intents = (
+                self.oracle.generator.generate_krylov_intents(
+                    state,
+                    n_blocks=self.config.block_krylov_blocks,
+                )
+            )
+        elif self.config.direction_selection_mode in {
+            "anchor_krylov",
+            "energy_bounded_anchor",
+        }:
+            krylov_intents = (
+                IntentBlock(basis=anchor_direction[:, None]),
+            )
+        else:
+            krylov_intents = None
+        return anchor_direction, krylov_intents
 
     def _walk_from_seed(self, seed_state: State) -> RelaxResult:
         return self.relax_true_minimum(self._walk_candidate_from_seed(seed_state))
@@ -3053,6 +3555,39 @@ class SurfaceWalker:
         direction_rms = max(float(metrics[rms_key]), 1e-12)
         target_rms = min(self.config.target_step_rms * sigma_scale, self.config.max_step_rms)
         return float(target_rms / direction_rms)
+
+    @staticmethod
+    def _energy_bounded_execution_step_scale(
+        *,
+        requested_step_scale: float,
+        true_curvature: float,
+        energy_target: float,
+    ) -> float:
+        if true_curvature <= 0.0:
+            return requested_step_scale
+        return min(
+            requested_step_scale,
+            sqrt(2.0 * energy_target / true_curvature),
+        )
+
+    def _energy_bounded_direction_inputs(
+        self,
+        state: State,
+        *,
+        sigma_scale: float,
+        step_target: float | None,
+    ) -> tuple[float, float]:
+        target_rms = min(
+            self.config.target_step_rms * sigma_scale,
+            self.config.max_step_rms,
+        )
+        step_scale = float(target_rms * np.sqrt(state.n_atoms))
+        energy_target = (
+            self.config.target_uphill_energy
+            if step_target is None
+            else step_target
+        )
+        return step_scale, float(energy_target)
 
     def _direction_score_sigma(self, sigma_scale: float, step_target: float | None = None) -> float:
         if self.config.direction_score_sigma_mode == "fixed_reference":
@@ -3381,12 +3916,17 @@ class SurfaceWalker:
             "step": int(step_index),
             "selected_kind": choice.kind.value,
             "curvature": float(choice.curvature),
+            "selected_curvature": float(choice.curvature),
+            "true_curvature": (
+                None if choice.true_curvature is None else float(choice.true_curvature)
+            ),
             "candidate_count": int(choice.candidate_count),
             "anchor_cosine": anchor_cosine,
         }
+        payload.update(choice.diagnostics)
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(payload, sort_keys=True) + "\n")
+            handle.write(json.dumps(payload, sort_keys=True, allow_nan=False) + "\n")
 
     def _prepare_structure_output_dirs(self) -> None:
         for path_value in (
@@ -3652,6 +4192,7 @@ class SurfaceWalker:
             "direction_selected_anchor": self._direction_selected[DirectionCandidateKind.ANCHOR],
             "direction_selected_ritz": self._direction_selected[DirectionCandidateKind.RITZ],
             "direction_selected_ritz_reg": self._direction_selected[DirectionCandidateKind.RITZ_REG],
+            "direction_selected_block_ritz": self._direction_selected[DirectionCandidateKind.BLOCK_RITZ],
             "direction_selected_evolved": self._direction_selected[DirectionCandidateKind.EVOLVED],
             "direction_selected_archive_momentum": self._direction_selected[DirectionCandidateKind.ARCHIVE_MOMENTUM],
             "plateau_evolution_enabled": int(self.config.plateau_evolution_enabled),

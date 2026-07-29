@@ -379,9 +379,34 @@ def test_config_validates_direction_selection_mode():
     assert SSWConfig().direction_selection_mode == "discrete"
     assert SSWConfig(direction_selection_mode="discrete").direction_selection_mode == "discrete"
     assert SSWConfig(direction_selection_mode="rayleigh_ritz").direction_selection_mode == "rayleigh_ritz"
+    assert SSWConfig(direction_selection_mode="block_krylov").direction_selection_mode == "block_krylov"
+    assert SSWConfig(direction_selection_mode="exact_anchor").direction_selection_mode == "exact_anchor"
+    assert SSWConfig(direction_selection_mode="anchor_krylov").direction_selection_mode == "anchor_krylov"
+    assert (
+        SSWConfig(
+            direction_selection_mode="energy_bounded_anchor",
+            step_length_mode="per_atom_rms",
+            step_rms_scope="all_atoms",
+        ).direction_selection_mode
+        == "energy_bounded_anchor"
+    )
 
     with pytest.raises(ValueError, match="direction_selection_mode"):
         SSWConfig(direction_selection_mode="unknown")
+
+
+def test_energy_bounded_anchor_requires_exact_step_scale_semantics():
+    with pytest.raises(ValueError, match="step_length_mode"):
+        SSWConfig(
+            direction_selection_mode="energy_bounded_anchor",
+            step_length_mode="curvature_adaptive",
+        )
+    with pytest.raises(ValueError, match="step_rms_scope"):
+        SSWConfig(
+            direction_selection_mode="energy_bounded_anchor",
+            step_length_mode="per_atom_rms",
+            step_rms_scope="active_atoms",
+        )
 
 
 def test_config_accepts_regularized_ritz_synthesis_mode():
@@ -398,8 +423,31 @@ def test_config_rejects_unimplemented_direction_synthesis_modes():
 
 
 def test_config_rejects_ambiguous_ritz_selector_and_synthesis_combo():
-    with pytest.raises(ValueError, match="direction_selection_mode"):
-        SSWConfig(direction_selection_mode="rayleigh_ritz", direction_synthesis_mode="regularized_ritz")
+    for mode in (
+        "rayleigh_ritz",
+        "block_krylov",
+        "exact_anchor",
+        "anchor_krylov",
+        "energy_bounded_anchor",
+    ):
+        with pytest.raises(ValueError, match="direction_selection_mode"):
+            SSWConfig(
+                direction_selection_mode=mode,
+                direction_synthesis_mode="regularized_ritz",
+            )
+
+
+def test_config_validates_block_krylov_controls():
+    config = SSWConfig()
+
+    assert config.block_krylov_blocks == 2
+    assert config.block_krylov_depth == 3
+    assert SSWConfig(block_krylov_blocks=4, block_krylov_depth=5).block_krylov_blocks == 4
+
+    for name in ("block_krylov_blocks", "block_krylov_depth"):
+        for value in (0, -1, 1.5, True):
+            with pytest.raises(ValueError, match=name):
+                SSWConfig(**{name: value})
 
 
 def test_config_validates_regularized_ritz_top_k():

@@ -1,0 +1,33 @@
+{
+  "arm": "discrete",
+  "certificate": true,
+  "descriptor_delta": 0.19957926006503865,
+  "fallback_used": false,
+  "final_max_force_eV_per_A": 0.009620517886506138,
+  "force_evaluations": 34,
+  "is_new_basin": true,
+  "landing_delta_eV": -8.50665283203125,
+  "landing_energy_eV": -483.17633056640625,
+  "landing_entry_id": 1,
+  "purpose_counts": {
+    "biased_proposal_relax": 0,
+    "bootstrap_true_quench": 0,
+    "direction_oracle": 0,
+    "escape_true_pes_check": 0,
+    "landing_true_quench": 33,
+    "post_relax_validation": 1,
+    "starter_true_quench": 0,
+    "unattributed": 0
+  },
+  "quench_iterations": 32,
+  "seed": 44,
+  "source_escape_path": "runs/20260728-block-krylov-fixed-starter-escape/output/cases/bootstrap_quenched-seed44-discrete/escape.xyz",
+  "source_escape_sha256": "9e6a0cbc3b0e5310df50e45a5981bb2333096eb12a7a6747db827210f8a7f5df",
+  "source_execution_commit": "01d31d956bf4c8a8573633648cf41008a8eec5a2",
+  "starter_energy_eV": -474.669677734375,
+  "state_id": "bootstrap_quenched",
+  "state_sha256": "d7cb6b92397be92a412699c6a33aae88600f3ef7528773ba1cafad2e0b03549a",
+  "status": "completed",
+  "termination_reason": "converged",
+  "wall_time_s": 0.5354137019894551
+}

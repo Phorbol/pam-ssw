@@ -88,6 +88,8 @@ class SSWConfig:
     relaxation_trajectory_stride: int = 1
     direction_curvature_source: str = "inner"
     direction_selection_mode: str = "discrete"
+    block_krylov_blocks: int = 2
+    block_krylov_depth: int = 3
     direction_synthesis_mode: str = "none"
     regularized_ritz_top_k: int = 5
     direction_score_sigma_mode: str = "adaptive"
@@ -185,6 +187,10 @@ class SSWConfig:
             raise ValueError("regularized_ritz_top_k must be a positive integer")
         if self.regularized_ritz_top_k <= 0:
             raise ValueError("regularized_ritz_top_k must be a positive integer")
+        for name in ("block_krylov_blocks", "block_krylov_depth"):
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+                raise ValueError(f"{name} must be a positive integer")
         if isinstance(self.direction_type_ucb_window, bool) or not isinstance(self.direction_type_ucb_window, int):
             raise ValueError("direction_type_ucb_window must be a positive integer")
         if self.direction_type_ucb_window <= 0:
@@ -314,18 +320,57 @@ class SSWConfig:
             )
         if self.direction_curvature_source not in {"inner", "true"}:
             raise ValueError("direction_curvature_source must be inner or true")
-        if self.direction_selection_mode not in {"discrete", "rayleigh_ritz"}:
-            raise ValueError("direction_selection_mode must be discrete or rayleigh_ritz")
+        direction_selection_modes = {
+            "discrete",
+            "rayleigh_ritz",
+            "block_krylov",
+            "exact_anchor",
+            "anchor_krylov",
+            "energy_bounded_anchor",
+        }
+        if self.direction_selection_mode not in direction_selection_modes:
+            raise ValueError(
+                "direction_selection_mode must be discrete, rayleigh_ritz, "
+                "block_krylov, exact_anchor, anchor_krylov, or "
+                "energy_bounded_anchor"
+            )
         if self.direction_synthesis_mode not in {"none", "regularized_ritz"}:
             raise ValueError("direction_synthesis_mode must be none or regularized_ritz")
-        if self.direction_selection_mode == "rayleigh_ritz" and self.direction_synthesis_mode == "regularized_ritz":
-            raise ValueError("direction_selection_mode rayleigh_ritz cannot be combined with regularized_ritz synthesis")
+        if (
+            self.direction_selection_mode
+            in {
+                "rayleigh_ritz",
+                "block_krylov",
+                "exact_anchor",
+                "anchor_krylov",
+                "energy_bounded_anchor",
+            }
+            and self.direction_synthesis_mode == "regularized_ritz"
+        ):
+            raise ValueError(
+                "explicit direction_selection_mode cannot be combined with "
+                "regularized_ritz synthesis"
+            )
         if self.direction_score_sigma_mode not in {"adaptive", "trust_scaled", "fixed_reference"}:
             raise ValueError("direction_score_sigma_mode must be adaptive, trust_scaled, or fixed_reference")
         if self.step_length_mode not in {"curvature_adaptive", "per_atom_rms"}:
             raise ValueError("step_length_mode must be curvature_adaptive or per_atom_rms")
         if self.step_rms_scope not in {"all_atoms", "active_atoms"}:
             raise ValueError("step_rms_scope must be all_atoms or active_atoms")
+        if (
+            self.direction_selection_mode == "energy_bounded_anchor"
+            and self.step_length_mode != "per_atom_rms"
+        ):
+            raise ValueError(
+                "energy_bounded_anchor requires step_length_mode=per_atom_rms"
+            )
+        if (
+            self.direction_selection_mode == "energy_bounded_anchor"
+            and self.step_rms_scope != "all_atoms"
+        ):
+            raise ValueError(
+                "energy_bounded_anchor requires step_rms_scope=all_atoms"
+            )
         if not isfinite(self.target_step_rms) or self.target_step_rms <= 0:
             raise ValueError("target_step_rms must be positive")
         if not isfinite(self.max_step_rms) or self.max_step_rms <= 0:

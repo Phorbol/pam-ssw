@@ -8,6 +8,7 @@ from pamssw.accounting import BudgetExceeded, EvalCounter, EvaluationPurpose
 from pamssw.archive import MinimaArchive
 from pamssw.bias import GaussianBiasTerm
 from pamssw.calculators import AnalyticCalculator
+from pamssw.krylov import IntentBlock, KrylovResult
 from pamssw.potentials import DoubleWell2D
 from pamssw.result import RelaxOutcomeClass, RelaxResult
 from pamssw.state import State
@@ -630,6 +631,535 @@ def test_soft_mode_oracle_can_select_rayleigh_ritz_subspace_direction():
     assert choice.kind == DirectionCandidateKind.RITZ
     assert choice.curvature == pytest.approx(0.2, rel=1e-5)
     assert abs(float(np.dot(choice.direction, np.array([1.0, 1.0, 0.0]) / np.sqrt(2.0)))) == pytest.approx(1.0)
+
+
+def test_rayleigh_ritz_reuses_native_true_hvps_for_projected_true_curvature(monkeypatch):
+    """The Ritz vector inherits a native-HVP subspace projection of true curvature."""
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    oracle = SoftModeOracle(
+        AnalyticCalculator(Quadratic()),
+        np.random.default_rng(0),
+        candidates=0,
+        direction_selection_mode="rayleigh_ritz",
+    )
+    candidates = [
+        DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([1.0, 0.0, 0.0])),
+        DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([0.0, 1.0, 0.0])),
+    ]
+    total_hessian = np.array([[1.0, -0.8, 0.0], [-0.8, 1.0, 0.0], [0.0, 0.0, 5.0]])
+    true_hessian = np.diag([1.0, 4.0, 9.0])
+    monkeypatch.setattr(oracle.generator, "generate", lambda *args, **kwargs: candidates)
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda _state, _proposal, direction: (total_hessian @ direction, true_hessian @ direction),
+    )
+
+    choice = oracle.choose_direction(
+        state,
+        proposal=ProposalPotential(AnalyticCalculator(Quadratic())),
+        previous_direction=None,
+        score_sigma=1.0,
+    )
+
+    assert choice.kind == DirectionCandidateKind.RITZ
+    assert choice.curvature == pytest.approx(0.2, rel=1e-12)
+    assert choice.true_curvature == pytest.approx(2.5, rel=1e-12)
+
+
+def test_block_krylov_selects_lowest_block_without_native_scoring(monkeypatch):
+    class AnisotropicQuadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.diag([1.0, 3.0, 7.0])
+            gradient = hessian @ flat_positions
+            return 0.5 * float(flat_positions @ gradient), gradient
+
+    state = State(numbers=np.array([1]), positions=np.zeros((1, 3)))
+    calculator = AnalyticCalculator(AnisotropicQuadratic())
+    oracle = SoftModeOracle(
+        calculator,
+        np.random.default_rng(0),
+        candidates=2,
+        direction_selection_mode="block_krylov",
+        block_krylov_depth=3,
+    )
+    monkeypatch.setattr(oracle.generator, "generate", lambda *args, **kwargs: pytest.fail("native generation ran"))
+    monkeypatch.setattr(
+        DirectionScorer,
+        "score_candidate",
+        lambda *args, **kwargs: pytest.fail("native scoring ran"),
+    )
+
+    choice = oracle.choose_direction(
+        state,
+        proposal=ProposalPotential(calculator),
+        previous_direction=None,
+        anchor_direction=np.array([1.0, 1.0, 0.0])
+        / np.sqrt(2.0),
+        krylov_intents=(
+            IntentBlock(np.array([[1.0], [0.0], [0.0]])),
+            IntentBlock(np.array([[0.0], [1.0], [0.0]])),
+        ),
+    )
+
+    assert choice.kind is DirectionCandidateKind.BLOCK_RITZ
+    assert choice.score is None
+    assert choice.candidate_count == 0
+    assert choice.curvature == pytest.approx(1.0)
+    assert choice.true_curvature == pytest.approx(1.0)
+    assert set(choice.diagnostics) == {
+        "krylov_blocks",
+        "krylov_depth",
+        "krylov_selected_block",
+        "krylov_hvp_count",
+        "krylov_hvp_requested",
+        "krylov_hvp_consumed",
+        "krylov_initial_basis_columns",
+        "krylov_dimensions",
+        "krylov_initial_ranks",
+        "krylov_residual_norm",
+        "krylov_initial_span_overlap",
+        "krylov_antisymmetry",
+        "krylov_termination",
+        "direction_participation_ratio",
+        "krylov_ritz_spectrum",
+    }
+    assert choice.diagnostics["krylov_blocks"] == 2
+    assert choice.diagnostics["krylov_depth"] == 3
+    assert choice.diagnostics["krylov_selected_block"] == 0
+    assert choice.diagnostics["krylov_hvp_count"] == 2
+    assert choice.diagnostics["krylov_hvp_requested"] == 6
+    assert choice.diagnostics["krylov_hvp_consumed"] == 2
+    assert choice.diagnostics["krylov_initial_basis_columns"] == [1, 1]
+    assert choice.diagnostics["krylov_dimensions"] == [1, 1]
+    assert choice.diagnostics["krylov_initial_ranks"] == [1, 1]
+    assert choice.diagnostics["direction_participation_ratio"] == pytest.approx(1.0)
+    spectrum = choice.diagnostics["krylov_ritz_spectrum"]
+    assert len(spectrum) == sum(
+        choice.diagnostics["krylov_dimensions"]
+    )
+    assert sum(point["executed"] for point in spectrum) == 1
+    assert spectrum[0]["executed"] is True
+    assert [
+        point["curvature"] for point in spectrum
+    ] == pytest.approx([1.0, 3.0])
+    assert [
+        point["anchor_abs_overlap"] for point in spectrum
+    ] == pytest.approx([1.0 / np.sqrt(2.0)] * 2)
+    assert all(
+        point["participation_ratio"] == pytest.approx(1.0)
+        for point in spectrum
+    )
+    assert choice.diagnostics["krylov_hvp_count"] == 2
+
+
+@pytest.mark.parametrize(
+    ("force_softening_rebuild", "extra_direction_evaluations"),
+    [(False, 2), (True, 2)],
+)
+def test_block_krylov_walk_reuses_one_intent_batch_and_records_exact_diagnostics(
+    monkeypatch,
+    tmp_path,
+    force_softening_rebuild,
+    extra_direction_evaluations,
+):
+    class TwoAtomQuadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.diag([1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
+            gradient = hessian @ flat_positions
+            return 0.5 * float(flat_positions @ gradient), gradient
+
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.75, 0.0, 0.0], [0.75, 0.0, 0.0]]),
+    )
+    diagnostic_path = tmp_path / "block_krylov_directions.jsonl"
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(TwoAtomQuadratic()),
+        config=SSWConfig(
+            max_steps_per_walk=2,
+            oracle_candidates=1,
+            n_bond_pairs=0,
+            proposal_relax_steps=0,
+            direction_selection_mode="block_krylov",
+            block_krylov_blocks=2,
+            block_krylov_depth=2,
+            direction_curvature_source="true",
+            target_negative_curvature=10.0,
+            direction_diagnostics_enabled=True,
+            direction_diagnostics_path=str(diagnostic_path),
+        ),
+        softening_enabled=False,
+    )
+    generated_intents = []
+    original_generate = walker.oracle.generator.generate_krylov_intents
+    original_choose = walker.oracle.choose_direction
+    original_directional_curvature = walker.oracle._directional_curvature
+    original_bias_weight = walker._bias_weight
+    chosen_intents = []
+    inner_curvatures = []
+    bias_weight_inputs = []
+
+    def generate_krylov_intents(current, *, n_blocks):
+        intents = original_generate(current, n_blocks=n_blocks)
+        generated_intents.append(intents)
+        return intents
+
+    def choose_direction(*args, **kwargs):
+        chosen_intents.append(kwargs["krylov_intents"])
+        return original_choose(*args, **kwargs)
+
+    def record_inner_curvature(current, proposal, direction):
+        curvature = original_directional_curvature(current, proposal, direction)
+        inner_curvatures.append((len(proposal.biases), curvature))
+        return curvature
+
+    def record_bias_weight(curvature, sigma):
+        weight = original_bias_weight(curvature, sigma)
+        bias_weight_inputs.append((curvature, sigma, weight))
+        return weight
+
+    def relax_to_newest_bias_center(task, **kwargs):
+        return RelaxResult(
+            task.initial_state.with_flat_positions(task.biases[-1].center),
+            energy=0.0,
+            gradient_norm=0.0,
+            n_iter=0,
+        )
+
+    monkeypatch.setattr(walker.oracle.generator, "generate_krylov_intents", generate_krylov_intents)
+    monkeypatch.setattr(walker.oracle, "choose_direction", choose_direction)
+    monkeypatch.setattr(walker.oracle, "_directional_curvature", record_inner_curvature)
+    monkeypatch.setattr(walker, "_bias_weight", record_bias_weight)
+    if force_softening_rebuild:
+        monkeypatch.setattr(
+            walker,
+            "_should_rebuild_softening_for_choice",
+            lambda *args, **kwargs: True,
+        )
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        relax_to_newest_bias_center,
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    assert len(generated_intents) == 1
+    assert chosen_intents == [generated_intents[0], generated_intents[0]]
+    assert all(intents is generated_intents[0] for intents in chosen_intents)
+    rows = [json.loads(line) for line in diagnostic_path.read_text().splitlines()]
+    assert len(rows) == 2
+    required = {
+        "selected_kind",
+        "krylov_selected_block",
+        "selected_curvature",
+        "true_curvature",
+        "krylov_residual_norm",
+        "krylov_initial_span_overlap",
+        "direction_participation_ratio",
+        "krylov_antisymmetry",
+        "krylov_hvp_requested",
+        "krylov_hvp_consumed",
+        "oracle_selection_force_evaluations_delta",
+        "oracle_selection_wall_seconds",
+        "oracle_direction_force_evaluations_delta",
+        "oracle_wall_seconds",
+    }
+    assert all(required <= set(row) for row in rows)
+    assert all(row["selected_kind"] == "block_ritz" for row in rows)
+    assert all(row["candidate_count"] == 0 for row in rows)
+    assert all(row["krylov_blocks"] > 0 for row in rows)
+    requested_hvps = sum(intent.basis.shape[1] for intent in generated_intents[0]) * 2
+    assert all(row["krylov_hvp_requested"] == requested_hvps for row in rows)
+    assert all(row["krylov_hvp_consumed"] >= 1 for row in rows)
+    assert all(
+        row["oracle_selection_force_evaluations_delta"] == 2 * row["krylov_hvp_consumed"]
+        for row in rows
+    )
+    assert all(
+        row["oracle_direction_force_evaluations_delta"]
+        == row["oracle_selection_force_evaluations_delta"] + extra_direction_evaluations
+        for row in rows
+    )
+    assert all(
+        row["oracle_wall_seconds"] >= row["oracle_selection_wall_seconds"] >= 0.0
+        for row in rows
+    )
+    assert [bias_count for bias_count, _ in inner_curvatures] == [0, 1]
+    assert [curvature for curvature, _, _ in bias_weight_inputs] == pytest.approx(
+        [curvature for _, curvature in inner_curvatures]
+    )
+    assert inner_curvatures[1][1] < rows[1]["selected_curvature"] - 5.0
+    assert bias_weight_inputs[1][2] == pytest.approx(
+        original_bias_weight(inner_curvatures[1][1], bias_weight_inputs[1][1])
+    )
+    assert walker.calculator.snapshot().count(EvaluationPurpose.DIRECTION_ORACLE) == sum(
+        row["oracle_direction_force_evaluations_delta"] for row in rows
+    )
+
+    stats = walker._direction_stats_summary()
+    assert stats["direction_candidate_evaluations"] == 0
+
+
+def test_discrete_walk_never_generates_or_passes_block_krylov_intents(monkeypatch):
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.75, 0.0, 0.0], [0.75, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            n_bond_pairs=0,
+            proposal_relax_steps=0,
+            direction_curvature_source="true",
+        ),
+        softening_enabled=False,
+    )
+    saw_krylov_keyword = []
+    choose_direction = walker.oracle.choose_direction
+    directional_curvature = walker.oracle._directional_curvature
+    curvature_recomputations = []
+    monkeypatch.setattr(
+        walker.oracle.generator,
+        "generate_krylov_intents",
+        lambda *args, **kwargs: pytest.fail("discrete walk generated Krylov intents"),
+    )
+
+    def record_choose(*args, **kwargs):
+        saw_krylov_keyword.append("krylov_intents" in kwargs)
+        return choose_direction(*args, **kwargs)
+
+    def record_curvature(*args, **kwargs):
+        curvature_recomputations.append(True)
+        return directional_curvature(*args, **kwargs)
+
+    monkeypatch.setattr(walker.oracle, "choose_direction", record_choose)
+    monkeypatch.setattr(walker.oracle, "_directional_curvature", record_curvature)
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(task.initial_state, energy=0.0, gradient_norm=0.0, n_iter=0),
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    assert saw_krylov_keyword == [False]
+    assert curvature_recomputations == [True]
+
+
+def test_direction_diagnostics_reject_nonfinite_values(tmp_path):
+    path = tmp_path / "direction_trace.jsonl"
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(direction_diagnostics_enabled=True, direction_diagnostics_path=str(path)),
+        softening_enabled=False,
+    )
+
+    with pytest.raises(ValueError, match="Out of range float values"):
+        walker._record_direction_diagnostics(
+            trial_index=0,
+            proposal_index=0,
+            step_index=0,
+            choice=DirectionChoice(
+                direction=np.array([1.0, 0.0, 0.0]),
+                curvature=1.0,
+                kind=DirectionCandidateKind.RANDOM,
+                candidate_count=1,
+                diagnostics={"nonfinite": np.nan},
+            ),
+            anchor_direction=None,
+        )
+
+
+def test_block_krylov_requires_nonempty_intents():
+    state = State(numbers=np.array([1]), positions=np.zeros((1, 3)))
+    calculator = AnalyticCalculator(Quadratic())
+    oracle = SoftModeOracle(
+        calculator,
+        np.random.default_rng(0),
+        candidates=0,
+        direction_selection_mode="block_krylov",
+    )
+
+    for intents in (None, (), (object(),)):
+        with pytest.raises(ValueError, match="krylov_intents"):
+            oracle.choose_direction(
+                state,
+                proposal=ProposalPotential(calculator),
+                previous_direction=None,
+                krylov_intents=intents,
+            )
+
+
+@pytest.mark.parametrize(
+    "field",
+    ("curvature", "true_curvature", "residual_norm", "initial_span_overlap", "antisymmetry"),
+)
+def test_block_krylov_rejects_nonfinite_solver_results(monkeypatch, field):
+    values = {
+        "direction": np.array([1.0, 0.0, 0.0]),
+        "curvature": 1.0,
+        "true_curvature": 1.0,
+        "residual_norm": 0.0,
+        "initial_span_overlap": 1.0,
+        "antisymmetry": 0.0,
+        "dimension": 1,
+        "initial_rank": 1,
+        "hvp_count": 1,
+        "termination_reason": "krylov_breakdown",
+    }
+    values[field] = np.nan
+    result = KrylovResult(**values)
+    monkeypatch.setattr(
+        "pamssw.walker.solve_krylov_block",
+        lambda *args, **kwargs: result,
+    )
+    state = State(numbers=np.array([1]), positions=np.zeros((1, 3)))
+    calculator = AnalyticCalculator(Quadratic())
+    oracle = SoftModeOracle(
+        calculator,
+        np.random.default_rng(0),
+        candidates=0,
+        direction_selection_mode="block_krylov",
+    )
+
+    with pytest.raises(ValueError, match=field):
+        oracle.choose_direction(
+            state,
+            proposal=ProposalPotential(calculator),
+            previous_direction=None,
+            krylov_intents=(IntentBlock(np.array([[1.0], [0.0], [0.0]])),),
+        )
+
+
+def test_surface_walker_passes_block_krylov_depth_to_oracle():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(block_krylov_depth=4),
+        softening_enabled=False,
+    )
+
+    assert walker.oracle.block_krylov_depth == 4
+
+
+def test_rayleigh_ritz_projected_true_curvature_has_second_order_difference_from_direct_mixed_stencil():
+    """On a nonlinear analytic PES, projection/direct-stencil mismatch scales as epsilon squared."""
+
+    class QuarticPotential:
+        coefficient = 3.0
+
+        def energy_gradient(self, flat_positions, state):
+            x, y, z = np.asarray(flat_positions, dtype=float)
+            energy = 0.5 * (x * x + y * y + 5.0 * z * z) + 0.25 * self.coefficient * x**4
+            return energy, np.array([x + self.coefficient * x**3, y, 5.0 * z])
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    potential = QuarticPotential()
+    oracle = SoftModeOracle(AnalyticCalculator(potential), np.random.default_rng(0), candidates=0)
+    candidates = [
+        DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([1.0, 0.0, 0.0])),
+        DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([0.0, 1.0, 0.0])),
+    ]
+    total_hessian = np.array([[1.0, -0.8, 0.0], [-0.8, 1.0, 0.0], [0.0, 0.0, 5.0]])
+    total_hvps = [total_hessian @ candidate.direction for candidate in candidates]
+
+    def true_hvp(direction, epsilon):
+        plus = state.flatten_positions() + epsilon * direction
+        minus = state.flatten_positions() - epsilon * direction
+        _, gradient_plus = potential.energy_gradient(plus, state)
+        _, gradient_minus = potential.energy_gradient(minus, state)
+        return (gradient_plus - gradient_minus) / (2.0 * epsilon)
+
+    def projected_and_direct(epsilon):
+        projected = oracle._rayleigh_ritz_candidate(
+            candidates,
+            total_hvps,
+            [true_hvp(candidate.direction, epsilon) for candidate in candidates],
+        )
+        assert projected is not None
+        direction, _, projected_true_curvature = projected
+        assert projected_true_curvature is not None
+        direct_true_curvature = float(np.dot(direction, true_hvp(direction, epsilon)))
+        return projected_true_curvature, direct_true_curvature
+
+    projected_coarse, direct_coarse = projected_and_direct(4e-2)
+    projected_fine, direct_fine = projected_and_direct(2e-2)
+    coarse_error = abs(projected_coarse - direct_coarse)
+    fine_error = abs(projected_fine - direct_fine)
+
+    assert coarse_error > 0.0
+    assert 0.20 * coarse_error < fine_error < 0.30 * coarse_error
+
+
+def test_walk_ritz_reuses_true_curvature_without_extra_escape_true_pes_check(monkeypatch):
+    """Plain Ritz must not add a fallback true-HVP after native candidates were evaluated."""
+
+    class CoupledQuadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.array(
+                [[1.0, -0.8, 0.0], [-0.8, 1.0, 0.0], [0.0, 0.0, 5.0]]
+            )
+            gradient = hessian @ flat_positions
+            return 0.5 * float(flat_positions @ gradient), gradient
+
+    state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(CoupledQuadratic()),
+        config=LSSSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=2,
+            n_bond_pairs=0,
+            rng_seed=0,
+            direction_selection_mode="rayleigh_ritz",
+            direction_synthesis_mode="none",
+            direction_curvature_source="inner",
+            choice_aligned_softening_enabled=False,
+            anchor_weight=1e-12,
+            continuity_weight=0.0,
+            history_push_weight=0.0,
+        ),
+        softening_enabled=False,
+    )
+    directions = [
+        DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([1.0, 0.0, 0.0])),
+        DirectionCandidate(DirectionCandidateKind.RANDOM, np.array([0.0, 1.0, 0.0])),
+    ]
+    monkeypatch.setattr(
+        walker.oracle.generator,
+        "generate_initial_direction",
+        lambda *args, **kwargs: np.array([1.0, 0.0, 0.0]),
+    )
+    monkeypatch.setattr(walker.oracle.generator, "generate", lambda *args, **kwargs: directions)
+    selected = []
+    original_choose_direction = walker.oracle.choose_direction
+
+    def capture_choice(*args, **kwargs):
+        choice = original_choose_direction(*args, **kwargs)
+        selected.append(choice)
+        return choice
+
+    monkeypatch.setattr(walker.oracle, "choose_direction", capture_choice)
+    monkeypatch.setattr(
+        walker,
+        "_true_directional_curvature",
+        lambda *args, **kwargs: pytest.fail("Ritz must reuse native true curvature"),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(task.initial_state, energy=0.0, gradient_norm=0.0, n_iter=0),
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    counts = walker.calculator.snapshot().as_dict()
+    assert selected[0].kind == DirectionCandidateKind.RITZ
+    assert counts[EvaluationPurpose.DIRECTION_ORACLE.value] == 4
+    assert counts[EvaluationPurpose.ESCAPE_TRUE_PES_CHECK.value] == 2
 
 
 class KindScoreScorer(DirectionScorer):
@@ -2476,6 +3006,126 @@ def test_anchor_candidate_enabled_is_deprecated_noop():
     kinds = [candidate.kind for candidate in candidates]
     assert DirectionCandidateKind.ANCHOR not in kinds
     assert kinds.count(DirectionCandidateKind.RANDOM) == 4
+
+
+def test_krylov_intent_generator_returns_unique_orthonormal_random_pair_blocks():
+    state = State(
+        numbers=np.array([6, 6, 6]),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.4, 0.0, 0.0],
+                [0.0, 1.2, 0.0],
+            ]
+        ),
+    )
+    generator = CandidateDirectionGenerator(np.random.default_rng(27), n_random=0)
+
+    intents = generator.generate_krylov_intents(state, n_blocks=2)
+
+    assert isinstance(intents, tuple)
+    assert len(intents) == 2
+    assert all(intent.basis.shape == (9, 2) for intent in intents)
+    assert all(intent.pair is not None for intent in intents)
+    assert len({intent.pair for intent in intents}) == 2
+    for intent in intents:
+        np.testing.assert_allclose(intent.basis.T @ intent.basis, np.eye(2), rtol=0.0, atol=1e-12)
+
+
+def test_krylov_intent_generator_returns_random_only_rank_one_block_for_one_movable_atom():
+    state = State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.4, 0.0, 0.0]]),
+        fixed_mask=np.array([False, True]),
+    )
+    generator = CandidateDirectionGenerator(np.random.default_rng(27), n_random=0)
+
+    [intent] = generator.generate_krylov_intents(state, n_blocks=1)
+
+    assert intent.pair is None
+    assert intent.basis.shape == (6, 1)
+    assert np.linalg.norm(intent.basis[:, 0]) == pytest.approx(1.0)
+
+
+def test_krylov_intent_generator_rejects_periodic_single_atom_translation():
+    state = State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.4, 0.0, 0.0]]),
+        cell=np.diag([8.0, 8.0, 8.0]),
+        pbc=(True, True, True),
+        fixed_mask=np.array([False, True]),
+    )
+    generator = CandidateDirectionGenerator(np.random.default_rng(27), n_random=0)
+
+    with pytest.raises(ValueError, match="no projected random direction"):
+        generator.generate_krylov_intents(state, n_blocks=1)
+
+
+def test_krylov_intent_generator_rejects_all_fixed_state():
+    state = State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.4, 0.0, 0.0]]),
+        fixed_mask=np.array([True, True]),
+    )
+    generator = CandidateDirectionGenerator(np.random.default_rng(27), n_random=0)
+
+    with pytest.raises(ValueError, match="no projected random direction"):
+        generator.generate_krylov_intents(state, n_blocks=1)
+
+
+def test_krylov_intent_generator_degrades_dependent_pair_axis_to_rank_one():
+    class PairAlignedRng:
+        def normal(self, size):
+            assert size == 6
+            return np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0])
+
+        def permutation(self, population_size):
+            assert population_size == 1
+            return np.array([0])
+
+    state = State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.4, 0.0, 0.0]]),
+    )
+    generator = CandidateDirectionGenerator(PairAlignedRng(), n_random=0)
+
+    [intent] = generator.generate_krylov_intents(state, n_blocks=1)
+
+    assert intent.pair is None
+    assert intent.basis.shape == (6, 1)
+    assert np.linalg.norm(intent.basis[:, 0]) == pytest.approx(1.0)
+
+
+def test_krylov_intent_generator_requires_positive_block_count():
+    state = State(numbers=np.array([6]), positions=np.array([[0.0, 0.0, 0.0]]))
+    generator = CandidateDirectionGenerator(np.random.default_rng(27), n_random=0)
+
+    with pytest.raises(ValueError, match="positive"):
+        generator.generate_krylov_intents(state, n_blocks=0)
+
+
+def test_krylov_intent_generator_does_not_use_non_neighbor_or_closest_pair_sampling(monkeypatch):
+    state = State(
+        numbers=np.array([6, 6, 6]),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.4, 0.0, 0.0],
+                [0.0, 1.2, 0.0],
+            ]
+        ),
+    )
+    generator = CandidateDirectionGenerator(np.random.default_rng(27), n_random=0)
+
+    def unexpected_legacy_pair_sampling(*args, **kwargs):
+        raise AssertionError("Krylov intent generation must not use legacy pair sampling")
+
+    monkeypatch.setattr(generator, "_random_non_neighbor_pairs", unexpected_legacy_pair_sampling)
+    monkeypatch.setattr(generator, "_closest_mic_pairs", unexpected_legacy_pair_sampling)
+
+    intents = generator.generate_krylov_intents(state, n_blocks=2)
+
+    assert len(intents) == 2
 
 
 class FixedNormalRng:
@@ -4442,6 +5092,7 @@ def test_surface_walker_reports_direction_acquisition_diagnostics():
     assert result.stats["direction_selected_random"] >= 1
     assert result.stats["direction_selected_momentum"] >= 0
     assert result.stats["direction_selected_bond"] >= 0
+    assert result.stats["direction_selected_block_ritz"] == 0
     assert "walk_displacement_clips" in result.stats
     assert "fragment_rejections" in result.stats
     assert "direction_bond_pairs_requested" in result.stats
@@ -4621,6 +5272,58 @@ def test_per_atom_rms_step_mode_honors_trust_region_sigma_scale_and_cap():
     ]
     assert shrunk_rms == pytest.approx(0.1)
     assert expanded_rms == pytest.approx(0.35)
+
+
+def test_energy_bounded_anchor_uses_the_exact_all_atom_execution_step():
+    state = State(
+        numbers=np.array([6, 6, 6, 6]),
+        positions=np.zeros((4, 3)),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            direction_selection_mode="energy_bounded_anchor",
+            step_length_mode="per_atom_rms",
+            step_rms_scope="all_atoms",
+            target_step_rms=0.08,
+            max_step_rms=0.15,
+            target_uphill_energy=0.8,
+        ),
+        softening_enabled=False,
+    )
+
+    step_scale, energy_target = walker._energy_bounded_direction_inputs(
+        state,
+        sigma_scale=2.0,
+        step_target=0.6,
+    )
+
+    assert step_scale == pytest.approx(0.15 * np.sqrt(4.0))
+    assert energy_target == pytest.approx(0.6)
+
+
+def test_energy_bounded_anchor_caps_infeasible_execution_step_from_energy():
+    requested = 0.9424517674661126
+    curvature = 2.2436482352245
+    target = 0.8
+
+    capped = SurfaceWalker._energy_bounded_execution_step_scale(
+        requested_step_scale=requested,
+        true_curvature=curvature,
+        energy_target=target,
+    )
+
+    assert capped == pytest.approx(np.sqrt(2.0 * target / curvature))
+    assert capped < requested
+    assert 0.5 * capped * capped * curvature == pytest.approx(target)
+    assert (
+        SurfaceWalker._energy_bounded_execution_step_scale(
+            requested_step_scale=0.5,
+            true_curvature=curvature,
+            energy_target=target,
+        )
+        == pytest.approx(0.5)
+    )
 
 
 def test_per_atom_rms_active_scope_uses_only_active_movable_atoms():
