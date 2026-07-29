@@ -461,7 +461,9 @@ def _run_case(
             diagnostics["quench_fallback_attempts"]
         ),
         "continuation_projection_degenerate": int(
-            diagnostics["continuation_projection_degenerate"]
+            walker._direction_stats_summary()[
+                "continuation_projection_degenerate"
+            ]
         ),
         "quench_iterations": int(landing.n_iter),
         "termination_reason": landing.telemetry.termination_reason,
