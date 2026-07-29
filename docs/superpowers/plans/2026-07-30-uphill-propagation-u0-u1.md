@@ -35,7 +35,7 @@ The clean worktree baseline is `1452 passed, 7 skipped, 88 failed`. All 88 failu
 - Modify: `pamssw/proposal_replay.py`
 - Modify: `tests/unit/test_fixed_proposal_replay.py`
 
-- [ ] **Step 1: Write a failing immutability and geometry test**
+- [x] **Step 1: Write a failing immutability and geometry test**
 
 Add a test that captures a one-bias task, calls:
 
@@ -69,7 +69,7 @@ np.testing.assert_allclose(
 
 Also assert all earlier biases are numerically unchanged and the source task remains immutable.
 
-- [ ] **Step 2: Run the test and verify RED**
+- [x] **Step 2: Run the test and verify RED**
 
 Run:
 
@@ -79,7 +79,7 @@ pytest -q tests/unit/test_fixed_proposal_replay.py::test_retarget_last_gaussian_
 
 Expected: import failure because `retarget_last_gaussian` does not exist.
 
-- [ ] **Step 3: Implement the minimal retargeting function**
+- [x] **Step 3: Implement the minimal retargeting function**
 
 In `pamssw/proposal_replay.py`, add:
 
@@ -130,7 +130,7 @@ def retarget_last_gaussian(
 
 Import `CartesianCoordinates` and `TangentVector` from `pamssw.coordinates`.
 
-- [ ] **Step 4: Run targeted tests and verify GREEN**
+- [x] **Step 4: Run targeted tests and verify GREEN**
 
 Run:
 
@@ -140,7 +140,7 @@ pytest -q tests/unit/test_fixed_proposal_replay.py
 
 Expected: all tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add pamssw/proposal_replay.py tests/unit/test_fixed_proposal_replay.py
@@ -153,7 +153,7 @@ git commit -m "Add fixed-prefix Gaussian retargeting"
 - Modify: `pamssw/proposal_replay.py`
 - Modify: `tests/unit/test_fixed_proposal_replay.py`
 
-- [ ] **Step 1: Write failing observed-replay tests**
+- [x] **Step 1: Write failing observed-replay tests**
 
 Add tests for a new:
 
@@ -181,11 +181,11 @@ observed.orthogonal_displacement_norm >= 0.0
 
 Use the analytic quadratic calculator so expected true and bias components can be evaluated analytically in the test without calling the replay calculator.
 
-- [ ] **Step 2: Run the tests and verify RED**
+- [x] **Step 2: Run the tests and verify RED**
 
 Run the two new test node IDs. Expected: missing observed replay API.
 
-- [ ] **Step 3: Implement an internal recording proposal**
+- [x] **Step 3: Implement an internal recording proposal**
 
 Add a private subclass of `ProposalPotential` that records the `RelaxEvaluation` returned by each normal backend call, keyed by the exact flattened positions. The observer must run inside `evaluate_parts`; it must not call the calculator itself.
 
@@ -214,11 +214,11 @@ class ObservedProposalReplayResult:
 
 `replay_proposal_task_observed` must otherwise use the same `Relaxer`, optimizer, purpose, fmax, maxiter, and trust-radius code path as `replay_proposal_task`. It must fail closed if the optimizer never evaluated the exact initial or final state; do not silently add a reporting evaluation.
 
-- [ ] **Step 4: Deduplicate ordinary and observed replay execution**
+- [x] **Step 4: Deduplicate ordinary and observed replay execution**
 
 Extract only the shared construction/execution lines needed to prevent the two replay functions from drifting. Do not change the public behavior or return type of `replay_proposal_task`.
 
-- [ ] **Step 5: Run targeted and core replay tests**
+- [x] **Step 5: Run targeted and core replay tests**
 
 Run:
 
@@ -231,7 +231,7 @@ pytest -q \
 
 Expected: pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add pamssw/proposal_replay.py tests/unit/test_fixed_proposal_replay.py
@@ -246,7 +246,7 @@ git commit -m "Observe frozen proposal energetics without extra PES calls"
 - Create: `runs/20260730-uphill-propagation-u0-u1/protocol.md`
 - Create: `tests/unit/test_uphill_propagation_ablation.py`
 
-- [ ] **Step 1: Write failing arm-construction tests**
+- [x] **Step 1: Write failing arm-construction tests**
 
 The run-local module must define exactly:
 
@@ -266,11 +266,11 @@ Test that:
 - no arm changes prefix biases;
 - invalid/nonfinite calibration values fail closed.
 
-- [ ] **Step 2: Run the arm tests and verify RED**
+- [x] **Step 2: Run the arm tests and verify RED**
 
 Expected: the run-local module or helpers do not exist.
 
-- [ ] **Step 3: Implement pure arm construction**
+- [x] **Step 3: Implement pure arm construction**
 
 Use:
 
@@ -283,7 +283,7 @@ weight = base_sigma * base_sigma * max(
 
 Do not add feedback gamma, clipping, Bayesian selection, or a composite score.
 
-- [ ] **Step 4: Write failing calibration/analyzer tests**
+- [x] **Step 4: Write failing calibration/analyzer tests**
 
 Calibration must:
 
@@ -307,11 +307,11 @@ endpoint position hash
 
 It must report paired differences and per-system Pareto relations without a weighted score.
 
-- [ ] **Step 5: Implement calibration and analysis**
+- [x] **Step 5: Implement calibration and analysis**
 
 Write JSON rows and a summary containing exact protocol/config/source hashes. Reject incomplete task-arm matrices, duplicate rows, nonfinite values, unequal source task IDs, or nonzero observer-only force evaluations.
 
-- [ ] **Step 6: Run run-local tests**
+- [x] **Step 6: Run run-local tests**
 
 Run:
 
@@ -321,7 +321,7 @@ pytest -q tests/unit/test_uphill_propagation_ablation.py
 
 Expected: pass.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add \
@@ -337,23 +337,23 @@ git commit -m "Add paired uphill propagation U0 U1 experiment"
 - Create after execution: `runs/20260730-uphill-propagation-u0-u1/analytic_smoke.json`
 - Create after execution: `runs/20260730-uphill-propagation-u0-u1/final_report.md`
 
-- [ ] **Step 1: Run an analytic quadratic/double-well smoke**
+- [x] **Step 1: Run an analytic quadratic/double-well smoke**
 
 Use at least two task seeds, all three arms, and both first- and later-bias frozen prefixes. Require exact task-arm matrix closure, zero unattributed force evaluations, zero observer-only evaluations, and finite component energies.
 
-- [ ] **Step 2: Review the smoke before GPU execution**
+- [x] **Step 2: Review the smoke before GPU execution**
 
 Stop if arm construction changes prefix biases, current replay is not byte-equivalent to the source task, or component observations add calculator calls.
 
-- [ ] **Step 3: Run the bounded C60/PdO GPU screen**
+- [x] **Step 3: Run the bounded C60/PdO GPU screen**
 
 Use independent calibration and evaluation action seeds. Start with 8 calibration first-step tasks and 16 evaluation prefixes per system, split across bias counts 1, 3, 5, or the largest capturable count. Use the same MACE model, dtype, constraints, optimizer, fmax, and iteration cap for every arm. Do not run a 200/500 macro-step production search in U0/U1.
 
-- [ ] **Step 4: Analyze without tuning**
+- [x] **Step 4: Analyze without tuning**
 
 An arm advances only if it is Pareto-nondominated within paired uncertainty on proposal force evaluations, certificate coverage, true-energy progress, and endpoint diversity for at least one system. Mixed C60/PdO evidence permits a system-conditional hypothesis; it does not permit parameter tuning on this corpus.
 
-- [ ] **Step 5: Write the claim-bounded report**
+- [x] **Step 5: Write the claim-bounded report**
 
 The report must distinguish:
 
@@ -363,7 +363,7 @@ The report must distinguish:
 - full-walk/global-search behavior not yet tested;
 - the next gate: displacement/width ratio \(r=a/\ell\) or full-walk confirmation.
 
-- [ ] **Step 6: Run verification**
+- [x] **Step 6: Run verification**
 
 Run:
 
@@ -378,7 +378,7 @@ git status --short
 
 Expected: targeted tests pass and only planned files are changed.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add runs/20260730-uphill-propagation-u0-u1
