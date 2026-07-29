@@ -257,6 +257,7 @@ def test_energy_bounded_anchor_reuses_krylov_hvps_and_enforces_energy_limit():
     assert choice.diagnostics["energy_bounded_anchor_feasible"] is True
     assert choice.diagnostics["energy_bounded_anchor_active"] is True
     assert choice.diagnostics["energy_bounded_anchor_step_scale"] == pytest.approx(0.5)
+    assert choice.diagnostics["energy_bounded_anchor_energy_target"] == pytest.approx(0.375)
     assert choice.diagnostics["energy_bounded_anchor_curvature_limit"] == pytest.approx(3.0)
     assert choice.diagnostics["energy_bounded_anchor_true_curvature"] == pytest.approx(3.0)
     assert choice.diagnostics["energy_bounded_anchor_quadratic_energy"] == pytest.approx(0.375)

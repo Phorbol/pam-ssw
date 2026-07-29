@@ -1769,6 +1769,9 @@ class SoftModeOracle:
                     "energy_bounded_anchor_step_scale": float(
                         energy_bound_step_scale
                     ),
+                    "energy_bounded_anchor_energy_target": float(
+                        energy_bound_target
+                    ),
                 }
             )
         return DirectionChoice(
