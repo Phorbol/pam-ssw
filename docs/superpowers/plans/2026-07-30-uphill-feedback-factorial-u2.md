@@ -45,8 +45,8 @@ updater and return the research priority to direction generation/selection.
 
 ## Tasks
 
-- [ ] TDD the four physical arm constructions and fail-closed matrix analyzer.
-- [ ] Run the six pre-registered C60 captures and four-arm replays on CUDA.
-- [ ] Preserve successful/censored capture costs and total wall time.
-- [ ] Write the claim-bounded attribution report.
-- [ ] Run the U0/U1/U2 core regression set, commit, and push the branch.
+- [x] TDD the four physical arm constructions and fail-closed matrix analyzer.
+- [x] Run the six pre-registered C60 captures and four-arm replays on CUDA.
+- [x] Preserve successful/censored capture costs and total wall time.
+- [x] Write the claim-bounded attribution report.
+- [x] Run the U0/U1/U2 core regression set, commit, and push the branch.
