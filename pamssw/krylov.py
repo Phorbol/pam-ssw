@@ -7,6 +7,7 @@ from numbers import Integral
 from typing import Callable, TypeAlias
 
 import numpy as np
+from scipy.optimize import brentq
 
 
 Hvp: TypeAlias = Callable[[np.ndarray], tuple[np.ndarray, np.ndarray]]
@@ -92,6 +93,165 @@ class KrylovResult:
         if not np.all(np.isfinite(direction)):
             raise ValueError("direction must contain only finite values")
         object.__setattr__(self, "direction", _readonly_float_copy(direction))
+
+
+@dataclass(frozen=True, eq=False)
+class EnergyBoundedAnchorResult:
+    """Closest anchor direction satisfying a projected curvature budget."""
+
+    direction: np.ndarray
+    feasible: bool
+    active: bool
+    overlap: float
+    true_curvature: float
+    exact_anchor_curvature: float
+    curvature_limit: float
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "direction",
+            _readonly_float_copy(self.direction),
+        )
+
+
+def select_energy_bounded_anchor(
+    basis: np.ndarray,
+    true_products: np.ndarray,
+    anchor: np.ndarray,
+    curvature_limit: float,
+) -> EnergyBoundedAnchorResult:
+    """Return the paid-subspace direction closest to an anchor below a limit."""
+
+    q = np.asarray(basis, dtype=float)
+    true_hq = np.asarray(true_products, dtype=float)
+    reference = np.asarray(anchor, dtype=float).reshape(-1)
+    limit = float(curvature_limit)
+    if (
+        q.ndim != 2
+        or true_hq.shape != q.shape
+        or reference.shape != (q.shape[0],)
+        or not np.all(np.isfinite(q))
+        or not np.all(np.isfinite(true_hq))
+        or not np.all(np.isfinite(reference))
+        or not np.isfinite(limit)
+    ):
+        raise ValueError(
+            "basis, true_products, anchor, and curvature_limit must be finite "
+            "and shape-compatible"
+        )
+
+    reference_norm = float(np.linalg.norm(reference))
+    if reference_norm <= _ORTHOGONALIZATION_TOLERANCE:
+        raise ValueError("anchor must have nonzero norm")
+    reference = reference / reference_norm
+    projected_anchor = q.T @ reference
+    projected_anchor_norm = float(np.linalg.norm(projected_anchor))
+    if projected_anchor_norm <= _ORTHOGONALIZATION_TOLERANCE:
+        raise ValueError("anchor must have nonzero projection into the basis")
+    projected_anchor = projected_anchor / projected_anchor_norm
+
+    projected_raw = q.T @ true_hq
+    projected = 0.5 * (projected_raw + projected_raw.T)
+    eigenvalues, eigenvectors = np.linalg.eigh(projected)
+    anchor_in_eigenbasis = eigenvectors.T @ projected_anchor
+
+    exact_anchor_curvature = float(
+        projected_anchor @ (projected @ projected_anchor)
+    )
+    numerical_tolerance = 1e-12 * max(
+        1.0,
+        abs(limit),
+        float(np.max(np.abs(eigenvalues))),
+    )
+
+    if exact_anchor_curvature <= limit + numerical_tolerance:
+        direction = q @ projected_anchor
+        direction = direction / np.linalg.norm(direction)
+        if float(np.dot(direction, reference)) < 0.0:
+            direction = -direction
+        return EnergyBoundedAnchorResult(
+            direction=direction,
+            feasible=True,
+            active=False,
+            overlap=float(np.dot(direction, reference)),
+            true_curvature=float(direction @ (true_hq @ projected_anchor)),
+            exact_anchor_curvature=exact_anchor_curvature,
+            curvature_limit=limit,
+        )
+
+    minimum = float(eigenvalues[0])
+    if minimum > limit + numerical_tolerance:
+        minimum_mask = np.isclose(
+            eigenvalues,
+            minimum,
+            rtol=0.0,
+            atol=numerical_tolerance,
+        )
+        minimum_space = eigenvectors[:, minimum_mask]
+        minimum_projection = minimum_space.T @ projected_anchor
+        if float(np.linalg.norm(minimum_projection)) > numerical_tolerance:
+            coefficients = minimum_space @ (
+                minimum_projection / np.linalg.norm(minimum_projection)
+            )
+        else:
+            coefficients = minimum_space[:, 0]
+        direction = q @ coefficients
+        direction = direction / np.linalg.norm(direction)
+        if float(np.dot(direction, reference)) < 0.0:
+            direction = -direction
+        return EnergyBoundedAnchorResult(
+            direction=direction,
+            feasible=False,
+            active=True,
+            overlap=float(np.dot(direction, reference)),
+            true_curvature=float(coefficients @ (projected @ coefficients)),
+            exact_anchor_curvature=exact_anchor_curvature,
+            curvature_limit=limit,
+        )
+
+    lower = float(
+        np.nextafter(
+            -minimum,
+            np.inf,
+        )
+    )
+
+    def normalized_coefficients(shift: float) -> np.ndarray:
+        values = anchor_in_eigenbasis / (eigenvalues + shift)
+        return values / np.linalg.norm(values)
+
+    def constrained_curvature(shift: float) -> float:
+        coefficients = normalized_coefficients(shift)
+        return float(coefficients @ (eigenvalues * coefficients))
+
+    upper = max(1.0, abs(lower) + 1.0)
+    while constrained_curvature(upper) < limit:
+        upper *= 2.0
+    shift = brentq(
+        lambda value: constrained_curvature(value) - limit,
+        lower,
+        upper,
+        xtol=1e-14,
+        rtol=1e-14,
+    )
+    eigen_coefficients = normalized_coefficients(float(shift))
+    coefficients = eigenvectors @ eigen_coefficients
+    direction = q @ coefficients
+    direction = direction / np.linalg.norm(direction)
+    if float(np.dot(direction, reference)) < 0.0:
+        direction = -direction
+        coefficients = -coefficients
+    true_curvature = float(coefficients @ (projected @ coefficients))
+    return EnergyBoundedAnchorResult(
+        direction=direction,
+        feasible=True,
+        active=True,
+        overlap=float(np.dot(direction, reference)),
+        true_curvature=true_curvature,
+        exact_anchor_curvature=exact_anchor_curvature,
+        curvature_limit=limit,
+    )
 
 
 def _orthogonalized(vector: np.ndarray, basis: list[np.ndarray]) -> np.ndarray | None:
