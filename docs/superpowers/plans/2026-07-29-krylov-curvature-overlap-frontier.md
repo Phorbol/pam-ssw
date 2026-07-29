@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Expose the complete zero-extra-HVP Ritz curvature--anchor-overlap frontier and attach it to the previously validated C60 terminal outcomes through exact proposal replay.
+**Goal:** Expose the complete zero-extra-HVP Ritz curvature--anchor-overlap frontier and generate a self-contained 12-case C60 terminal-outcome audit.
 
-**Architecture:** Extend the existing Krylov result with immutable per-Ritz-point diagnostics computed from the already stored `Q`, total `HQ`, and true `HQ`.  Keep lowest-Ritz selection unchanged, serialize the full spectrum through the existing direction diagnostics seam, and run a 12-case proposal-only replay that must match the prior escape hashes and selected traces before referencing prior terminal outcomes.
+**Architecture:** Extend the existing Krylov result with immutable per-Ritz-point diagnostics computed from the already stored `Q`, total `HQ`, and true `HQ`.  Keep lowest-Ritz selection unchanged, serialize the full spectrum through the existing direction diagnostics seam, and reuse the validated prior case executor for a fresh 12-case proposal plus strict-terminal-quench cohort.
 
 **Tech Stack:** Python, NumPy, pytest, ASE, MACE/CUDA, existing `BudgetedCalculator`, `SurfaceWalker`, and `solve_krylov_block`.
 
@@ -289,7 +289,7 @@ git add pamssw/walker.py tests/unit/test_walker_policy.py
 git commit -m "feat: log Krylov curvature-overlap frontier"
 ```
 
-### Task 3: Build the 12-case proposal replay
+### Task 3: Build the 12-case self-contained terminal audit
 
 **Files:**
 - Create: `tests/unit/test_krylov_curvature_overlap_frontier.py`
@@ -320,17 +320,17 @@ difference `3.0`.
 
 - [ ] **Step 2: Write failing evidence-contract tests**
 
-Construct synthetic replay rows and require `build_evidence` to reject:
+Construct synthetic terminal rows and require `build_evidence` to reject:
 
 - a missing case;
-- a nonmatching escape hash;
-- a nonmatching selected trace;
-- any nonzero landing-quench, bootstrap, validation, or unattributed count;
+- a missing strict terminal-quench certificate;
+- any nonzero bootstrap, starter-quench, or unattributed count;
+- a direction ledger inconsistent with 12 HVP per selection;
 - a spectrum with no executed point, multiple executed points, unsorted
   curvature, or nonfinite values.
 
-Require the evidence to keep replay FE separate from the referenced prior
-terminal FE.
+Require the evidence to report the new terminal FE and to keep prior FE only
+as non-additive provenance metadata.
 
 - [ ] **Step 3: Run runner tests and verify RED**
 
@@ -343,7 +343,7 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q \
 
 Expected: failure because the runner does not exist.
 
-- [ ] **Step 4: Implement exact replay loading**
+- [ ] **Step 4: Reuse the locked full-case executor**
 
 Load:
 
@@ -351,42 +351,30 @@ Load:
 runs/20260729-anchor-consistent-direction-ablation/output/evidence.json
 ```
 
-Verify its SHA-256 and execution commit at runner startup.  Index only the 12
-refined-arm prior cases by `(state_id, seed, arm)`.
+Verify its SHA-256 and execution commit at runner startup for provenance.
 
-For every replay, reuse the prior module's locked runtime and arm
-configuration.  Execute through `_proposal_pool`, evaluate and write the
-escape state, but do not call `relax_true_minimum`.
+Reuse the prior module's locked runtime, arm configuration, and `_run_case`
+function for every new case.  This executes the unchanged proposal, fresh
+strict terminal quench, archive classification, structure hashing, and
+purpose-ledger checks without duplicating case logic.
 
-- [ ] **Step 5: Enforce the replay proof**
+- [ ] **Step 5: Enforce fresh terminal evidence**
 
-For each case:
+For each case require:
 
-```python
-new_selected_trace = [
-    {
-        key: value
-        for key, value in row.items()
-        if key != "krylov_ritz_spectrum"
-    }
-    for row in direction_rows
-]
+```text
+certificate == true
+fallback_used == false unless the preregistered fallback itself certifies
+direction_oracle == 24 FE * selection_count
+bootstrap_true_quench == 0
+starter_true_quench == 0
+unattributed == 0
+sum(purpose_counts) == force_evaluations
 ```
 
-Require exact equality with the prior direction trace and require the replay
-escape SHA-256 to equal `prior_case["escape_sha256"]`.
-
-Require the new purpose ledger to equal the prior counts for:
-
-```python
-{
-    "direction_oracle",
-    "biased_proposal_relax",
-    "escape_true_pes_check",
-}
-```
-
-and require all other purposes to be zero.
+Write and retain each new starter, escape, and landing hash.  Prior hashes are
+context only and are not equality gates because the MACE float32 CUDA path was
+empirically non-bitwise-deterministic.
 
 - [ ] **Step 6: Implement parameter-free frontier summaries**
 
@@ -410,8 +398,8 @@ evidence.json
 ```
 
 Record source/model/state/prior-evidence hashes, exact execution commit,
-purpose counts, measured proposal wall time, spectrum points, frontier
-summaries, and referenced prior terminal fields.
+purpose counts, measured generation and quench wall sections, spectrum
+points, frontier summaries, and fresh terminal outcomes.
 
 - [ ] **Step 8: Run runner tests and surrounding tests**
 
@@ -431,7 +419,7 @@ Require zero failures.
 git add \
   runs/20260729-krylov-curvature-overlap-frontier/run_audit.py \
   tests/unit/test_krylov_curvature_overlap_frontier.py
-git commit -m "exp: add Krylov frontier replay audit"
+git commit -m "exp: add Krylov frontier terminal audit"
 ```
 
 ### Task 4: Execute, validate, and report
@@ -447,23 +435,21 @@ git commit -m "exp: add Krylov frontier replay audit"
 Require a clean tracked worktree and pass the exact `git rev-parse HEAD`
 through `--expected-git-commit`.
 
-- [ ] **Step 2: Run all 12 CUDA proposal replays**
+- [ ] **Step 2: Run all 12 CUDA terminal cases**
 
 Use `/root/miniforge3/envs/mace_les/bin/python`,
 `CUDA_VISIBLE_DEVICES=0`, unbuffered output, and a `/tmp` Matplotlib cache.
-Do not run a terminal quench and do not start a second cohort while the first
-is active.
+Run the preregistered strict terminal quench and do not start a second cohort
+while the first is active.
 
 - [ ] **Step 3: Independently rebuild the evidence**
 
-Reload `raw.json`, call `build_evidence`, verify every written escape hash,
+Reload `raw.json`, call `build_evidence`, verify every written structure hash,
 prior-evidence hash, exact case set, direction trace, purpose ledger, and:
 
 ```text
-completed_replays == 12
-escape_hash_matches == 12
-selected_trace_matches == 12
-landing_true_quench == 0
+completed_cases == 12
+certificate_count == 12
 bootstrap_true_quench == 0
 unattributed == 0
 ```
@@ -474,11 +460,11 @@ Separate:
 
 1. unchanged implementation and budget facts;
 2. measured spectrum/frontier geometry;
-3. relation to the inherited terminal outcomes;
+3. relation between fresh terminal outcomes and spectrum geometry;
 4. counterfactual limitations;
 5. whether a constrained selection experiment is justified.
 
-Report full replay FE and wall time.  Do not claim that an unexecuted Ritz
+Report full execution FE and wall time.  Do not claim that an unexecuted Ritz
 point would have succeeded.
 
 - [ ] **Step 5: Run final verification**

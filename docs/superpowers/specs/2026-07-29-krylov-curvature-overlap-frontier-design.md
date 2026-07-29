@@ -3,7 +3,7 @@
 ## Decision
 
 Expose the complete Ritz spectrum already present in each block-Krylov solve,
-then replay the 12 refined-direction C60 proposals from the completed
+then rerun the 12 refined-direction C60 cases from the completed
 anchor-consistent ablation:
 
 - `detached_ritz`;
@@ -69,16 +69,30 @@ This is rejected because neither \(\eta\) nor \(\lambda\) is identified by
 current evidence.  Testing such a rule now would confound subspace content
 with a new heuristic selection parameter.
 
-### Replay the full proposal path and expose the complete spectrum
+### Replay the proposal and inherit the prior terminal outcome
 
-This is selected.  Every retained basis vector and its total/true HVP are
-already available inside `solve_krylov_block`.  All Ritz-point diagnostics can
-therefore be computed by linear algebra without a new calculator call.
+This was the preregistered cost-saving design, but a controlled execution
+falsified its required premise.  Two independent executions of the same first
+case with the same code and seed produced:
 
-The replay stops at the escape state.  It does not repeat terminal true
-quenching.  Instead, it must reproduce the locked prior escape file hash and
-selected-direction trace before it may reference the previously validated
-terminal outcome.
+- up to 0.0106 difference in selected curvature;
+- up to 0.0131 difference in true curvature;
+- 0.00225 A maximum escape-coordinate difference;
+- three different escape SHA-256 hashes across the prior and two new runs.
+
+The current MACE float32 CUDA path is therefore not bitwise deterministic.
+Introducing numerical tolerances solely to inherit a terminal label would add
+an uncalibrated equivalence parameter and would not prove basin identity.
+
+### Rerun the full terminal outcomes with spectrum diagnostics
+
+This amended design is selected.  Every retained basis vector and its
+total/true HVP is already available inside `solve_krylov_block`, so
+full-spectrum diagnostics still cost no additional force evaluations within a
+trajectory.  Each of the 12 new trajectories now performs its own strict
+terminal true-PES quench and basin classification.  Prior outcomes are kept
+only as provenance and context; no terminal label, certificate, hash, or
+quench cost is inherited.
 
 ## Mathematical diagnostic
 
@@ -164,7 +178,7 @@ contains:
 The existing scalar diagnostics and direction selection remain unchanged.
 No new configuration field is added.
 
-## Deterministic proposal replay
+## Self-contained terminal rerun
 
 Create a dedicated runner under:
 
@@ -173,24 +187,22 @@ runs/20260729-krylov-curvature-overlap-frontier/
 ```
 
 The runner imports the locked state/model loader and configuration builder
-from the completed anchor-consistent experiment.  It executes proposal
-generation only for the 12 refined-arm cases.
+from the completed anchor-consistent experiment.  It executes the complete
+proposal and strict terminal-quench path for the 12 refined-arm cases.
 
 For each case it must:
 
 1. verify the prior evidence commit, model hash, starter hash, and case key;
-2. execute the unchanged proposal walk with direction diagnostics enabled;
-3. require the same direction-selection count and purpose-resolved direction
-   cost as the prior case;
-4. compare all pre-existing selected-direction scalar diagnostics to the
-   prior trace;
-5. write the replay escape structure and require its SHA-256 hash to equal the
-   prior escape hash;
-6. attach the prior certified terminal outcome by evidence reference, without
-   running a new terminal quench.
+2. execute the unchanged proposal walk with spectrum diagnostics enabled;
+3. enforce the exact configured direction HVP cost per selection;
+4. execute a strict terminal true-PES quench with the same optimizer, `fmax`,
+   maximum iterations, and fallback contract as the prior experiment;
+5. require a fresh force-convergence certificate;
+6. write and hash the new starter, escape, and landing structures;
+7. classify the new landing basin in the fresh per-case archive.
 
-If the escape hash or selected trace differs, the case is a failed replay and
-must not inherit the old landing outcome.
+The prior trace and escape hashes are recorded for provenance but are not
+treated as equality contracts.
 
 ## Accounting
 
@@ -206,13 +218,12 @@ The full-spectrum calculation must add:
 - 0 proposal relaxations;
 - 0 true-PES evaluations.
 
-The replay purpose ledger permits direction-oracle, biased-proposal-relax,
-and escape true-PES checks only.  Bootstrap, starter quench, terminal landing
-quench, post-relax validation, and unattributed counts must all be zero.
+The purpose ledger permits direction-oracle, biased-proposal-relax, escape
+true-PES checks, landing true quench, and post-relax validation.  Bootstrap,
+starter quench, and unattributed counts must be zero.
 
-The runner reports the diagnostic replay cost separately from the prior
-terminal-outcome cost.  It must never combine inherited quench counts with
-new replay counts as if they came from one execution.
+The runner reports all new costs as one self-contained execution.  Prior
+force-evaluation counts remain metadata and are never added to new totals.
 
 ## Interpretation boundary
 
@@ -252,12 +263,12 @@ Tests must fail before implementation and then prove:
 5. returned direction arrays are read-only;
 6. walker JSON includes finite per-point participation ratios and identifies
    exactly one executed point;
-7. the replay cohort contains exactly 12 cases and excludes `exact_anchor`;
-8. every completed replay closes its allowed purpose ledger, matches the
-   locked escape hash and selected trace, and references rather than repeats
-   the terminal quench;
+7. the new cohort contains exactly 12 cases and excludes `exact_anchor`;
+8. every completed case closes its purpose ledger and has a fresh strict
+   terminal-quench certificate;
 9. production defaults and direction-selection behavior remain unchanged.
 
-The GPU audit is complete only when all 12 replays match, every ledger closes,
-the full point evidence is independently rebuilt, and the conclusion
-separates observed subspace geometry from untested counterfactual outcomes.
+The GPU audit is complete only when all 12 cases finish, every ledger and
+certificate closes, the full point evidence is independently rebuilt, and
+the conclusion separates observed subspace geometry from untested
+counterfactual outcomes.

@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Replay locked C60 proposals and expose their complete Krylov frontiers."""
+"""Run the self-contained C60 Krylov curvature-overlap frontier audit."""
 
 from __future__ import annotations
 
 import argparse
-from dataclasses import asdict, replace
 from hashlib import sha256
 import importlib.util
 import json
@@ -13,10 +12,7 @@ from pathlib import Path
 import statistics
 import subprocess
 import sys
-from time import perf_counter
 from typing import Any, Mapping, Sequence
-
-import numpy as np
 
 
 RUN_ROOT = Path(__file__).resolve().parent
@@ -48,23 +44,12 @@ EXPECTED_HVP_PER_SELECTION = {
     "detached_ritz": 12,
     "anchor_lanczos": 12,
 }
-REPLAY_PURPOSES = {
-    "direction_oracle",
-    "biased_proposal_relax",
-    "escape_true_pes_check",
-}
 FORBIDDEN_PURPOSES = {
-    "landing_true_quench",
-    "post_relax_validation",
     "starter_true_quench",
     "bootstrap_true_quench",
     "unattributed",
 }
-TRACE_DIAGNOSTIC_ONLY_KEYS = {
-    "krylov_ritz_spectrum",
-    "oracle_selection_wall_seconds",
-    "oracle_wall_seconds",
-}
+MEANINGFUL_ENERGY_DROP_EV = 0.001
 
 
 def _load_module(path: Path, name: str):
@@ -143,8 +128,8 @@ def _validate_spectrum(
 ) -> None:
     if not isinstance(spectrum, list) or not spectrum:
         raise ValueError("spectrum must be a non-empty list")
-    executed_count = 0
     previous_curvature = -math.inf
+    executed_count = 0
     for index, point in enumerate(spectrum):
         if not isinstance(point, Mapping):
             raise ValueError("spectrum point must be a mapping")
@@ -168,15 +153,17 @@ def _validate_spectrum(
             raise ValueError("spectrum anchor overlap is outside [0, 1]")
         if float(point["participation_ratio"]) <= 0.0:
             raise ValueError("spectrum participation ratio must be positive")
-        if point.get("block_index") != 0:
-            raise ValueError("spectrum replay requires one Krylov block")
-        if point.get("ritz_index") != index:
-            raise ValueError("spectrum Ritz indices must be contiguous")
-        executed = point.get("executed")
-        if type(executed) is not bool:
+        if (
+            point.get("block_index") != 0
+            or point.get("ritz_index") != index
+        ):
+            raise ValueError(
+                "spectrum requires one contiguous Krylov block"
+            )
+        if type(point.get("executed")) is not bool:
             raise ValueError("spectrum executed flag must be boolean")
-        executed_count += int(executed)
-    if executed_count != 1 or spectrum[0].get("executed") is not True:
+        executed_count += int(point["executed"])
+    if executed_count != 1 or spectrum[0]["executed"] is not True:
         raise ValueError(
             "spectrum must identify the lowest Ritz point as executed"
         )
@@ -242,25 +229,30 @@ def summarize_frontier(
     }
 
 
-def _meaningful_prior(row: Mapping[str, Any]) -> bool:
-    outcome = row["prior_terminal_outcome"]
-    return bool(outcome.get("meaningful_outcome"))
+def _meaningful(row: Mapping[str, Any]) -> bool:
+    return bool(
+        row["certificate"]
+        and row["is_new_basin"]
+        and _finite(row["landing_delta_eV"], "landing delta")
+        < -MEANINGFUL_ENERGY_DROP_EV
+    )
 
 
 def _validate_row(row: Mapping[str, Any]) -> None:
     arm = str(row.get("arm"))
     if arm not in ARMS:
-        raise ValueError("unknown replay arm")
+        raise ValueError("unknown frontier arm")
+    if row.get("status") != "completed":
+        raise ValueError("case is not complete")
+    if row.get("certificate") is not True:
+        raise ValueError("terminal quench certificate is missing")
     purposes = row.get("purpose_counts")
-    if (
-        row.get("status") != "completed"
-        or row.get("escape_hash_matches") is not True
-        or row.get("selected_trace_matches") is not True
-    ):
-        raise ValueError("replay proof is incomplete")
     if not isinstance(purposes, Mapping):
         raise ValueError("purpose ledger is missing")
-    if any(int(purposes.get(key, -1)) != 0 for key in FORBIDDEN_PURPOSES):
+    if any(
+        int(purposes.get(purpose, -1)) != 0
+        for purpose in FORBIDDEN_PURPOSES
+    ):
         raise ValueError("forbidden purpose has nonzero cost")
     if (
         sum(int(value) for value in purposes.values())
@@ -276,7 +268,7 @@ def _validate_row(row: Mapping[str, Any]) -> None:
         or purposes.get("direction_oracle")
         != selections * expected_hvp * 2
     ):
-        raise ValueError("direction replay ledger does not close")
+        raise ValueError("direction ledger does not close")
     trace = row.get("direction_trace")
     if not isinstance(trace, list) or len(trace) != selections:
         raise ValueError("direction trace count does not close")
@@ -293,13 +285,6 @@ def _validate_row(row: Mapping[str, Any]) -> None:
         _validate_spectrum(
             direction_row.get("krylov_ritz_spectrum")
         )
-    prior = row.get("prior_terminal_outcome")
-    if (
-        not isinstance(prior, Mapping)
-        or prior.get("certificate") is not True
-        or int(prior.get("prior_force_evaluations", -1)) <= 0
-    ):
-        raise ValueError("prior terminal outcome is invalid")
 
 
 def _median(values: Sequence[float]) -> float:
@@ -337,7 +322,19 @@ def build_evidence(
             for trace in row["direction_trace"]
         ]
         arm_results[arm] = {
-            "completed_replays": len(arm_rows),
+            "completed_cases": len(arm_rows),
+            "certificate_count": sum(
+                bool(row["certificate"]) for row in arm_rows
+            ),
+            "fallback_count": sum(
+                bool(row["fallback_used"]) for row in arm_rows
+            ),
+            "new_basin_count": sum(
+                bool(row["is_new_basin"]) for row in arm_rows
+            ),
+            "meaningful_outcome_count": sum(
+                _meaningful(row) for row in arm_rows
+            ),
             "direction_selection_count": len(
                 selection_summaries
             ),
@@ -346,11 +343,21 @@ def build_evidence(
                 for row in arm_rows
                 for trace in row["direction_trace"]
             ),
-            "meaningful_prior_outcome_count": sum(
-                _meaningful_prior(row) for row in arm_rows
-            ),
-            "total_replay_force_evaluations": sum(
+            "total_force_evaluations": sum(
                 int(row["force_evaluations"]) for row in arm_rows
+            ),
+            "direction_force_evaluations": sum(
+                int(row["purpose_counts"]["direction_oracle"])
+                for row in arm_rows
+            ),
+            "median_landing_delta_eV": _median(
+                [
+                    _finite(
+                        row["landing_delta_eV"],
+                        "landing delta",
+                    )
+                    for row in arm_rows
+                ]
             ),
             "median_frontier_size": _median(
                 [
@@ -378,15 +385,13 @@ def build_evidence(
                     for summary in selection_summaries
                 ]
             ),
-            "median_maximum_overlap_true_curvature_delta": (
-                _median(
-                    [
-                        summary[
-                            "maximum_overlap_true_curvature_delta"
-                        ]
-                        for summary in selection_summaries
+            "median_maximum_overlap_true_curvature_delta": _median(
+                [
+                    summary[
+                        "maximum_overlap_true_curvature_delta"
                     ]
-                )
+                    for summary in selection_summaries
+                ]
             ),
             "maximum_overlap_is_executed_count": sum(
                 summary["maximum_overlap_is_executed"]
@@ -394,13 +399,13 @@ def build_evidence(
             ),
             "state_results": {
                 state_id: {
-                    "direction_selection_count": sum(
-                        len(row["direction_trace"])
+                    "meaningful_outcome_count": sum(
+                        _meaningful(row)
                         for row in arm_rows
                         if row["state_id"] == state_id
                     ),
-                    "meaningful_prior_outcome_count": sum(
-                        _meaningful_prior(row)
+                    "direction_selection_count": sum(
+                        len(row["direction_trace"])
                         for row in arm_rows
                         if row["state_id"] == state_id
                     ),
@@ -409,12 +414,11 @@ def build_evidence(
             },
         }
 
-    purpose_names = tuple(rows[0]["purpose_counts"])
     purpose_totals = {
         purpose: sum(
             int(row["purpose_counts"][purpose]) for row in rows
         )
-        for purpose in purpose_names
+        for purpose in rows[0]["purpose_counts"]
     }
     return {
         "schema_version": 1,
@@ -422,22 +426,17 @@ def build_evidence(
             "states": list(STATE_IDS),
             "seeds": list(SEEDS),
             "arms": list(ARMS),
-            "completed_replays": len(rows),
+            "completed_cases": len(rows),
         },
         "prior_evidence_sha256": prior_evidence_sha256,
-        "escape_hash_match_count": sum(
-            bool(row["escape_hash_matches"]) for row in rows
+        "certificate_count": sum(
+            bool(row["certificate"]) for row in rows
         ),
-        "selected_trace_match_count": sum(
-            bool(row["selected_trace_matches"]) for row in rows
+        "meaningful_outcome_count": sum(
+            _meaningful(row) for row in rows
         ),
-        "referenced_prior_terminal_force_evaluations": sum(
-            int(
-                row["prior_terminal_outcome"][
-                    "prior_force_evaluations"
-                ]
-            )
-            for row in rows
+        "meaningful_energy_drop_threshold_eV": (
+            MEANINGFUL_ENERGY_DROP_EV
         ),
         "arm_results": arm_results,
         "totals": {
@@ -445,18 +444,25 @@ def build_evidence(
                 int(row["force_evaluations"]) for row in rows
             ),
             "purpose_counts": purpose_totals,
-            "proposal_wall_time_s": sum(
+            "generation_wall_time_s": sum(
                 _finite(
-                    row["proposal_wall_time_s"],
-                    "proposal wall time",
+                    row["generation_wall_time_s"],
+                    "generation wall time",
+                )
+                for row in rows
+            ),
+            "quench_wall_time_s": sum(
+                _finite(
+                    row["quench_wall_time_s"],
+                    "quench wall time",
                 )
                 for row in rows
             ),
         },
         "production_default_changed": False,
         "claim_ceiling": (
-            "descriptive exact-proposal replay of already paid Krylov "
-            "subspaces; unexecuted Ritz points have no terminal label"
+            "descriptive paired three-seed frontier audit; "
+            "unexecuted Ritz points have no terminal label"
         ),
         "cases": list(rows),
     }
@@ -471,185 +477,6 @@ def _load_prior_evidence() -> tuple[dict[str, Any], str]:
     if payload.get("cohort", {}).get("completed_cases") != 18:
         raise RuntimeError("prior evidence cohort is incomplete")
     return payload, _sha256(PRIOR_EVIDENCE_PATH)
-
-
-def _prior_case_index(
-    prior_evidence: Mapping[str, Any],
-) -> dict[tuple[str, int, str], Mapping[str, Any]]:
-    index = {
-        (
-            str(row["state_id"]),
-            int(row["seed"]),
-            str(row["arm"]),
-        ): row
-        for row in prior_evidence["cases"]
-        if row["arm"] in ARMS
-    }
-    if len(index) != 12:
-        raise RuntimeError("prior refined-arm cohort is incomplete")
-    return index
-
-
-def _read_direction_rows(path: Path) -> list[dict[str, Any]]:
-    if not path.is_file():
-        raise RuntimeError(f"direction trace was not written: {path}")
-    return [
-        json.loads(line)
-        for line in path.read_text().splitlines()
-        if line.strip()
-    ]
-
-
-def selected_trace_contract(
-    rows: Sequence[Mapping[str, Any]],
-) -> list[dict[str, Any]]:
-    return [
-        {
-            key: value
-            for key, value in row.items()
-            if key not in TRACE_DIAGNOSTIC_ONLY_KEYS
-        }
-        for row in rows
-    ]
-
-
-def _run_replay_case(
-    *,
-    state,
-    state_provenance: Mapping[str, Any],
-    shared_calculator,
-    base_runner,
-    prior_case: Mapping[str, Any],
-    state_id: str,
-    seed: int,
-    arm: str,
-    case_dir: Path,
-) -> dict[str, Any]:
-    from pamssw.accounting import EvaluationPurpose
-    from pamssw.archive import MinimaArchive
-    from pamssw.walker import SurfaceWalker
-
-    config = replace(
-        base_runner.build_config("c60", case_dir),
-        max_trials=1,
-        max_force_evals=None,
-        rng_seed=seed,
-        quench_optimizer="ase-lbfgs",
-        quench_fallback_optimizer="ase-fire",
-        quench_fmax=0.01,
-        **ARMS[arm],
-    )
-    walker = SurfaceWalker(
-        calculator=shared_calculator,
-        config=config,
-        softening_enabled=True,
-    )
-    walker._reset_direction_diagnostics()
-    archive = MinimaArchive(
-        energy_tol=config.dedup_energy_tol,
-        rmsd_tol=config.dedup_rmsd_tol,
-        max_prototypes=config.max_prototypes,
-    )
-
-    started = perf_counter()
-    with walker.calculator.purpose(
-        EvaluationPurpose.ESCAPE_TRUE_PES_CHECK
-    ):
-        starter_evaluation = walker.calculator.evaluate(state)
-    seed_entry = archive.add(
-        state,
-        float(starter_evaluation.energy),
-        parent_id=None,
-    )
-    proposal = walker._proposal_pool(
-        state,
-        archive,
-        trial_index=0,
-        step_target=walker.step_target_controller.target(archive),
-        seed_entry_id=seed_entry.entry_id,
-        allow_duplicate_rescue=False,
-    )[0]
-    escape_state = proposal.state
-    with walker.calculator.purpose(
-        EvaluationPurpose.ESCAPE_TRUE_PES_CHECK
-    ):
-        escape_evaluation = walker.calculator.evaluate(escape_state)
-    proposal_wall_time = float(perf_counter() - started)
-
-    direction_rows = _read_direction_rows(
-        Path(config.direction_diagnostics_path)
-    )
-    selected_trace_matches = (
-        selected_trace_contract(direction_rows)
-        == selected_trace_contract(prior_case["direction_trace"])
-    )
-    purposes = walker.calculator.snapshot().as_dict()
-    prior_purposes = prior_case["purpose_counts"]
-    if any(
-        purposes[purpose] != prior_purposes[purpose]
-        for purpose in REPLAY_PURPOSES
-    ):
-        raise RuntimeError("replay purpose cost differs from prior case")
-    if any(purposes[purpose] != 0 for purpose in FORBIDDEN_PURPOSES):
-        raise RuntimeError("replay unexpectedly used a forbidden purpose")
-    force_evaluations = int(sum(purposes.values()))
-
-    case_dir.mkdir(parents=True, exist_ok=True)
-    escape_path = case_dir / "escape.xyz"
-    base_runner.write_state(escape_path, escape_state)
-    replay_escape_sha256 = _sha256(escape_path)
-    escape_hash_matches = (
-        replay_escape_sha256 == prior_case["escape_sha256"]
-    )
-    prior_terminal_outcome = {
-        "certificate": bool(prior_case["certificate"]),
-        "landing_delta_eV": float(
-            prior_case["landing_delta_eV"]
-        ),
-        "is_new_basin": bool(prior_case["is_new_basin"]),
-        "meaningful_outcome": bool(
-            prior_case["certificate"]
-            and prior_case["is_new_basin"]
-            and float(prior_case["landing_delta_eV"]) < -0.001
-        ),
-        "landing_sha256": prior_case["landing_sha256"],
-        "prior_force_evaluations": int(
-            prior_case["force_evaluations"]
-        ),
-        "prior_landing_true_quench_force_evaluations": int(
-            prior_purposes["landing_true_quench"]
-        ),
-    }
-    row = {
-        "state_id": state_id,
-        "state_sha256": state_provenance["state_sha256"],
-        "seed": seed,
-        "arm": arm,
-        "status": "completed",
-        "starter_energy_eV": float(starter_evaluation.energy),
-        "escape_energy_eV": float(escape_evaluation.energy),
-        "escape_hash_matches": escape_hash_matches,
-        "selected_trace_matches": selected_trace_matches,
-        "replay_escape_path": str(escape_path),
-        "replay_escape_sha256": replay_escape_sha256,
-        "prior_escape_sha256": prior_case["escape_sha256"],
-        "force_evaluations": force_evaluations,
-        "purpose_counts": purposes,
-        "direction_selection_count": len(direction_rows),
-        "direction_hvp_count": sum(
-            int(row["krylov_hvp_consumed"])
-            for row in direction_rows
-        ),
-        "proposal_wall_time_s": proposal_wall_time,
-        "direction_trace": direction_rows,
-        "prior_terminal_outcome": prior_terminal_outcome,
-        "effective_config": asdict(config),
-    }
-    _validate_row(row)
-    if not escape_hash_matches or not selected_trace_matches:
-        raise RuntimeError("replay proof does not match prior case")
-    _write_json(case_dir / "summary.json", row)
-    return row
 
 
 def run(
@@ -671,7 +498,6 @@ def run(
     output_dir.mkdir(parents=True)
 
     prior_evidence, prior_evidence_hash = _load_prior_evidence()
-    prior_index = _prior_case_index(prior_evidence)
     prior_module = _load_module(
         PRIOR_RUN_PATH,
         "_krylov_frontier_prior_ablation",
@@ -698,19 +524,18 @@ def run(
             / "cases"
             / f"{state_id}-seed{seed}-{arm}"
         )
-        rows.append(
-            _run_replay_case(
-                state=states[state_id],
-                state_provenance=state_provenance[state_id],
-                shared_calculator=shared_calculator,
-                base_runner=base_runner,
-                prior_case=prior_index[(state_id, seed, arm)],
-                state_id=state_id,
-                seed=seed,
-                arm=arm,
-                case_dir=case_dir,
-            )
+        row = prior_module._run_case(
+            state=states[state_id],
+            state_provenance=state_provenance[state_id],
+            shared_calculator=shared_calculator,
+            base_runner=base_runner,
+            state_id=state_id,
+            seed=seed,
+            arm=arm,
+            case_dir=case_dir,
         )
+        _validate_row(row)
+        rows.append(row)
         _write_json(
             output_dir / "raw.json",
             {
