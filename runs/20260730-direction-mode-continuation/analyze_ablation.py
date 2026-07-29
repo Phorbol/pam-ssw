@@ -413,7 +413,7 @@ def analyze_repeat_rows(
         ): row
         for row in repeat_rows
     }
-    reversals = [
+    full_matrix_reversals = [
         {
             "state_id": state_id,
             "seed": seed,
@@ -434,13 +434,89 @@ def analyze_repeat_rows(
         if _meaningful(primary_by_key[(state_id, seed, arm)])
         != _meaningful(repeat_by_key[(state_id, seed, arm)])
     ]
+    primary_control_events = {
+        _condition(row)
+        for row in primary_rows
+        if row["arm"] == "fixed_intent_ritz" and _meaningful(row)
+    }
+    primary_transport_events = {
+        _condition(row)
+        for row in primary_rows
+        if row["arm"] == "transported_direction" and _meaningful(row)
+    }
+    advantage_conditions = (
+        primary_transport_events - primary_control_events
+    )
+    if not advantage_conditions:
+        raise ValueError(
+            "primary cohort has no transported paired advantage"
+        )
+    advantage_reversals = [
+        {
+            "state_id": state_id,
+            "seed": seed,
+            "primary_control_meaningful": _meaningful(
+                primary_by_key[
+                    (state_id, seed, "fixed_intent_ritz")
+                ]
+            ),
+            "repeat_control_meaningful": _meaningful(
+                repeat_by_key[
+                    (state_id, seed, "fixed_intent_ritz")
+                ]
+            ),
+            "primary_transport_meaningful": _meaningful(
+                primary_by_key[
+                    (state_id, seed, "transported_direction")
+                ]
+            ),
+            "repeat_transport_meaningful": _meaningful(
+                repeat_by_key[
+                    (state_id, seed, "transported_direction")
+                ]
+            ),
+        }
+        for state_id, seed in sorted(advantage_conditions)
+        if (
+            _meaningful(
+                primary_by_key[
+                    (state_id, seed, "fixed_intent_ritz")
+                ]
+            )
+            != _meaningful(
+                repeat_by_key[
+                    (state_id, seed, "fixed_intent_ritz")
+                ]
+            )
+            or _meaningful(
+                primary_by_key[
+                    (state_id, seed, "transported_direction")
+                ]
+            )
+            != _meaningful(
+                repeat_by_key[
+                    (state_id, seed, "transported_direction")
+                ]
+            )
+        )
+    ]
     return {
         "schema_version": 1,
         "decision": (
-            "repeat_stable" if not reversals else "repeat_unstable"
+            "repeat_stable"
+            if not advantage_reversals
+            else "repeat_unstable"
         ),
         "survivor": "transported_direction",
-        "classification_reversals": reversals,
+        "advantage_conditions": [
+            {"state_id": state_id, "seed": seed}
+            for state_id, seed in sorted(advantage_conditions)
+        ],
+        "advantage_reversals": advantage_reversals,
+        "full_matrix_stable": not full_matrix_reversals,
+        "full_matrix_classification_reversals": (
+            full_matrix_reversals
+        ),
         "completed_cases": len(repeat_rows),
         "certificate_count": sum(
             bool(row["certificate"]) for row in repeat_rows
@@ -540,8 +616,9 @@ def analyze_repeat_output(
     (RUN_ROOT / "repeat_conclusion.md").write_text(
         "# Direction-mode continuation repeat conclusion\n\n"
         f"Decision: `{evidence['decision']}`.\n\n"
-        f"Classification reversals: "
-        f"{len(evidence['classification_reversals'])}.\n",
+        f"Advantage reversals: "
+        f"{len(evidence['advantage_reversals'])}.\n\n"
+        f"Full matrix stable: `{evidence['full_matrix_stable']}`.\n",
         encoding="utf-8",
     )
     return evidence

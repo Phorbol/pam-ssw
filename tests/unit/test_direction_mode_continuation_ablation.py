@@ -355,9 +355,28 @@ def test_repeat_analysis_requires_stable_paired_terminal_classification():
     ]
 
     stable = analyzer.analyze_repeat_rows(primary, repeat)
-    repeat[0]["is_new_basin"] = True
-    repeat[0]["landing_delta_eV"] = -0.01
+    unrelated_row = next(
+        row
+        for row in repeat
+        if row["state_id"] == "plateau_accepted"
+        and row["seed"] == 42
+        and row["arm"] == "fixed_intent_ritz"
+    )
+    unrelated_row["is_new_basin"] = True
+    unrelated_row["landing_delta_eV"] = -0.01
+    unrelated_reversal = analyzer.analyze_repeat_rows(primary, repeat)
+    advantage_row = next(
+        row
+        for row in repeat
+        if row["state_id"] == "intermediate_accepted"
+        and row["seed"] == 42
+        and row["arm"] == "transported_direction"
+    )
+    advantage_row["is_new_basin"] = False
+    advantage_row["landing_delta_eV"] = 0.01
     unstable = analyzer.analyze_repeat_rows(primary, repeat)
 
     assert stable["decision"] == "repeat_stable"
+    assert unrelated_reversal["decision"] == "repeat_stable"
+    assert unrelated_reversal["full_matrix_stable"] is False
     assert unstable["decision"] == "repeat_unstable"

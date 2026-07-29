@@ -1,0 +1,30 @@
+{
+  "advantage_conditions": [
+    {
+      "seed": 44,
+      "state_id": "plateau_accepted"
+    }
+  ],
+  "advantage_reversals": [],
+  "certificate_count": 12,
+  "completed_cases": 12,
+  "decision": "repeat_stable",
+  "execution_commit": "ff91f732c0f084574aa8b2a171e752a91a483fae",
+  "force_evaluations": 4463,
+  "full_matrix_classification_reversals": [
+    {
+      "arm": "fixed_intent_ritz",
+      "primary_meaningful": false,
+      "repeat_meaningful": true,
+      "seed": 42,
+      "state_id": "plateau_accepted"
+    }
+  ],
+  "full_matrix_stable": false,
+  "schema_version": 1,
+  "shared_initial_direction": {
+    "force_evaluations": 144,
+    "selection_count": 6
+  },
+  "survivor": "transported_direction"
+}
