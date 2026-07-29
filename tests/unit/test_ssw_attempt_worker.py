@@ -120,12 +120,19 @@ def _install_fake_walker(
                 softening_enabled=softening_enabled,
                 calculator_from_factory=calculator,
                 run_starters=[],
+                run_initial_quench_purposes=[],
             )
             self.__dict__.update(instance.__dict__)
             instances.append(self)
 
-        def run(self, starter: State) -> SearchResult:
+        def run(
+            self,
+            starter: State,
+            *,
+            initial_quench_purpose: EvaluationPurpose,
+        ) -> SearchResult:
             self.run_starters.append(starter)
+            self.run_initial_quench_purposes.append(initial_quench_purpose)
             if isinstance(outcome, BaseException):
                 raise outcome
             return outcome
@@ -237,7 +244,16 @@ def test_worker_serializes_only_each_calculators_first_evaluation(monkeypatch):
                 ),
             )
 
-        def run(self, starter):
+        def run(
+            self,
+            starter,
+            *,
+            initial_quench_purpose: EvaluationPurpose,
+        ):
+            assert (
+                initial_quench_purpose
+                is EvaluationPurpose.STARTER_TRUE_QUENCH
+            )
             self._delegate.evaluate(starter)
             return _search_result(
                 stats={
@@ -382,6 +398,9 @@ def test_action_overrides_config_and_factory_is_called_once_per_action(monkeypat
     assert instances[0].config.rng_seed == 31
     assert instances[0].config.max_force_evals == 5
     assert instances[0].calculator_from_factory.calculator is calculators[0]
+    assert instances[0].run_initial_quench_purposes == [
+        EvaluationPurpose.STARTER_TRUE_QUENCH
+    ]
     assert mapped.status is AttemptStatus.COMPLETED
     assert mapped.force_evaluations == 3
 

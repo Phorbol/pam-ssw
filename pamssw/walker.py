@@ -2701,7 +2701,14 @@ class SurfaceWalker:
         self._record_relax_result("true_quench", result, relax_config.fmax)
         return result
 
-    def run(self, initial_state: State):
+    def run(
+        self,
+        initial_state: State,
+        *,
+        initial_quench_purpose: EvaluationPurpose = (
+            EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH
+        ),
+    ):
         from .archive import MinimaArchive
 
         self._reset_trust_stats()
@@ -2724,7 +2731,7 @@ class SurfaceWalker:
         initial = self.relax_true_minimum(
             initial_state,
             trajectory_name="initial_true_quench",
-            quench_purpose=EvaluationPurpose.STARTER_TRUE_QUENCH,
+            quench_purpose=initial_quench_purpose,
         )
         archive = MinimaArchive(
             energy_tol=self.config.dedup_energy_tol,

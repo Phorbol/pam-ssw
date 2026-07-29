@@ -8,7 +8,7 @@ from numbers import Integral
 from threading import Lock
 from typing import Callable
 
-from ..accounting import BudgetExceeded, EvaluationCounts
+from ..accounting import BudgetExceeded, EvaluationCounts, EvaluationPurpose
 from ..config import LSSSWConfig, SSWConfig
 from ..result import SearchResult
 from ..state import State
@@ -115,7 +115,10 @@ class SSWAttemptWorker:
             return result
 
         try:
-            result = walker.run(deepcopy(starter_state))
+            result = walker.run(
+                deepcopy(starter_state),
+                initial_quench_purpose=EvaluationPurpose.STARTER_TRUE_QUENCH,
+            )
         except BudgetExceeded:
             evaluation_counts = _calculator_snapshot(walker)
             if _counter_exhausted(walker):

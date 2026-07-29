@@ -53,6 +53,34 @@ def test_fresh_walker_bootstrap_true_quench_has_closed_purpose_ledger():
     assert counts.total == calculator.total_calls == walker.calculator.force_evaluations
 
 
+def test_surface_walker_run_labels_initial_raw_state_quench_as_bootstrap():
+    calculator = CountingAnalyticCalculator(AnalyticCalculator(DoubleWell2D()))
+    walker = SurfaceWalker(
+        calculator=calculator,
+        config=SSWConfig(
+            max_trials=1,
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            rng_seed=4,
+        ),
+        softening_enabled=False,
+    )
+
+    walker.run(
+        State(
+            numbers=np.array([1]),
+            positions=np.array([[-1.0, 0.0, 0.0]]),
+        )
+    )
+
+    counts = walker.calculator.snapshot()
+    assert counts.count(EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH) > 0
+    assert counts.count(EvaluationPurpose.STARTER_TRUE_QUENCH) == 0
+    assert counts.count(EvaluationPurpose.LANDING_TRUE_QUENCH) > 0
+    assert counts.count(EvaluationPurpose.UNATTRIBUTED) == 0
+    assert counts.total == calculator.total_calls
+
+
 def test_ssw_local_relaxation_accounting_is_exact():
     result = run_ssw(
         initial_state=State(
