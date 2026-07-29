@@ -216,6 +216,7 @@ def run(output_dir: Path) -> dict[str, Any]:
                 initial_direction_choice=initial_choice,
                 system=SYSTEM,
                 fragmentation_applicable=False,
+                require_terminal_certificate=False,
             )
             rows.append(row)
             total_force_evaluations += int(row["force_evaluations"])

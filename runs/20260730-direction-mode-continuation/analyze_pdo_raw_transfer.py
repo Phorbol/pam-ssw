@@ -33,18 +33,19 @@ def validate_action_row(row: Mapping[str, Any]) -> None:
         raise ValueError("action purpose ledger does not close")
     if (
         row.get("status") != "completed"
-        or row.get("certificate") is not True
+        or not isinstance(row.get("certificate"), bool)
         or row.get("landing_geometry_valid") is not True
         or row.get("direction_trace_valid") is not True
         or row.get("fragmentation_applicable") is not False
         or row.get("fragmented") is not False
     ):
-        raise ValueError("action lacks the strict PdO terminal certificate")
+        raise ValueError("action record or geometry validation is incomplete")
 
 
 def _meaningful(row: Mapping[str, Any]) -> bool:
     return bool(
-        row["is_new_basin"]
+        row["certificate"]
+        and row["is_new_basin"]
         and float(row["landing_delta_eV"])
         <= -MEANINGFUL_ENERGY_DROP_EV
     )
@@ -160,9 +161,12 @@ def analyze(raw: Mapping[str, Any]) -> dict[str, Any]:
     control_events = meaningful_conditions["fixed_intent_ritz"]
     transported_events = meaningful_conditions["transported_direction"]
     no_validity_regression = bool(
-        transported["certificate_count"] == control["certificate_count"]
+        transported["certificate_count"] >= control["certificate_count"]
         and transported["geometry_invalid_count"] <= control["geometry_invalid_count"]
         and transported["continuation_projection_degenerate_count"] == 0
+    )
+    transported_complete_certification = bool(
+        transported["certificate_count"] == len(SEEDS)
     )
     reproduces_control_events = control_events <= transported_events
     lower_direction_cost = (
@@ -175,6 +179,7 @@ def analyze(raw: Mapping[str, Any]) -> dict[str, Any]:
     )
     if (
         no_validity_regression
+        and transported_complete_certification
         and bool(control_events or transported_events)
         and reproduces_control_events
         and lower_direction_cost
@@ -183,6 +188,7 @@ def analyze(raw: Mapping[str, Any]) -> dict[str, Any]:
         decision = "transported_direction_supported"
     elif (
         no_validity_regression
+        and transported_complete_certification
         and not control_events
         and not transported_events
         and lower_direction_cost
@@ -202,6 +208,9 @@ def analyze(raw: Mapping[str, Any]) -> dict[str, Any]:
         "decision": decision,
         "mechanism_gates": {
             "no_validity_regression": no_validity_regression,
+            "transported_complete_certification": (
+                transported_complete_certification
+            ),
             "reproduces_control_meaningful_events": reproduces_control_events,
             "lower_direction_cost": lower_direction_cost,
             "lower_total_action_cost": lower_total_cost,

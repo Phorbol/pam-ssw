@@ -422,6 +422,7 @@ def _run_case(
     initial_direction_choice,
     system: str = "c60",
     fragmentation_applicable: bool = True,
+    require_terminal_certificate: bool = True,
 ) -> dict[str, Any]:
     from pamssw.accounting import EvaluationPurpose
     from pamssw.archive import MinimaArchive
@@ -508,7 +509,7 @@ def _run_case(
     certificate = bool(
         has_force_convergence_certificate(landing, config.quench_fmax)
     )
-    if not certificate:
+    if require_terminal_certificate and not certificate:
         raise RuntimeError("terminal quench lacks a strict certificate")
 
     case_dir.mkdir(parents=True, exist_ok=True)

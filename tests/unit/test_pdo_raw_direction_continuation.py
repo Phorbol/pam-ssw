@@ -53,7 +53,14 @@ def test_pdo_raw_protocol_is_one_bootstrap_and_six_paired_actions():
     ]
 
 
-def _case(seed, arm, *, landing_delta, is_new_basin):
+def _case(
+    seed,
+    arm,
+    *,
+    landing_delta,
+    is_new_basin,
+    certificate=True,
+):
     direction_cost = 48 if arm == "fixed_intent_ritz" else 4
     purposes = {
         "bootstrap_true_quench": 0,
@@ -70,7 +77,7 @@ def _case(seed, arm, *, landing_delta, is_new_basin):
         "seed": seed,
         "arm": arm,
         "status": "completed",
-        "certificate": True,
+        "certificate": certificate,
         "landing_geometry_valid": True,
         "fragmentation_applicable": False,
         "fragmented": False,
@@ -230,3 +237,18 @@ def test_analysis_does_not_promote_empty_terminal_evidence_to_full_support():
     assert evidence["decision"] == (
         "transported_direction_cost_supported_no_terminal_event"
     )
+
+
+def test_uncertified_terminal_is_recorded_but_never_meaningful():
+    analyzer = _load_analyzer()
+    row = _case(
+        42,
+        "transported_direction",
+        landing_delta=-1.0,
+        is_new_basin=True,
+        certificate=False,
+    )
+
+    analyzer.validate_action_row(row)
+
+    assert analyzer._meaningful(row) is False
