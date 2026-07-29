@@ -395,6 +395,35 @@ def test_config_validates_direction_selection_mode():
         SSWConfig(direction_selection_mode="unknown")
 
 
+def test_config_accepts_direction_continuation_modes_without_changing_default():
+    assert SSWConfig().direction_selection_mode == "discrete"
+    assert (
+        SSWConfig(
+            direction_selection_mode="transported_direction"
+        ).direction_selection_mode
+        == "transported_direction"
+    )
+    assert (
+        SSWConfig(
+            direction_selection_mode="continuation_krylov",
+            block_krylov_depth=12,
+        ).direction_selection_mode
+        == "continuation_krylov"
+    )
+
+
+@pytest.mark.parametrize(
+    "mode",
+    ["transported_direction", "continuation_krylov"],
+)
+def test_continuation_modes_reject_regularized_ritz_synthesis(mode):
+    with pytest.raises(ValueError, match="explicit direction_selection_mode"):
+        SSWConfig(
+            direction_selection_mode=mode,
+            direction_synthesis_mode="regularized_ritz",
+        )
+
+
 def test_energy_bounded_anchor_requires_exact_step_scale_semantics():
     with pytest.raises(ValueError, match="step_length_mode"):
         SSWConfig(

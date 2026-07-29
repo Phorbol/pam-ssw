@@ -327,12 +327,15 @@ class SSWConfig:
             "exact_anchor",
             "anchor_krylov",
             "energy_bounded_anchor",
+            "transported_direction",
+            "continuation_krylov",
         }
         if self.direction_selection_mode not in direction_selection_modes:
             raise ValueError(
                 "direction_selection_mode must be discrete, rayleigh_ritz, "
-                "block_krylov, exact_anchor, anchor_krylov, or "
-                "energy_bounded_anchor"
+                "block_krylov, exact_anchor, anchor_krylov, "
+                "energy_bounded_anchor, transported_direction, or "
+                "continuation_krylov"
             )
         if self.direction_synthesis_mode not in {"none", "regularized_ritz"}:
             raise ValueError("direction_synthesis_mode must be none or regularized_ritz")
@@ -344,6 +347,8 @@ class SSWConfig:
                 "exact_anchor",
                 "anchor_krylov",
                 "energy_bounded_anchor",
+                "transported_direction",
+                "continuation_krylov",
             }
             and self.direction_synthesis_mode == "regularized_ritz"
         ):
