@@ -79,6 +79,13 @@ def test_direction_mode_continuation_protocol_is_the_locked_18_case_matrix():
             for case in cases
         }
     ) == 18
+    repeat_cases = runner.case_matrix(
+        ("fixed_intent_ritz", "transported_direction")
+    )
+    assert len(repeat_cases) == 12
+    assert {
+        case["arm"] for case in repeat_cases
+    } == {"fixed_intent_ritz", "transported_direction"}
 
 
 def _step_zero_row(direction_hash="common"):
@@ -333,3 +340,24 @@ def test_shared_initial_direction_ledger_is_exactly_six_paid_selections():
 
     assert audit["selection_count"] == 6
     assert audit["force_evaluations"] == 144
+
+
+def test_repeat_analysis_requires_stable_paired_terminal_classification():
+    analyzer = _load_analyzer()
+    primary = _fake_cohort(transported_extra_event=True)
+    repeat = [
+        row
+        for row in _fake_cohort(transported_extra_event=True)
+        if row["arm"] in {
+            "fixed_intent_ritz",
+            "transported_direction",
+        }
+    ]
+
+    stable = analyzer.analyze_repeat_rows(primary, repeat)
+    repeat[0]["is_new_basin"] = True
+    repeat[0]["landing_delta_eV"] = -0.01
+    unstable = analyzer.analyze_repeat_rows(primary, repeat)
+
+    assert stable["decision"] == "repeat_stable"
+    assert unstable["decision"] == "repeat_unstable"

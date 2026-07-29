@@ -47,12 +47,21 @@ ARMS: dict[str, dict[str, object]] = {
 }
 
 
-def case_matrix() -> list[dict[str, Any]]:
+def case_matrix(
+    arms: Sequence[str] | None = None,
+) -> list[dict[str, Any]]:
+    selected_arms = tuple(ARMS) if arms is None else tuple(arms)
+    if (
+        not selected_arms
+        or len(set(selected_arms)) != len(selected_arms)
+        or any(arm not in ARMS for arm in selected_arms)
+    ):
+        raise ValueError("arms must be unique known direction arms")
     return [
         {"state_id": state_id, "seed": seed, "arm": arm}
         for state_id in STATE_IDS
         for seed in SEEDS
-        for arm in ARMS
+        for arm in selected_arms
     ]
 
 
@@ -576,6 +585,7 @@ def run(
     output_dir: Path,
     *,
     locked_source: Path | None = None,
+    arms: Sequence[str] | None = None,
 ) -> dict[str, Any]:
     execution_commit = _current_commit()
     if not _tracked_worktree_clean():
@@ -593,6 +603,8 @@ def run(
         shared_provenance,
     ) = _load_locked_runtime(locked_source)
     rows: list[dict[str, Any]] = []
+    selected_arms = tuple(ARMS) if arms is None else tuple(arms)
+    case_matrix(selected_arms)
     total_force_evaluations = 0
     shared_initial_directions: list[dict[str, Any]] = []
     for state_id in STATE_IDS:
@@ -615,7 +627,7 @@ def run(
             total_force_evaluations += int(
                 shared_record["force_evaluations"]
             )
-            for arm in ARMS:
+            for arm in selected_arms:
                 case_dir = (
                     output_dir
                     / "cases"
@@ -655,6 +667,7 @@ def run(
                         "execution_commit": execution_commit,
                         "shared_provenance": shared_provenance,
                         "state_provenance": state_provenance,
+                        "arms": list(selected_arms),
                         "shared_initial_directions": (
                             shared_initial_directions
                         ),
@@ -678,6 +691,12 @@ def _parse_args(
         default=RUN_ROOT / "output",
     )
     parser.add_argument(
+        "--arms",
+        nargs="+",
+        choices=tuple(ARMS),
+        default=None,
+    )
+    parser.add_argument(
         "--locked-source",
         type=Path,
         default=None,
@@ -693,7 +712,11 @@ def main(argv: Sequence[str] | None = None) -> None:
     args = _parse_args(argv)
     print(
         json.dumps(
-            run(args.output, locked_source=args.locked_source),
+            run(
+                args.output,
+                locked_source=args.locked_source,
+                arms=args.arms,
+            ),
             indent=2,
             sort_keys=True,
         )

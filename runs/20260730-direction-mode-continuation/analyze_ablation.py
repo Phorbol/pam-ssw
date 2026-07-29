@@ -356,6 +356,101 @@ def analyze_rows(
     }
 
 
+def analyze_repeat_rows(
+    primary_rows: Sequence[Mapping[str, Any]],
+    repeat_rows: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    primary_evidence = analyze_rows(primary_rows)
+    if primary_evidence["survivors"] != ["transported_direction"]:
+        raise ValueError(
+            "repeat analysis requires transported_direction as sole survivor"
+        )
+    repeat_arms = (
+        "fixed_intent_ritz",
+        "transported_direction",
+    )
+    expected = {
+        (state_id, seed, arm)
+        for state_id in (
+            "intermediate_accepted",
+            "plateau_accepted",
+        )
+        for seed in (42, 43, 44)
+        for arm in repeat_arms
+    }
+    observed = {
+        (row.get("state_id"), row.get("seed"), row.get("arm"))
+        for row in repeat_rows
+    }
+    if len(repeat_rows) != 12 or observed != expected:
+        raise ValueError("repeat analysis requires the exact 12-case cohort")
+    for row in repeat_rows:
+        purposes = row.get("purpose_counts")
+        if (
+            row.get("status") != "completed"
+            or row.get("certificate") is not True
+            or row.get("landing_geometry_valid") is not True
+            or row.get("direction_trace_valid") is not True
+            or not isinstance(purposes, Mapping)
+            or sum(int(value) for value in purposes.values())
+            != row.get("force_evaluations")
+            or purposes.get("unattributed") != 0
+        ):
+            raise ValueError("repeat case ledger does not close")
+    primary_by_key = {
+        (
+            str(row["state_id"]),
+            int(row["seed"]),
+            str(row["arm"]),
+        ): row
+        for row in primary_rows
+    }
+    repeat_by_key = {
+        (
+            str(row["state_id"]),
+            int(row["seed"]),
+            str(row["arm"]),
+        ): row
+        for row in repeat_rows
+    }
+    reversals = [
+        {
+            "state_id": state_id,
+            "seed": seed,
+            "arm": arm,
+            "primary_meaningful": _meaningful(
+                primary_by_key[(state_id, seed, arm)]
+            ),
+            "repeat_meaningful": _meaningful(
+                repeat_by_key[(state_id, seed, arm)]
+            ),
+        }
+        for state_id in (
+            "intermediate_accepted",
+            "plateau_accepted",
+        )
+        for seed in (42, 43, 44)
+        for arm in repeat_arms
+        if _meaningful(primary_by_key[(state_id, seed, arm)])
+        != _meaningful(repeat_by_key[(state_id, seed, arm)])
+    ]
+    return {
+        "schema_version": 1,
+        "decision": (
+            "repeat_stable" if not reversals else "repeat_unstable"
+        ),
+        "survivor": "transported_direction",
+        "classification_reversals": reversals,
+        "completed_cases": len(repeat_rows),
+        "certificate_count": sum(
+            bool(row["certificate"]) for row in repeat_rows
+        ),
+        "force_evaluations": sum(
+            int(row["force_evaluations"]) for row in repeat_rows
+        ),
+    }
+
+
 def _conclusion_markdown(evidence: Mapping[str, Any]) -> str:
     lines = [
         "# Direction-mode continuation C60 conclusion",
@@ -418,6 +513,40 @@ def analyze_output(output_dir: Path) -> dict[str, Any]:
     return evidence
 
 
+def analyze_repeat_output(
+    output_dir: Path,
+    primary_output_dir: Path,
+) -> dict[str, Any]:
+    raw = json.loads(
+        (output_dir / "raw.json").read_text(encoding="utf-8")
+    )
+    primary = json.loads(
+        (primary_output_dir / "raw.json").read_text(encoding="utf-8")
+    )
+    evidence = analyze_repeat_rows(
+        primary["cases"],
+        raw["cases"],
+    )
+    shared_audit = validate_shared_initial_directions(
+        raw["shared_initial_directions"],
+        raw["cases"],
+    )
+    evidence["shared_initial_direction"] = shared_audit
+    evidence["force_evaluations"] += shared_audit[
+        "force_evaluations"
+    ]
+    evidence["execution_commit"] = raw["execution_commit"]
+    _write_json(RUN_ROOT / "repeat_evidence.json", evidence)
+    (RUN_ROOT / "repeat_conclusion.md").write_text(
+        "# Direction-mode continuation repeat conclusion\n\n"
+        f"Decision: `{evidence['decision']}`.\n\n"
+        f"Classification reversals: "
+        f"{len(evidence['classification_reversals'])}.\n",
+        encoding="utf-8",
+    )
+    return evidence
+
+
 def _parse_args(
     argv: Sequence[str] | None = None,
 ) -> argparse.Namespace:
@@ -427,12 +556,24 @@ def _parse_args(
         type=Path,
         default=RUN_ROOT / "output",
     )
+    parser.add_argument(
+        "--repeat-of",
+        type=Path,
+        default=None,
+    )
     return parser.parse_args(argv)
 
 
 def main(argv: Sequence[str] | None = None) -> None:
     args = _parse_args(argv)
-    evidence = analyze_output(args.output)
+    evidence = (
+        analyze_output(args.output)
+        if args.repeat_of is None
+        else analyze_repeat_output(args.output, args.repeat_of)
+    )
+    if args.repeat_of is not None:
+        print(json.dumps(evidence, indent=2, sort_keys=True))
+        return
     print(
         json.dumps(
             {
