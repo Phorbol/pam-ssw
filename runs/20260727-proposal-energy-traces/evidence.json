@@ -1,0 +1,2681 @@
+{
+  "aggregates": {
+    "by_system_backend": [
+      {
+        "accepted_state_evaluations": 1343,
+        "backend": "ase-fire",
+        "certificate_satisfied_count": 7,
+        "force_evaluations": 1343,
+        "non_accepted_evaluations": 0,
+        "system": "c60",
+        "task_count": 8,
+        "telemetry_rejected_steps": 0,
+        "termination_reasons": {
+          "converged": 7,
+          "maxiter": 1
+        },
+        "wall_time_s": 23.997802223995677
+      },
+      {
+        "accepted_state_evaluations": 716,
+        "backend": "safe-lbfgs-total",
+        "certificate_satisfied_count": 8,
+        "force_evaluations": 734,
+        "non_accepted_evaluations": 18,
+        "system": "c60",
+        "task_count": 8,
+        "telemetry_rejected_steps": 18,
+        "termination_reasons": {
+          "converged": 8
+        },
+        "wall_time_s": 12.089234466009657
+      },
+      {
+        "accepted_state_evaluations": 1710,
+        "backend": "ase-fire",
+        "certificate_satisfied_count": 7,
+        "force_evaluations": 1710,
+        "non_accepted_evaluations": 0,
+        "system": "pdo",
+        "task_count": 8,
+        "telemetry_rejected_steps": 0,
+        "termination_reasons": {
+          "converged": 7,
+          "maxiter": 1
+        },
+        "wall_time_s": 36.11699162700097
+      },
+      {
+        "accepted_state_evaluations": 740,
+        "backend": "safe-lbfgs-total",
+        "certificate_satisfied_count": 8,
+        "force_evaluations": 749,
+        "non_accepted_evaluations": 9,
+        "system": "pdo",
+        "task_count": 8,
+        "telemetry_rejected_steps": 9,
+        "termination_reasons": {
+          "converged": 8
+        },
+        "wall_time_s": 15.653620586032048
+      }
+    ],
+    "historical_reference_comparison": {
+      "all_reference_fields_equal_count": 0,
+      "call_delta_values": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        -1,
+        11,
+        7,
+        0,
+        3,
+        0,
+        0,
+        -3,
+        21,
+        0,
+        1,
+        0,
+        0,
+        0,
+        3,
+        0,
+        6,
+        0,
+        2,
+        0,
+        -82,
+        10,
+        -3,
+        0,
+        -4,
+        4,
+        -8
+      ],
+      "certificate_equal_count": 32,
+      "energy_within_measured_neighborhood_count": 17,
+      "position_within_measured_neighborhood_count": 15,
+      "row_count": 32,
+      "strict_reference_match_count": 0,
+      "termination_equal_count": 32
+    },
+    "maxiter_tasks": [
+      {
+        "backend": "ase-fire",
+        "system": "c60",
+        "task_id": "c60-seed-44-bias-1"
+      },
+      {
+        "backend": "ase-fire",
+        "system": "pdo",
+        "task_id": "pdo-seed-46-bias-1"
+      }
+    ],
+    "paired_fire_safe": [
+      {
+        "fire_certificate_satisfied": true,
+        "safe_certificate_satisfied": true,
+        "safe_minus_fire_final_biased_energy_eV": -0.0026290939692898974,
+        "safe_minus_fire_force_evaluations": -35,
+        "safe_minus_fire_wall_time_s": -2.1886476340005174,
+        "safe_over_fire_force_evaluations": 0.5333333333333333,
+        "system": "c60",
+        "task_id": "c60-seed-42-bias-1"
+      },
+      {
+        "fire_certificate_satisfied": true,
+        "safe_certificate_satisfied": true,
+        "safe_minus_fire_final_biased_energy_eV": -0.009895178528893211,
+        "safe_minus_fire_force_evaluations": -56,
+        "safe_minus_fire_wall_time_s": -0.9203297140047653,
+        "safe_over_fire_force_evaluations": 0.5254237288135594,
+        "system": "c60",
+        "task_id": "c60-seed-43-bias-1"
+      },
+      {
+        "fire_certificate_satisfied": false,
+        "safe_certificate_satisfied": true,
+        "safe_minus_fire_final_biased_energy_eV": -2.0950039135806833,
+        "safe_minus_fire_force_evaluations": -295,
+        "safe_minus_fire_wall_time_s": -4.968388547989889,
+        "safe_over_fire_force_evaluations": 0.26433915211970077,
+        "system": "c60",
+        "task_id": "c60-seed-44-bias-1"
+      },
+      {
+        "fire_certificate_satisfied": true,
+        "safe_certificate_satisfied": true,
+        "safe_minus_fire_final_biased_energy_eV": -6.553407150469582,
+        "safe_minus_fire_force_evaluations": -60,
+        "safe_minus_fire_wall_time_s": -1.0475025289924815,
+        "safe_over_fire_force_evaluations": 0.696969696969697,
+        "system": "c60",
+        "task_id": "c60-seed-45-bias-1"
+      },
+      {
+        "fire_certificate_satisfied": true,
+        "safe_certificate_satisfied": true,
+        "safe_minus_fire_final_biased_energy_eV": -0.24453821268224374,
+        "safe_minus_fire_force_evaluations": -21,
+        "safe_minus_fire_wall_time_s": -0.3515928900160361,
+        "safe_over_fire_force_evaluations": 0.8346456692913385,
+        "system": "c60",
+        "task_id": "c60-seed-46-bias-1"
+      },
+      {
+        "fire_certificate_satisfied": true,
+        "safe_certificate_satisfied": true,
+        "safe_minus_fire_final_biased_energy_eV": -0.0010837805111236776,
+        "safe_minus_fire_force_evaluations": -31,
+        "safe_minus_fire_wall_time_s": -0.5036447089951253,
+        "safe_over_fire_force_evaluations": 0.5507246376811594,
+        "system": "c60",
+        "task_id": "c60-seed-47-bias-1"
+      },
+      {
+        "fire_certificate_satisfied": true,
+        "safe_certificate_satisfied": true,
+        "safe_minus_fire_final_biased_energy_eV": -0.033277253249650585,
+        "safe_minus_fire_force_evaluations": -82,
+        "safe_minus_fire_wall_time_s": -1.4046640259912238,
+        "safe_over_fire_force_evaluations": 0.5494505494505495,
+        "system": "c60",
+        "task_id": "c60-seed-48-bias-1"
+      },
+      {
+        "fire_certificate_satisfied": true,
+        "safe_certificate_satisfied": true,
+        "safe_minus_fire_final_biased_energy_eV": -0.27181064195730187,
+        "safe_minus_fire_force_evaluations": -29,
+        "safe_minus_fire_wall_time_s": -0.5237977079959819,
+        "safe_over_fire_force_evaluations": 0.8323699421965318,
+        "system": "c60",
+        "task_id": "c60-seed-49-bias-1"
+      },
+      {
+        "fire_certificate_satisfied": true,
+        "safe_certificate_satisfied": true,
+        "safe_minus_fire_final_biased_energy_eV": 0.04291722374694018,
+        "safe_minus_fire_force_evaluations": -169,
+        "safe_minus_fire_wall_time_s": -3.5636121590068797,
+        "safe_over_fire_force_evaluations": 0.2555066079295154,
+        "system": "pdo",
+        "task_id": "pdo-seed-42-bias-1"
+      },
+      {
+        "fire_certificate_satisfied": true,
+        "safe_certificate_satisfied": true,
+        "safe_minus_fire_final_biased_energy_eV": 0.0010657127709237102,
+        "safe_minus_fire_force_evaluations": -120,
+        "safe_minus_fire_wall_time_s": -2.5533263249963056,
+        "safe_over_fire_force_evaluations": 0.5020746887966805,
+        "system": "pdo",
+        "task_id": "pdo-seed-43-bias-1"
+      },
+      {
+        "fire_certificate_satisfied": true,
+        "safe_certificate_satisfied": true,
+        "safe_minus_fire_final_biased_energy_eV": 0.023807460190710117,
+        "safe_minus_fire_force_evaluations": -156,
+        "safe_minus_fire_wall_time_s": -3.3170556359837065,
+        "safe_over_fire_force_evaluations": 0.3004484304932735,
+        "system": "pdo",
+        "task_id": "pdo-seed-44-bias-1"
+      },
+      {
+        "fire_certificate_satisfied": true,
+        "safe_certificate_satisfied": true,
+        "safe_minus_fire_final_biased_energy_eV": -1.9385946366807048,
+        "safe_minus_fire_force_evaluations": -62,
+        "safe_minus_fire_wall_time_s": -1.3278362129931338,
+        "safe_over_fire_force_evaluations": 0.5079365079365079,
+        "system": "pdo",
+        "task_id": "pdo-seed-45-bias-1"
+      },
+      {
+        "fire_certificate_satisfied": false,
+        "safe_certificate_satisfied": true,
+        "safe_minus_fire_final_biased_energy_eV": -1.1344463584155164,
+        "safe_minus_fire_force_evaluations": -233,
+        "safe_minus_fire_wall_time_s": -4.954029156986508,
+        "safe_over_fire_force_evaluations": 0.42039800995024873,
+        "system": "pdo",
+        "task_id": "pdo-seed-46-bias-1"
+      },
+      {
+        "fire_certificate_satisfied": true,
+        "safe_certificate_satisfied": true,
+        "safe_minus_fire_final_biased_energy_eV": 0.002226304074952168,
+        "safe_minus_fire_force_evaluations": -103,
+        "safe_minus_fire_wall_time_s": -2.2051190240163123,
+        "safe_over_fire_force_evaluations": 0.4180790960451977,
+        "system": "pdo",
+        "task_id": "pdo-seed-47-bias-1"
+      },
+      {
+        "fire_certificate_satisfied": true,
+        "safe_certificate_satisfied": true,
+        "safe_minus_fire_final_biased_energy_eV": -2.3300826788102995,
+        "safe_minus_fire_force_evaluations": -10,
+        "safe_minus_fire_wall_time_s": -0.2614455029979581,
+        "safe_over_fire_force_evaluations": 0.9122807017543859,
+        "system": "pdo",
+        "task_id": "pdo-seed-48-bias-1"
+      },
+      {
+        "fire_certificate_satisfied": true,
+        "safe_certificate_satisfied": true,
+        "safe_minus_fire_final_biased_energy_eV": -1.5443058807260286,
+        "safe_minus_fire_force_evaluations": -108,
+        "safe_minus_fire_wall_time_s": -2.2809470239881193,
+        "safe_over_fire_force_evaluations": 0.46,
+        "system": "pdo",
+        "task_id": "pdo-seed-49-bias-1"
+      }
+    ],
+    "safe_finalization_rechecks": {
+      "explicit_finalization_record_count": 8,
+      "optimizer_accepted_total_energy_monotone_for_all_safe_tasks": true,
+      "positive_finalization_recheck_count": 2,
+      "positive_finalization_rechecks": [
+        {
+          "delta_total_energy_eV": 6.103515625e-05,
+          "system": "pdo",
+          "task_id": "pdo-seed-47-bias-1"
+        },
+        {
+          "delta_total_energy_eV": 6.103515625e-05,
+          "system": "pdo",
+          "task_id": "pdo-seed-48-bias-1"
+        }
+      ]
+    },
+    "safe_line_search_label_relation": {
+      "interpretation": "Callback absence is an observer label. Its numerical equality to this ledger's rejected_steps is reported, not promoted to a general semantic identity.",
+      "non_accepted_equals_telemetry_rejected_steps_for_all_tasks": true,
+      "non_accepted_evaluation_count": 27,
+      "task_count": 16,
+      "telemetry_rejected_steps": 27
+    }
+  },
+  "analysis_script_sha256": "8ebdc532af6722a794ef604c43fa6fbd1077e0b04c7885d9696216108ad4b0a4",
+  "cuda_model_provenance": {
+    "cuda_device": "NVIDIA GeForce RTX 3060",
+    "device": "cuda",
+    "model": "/root/.cache/mace/mace-omat-0-small.model",
+    "model_declared_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+    "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+    "source_system_inputs": {
+      "c60": {
+        "declared_sha256": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9",
+        "input": "/mnt/d/download/trae-research-code/ssw/runs/20260428-c60-mace-production/prerelaxed_c60.xyz",
+        "sha256": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9"
+      },
+      "pdo": {
+        "declared_sha256": "68243ceb7c0fbb6ba7a9454d680287eb98c4e5210efbd9ebb63517ba79aaa8b0",
+        "input": "/mnt/d/download/trae-research-code/ssw/PdO.xyz",
+        "sha256": "68243ceb7c0fbb6ba7a9454d680287eb98c4e5210efbd9ebb63517ba79aaa8b0"
+      }
+    },
+    "torch_version": "2.8.0+cu128"
+  },
+  "generator_command": "python runs/20260727-proposal-energy-traces/analyze_traces.py --summary runs/20260727-proposal-energy-traces/output/summary.json --output-dir runs/20260727-proposal-energy-traces",
+  "input_summary_filename": "summary.json",
+  "input_summary_sha256": "652d834cc0ddfec7994094e13b34f0de1101f1e2cb5227e8867e13574be064a7",
+  "plot": {
+    "filename": "proposal_energy_curves.svg",
+    "status": "written"
+  },
+  "reference_summary_sha256": "a11cd8ee1a1dae9cc71cac0038008149b1c0f0cb67ae72ceba8afc821cbdf370",
+  "schema_version": 1,
+  "source_run_git_commit": "28e2a56b80c92dfd32c80cc4e41eefb1c7e53d96",
+  "source_summary_sha256": "62cc771e2aa24e9addef0e870d0524f901f02bddc34152cf2a2eeea91a671b04",
+  "tasks": [
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 3.200213137688479e-05,
+      "accepted_state_count": 75,
+      "accepted_total_energy_excess_auc_eV_evaluations": 41.90050437220708,
+      "accepted_total_energy_increase_count_including_finalization": 2,
+      "all_evaluation_max_total_energy_increase_eV": 3.200213137688479e-05,
+      "all_evaluation_total_energy_increase_count": 2,
+      "backend": "ase-fire",
+      "best_total_energy_eV": -464.66074804395856,
+      "best_total_energy_evaluation_index": 75,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 3.200213137688479e-05,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 2,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 9.768664797838298,
+          "final_minus_initial_eV": 3.703358200705898,
+          "initial_eV": 6.0653065971324
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -464.66074804395856,
+          "final_minus_initial_eV": -6.253062697731593,
+          "initial_eV": -458.40768534622697
+        },
+        "true": {
+          "final_eV": -474.4294128417969,
+          "final_minus_initial_eV": -9.9564208984375,
+          "initial_eV": -464.4729919433594
+        }
+      },
+      "explicit_finalization_evaluation_indices": [],
+      "explicit_finalization_record_count": 0,
+      "final_max_active_atom_force_eV_per_A": 0.04164262515563094,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 75,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 0,
+        "certificate_equal": true,
+        "energy_delta_eV": 5.836256474367474e-05,
+        "energy_within_measured_neighborhood": true,
+        "max_mic_displacement_A": 3.127188794209046e-06,
+        "position_within_measured_neighborhood": true,
+        "rms_mic_displacement_A": 1.5484835587072955e-06,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": null,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": null,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": null,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": null,
+      "seed": 42,
+      "system": "c60",
+      "task_id": "c60-seed-42-bias-1",
+      "telemetry": {
+        "accepted_steps": 0,
+        "explicit_finalization_calls": 0,
+        "line_search_evaluations": 0,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 0
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 2.846266844004276
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.0,
+      "accepted_state_count": 37,
+      "accepted_total_energy_excess_auc_eV_evaluations": 21.413447764399052,
+      "accepted_total_energy_increase_count_including_finalization": 0,
+      "all_evaluation_max_total_energy_increase_eV": 0.022652710581269275,
+      "all_evaluation_total_energy_increase_count": 3,
+      "backend": "safe-lbfgs-total",
+      "best_total_energy_eV": -464.66337713792785,
+      "best_total_energy_evaluation_index": 40,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 9.855543760509637,
+          "final_minus_initial_eV": 3.7902371633772365,
+          "initial_eV": 6.0653065971324
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -464.66337713792785,
+          "final_minus_initial_eV": -6.255691791700883,
+          "initial_eV": -458.40768534622697
+        },
+        "true": {
+          "final_eV": -474.5189208984375,
+          "final_minus_initial_eV": -10.045928955078125,
+          "initial_eV": -464.4729919433594
+        }
+      },
+      "explicit_finalization_evaluation_indices": [],
+      "explicit_finalization_record_count": 0,
+      "final_max_active_atom_force_eV_per_A": 0.03353265959164741,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 40,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 0,
+        "certificate_equal": true,
+        "energy_delta_eV": 6.254868952737525e-05,
+        "energy_within_measured_neighborhood": true,
+        "max_mic_displacement_A": 0.00018307633820120855,
+        "position_within_measured_neighborhood": true,
+        "rms_mic_displacement_A": 7.76833407893161e-05,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 3,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": 0.0,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": 0,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": true,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": true,
+      "seed": 42,
+      "system": "c60",
+      "task_id": "c60-seed-42-bias-1",
+      "telemetry": {
+        "accepted_steps": 36,
+        "explicit_finalization_calls": 0,
+        "line_search_evaluations": 39,
+        "rejected_steps": 3,
+        "reporting_evaluator_calls": 0
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 0.6576192100037588
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.3355638925221456,
+      "accepted_state_count": 118,
+      "accepted_total_energy_excess_auc_eV_evaluations": 193.1047555983768,
+      "accepted_total_energy_increase_count_including_finalization": 3,
+      "all_evaluation_max_total_energy_increase_eV": 0.3355638925221456,
+      "all_evaluation_total_energy_increase_count": 3,
+      "backend": "ase-fire",
+      "best_total_energy_eV": -470.7002402973438,
+      "best_total_energy_evaluation_index": 118,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.3355638925221456,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 3,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 2.581314878437484,
+          "final_minus_initial_eV": -3.4839917186949134,
+          "initial_eV": 6.065306597132397
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -470.7002402973438,
+          "final_minus_initial_eV": -8.765638447210563,
+          "initial_eV": -461.9346018501332
+        },
+        "true": {
+          "final_eV": -473.28155517578125,
+          "final_minus_initial_eV": -5.281646728515625,
+          "initial_eV": -467.9999084472656
+        }
+      },
+      "explicit_finalization_evaluation_indices": [],
+      "explicit_finalization_record_count": 0,
+      "final_max_active_atom_force_eV_per_A": 0.04112855320400032,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 118,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 0,
+        "certificate_equal": true,
+        "energy_delta_eV": 6.170911126446299e-05,
+        "energy_within_measured_neighborhood": true,
+        "max_mic_displacement_A": 1.0690182364490505e-05,
+        "position_within_measured_neighborhood": true,
+        "rms_mic_displacement_A": 3.7506740929795512e-06,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": null,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": null,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": null,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": null,
+      "seed": 43,
+      "system": "c60",
+      "task_id": "c60-seed-43-bias-1",
+      "telemetry": {
+        "accepted_steps": 0,
+        "explicit_finalization_calls": 0,
+        "line_search_evaluations": 0,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 0
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 1.939823630003957
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.0,
+      "accepted_state_count": 61,
+      "accepted_total_energy_excess_auc_eV_evaluations": 91.75862592630861,
+      "accepted_total_energy_increase_count_including_finalization": 0,
+      "all_evaluation_max_total_energy_increase_eV": 0.004906029251515065,
+      "all_evaluation_total_energy_increase_count": 1,
+      "backend": "safe-lbfgs-total",
+      "best_total_energy_eV": -470.7101354758727,
+      "best_total_energy_evaluation_index": 62,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 2.6327905495179715,
+          "final_minus_initial_eV": -3.432516047614426,
+          "initial_eV": 6.065306597132397
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -470.7101354758727,
+          "final_minus_initial_eV": -8.775533625739456,
+          "initial_eV": -461.9346018501332
+        },
+        "true": {
+          "final_eV": -473.3429260253906,
+          "final_minus_initial_eV": -5.343017578125,
+          "initial_eV": -467.9999084472656
+        }
+      },
+      "explicit_finalization_evaluation_indices": [],
+      "explicit_finalization_record_count": 0,
+      "final_max_active_atom_force_eV_per_A": 0.039911962696757036,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 62,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 1,
+        "certificate_equal": true,
+        "energy_delta_eV": -0.00037548796393593875,
+        "energy_within_measured_neighborhood": true,
+        "max_mic_displacement_A": 0.0017199511896030752,
+        "position_within_measured_neighborhood": true,
+        "rms_mic_displacement_A": 0.000862480807492145,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 1,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": 0.0,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": 0,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": true,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": true,
+      "seed": 43,
+      "system": "c60",
+      "task_id": "c60-seed-43-bias-1",
+      "telemetry": {
+        "accepted_steps": 60,
+        "explicit_finalization_calls": 0,
+        "line_search_evaluations": 61,
+        "rejected_steps": 1,
+        "reporting_evaluator_calls": 0
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 1.0194939159991918
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 1.6775577256890983,
+      "accepted_state_count": 401,
+      "accepted_total_energy_excess_auc_eV_evaluations": 1060.9216664421613,
+      "accepted_total_energy_increase_count_including_finalization": 10,
+      "all_evaluation_max_total_energy_increase_eV": 1.6775577256890983,
+      "all_evaluation_total_energy_increase_count": 10,
+      "backend": "ase-fire",
+      "best_total_energy_eV": -472.80421496111023,
+      "best_total_energy_evaluation_index": 401,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 1.6775577256890983,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 10,
+      "certificate_satisfied": false,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 1.0340418748272868,
+          "final_minus_initial_eV": -5.031264722305114,
+          "initial_eV": 6.0653065971324
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -472.80421496111023,
+          "final_minus_initial_eV": -26.297652661758264,
+          "initial_eV": -446.50656229935197
+        },
+        "true": {
+          "final_eV": -473.8382568359375,
+          "final_minus_initial_eV": -21.266387939453125,
+          "initial_eV": -452.5718688964844
+        }
+      },
+      "explicit_finalization_evaluation_indices": [],
+      "explicit_finalization_record_count": 0,
+      "final_max_active_atom_force_eV_per_A": 0.06564806385075023,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 401,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 0,
+        "certificate_equal": true,
+        "energy_delta_eV": 0.16609215868942329,
+        "energy_within_measured_neighborhood": false,
+        "max_mic_displacement_A": 0.10782036027522122,
+        "position_within_measured_neighborhood": false,
+        "rms_mic_displacement_A": 0.07169693409229594,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": null,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": null,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": null,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": null,
+      "seed": 44,
+      "system": "c60",
+      "task_id": "c60-seed-44-bias-1",
+      "telemetry": {
+        "accepted_steps": 0,
+        "explicit_finalization_calls": 0,
+        "line_search_evaluations": 0,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 0
+      },
+      "termination_reason": "maxiter",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 6.703700800993829
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.0,
+      "accepted_state_count": 105,
+      "accepted_total_energy_excess_auc_eV_evaluations": 366.563128836779,
+      "accepted_total_energy_increase_count_including_finalization": 0,
+      "all_evaluation_max_total_energy_increase_eV": 0.0039013006064578803,
+      "all_evaluation_total_energy_increase_count": 1,
+      "backend": "safe-lbfgs-total",
+      "best_total_energy_eV": -474.8992188746909,
+      "best_total_energy_evaluation_index": 106,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 0.12443224835598189,
+          "final_minus_initial_eV": -5.940874348776418,
+          "initial_eV": 6.0653065971324
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -474.8992188746909,
+          "final_minus_initial_eV": -28.392656575338947,
+          "initial_eV": -446.50656229935197
+        },
+        "true": {
+          "final_eV": -475.0236511230469,
+          "final_minus_initial_eV": -22.4517822265625,
+          "initial_eV": -452.5718688964844
+        }
+      },
+      "explicit_finalization_evaluation_indices": [],
+      "explicit_finalization_record_count": 0,
+      "final_max_active_atom_force_eV_per_A": 0.045546053105580075,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 106,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": -1,
+        "certificate_equal": true,
+        "energy_delta_eV": 0.005077152309468147,
+        "energy_within_measured_neighborhood": false,
+        "max_mic_displacement_A": 0.022768171667154825,
+        "position_within_measured_neighborhood": false,
+        "rms_mic_displacement_A": 0.014109717256971865,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 1,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": 0.0,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": 0,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": true,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": true,
+      "seed": 44,
+      "system": "c60",
+      "task_id": "c60-seed-44-bias-1",
+      "telemetry": {
+        "accepted_steps": 104,
+        "explicit_finalization_calls": 0,
+        "line_search_evaluations": 105,
+        "rejected_steps": 1,
+        "reporting_evaluator_calls": 0
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 1.73531225300394
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.029608289074303684,
+      "accepted_state_count": 198,
+      "accepted_total_energy_excess_auc_eV_evaluations": 544.1789578555397,
+      "accepted_total_energy_increase_count_including_finalization": 4,
+      "all_evaluation_max_total_energy_increase_eV": 0.029608289074303684,
+      "all_evaluation_total_energy_increase_count": 4,
+      "backend": "ase-fire",
+      "best_total_energy_eV": -472.6176300244126,
+      "best_total_energy_evaluation_index": 198,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.029608289074303684,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 4,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 2.9162444873061233,
+          "final_minus_initial_eV": -3.149062109826275,
+          "initial_eV": 6.065306597132398
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -472.6176300244126,
+          "final_minus_initial_eV": -10.36973471724815,
+          "initial_eV": -462.24789530716447
+        },
+        "true": {
+          "final_eV": -475.53387451171875,
+          "final_minus_initial_eV": -7.220672607421875,
+          "initial_eV": -468.3132019042969
+        }
+      },
+      "explicit_finalization_evaluation_indices": [],
+      "explicit_finalization_record_count": 0,
+      "final_max_active_atom_force_eV_per_A": 0.047713131239498906,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 198,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 11,
+        "certificate_equal": true,
+        "energy_delta_eV": -0.003544249612502881,
+        "energy_within_measured_neighborhood": false,
+        "max_mic_displacement_A": 0.008200048042840153,
+        "position_within_measured_neighborhood": false,
+        "rms_mic_displacement_A": 0.003201292033038215,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": null,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": null,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": null,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": null,
+      "seed": 45,
+      "system": "c60",
+      "task_id": "c60-seed-45-bias-1",
+      "telemetry": {
+        "accepted_steps": 0,
+        "explicit_finalization_calls": 0,
+        "line_search_evaluations": 0,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 0
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 3.3833375919930404
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.0,
+      "accepted_state_count": 134,
+      "accepted_total_energy_excess_auc_eV_evaluations": 733.9159607954771,
+      "accepted_total_energy_increase_count_including_finalization": 0,
+      "all_evaluation_max_total_energy_increase_eV": 1.4026192422525696,
+      "all_evaluation_total_energy_increase_count": 4,
+      "backend": "safe-lbfgs-total",
+      "best_total_energy_eV": -479.1710371748822,
+      "best_total_energy_evaluation_index": 138,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 1.8816972001178158,
+          "final_minus_initial_eV": -4.183609397014583,
+          "initial_eV": 6.065306597132398
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -479.1710371748822,
+          "final_minus_initial_eV": -16.92314186771773,
+          "initial_eV": -462.24789530716447
+        },
+        "true": {
+          "final_eV": -481.052734375,
+          "final_minus_initial_eV": -12.739532470703125,
+          "initial_eV": -468.3132019042969
+        }
+      },
+      "explicit_finalization_evaluation_indices": [],
+      "explicit_finalization_record_count": 0,
+      "final_max_active_atom_force_eV_per_A": 0.04508199585412902,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 138,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 7,
+        "certificate_equal": true,
+        "energy_delta_eV": -0.003153944349662652,
+        "energy_within_measured_neighborhood": false,
+        "max_mic_displacement_A": 0.028605466328643712,
+        "position_within_measured_neighborhood": false,
+        "rms_mic_displacement_A": 0.011168941563415842,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 4,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": 0.0,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": 0,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": true,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": true,
+      "seed": 45,
+      "system": "c60",
+      "task_id": "c60-seed-45-bias-1",
+      "telemetry": {
+        "accepted_steps": 133,
+        "explicit_finalization_calls": 0,
+        "line_search_evaluations": 137,
+        "rejected_steps": 4,
+        "reporting_evaluator_calls": 0
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 2.335835063000559
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.0,
+      "accepted_state_count": 127,
+      "accepted_total_energy_excess_auc_eV_evaluations": 414.24255397849095,
+      "accepted_total_energy_increase_count_including_finalization": 0,
+      "all_evaluation_max_total_energy_increase_eV": 0.0,
+      "all_evaluation_total_energy_increase_count": 0,
+      "backend": "ase-fire",
+      "best_total_energy_eV": -471.9698079357956,
+      "best_total_energy_evaluation_index": 127,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 2.920176195063763,
+          "final_minus_initial_eV": -3.1451304020686344,
+          "initial_eV": 6.065306597132397
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -471.9698079357956,
+          "final_minus_initial_eV": -12.060962921599867,
+          "initial_eV": -459.9088450141957
+        },
+        "true": {
+          "final_eV": -474.8899841308594,
+          "final_minus_initial_eV": -8.91583251953125,
+          "initial_eV": -465.9741516113281
+        }
+      },
+      "explicit_finalization_evaluation_indices": [],
+      "explicit_finalization_record_count": 0,
+      "final_max_active_atom_force_eV_per_A": 0.04542215799103462,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 127,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 0,
+        "certificate_equal": true,
+        "energy_delta_eV": -3.103860478859133e-05,
+        "energy_within_measured_neighborhood": true,
+        "max_mic_displacement_A": 6.412018404377484e-06,
+        "position_within_measured_neighborhood": true,
+        "rms_mic_displacement_A": 1.7086211253155078e-06,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": null,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": null,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": null,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": null,
+      "seed": 46,
+      "system": "c60",
+      "task_id": "c60-seed-46-bias-1",
+      "telemetry": {
+        "accepted_steps": 0,
+        "explicit_finalization_calls": 0,
+        "line_search_evaluations": 0,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 0
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 2.1388801380089717
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.0,
+      "accepted_state_count": 102,
+      "accepted_total_energy_excess_auc_eV_evaluations": 184.1124148715643,
+      "accepted_total_energy_increase_count_including_finalization": 0,
+      "all_evaluation_max_total_energy_increase_eV": 0.012956703364011446,
+      "all_evaluation_total_energy_increase_count": 4,
+      "backend": "safe-lbfgs-total",
+      "best_total_energy_eV": -472.21434614847783,
+      "best_total_energy_evaluation_index": 106,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 2.7964875917565335,
+          "final_minus_initial_eV": -3.268819005375864,
+          "initial_eV": 6.065306597132397
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -472.21434614847783,
+          "final_minus_initial_eV": -12.305531651860235,
+          "initial_eV": -459.9088144966176
+        },
+        "true": {
+          "final_eV": -475.0108337402344,
+          "final_minus_initial_eV": -9.036712646484375,
+          "initial_eV": -465.97412109375
+        }
+      },
+      "explicit_finalization_evaluation_indices": [],
+      "explicit_finalization_record_count": 0,
+      "final_max_active_atom_force_eV_per_A": 0.04319025108340068,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 106,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 3,
+        "certificate_equal": true,
+        "energy_delta_eV": 0.0024374821911123945,
+        "energy_within_measured_neighborhood": false,
+        "max_mic_displacement_A": 0.020200976980666873,
+        "position_within_measured_neighborhood": false,
+        "rms_mic_displacement_A": 0.006428982027011692,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 4,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": 0.0,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": 0,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": true,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": true,
+      "seed": 46,
+      "system": "c60",
+      "task_id": "c60-seed-46-bias-1",
+      "telemetry": {
+        "accepted_steps": 101,
+        "explicit_finalization_calls": 0,
+        "line_search_evaluations": 105,
+        "rejected_steps": 4,
+        "reporting_evaluator_calls": 0
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 1.7872872479929356
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.0,
+      "accepted_state_count": 69,
+      "accepted_total_energy_excess_auc_eV_evaluations": 63.68642218748715,
+      "accepted_total_energy_increase_count_including_finalization": 0,
+      "all_evaluation_max_total_energy_increase_eV": 0.0,
+      "all_evaluation_total_energy_increase_count": 0,
+      "backend": "ase-fire",
+      "best_total_energy_eV": -468.41837432594804,
+      "best_total_energy_evaluation_index": 69,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 6.7271945217082365,
+          "final_minus_initial_eV": 0.6618879245758391,
+          "initial_eV": 6.065306597132397
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -468.41837432594804,
+          "final_minus_initial_eV": -6.682655532455442,
+          "initial_eV": -461.7357187934926
+        },
+        "true": {
+          "final_eV": -475.14556884765625,
+          "final_minus_initial_eV": -7.34454345703125,
+          "initial_eV": -467.801025390625
+        }
+      },
+      "explicit_finalization_evaluation_indices": [],
+      "explicit_finalization_record_count": 0,
+      "final_max_active_atom_force_eV_per_A": 0.04650422297887692,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 69,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 0,
+        "certificate_equal": true,
+        "energy_delta_eV": 2.1828330432072107e-06,
+        "energy_within_measured_neighborhood": true,
+        "max_mic_displacement_A": 2.6994079598877516e-06,
+        "position_within_measured_neighborhood": true,
+        "rms_mic_displacement_A": 1.2189205790645925e-06,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": null,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": null,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": null,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": null,
+      "seed": 47,
+      "system": "c60",
+      "task_id": "c60-seed-47-bias-1",
+      "telemetry": {
+        "accepted_steps": 0,
+        "explicit_finalization_calls": 0,
+        "line_search_evaluations": 0,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 0
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 1.1335799200023757
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.0,
+      "accepted_state_count": 37,
+      "accepted_total_energy_excess_auc_eV_evaluations": 40.102767824222866,
+      "accepted_total_energy_increase_count_including_finalization": 0,
+      "all_evaluation_max_total_energy_increase_eV": 0.17637583540749802,
+      "all_evaluation_total_energy_increase_count": 1,
+      "backend": "safe-lbfgs-total",
+      "best_total_energy_eV": -468.41945810645916,
+      "best_total_energy_evaluation_index": 38,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 6.771978661118975,
+          "final_minus_initial_eV": 0.706672063986578,
+          "initial_eV": 6.065306597132397
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -468.41945810645916,
+          "final_minus_initial_eV": -6.683769830544691,
+          "initial_eV": -461.73568827591447
+        },
+        "true": {
+          "final_eV": -475.1914367675781,
+          "final_minus_initial_eV": -7.39044189453125,
+          "initial_eV": -467.8009948730469
+        }
+      },
+      "explicit_finalization_evaluation_indices": [],
+      "explicit_finalization_record_count": 0,
+      "final_max_active_atom_force_eV_per_A": 0.040411771538725536,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 38,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 0,
+        "certificate_equal": true,
+        "energy_delta_eV": 5.5942085509741446e-05,
+        "energy_within_measured_neighborhood": true,
+        "max_mic_displacement_A": 0.0005264888139047632,
+        "position_within_measured_neighborhood": true,
+        "rms_mic_displacement_A": 0.0002361027274343981,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 1,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": 0.0,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": 0,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": true,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": true,
+      "seed": 47,
+      "system": "c60",
+      "task_id": "c60-seed-47-bias-1",
+      "telemetry": {
+        "accepted_steps": 36,
+        "explicit_finalization_calls": 0,
+        "line_search_evaluations": 37,
+        "rejected_steps": 1,
+        "reporting_evaluator_calls": 0
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 0.6299352110072505
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 2.4264848704163455,
+      "accepted_state_count": 182,
+      "accepted_total_energy_excess_auc_eV_evaluations": 496.3985914984962,
+      "accepted_total_energy_increase_count_including_finalization": 4,
+      "all_evaluation_max_total_energy_increase_eV": 2.4264848704163455,
+      "all_evaluation_total_energy_increase_count": 4,
+      "backend": "ase-fire",
+      "best_total_energy_eV": -476.2751669775206,
+      "best_total_energy_evaluation_index": 182,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 2.4264848704163455,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 4,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 1.9433388818544035,
+          "final_minus_initial_eV": -4.121967715277995,
+          "initial_eV": 6.065306597132398
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -476.2751669775206,
+          "final_minus_initial_eV": -14.417225283637379,
+          "initial_eV": -461.8579416938832
+        },
+        "true": {
+          "final_eV": -478.218505859375,
+          "final_minus_initial_eV": -10.295257568359375,
+          "initial_eV": -467.9232482910156
+        }
+      },
+      "explicit_finalization_evaluation_indices": [],
+      "explicit_finalization_record_count": 0,
+      "final_max_active_atom_force_eV_per_A": 0.047539784430435446,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 182,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": -3,
+        "certificate_equal": true,
+        "energy_delta_eV": -0.00011047819293708017,
+        "energy_within_measured_neighborhood": true,
+        "max_mic_displacement_A": 0.00011487743754767664,
+        "position_within_measured_neighborhood": true,
+        "rms_mic_displacement_A": 4.5829450400392666e-05,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": null,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": null,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": null,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": null,
+      "seed": 48,
+      "system": "c60",
+      "task_id": "c60-seed-48-bias-1",
+      "telemetry": {
+        "accepted_steps": 0,
+        "explicit_finalization_calls": 0,
+        "line_search_evaluations": 0,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 0
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 3.0160880539915524
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.0,
+      "accepted_state_count": 100,
+      "accepted_total_energy_excess_auc_eV_evaluations": 278.38869172872785,
+      "accepted_total_energy_increase_count_including_finalization": 0,
+      "all_evaluation_max_total_energy_increase_eV": 0.0,
+      "all_evaluation_total_energy_increase_count": 0,
+      "backend": "safe-lbfgs-total",
+      "best_total_energy_eV": -476.30844423077025,
+      "best_total_energy_evaluation_index": 100,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 1.851132185245391,
+          "final_minus_initial_eV": -4.214174411887007,
+          "initial_eV": 6.065306597132398
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -476.30844423077025,
+          "final_minus_initial_eV": -14.45050253688703,
+          "initial_eV": -461.8579416938832
+        },
+        "true": {
+          "final_eV": -478.1595764160156,
+          "final_minus_initial_eV": -10.236328125,
+          "initial_eV": -467.9232482910156
+        }
+      },
+      "explicit_finalization_evaluation_indices": [],
+      "explicit_finalization_record_count": 0,
+      "final_max_active_atom_force_eV_per_A": 0.04029620498405073,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 100,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 21,
+        "certificate_equal": true,
+        "energy_delta_eV": -0.023371017701492747,
+        "energy_within_measured_neighborhood": false,
+        "max_mic_displacement_A": 0.26248425016659443,
+        "position_within_measured_neighborhood": false,
+        "rms_mic_displacement_A": 0.06552365307894088,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": 0.0,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": 0,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": true,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": true,
+      "seed": 48,
+      "system": "c60",
+      "task_id": "c60-seed-48-bias-1",
+      "telemetry": {
+        "accepted_steps": 99,
+        "explicit_finalization_calls": 0,
+        "line_search_evaluations": 99,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 0
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 1.6114240280003287
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.6681592063467292,
+      "accepted_state_count": 173,
+      "accepted_total_energy_excess_auc_eV_evaluations": 357.0715185549548,
+      "accepted_total_energy_increase_count_including_finalization": 4,
+      "all_evaluation_max_total_energy_increase_eV": 0.6681592063467292,
+      "all_evaluation_total_energy_increase_count": 4,
+      "backend": "ase-fire",
+      "best_total_energy_eV": -473.4426954439896,
+      "best_total_energy_evaluation_index": 173,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.6681592063467292,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 4,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 0.9223253079635628,
+          "final_minus_initial_eV": -5.142981289168835,
+          "initial_eV": 6.065306597132398
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -473.4426954439896,
+          "final_minus_initial_eV": -11.933966396590733,
+          "initial_eV": -461.50872904739884
+        },
+        "true": {
+          "final_eV": -474.3650207519531,
+          "final_minus_initial_eV": -6.790985107421875,
+          "initial_eV": -467.57403564453125
+        }
+      },
+      "explicit_finalization_evaluation_indices": [],
+      "explicit_finalization_record_count": 0,
+      "final_max_active_atom_force_eV_per_A": 0.04899211390661504,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 173,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 0,
+        "certificate_equal": true,
+        "energy_delta_eV": 6.369456855281896e-07,
+        "energy_within_measured_neighborhood": true,
+        "max_mic_displacement_A": 5.2928909249135855e-06,
+        "position_within_measured_neighborhood": true,
+        "rms_mic_displacement_A": 2.8887179095271946e-06,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": null,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": null,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": null,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": null,
+      "seed": 49,
+      "system": "c60",
+      "task_id": "c60-seed-49-bias-1",
+      "telemetry": {
+        "accepted_steps": 0,
+        "explicit_finalization_calls": 0,
+        "line_search_evaluations": 0,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 0
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 2.8361252449976746
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.0,
+      "accepted_state_count": 140,
+      "accepted_total_energy_excess_auc_eV_evaluations": 188.16333425429218,
+      "accepted_total_energy_increase_count_including_finalization": 0,
+      "all_evaluation_max_total_energy_increase_eV": 1.3707782230906105,
+      "all_evaluation_total_energy_increase_count": 4,
+      "backend": "safe-lbfgs-total",
+      "best_total_energy_eV": -473.7145060859469,
+      "best_total_energy_evaluation_index": 144,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 0.7860737480374991,
+          "final_minus_initial_eV": -5.2792328490949,
+          "initial_eV": 6.065306597132398
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -473.7145060859469,
+          "final_minus_initial_eV": -12.20574652096991,
+          "initial_eV": -461.50875956497697
+        },
+        "true": {
+          "final_eV": -474.5005798339844,
+          "final_minus_initial_eV": -6.926513671875,
+          "initial_eV": -467.5740661621094
+        }
+      },
+      "explicit_finalization_evaluation_indices": [],
+      "explicit_finalization_record_count": 0,
+      "final_max_active_atom_force_eV_per_A": 0.023493885226414178,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 144,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 1,
+        "certificate_equal": true,
+        "energy_delta_eV": 0.0003896886726693083,
+        "energy_within_measured_neighborhood": true,
+        "max_mic_displacement_A": 0.031171700874766436,
+        "position_within_measured_neighborhood": false,
+        "rms_mic_displacement_A": 0.018608358534914556,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 4,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": 0.0,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": 0,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": true,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": true,
+      "seed": 49,
+      "system": "c60",
+      "task_id": "c60-seed-49-bias-1",
+      "telemetry": {
+        "accepted_steps": 139,
+        "explicit_finalization_calls": 0,
+        "line_search_evaluations": 143,
+        "rejected_steps": 4,
+        "reporting_evaluator_calls": 0
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 2.3123275370016927
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.03495405480930458,
+      "accepted_state_count": 227,
+      "accepted_total_energy_excess_auc_eV_evaluations": 200.7481913169898,
+      "accepted_total_energy_increase_count_including_finalization": 8,
+      "all_evaluation_max_total_energy_increase_eV": 0.03495405480930458,
+      "all_evaluation_total_energy_increase_count": 8,
+      "backend": "ase-fire",
+      "best_total_energy_eV": -566.723469023186,
+      "best_total_energy_evaluation_index": 226,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.03495405480930458,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 8,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 0.6422536330639551,
+          "final_minus_initial_eV": -4.1634107766223,
+          "initial_eV": 4.805664409686255
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -566.723469023186,
+          "final_minus_initial_eV": -9.0374342141223,
+          "initial_eV": -557.6860348090637
+        },
+        "true": {
+          "final_eV": -567.36572265625,
+          "final_minus_initial_eV": -4.8740234375,
+          "initial_eV": -562.49169921875
+        }
+      },
+      "explicit_finalization_evaluation_indices": [
+        227
+      ],
+      "explicit_finalization_record_count": 1,
+      "final_max_active_atom_force_eV_per_A": 0.049534228658030754,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 227,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 0,
+        "certificate_equal": true,
+        "energy_delta_eV": -5.0981759272872296e-05,
+        "energy_within_measured_neighborhood": true,
+        "max_mic_displacement_A": 0.00014194567784542796,
+        "position_within_measured_neighborhood": true,
+        "rms_mic_displacement_A": 2.1618432792204715e-05,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": null,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": null,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": null,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": null,
+      "seed": 42,
+      "system": "pdo",
+      "task_id": "pdo-seed-42-bias-1",
+      "telemetry": {
+        "accepted_steps": 0,
+        "explicit_finalization_calls": 1,
+        "line_search_evaluations": 0,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 1
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 4.791971780010499
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.0,
+      "accepted_state_count": 57,
+      "accepted_total_energy_excess_auc_eV_evaluations": 85.59872939266734,
+      "accepted_total_energy_increase_count_including_finalization": 0,
+      "all_evaluation_max_total_energy_increase_eV": 0.014312310784134752,
+      "all_evaluation_total_energy_increase_count": 1,
+      "backend": "safe-lbfgs-total",
+      "best_total_energy_eV": -566.6805517994391,
+      "best_total_energy_evaluation_index": 57,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 0.3577782786859575,
+          "final_minus_initial_eV": -4.447886131000297,
+          "initial_eV": 4.805664409686255
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -566.6805517994391,
+          "final_minus_initial_eV": -8.99451699037536,
+          "initial_eV": -557.6860348090637
+        },
+        "true": {
+          "final_eV": -567.038330078125,
+          "final_minus_initial_eV": -4.546630859375,
+          "initial_eV": -562.49169921875
+        }
+      },
+      "explicit_finalization_evaluation_indices": [
+        58
+      ],
+      "explicit_finalization_record_count": 1,
+      "final_max_active_atom_force_eV_per_A": 0.045783800023523995,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 58,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 0,
+        "certificate_equal": true,
+        "energy_delta_eV": 0.0060523518908439655,
+        "energy_within_measured_neighborhood": false,
+        "max_mic_displacement_A": 0.05518316924982894,
+        "position_within_measured_neighborhood": false,
+        "rms_mic_displacement_A": 0.008591029784398326,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 1,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": 0.0,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": 0,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": true,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": true,
+      "seed": 42,
+      "system": "pdo",
+      "task_id": "pdo-seed-42-bias-1",
+      "telemetry": {
+        "accepted_steps": 55,
+        "explicit_finalization_calls": 1,
+        "line_search_evaluations": 56,
+        "rejected_steps": 1,
+        "reporting_evaluator_calls": 1
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 1.2283596210036194
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.011692711293790126,
+      "accepted_state_count": 241,
+      "accepted_total_energy_excess_auc_eV_evaluations": 590.6816318853917,
+      "accepted_total_energy_increase_count_including_finalization": 2,
+      "all_evaluation_max_total_energy_increase_eV": 0.011692711293790126,
+      "all_evaluation_total_energy_increase_count": 2,
+      "backend": "ase-fire",
+      "best_total_energy_eV": -566.4831644972202,
+      "best_total_energy_evaluation_index": 240,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.011692711293790126,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 2,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 0.6851704637173177,
+          "final_minus_initial_eV": -5.380136133415187,
+          "initial_eV": 6.065306597132505
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -566.4831644972202,
+          "final_minus_initial_eV": -9.813485742790135,
+          "initial_eV": -556.66967875443
+        },
+        "true": {
+          "final_eV": -567.1683349609375,
+          "final_minus_initial_eV": -4.433349609375,
+          "initial_eV": -562.7349853515625
+        }
+      },
+      "explicit_finalization_evaluation_indices": [
+        241
+      ],
+      "explicit_finalization_record_count": 1,
+      "final_max_active_atom_force_eV_per_A": 0.03956917878738156,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 241,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 0,
+        "certificate_equal": true,
+        "energy_delta_eV": 6.25476740196973e-05,
+        "energy_within_measured_neighborhood": true,
+        "max_mic_displacement_A": 6.166991453349054e-05,
+        "position_within_measured_neighborhood": true,
+        "rms_mic_displacement_A": 1.4450328083672995e-05,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": null,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": null,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": null,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": null,
+      "seed": 43,
+      "system": "pdo",
+      "task_id": "pdo-seed-43-bias-1",
+      "telemetry": {
+        "accepted_steps": 0,
+        "explicit_finalization_calls": 1,
+        "line_search_evaluations": 0,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 1
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 5.086460967999301
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.0,
+      "accepted_state_count": 119,
+      "accepted_total_energy_excess_auc_eV_evaluations": 304.77812784892853,
+      "accepted_total_energy_increase_count_including_finalization": 0,
+      "all_evaluation_max_total_energy_increase_eV": 0.08508360568760054,
+      "all_evaluation_total_energy_increase_count": 2,
+      "backend": "safe-lbfgs-total",
+      "best_total_energy_eV": -566.4820987844492,
+      "best_total_energy_evaluation_index": 120,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 0.687884125706987,
+          "final_minus_initial_eV": -5.377422471425518,
+          "initial_eV": 6.065306597132505
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -566.4820987844492,
+          "final_minus_initial_eV": -9.812420030019211,
+          "initial_eV": -556.66967875443
+        },
+        "true": {
+          "final_eV": -567.1699829101562,
+          "final_minus_initial_eV": -4.43499755859375,
+          "initial_eV": -562.7349853515625
+        }
+      },
+      "explicit_finalization_evaluation_indices": [
+        121
+      ],
+      "explicit_finalization_record_count": 1,
+      "final_max_active_atom_force_eV_per_A": 0.03687419536575827,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 121,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 3,
+        "certificate_equal": true,
+        "energy_delta_eV": 0.0013048129821982002,
+        "energy_within_measured_neighborhood": false,
+        "max_mic_displacement_A": 0.007350652168105617,
+        "position_within_measured_neighborhood": false,
+        "rms_mic_displacement_A": 0.002767634609865296,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 2,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": 0.0,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": 0,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": true,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": true,
+      "seed": 43,
+      "system": "pdo",
+      "task_id": "pdo-seed-43-bias-1",
+      "telemetry": {
+        "accepted_steps": 117,
+        "explicit_finalization_calls": 1,
+        "line_search_evaluations": 119,
+        "rejected_steps": 2,
+        "reporting_evaluator_calls": 1
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 2.5331346430029953
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.02013715841837893,
+      "accepted_state_count": 223,
+      "accepted_total_energy_excess_auc_eV_evaluations": 256.2270678863733,
+      "accepted_total_energy_increase_count_including_finalization": 6,
+      "all_evaluation_max_total_energy_increase_eV": 0.02013715841837893,
+      "all_evaluation_total_energy_increase_count": 6,
+      "backend": "ase-fire",
+      "best_total_energy_eV": -566.638492759204,
+      "best_total_energy_evaluation_index": 222,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.02013715841837893,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 6,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 1.0391195454834876,
+          "final_minus_initial_eV": -4.4429274170281925,
+          "initial_eV": 5.4820469625116806
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -566.638492759204,
+          "final_minus_initial_eV": -8.398066577184522,
+          "initial_eV": -558.2404261820195
+        },
+        "true": {
+          "final_eV": -567.6776123046875,
+          "final_minus_initial_eV": -3.95513916015625,
+          "initial_eV": -563.7224731445312
+        }
+      },
+      "explicit_finalization_evaluation_indices": [
+        223
+      ],
+      "explicit_finalization_record_count": 1,
+      "final_max_active_atom_force_eV_per_A": 0.038743833671097475,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 223,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 0,
+        "certificate_equal": true,
+        "energy_delta_eV": -6.971269078803743e-05,
+        "energy_within_measured_neighborhood": true,
+        "max_mic_displacement_A": 8.04287284408242e-05,
+        "position_within_measured_neighborhood": true,
+        "rms_mic_displacement_A": 2.0714624092105443e-05,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": null,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": null,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": null,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": null,
+      "seed": 44,
+      "system": "pdo",
+      "task_id": "pdo-seed-44-bias-1",
+      "telemetry": {
+        "accepted_steps": 0,
+        "explicit_finalization_calls": 1,
+        "line_search_evaluations": 0,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 1
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 4.710295851997216
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.0,
+      "accepted_state_count": 66,
+      "accepted_total_energy_excess_auc_eV_evaluations": 101.60757950236587,
+      "accepted_total_energy_increase_count_including_finalization": 0,
+      "all_evaluation_max_total_energy_increase_eV": 0.006081280335365591,
+      "all_evaluation_total_energy_increase_count": 1,
+      "backend": "safe-lbfgs-total",
+      "best_total_energy_eV": -566.6146852990133,
+      "best_total_energy_evaluation_index": 66,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 1.114806888486641,
+          "final_minus_initial_eV": -4.367240074025039,
+          "initial_eV": 5.4820469625116806
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -566.6146852990133,
+          "final_minus_initial_eV": -8.374259116993812,
+          "initial_eV": -558.2404261820195
+        },
+        "true": {
+          "final_eV": -567.7294921875,
+          "final_minus_initial_eV": -4.00701904296875,
+          "initial_eV": -563.7224731445312
+        }
+      },
+      "explicit_finalization_evaluation_indices": [
+        67
+      ],
+      "explicit_finalization_record_count": 1,
+      "final_max_active_atom_force_eV_per_A": 0.04551955345000311,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 67,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 6,
+        "certificate_equal": true,
+        "energy_delta_eV": -0.013434840185141184,
+        "energy_within_measured_neighborhood": false,
+        "max_mic_displacement_A": 0.09512942798059129,
+        "position_within_measured_neighborhood": false,
+        "rms_mic_displacement_A": 0.023464318856964532,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 1,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": 0.0,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": 0,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": true,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": true,
+      "seed": 44,
+      "system": "pdo",
+      "task_id": "pdo-seed-44-bias-1",
+      "telemetry": {
+        "accepted_steps": 64,
+        "explicit_finalization_calls": 1,
+        "line_search_evaluations": 65,
+        "rejected_steps": 1,
+        "reporting_evaluator_calls": 1
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 1.3932402160135098
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.009634803360995647,
+      "accepted_state_count": 126,
+      "accepted_total_energy_excess_auc_eV_evaluations": 197.53612468142893,
+      "accepted_total_energy_increase_count_including_finalization": 2,
+      "all_evaluation_max_total_energy_increase_eV": 0.009634803360995647,
+      "all_evaluation_total_energy_increase_count": 2,
+      "backend": "ase-fire",
+      "best_total_energy_eV": -566.2717971066742,
+      "best_total_energy_evaluation_index": 125,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.009634803360995647,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 2,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 0.5615158816070389,
+          "final_minus_initial_eV": -5.503790715525365,
+          "initial_eV": 6.065306597132404
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -566.2717971066742,
+          "final_minus_initial_eV": -9.45221600849402,
+          "initial_eV": -556.8195810981802
+        },
+        "true": {
+          "final_eV": -566.8333129882812,
+          "final_minus_initial_eV": -3.94842529296875,
+          "initial_eV": -562.8848876953125
+        }
+      },
+      "explicit_finalization_evaluation_indices": [
+        126
+      ],
+      "explicit_finalization_record_count": 1,
+      "final_max_active_atom_force_eV_per_A": 0.03915086919727043,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 126,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 0,
+        "certificate_equal": true,
+        "energy_delta_eV": -0.0003254820650226975,
+        "energy_within_measured_neighborhood": true,
+        "max_mic_displacement_A": 0.001543903285424417,
+        "position_within_measured_neighborhood": true,
+        "rms_mic_displacement_A": 0.00029379174201486595,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": null,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": null,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": null,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": null,
+      "seed": 45,
+      "system": "pdo",
+      "task_id": "pdo-seed-45-bias-1",
+      "telemetry": {
+        "accepted_steps": 0,
+        "explicit_finalization_calls": 1,
+        "line_search_evaluations": 0,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 1
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 2.666781127001741
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.0,
+      "accepted_state_count": 64,
+      "accepted_total_energy_excess_auc_eV_evaluations": 177.59903441892538,
+      "accepted_total_energy_increase_count_including_finalization": 0,
+      "all_evaluation_max_total_energy_increase_eV": 0.0,
+      "all_evaluation_total_energy_increase_count": 0,
+      "backend": "safe-lbfgs-total",
+      "best_total_energy_eV": -568.2103917433549,
+      "best_total_energy_evaluation_index": 63,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 0.3107264207075722,
+          "final_minus_initial_eV": -5.754580176424831,
+          "initial_eV": 6.065306597132404
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -568.2103917433549,
+          "final_minus_initial_eV": -11.390932715487224,
+          "initial_eV": -556.8194590278677
+        },
+        "true": {
+          "final_eV": -568.5211181640625,
+          "final_minus_initial_eV": -5.6363525390625,
+          "initial_eV": -562.884765625
+        }
+      },
+      "explicit_finalization_evaluation_indices": [
+        64
+      ],
+      "explicit_finalization_record_count": 1,
+      "final_max_active_atom_force_eV_per_A": 0.04136777303926286,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 64,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 2,
+        "certificate_equal": true,
+        "energy_delta_eV": -0.001976684953547192,
+        "energy_within_measured_neighborhood": false,
+        "max_mic_displacement_A": 0.009461562106505006,
+        "position_within_measured_neighborhood": false,
+        "rms_mic_displacement_A": 0.002750720247513414,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": 0.0,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": 0,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": true,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": true,
+      "seed": 45,
+      "system": "pdo",
+      "task_id": "pdo-seed-45-bias-1",
+      "telemetry": {
+        "accepted_steps": 62,
+        "explicit_finalization_calls": 1,
+        "line_search_evaluations": 62,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 1
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 1.3389449140086072
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.2581266449451505,
+      "accepted_state_count": 402,
+      "accepted_total_energy_excess_auc_eV_evaluations": 892.8140854573933,
+      "accepted_total_energy_increase_count_including_finalization": 16,
+      "all_evaluation_max_total_energy_increase_eV": 0.2581266449451505,
+      "all_evaluation_total_energy_increase_count": 16,
+      "backend": "ase-fire",
+      "best_total_energy_eV": -568.4307228215353,
+      "best_total_energy_evaluation_index": 401,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.2581266449451505,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 16,
+      "certificate_satisfied": false,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 0.24926985424598994,
+          "final_minus_initial_eV": -5.816036742886407,
+          "initial_eV": 6.065306597132397
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -568.4307228215353,
+          "final_minus_initial_eV": -14.378841918667604,
+          "initial_eV": -554.0518809028677
+        },
+        "true": {
+          "final_eV": -568.6799926757812,
+          "final_minus_initial_eV": -8.56280517578125,
+          "initial_eV": -560.1171875
+        }
+      },
+      "explicit_finalization_evaluation_indices": [
+        402
+      ],
+      "explicit_finalization_record_count": 1,
+      "final_max_active_atom_force_eV_per_A": 0.21966274068115463,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 402,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 0,
+        "certificate_equal": true,
+        "energy_delta_eV": -3.2849387935129926e-05,
+        "energy_within_measured_neighborhood": true,
+        "max_mic_displacement_A": 0.0006881305538682014,
+        "position_within_measured_neighborhood": true,
+        "rms_mic_displacement_A": 0.000149180853878411,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": null,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": null,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": null,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": null,
+      "seed": 46,
+      "system": "pdo",
+      "task_id": "pdo-seed-46-bias-1",
+      "telemetry": {
+        "accepted_steps": 0,
+        "explicit_finalization_calls": 1,
+        "line_search_evaluations": 0,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 1
+      },
+      "termination_reason": "maxiter",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 8.464062992992694
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.0,
+      "accepted_state_count": 164,
+      "accepted_total_energy_excess_auc_eV_evaluations": 507.3615135787665,
+      "accepted_total_energy_increase_count_including_finalization": 0,
+      "all_evaluation_max_total_energy_increase_eV": 0.09427631061430475,
+      "all_evaluation_total_energy_increase_count": 5,
+      "backend": "safe-lbfgs-total",
+      "best_total_energy_eV": -569.5651691799508,
+      "best_total_energy_evaluation_index": 168,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 0.3733684177054699,
+          "final_minus_initial_eV": -5.691938179426927,
+          "initial_eV": 6.065306597132397
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -569.5651691799508,
+          "final_minus_initial_eV": -15.51316620677062,
+          "initial_eV": -554.0520029731802
+        },
+        "true": {
+          "final_eV": -569.9385375976562,
+          "final_minus_initial_eV": -9.82122802734375,
+          "initial_eV": -560.1173095703125
+        }
+      },
+      "explicit_finalization_evaluation_indices": [
+        169
+      ],
+      "explicit_finalization_record_count": 1,
+      "final_max_active_atom_force_eV_per_A": 0.03838032172943724,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 169,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": -82,
+        "certificate_equal": true,
+        "energy_delta_eV": 0.59583963348814,
+        "energy_within_measured_neighborhood": false,
+        "max_mic_displacement_A": 1.607512091442052,
+        "position_within_measured_neighborhood": false,
+        "rms_mic_displacement_A": 0.33130631927550536,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 5,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": 0.0,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": 0,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": true,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": true,
+      "seed": 46,
+      "system": "pdo",
+      "task_id": "pdo-seed-46-bias-1",
+      "telemetry": {
+        "accepted_steps": 162,
+        "explicit_finalization_calls": 1,
+        "line_search_evaluations": 167,
+        "rejected_steps": 5,
+        "reporting_evaluator_calls": 1
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 3.510033836006187
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.013197891047070698,
+      "accepted_state_count": 177,
+      "accepted_total_energy_excess_auc_eV_evaluations": 412.5143101606727,
+      "accepted_total_energy_increase_count_including_finalization": 2,
+      "all_evaluation_max_total_energy_increase_eV": 0.013197891047070698,
+      "all_evaluation_total_energy_increase_count": 2,
+      "backend": "ase-fire",
+      "best_total_energy_eV": -570.7016259646664,
+      "best_total_energy_evaluation_index": 176,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.013197891047070698,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 2,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 0.18735108611481988,
+          "final_minus_initial_eV": -5.8779555110175785,
+          "initial_eV": 6.065306597132398
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -570.7016259646664,
+          "final_minus_initial_eV": -15.71639545242374,
+          "initial_eV": -554.9852305122427
+        },
+        "true": {
+          "final_eV": -570.8889770507812,
+          "final_minus_initial_eV": -9.83843994140625,
+          "initial_eV": -561.050537109375
+        }
+      },
+      "explicit_finalization_evaluation_indices": [
+        177
+      ],
+      "explicit_finalization_record_count": 1,
+      "final_max_active_atom_force_eV_per_A": 0.04493506920653097,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 177,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 10,
+        "certificate_equal": true,
+        "energy_delta_eV": -0.0004123329231333628,
+        "energy_within_measured_neighborhood": true,
+        "max_mic_displacement_A": 0.0024144134433133433,
+        "position_within_measured_neighborhood": false,
+        "rms_mic_displacement_A": 0.0005416423221668277,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": null,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": null,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": null,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": null,
+      "seed": 47,
+      "system": "pdo",
+      "task_id": "pdo-seed-47-bias-1",
+      "telemetry": {
+        "accepted_steps": 0,
+        "explicit_finalization_calls": 1,
+        "line_search_evaluations": 0,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 1
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 3.745589440004551
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 6.103515625e-05,
+      "accepted_state_count": 74,
+      "accepted_total_energy_excess_auc_eV_evaluations": 187.94388614483245,
+      "accepted_total_energy_increase_count_including_finalization": 1,
+      "all_evaluation_max_total_energy_increase_eV": 6.103515625e-05,
+      "all_evaluation_total_energy_increase_count": 1,
+      "backend": "safe-lbfgs-total",
+      "best_total_energy_eV": -570.6994606957477,
+      "best_total_energy_evaluation_index": 73,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 0.1881735815960921,
+          "final_minus_initial_eV": -5.877133015536306,
+          "initial_eV": 6.065306597132398
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -570.6993996605914,
+          "final_minus_initial_eV": -15.714169148348788,
+          "initial_eV": -554.9852305122427
+        },
+        "true": {
+          "final_eV": -570.8875732421875,
+          "final_minus_initial_eV": -9.8370361328125,
+          "initial_eV": -561.050537109375
+        }
+      },
+      "explicit_finalization_evaluation_indices": [
+        74
+      ],
+      "explicit_finalization_record_count": 1,
+      "final_max_active_atom_force_eV_per_A": 0.03351864233525915,
+      "finalization_total_energy_delta_eV": 6.103515625e-05,
+      "force_evaluations": 74,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": -3,
+        "certificate_equal": true,
+        "energy_delta_eV": 0.0006294390155971996,
+        "energy_within_measured_neighborhood": false,
+        "max_mic_displacement_A": 0.008426185050562644,
+        "position_within_measured_neighborhood": false,
+        "rms_mic_displacement_A": 0.002665790217151667,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": 0.0,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": 0,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": true,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": true,
+      "seed": 47,
+      "system": "pdo",
+      "task_id": "pdo-seed-47-bias-1",
+      "telemetry": {
+        "accepted_steps": 72,
+        "explicit_finalization_calls": 1,
+        "line_search_evaluations": 72,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 1
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 1.5404704159882385
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 1.4082037478469829,
+      "accepted_state_count": 114,
+      "accepted_total_energy_excess_auc_eV_evaluations": 119.60071328336733,
+      "accepted_total_energy_increase_count_including_finalization": 5,
+      "all_evaluation_max_total_energy_increase_eV": 1.4082037478469829,
+      "all_evaluation_total_energy_increase_count": 5,
+      "backend": "ase-fire",
+      "best_total_energy_eV": -563.2598710768584,
+      "best_total_energy_evaluation_index": 113,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 1.4082037478469829,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 5,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 2.211686540329087,
+          "final_minus_initial_eV": -3.853620056803312,
+          "initial_eV": 6.065306597132399
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -563.2598710768584,
+          "final_minus_initial_eV": -5.9492011114907655,
+          "initial_eV": -557.3106699653677
+        },
+        "true": {
+          "final_eV": -565.4715576171875,
+          "final_minus_initial_eV": -2.0955810546875,
+          "initial_eV": -563.3759765625
+        }
+      },
+      "explicit_finalization_evaluation_indices": [
+        114
+      ],
+      "explicit_finalization_record_count": 1,
+      "final_max_active_atom_force_eV_per_A": 0.03661730261460684,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 114,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 0,
+        "certificate_equal": true,
+        "energy_delta_eV": -1.0796984042826807e-05,
+        "energy_within_measured_neighborhood": true,
+        "max_mic_displacement_A": 3.7221112849862045e-05,
+        "position_within_measured_neighborhood": true,
+        "rms_mic_displacement_A": 1.4381444794163036e-05,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": null,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": null,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": null,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": null,
+      "seed": 48,
+      "system": "pdo",
+      "task_id": "pdo-seed-48-bias-1",
+      "telemetry": {
+        "accepted_steps": 0,
+        "explicit_finalization_calls": 1,
+        "line_search_evaluations": 0,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 1
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 2.4357580250070896
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 6.103515625e-05,
+      "accepted_state_count": 104,
+      "accepted_total_energy_excess_auc_eV_evaluations": 203.53611787568246,
+      "accepted_total_energy_increase_count_including_finalization": 1,
+      "all_evaluation_max_total_energy_increase_eV": 6.103515625e-05,
+      "all_evaluation_total_energy_increase_count": 1,
+      "backend": "safe-lbfgs-total",
+      "best_total_energy_eV": -565.590014790825,
+      "best_total_energy_evaluation_index": 103,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 1.235912943549981,
+          "final_minus_initial_eV": -4.829393653582418,
+          "initial_eV": 6.065306597132399
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -565.5899537556687,
+          "final_minus_initial_eV": -8.279344825457315,
+          "initial_eV": -557.3106089302114
+        },
+        "true": {
+          "final_eV": -566.8258666992188,
+          "final_minus_initial_eV": -3.449951171875,
+          "initial_eV": -563.3759155273438
+        }
+      },
+      "explicit_finalization_evaluation_indices": [
+        104
+      ],
+      "explicit_finalization_record_count": 1,
+      "final_max_active_atom_force_eV_per_A": 0.03968260774105156,
+      "finalization_total_energy_delta_eV": 6.103515625e-05,
+      "force_evaluations": 104,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": -4,
+        "certificate_equal": true,
+        "energy_delta_eV": -0.001128298707385511,
+        "energy_within_measured_neighborhood": false,
+        "max_mic_displacement_A": 0.011260615317239415,
+        "position_within_measured_neighborhood": false,
+        "rms_mic_displacement_A": 0.003532417886808531,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": 0.0,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": 0,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": true,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": true,
+      "seed": 48,
+      "system": "pdo",
+      "task_id": "pdo-seed-48-bias-1",
+      "telemetry": {
+        "accepted_steps": 102,
+        "explicit_finalization_calls": 1,
+        "line_search_evaluations": 102,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 1
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 2.1743125220091315
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.0800342335356845,
+      "accepted_state_count": 200,
+      "accepted_total_energy_excess_auc_eV_evaluations": 378.4387836673965,
+      "accepted_total_energy_increase_count_including_finalization": 2,
+      "all_evaluation_max_total_energy_increase_eV": 0.0800342335356845,
+      "all_evaluation_total_energy_increase_count": 2,
+      "backend": "ase-fire",
+      "best_total_energy_eV": -566.7027197197068,
+      "best_total_energy_evaluation_index": 199,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0800342335356845,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 2,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 0.6673974677931402,
+          "final_minus_initial_eV": -5.397909129339292,
+          "initial_eV": 6.065306597132432
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -566.7027197197068,
+          "final_minus_initial_eV": -10.804769480901768,
+          "initial_eV": -555.897950238805
+        },
+        "true": {
+          "final_eV": -567.3701171875,
+          "final_minus_initial_eV": -5.4068603515625,
+          "initial_eV": -561.9632568359375
+        }
+      },
+      "explicit_finalization_evaluation_indices": [
+        200
+      ],
+      "explicit_finalization_record_count": 1,
+      "final_max_active_atom_force_eV_per_A": 0.042980317782462134,
+      "finalization_total_energy_delta_eV": 0.0,
+      "force_evaluations": 200,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": 4,
+        "certificate_equal": true,
+        "energy_delta_eV": 0.02254718823485291,
+        "energy_within_measured_neighborhood": false,
+        "max_mic_displacement_A": 0.06181919109166908,
+        "position_within_measured_neighborhood": false,
+        "rms_mic_displacement_A": 0.020577872252911498,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": null,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": null,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": null,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": null,
+      "seed": 49,
+      "system": "pdo",
+      "task_id": "pdo-seed-49-bias-1",
+      "telemetry": {
+        "accepted_steps": 0,
+        "explicit_finalization_calls": 1,
+        "line_search_evaluations": 0,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 1
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 4.216071441987879
+    },
+    {
+      "accepted_max_total_energy_increase_including_finalization_eV": 0.0,
+      "accepted_state_count": 92,
+      "accepted_total_energy_excess_auc_eV_evaluations": 240.18271604542605,
+      "accepted_total_energy_increase_count_including_finalization": 0,
+      "all_evaluation_max_total_energy_increase_eV": 0.0,
+      "all_evaluation_total_energy_increase_count": 0,
+      "backend": "safe-lbfgs-total",
+      "best_total_energy_eV": -568.2470256004328,
+      "best_total_energy_evaluation_index": 92,
+      "callback_observed_max_total_energy_increase_excluding_explicit_finalization_eV": 0.0,
+      "callback_observed_total_energy_increase_count_excluding_explicit_finalization": 0,
+      "certificate_satisfied": true,
+      "energy_eV": {
+        "bias": {
+          "final_eV": 0.4822834815984517,
+          "final_minus_initial_eV": -5.5830231155339805,
+          "initial_eV": 6.065306597132432
+        },
+        "softening": {
+          "final_eV": 0.0,
+          "final_minus_initial_eV": 0.0,
+          "initial_eV": 0.0
+        },
+        "total": {
+          "final_eV": -568.2470256004328,
+          "final_minus_initial_eV": -12.349075361627797,
+          "initial_eV": -555.897950238805
+        },
+        "true": {
+          "final_eV": -568.7293090820312,
+          "final_minus_initial_eV": -6.76605224609375,
+          "initial_eV": -561.9632568359375
+        }
+      },
+      "explicit_finalization_evaluation_indices": [
+        92
+      ],
+      "explicit_finalization_record_count": 1,
+      "final_max_active_atom_force_eV_per_A": 0.04995868067753428,
+      "finalization_total_energy_delta_eV": -6.103515625e-05,
+      "force_evaluations": 92,
+      "historical_reference_comparison": {
+        "all_reference_fields_equal": false,
+        "call_delta": -8,
+        "certificate_equal": true,
+        "energy_delta_eV": 0.01739794064474154,
+        "energy_within_measured_neighborhood": false,
+        "max_mic_displacement_A": 0.10292831943203942,
+        "position_within_measured_neighborhood": false,
+        "rms_mic_displacement_A": 0.026527050786300032,
+        "strict_reference_match": false,
+        "termination_equal": true
+      },
+      "non_accepted_evaluation_count": 0,
+      "non_accepted_minus_telemetry_rejected_steps": 0,
+      "safe_lbfgs_accepted_step_max_total_energy_increase_eV": 0.0,
+      "safe_lbfgs_accepted_step_total_energy_increase_count": 0,
+      "safe_lbfgs_accepted_step_total_energy_is_monotone_nonincreasing": true,
+      "safe_lbfgs_callback_trajectory_matches_initial_plus_accepted_steps": true,
+      "seed": 49,
+      "system": "pdo",
+      "task_id": "pdo-seed-49-bias-1",
+      "telemetry": {
+        "accepted_steps": 90,
+        "explicit_finalization_calls": 1,
+        "line_search_evaluations": 90,
+        "rejected_steps": 0,
+        "reporting_evaluator_calls": 1
+      },
+      "termination_reason": "converged",
+      "trace_counter_telemetry_closed": true,
+      "wall_time_s": 1.9351244179997593
+    }
+  ],
+  "validation": {
+    "accepted_state_labels_complete_for_all_rows": true,
+    "all_recorded_energy_and_force_values_finite": true,
+    "trace_counter_telemetry_closed_for_all_rows": true,
+    "trace_row_count": 32
+  }
+}

@@ -1,0 +1,291 @@
+{
+  "analysis_script_sha256": "b7a85196270c07b2ef2660b80b43acae93e2f467e8380d3a7efc78390cb1a167",
+  "by_system_arm": {
+    "c60": {
+      "adaptive-scale-history1": {
+        "certificate_satisfied_count": 8,
+        "force_evaluations": 773,
+        "row_count": 8
+      },
+      "adaptive-scale-history10": {
+        "certificate_satisfied_count": 8,
+        "force_evaluations": 718,
+        "row_count": 8
+      }
+    },
+    "pdo": {
+      "adaptive-scale-history1": {
+        "certificate_satisfied_count": 8,
+        "force_evaluations": 1060,
+        "row_count": 8
+      },
+      "adaptive-scale-history10": {
+        "certificate_satisfied_count": 8,
+        "force_evaluations": 776,
+        "row_count": 8
+      }
+    }
+  },
+  "claim_boundary": "Fixed-task, fixed-model CUDA replay only. Endpoint energy and raw Cartesian position differences are paired diagnostics, not endpoint-equivalence or general SSW evidence.",
+  "execution": {
+    "cuda": {
+      "available": true,
+      "device_name": "NVIDIA GeForce RTX 3060",
+      "requested_device": "cuda",
+      "runtime_version": "12.8"
+    },
+    "execution_commit": "07254df83a1c129e1d6ebc7fe326d2890512761b",
+    "input_sha256": {
+      "c60": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9",
+      "pdo": "68243ceb7c0fbb6ba7a9454d680287eb98c4e5210efbd9ebb63517ba79aaa8b0"
+    },
+    "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+    "pamssw_bundle_sha256": "83a2b845c4bbe0235e8c584a579e1b9f1e89690084c8abdd9ef3aa20c2a09b50",
+    "source_summary_sha256": "62cc771e2aa24e9addef0e870d0524f901f02bddc34152cf2a2eeea91a671b04"
+  },
+  "ledger": {
+    "evaluator_closure_validated": true,
+    "row_count": 32,
+    "task_count": 16
+  },
+  "overall_by_arm": {
+    "adaptive-scale-history1": {
+      "certificate_satisfied_count": 16,
+      "force_evaluations": 1833,
+      "row_count": 16
+    },
+    "adaptive-scale-history10": {
+      "certificate_satisfied_count": 16,
+      "force_evaluations": 1494,
+      "row_count": 16
+    }
+  },
+  "paired_by_system": {
+    "c60": {
+      "force_evaluation_delta_definition": "history10_minus_history1",
+      "force_evaluation_delta_summary": {
+        "higher_count": 4,
+        "lower_count": 3,
+        "median": 0.5,
+        "tie_count": 1
+      },
+      "pairs": [
+        {
+          "endpoint_raw_diagnostics": {
+            "history10_minus_history1_energy_eV": -0.0028121297357301955,
+            "raw_cartesian_max_atom_difference_A": 0.023013000774779704,
+            "raw_cartesian_rms_atom_difference_A": 0.008671937328110302
+          },
+          "history10_force_evaluations": 40,
+          "history10_minus_history1_force_evaluations": 7,
+          "history1_force_evaluations": 33,
+          "seed": 42,
+          "task_id": "c60-seed-42-bias-1"
+        },
+        {
+          "endpoint_raw_diagnostics": {
+            "history10_minus_history1_energy_eV": -0.011827827700756188,
+            "raw_cartesian_max_atom_difference_A": 0.06770540763532742,
+            "raw_cartesian_rms_atom_difference_A": 0.02978826492065763
+          },
+          "history10_force_evaluations": 62,
+          "history10_minus_history1_force_evaluations": 1,
+          "history1_force_evaluations": 61,
+          "seed": 43,
+          "task_id": "c60-seed-43-bias-1"
+        },
+        {
+          "endpoint_raw_diagnostics": {
+            "history10_minus_history1_energy_eV": -0.22206813373452405,
+            "raw_cartesian_max_atom_difference_A": 1.2537104627622568,
+            "raw_cartesian_rms_atom_difference_A": 0.46569745058941625
+          },
+          "history10_force_evaluations": 108,
+          "history10_minus_history1_force_evaluations": -46,
+          "history1_force_evaluations": 154,
+          "seed": 44,
+          "task_id": "c60-seed-44-bias-1"
+        },
+        {
+          "endpoint_raw_diagnostics": {
+            "history10_minus_history1_energy_eV": 0.0015663973012465249,
+            "raw_cartesian_max_atom_difference_A": 0.1884146910064774,
+            "raw_cartesian_rms_atom_difference_A": 0.03497459533823529
+          },
+          "history10_force_evaluations": 153,
+          "history10_minus_history1_force_evaluations": -54,
+          "history1_force_evaluations": 207,
+          "seed": 45,
+          "task_id": "c60-seed-45-bias-1"
+        },
+        {
+          "endpoint_raw_diagnostics": {
+            "history10_minus_history1_energy_eV": 0.5879392484940809,
+            "raw_cartesian_max_atom_difference_A": 0.8286783191557359,
+            "raw_cartesian_rms_atom_difference_A": 0.47279135155122304
+          },
+          "history10_force_evaluations": 106,
+          "history10_minus_history1_force_evaluations": 30,
+          "history1_force_evaluations": 76,
+          "seed": 46,
+          "task_id": "c60-seed-46-bias-1"
+        },
+        {
+          "endpoint_raw_diagnostics": {
+            "history10_minus_history1_energy_eV": -0.002280946398911965,
+            "raw_cartesian_max_atom_difference_A": 0.02142473305573938,
+            "raw_cartesian_rms_atom_difference_A": 0.009469271173093029
+          },
+          "history10_force_evaluations": 38,
+          "history10_minus_history1_force_evaluations": 0,
+          "history1_force_evaluations": 38,
+          "seed": 47,
+          "task_id": "c60-seed-47-bias-1"
+        },
+        {
+          "endpoint_raw_diagnostics": {
+            "history10_minus_history1_energy_eV": -1.924393040655616,
+            "raw_cartesian_max_atom_difference_A": 1.0501042196397308,
+            "raw_cartesian_rms_atom_difference_A": 0.2410402508003395
+          },
+          "history10_force_evaluations": 80,
+          "history10_minus_history1_force_evaluations": -21,
+          "history1_force_evaluations": 101,
+          "seed": 48,
+          "task_id": "c60-seed-48-bias-1"
+        },
+        {
+          "endpoint_raw_diagnostics": {
+            "history10_minus_history1_energy_eV": -0.13725936389437265,
+            "raw_cartesian_max_atom_difference_A": 0.7703272427957746,
+            "raw_cartesian_rms_atom_difference_A": 0.5023647730033608
+          },
+          "history10_force_evaluations": 131,
+          "history10_minus_history1_force_evaluations": 28,
+          "history1_force_evaluations": 103,
+          "seed": 49,
+          "task_id": "c60-seed-49-bias-1"
+        }
+      ]
+    },
+    "pdo": {
+      "force_evaluation_delta_definition": "history10_minus_history1",
+      "force_evaluation_delta_summary": {
+        "higher_count": 1,
+        "lower_count": 7,
+        "median": -42.0,
+        "tie_count": 0
+      },
+      "pairs": [
+        {
+          "endpoint_raw_diagnostics": {
+            "history10_minus_history1_energy_eV": -0.3676410592763659,
+            "raw_cartesian_max_atom_difference_A": 13.741120842720981,
+            "raw_cartesian_rms_atom_difference_A": 1.3048877156347636
+          },
+          "history10_force_evaluations": 84,
+          "history10_minus_history1_force_evaluations": -9,
+          "history1_force_evaluations": 93,
+          "seed": 42,
+          "task_id": "pdo-seed-42-bias-1"
+        },
+        {
+          "endpoint_raw_diagnostics": {
+            "history10_minus_history1_energy_eV": -1.0368608133380803,
+            "raw_cartesian_max_atom_difference_A": 13.915987502963086,
+            "raw_cartesian_rms_atom_difference_A": 2.820186216625381
+          },
+          "history10_force_evaluations": 118,
+          "history10_minus_history1_force_evaluations": 9,
+          "history1_force_evaluations": 109,
+          "seed": 43,
+          "task_id": "pdo-seed-43-bias-1"
+        },
+        {
+          "endpoint_raw_diagnostics": {
+            "history10_minus_history1_energy_eV": 0.03856895064109267,
+            "raw_cartesian_max_atom_difference_A": 0.2805980678927405,
+            "raw_cartesian_rms_atom_difference_A": 0.06183966046024404
+          },
+          "history10_force_evaluations": 64,
+          "history10_minus_history1_force_evaluations": -57,
+          "history1_force_evaluations": 121,
+          "seed": 44,
+          "task_id": "pdo-seed-44-bias-1"
+        },
+        {
+          "endpoint_raw_diagnostics": {
+            "history10_minus_history1_energy_eV": -1.2120653500190883,
+            "raw_cartesian_max_atom_difference_A": 13.719522013739102,
+            "raw_cartesian_rms_atom_difference_A": 2.8787310264285226
+          },
+          "history10_force_evaluations": 64,
+          "history10_minus_history1_force_evaluations": -64,
+          "history1_force_evaluations": 128,
+          "seed": 45,
+          "task_id": "pdo-seed-45-bias-1"
+        },
+        {
+          "endpoint_raw_diagnostics": {
+            "history10_minus_history1_energy_eV": -0.013736586161030573,
+            "raw_cartesian_max_atom_difference_A": 13.73222200835626,
+            "raw_cartesian_rms_atom_difference_A": 1.2809623683176727
+          },
+          "history10_force_evaluations": 169,
+          "history10_minus_history1_force_evaluations": -45,
+          "history1_force_evaluations": 214,
+          "seed": 46,
+          "task_id": "pdo-seed-46-bias-1"
+        },
+        {
+          "endpoint_raw_diagnostics": {
+            "history10_minus_history1_energy_eV": 0.00023490940338888322,
+            "raw_cartesian_max_atom_difference_A": 13.743510928794935,
+            "raw_cartesian_rms_atom_difference_A": 1.2816527802173068
+          },
+          "history10_force_evaluations": 75,
+          "history10_minus_history1_force_evaluations": -5,
+          "history1_force_evaluations": 80,
+          "seed": 47,
+          "task_id": "pdo-seed-47-bias-1"
+        },
+        {
+          "endpoint_raw_diagnostics": {
+            "history10_minus_history1_energy_eV": -6.115552071150887e-05,
+            "raw_cartesian_max_atom_difference_A": 0.20101273198150302,
+            "raw_cartesian_rms_atom_difference_A": 0.05762754609727988
+          },
+          "history10_force_evaluations": 107,
+          "history10_minus_history1_force_evaluations": -39,
+          "history1_force_evaluations": 146,
+          "seed": 48,
+          "task_id": "pdo-seed-48-bias-1"
+        },
+        {
+          "endpoint_raw_diagnostics": {
+            "history10_minus_history1_energy_eV": -0.730746619231013,
+            "raw_cartesian_max_atom_difference_A": 13.716847057222246,
+            "raw_cartesian_rms_atom_difference_A": 3.2655009731619704
+          },
+          "history10_force_evaluations": 95,
+          "history10_minus_history1_force_evaluations": -74,
+          "history1_force_evaluations": 169,
+          "seed": 49,
+          "task_id": "pdo-seed-49-bias-1"
+        }
+      ]
+    }
+  },
+  "raw_files": {
+    "c60.json": {
+      "sha256": "4099308a813e0f4717031c9ac8db531d8d36789f63d995bd1e600a27b8029d38"
+    },
+    "pdo.json": {
+      "sha256": "df5a1f91ff87496f91008827da0fc6a126c53aec8bf31824b1f466e52a2a32c4"
+    },
+    "summary.json": {
+      "sha256": "ba0c8cf07c3ab4c87c90a536f5dfc27191d516392fa21778d8a60e4f4ad62c51"
+    }
+  },
+  "schema_version": 1
+}

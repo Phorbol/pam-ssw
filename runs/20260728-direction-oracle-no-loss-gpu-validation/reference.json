@@ -1,0 +1,559 @@
+{
+  "old_output_root": "/tmp/SSW-worktrees/safe-lbfgs-history-depth/runs/20260728-safe-lbfgs-200-production/output",
+  "schema_version": 1,
+  "systems": {
+    "c60": {
+      "direction_trace": [
+        {
+          "anchor_cosine": 0.1688207095833607,
+          "candidate_count": 12,
+          "curvature": 34.62196328401626,
+          "proposal": 0,
+          "selected_kind": "random",
+          "step": 0,
+          "trial": 0
+        },
+        {
+          "anchor_cosine": 0.1122823141861439,
+          "candidate_count": 13,
+          "curvature": 5.9914854991897455,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 1,
+          "trial": 0
+        },
+        {
+          "anchor_cosine": 0.013627577349229187,
+          "candidate_count": 13,
+          "curvature": 14.33333093876145,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 2,
+          "trial": 0
+        },
+        {
+          "anchor_cosine": 0.06408150614961526,
+          "candidate_count": 12,
+          "curvature": 20.588905077665892,
+          "proposal": 0,
+          "selected_kind": "bond",
+          "step": 0,
+          "trial": 1
+        },
+        {
+          "anchor_cosine": 0.0039027855305154594,
+          "candidate_count": 13,
+          "curvature": 7.399417358341901,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 1,
+          "trial": 1
+        },
+        {
+          "anchor_cosine": -0.044418154878554855,
+          "candidate_count": 13,
+          "curvature": 2.7702683422925993,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 2,
+          "trial": 1
+        },
+        {
+          "anchor_cosine": -0.05078849186624859,
+          "candidate_count": 13,
+          "curvature": 1.378245407282275,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 3,
+          "trial": 1
+        },
+        {
+          "anchor_cosine": -0.0033267205892298134,
+          "candidate_count": 13,
+          "curvature": 0.3891412435990285,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 4,
+          "trial": 1
+        },
+        {
+          "anchor_cosine": -0.12033105687867178,
+          "candidate_count": 13,
+          "curvature": 6.692965991375244,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 5,
+          "trial": 1
+        },
+        {
+          "anchor_cosine": -0.14130369558906133,
+          "candidate_count": 13,
+          "curvature": 2.1119369500921947,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 6,
+          "trial": 1
+        },
+        {
+          "anchor_cosine": -0.11165892941815236,
+          "candidate_count": 13,
+          "curvature": 1.08734744249672,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 7,
+          "trial": 1
+        },
+        {
+          "anchor_cosine": 0.04977707945192942,
+          "candidate_count": 12,
+          "curvature": 38.256058151528336,
+          "proposal": 0,
+          "selected_kind": "random",
+          "step": 0,
+          "trial": 2
+        },
+        {
+          "anchor_cosine": 0.07284337939103189,
+          "candidate_count": 13,
+          "curvature": 2.653964952352625,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 1,
+          "trial": 2
+        },
+        {
+          "anchor_cosine": -0.020499546060133596,
+          "candidate_count": 13,
+          "curvature": 12.389930104247213,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 2,
+          "trial": 2
+        },
+        {
+          "anchor_cosine": -0.0001343761427954167,
+          "candidate_count": 13,
+          "curvature": 38.87731904166662,
+          "proposal": 0,
+          "selected_kind": "random",
+          "step": 3,
+          "trial": 2
+        },
+        {
+          "anchor_cosine": -0.042280693503108535,
+          "candidate_count": 13,
+          "curvature": 7.265035217765157,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 4,
+          "trial": 2
+        },
+        {
+          "anchor_cosine": 0.045487284657858375,
+          "candidate_count": 13,
+          "curvature": 3.9081704050745785,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 5,
+          "trial": 2
+        },
+        {
+          "anchor_cosine": 0.23793381646476042,
+          "candidate_count": 13,
+          "curvature": 32.4920898352675,
+          "proposal": 0,
+          "selected_kind": "random",
+          "step": 6,
+          "trial": 2
+        },
+        {
+          "anchor_cosine": 0.11889642929711763,
+          "candidate_count": 12,
+          "curvature": 41.46077080396155,
+          "proposal": 0,
+          "selected_kind": "random",
+          "step": 0,
+          "trial": 3
+        },
+        {
+          "anchor_cosine": 0.08145622970262581,
+          "candidate_count": 13,
+          "curvature": 6.376269117088181,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 1,
+          "trial": 3
+        },
+        {
+          "anchor_cosine": 0.003573874379896751,
+          "candidate_count": 13,
+          "curvature": 9.160836090842222,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 2,
+          "trial": 3
+        },
+        {
+          "anchor_cosine": 0.018150046292484068,
+          "candidate_count": 13,
+          "curvature": 21.230407087489674,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 3,
+          "trial": 3
+        },
+        {
+          "anchor_cosine": -0.0800118032010602,
+          "candidate_count": 13,
+          "curvature": 9.158854515855552,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 4,
+          "trial": 3
+        },
+        {
+          "anchor_cosine": -0.006552701865271578,
+          "candidate_count": 13,
+          "curvature": 3.7163562126101137,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 5,
+          "trial": 3
+        },
+        {
+          "anchor_cosine": 0.05722255920893973,
+          "candidate_count": 13,
+          "curvature": 1.6497536540212425,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 6,
+          "trial": 3
+        },
+        {
+          "anchor_cosine": 0.0823097950455093,
+          "candidate_count": 13,
+          "curvature": 0.7715153874485506,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 7,
+          "trial": 3
+        },
+        {
+          "anchor_cosine": 0.12952481681827568,
+          "candidate_count": 12,
+          "curvature": 30.653759623491148,
+          "proposal": 0,
+          "selected_kind": "random",
+          "step": 0,
+          "trial": 4
+        },
+        {
+          "anchor_cosine": 0.06420739895122297,
+          "candidate_count": 13,
+          "curvature": 3.5964486704529914,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 1,
+          "trial": 4
+        },
+        {
+          "anchor_cosine": -0.0013781466952064382,
+          "candidate_count": 13,
+          "curvature": 4.017754552183371,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 2,
+          "trial": 4
+        },
+        {
+          "anchor_cosine": 0.17884551567439974,
+          "candidate_count": 13,
+          "curvature": 42.33919605446475,
+          "proposal": 0,
+          "selected_kind": "random",
+          "step": 3,
+          "trial": 4
+        },
+        {
+          "anchor_cosine": 0.0427777024403763,
+          "candidate_count": 13,
+          "curvature": 4.144924313710311,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 4,
+          "trial": 4
+        },
+        {
+          "anchor_cosine": 0.018019413144866683,
+          "candidate_count": 13,
+          "curvature": 2.5049353486834622,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 5,
+          "trial": 4
+        },
+        {
+          "anchor_cosine": 0.17792382447382865,
+          "candidate_count": 13,
+          "curvature": 42.55837810125068,
+          "proposal": 0,
+          "selected_kind": "random",
+          "step": 6,
+          "trial": 4
+        },
+        {
+          "anchor_cosine": 0.02276711666598759,
+          "candidate_count": 13,
+          "curvature": 6.052980433979642,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 7,
+          "trial": 4
+        }
+      ],
+      "energy_trace": [
+        {
+          "accepted_new_basin": true,
+          "best_energy_eV": -474.66961669921875,
+          "energy_eV": -474.66961669921875,
+          "trial": 0
+        },
+        {
+          "accepted_new_basin": true,
+          "best_energy_eV": -478.7997741699219,
+          "energy_eV": -478.7997741699219,
+          "trial": 1
+        },
+        {
+          "accepted_new_basin": true,
+          "best_energy_eV": -482.3841857910156,
+          "energy_eV": -482.3841857910156,
+          "trial": 2
+        },
+        {
+          "accepted_new_basin": true,
+          "best_energy_eV": -484.0029296875,
+          "energy_eV": -484.0029296875,
+          "trial": 3
+        },
+        {
+          "accepted_new_basin": true,
+          "best_energy_eV": -485.265869140625,
+          "energy_eV": -485.265869140625,
+          "trial": 4
+        },
+        {
+          "accepted_new_basin": true,
+          "best_energy_eV": -489.45782470703125,
+          "energy_eV": -489.45782470703125,
+          "trial": 5
+        }
+      ],
+      "old_artifact_sha256": {
+        "direction_trace": "d316f989e486345f5a9bceeef7cffba1282c6b1dd53427d564bc536afc7a22af",
+        "energy_trace": "0f7069f120873ccbed045423daac9fcdb16de0a9e0766291bf9de70bcfcb7600",
+        "summary": "90f169327ef315ef4447c702de5f89b62bd1d38b02affaa987dbf6a0917d5c2c",
+        "walk_records": "ad56466588e01996c96b22804378dad24f4c36c428c1ef4c0ab31f52019dbf22"
+      },
+      "old_execution_commit": "b2dc9c46932533f8f5be9262ca89555538e40159",
+      "system": "c60",
+      "walk_records": [
+        {
+          "accepted_new_basin": true,
+          "discovered_entry_id": 1,
+          "energy_eV": -478.7997741699219,
+          "seed_entry_id": 0,
+          "trial": 1
+        },
+        {
+          "accepted_new_basin": true,
+          "discovered_entry_id": 2,
+          "energy_eV": -482.3841857910156,
+          "seed_entry_id": 1,
+          "trial": 2
+        },
+        {
+          "accepted_new_basin": true,
+          "discovered_entry_id": 3,
+          "energy_eV": -484.0029296875,
+          "seed_entry_id": 2,
+          "trial": 3
+        },
+        {
+          "accepted_new_basin": true,
+          "discovered_entry_id": 4,
+          "energy_eV": -485.265869140625,
+          "seed_entry_id": 3,
+          "trial": 4
+        },
+        {
+          "accepted_new_basin": true,
+          "discovered_entry_id": 5,
+          "energy_eV": -489.45782470703125,
+          "seed_entry_id": 4,
+          "trial": 5
+        }
+      ]
+    },
+    "pdo": {
+      "direction_trace": [
+        {
+          "anchor_cosine": 0.16332657139080378,
+          "candidate_count": 8,
+          "curvature": 8.762481260335452,
+          "proposal": 0,
+          "selected_kind": "bond",
+          "step": 0,
+          "trial": 0
+        },
+        {
+          "anchor_cosine": 0.08859623471621164,
+          "candidate_count": 8,
+          "curvature": 8.54368797061403,
+          "proposal": 0,
+          "selected_kind": "random",
+          "step": 0,
+          "trial": 1
+        },
+        {
+          "anchor_cosine": -0.12318372986084648,
+          "candidate_count": 9,
+          "curvature": 5.163374322975179,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 1,
+          "trial": 1
+        },
+        {
+          "anchor_cosine": 0.09401939231477739,
+          "candidate_count": 8,
+          "curvature": 10.293627066895962,
+          "proposal": 0,
+          "selected_kind": "random",
+          "step": 0,
+          "trial": 2
+        },
+        {
+          "anchor_cosine": 0.042355202936151366,
+          "candidate_count": 9,
+          "curvature": 2.92253387306337,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 1,
+          "trial": 2
+        },
+        {
+          "anchor_cosine": 0.11799851469397514,
+          "candidate_count": 8,
+          "curvature": 10.32784413285968,
+          "proposal": 0,
+          "selected_kind": "random",
+          "step": 0,
+          "trial": 3
+        },
+        {
+          "anchor_cosine": 0.10382972733569679,
+          "candidate_count": 8,
+          "curvature": 9.50376461654678,
+          "proposal": 0,
+          "selected_kind": "random",
+          "step": 0,
+          "trial": 4
+        },
+        {
+          "anchor_cosine": 0.04208725577717124,
+          "candidate_count": 9,
+          "curvature": 4.544587728146607,
+          "proposal": 0,
+          "selected_kind": "momentum",
+          "step": 1,
+          "trial": 4
+        }
+      ],
+      "energy_trace": [
+        {
+          "accepted_new_basin": true,
+          "best_energy_eV": -568.3970336914062,
+          "energy_eV": -568.3970336914062,
+          "trial": 0
+        },
+        {
+          "accepted_new_basin": true,
+          "best_energy_eV": -569.4188232421875,
+          "energy_eV": -569.4188232421875,
+          "trial": 1
+        },
+        {
+          "accepted_new_basin": true,
+          "best_energy_eV": -569.7774047851562,
+          "energy_eV": -569.7774047851562,
+          "trial": 2
+        },
+        {
+          "accepted_new_basin": true,
+          "best_energy_eV": -569.7774047851562,
+          "energy_eV": -569.7725830078125,
+          "trial": 3
+        },
+        {
+          "accepted_new_basin": true,
+          "best_energy_eV": -569.7774047851562,
+          "energy_eV": -569.0,
+          "trial": 4
+        },
+        {
+          "accepted_new_basin": true,
+          "best_energy_eV": -570.5994262695312,
+          "energy_eV": -570.5994262695312,
+          "trial": 5
+        }
+      ],
+      "old_artifact_sha256": {
+        "direction_trace": "a8aa2fa1c166e598f77a781f9dd5f2e2f05a524dcee18d70d01dbeb5df62808f",
+        "energy_trace": "3615e9bf89a4e6df672dd25c79f8b54bb6ef6e6df497fa7f4a80d92a84f83a12",
+        "summary": "94c6b8d17bb5b7a8c1a8ccbd51cdd0205bc82a595fc1c128f5b6fc56bb45ec95",
+        "walk_records": "6c7035821c0ded633c538cd9b202f2dce5486fc15bf2d542872f88ff7a74d35e"
+      },
+      "old_execution_commit": "b2dc9c46932533f8f5be9262ca89555538e40159",
+      "system": "pdo",
+      "walk_records": [
+        {
+          "accepted_new_basin": true,
+          "discovered_entry_id": 1,
+          "energy_eV": -569.4188232421875,
+          "seed_entry_id": 0,
+          "trial": 1
+        },
+        {
+          "accepted_new_basin": true,
+          "discovered_entry_id": 2,
+          "energy_eV": -569.7774047851562,
+          "seed_entry_id": 1,
+          "trial": 2
+        },
+        {
+          "accepted_new_basin": true,
+          "discovered_entry_id": 3,
+          "energy_eV": -569.7725830078125,
+          "seed_entry_id": 2,
+          "trial": 3
+        },
+        {
+          "accepted_new_basin": true,
+          "discovered_entry_id": 4,
+          "energy_eV": -569.0,
+          "seed_entry_id": 2,
+          "trial": 4
+        },
+        {
+          "accepted_new_basin": true,
+          "discovered_entry_id": 5,
+          "energy_eV": -570.5994262695312,
+          "seed_entry_id": 3,
+          "trial": 5
+        }
+      ]
+    }
+  },
+  "trial_count": 5
+}

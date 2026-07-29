@@ -152,15 +152,15 @@ Bandit score(i) = -β·E_norm + w_nov·novelty - w_den·log(1+density) + c·√(
 | `local_softening_active_count` | `None` | `active_neighbors` 模式下最多选取多少个位移最大的 movable atoms；`None` 表示全部 movable atoms。 |
 | `local_softening_strength` | `0.6` | 基础 softening 强度。默认全局固定；开启 adaptive strength 后作为基准强度。 |
 | `local_softening_pairs` | `[]` | 仅 `manual` 模式使用的 pair 列表 `[(i,j), ...]`。 |
-| `local_softening_penalty` | `"gaussian_well"` | pair penalty kernel。可选 `"gaussian_well"` 或 `"buckingham_repulsive"`。默认不变。 |
-| `local_softening_xi` | `0.5` | Buckingham repulsive 的指数衰减长度。 |
-| `local_softening_cutoff` | `3.0` | Buckingham 在 `r > r0 + cutoff` 时截断；`None` 表示不截断。 |
+| `local_softening_penalty` | `"buckingham_repulsive"` | pair penalty kernel。可选 `"gaussian_well"` 或 `"buckingham_repulsive"`。 |
+| `local_softening_xi` | `0.3` | Buckingham repulsive 的指数衰减长度。 |
+| `local_softening_cutoff` | `2.0` | Buckingham 在 `r > r0 + cutoff` 时截断；`None` 表示不截断。 |
 | `local_softening_adaptive_strength` | `False` | 是否按当前 `|r-r0|` 放大 pair strength，近似 step-dependent `A_pq^(h)`。默认关闭。 |
 | `local_softening_max_strength_scale` | `3.0` | adaptive strength 最大放大倍数。 |
 | `local_softening_deviation_scale` | `0.25` | adaptive strength 的距离偏移归一化尺度，单位为 `r0` 的倍数。 |
 
-默认 penalty kernel: `E = Σ strength·exp(-1/2*((r_ij - r0_ij)/tau_ij)^2)`，`tau = max(0.15, 0.25*r0)`。
-`buckingham_repulsive` 形式为 `E = strength*exp(-(r-r0)/xi)`，可选远程截断。adaptive strength 已实现为可关闭近似：随 `|r-r0|/(local_softening_deviation_scale*r0)` 放大到 `local_softening_max_strength_scale`，但默认关闭，生产默认仍是 `gaussian_well + fixed strength`。是否切换默认值应通过 auto-pair baseline 上的 ablation 决定。
+`gaussian_well` 形式为 `E = Σ strength·exp(-1/2*((r_ij - r0_ij)/tau_ij)^2)`，`tau = max(0.15, 0.25*r0)`。
+当前默认 `buckingham_repulsive` 形式为 `E = strength*exp(-(r-r0)/xi)`，可选远程截断。adaptive strength 已实现为可关闭近似：随 `|r-r0|/(local_softening_deviation_scale*r0)` 放大到 `local_softening_max_strength_scale`，但默认关闭。
 
 运行统计：
 

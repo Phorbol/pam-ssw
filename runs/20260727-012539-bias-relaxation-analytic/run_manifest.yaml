@@ -1,0 +1,28 @@
+schema_version: 1
+run_id: 20260727-012539-bias-relaxation-analytic
+git_commit: cd03704a56dd85c9257448faf998fa3229a897b5
+worktree_clean_before_run: true
+harness:
+  path: benchmarks/bias_relaxation_compare.py
+  sha256: bea1aad3e1d43907df1190e7c295300ba79f4f21446c15c0c43b8e6140fe7f36
+command:
+  - python
+  - benchmarks/bias_relaxation_compare.py
+  - --output
+  - runs/20260727-012539-bias-relaxation-analytic/raw_results.json
+environment:
+  python: 3.12.12
+  numpy: 2.4.3
+  scipy: 1.17.1
+  ase: 3.28.0
+backends:
+  - ase-fire
+  - ase-fire2
+  - safe-lbfgs-total
+  - bias-separated-lbfgs
+shared_controls:
+  fmax: 1.0e-6
+  maxiter: 400
+execution_count: 1
+retry_after_physical_calls: false
+output_policy: raw_rows_without_ranking

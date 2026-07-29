@@ -1,0 +1,984 @@
+{
+  "schema_version": 1,
+  "frozen_code_commit": "61f32ef70585adfd78b1484bd6f0cfcac8317352",
+  "systems": [
+    "c60",
+    "pdo"
+  ],
+  "backends": [
+    "ase-fire",
+    "safe-lbfgs-total"
+  ],
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "policy_name": "uniform",
+  "batch_size": 2,
+  "max_workers": 2,
+  "action_force_budget": 1000,
+  "total_force_budget": 3000,
+  "certified_state_source_sha256": "62cc771e2aa24e9addef0e870d0524f901f02bddc34152cf2a2eeea91a671b04",
+  "wall_time_total_s": 524.1507734059996,
+  "rows": [
+    {
+      "system": "c60",
+      "backend": "ase-fire",
+      "seed": 42,
+      "policy_name": "uniform",
+      "batch_size": 2,
+      "max_workers": 2,
+      "action_force_budget": 1000,
+      "total_force_budget": 3000,
+      "bootstrap_evaluations": 2,
+      "action_evaluations": 2392,
+      "total_evaluations": 2394,
+      "unused_force_budget": 606,
+      "purpose_counts": {
+        "biased_proposal_relax": 1476,
+        "bootstrap_true_quench": 1,
+        "direction_oracle": 512,
+        "escape_true_pes_check": 115,
+        "landing_true_quench": 257,
+        "post_relax_validation": 11,
+        "starter_true_quench": 22,
+        "unattributed": 0
+      },
+      "completed_batches": 3,
+      "completed_attempts": 5,
+      "failed_attempts": 0,
+      "posterior_observed_attempts": 5,
+      "stop_reason": "budget_tail",
+      "benchmark_eligible": true,
+      "benchmark_ineligibility_reasons": [],
+      "bootstrap_energy_eV": -474.6689147949219,
+      "best_energy_eV": -480.2514343261719,
+      "best_energy_drop_from_bootstrap_eV": 5.58251953125,
+      "unique_minima": 5,
+      "wall_time_s": 41.31123292200209,
+      "optimizer_diagnostic_sums": {
+        "proposal_relax_accepted_secants": 0.0,
+        "proposal_relax_accepted_steps": 0.0,
+        "proposal_relax_backend_evaluations": 1476.0,
+        "proposal_relax_bias_secant_curvature_sum": 0.0,
+        "proposal_relax_count": 28.0,
+        "proposal_relax_evaluator_calls": 1476.0,
+        "proposal_relax_line_search_evaluations": 0.0,
+        "proposal_relax_mic_branch_resets": 0.0,
+        "proposal_relax_rejected_secants": 0.0,
+        "proposal_relax_rejected_steps": 0.0,
+        "proposal_relax_reporting_evaluator_calls": 0.0,
+        "proposal_relax_termination_converged": 16.0,
+        "proposal_relax_termination_line_search_failed": 0.0,
+        "proposal_relax_termination_maxiter": 12.0,
+        "proposal_relax_termination_optimizer_stopped": 0.0,
+        "true_quench_evaluator_calls": 279.0
+      }
+    },
+    {
+      "system": "c60",
+      "backend": "safe-lbfgs-total",
+      "seed": 42,
+      "policy_name": "uniform",
+      "batch_size": 2,
+      "max_workers": 2,
+      "action_force_budget": 1000,
+      "total_force_budget": 3000,
+      "bootstrap_evaluations": 2,
+      "action_evaluations": 2076,
+      "total_evaluations": 2078,
+      "unused_force_budget": 922,
+      "purpose_counts": {
+        "biased_proposal_relax": 1136,
+        "bootstrap_true_quench": 1,
+        "direction_oracle": 532,
+        "escape_true_pes_check": 120,
+        "landing_true_quench": 262,
+        "post_relax_validation": 9,
+        "starter_true_quench": 18,
+        "unattributed": 0
+      },
+      "completed_batches": 3,
+      "completed_attempts": 4,
+      "failed_attempts": 0,
+      "posterior_observed_attempts": 4,
+      "stop_reason": "budget_tail",
+      "benchmark_eligible": true,
+      "benchmark_ineligibility_reasons": [],
+      "bootstrap_energy_eV": -474.6687927246094,
+      "best_energy_eV": -479.3118591308594,
+      "best_energy_drop_from_bootstrap_eV": 4.64306640625,
+      "unique_minima": 5,
+      "wall_time_s": 33.87032956699841,
+      "optimizer_diagnostic_sums": {
+        "proposal_relax_accepted_secants": 1082.0,
+        "proposal_relax_accepted_steps": 1083.0,
+        "proposal_relax_backend_evaluations": 1136.0,
+        "proposal_relax_bias_secant_curvature_sum": 3.373226290150785,
+        "proposal_relax_count": 30.0,
+        "proposal_relax_evaluator_calls": 1136.0,
+        "proposal_relax_line_search_evaluations": 1106.0,
+        "proposal_relax_mic_branch_resets": 0.0,
+        "proposal_relax_rejected_secants": 1.0,
+        "proposal_relax_rejected_steps": 23.0,
+        "proposal_relax_reporting_evaluator_calls": 0.0,
+        "proposal_relax_termination_converged": 25.0,
+        "proposal_relax_termination_line_search_failed": 0.0,
+        "proposal_relax_termination_maxiter": 5.0,
+        "proposal_relax_termination_optimizer_stopped": 0.0,
+        "true_quench_evaluator_calls": 280.0
+      }
+    },
+    {
+      "system": "c60",
+      "backend": "ase-fire",
+      "seed": 43,
+      "policy_name": "uniform",
+      "batch_size": 2,
+      "max_workers": 2,
+      "action_force_budget": 1000,
+      "total_force_budget": 3000,
+      "bootstrap_evaluations": 2,
+      "action_evaluations": 2044,
+      "total_evaluations": 2046,
+      "unused_force_budget": 954,
+      "purpose_counts": {
+        "biased_proposal_relax": 1197,
+        "bootstrap_true_quench": 1,
+        "direction_oracle": 424,
+        "escape_true_pes_check": 96,
+        "landing_true_quench": 315,
+        "post_relax_validation": 9,
+        "starter_true_quench": 4,
+        "unattributed": 0
+      },
+      "completed_batches": 3,
+      "completed_attempts": 4,
+      "failed_attempts": 0,
+      "posterior_observed_attempts": 4,
+      "stop_reason": "budget_tail",
+      "benchmark_eligible": true,
+      "benchmark_ineligibility_reasons": [],
+      "bootstrap_energy_eV": -474.6688232421875,
+      "best_energy_eV": -483.0675964355469,
+      "best_energy_drop_from_bootstrap_eV": 8.398773193359375,
+      "unique_minima": 5,
+      "wall_time_s": 33.50455703899934,
+      "optimizer_diagnostic_sums": {
+        "proposal_relax_accepted_secants": 0.0,
+        "proposal_relax_accepted_steps": 0.0,
+        "proposal_relax_backend_evaluations": 1197.0,
+        "proposal_relax_bias_secant_curvature_sum": 0.0,
+        "proposal_relax_count": 24.0,
+        "proposal_relax_evaluator_calls": 1197.0,
+        "proposal_relax_line_search_evaluations": 0.0,
+        "proposal_relax_mic_branch_resets": 0.0,
+        "proposal_relax_rejected_secants": 0.0,
+        "proposal_relax_rejected_steps": 0.0,
+        "proposal_relax_reporting_evaluator_calls": 0.0,
+        "proposal_relax_termination_converged": 12.0,
+        "proposal_relax_termination_line_search_failed": 0.0,
+        "proposal_relax_termination_maxiter": 12.0,
+        "proposal_relax_termination_optimizer_stopped": 0.0,
+        "true_quench_evaluator_calls": 319.0
+      }
+    },
+    {
+      "system": "c60",
+      "backend": "safe-lbfgs-total",
+      "seed": 43,
+      "policy_name": "uniform",
+      "batch_size": 2,
+      "max_workers": 2,
+      "action_force_budget": 1000,
+      "total_force_budget": 3000,
+      "bootstrap_evaluations": 2,
+      "action_evaluations": 2598,
+      "total_evaluations": 2600,
+      "unused_force_budget": 400,
+      "purpose_counts": {
+        "biased_proposal_relax": 1476,
+        "bootstrap_true_quench": 1,
+        "direction_oracle": 472,
+        "escape_true_pes_check": 108,
+        "landing_true_quench": 521,
+        "post_relax_validation": 15,
+        "starter_true_quench": 7,
+        "unattributed": 0
+      },
+      "completed_batches": 5,
+      "completed_attempts": 7,
+      "failed_attempts": 0,
+      "posterior_observed_attempts": 7,
+      "stop_reason": "budget_tail",
+      "benchmark_eligible": true,
+      "benchmark_ineligibility_reasons": [],
+      "bootstrap_energy_eV": -474.6687927246094,
+      "best_energy_eV": -480.6206970214844,
+      "best_energy_drop_from_bootstrap_eV": 5.951904296875,
+      "unique_minima": 8,
+      "wall_time_s": 44.96137770700443,
+      "optimizer_diagnostic_sums": {
+        "proposal_relax_accepted_secants": 1418.0,
+        "proposal_relax_accepted_steps": 1421.0,
+        "proposal_relax_backend_evaluations": 1476.0,
+        "proposal_relax_bias_secant_curvature_sum": 3.9469320813700777,
+        "proposal_relax_count": 27.0,
+        "proposal_relax_evaluator_calls": 1476.0,
+        "proposal_relax_line_search_evaluations": 1449.0,
+        "proposal_relax_mic_branch_resets": 0.0,
+        "proposal_relax_rejected_secants": 3.0,
+        "proposal_relax_rejected_steps": 28.0,
+        "proposal_relax_reporting_evaluator_calls": 0.0,
+        "proposal_relax_termination_converged": 17.0,
+        "proposal_relax_termination_line_search_failed": 0.0,
+        "proposal_relax_termination_maxiter": 10.0,
+        "proposal_relax_termination_optimizer_stopped": 0.0,
+        "true_quench_evaluator_calls": 528.0
+      }
+    },
+    {
+      "system": "c60",
+      "backend": "ase-fire",
+      "seed": 44,
+      "policy_name": "uniform",
+      "batch_size": 2,
+      "max_workers": 2,
+      "action_force_budget": 1000,
+      "total_force_budget": 3000,
+      "bootstrap_evaluations": 2,
+      "action_evaluations": 2061,
+      "total_evaluations": 2063,
+      "unused_force_budget": 937,
+      "purpose_counts": {
+        "biased_proposal_relax": 1210,
+        "bootstrap_true_quench": 1,
+        "direction_oracle": 316,
+        "escape_true_pes_check": 71,
+        "landing_true_quench": 452,
+        "post_relax_validation": 9,
+        "starter_true_quench": 4,
+        "unattributed": 0
+      },
+      "completed_batches": 2,
+      "completed_attempts": 4,
+      "failed_attempts": 0,
+      "posterior_observed_attempts": 4,
+      "stop_reason": "budget_tail",
+      "benchmark_eligible": true,
+      "benchmark_ineligibility_reasons": [],
+      "bootstrap_energy_eV": -474.6689147949219,
+      "best_energy_eV": -476.2046813964844,
+      "best_energy_drop_from_bootstrap_eV": 1.5357666015625,
+      "unique_minima": 5,
+      "wall_time_s": 33.30265361900092,
+      "optimizer_diagnostic_sums": {
+        "proposal_relax_accepted_secants": 0.0,
+        "proposal_relax_accepted_steps": 0.0,
+        "proposal_relax_backend_evaluations": 1129.0,
+        "proposal_relax_bias_secant_curvature_sum": 0.0,
+        "proposal_relax_count": 17.0,
+        "proposal_relax_evaluator_calls": 1129.0,
+        "proposal_relax_line_search_evaluations": 0.0,
+        "proposal_relax_mic_branch_resets": 0.0,
+        "proposal_relax_rejected_secants": 0.0,
+        "proposal_relax_rejected_steps": 0.0,
+        "proposal_relax_reporting_evaluator_calls": 0.0,
+        "proposal_relax_termination_converged": 4.0,
+        "proposal_relax_termination_line_search_failed": 0.0,
+        "proposal_relax_termination_maxiter": 13.0,
+        "proposal_relax_termination_optimizer_stopped": 0.0,
+        "true_quench_evaluator_calls": 456.0
+      }
+    },
+    {
+      "system": "c60",
+      "backend": "safe-lbfgs-total",
+      "seed": 44,
+      "policy_name": "uniform",
+      "batch_size": 2,
+      "max_workers": 2,
+      "action_force_budget": 1000,
+      "total_force_budget": 3000,
+      "bootstrap_evaluations": 2,
+      "action_evaluations": 2348,
+      "total_evaluations": 2350,
+      "unused_force_budget": 650,
+      "purpose_counts": {
+        "biased_proposal_relax": 1295,
+        "bootstrap_true_quench": 1,
+        "direction_oracle": 492,
+        "escape_true_pes_check": 112,
+        "landing_true_quench": 405,
+        "post_relax_validation": 13,
+        "starter_true_quench": 32,
+        "unattributed": 0
+      },
+      "completed_batches": 4,
+      "completed_attempts": 6,
+      "failed_attempts": 0,
+      "posterior_observed_attempts": 6,
+      "stop_reason": "budget_tail",
+      "benchmark_eligible": true,
+      "benchmark_ineligibility_reasons": [],
+      "bootstrap_energy_eV": -474.6689147949219,
+      "best_energy_eV": -475.8967590332031,
+      "best_energy_drop_from_bootstrap_eV": 1.22784423828125,
+      "unique_minima": 7,
+      "wall_time_s": 38.74231719099771,
+      "optimizer_diagnostic_sums": {
+        "proposal_relax_accepted_secants": 1238.0,
+        "proposal_relax_accepted_steps": 1238.0,
+        "proposal_relax_backend_evaluations": 1295.0,
+        "proposal_relax_bias_secant_curvature_sum": 7.563173196241779,
+        "proposal_relax_count": 28.0,
+        "proposal_relax_evaluator_calls": 1295.0,
+        "proposal_relax_line_search_evaluations": 1267.0,
+        "proposal_relax_mic_branch_resets": 0.0,
+        "proposal_relax_rejected_secants": 0.0,
+        "proposal_relax_rejected_steps": 29.0,
+        "proposal_relax_reporting_evaluator_calls": 0.0,
+        "proposal_relax_termination_converged": 20.0,
+        "proposal_relax_termination_line_search_failed": 0.0,
+        "proposal_relax_termination_maxiter": 8.0,
+        "proposal_relax_termination_optimizer_stopped": 0.0,
+        "true_quench_evaluator_calls": 437.0
+      }
+    },
+    {
+      "system": "pdo",
+      "backend": "ase-fire",
+      "seed": 42,
+      "policy_name": "uniform",
+      "batch_size": 2,
+      "max_workers": 2,
+      "action_force_budget": 1000,
+      "total_force_budget": 3000,
+      "bootstrap_evaluations": 3,
+      "action_evaluations": 2494,
+      "total_evaluations": 2497,
+      "unused_force_budget": 503,
+      "purpose_counts": {
+        "biased_proposal_relax": 1538,
+        "bootstrap_true_quench": 2,
+        "direction_oracle": 220,
+        "escape_true_pes_check": 49,
+        "landing_true_quench": 663,
+        "post_relax_validation": 15,
+        "starter_true_quench": 10,
+        "unattributed": 0
+      },
+      "completed_batches": 4,
+      "completed_attempts": 7,
+      "failed_attempts": 0,
+      "posterior_observed_attempts": 7,
+      "stop_reason": "budget_tail",
+      "benchmark_eligible": true,
+      "benchmark_ineligibility_reasons": [],
+      "bootstrap_energy_eV": -568.3731689453125,
+      "best_energy_eV": -570.8565673828125,
+      "best_energy_drop_from_bootstrap_eV": 2.4833984375,
+      "unique_minima": 7,
+      "wall_time_s": 53.7976166849985,
+      "optimizer_diagnostic_sums": {
+        "proposal_relax_accepted_secants": 0.0,
+        "proposal_relax_accepted_steps": 0.0,
+        "proposal_relax_backend_evaluations": 1162.0,
+        "proposal_relax_bias_secant_curvature_sum": 0.0,
+        "proposal_relax_count": 10.0,
+        "proposal_relax_evaluator_calls": 1172.0,
+        "proposal_relax_line_search_evaluations": 0.0,
+        "proposal_relax_mic_branch_resets": 0.0,
+        "proposal_relax_rejected_secants": 0.0,
+        "proposal_relax_rejected_steps": 0.0,
+        "proposal_relax_reporting_evaluator_calls": 10.0,
+        "proposal_relax_termination_converged": 4.0,
+        "proposal_relax_termination_line_search_failed": 0.0,
+        "proposal_relax_termination_maxiter": 6.0,
+        "proposal_relax_termination_optimizer_stopped": 0.0,
+        "true_quench_evaluator_calls": 673.0
+      }
+    },
+    {
+      "system": "pdo",
+      "backend": "safe-lbfgs-total",
+      "seed": 42,
+      "policy_name": "uniform",
+      "batch_size": 2,
+      "max_workers": 2,
+      "action_force_budget": 1000,
+      "total_force_budget": 3000,
+      "bootstrap_evaluations": 3,
+      "action_evaluations": 2213,
+      "total_evaluations": 2216,
+      "unused_force_budget": 784,
+      "purpose_counts": {
+        "biased_proposal_relax": 1223,
+        "bootstrap_true_quench": 2,
+        "direction_oracle": 322,
+        "escape_true_pes_check": 72,
+        "landing_true_quench": 560,
+        "post_relax_validation": 21,
+        "starter_true_quench": 16,
+        "unattributed": 0
+      },
+      "completed_batches": 7,
+      "completed_attempts": 10,
+      "failed_attempts": 0,
+      "posterior_observed_attempts": 10,
+      "stop_reason": "budget_tail",
+      "benchmark_eligible": true,
+      "benchmark_ineligibility_reasons": [],
+      "bootstrap_energy_eV": -568.3731079101562,
+      "best_energy_eV": -571.6534423828125,
+      "best_energy_drop_from_bootstrap_eV": 3.28033447265625,
+      "unique_minima": 10,
+      "wall_time_s": 51.97366269300255,
+      "optimizer_diagnostic_sums": {
+        "proposal_relax_accepted_secants": 976.0,
+        "proposal_relax_accepted_steps": 976.0,
+        "proposal_relax_backend_evaluations": 1006.0,
+        "proposal_relax_bias_secant_curvature_sum": 6.317233691173784,
+        "proposal_relax_count": 15.0,
+        "proposal_relax_evaluator_calls": 1021.0,
+        "proposal_relax_line_search_evaluations": 991.0,
+        "proposal_relax_mic_branch_resets": 0.0,
+        "proposal_relax_rejected_secants": 0.0,
+        "proposal_relax_rejected_steps": 15.0,
+        "proposal_relax_reporting_evaluator_calls": 15.0,
+        "proposal_relax_termination_converged": 14.0,
+        "proposal_relax_termination_line_search_failed": 0.0,
+        "proposal_relax_termination_maxiter": 1.0,
+        "proposal_relax_termination_optimizer_stopped": 0.0,
+        "true_quench_evaluator_calls": 576.0
+      }
+    },
+    {
+      "system": "pdo",
+      "backend": "ase-fire",
+      "seed": 43,
+      "policy_name": "uniform",
+      "batch_size": 2,
+      "max_workers": 2,
+      "action_force_budget": 1000,
+      "total_force_budget": 3000,
+      "bootstrap_evaluations": 3,
+      "action_evaluations": 2015,
+      "total_evaluations": 2018,
+      "unused_force_budget": 982,
+      "purpose_counts": {
+        "biased_proposal_relax": 1344,
+        "bootstrap_true_quench": 2,
+        "direction_oracle": 278,
+        "escape_true_pes_check": 63,
+        "landing_true_quench": 312,
+        "post_relax_validation": 11,
+        "starter_true_quench": 8,
+        "unattributed": 0
+      },
+      "completed_batches": 4,
+      "completed_attempts": 5,
+      "failed_attempts": 0,
+      "posterior_observed_attempts": 5,
+      "stop_reason": "budget_tail",
+      "benchmark_eligible": true,
+      "benchmark_ineligibility_reasons": [],
+      "bootstrap_energy_eV": -568.3731689453125,
+      "best_energy_eV": -569.990478515625,
+      "best_energy_drop_from_bootstrap_eV": 1.6173095703125,
+      "unique_minima": 6,
+      "wall_time_s": 45.5315393100027,
+      "optimizer_diagnostic_sums": {
+        "proposal_relax_accepted_secants": 0.0,
+        "proposal_relax_accepted_steps": 0.0,
+        "proposal_relax_backend_evaluations": 1207.0,
+        "proposal_relax_bias_secant_curvature_sum": 0.0,
+        "proposal_relax_count": 15.0,
+        "proposal_relax_evaluator_calls": 1222.0,
+        "proposal_relax_line_search_evaluations": 0.0,
+        "proposal_relax_mic_branch_resets": 0.0,
+        "proposal_relax_rejected_secants": 0.0,
+        "proposal_relax_rejected_steps": 0.0,
+        "proposal_relax_reporting_evaluator_calls": 15.0,
+        "proposal_relax_termination_converged": 11.0,
+        "proposal_relax_termination_line_search_failed": 0.0,
+        "proposal_relax_termination_maxiter": 4.0,
+        "proposal_relax_termination_optimizer_stopped": 0.0,
+        "true_quench_evaluator_calls": 320.0
+      }
+    },
+    {
+      "system": "pdo",
+      "backend": "safe-lbfgs-total",
+      "seed": 43,
+      "policy_name": "uniform",
+      "batch_size": 2,
+      "max_workers": 2,
+      "action_force_budget": 1000,
+      "total_force_budget": 3000,
+      "bootstrap_evaluations": 3,
+      "action_evaluations": 2327,
+      "total_evaluations": 2330,
+      "unused_force_budget": 670,
+      "purpose_counts": {
+        "biased_proposal_relax": 1410,
+        "bootstrap_true_quench": 2,
+        "direction_oracle": 436,
+        "escape_true_pes_check": 99,
+        "landing_true_quench": 356,
+        "post_relax_validation": 15,
+        "starter_true_quench": 12,
+        "unattributed": 0
+      },
+      "completed_batches": 5,
+      "completed_attempts": 7,
+      "failed_attempts": 0,
+      "posterior_observed_attempts": 7,
+      "stop_reason": "budget_tail",
+      "benchmark_eligible": true,
+      "benchmark_ineligibility_reasons": [],
+      "bootstrap_energy_eV": -568.3731689453125,
+      "best_energy_eV": -572.176513671875,
+      "best_energy_drop_from_bootstrap_eV": 3.8033447265625,
+      "unique_minima": 7,
+      "wall_time_s": 52.34074349600269,
+      "optimizer_diagnostic_sums": {
+        "proposal_relax_accepted_secants": 1305.0,
+        "proposal_relax_accepted_steps": 1305.0,
+        "proposal_relax_backend_evaluations": 1347.0,
+        "proposal_relax_bias_secant_curvature_sum": 6.484812310765696,
+        "proposal_relax_count": 24.0,
+        "proposal_relax_evaluator_calls": 1371.0,
+        "proposal_relax_line_search_evaluations": 1323.0,
+        "proposal_relax_mic_branch_resets": 0.0,
+        "proposal_relax_rejected_secants": 0.0,
+        "proposal_relax_rejected_steps": 18.0,
+        "proposal_relax_reporting_evaluator_calls": 24.0,
+        "proposal_relax_termination_converged": 22.0,
+        "proposal_relax_termination_line_search_failed": 0.0,
+        "proposal_relax_termination_maxiter": 2.0,
+        "proposal_relax_termination_optimizer_stopped": 0.0,
+        "true_quench_evaluator_calls": 368.0
+      }
+    },
+    {
+      "system": "pdo",
+      "backend": "ase-fire",
+      "seed": 44,
+      "policy_name": "uniform",
+      "batch_size": 2,
+      "max_workers": 2,
+      "action_force_budget": 1000,
+      "total_force_budget": 3000,
+      "bootstrap_evaluations": 3,
+      "action_evaluations": 2201,
+      "total_evaluations": 2204,
+      "unused_force_budget": 796,
+      "purpose_counts": {
+        "biased_proposal_relax": 1477,
+        "bootstrap_true_quench": 2,
+        "direction_oracle": 260,
+        "escape_true_pes_check": 59,
+        "landing_true_quench": 358,
+        "post_relax_validation": 11,
+        "starter_true_quench": 37,
+        "unattributed": 0
+      },
+      "completed_batches": 3,
+      "completed_attempts": 5,
+      "failed_attempts": 0,
+      "posterior_observed_attempts": 5,
+      "stop_reason": "budget_tail",
+      "benchmark_eligible": true,
+      "benchmark_ineligibility_reasons": [],
+      "bootstrap_energy_eV": -568.3731689453125,
+      "best_energy_eV": -571.26025390625,
+      "best_energy_drop_from_bootstrap_eV": 2.8870849609375,
+      "unique_minima": 6,
+      "wall_time_s": 48.508634318000986,
+      "optimizer_diagnostic_sums": {
+        "proposal_relax_accepted_secants": 0.0,
+        "proposal_relax_accepted_steps": 0.0,
+        "proposal_relax_backend_evaluations": 1370.0,
+        "proposal_relax_bias_secant_curvature_sum": 0.0,
+        "proposal_relax_count": 14.0,
+        "proposal_relax_evaluator_calls": 1384.0,
+        "proposal_relax_line_search_evaluations": 0.0,
+        "proposal_relax_mic_branch_resets": 0.0,
+        "proposal_relax_rejected_secants": 0.0,
+        "proposal_relax_rejected_steps": 0.0,
+        "proposal_relax_reporting_evaluator_calls": 14.0,
+        "proposal_relax_termination_converged": 7.0,
+        "proposal_relax_termination_line_search_failed": 0.0,
+        "proposal_relax_termination_maxiter": 7.0,
+        "proposal_relax_termination_optimizer_stopped": 0.0,
+        "true_quench_evaluator_calls": 395.0
+      }
+    },
+    {
+      "system": "pdo",
+      "backend": "safe-lbfgs-total",
+      "seed": 44,
+      "policy_name": "uniform",
+      "batch_size": 2,
+      "max_workers": 2,
+      "action_force_budget": 1000,
+      "total_force_budget": 3000,
+      "bootstrap_evaluations": 3,
+      "action_evaluations": 2036,
+      "total_evaluations": 2039,
+      "unused_force_budget": 961,
+      "purpose_counts": {
+        "biased_proposal_relax": 1119,
+        "bootstrap_true_quench": 2,
+        "direction_oracle": 198,
+        "escape_true_pes_check": 45,
+        "landing_true_quench": 640,
+        "post_relax_validation": 19,
+        "starter_true_quench": 16,
+        "unattributed": 0
+      },
+      "completed_batches": 6,
+      "completed_attempts": 9,
+      "failed_attempts": 0,
+      "posterior_observed_attempts": 9,
+      "stop_reason": "budget_tail",
+      "benchmark_eligible": true,
+      "benchmark_ineligibility_reasons": [],
+      "bootstrap_energy_eV": -568.3731689453125,
+      "best_energy_eV": -572.5325317382812,
+      "best_energy_drop_from_bootstrap_eV": 4.15936279296875,
+      "unique_minima": 9,
+      "wall_time_s": 46.28140246000112,
+      "optimizer_diagnostic_sums": {
+        "proposal_relax_accepted_secants": 739.0,
+        "proposal_relax_accepted_steps": 739.0,
+        "proposal_relax_backend_evaluations": 855.0,
+        "proposal_relax_bias_secant_curvature_sum": 4.584923051464468,
+        "proposal_relax_count": 9.0,
+        "proposal_relax_evaluator_calls": 864.0,
+        "proposal_relax_line_search_evaluations": 846.0,
+        "proposal_relax_mic_branch_resets": 0.0,
+        "proposal_relax_rejected_secants": 0.0,
+        "proposal_relax_rejected_steps": 107.0,
+        "proposal_relax_reporting_evaluator_calls": 9.0,
+        "proposal_relax_termination_converged": 7.0,
+        "proposal_relax_termination_line_search_failed": 1.0,
+        "proposal_relax_termination_maxiter": 1.0,
+        "proposal_relax_termination_optimizer_stopped": 0.0,
+        "true_quench_evaluator_calls": 656.0
+      }
+    }
+  ],
+  "aggregate": {
+    "systems": [
+      {
+        "backends": {
+          "ase-fire": {
+            "action_evaluations": [
+              2392,
+              2044,
+              2061
+            ],
+            "benchmark_eligible_count": 3,
+            "best_energy_drop_max_eV": 8.398773193359375,
+            "best_energy_drop_median_eV": 5.58251953125,
+            "best_energy_drop_min_eV": 1.5357666015625,
+            "biased_proposal_evaluations": [
+              1476,
+              1197,
+              1210
+            ],
+            "completed_attempts": [
+              5,
+              4,
+              4
+            ],
+            "proposal_relax_converged": [
+              16,
+              12,
+              4
+            ],
+            "proposal_relax_count": [
+              28,
+              24,
+              17
+            ],
+            "seeds": [
+              42,
+              43,
+              44
+            ],
+            "unique_minima": [
+              5,
+              5,
+              5
+            ],
+            "wall_time_s": [
+              41.31123292200209,
+              33.50455703899934,
+              33.30265361900092
+            ]
+          },
+          "safe-lbfgs-total": {
+            "action_evaluations": [
+              2076,
+              2598,
+              2348
+            ],
+            "benchmark_eligible_count": 3,
+            "best_energy_drop_max_eV": 5.951904296875,
+            "best_energy_drop_median_eV": 4.64306640625,
+            "best_energy_drop_min_eV": 1.22784423828125,
+            "biased_proposal_evaluations": [
+              1136,
+              1476,
+              1295
+            ],
+            "completed_attempts": [
+              4,
+              7,
+              6
+            ],
+            "proposal_relax_converged": [
+              25,
+              17,
+              20
+            ],
+            "proposal_relax_count": [
+              30,
+              27,
+              28
+            ],
+            "seeds": [
+              42,
+              43,
+              44
+            ],
+            "unique_minima": [
+              5,
+              8,
+              7
+            ],
+            "wall_time_s": [
+              33.87032956699841,
+              44.96137770700443,
+              38.74231719099771
+            ]
+          }
+        },
+        "paired": [
+          {
+            "safe_minus_fire_action_evaluations": -316,
+            "safe_minus_fire_best_energy_drop_eV": -0.939453125,
+            "safe_minus_fire_biased_proposal_evaluations": -340,
+            "safe_minus_fire_completed_attempts": -1,
+            "safe_minus_fire_unique_minima": 0,
+            "seed": 42
+          },
+          {
+            "safe_minus_fire_action_evaluations": 554,
+            "safe_minus_fire_best_energy_drop_eV": -2.446868896484375,
+            "safe_minus_fire_biased_proposal_evaluations": 279,
+            "safe_minus_fire_completed_attempts": 3,
+            "safe_minus_fire_unique_minima": 3,
+            "seed": 43
+          },
+          {
+            "safe_minus_fire_action_evaluations": 287,
+            "safe_minus_fire_best_energy_drop_eV": -0.30792236328125,
+            "safe_minus_fire_biased_proposal_evaluations": 85,
+            "safe_minus_fire_completed_attempts": 2,
+            "safe_minus_fire_unique_minima": 2,
+            "seed": 44
+          }
+        ],
+        "system": "c60"
+      },
+      {
+        "backends": {
+          "ase-fire": {
+            "action_evaluations": [
+              2494,
+              2015,
+              2201
+            ],
+            "benchmark_eligible_count": 3,
+            "best_energy_drop_max_eV": 2.8870849609375,
+            "best_energy_drop_median_eV": 2.4833984375,
+            "best_energy_drop_min_eV": 1.6173095703125,
+            "biased_proposal_evaluations": [
+              1538,
+              1344,
+              1477
+            ],
+            "completed_attempts": [
+              7,
+              5,
+              5
+            ],
+            "proposal_relax_converged": [
+              4,
+              11,
+              7
+            ],
+            "proposal_relax_count": [
+              10,
+              15,
+              14
+            ],
+            "seeds": [
+              42,
+              43,
+              44
+            ],
+            "unique_minima": [
+              7,
+              6,
+              6
+            ],
+            "wall_time_s": [
+              53.7976166849985,
+              45.5315393100027,
+              48.508634318000986
+            ]
+          },
+          "safe-lbfgs-total": {
+            "action_evaluations": [
+              2213,
+              2327,
+              2036
+            ],
+            "benchmark_eligible_count": 3,
+            "best_energy_drop_max_eV": 4.15936279296875,
+            "best_energy_drop_median_eV": 3.8033447265625,
+            "best_energy_drop_min_eV": 3.28033447265625,
+            "biased_proposal_evaluations": [
+              1223,
+              1410,
+              1119
+            ],
+            "completed_attempts": [
+              10,
+              7,
+              9
+            ],
+            "proposal_relax_converged": [
+              14,
+              22,
+              7
+            ],
+            "proposal_relax_count": [
+              15,
+              24,
+              9
+            ],
+            "seeds": [
+              42,
+              43,
+              44
+            ],
+            "unique_minima": [
+              10,
+              7,
+              9
+            ],
+            "wall_time_s": [
+              51.97366269300255,
+              52.34074349600269,
+              46.28140246000112
+            ]
+          }
+        },
+        "paired": [
+          {
+            "safe_minus_fire_action_evaluations": -281,
+            "safe_minus_fire_best_energy_drop_eV": 0.79693603515625,
+            "safe_minus_fire_biased_proposal_evaluations": -315,
+            "safe_minus_fire_completed_attempts": 3,
+            "safe_minus_fire_unique_minima": 3,
+            "seed": 42
+          },
+          {
+            "safe_minus_fire_action_evaluations": 312,
+            "safe_minus_fire_best_energy_drop_eV": 2.18603515625,
+            "safe_minus_fire_biased_proposal_evaluations": 66,
+            "safe_minus_fire_completed_attempts": 2,
+            "safe_minus_fire_unique_minima": 1,
+            "seed": 43
+          },
+          {
+            "safe_minus_fire_action_evaluations": -165,
+            "safe_minus_fire_best_energy_drop_eV": 1.27227783203125,
+            "safe_minus_fire_biased_proposal_evaluations": -358,
+            "safe_minus_fire_completed_attempts": 4,
+            "safe_minus_fire_unique_minima": 3,
+            "seed": 44
+          }
+        ],
+        "system": "pdo"
+      }
+    ]
+  },
+  "summary_sha256": "4ebfca48adba404c20fde1728186d4e3d3f9a0aae0c5e8bdedfd745fb54ebd93",
+  "base_provenance": {
+    "summary_sha256": "62cc771e2aa24e9addef0e870d0524f901f02bddc34152cf2a2eeea91a671b04",
+    "device": "cuda",
+    "model": "/root/.cache/mace/mace-omat-0-small.model",
+    "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+    "torch_version": "2.8.0+cu128",
+    "cuda_device": "NVIDIA GeForce RTX 3060"
+  },
+  "system_provenance": {
+    "c60": {
+      "device": "cuda",
+      "dtype": "float32",
+      "model": "/root/.cache/mace/mace-omat-0-small.model",
+      "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+      "input": "/mnt/d/download/trae-research-code/ssw/runs/20260428-c60-mace-production/prerelaxed_c60.xyz",
+      "input_sha256": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9",
+      "certified_state_source_sha256": "62cc771e2aa24e9addef0e870d0524f901f02bddc34152cf2a2eeea91a671b04"
+    },
+    "pdo": {
+      "device": "cuda",
+      "dtype": "float32",
+      "model": "/root/.cache/mace/mace-omat-0-small.model",
+      "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+      "input": "/mnt/d/download/trae-research-code/ssw/PdO.xyz",
+      "input_sha256": "68243ceb7c0fbb6ba7a9454d680287eb98c4e5210efbd9ebb63517ba79aaa8b0",
+      "certified_state_source_sha256": "62cc771e2aa24e9addef0e870d0524f901f02bddc34152cf2a2eeea91a671b04"
+    }
+  },
+  "threadpool_verification": {
+    "path": "runs/20260727-030221-threadpool-first-eval-gpu/output/verification.json",
+    "sha256": "bdbd8fcfaa092e5b7279f5f01d6de4ec9ac80bfdafa449d7edebf5729dd79f0a",
+    "result": {
+      "attempt_count": 10,
+      "backend": "safe-lbfgs-total",
+      "benchmark_eligible": true,
+      "benchmark_ineligibility_reasons": [],
+      "best_energy_drop_from_bootstrap_eV": 4.15966796875,
+      "completed_attempts": 10,
+      "failed_attempts": 0,
+      "frozen_code_commit": "61f32ef70585adfd78b1484bd6f0cfcac8317352",
+      "posterior_observed_count": 10,
+      "purpose_counts": {
+        "biased_proposal_relax": 1138,
+        "bootstrap_true_quench": 2,
+        "direction_oracle": 196,
+        "escape_true_pes_check": 46,
+        "landing_true_quench": 705,
+        "post_relax_validation": 21,
+        "starter_true_quench": 17,
+        "unattributed": 0
+      },
+      "schema_version": 1,
+      "seed": 44,
+      "system": "pdo",
+      "total_evaluations": 2125,
+      "unused_force_budget": 875,
+      "worker_error_count": 0
+    }
+  }
+}

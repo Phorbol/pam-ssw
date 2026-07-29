@@ -1,0 +1,405 @@
+{
+  "backends": [
+    "ase-fire",
+    "ase-fire2",
+    "safe-lbfgs-total",
+    "bias-separated-lbfgs"
+  ],
+  "cases": [
+    {
+      "biases": [
+        {
+          "center": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "direction": [
+            0.8164965809277261,
+            0.4082482904638631,
+            0.0,
+            -0.4082482904638631,
+            0.0,
+            0.0
+          ],
+          "sigma": 0.7,
+          "weight": 0.2
+        }
+      ],
+      "case_id": "anisotropic_one_hill",
+      "cell": null,
+      "fixed_mask": [
+        false,
+        false
+      ],
+      "fmax": 1e-06,
+      "hessian_diagonal": [
+        1.0,
+        2.0,
+        4.0,
+        3.0,
+        1.5,
+        2.5
+      ],
+      "initial_numbers": [
+        1,
+        1
+      ],
+      "initial_positions": [
+        [
+          0.8,
+          -0.4,
+          0.3
+        ],
+        [
+          -0.6,
+          0.5,
+          -0.2
+        ]
+      ],
+      "maxiter": 400,
+      "pbc": [
+        false,
+        false,
+        false
+      ],
+      "runs": [
+        {
+          "accepted_secants": null,
+          "accepted_steps": null,
+          "available": true,
+          "backend": "ase-fire",
+          "backend_evaluations": 150,
+          "bias_secant_curvature_sum": null,
+          "converged": true,
+          "final_energy": 0.20000000000070212,
+          "final_max_force": 9.655394776431551e-07,
+          "final_positions": [
+            [
+              1.3753712243992689e-06,
+              1.5310967117908756e-07,
+              1.7727799720009356e-08
+            ],
+            [
+              -1.639678073486584e-07,
+              3.438621756366194e-10,
+              -9.805406338019907e-08
+            ]
+          ],
+          "iterations": 149,
+          "line_search_evaluations": null,
+          "mic_branch_resets": null,
+          "objective_calls": 150,
+          "rejected_secants": null,
+          "rejected_steps": null,
+          "telemetry_evaluator_calls": 150,
+          "termination_reason": "converged"
+        },
+        {
+          "accepted_secants": null,
+          "accepted_steps": null,
+          "available": true,
+          "backend": "ase-fire2",
+          "backend_evaluations": 111,
+          "bias_secant_curvature_sum": null,
+          "converged": true,
+          "final_energy": 0.20000000000001383,
+          "final_max_force": 2.1887338300173138e-07,
+          "final_positions": [
+            [
+              -8.13105069449315e-08,
+              -6.410287065313173e-09,
+              8.134400093533349e-09
+            ],
+            [
+              6.389810663315569e-09,
+              -7.695533891229458e-08,
+              -7.432729602104663e-08
+            ]
+          ],
+          "iterations": 107,
+          "line_search_evaluations": null,
+          "mic_branch_resets": null,
+          "objective_calls": 111,
+          "rejected_secants": null,
+          "rejected_steps": null,
+          "telemetry_evaluator_calls": 111,
+          "termination_reason": "converged"
+        },
+        {
+          "accepted_secants": 13,
+          "accepted_steps": 13,
+          "available": true,
+          "backend": "safe-lbfgs-total",
+          "backend_evaluations": 14,
+          "bias_secant_curvature_sum": -0.02149586739595346,
+          "converged": true,
+          "final_energy": 0.20000000000001272,
+          "final_max_force": 1.9381950829460265e-07,
+          "final_positions": [
+            [
+              8.817636374982382e-08,
+              3.885264471380707e-10,
+              3.0375974120906057e-09
+            ],
+            [
+              -4.6867762675272536e-08,
+              9.788535050766957e-08,
+              -6.74603970101198e-09
+            ]
+          ],
+          "iterations": 13,
+          "line_search_evaluations": 13,
+          "mic_branch_resets": 0,
+          "objective_calls": 14,
+          "rejected_secants": 0,
+          "rejected_steps": 0,
+          "telemetry_evaluator_calls": 14,
+          "termination_reason": "converged"
+        },
+        {
+          "accepted_secants": 17,
+          "accepted_steps": 17,
+          "available": true,
+          "backend": "bias-separated-lbfgs",
+          "backend_evaluations": 18,
+          "bias_secant_curvature_sum": -0.01958413273433837,
+          "converged": true,
+          "final_energy": 0.2000000000000063,
+          "final_max_force": 8.947841798509587e-08,
+          "final_positions": [
+            [
+              1.1968657382123951e-07,
+              2.8255681982250064e-08,
+              -4.854650079011234e-09
+            ],
+            [
+              -2.8390567396557913e-08,
+              -7.350376995542291e-09,
+              -2.15534907153858e-09
+            ]
+          ],
+          "iterations": 17,
+          "line_search_evaluations": 17,
+          "mic_branch_resets": 0,
+          "objective_calls": 18,
+          "rejected_secants": 0,
+          "rejected_steps": 0,
+          "telemetry_evaluator_calls": 18,
+          "termination_reason": "converged"
+        }
+      ]
+    },
+    {
+      "biases": [
+        {
+          "center": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "direction": [
+            0.8164965809277261,
+            0.0,
+            0.4082482904638631,
+            0.0,
+            -0.4082482904638631,
+            0.0
+          ],
+          "sigma": 0.8,
+          "weight": 0.15
+        },
+        {
+          "center": [
+            0.1,
+            0.0,
+            0.0,
+            -0.1,
+            0.0,
+            0.0
+          ],
+          "direction": [
+            0.0,
+            0.8164965809277261,
+            0.0,
+            0.0,
+            0.4082482904638631,
+            -0.4082482904638631
+          ],
+          "sigma": 0.6,
+          "weight": 0.1
+        }
+      ],
+      "case_id": "anisotropic_two_hills",
+      "cell": null,
+      "fixed_mask": [
+        false,
+        false
+      ],
+      "fmax": 1e-06,
+      "hessian_diagonal": [
+        0.8,
+        1.2,
+        3.5,
+        2.8,
+        1.7,
+        4.2
+      ],
+      "initial_numbers": [
+        1,
+        1
+      ],
+      "initial_positions": [
+        [
+          0.5,
+          -0.7,
+          0.4
+        ],
+        [
+          -0.4,
+          0.6,
+          -0.5
+        ]
+      ],
+      "maxiter": 400,
+      "pbc": [
+        false,
+        false,
+        false
+      ],
+      "runs": [
+        {
+          "accepted_secants": null,
+          "accepted_steps": null,
+          "available": true,
+          "backend": "ase-fire",
+          "backend_evaluations": 148,
+          "bias_secant_curvature_sum": null,
+          "converged": true,
+          "final_energy": 0.2500000000004299,
+          "final_max_force": 9.223287782740883e-07,
+          "final_positions": [
+            [
+              -5.249130257536835e-07,
+              7.963616499948977e-07,
+              6.401767993469383e-08
+            ],
+            [
+              -9.280487963694587e-09,
+              -2.9959455261764256e-08,
+              3.685581741341781e-08
+            ]
+          ],
+          "iterations": 147,
+          "line_search_evaluations": null,
+          "mic_branch_resets": null,
+          "objective_calls": 148,
+          "rejected_secants": null,
+          "rejected_steps": null,
+          "telemetry_evaluator_calls": 148,
+          "termination_reason": "converged"
+        },
+        {
+          "accepted_secants": null,
+          "accepted_steps": null,
+          "available": true,
+          "backend": "ase-fire2",
+          "backend_evaluations": 134,
+          "bias_secant_curvature_sum": null,
+          "converged": true,
+          "final_energy": 0.2500000000000338,
+          "final_max_force": 2.1345245661369976e-07,
+          "final_positions": [
+            [
+              3.0577302396722075e-07,
+              8.524559710688107e-08,
+              8.688825319403227e-09
+            ],
+            [
+              4.2285331429012024e-09,
+              -2.1204861930471644e-08,
+              -7.756248489331334e-09
+            ]
+          ],
+          "iterations": 129,
+          "line_search_evaluations": null,
+          "mic_branch_resets": null,
+          "objective_calls": 134,
+          "rejected_secants": null,
+          "rejected_steps": null,
+          "telemetry_evaluator_calls": 134,
+          "termination_reason": "converged"
+        },
+        {
+          "accepted_secants": 15,
+          "accepted_steps": 15,
+          "available": true,
+          "backend": "safe-lbfgs-total",
+          "backend_evaluations": 16,
+          "bias_secant_curvature_sum": -0.005287555621093383,
+          "converged": true,
+          "final_energy": 0.2500000000000001,
+          "final_max_force": 2.4380930904358307e-08,
+          "final_positions": [
+            [
+              1.1476240548186396e-09,
+              5.121061893781112e-09,
+              -3.071794177808822e-09
+            ],
+            [
+              6.377767180004647e-09,
+              -1.948571684006149e-09,
+              3.815275779787799e-09
+            ]
+          ],
+          "iterations": 15,
+          "line_search_evaluations": 15,
+          "mic_branch_resets": 0,
+          "objective_calls": 16,
+          "rejected_secants": 0,
+          "rejected_steps": 0,
+          "telemetry_evaluator_calls": 16,
+          "termination_reason": "converged"
+        },
+        {
+          "accepted_secants": 16,
+          "accepted_steps": 16,
+          "available": true,
+          "backend": "bias-separated-lbfgs",
+          "backend_evaluations": 18,
+          "bias_secant_curvature_sum": -0.00464322528864883,
+          "converged": true,
+          "final_energy": 0.2500000000001891,
+          "final_max_force": 9.475967319215993e-07,
+          "final_positions": [
+            [
+              -1.253213675215959e-07,
+              -2.1646435401393537e-07,
+              3.360917143857683e-09
+            ],
+            [
+              -3.3114658174037645e-07,
+              -7.328425384937388e-08,
+              4.521291804676285e-08
+            ]
+          ],
+          "iterations": 16,
+          "line_search_evaluations": 17,
+          "mic_branch_resets": 0,
+          "objective_calls": 18,
+          "rejected_secants": 0,
+          "rejected_steps": 1,
+          "telemetry_evaluator_calls": 18,
+          "termination_reason": "converged"
+        }
+      ]
+    }
+  ],
+  "schema_version": 1
+}

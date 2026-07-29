@@ -1,0 +1,50 @@
+{
+  "cases": [],
+  "cohort": {
+    "arms": [
+      "l40",
+      "l80"
+    ],
+    "completed_cases": 0,
+    "repeats": [
+      0,
+      1
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "state_ids": [
+      "intermediate_accepted",
+      "plateau_accepted"
+    ]
+  },
+  "decision": {
+    "stage": "relax_cap",
+    "status": "not_entered"
+  },
+  "execution_commit": "bd03e68a467f2cb556e921c6f8850e9cdd9b9d81",
+  "input_retained_settings": {
+    "enable_momentum_candidate": true,
+    "max_steps_per_walk": 8,
+    "oracle_candidates": 4,
+    "proposal_relax_steps": 80
+  },
+  "prior_evidence_sha256": "1b60224b9569ff446b8d6f2eb677a5559935e85297abdb8c7fa0b17d97c22181",
+  "production_default_changed": false,
+  "runner_source_sha256": {
+    "protocol.py": "6a7758cca1c330a785fbd3cb8e6400e72e9151efd3edeafb1be5b990ab98920b",
+    "run_stage.py": "d2ce4f8debd0a6532482dcea6eb1ef0af22dd4d5400afa0cc4d98c5cc0866827"
+  },
+  "schema_version": 1,
+  "stage": "relax_cap",
+  "stage_l_entry": {
+    "entered": false,
+    "proposal_relax_calls": 87,
+    "proposal_relax_cap_hit_fraction": 0.12643678160919541,
+    "proposal_relax_cap_hits": 11,
+    "proposal_relax_force_fraction": 0.631768953068592,
+    "retained_arm": "b8"
+  }
+}

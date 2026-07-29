@@ -1,0 +1,23 @@
+{
+  "checks": {
+    "complete_action_context_cost_certificate_records": true,
+    "held_out_residual_signal_demonstrated": false,
+    "two_fixed_direction_families_with_five_meaningful_each": false,
+    "two_starter_classes_with_positive_outcomes": true
+  },
+  "claim_ceiling": "feasibility checklist only; no posterior model or selector was fitted",
+  "evidence_sha256": {
+    "bias_steps": "1b60224b9569ff446b8d6f2eb677a5559935e85297abdb8c7fa0b17d97c22181",
+    "candidate_count": "98db7c6006255fb0d8bbfc73ced9b28a00bf8ffa968d699201d77c8c65bb6e2e",
+    "momentum": "86e5ceec956cd8b71018a72ac789ba9c947a87da01bcb7925235f603f0637ad1",
+    "relax_cap": "55515962e07709ce8b68bf5c44f837a2d97365e077ad0c8670a17227f722e550"
+  },
+  "executed_proposals": 84,
+  "meaningful_outcomes": 24,
+  "positive_starter_classes": [
+    "intermediate_accepted",
+    "plateau_accepted"
+  ],
+  "posterior_ready": false,
+  "schema_version": 1
+}

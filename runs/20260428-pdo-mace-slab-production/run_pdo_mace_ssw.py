@@ -58,6 +58,12 @@ def main() -> None:
     parser.add_argument("--relaxation-trajectory-dir", type=Path, default=None)
     parser.add_argument("--relaxation-trajectory-stride", type=int, default=50)
     parser.add_argument("--fix-bottom-fraction", type=float, default=0.35)
+    parser.add_argument(
+        "--pbc-mode",
+        choices=("input", "slab"),
+        default="slab",
+        help="Use CIF/input PBC as-is, or force slab PBC=(True, True, --slab-pbc-z).",
+    )
     parser.add_argument("--slab-pbc-z", action="store_true")
     parser.add_argument("--direction-curvature-source", choices=("inner", "true"), default="inner")
     parser.add_argument(
@@ -97,17 +103,17 @@ def main() -> None:
 
     atoms = read(args.input)
     input_pbc = tuple(bool(x) for x in atoms.pbc.tolist())
-    slab_pbc = (True, True, bool(args.slab_pbc_z))
-    atoms.pbc = slab_pbc
+    run_pbc = input_pbc if args.pbc_mode == "input" else (True, True, bool(args.slab_pbc_z))
+    atoms.pbc = run_pbc
     fixed_mask = _bottom_fixed_mask(atoms.positions, args.fix_bottom_fraction)
 
     state = State(
         numbers=atoms.numbers,
         positions=atoms.positions,
         cell=atoms.cell.array,
-        pbc=slab_pbc,
+        pbc=run_pbc,
         fixed_mask=fixed_mask,
-        metadata={"input_pbc": input_pbc, "slab_pbc": slab_pbc},
+        metadata={"input_pbc": input_pbc, "run_pbc": run_pbc, "pbc_mode": args.pbc_mode},
     )
     calc = MACECalculator(
         model_paths=str(args.model),
@@ -205,8 +211,9 @@ def main() -> None:
         "dtype": args.dtype,
         "enable_cueq": False,
         "search_kind": args.search_kind,
+        "pbc_mode": args.pbc_mode,
         "input_pbc": input_pbc,
-        "run_pbc": slab_pbc,
+        "run_pbc": run_pbc,
         "cell": state.cell.tolist() if state.cell is not None else None,
         "n_atoms": state.n_atoms,
         "n_fixed": int(np.count_nonzero(state.fixed_mask)),

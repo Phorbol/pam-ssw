@@ -1,0 +1,1223 @@
+{
+  "by_stage_system_arm": {
+    "loose": {
+      "c60": {
+        "ase-fire2": {
+          "certificate_count": 11,
+          "evaluator_calls": 3626,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 11,
+            "maxiter": 5
+          },
+          "wall_time_s": 61.7348908050335
+        },
+        "safe-lbfgs-total": {
+          "certificate_count": 16,
+          "evaluator_calls": 1141,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 16
+          },
+          "wall_time_s": 19.093980482022744
+        },
+        "scipy-lbfgsb": {
+          "certificate_count": 16,
+          "evaluator_calls": 1381,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 16
+          },
+          "wall_time_s": 21.97928260907065
+        }
+      },
+      "pdo": {
+        "ase-fire2": {
+          "certificate_count": 16,
+          "evaluator_calls": 912,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 16
+          },
+          "wall_time_s": 19.594025621045148
+        },
+        "safe-lbfgs-total": {
+          "certificate_count": 16,
+          "evaluator_calls": 653,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 16
+          },
+          "wall_time_s": 13.827704303956125
+        },
+        "scipy-lbfgsb": {
+          "certificate_count": 16,
+          "evaluator_calls": 759,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 16
+          },
+          "wall_time_s": 16.201184555044165
+        }
+      }
+    },
+    "refine": {
+      "c60": {
+        "ase-fire2": {
+          "certificate_count": 16,
+          "evaluator_calls": 1139,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 16
+          },
+          "wall_time_s": 19.477867666981183
+        },
+        "safe-lbfgs-total": {
+          "certificate_count": 0,
+          "evaluator_calls": 1019,
+          "task_count": 16,
+          "termination_reasons": {
+            "line_search_failed": 16
+          },
+          "wall_time_s": 17.290115129959304
+        },
+        "scipy-lbfgsb": {
+          "certificate_count": 0,
+          "evaluator_calls": 431,
+          "task_count": 16,
+          "termination_reasons": {
+            "unconverged": 16
+          },
+          "wall_time_s": 7.044018809014233
+        }
+      },
+      "pdo": {
+        "ase-fire2": {
+          "certificate_count": 15,
+          "evaluator_calls": 864,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 15,
+            "unconverged": 1
+          },
+          "wall_time_s": 19.237209718034137
+        },
+        "safe-lbfgs-total": {
+          "certificate_count": 11,
+          "evaluator_calls": 1218,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 11,
+            "line_search_failed": 5
+          },
+          "wall_time_s": 26.7249530859699
+        },
+        "scipy-lbfgsb": {
+          "certificate_count": 5,
+          "evaluator_calls": 806,
+          "task_count": 16,
+          "termination_reasons": {
+            "converged": 5,
+            "unconverged": 11
+          },
+          "wall_time_s": 17.136017795011867
+        }
+      }
+    }
+  },
+  "claim_boundary": "Stage A raw landings are conditioned on the fixed capture policy (seed42, safe-LBFGS proposal, first 16 macro trials), not an unconditional PES landing distribution. Stage B is a fixed-start local true-quench comparison. Stage C is conditional on each task's SciPy loose endpoint and is not an independent global-search comparison.",
+  "ledger": {
+    "purpose_closure_validated": true,
+    "stage_a_tasks": 32,
+    "stage_b_rows": 96,
+    "stage_c_rows": 96
+  },
+  "paired": {
+    "loose": {
+      "c60": {
+        "ase-fire2": {
+          "different_basin_count": 16,
+          "pairs": [
+            {
+              "absolute_terminal_energy_delta_eV": 0.02105712890625,
+              "evaluator_call_delta_vs_scipy": 24,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 0,
+              "terminal_rmsd_A": 0.03217911233941954,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00225830078125,
+              "evaluator_call_delta_vs_scipy": 13,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 1,
+              "terminal_rmsd_A": 0.003785869197663893,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.005584716796875,
+              "evaluator_call_delta_vs_scipy": 33,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 2,
+              "terminal_rmsd_A": 0.016143944149071665,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00701904296875,
+              "evaluator_call_delta_vs_scipy": 93,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 3,
+              "terminal_rmsd_A": 0.02397260854807689,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 1.166229248046875,
+              "evaluator_call_delta_vs_scipy": 67,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 4,
+              "terminal_rmsd_A": 0.142606834145456,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.026092529296875,
+              "evaluator_call_delta_vs_scipy": 130,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 5,
+              "terminal_rmsd_A": 0.07281996843901029,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.080108642578125,
+              "evaluator_call_delta_vs_scipy": 351,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 6,
+              "terminal_rmsd_A": 0.14755087227308228,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.105926513671875,
+              "evaluator_call_delta_vs_scipy": 344,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 7,
+              "terminal_rmsd_A": 0.22081613526330965,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.73492431640625,
+              "evaluator_call_delta_vs_scipy": 241,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 8,
+              "terminal_rmsd_A": null,
+              "terminal_rmsd_status": "distance_signature_screened_or_nonfinite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.514556884765625,
+              "evaluator_call_delta_vs_scipy": 88,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 9,
+              "terminal_rmsd_A": null,
+              "terminal_rmsd_status": "distance_signature_screened_or_nonfinite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.300018310546875,
+              "evaluator_call_delta_vs_scipy": -70,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 10,
+              "terminal_rmsd_A": null,
+              "terminal_rmsd_status": "distance_signature_screened_or_nonfinite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.005523681640625,
+              "evaluator_call_delta_vs_scipy": 52,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 11,
+              "terminal_rmsd_A": 0.013091747578596269,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.18377685546875,
+              "evaluator_call_delta_vs_scipy": 345,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 12,
+              "terminal_rmsd_A": 0.27216899527586086,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.25408935546875,
+              "evaluator_call_delta_vs_scipy": 343,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 13,
+              "terminal_rmsd_A": 0.3069099372423727,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.14031982421875,
+              "evaluator_call_delta_vs_scipy": -64,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 14,
+              "terminal_rmsd_A": 0.559982449498262,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.250396728515625,
+              "evaluator_call_delta_vs_scipy": 255,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 15,
+              "terminal_rmsd_A": 0.7779965437252168,
+              "terminal_rmsd_status": "finite"
+            }
+          ],
+          "same_basin_count": 0
+        },
+        "safe-lbfgs-total": {
+          "different_basin_count": 10,
+          "pairs": [
+            {
+              "absolute_terminal_energy_delta_eV": 0.00030517578125,
+              "evaluator_call_delta_vs_scipy": -3,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 0,
+              "terminal_rmsd_A": 0.0013871375201588046,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+              "evaluator_call_delta_vs_scipy": -1,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 1,
+              "terminal_rmsd_A": 7.51207227935786e-05,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00018310546875,
+              "evaluator_call_delta_vs_scipy": -2,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 2,
+              "terminal_rmsd_A": 0.0012232164933884994,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0037841796875,
+              "evaluator_call_delta_vs_scipy": -4,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 3,
+              "terminal_rmsd_A": 0.010776429320902104,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.002532958984375,
+              "evaluator_call_delta_vs_scipy": -10,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 4,
+              "terminal_rmsd_A": 0.010069568048827228,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00384521484375,
+              "evaluator_call_delta_vs_scipy": -13,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 5,
+              "terminal_rmsd_A": 0.01380625569344157,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.001068115234375,
+              "evaluator_call_delta_vs_scipy": -8,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 6,
+              "terminal_rmsd_A": 0.004926562846266119,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.001739501953125,
+              "evaluator_call_delta_vs_scipy": -2,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 7,
+              "terminal_rmsd_A": 0.015668599901266997,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00030517578125,
+              "evaluator_call_delta_vs_scipy": -2,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 8,
+              "terminal_rmsd_A": 0.054162268809070345,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.003631591796875,
+              "evaluator_call_delta_vs_scipy": -14,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 9,
+              "terminal_rmsd_A": 0.06187665777920388,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.297332763671875,
+              "evaluator_call_delta_vs_scipy": -78,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 10,
+              "terminal_rmsd_A": null,
+              "terminal_rmsd_status": "distance_signature_screened_or_nonfinite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+              "evaluator_call_delta_vs_scipy": -9,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 11,
+              "terminal_rmsd_A": 0.0028742684478829396,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0050048828125,
+              "evaluator_call_delta_vs_scipy": -5,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 12,
+              "terminal_rmsd_A": 0.021804861076858258,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00054931640625,
+              "evaluator_call_delta_vs_scipy": -1,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 13,
+              "terminal_rmsd_A": 0.00489762410753169,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.142730712890625,
+              "evaluator_call_delta_vs_scipy": -83,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 14,
+              "terminal_rmsd_A": 0.5613132072134579,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.001617431640625,
+              "evaluator_call_delta_vs_scipy": -5,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 15,
+              "terminal_rmsd_A": 0.016475231913157872,
+              "terminal_rmsd_status": "finite"
+            }
+          ],
+          "same_basin_count": 6
+        }
+      },
+      "pdo": {
+        "ase-fire2": {
+          "different_basin_count": 14,
+          "pairs": [
+            {
+              "absolute_terminal_energy_delta_eV": 0.185302734375,
+              "evaluator_call_delta_vs_scipy": 8,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 0,
+              "terminal_rmsd_A": 0.09454628465595909,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00311279296875,
+              "evaluator_call_delta_vs_scipy": 43,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 1,
+              "terminal_rmsd_A": 0.01814464851619795,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.01641845703125,
+              "evaluator_call_delta_vs_scipy": -1,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 2,
+              "terminal_rmsd_A": 0.022628594089667966,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.176025390625,
+              "evaluator_call_delta_vs_scipy": 41,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 3,
+              "terminal_rmsd_A": 0.15823275459249808,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 1.74078369140625,
+              "evaluator_call_delta_vs_scipy": -79,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 4,
+              "terminal_rmsd_A": 0.5495878034337109,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0040283203125,
+              "evaluator_call_delta_vs_scipy": 19,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 5,
+              "terminal_rmsd_A": 0.01807029132387199,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.1697998046875,
+              "evaluator_call_delta_vs_scipy": -17,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 6,
+              "terminal_rmsd_A": 0.1684974518669685,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+              "evaluator_call_delta_vs_scipy": 0,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 7,
+              "terminal_rmsd_A": 0.0,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.059326171875,
+              "evaluator_call_delta_vs_scipy": 44,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 8,
+              "terminal_rmsd_A": 0.11307541173837266,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 1.48486328125,
+              "evaluator_call_delta_vs_scipy": -46,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 9,
+              "terminal_rmsd_A": 0.31196613390725136,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.16363525390625,
+              "evaluator_call_delta_vs_scipy": 96,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 10,
+              "terminal_rmsd_A": 0.12046517090072159,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+              "evaluator_call_delta_vs_scipy": 0,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 11,
+              "terminal_rmsd_A": 0.0,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0401611328125,
+              "evaluator_call_delta_vs_scipy": 4,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 12,
+              "terminal_rmsd_A": 0.061284735202713055,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0042724609375,
+              "evaluator_call_delta_vs_scipy": 21,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 13,
+              "terminal_rmsd_A": 0.04364079183156962,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.20477294921875,
+              "evaluator_call_delta_vs_scipy": 6,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 14,
+              "terminal_rmsd_A": 0.1895302494440571,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.01715087890625,
+              "evaluator_call_delta_vs_scipy": 14,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 15,
+              "terminal_rmsd_A": 0.030471986646789313,
+              "terminal_rmsd_status": "finite"
+            }
+          ],
+          "same_basin_count": 2
+        },
+        "safe-lbfgs-total": {
+          "different_basin_count": 14,
+          "pairs": [
+            {
+              "absolute_terminal_energy_delta_eV": 0.18798828125,
+              "evaluator_call_delta_vs_scipy": -25,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 0,
+              "terminal_rmsd_A": 0.09278079830959672,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00360107421875,
+              "evaluator_call_delta_vs_scipy": -2,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 1,
+              "terminal_rmsd_A": 0.0070364292956954,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00885009765625,
+              "evaluator_call_delta_vs_scipy": -5,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 2,
+              "terminal_rmsd_A": 0.013592932344951328,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0084228515625,
+              "evaluator_call_delta_vs_scipy": -7,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 3,
+              "terminal_rmsd_A": 0.016822039872542716,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00604248046875,
+              "evaluator_call_delta_vs_scipy": -10,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 4,
+              "terminal_rmsd_A": 0.012279578899911155,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0013427734375,
+              "evaluator_call_delta_vs_scipy": -2,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 5,
+              "terminal_rmsd_A": 0.003173569073307392,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.01806640625,
+              "evaluator_call_delta_vs_scipy": -11,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 6,
+              "terminal_rmsd_A": 0.03443285910235434,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0,
+              "evaluator_call_delta_vs_scipy": 0,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 7,
+              "terminal_rmsd_A": 0.0,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.03863525390625,
+              "evaluator_call_delta_vs_scipy": -14,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 8,
+              "terminal_rmsd_A": 0.09168153404877874,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.013671875,
+              "evaluator_call_delta_vs_scipy": -2,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 9,
+              "terminal_rmsd_A": 0.03916068619355622,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00439453125,
+              "evaluator_call_delta_vs_scipy": -5,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 10,
+              "terminal_rmsd_A": 0.009664045817370598,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0001220703125,
+              "evaluator_call_delta_vs_scipy": 0,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 11,
+              "terminal_rmsd_A": 0.0,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0096435546875,
+              "evaluator_call_delta_vs_scipy": -6,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 12,
+              "terminal_rmsd_A": 0.019592762154841695,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0048828125,
+              "evaluator_call_delta_vs_scipy": -1,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 13,
+              "terminal_rmsd_A": 0.010834331918054031,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.01129150390625,
+              "evaluator_call_delta_vs_scipy": -7,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 14,
+              "terminal_rmsd_A": 0.023121550007525266,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.01446533203125,
+              "evaluator_call_delta_vs_scipy": -9,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 15,
+              "terminal_rmsd_A": 0.02604975730213141,
+              "terminal_rmsd_status": "finite"
+            }
+          ],
+          "same_basin_count": 2
+        }
+      }
+    },
+    "refine": {
+      "c60": {
+        "ase-fire2": {
+          "different_basin_count": 2,
+          "pairs": [
+            {
+              "absolute_terminal_energy_delta_eV": 0.000396728515625,
+              "evaluator_call_delta_vs_scipy": 4,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 0,
+              "terminal_rmsd_A": 0.0029524712934446153,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.000244140625,
+              "evaluator_call_delta_vs_scipy": -3,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 1,
+              "terminal_rmsd_A": 0.0016661012441240798,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.000457763671875,
+              "evaluator_call_delta_vs_scipy": 11,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 2,
+              "terminal_rmsd_A": 0.0030312353022324263,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+              "evaluator_call_delta_vs_scipy": -12,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 3,
+              "terminal_rmsd_A": 0.00181732595844731,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.000518798828125,
+              "evaluator_call_delta_vs_scipy": 5,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 4,
+              "terminal_rmsd_A": 0.0027572428267454902,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+              "evaluator_call_delta_vs_scipy": -15,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 5,
+              "terminal_rmsd_A": 0.002119354395192212,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0001220703125,
+              "evaluator_call_delta_vs_scipy": -8,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 6,
+              "terminal_rmsd_A": 0.0006590497191171372,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.000579833984375,
+              "evaluator_call_delta_vs_scipy": 9,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 7,
+              "terminal_rmsd_A": 0.005157321238771655,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00250244140625,
+              "evaluator_call_delta_vs_scipy": 81,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 8,
+              "terminal_rmsd_A": 0.010506402176813916,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.002349853515625,
+              "evaluator_call_delta_vs_scipy": 229,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 9,
+              "terminal_rmsd_A": 0.015028255920564877,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+              "evaluator_call_delta_vs_scipy": -13,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 10,
+              "terminal_rmsd_A": 0.0014868969950809355,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.000152587890625,
+              "evaluator_call_delta_vs_scipy": -6,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 11,
+              "terminal_rmsd_A": 0.00035245285287479754,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0003662109375,
+              "evaluator_call_delta_vs_scipy": 50,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 12,
+              "terminal_rmsd_A": 0.003918855560629417,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.000732421875,
+              "evaluator_call_delta_vs_scipy": 321,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 13,
+              "terminal_rmsd_A": 0.02001241155798611,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.000640869140625,
+              "evaluator_call_delta_vs_scipy": 8,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 14,
+              "terminal_rmsd_A": 0.0028202297831963425,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.000579833984375,
+              "evaluator_call_delta_vs_scipy": 47,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 15,
+              "terminal_rmsd_A": 0.008942770580688802,
+              "terminal_rmsd_status": "finite"
+            }
+          ],
+          "same_basin_count": 14
+        },
+        "safe-lbfgs-total": {
+          "different_basin_count": 3,
+          "pairs": [
+            {
+              "absolute_terminal_energy_delta_eV": 0.0001220703125,
+              "evaluator_call_delta_vs_scipy": 100,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 0,
+              "terminal_rmsd_A": 0.00011874158788836168,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+              "evaluator_call_delta_vs_scipy": 19,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 1,
+              "terminal_rmsd_A": 0.0007494670200231736,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.000396728515625,
+              "evaluator_call_delta_vs_scipy": 85,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 2,
+              "terminal_rmsd_A": 0.004070181792762525,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+              "evaluator_call_delta_vs_scipy": 49,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 3,
+              "terminal_rmsd_A": 0.0002530465215940489,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00042724609375,
+              "evaluator_call_delta_vs_scipy": 23,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 4,
+              "terminal_rmsd_A": 0.002352302558549042,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 9.1552734375e-05,
+              "evaluator_call_delta_vs_scipy": 22,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 5,
+              "terminal_rmsd_A": 0.0003166301772350008,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.000152587890625,
+              "evaluator_call_delta_vs_scipy": 64,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 6,
+              "terminal_rmsd_A": 0.0010884130322419557,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 3.0517578125e-05,
+              "evaluator_call_delta_vs_scipy": 34,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 7,
+              "terminal_rmsd_A": 0.0002719976783106186,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.003326416015625,
+              "evaluator_call_delta_vs_scipy": 76,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 8,
+              "terminal_rmsd_A": 0.020808291051191703,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.003509521484375,
+              "evaluator_call_delta_vs_scipy": 45,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 9,
+              "terminal_rmsd_A": 0.035944919874534034,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00030517578125,
+              "evaluator_call_delta_vs_scipy": 7,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 10,
+              "terminal_rmsd_A": 0.0024714821315878536,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0001220703125,
+              "evaluator_call_delta_vs_scipy": 22,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 11,
+              "terminal_rmsd_A": 0.0007690909312950771,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.000640869140625,
+              "evaluator_call_delta_vs_scipy": 1,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 12,
+              "terminal_rmsd_A": 0.004025089015459621,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.000274658203125,
+              "evaluator_call_delta_vs_scipy": 11,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 13,
+              "terminal_rmsd_A": 0.0050607715028289394,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00042724609375,
+              "evaluator_call_delta_vs_scipy": 55,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 14,
+              "terminal_rmsd_A": 0.0032168000983473733,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00335693359375,
+              "evaluator_call_delta_vs_scipy": -25,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 15,
+              "terminal_rmsd_A": 0.020039673615099413,
+              "terminal_rmsd_status": "finite"
+            }
+          ],
+          "same_basin_count": 13
+        }
+      },
+      "pdo": {
+        "ase-fire2": {
+          "different_basin_count": 12,
+          "pairs": [
+            {
+              "absolute_terminal_energy_delta_eV": 0.001220703125,
+              "evaluator_call_delta_vs_scipy": -11,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 0,
+              "terminal_rmsd_A": 0.006795262825112632,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00091552734375,
+              "evaluator_call_delta_vs_scipy": -7,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 1,
+              "terminal_rmsd_A": 0.005640095132806885,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00360107421875,
+              "evaluator_call_delta_vs_scipy": -47,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 2,
+              "terminal_rmsd_A": 0.01795597116640824,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.1190185546875,
+              "evaluator_call_delta_vs_scipy": -49,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 3,
+              "terminal_rmsd_A": 0.1509336011872729,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.7431640625,
+              "evaluator_call_delta_vs_scipy": 145,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 4,
+              "terminal_rmsd_A": 0.22911306959936864,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.001220703125,
+              "evaluator_call_delta_vs_scipy": -16,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 5,
+              "terminal_rmsd_A": 0.00995368260444571,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.8284912109375,
+              "evaluator_call_delta_vs_scipy": -93,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 6,
+              "terminal_rmsd_A": 0.2852916750498631,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00030517578125,
+              "evaluator_call_delta_vs_scipy": -19,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 7,
+              "terminal_rmsd_A": 0.0014098333262370455,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0074462890625,
+              "evaluator_call_delta_vs_scipy": 4,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 8,
+              "terminal_rmsd_A": 0.03129039498391319,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0015869140625,
+              "evaluator_call_delta_vs_scipy": 222,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 9,
+              "terminal_rmsd_A": 0.015199233359690126,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0,
+              "evaluator_call_delta_vs_scipy": 4,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 10,
+              "terminal_rmsd_A": 0.003502579177130895,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00030517578125,
+              "evaluator_call_delta_vs_scipy": -14,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 11,
+              "terminal_rmsd_A": 0.0004027524256443179,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00506591796875,
+              "evaluator_call_delta_vs_scipy": -24,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 12,
+              "terminal_rmsd_A": 0.026475870210542516,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.002197265625,
+              "evaluator_call_delta_vs_scipy": -6,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 13,
+              "terminal_rmsd_A": 0.010181268875855397,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00439453125,
+              "evaluator_call_delta_vs_scipy": -16,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 14,
+              "terminal_rmsd_A": 0.02678325690984793,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00213623046875,
+              "evaluator_call_delta_vs_scipy": -15,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 15,
+              "terminal_rmsd_A": 0.01260538025685424,
+              "terminal_rmsd_status": "finite"
+            }
+          ],
+          "same_basin_count": 4
+        },
+        "safe-lbfgs-total": {
+          "different_basin_count": 5,
+          "pairs": [
+            {
+              "absolute_terminal_energy_delta_eV": 0.0001220703125,
+              "evaluator_call_delta_vs_scipy": -11,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 0,
+              "terminal_rmsd_A": 0.0015576693053268955,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00018310546875,
+              "evaluator_call_delta_vs_scipy": -6,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 1,
+              "terminal_rmsd_A": 0.0022526759947746745,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0006103515625,
+              "evaluator_call_delta_vs_scipy": -42,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 2,
+              "terminal_rmsd_A": 0.00420980587819053,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.28515625,
+              "evaluator_call_delta_vs_scipy": 35,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 3,
+              "terminal_rmsd_A": 0.11407270521277812,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.12103271484375,
+              "evaluator_call_delta_vs_scipy": 8,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 4,
+              "terminal_rmsd_A": 0.05755686669338869,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0048828125,
+              "evaluator_call_delta_vs_scipy": -14,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 5,
+              "terminal_rmsd_A": 0.017188830233065864,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0003662109375,
+              "evaluator_call_delta_vs_scipy": -14,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 6,
+              "terminal_rmsd_A": 0.002852902469288493,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00152587890625,
+              "evaluator_call_delta_vs_scipy": -17,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 7,
+              "terminal_rmsd_A": 0.01015167467203493,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0008544921875,
+              "evaluator_call_delta_vs_scipy": -14,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 8,
+              "terminal_rmsd_A": 0.005934601246280323,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+              "evaluator_call_delta_vs_scipy": 12,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 9,
+              "terminal_rmsd_A": 0.0018899777634431218,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0001220703125,
+              "evaluator_call_delta_vs_scipy": -6,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 10,
+              "terminal_rmsd_A": 0.0015969825606659274,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.00018310546875,
+              "evaluator_call_delta_vs_scipy": 75,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 11,
+              "terminal_rmsd_A": 0.0005198315788409389,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.0,
+              "evaluator_call_delta_vs_scipy": 44,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 12,
+              "terminal_rmsd_A": 0.0007566046672359409,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.001220703125,
+              "evaluator_call_delta_vs_scipy": 4,
+              "same_basin_current_archive_semantics": false,
+              "task_index": 13,
+              "terminal_rmsd_A": 0.008974552580113555,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 0.000732421875,
+              "evaluator_call_delta_vs_scipy": 372,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 14,
+              "terminal_rmsd_A": 0.005430570794712198,
+              "terminal_rmsd_status": "finite"
+            },
+            {
+              "absolute_terminal_energy_delta_eV": 6.103515625e-05,
+              "evaluator_call_delta_vs_scipy": -14,
+              "same_basin_current_archive_semantics": true,
+              "task_index": 15,
+              "terminal_rmsd_A": 0.0007676247172172914,
+              "terminal_rmsd_status": "finite"
+            }
+          ],
+          "same_basin_count": 11
+        }
+      }
+    }
+  },
+  "same_basin_scope": "current per-system archive energy and RMSD semantics only",
+  "schema_version": 1
+}
