@@ -74,7 +74,7 @@ def analyze_rows(
                 "mean_wall_time_s": mean(
                     float(row["wall_time_s"]) for row in arm_rows
                 ),
-                "mean_true_energy_change": mean(
+                "mean_relaxation_true_energy_change_from_displaced_initial": mean(
                     float(row["final"]["true_energy"])
                     - float(row["initial"]["true_energy"])
                     for row in arm_rows
@@ -111,6 +111,11 @@ def _paired_difference(
     arm_id: str,
 ) -> dict[str, float]:
     return {
+        "certificate_rate": mean(
+            float(group[arm_id]["certificate_satisfied"])
+            - float(group["current_full"]["certificate_satisfied"])
+            for group in task_groups
+        ),
         "mean_force_evaluations": mean(
             int(group[arm_id]["biased_proposal_relax_force_evaluations"])
             - int(
@@ -120,20 +125,23 @@ def _paired_difference(
             )
             for group in task_groups
         ),
-        "mean_true_energy_change": mean(
-            (
-                float(group[arm_id]["final"]["true_energy"])
-                - float(group[arm_id]["initial"]["true_energy"])
-            )
-            - (
-                float(group["current_full"]["final"]["true_energy"])
-                - float(group["current_full"]["initial"]["true_energy"])
-            )
+        "mean_final_true_energy": mean(
+            float(group[arm_id]["final"]["true_energy"])
+            - float(group["current_full"]["final"]["true_energy"])
             for group in task_groups
         ),
         "mean_direction_progress": mean(
             float(group[arm_id]["direction_progress"])
             - float(group["current_full"]["direction_progress"])
+            for group in task_groups
+        ),
+        "mean_orthogonal_displacement_norm": mean(
+            float(group[arm_id]["orthogonal_displacement_norm"])
+            - float(
+                group["current_full"][
+                    "orthogonal_displacement_norm"
+                ]
+            )
             for group in task_groups
         ),
     }

@@ -152,7 +152,7 @@
       "source_task_sha256": "9c59614f91c13f5a25f2a750e32e7ad22c65ac72ba57f54453a1f885c113de3e",
       "system": "double_well_2d",
       "task_id": "eval-seed0-bias1",
-      "wall_time_s": 0.002279899999848567
+      "wall_time_s": 0.002767699999822071
     },
     {
       "arm_id": "curvature_matched_no_feedback",
@@ -194,7 +194,7 @@
       "source_task_sha256": "9c59614f91c13f5a25f2a750e32e7ad22c65ac72ba57f54453a1f885c113de3e",
       "system": "double_well_2d",
       "task_id": "eval-seed0-bias1",
-      "wall_time_s": 0.001781900000423775
+      "wall_time_s": 0.002452400000038324
     },
     {
       "arm_id": "fixed_calibrated",
@@ -236,7 +236,7 @@
       "source_task_sha256": "9c59614f91c13f5a25f2a750e32e7ad22c65ac72ba57f54453a1f885c113de3e",
       "system": "double_well_2d",
       "task_id": "eval-seed0-bias1",
-      "wall_time_s": 0.005887900000743684
+      "wall_time_s": 0.008109099999273894
     },
     {
       "arm_id": "current_full",
@@ -278,7 +278,7 @@
       "source_task_sha256": "c9cd8f923b95fef563d5a80a99f19e44327ffc04f1c2f74efc5f1e4516bb57f8",
       "system": "double_well_2d",
       "task_id": "eval-seed0-bias3",
-      "wall_time_s": 0.0034164000007876894
+      "wall_time_s": 0.004200900000796537
     },
     {
       "arm_id": "curvature_matched_no_feedback",
@@ -320,7 +320,7 @@
       "source_task_sha256": "c9cd8f923b95fef563d5a80a99f19e44327ffc04f1c2f74efc5f1e4516bb57f8",
       "system": "double_well_2d",
       "task_id": "eval-seed0-bias3",
-      "wall_time_s": 0.0030984999993961537
+      "wall_time_s": 0.004328799999711919
     },
     {
       "arm_id": "fixed_calibrated",
@@ -362,7 +362,7 @@
       "source_task_sha256": "c9cd8f923b95fef563d5a80a99f19e44327ffc04f1c2f74efc5f1e4516bb57f8",
       "system": "double_well_2d",
       "task_id": "eval-seed0-bias3",
-      "wall_time_s": 0.005787199999758741
+      "wall_time_s": 0.008015300998522434
     },
     {
       "arm_id": "current_full",
@@ -404,7 +404,7 @@
       "source_task_sha256": "1145d8a736f0fcf47d02cc22908da27c66c98f5d5f0d20b15d7dcb2c4eac985d",
       "system": "double_well_2d",
       "task_id": "eval-seed0-bias5",
-      "wall_time_s": 0.006011499999658554
+      "wall_time_s": 0.008733700000448152
     },
     {
       "arm_id": "curvature_matched_no_feedback",
@@ -446,7 +446,7 @@
       "source_task_sha256": "1145d8a736f0fcf47d02cc22908da27c66c98f5d5f0d20b15d7dcb2c4eac985d",
       "system": "double_well_2d",
       "task_id": "eval-seed0-bias5",
-      "wall_time_s": 0.0037111999990884215
+      "wall_time_s": 0.005432100000689388
     },
     {
       "arm_id": "fixed_calibrated",
@@ -488,7 +488,7 @@
       "source_task_sha256": "1145d8a736f0fcf47d02cc22908da27c66c98f5d5f0d20b15d7dcb2c4eac985d",
       "system": "double_well_2d",
       "task_id": "eval-seed0-bias5",
-      "wall_time_s": 0.0027852999992319383
+      "wall_time_s": 0.004213700000036624
     },
     {
       "arm_id": "current_full",
@@ -530,7 +530,7 @@
       "source_task_sha256": "3002c130b5c934ea084cacfd4a01c1928534f9b29cc6542c5c26e993df0733fd",
       "system": "double_well_2d",
       "task_id": "eval-seed1-bias1",
-      "wall_time_s": 0.005439700000351877
+      "wall_time_s": 0.007660101000510622
     },
     {
       "arm_id": "curvature_matched_no_feedback",
@@ -572,7 +572,7 @@
       "source_task_sha256": "3002c130b5c934ea084cacfd4a01c1928534f9b29cc6542c5c26e993df0733fd",
       "system": "double_well_2d",
       "task_id": "eval-seed1-bias1",
-      "wall_time_s": 0.0052890999995725
+      "wall_time_s": 0.008003199998711352
     },
     {
       "arm_id": "fixed_calibrated",
@@ -614,7 +614,7 @@
       "source_task_sha256": "3002c130b5c934ea084cacfd4a01c1928534f9b29cc6542c5c26e993df0733fd",
       "system": "double_well_2d",
       "task_id": "eval-seed1-bias1",
-      "wall_time_s": 0.005125600000610575
+      "wall_time_s": 0.007253100000525592
     },
     {
       "arm_id": "current_full",
@@ -656,7 +656,7 @@
       "source_task_sha256": "dfdf3de9a788df3dafda283039c19efb9110590358995b2ead62c85e1261b56b",
       "system": "double_well_2d",
       "task_id": "eval-seed1-bias3",
-      "wall_time_s": 0.003143700001601246
+      "wall_time_s": 0.004097099999853526
     },
     {
       "arm_id": "curvature_matched_no_feedback",
@@ -698,7 +698,7 @@
       "source_task_sha256": "dfdf3de9a788df3dafda283039c19efb9110590358995b2ead62c85e1261b56b",
       "system": "double_well_2d",
       "task_id": "eval-seed1-bias3",
-      "wall_time_s": 0.003069399999731104
+      "wall_time_s": 0.004356900999482605
     },
     {
       "arm_id": "fixed_calibrated",
@@ -740,7 +740,7 @@
       "source_task_sha256": "dfdf3de9a788df3dafda283039c19efb9110590358995b2ead62c85e1261b56b",
       "system": "double_well_2d",
       "task_id": "eval-seed1-bias3",
-      "wall_time_s": 0.005561199999647215
+      "wall_time_s": 0.00792139999975916
     },
     {
       "arm_id": "current_full",
@@ -782,7 +782,7 @@
       "source_task_sha256": "ccec3489c68eba3139064ce6e4f1dab8e2b1c8e33bb62a5e5106b1b9c52c0e61",
       "system": "double_well_2d",
       "task_id": "eval-seed1-bias5",
-      "wall_time_s": 0.003998499998488114
+      "wall_time_s": 0.006013300000631716
     },
     {
       "arm_id": "curvature_matched_no_feedback",
@@ -824,7 +824,7 @@
       "source_task_sha256": "ccec3489c68eba3139064ce6e4f1dab8e2b1c8e33bb62a5e5106b1b9c52c0e61",
       "system": "double_well_2d",
       "task_id": "eval-seed1-bias5",
-      "wall_time_s": 0.003081299999394105
+      "wall_time_s": 0.004232000999763841
     },
     {
       "arm_id": "fixed_calibrated",
@@ -866,7 +866,7 @@
       "source_task_sha256": "ccec3489c68eba3139064ce6e4f1dab8e2b1c8e33bb62a5e5106b1b9c52c0e61",
       "system": "double_well_2d",
       "task_id": "eval-seed1-bias5",
-      "wall_time_s": 0.0028603999999177177
+      "wall_time_s": 0.004440200000317418
     }
   ],
   "schema_version": 1,
@@ -882,36 +882,40 @@
             "mean_direction_progress": 0.07521658190823365,
             "mean_force_evaluations": 13.833333333333334,
             "mean_orthogonal_displacement_norm": 0.06696910773711834,
-            "mean_true_energy_change": -0.03824694505106729,
-            "mean_wall_time_s": 0.004048283333456008
+            "mean_relaxation_true_energy_change_from_displaced_initial": -0.03824694505106729,
+            "mean_wall_time_s": 0.005578800167010438
           },
           "curvature_matched_no_feedback": {
             "certificate_rate": 1.0,
             "mean_direction_progress": 0.11862094090179179,
             "mean_force_evaluations": 12,
             "mean_orthogonal_displacement_norm": 0.0662907394358068,
-            "mean_true_energy_change": -0.016800282274765,
-            "mean_wall_time_s": 0.0033385666662676763
+            "mean_relaxation_true_energy_change_from_displaced_initial": -0.016800282274765,
+            "mean_wall_time_s": 0.004800900333066238
           },
           "fixed_calibrated": {
             "certificate_rate": 0.8333333333333334,
             "mean_direction_progress": 0.2777272020840065,
             "mean_force_evaluations": 16.833333333333332,
             "mean_orthogonal_displacement_norm": 0.10886538552786956,
-            "mean_true_energy_change": 0.024365962783717592,
-            "mean_wall_time_s": 0.004667933333318312
+            "mean_relaxation_true_energy_change_from_displaced_initial": 0.024365962783717592,
+            "mean_wall_time_s": 0.006658800166405854
           }
         },
         "paired_differences_vs_current": {
           "curvature_matched_no_feedback": {
+            "certificate_rate": 0.16666666666666666,
             "mean_direction_progress": 0.04340435899355814,
+            "mean_final_true_energy": 0.004688709131443837,
             "mean_force_evaluations": -1.8333333333333333,
-            "mean_true_energy_change": 0.021446662776302288
+            "mean_orthogonal_displacement_norm": -0.0006783683013115468
           },
           "fixed_calibrated": {
+            "certificate_rate": 0.0,
             "mean_direction_progress": 0.20251062017577284,
+            "mean_final_true_energy": 0.04585495418997651,
             "mean_force_evaluations": 3,
-            "mean_true_energy_change": 0.06261290783478488
+            "mean_orthogonal_displacement_norm": 0.041896277790751224
           }
         },
         "task_count": 6

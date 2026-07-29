@@ -97,6 +97,22 @@ def test_arm_construction_changes_only_the_last_gaussian():
         )
 
 
+def test_curvature_matched_arm_preserves_shared_production_weight_bounds():
+    runner = _load("uphill_u0_u1_runner_bounded", "run_ablation.py")
+
+    matched = runner.build_arm_task(
+        _task(),
+        arm_id="curvature_matched_no_feedback",
+        base_sigma=1.0,
+        inner_curvature=20.0,
+        target_negative_curvature=0.05,
+        bias_weight_min=0.0,
+        bias_weight_max=10.0,
+    )
+
+    assert matched.biases[-1].weight == pytest.approx(10.0)
+
+
 @pytest.mark.parametrize(
     ("kwargs", "fragment"),
     [
@@ -210,6 +226,17 @@ def test_analyzer_requires_one_closed_three_arm_matrix_per_source_task():
     assert summary["row_count"] == 3
     assert summary["systems"]["c60"]["task_count"] == 1
     assert set(summary["systems"]["c60"]["arms"]) == set(runner.ARM_IDS)
+    paired = summary["systems"]["c60"]["paired_differences_vs_current"]
+    assert (
+        paired["fixed_calibrated"]["mean_final_true_energy"]
+        == pytest.approx(0.0)
+    )
+    assert (
+        paired["fixed_calibrated"][
+            "mean_orthogonal_displacement_norm"
+        ]
+        == pytest.approx(0.0)
+    )
     with pytest.raises(ValueError, match="three-arm matrix"):
         analyzer.analyze_rows(rows[:-1])
 

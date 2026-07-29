@@ -42,6 +42,8 @@ def build_arm_task(
     target_negative_curvature: float | None = None,
     fixed_sigma: float | None = None,
     fixed_weight: float | None = None,
+    bias_weight_min: float | None = None,
+    bias_weight_max: float | None = None,
 ) -> ProposalRelaxationTask:
     """Apply one arm to only the newest Gaussian of a frozen walk prefix."""
     if arm_id not in ARM_IDS:
@@ -64,6 +66,20 @@ def build_arm_task(
         "target negative curvature",
     )
     weight = sigma * sigma * max(curvature + target, 0.0)
+    if (bias_weight_min is None) != (bias_weight_max is None):
+        raise ValueError("both bias-weight bounds must be provided")
+    if bias_weight_min is not None and bias_weight_max is not None:
+        lower = _finite_nonnegative(
+            bias_weight_min,
+            "bias_weight_min",
+        )
+        upper = _finite_nonnegative(
+            bias_weight_max,
+            "bias_weight_max",
+        )
+        if lower > upper:
+            raise ValueError("bias-weight bounds are inverted")
+        weight = float(np.clip(weight, lower, upper))
     return retarget_last_gaussian(
         source,
         sigma=sigma,
@@ -140,6 +156,8 @@ def run_task_arms(
     target_negative_curvature: float,
     fixed_sigma: float,
     fixed_weight: float,
+    bias_weight_min: float | None = None,
+    bias_weight_max: float | None = None,
 ) -> list[dict[str, object]]:
     """Replay all arms with isolated ledgers on one frozen source task."""
     if not isinstance(system, str) or not system:
@@ -157,6 +175,8 @@ def run_task_arms(
             target_negative_curvature=target_negative_curvature,
             fixed_sigma=fixed_sigma,
             fixed_weight=fixed_weight,
+            bias_weight_min=bias_weight_min,
+            bias_weight_max=bias_weight_max,
         )
         replay = replay_proposal_task_observed(
             task,

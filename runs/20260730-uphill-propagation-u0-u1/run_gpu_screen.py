@@ -265,7 +265,7 @@ def run(*, systems: Sequence[str], output: Path) -> dict[str, Any]:
 
     base = _base_runner()
     payload: dict[str, Any] = {
-        "schema_version": 1,
+        "schema_version": 2,
         "scope": (
             "conditional fixed-prefix Gaussian propagation screen; "
             "no local-softening term; not a full-search comparison"
@@ -284,6 +284,9 @@ def run(*, systems: Sequence[str], output: Path) -> dict[str, Any]:
             ],
             "observer_only_force_evaluations_expected": 0,
             "minimum_calibration_tasks": MIN_CALIBRATION_TASKS,
+            "curvature_arm_weight_bounds": (
+                "shared production bias_weight_min/bias_weight_max"
+            ),
             "right_censor_rule": (
                 "a calibration or evaluation prefix that terminates before "
                 "its requested bias count is recorded as capture_failed and "
@@ -442,6 +445,8 @@ def run(*, systems: Sequence[str], output: Path) -> dict[str, Any]:
                 ),
                 fixed_sigma=fixed_sigma,
                 fixed_weight=fixed_weight,
+                bias_weight_min=config.bias_weight_min,
+                bias_weight_max=config.bias_weight_max,
             )
             system_payload["evaluation_tasks"].append(
                 {
