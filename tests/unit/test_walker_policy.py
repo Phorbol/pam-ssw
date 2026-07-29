@@ -912,6 +912,17 @@ def test_continuation_walk_has_common_first_step_and_keeps_selected_mode(
         == "selected_mode"
     )
     assert (
+        rows_by_arm["transported_direction"][1][
+            "direction_participation_ratio"
+        ]
+        > 0.0
+    )
+    assert all(
+        row["executed_step_scale"] > 0.0
+        for rows in rows_by_arm.values()
+        for row in rows
+    )
+    assert (
         rows_by_arm["continuation_lanczos"][1][
             "krylov_initial_basis_columns"
         ]

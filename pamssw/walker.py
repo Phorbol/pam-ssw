@@ -1826,6 +1826,15 @@ class SoftModeOracle:
             proposal,
             normalized,
         )
+        atom_squared_amplitudes = np.sum(
+            np.square(
+                normalized.reshape(state.n_atoms, 3)[state.movable_mask]
+            ),
+            axis=1,
+        )
+        participation_ratio = 1.0 / float(
+            np.dot(atom_squared_amplitudes, atom_squared_amplitudes)
+        )
         return DirectionChoice(
             direction=normalized,
             curvature=float(np.dot(normalized, total_hvp)),
@@ -1836,6 +1845,7 @@ class SoftModeOracle:
             diagnostics={
                 "direction_hvp_count": 1,
                 "continuation_source": "selected_mode",
+                "direction_participation_ratio": participation_ratio,
             },
         )
 
@@ -3453,6 +3463,7 @@ class SurfaceWalker:
                         ),
                     }
                 )
+            choice.diagnostics["executed_step_scale"] = float(sigma)
             self._record_direction_diagnostics(
                 trial_index=trial_index,
                 proposal_index=proposal_index,
