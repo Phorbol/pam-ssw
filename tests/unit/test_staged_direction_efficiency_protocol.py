@@ -185,3 +185,123 @@ def test_stage_l_entry_rejects_zero_physical_work():
 
     with pytest.raises(ValueError, match="positive total FE"):
         module.stage_l_entry(rows, retained_arm="b5")
+
+
+def make_evidence_rows(module, stage: str):
+    rows = []
+    for case in module.case_matrix(stage, module.RetainedSettings()):
+        selections = 2
+        direction_fe = (
+            2 * case.settings.oracle_candidates * selections
+        )
+        purposes = {
+            "bootstrap_true_quench": 0,
+            "starter_true_quench": 0,
+            "direction_oracle": direction_fe,
+            "biased_proposal_relax": 60,
+            "escape_true_pes_check": 2,
+            "landing_true_quench": 10,
+            "post_relax_validation": 0,
+            "unattributed": 0,
+        }
+        rows.append(
+            {
+                "status": "completed",
+                "stage": stage,
+                "state_id": case.state_id,
+                "seed": case.seed,
+                "arm": case.arm,
+                "repeat": case.repeat,
+                "settings": {
+                    "enable_momentum_candidate": (
+                        case.settings.enable_momentum_candidate
+                    ),
+                    "oracle_candidates": (
+                        case.settings.oracle_candidates
+                    ),
+                    "max_steps_per_walk": (
+                        case.settings.max_steps_per_walk
+                    ),
+                    "proposal_relax_steps": (
+                        case.settings.proposal_relax_steps
+                    ),
+                },
+                "selection_probability": 1.0,
+                "exact_starter_reference": True,
+                "certificate": True,
+                "is_new_basin": True,
+                "meaningful": True,
+                "landing_delta_eV": -1.0,
+                "force_evaluations": sum(purposes.values()),
+                "purpose_counts": purposes,
+                "direction_trace_valid": True,
+                "direction_audit": {
+                    "selection_count": selections,
+                    "candidate_count": (
+                        case.settings.oracle_candidates * selections
+                    ),
+                    "candidate_kind_counts": {
+                        "bond": selections,
+                        "random": (
+                            case.settings.oracle_candidates * selections
+                            - selections
+                        ),
+                    },
+                    "selected_kind_counts": {"bond": selections},
+                    "direction_oracle_force_evaluations": direction_fe,
+                },
+                "optimizer_diagnostics": {
+                    "proposal_relax_count": 5,
+                    "proposal_relax_termination_maxiter": 1,
+                },
+                "fragmented": False,
+                "fallback_used": False,
+                "generation_wall_time_s": 1.0,
+                "quench_wall_time_s": 0.5,
+            }
+        )
+    return rows
+
+
+def test_build_evidence_requires_complete_closed_cohort_and_no_selector():
+    module = load_protocol()
+    retained = module.RetainedSettings()
+    rows = make_evidence_rows(module, "momentum")
+
+    evidence = module.build_evidence("momentum", retained, rows)
+
+    assert evidence["cohort"]["completed_cases"] == 24
+    assert evidence["decision"]["status"] == "unproven_retained"
+    assert evidence["totals"]["unattributed_force_evaluations"] == 0
+    assert evidence["totals"]["meaningful_outcomes"] == 24
+    assert evidence["meaningful_energy_drop_threshold_eV"] == 0.001
+    assert evidence["totals"]["fragmented_outcomes"] == 0
+    assert evidence["totals"]["fallback_outcomes"] == 0
+    assert evidence["totals"]["generation_wall_time_s"] == 24.0
+    assert evidence["totals"]["quench_wall_time_s"] == 12.0
+    assert "fixed-starter" in evidence["claim_ceiling"]
+    assert evidence["production_default_changed"] is False
+    assert "selector" not in evidence
+    assert "posterior" not in evidence
+    assert "reward" not in evidence
+
+    with pytest.raises(ValueError, match="exact cohort"):
+        module.build_evidence("momentum", retained, rows[:-1])
+
+
+def test_build_bias_evidence_binds_stage_l_entry_to_retained_arm():
+    module = load_protocol()
+    retained = module.RetainedSettings()
+    rows = make_evidence_rows(module, "bias_steps")
+    for row in rows:
+        if row["arm"] == "b5":
+            row["force_evaluations"] -= 20
+            row["purpose_counts"]["biased_proposal_relax"] -= 20
+
+    evidence = module.build_evidence("bias_steps", retained, rows)
+
+    assert evidence["decision"]["retained_settings"][
+        "max_steps_per_walk"
+    ] == 5
+    assert evidence["stage_l_entry"]["retained_arm"] == "b5"
+    assert evidence["stage_l_entry"]["entered"] is False

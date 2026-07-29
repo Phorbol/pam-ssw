@@ -332,3 +332,195 @@ def stage_l_entry(
         "proposal_relax_calls": calls,
         "proposal_relax_cap_hits": cap_hits,
     }
+
+
+def _case_identity(row: Mapping[str, Any]) -> tuple[str, int, str, int]:
+    return (
+        str(row["state_id"]),
+        int(row["seed"]),
+        str(row["arm"]),
+        int(row["repeat"]),
+    )
+
+
+def _merge_counts(
+    rows: Sequence[Mapping[str, Any]],
+    field: str,
+) -> dict[str, int]:
+    totals: dict[str, int] = {}
+    for row in rows:
+        for key, value in row[field].items():
+            totals[key] = totals.get(key, 0) + int(value)
+    return totals
+
+
+def _validate_evidence_rows(
+    stage: str,
+    retained: RetainedSettings,
+    rows: Sequence[Mapping[str, Any]],
+) -> list[CaseSpec]:
+    cases = case_matrix(stage, retained)
+    expected = {
+        (case.state_id, case.seed, case.arm, case.repeat): case
+        for case in cases
+    }
+    observed = [_case_identity(row) for row in rows]
+    if len(observed) != len(set(observed)) or set(observed) != set(expected):
+        raise ValueError("evidence rows must form the exact cohort")
+
+    for row in rows:
+        case = expected[_case_identity(row)]
+        if (
+            row.get("status") != "completed"
+            or row.get("stage") != stage
+            or row.get("exact_starter_reference") is not True
+            or row.get("certificate") is not True
+            or row.get("direction_trace_valid") is not True
+            or float(row.get("selection_probability", -1.0)) != 1.0
+            or row.get("settings") != asdict(case.settings)
+            or bool(row.get("meaningful")) != is_meaningful(row)
+        ):
+            raise ValueError(
+                f"case {case.key} does not satisfy the closed protocol"
+            )
+
+        purposes = row["purpose_counts"]
+        if (
+            any(
+                not isinstance(value, int) or value < 0
+                for value in purposes.values()
+            )
+            or sum(purposes.values()) != int(row["force_evaluations"])
+            or int(purposes.get("unattributed", -1)) != 0
+        ):
+            raise ValueError(
+                f"case {case.key} has an invalid purpose ledger"
+            )
+
+        audit = row["direction_audit"]
+        selections = int(audit["selection_count"])
+        candidates = int(audit["candidate_count"])
+        candidate_kinds = audit["candidate_kind_counts"]
+        selected_kinds = audit["selected_kind_counts"]
+        direction_fe = int(
+            audit["direction_oracle_force_evaluations"]
+        )
+        if (
+            candidates != selections * case.settings.oracle_candidates
+            or sum(int(value) for value in candidate_kinds.values())
+            != candidates
+            or sum(int(value) for value in selected_kinds.values())
+            != selections
+            or direction_fe != int(purposes["direction_oracle"])
+            or direction_fe != 2 * candidates
+        ):
+            raise ValueError(
+                f"case {case.key} has an invalid direction ledger"
+            )
+    return cases
+
+
+def build_evidence(
+    stage: str,
+    retained: RetainedSettings,
+    rows: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    cases = _validate_evidence_rows(stage, retained, rows)
+    decision = decide_stage(stage, rows, retained)
+    purpose_totals = _merge_counts(rows, "purpose_counts")
+    arm_results = {}
+    for arm in STAGE_ARMS[stage]:
+        arm_rows = [row for row in rows if row["arm"] == arm]
+        arm_results[arm] = {
+            "completed_cases": len(arm_rows),
+            "meaningful_outcomes": sum(
+                is_meaningful(row) for row in arm_rows
+            ),
+            "repeat_stable_set": decision["repeat_stable_sets"][arm],
+            "force_evaluations_by_repeat": _repeat_totals(
+                rows,
+                arm,
+                "force_evaluations",
+            ),
+            "purpose_counts": _merge_counts(
+                arm_rows,
+                "purpose_counts",
+            ),
+            "candidate_kind_counts": _merge_counts(
+                [
+                    row["direction_audit"]
+                    for row in arm_rows
+                ],
+                "candidate_kind_counts",
+            ),
+            "selected_kind_counts": _merge_counts(
+                [
+                    row["direction_audit"]
+                    for row in arm_rows
+                ],
+                "selected_kind_counts",
+            ),
+        }
+
+    evidence = {
+        "stage": stage,
+        "cohort": {
+            "state_ids": list(STATE_IDS),
+            "seeds": list(SEEDS),
+            "repeats": list(REPEATS),
+            "arms": list(STAGE_ARMS[stage]),
+            "completed_cases": len(cases),
+        },
+        "decision": decision,
+        "arm_results": arm_results,
+        "totals": {
+            "force_evaluations": sum(
+                int(row["force_evaluations"]) for row in rows
+            ),
+            "purpose_counts": purpose_totals,
+            "unattributed_force_evaluations": purpose_totals.get(
+                "unattributed",
+                0,
+            ),
+            "meaningful_outcomes": sum(
+                is_meaningful(row) for row in rows
+            ),
+            "fragmented_outcomes": sum(
+                bool(row["fragmented"]) for row in rows
+            ),
+            "fallback_outcomes": sum(
+                bool(row["fallback_used"]) for row in rows
+            ),
+            "generation_wall_time_s": sum(
+                float(row["generation_wall_time_s"]) for row in rows
+            ),
+            "quench_wall_time_s": sum(
+                float(row["quench_wall_time_s"]) for row in rows
+            ),
+            "wall_time_s": sum(
+                float(row["generation_wall_time_s"])
+                + float(row["quench_wall_time_s"])
+                for row in rows
+            ),
+        },
+        "meaningful_energy_drop_threshold_eV": (
+            MEANINGFUL_ENERGY_DROP_EV
+        ),
+        "claim_ceiling": (
+            "paired fixed-starter one-proposal direction-efficiency "
+            "ablation; no production default or posterior selector is "
+            "validated"
+        ),
+        "production_default_changed": False,
+        "cases": list(rows),
+    }
+    if stage == "bias_steps":
+        retained_steps = decision["retained_settings"][
+            "max_steps_per_walk"
+        ]
+        retained_arm = f"b{retained_steps}"
+        evidence["stage_l_entry"] = {
+            "retained_arm": retained_arm,
+            **stage_l_entry(rows, retained_arm),
+        }
+    return evidence
