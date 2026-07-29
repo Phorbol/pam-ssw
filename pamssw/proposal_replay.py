@@ -12,6 +12,7 @@ from .accounting import EvalCounter, EvaluationCounts, EvaluationPurpose
 from .bias import GaussianBiasTerm
 from .config import SSWConfig
 from .coordinates import CartesianCoordinates, TangentVector
+from .pbc import mic_displacement
 from .relax import Relaxer
 from .result import RelaxResult
 from .state import State
@@ -32,6 +33,27 @@ class ProposalReplayResult:
     certificate_satisfied: bool
 
 
+@dataclass(frozen=True)
+class ProposalPointObservation:
+    true_energy: float
+    bias_energy: float
+    softening_energy: float
+    total_energy: float
+
+
+@dataclass(frozen=True)
+class ObservedProposalReplayResult:
+    result: RelaxResult
+    evaluation_counts: EvaluationCounts
+    wall_time_s: float
+    certificate_satisfied: bool
+    initial: ProposalPointObservation
+    final: ProposalPointObservation
+    direction_progress: float
+    orthogonal_displacement_norm: float
+    observer_only_force_evaluations: int = 0
+
+
 class _TaskCaptured(RuntimeError):
     def __init__(self, task: ProposalRelaxationTask) -> None:
         super().__init__("proposal-relaxation task captured")
@@ -50,6 +72,41 @@ class _CapturingSurfaceWalker(SurfaceWalker):
             task,
             optimizer=optimizer,
             trajectory_callback=trajectory_callback,
+        )
+
+
+class _RecordingProposalPotential(ProposalPotential):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.records: list[
+            tuple[np.ndarray, ProposalPointObservation]
+        ] = []
+
+    def evaluate_parts(self, flat_positions, template):
+        evaluation = super().evaluate_parts(flat_positions, template)
+        self.records.append(
+            (
+                np.asarray(flat_positions, dtype=float).reshape(-1).copy(),
+                ProposalPointObservation(
+                    true_energy=evaluation.true_energy,
+                    bias_energy=evaluation.bias_energy,
+                    softening_energy=evaluation.softening_energy,
+                    total_energy=evaluation.total_energy,
+                ),
+            )
+        )
+        return evaluation
+
+    def observation_at(
+        self,
+        flat_positions: np.ndarray,
+    ) -> ProposalPointObservation:
+        target = np.asarray(flat_positions, dtype=float).reshape(-1)
+        for positions, observation in reversed(self.records):
+            if np.array_equal(positions, target):
+                return observation
+        raise RuntimeError(
+            "proposal backend did not evaluate the requested state"
         )
 
 
@@ -146,6 +203,79 @@ def replay_proposal_task(
         biases=list(task.biases),
         softening=task.softening,
     )
+    result, wall_time_s = _run_proposal_task(
+        task,
+        counter=counter,
+        proposal=proposal,
+        optimizer=optimizer,
+    )
+    certificate_satisfied = _proposal_certificate_satisfied(result, task)
+    return ProposalReplayResult(
+        result=result,
+        evaluation_counts=counter.snapshot(),
+        wall_time_s=wall_time_s,
+        certificate_satisfied=certificate_satisfied,
+    )
+
+
+def replay_proposal_task_observed(
+    task: ProposalRelaxationTask,
+    calculator,
+    *,
+    optimizer: str,
+) -> ObservedProposalReplayResult:
+    """Replay a task and retain components from normal backend evaluations."""
+    counter = EvalCounter(calculator)
+    proposal = _RecordingProposalPotential(
+        counter,
+        biases=list(task.biases),
+        softening=task.softening,
+    )
+    result, wall_time_s = _run_proposal_task(
+        task,
+        counter=counter,
+        proposal=proposal,
+        optimizer=optimizer,
+    )
+    initial = proposal.observation_at(
+        task.initial_state.flatten_positions()
+    )
+    final = proposal.observation_at(result.state.flatten_positions())
+    last_bias = task.biases[-1]
+    endpoint_delta = mic_displacement(
+        result.state.positions,
+        last_bias.center.reshape(result.state.n_atoms, 3),
+        result.state.cell,
+        result.state.pbc,
+    ).reshape(-1)
+    direction_progress = float(
+        np.dot(endpoint_delta, last_bias.direction)
+    )
+    orthogonal = (
+        endpoint_delta - direction_progress * last_bias.direction
+    )
+    return ObservedProposalReplayResult(
+        result=result,
+        evaluation_counts=counter.snapshot(),
+        wall_time_s=wall_time_s,
+        certificate_satisfied=_proposal_certificate_satisfied(
+            result,
+            task,
+        ),
+        initial=initial,
+        final=final,
+        direction_progress=direction_progress,
+        orthogonal_displacement_norm=float(np.linalg.norm(orthogonal)),
+    )
+
+
+def _run_proposal_task(
+    task: ProposalRelaxationTask,
+    *,
+    counter: EvalCounter,
+    proposal: ProposalPotential,
+    optimizer: str,
+) -> tuple[RelaxResult, float]:
     custom_lbfgs = optimizer in {
         "safe-lbfgs-total",
         "bias-separated-lbfgs",
@@ -164,17 +294,18 @@ def replay_proposal_task(
             coordinate_trust_radius=task.coordinate_trust_radius,
         )
     wall_time_s = perf_counter() - started
-    certificate_satisfied = bool(
+    return result, wall_time_s
+
+
+def _proposal_certificate_satisfied(
+    result: RelaxResult,
+    task: ProposalRelaxationTask,
+) -> bool:
+    return bool(
         np.isfinite(result.energy)
         and np.isfinite(result.gradient_norm)
         and np.all(np.isfinite(result.state.positions))
         and result.gradient_norm <= task.fmax
-    )
-    return ProposalReplayResult(
-        result=result,
-        evaluation_counts=counter.snapshot(),
-        wall_time_s=wall_time_s,
-        certificate_satisfied=certificate_satisfied,
     )
 
 

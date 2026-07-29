@@ -7,6 +7,7 @@ from pamssw.proposal_replay import (
     proposal_task_to_payload,
     retarget_last_gaussian,
     replay_proposal_task,
+    replay_proposal_task_observed,
 )
 from pamssw.accounting import EvaluationPurpose
 from pamssw.bias import GaussianBiasTerm
@@ -171,4 +172,66 @@ def test_retarget_last_gaussian_changes_only_last_bias_and_explicit_displacement
         delta - progress * retargeted.biases[-1].direction,
         0.0,
         atol=1.0e-12,
+    )
+
+
+def test_observed_replay_reuses_backend_calls_for_true_and_bias_components():
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[1.0, 0.0, 0.0]]),
+    )
+    task = capture_proposal_task(
+        state,
+        AnalyticCalculator(Quadratic()),
+        SSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            proposal_relax_steps=100,
+            proposal_fmax=0.05,
+            rng_seed=23,
+        ),
+        target_bias_count=1,
+    ).task
+    initial_flat = task.initial_state.flatten_positions()
+    expected_true_initial = 0.5 * float(initial_flat @ initial_flat)
+    expected_bias_initial = sum(
+        bias.evaluate(
+            initial_flat,
+            cell=task.initial_state.cell,
+            pbc=task.initial_state.pbc,
+        )[0]
+        for bias in task.biases
+    )
+
+    observed = replay_proposal_task_observed(
+        task,
+        AnalyticCalculator(Quadratic()),
+        optimizer="ase-fire",
+    )
+
+    assert (
+        observed.evaluation_counts.total
+        == observed.result.telemetry.evaluator_calls
+    )
+    assert observed.observer_only_force_evaluations == 0
+    assert observed.initial.true_energy == pytest.approx(expected_true_initial)
+    assert observed.initial.bias_energy == pytest.approx(expected_bias_initial)
+    assert observed.initial.total_energy == pytest.approx(
+        expected_true_initial + expected_bias_initial
+    )
+    assert observed.final.total_energy == pytest.approx(observed.result.energy)
+    endpoint_delta = (
+        observed.result.state.flatten_positions()
+        - task.biases[-1].center
+    )
+    expected_progress = float(
+        np.dot(endpoint_delta, task.biases[-1].direction)
+    )
+    assert observed.direction_progress == pytest.approx(expected_progress)
+    expected_orthogonal = (
+        endpoint_delta
+        - expected_progress * task.biases[-1].direction
+    )
+    assert observed.orthogonal_displacement_norm == pytest.approx(
+        np.linalg.norm(expected_orthogonal)
     )
