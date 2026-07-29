@@ -118,6 +118,18 @@ class CaseBaseRunner:
         return self._base_runner.write_state(path, state)
 
 
+class LegacyCertificateCapture:
+    """Capture the real certificate while letting the legacy writer finish."""
+
+    def __init__(self, checker) -> None:
+        self._checker = checker
+        self.actual_certificate: bool | None = None
+
+    def __call__(self, landing, fmax: float) -> bool:
+        self.actual_certificate = bool(self._checker(landing, fmax))
+        return True
+
+
 def annotate_case_row(
     row: dict[str, Any],
     *,
@@ -163,7 +175,12 @@ def _execute_case(
     case_dir,
     execution_commit,
 ):
+    from pamssw.relax import has_force_convergence_certificate
+
     baseline_config = base_runner.build_config("c60", case_dir)
+    certificate_capture = LegacyCertificateCapture(
+        has_force_convergence_certificate,
+    )
     row = legacy_runner._run_case(
         case=case,
         state=state,
@@ -172,7 +189,17 @@ def _execute_case(
         base_runner=CaseBaseRunner(base_runner, case),
         case_dir=case_dir,
         execution_commit=execution_commit,
+        certificate_checker=certificate_capture,
     )
+    if certificate_capture.actual_certificate is None:
+        raise RuntimeError("legacy runner did not evaluate the certificate")
+    row["certificate"] = certificate_capture.actual_certificate
+    row["terminal_failure"] = (
+        None
+        if certificate_capture.actual_certificate
+        else "strict_quench_nonconvergence"
+    )
+    row["meaningful"] = _load_protocol().is_meaningful(row)
     row = annotate_case_row(
         row,
         case=case,
@@ -184,6 +211,47 @@ def _execute_case(
     _load_protocol().validate_case_row(case, row)
     _write_json(Path(case_dir) / "summary.json", row)
     return row
+
+
+def _validate_saved_case(
+    *,
+    legacy_runner,
+    protocol,
+    row,
+    case,
+    execution_commit: str,
+    config_path: Path,
+) -> None:
+    if row.get("certificate") is True:
+        legacy_runner._validate_saved_case(
+            protocol,
+            row=row,
+            case=case,
+            execution_commit=execution_commit,
+            config_path=config_path,
+        )
+        return
+    protocol.validate_case_row(case, row)
+    if row.get("execution_commit") != execution_commit:
+        raise RuntimeError(f"saved case commit drifted: {case.key}")
+    for path_field, hash_field in (
+        ("starter_path", "starter_file_sha256"),
+        ("escape_path", "escape_sha256"),
+        ("landing_path", "landing_sha256"),
+    ):
+        path = Path(row[path_field])
+        if not path.is_file() or _sha256(path) != row[hash_field]:
+            raise RuntimeError(
+                f"saved case artifact does not revalidate: {case.key}"
+            )
+    if (
+        not config_path.is_file()
+        or json.loads(config_path.read_text(encoding="utf-8"))
+        != row["effective_config"]
+    ):
+        raise RuntimeError(
+            f"saved case config does not revalidate: {case.key}"
+        )
 
 
 def _pin_sources(output_dir: Path) -> dict[str, str]:
@@ -217,6 +285,8 @@ def conclusion(evidence: dict[str, Any]) -> str:
         "Stable meaningful labels:\n\n"
         f"- random_only: {counts['random_only']}\n"
         f"- bond_only: {counts['bond_only']}\n\n"
+        "Uncertified terminal outcomes: "
+        f"{evidence['totals']['noncertified_terminal_outcomes']}.\n\n"
         "Leave-one-seed-out Brier scores:\n\n"
         f"- starter only: {audit['starter_only_brier']:.9f}\n"
         "- starter plus direction family: "
@@ -264,8 +334,9 @@ def run_experiment(
         )
         if summary_path.exists():
             row = json.loads(summary_path.read_text(encoding="utf-8"))
-            legacy._validate_saved_case(
-                protocol,
+            _validate_saved_case(
+                legacy_runner=legacy,
+                protocol=protocol,
                 row=row,
                 case=case,
                 execution_commit=actual_commit,

@@ -18,7 +18,7 @@ classifier, or regressor is considered.
 - eight Gaussian-bias steps;
 - 80-step `safe-lbfgs-total` proposal relaxation;
 - ASE-LBFGS true quench with ASE-FIRE fallback;
-- strict terminal force certificate;
+- strict terminal force-certificate audit;
 - complete purpose-labelled force-evaluation ledger.
 
 The only changed control is `n_bond_pairs`:
@@ -43,6 +43,11 @@ A stable label is meaningful only when both exact repeats:
 1. have a strict true-quench certificate;
 2. land in a new basin;
 3. lower the starter energy by at least 0.001 eV.
+
+An uncertified terminal is retained with
+`terminal_failure=strict_quench_nonconvergence`, its complete cost remains in
+the ledger, and its meaningful label is false. It is not silently dropped or
+retried until success.
 
 The next posterior stage is entered only if:
 

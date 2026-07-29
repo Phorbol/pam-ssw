@@ -233,17 +233,27 @@ def validate_case_row(
     purposes = row.get("purpose_counts", {})
     expected_kind = case.settings.expected_kind
     expected_candidate_count = int(audit.get("selection_count", -1)) * 4
+    certificate = row.get("certificate") is True
+    terminal_failure = row.get("terminal_failure")
     if (
         row.get("status") != "completed"
         or row.get("stage") != "fixed_direction_family"
         or row.get("settings") != settings
         or row.get("selection_probability") != 1.0
         or row.get("exact_starter_reference") is not True
-        or row.get("certificate") is not True
         or row.get("direction_trace_valid") is not True
         or bool(row.get("meaningful")) != is_meaningful(row)
     ):
         raise ValueError("case outcome contract does not revalidate")
+    if certificate and terminal_failure is not None:
+        raise ValueError("certified terminal cannot retain a failure label")
+    if (
+        not certificate
+        and terminal_failure != "strict_quench_nonconvergence"
+    ):
+        raise ValueError(
+            "uncertified terminal must retain its failure label"
+        )
     if audit.get("candidate_kind_counts") != {
         expected_kind: expected_candidate_count
     } or audit.get("selected_kind_counts") != {
@@ -331,6 +341,18 @@ def build_evidence(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
             ),
             "fallback_outcomes": sum(
                 bool(row["fallback_used"]) for row in rows
+            ),
+            "noncertified_terminal_outcomes": sum(
+                row["certificate"] is not True for row in rows
+            ),
+            "terminal_failure_counts": dict(
+                sorted(
+                    Counter(
+                        str(row["terminal_failure"])
+                        for row in rows
+                        if row.get("terminal_failure") is not None
+                    ).items()
+                )
             ),
             "generation_wall_time_s": sum(
                 float(row["generation_wall_time_s"]) for row in rows

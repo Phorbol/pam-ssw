@@ -176,3 +176,26 @@ def test_evidence_fails_closed_on_incomplete_or_mixed_family_rows():
     }
     with pytest.raises(ValueError, match="single expected family"):
         module.build_evidence(rows)
+
+
+def test_uncertified_terminal_is_retained_as_a_failed_action_label():
+    module = load_protocol()
+    rows = _rows(module, arm_signal=False)
+    failed = rows[0]
+    failed["certificate"] = False
+    failed["meaningful"] = False
+    failed["is_new_basin"] = False
+    failed["landing_delta_eV"] = 1.0
+    failed["terminal_failure"] = "strict_quench_nonconvergence"
+
+    evidence = module.build_evidence(rows)
+
+    assert evidence["totals"]["noncertified_terminal_outcomes"] == 1
+    assert evidence["stable_labels"][0]["meaningful"] is False
+
+    failed["terminal_failure"] = None
+    with pytest.raises(
+        ValueError,
+        match="uncertified terminal must retain its failure label",
+    ):
+        module.build_evidence(rows)

@@ -95,12 +95,14 @@ def test_conclusion_reports_gate_without_promoting_a_selector():
             "enter_posterior_stage": False,
             "reason": "insufficient_stable_meaningful_labels_per_family",
         },
+        "totals": {"noncertified_terminal_outcomes": 1},
     }
 
     report = runner.conclusion(evidence)
 
     assert "random_only: 2" in report
     assert "bond_only: 5" in report
+    assert "Uncertified terminal outcomes: 1" in report
     assert "enter_posterior_stage: `false`" in report
     assert "does not change production defaults" in report
 
@@ -146,3 +148,16 @@ def test_case_annotation_exposes_the_only_arm_specific_config_change():
     assert annotated["frozen_feedback_controls"] == {
         "stagnation_bond_pair_boost": 0,
     }
+
+
+def test_legacy_certificate_capture_retains_nonconvergence_without_retry():
+    runner = load_module(
+        RUN_ROOT / "run_experiment.py",
+        "_fixed_family_runner_certificate_capture_test",
+    )
+    capture = runner.LegacyCertificateCapture(
+        lambda landing, fmax: False,
+    )
+
+    assert capture(None, 0.01) is True
+    assert capture.actual_certificate is False
