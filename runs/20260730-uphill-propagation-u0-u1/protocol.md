@@ -15,7 +15,10 @@ The curvature-matched arm uses the same `bias_weight_min` and
 `bias_weight_max` bounds as the production configuration. This keeps numerical
 weight bounds fixed while removing only history-dependent `sigma_scale` and
 `weight_scale` feedback. GPU schema version 1 omitted this shared bound and is
-diagnostic only; schema version 2 is the production-bounded comparison.
+diagnostic only. Schema version 2 restores the bound but does not retain costs
+for prefixes that terminate before capture. Schema version 3 is authoritative:
+it retains successful and censored capture costs, purpose counts, capture wall
+times, and total run wall time.
 
 The result is conditional one-step mechanism evidence. It is not evidence that
 one arm is a better complete SSW search policy, an unbiased thermodynamic

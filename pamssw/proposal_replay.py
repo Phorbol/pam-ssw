@@ -25,6 +25,19 @@ class CapturedProposalTask:
     evaluation_counts: EvaluationCounts
 
 
+class ProposalTaskNotCaptured(RuntimeError):
+    """A walk ended before capture, with its exact spent evaluation ledger."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        evaluation_counts: EvaluationCounts,
+    ) -> None:
+        super().__init__(message)
+        self.evaluation_counts = evaluation_counts
+
+
 @dataclass(frozen=True)
 class ProposalReplayResult:
     result: RelaxResult
@@ -137,7 +150,10 @@ def capture_proposal_task(
             task=captured.task,
             evaluation_counts=walker.calculator.snapshot(),
         )
-    raise RuntimeError("walk terminated before the requested proposal task")
+    raise ProposalTaskNotCaptured(
+        "walk terminated before the requested proposal task",
+        evaluation_counts=walker.calculator.snapshot(),
+    )
 
 
 def retarget_last_gaussian(

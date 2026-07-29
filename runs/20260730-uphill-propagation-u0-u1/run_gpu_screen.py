@@ -22,7 +22,10 @@ import numpy as np
 from pamssw import validated_ls_ssw_config
 from pamssw.accounting import EvaluationPurpose
 from pamssw.calculators import ASECalculator
-from pamssw.proposal_replay import capture_proposal_task
+from pamssw.proposal_replay import (
+    ProposalTaskNotCaptured,
+    capture_proposal_task,
+)
 from pamssw.relax import has_force_convergence_certificate
 from pamssw.walker import SurfaceWalker
 
@@ -234,6 +237,7 @@ def _capture_record(
     seed: int,
     bias_count: int,
     captured,
+    wall_time_s: float,
 ) -> dict[str, Any]:
     counts = captured.evaluation_counts
     return {
@@ -246,6 +250,7 @@ def _capture_record(
         "weight": float(captured.task.biases[-1].weight),
         "force_evaluations": counts.total,
         "purpose_counts": counts.as_dict(),
+        "wall_time_s": wall_time_s,
     }
 
 
@@ -256,7 +261,52 @@ def _write(path: Path, payload: dict[str, Any]) -> None:
     )
 
 
+def _accounted_force_evaluations(payload: dict[str, Any]) -> int:
+    total = sum(
+        int(row["force_evaluations"]) for row in payload["rows"]
+    )
+    for system in payload["systems"].values():
+        total += int(system["bootstrap"]["force_evaluations"])
+        for key in (
+            "calibration_tasks",
+            "calibration_failures",
+            "capture_failures",
+        ):
+            total += sum(
+                int(record["force_evaluations"])
+                for record in system[key]
+            )
+        for task in system["evaluation_tasks"]:
+            total += int(task["force_evaluations"])
+            total += int(
+                task["characterization"]["force_evaluations"]
+            )
+    return total
+
+
+def _accounted_unattributed_force_evaluations(
+    payload: dict[str, Any],
+) -> int:
+    def count(record: dict[str, Any]) -> int:
+        return int(record["purpose_counts"]["unattributed"])
+
+    total = sum(count(row) for row in payload["rows"])
+    for system in payload["systems"].values():
+        total += count(system["bootstrap"])
+        for key in (
+            "calibration_tasks",
+            "calibration_failures",
+            "capture_failures",
+        ):
+            total += sum(count(record) for record in system[key])
+        for task in system["evaluation_tasks"]:
+            total += count(task)
+            total += count(task["characterization"])
+    return total
+
+
 def run(*, systems: Sequence[str], output: Path) -> dict[str, Any]:
+    run_started = perf_counter()
     if output.exists():
         raise FileExistsError(output)
     invalid = set(systems) - set(SYSTEMS)
@@ -265,7 +315,7 @@ def run(*, systems: Sequence[str], output: Path) -> dict[str, Any]:
 
     base = _base_runner()
     payload: dict[str, Any] = {
-        "schema_version": 2,
+        "schema_version": 3,
         "scope": (
             "conditional fixed-prefix Gaussian propagation screen; "
             "no local-softening term; not a full-search comparison"
@@ -286,6 +336,9 @@ def run(*, systems: Sequence[str], output: Path) -> dict[str, Any]:
             "minimum_calibration_tasks": MIN_CALIBRATION_TASKS,
             "curvature_arm_weight_bounds": (
                 "shared production bias_weight_min/bias_weight_max"
+            ),
+            "failed_capture_accounting": (
+                "force evaluations, purposes, and wall time retained"
             ),
             "right_censor_rule": (
                 "a calibration or evaluation prefix that terminates before "
@@ -330,6 +383,7 @@ def run(*, systems: Sequence[str], output: Path) -> dict[str, Any]:
         calibration_records = []
         for seed in CALIBRATION_SEEDS:
             config = _config(system, seed, base)
+            capture_started = perf_counter()
             try:
                 captured = capture_proposal_task(
                     seed_state,
@@ -337,12 +391,16 @@ def run(*, systems: Sequence[str], output: Path) -> dict[str, Any]:
                     config,
                     target_bias_count=1,
                 )
-            except RuntimeError as error:
+            except ProposalTaskNotCaptured as error:
+                capture_wall_time_s = perf_counter() - capture_started
                 failure = {
                     "task_id": f"{system}-cal-{seed}",
                     "seed": seed,
                     "target_bias_count": 1,
                     "error": str(error),
+                    "force_evaluations": error.evaluation_counts.total,
+                    "purpose_counts": error.evaluation_counts.as_dict(),
+                    "wall_time_s": capture_wall_time_s,
                 }
                 system_payload["calibration_failures"].append(failure)
                 print(
@@ -352,12 +410,14 @@ def run(*, systems: Sequence[str], output: Path) -> dict[str, Any]:
                 )
                 _write(output, payload)
                 continue
+            capture_wall_time_s = perf_counter() - capture_started
             record = _capture_record(
                 system=system,
                 task_id=f"{system}-cal-{seed}",
                 seed=seed,
                 bias_count=1,
                 captured=captured,
+                wall_time_s=capture_wall_time_s,
             )
             calibration_records.append(record)
             system_payload["calibration_tasks"].append(record)
@@ -382,6 +442,7 @@ def run(*, systems: Sequence[str], output: Path) -> dict[str, Any]:
             task_id = f"{system}-eval-{seed}-bias{bias_count}"
             print(f"[{system}] capture {task_id}", flush=True)
             config = _config(system, seed, base)
+            capture_started = perf_counter()
             try:
                 captured = capture_proposal_task(
                     seed_state,
@@ -389,18 +450,23 @@ def run(*, systems: Sequence[str], output: Path) -> dict[str, Any]:
                     config,
                     target_bias_count=bias_count,
                 )
-            except RuntimeError as error:
+            except ProposalTaskNotCaptured as error:
+                capture_wall_time_s = perf_counter() - capture_started
                 failure = {
                     "task_id": task_id,
                     "seed": seed,
                     "target_bias_count": bias_count,
                     "error": str(error),
+                    "force_evaluations": error.evaluation_counts.total,
+                    "purpose_counts": error.evaluation_counts.as_dict(),
+                    "wall_time_s": capture_wall_time_s,
                 }
                 system_payload["capture_failures"].append(failure)
                 print(f"[{system}] right-censored {task_id}: {error}", flush=True)
                 _write(output, payload)
                 continue
 
+            capture_wall_time_s = perf_counter() - capture_started
             task = captured.task
             capture = _capture_record(
                 system=system,
@@ -408,6 +474,7 @@ def run(*, systems: Sequence[str], output: Path) -> dict[str, Any]:
                 seed=seed,
                 bias_count=bias_count,
                 captured=captured,
+                wall_time_s=capture_wall_time_s,
             )
             base_sigma = base_sigma_from_task(
                 task,
@@ -474,15 +541,14 @@ def run(*, systems: Sequence[str], output: Path) -> dict[str, Any]:
             int(row["observer_only_force_evaluations"])
             for row in payload["rows"]
         ),
-        "unattributed_force_evaluations": sum(
-            int(
-                row["purpose_counts"][
-                    EvaluationPurpose.UNATTRIBUTED.value
-                ]
-            )
-            for row in payload["rows"]
+        "unattributed_force_evaluations": (
+            _accounted_unattributed_force_evaluations(payload)
+        ),
+        "accounted_force_evaluations": _accounted_force_evaluations(
+            payload
         ),
     }
+    payload["total_wall_time_s"] = perf_counter() - run_started
     _write(output, payload)
     return payload
 

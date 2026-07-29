@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from pamssw.proposal_replay import (
+    ProposalTaskNotCaptured,
     capture_proposal_task,
     proposal_task_from_payload,
     proposal_task_to_payload,
@@ -44,6 +45,37 @@ def test_capture_first_task_stops_before_biased_proposal_evaluation():
     assert captured.task.maxiter == 4
     assert (
         captured.evaluation_counts.count(EvaluationPurpose.BIASED_PROPOSAL_RELAX)
+        == 0
+    )
+
+
+def test_uncaptured_task_failure_preserves_spent_evaluation_counts():
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[1.0, 0.0, 0.0]]),
+    )
+    config = SSWConfig(
+        max_steps_per_walk=2,
+        oracle_candidates=1,
+        proposal_relax_steps=4,
+        proposal_fmax=0.05,
+        walk_trust_radius=1.0e-8,
+        rng_seed=7,
+    )
+
+    with pytest.raises(ProposalTaskNotCaptured) as captured:
+        capture_proposal_task(
+            state,
+            AnalyticCalculator(Quadratic()),
+            config,
+            target_bias_count=2,
+        )
+
+    assert captured.value.evaluation_counts.total > 0
+    assert (
+        captured.value.evaluation_counts.count(
+            EvaluationPurpose.UNATTRIBUTED
+        )
         == 0
     )
 

@@ -346,6 +346,61 @@ def test_gpu_screen_bootstrap_record_uses_force_certificate():
     assert record["force_evaluations"] == 5
 
 
+def test_gpu_screen_total_cost_includes_censored_prefixes():
+    screen = _load("uphill_u0_u1_gpu_screen_cost", "run_gpu_screen.py")
+    payload = {
+        "systems": {
+            "c60": {
+                "bootstrap": {
+                    "force_evaluations": 5,
+                    "purpose_counts": {"unattributed": 0},
+                },
+                "calibration_tasks": [
+                    {
+                        "force_evaluations": 2,
+                        "purpose_counts": {"unattributed": 0},
+                    }
+                ],
+                "calibration_failures": [
+                    {
+                        "force_evaluations": 3,
+                        "purpose_counts": {"unattributed": 1},
+                    }
+                ],
+                "evaluation_tasks": [
+                    {
+                        "force_evaluations": 7,
+                        "purpose_counts": {"unattributed": 0},
+                        "characterization": {
+                            "force_evaluations": 2,
+                            "purpose_counts": {"unattributed": 0},
+                        },
+                    }
+                ],
+                "capture_failures": [
+                    {
+                        "force_evaluations": 11,
+                        "purpose_counts": {"unattributed": 0},
+                    }
+                ],
+            }
+        },
+        "rows": [
+            {
+                "force_evaluations": 13,
+                "purpose_counts": {"unattributed": 0},
+            },
+            {
+                "force_evaluations": 17,
+                "purpose_counts": {"unattributed": 0},
+            },
+        ],
+    }
+
+    assert screen._accounted_force_evaluations(payload) == 60
+    assert screen._accounted_unattributed_force_evaluations(payload) == 1
+
+
 def test_base_sigma_and_inner_curvature_are_recomputed_from_frozen_prefix():
     runner = _load("uphill_u0_u1_runner_characterize", "run_ablation.py")
     source = _task()
