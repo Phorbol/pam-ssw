@@ -15,6 +15,7 @@ RUN_ROOT = (
 )
 RUNNER_PATH = RUN_ROOT / "run_ablation.py"
 EVIDENCE_PATH = RUN_ROOT / "output" / "evidence.json"
+REPEAT_EVIDENCE_PATH = RUN_ROOT / "repeat-output" / "evidence.json"
 
 
 def _load_runner():
@@ -91,3 +92,16 @@ def test_energy_bounded_vs_detached_evidence_contract_after_execution() -> None:
         "starter_true_quench"
     ] == 0
     assert evidence["totals"]["purpose_counts"]["unattributed"] == 0
+
+
+def test_exact_repeat_uses_the_same_execution_commit_and_contract() -> None:
+    if not REPEAT_EVIDENCE_PATH.is_file():
+        pytest.skip("locked repeat evidence has not been generated yet")
+    runner = _load_runner()
+    primary = runner.load_and_validate_evidence(EVIDENCE_PATH)
+    repeat = runner.load_and_validate_evidence(REPEAT_EVIDENCE_PATH)
+
+    assert repeat["execution_commit"] == primary["execution_commit"]
+    assert repeat["cohort"] == primary["cohort"]
+    assert repeat["certificate_count"] == 12
+    assert repeat["totals"]["purpose_counts"]["unattributed"] == 0
