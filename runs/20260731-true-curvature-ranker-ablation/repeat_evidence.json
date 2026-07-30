@@ -1,0 +1,823 @@
+{
+  "analysis": {
+    "by_system": {
+      "c60": {
+        "force_evaluation_difference": -9,
+        "group_count": 6,
+        "mean_energy_difference_eV": -0.1732355753580729,
+        "median_energy_difference_eV": 0.7181015014648438,
+        "pareto_improved": false,
+        "static_force_evaluations": 2405,
+        "ties": 0,
+        "true_curvature_energy_wins": 2,
+        "true_curvature_force_evaluations": 2396
+      },
+      "pdo": {
+        "force_evaluation_difference": -3,
+        "group_count": 6,
+        "mean_energy_difference_eV": -0.5139821370442709,
+        "median_energy_difference_eV": -0.7070465087890625,
+        "pareto_improved": true,
+        "static_force_evaluations": 1294,
+        "ties": 0,
+        "true_curvature_energy_wins": 4,
+        "true_curvature_force_evaluations": 1291
+      }
+    },
+    "promotion_allowed": false
+  },
+  "campaigns": [
+    {
+      "force_evaluations": 7275,
+      "path": "runs/20260731-true-curvature-ranker-ablation/output/evidence.json",
+      "wall_time_s": 148.24532535699836
+    },
+    {
+      "force_evaluations": 7500,
+      "path": "runs/20260731-true-curvature-ranker-ablation/output-repeat/evidence.json",
+      "wall_time_s": 154.3853525250015
+    }
+  ],
+  "execution_commit": "f689dae6a96b42b4d04a1118f77d996c1b0e0bd3",
+  "purpose_counts_first": {
+    "biased_proposal_relax": 4867,
+    "bootstrap_true_quench": 0,
+    "direction_oracle": 864,
+    "escape_true_pes_check": 173,
+    "landing_true_quench": 1347,
+    "local_softening_pre_relax": 0,
+    "post_relax_validation": 24,
+    "starter_true_quench": 0,
+    "unattributed": 0
+  },
+  "purpose_counts_second": {
+    "biased_proposal_relax": 5049,
+    "bootstrap_true_quench": 0,
+    "direction_oracle": 896,
+    "escape_true_pes_check": 178,
+    "landing_true_quench": 1353,
+    "local_softening_pre_relax": 0,
+    "post_relax_validation": 24,
+    "starter_true_quench": 0,
+    "unattributed": 0
+  },
+  "quality": {
+    "certified_cases": 48,
+    "fragmented_cases": 0,
+    "geometry_valid_cases": 48,
+    "total_cases": 48
+  },
+  "rows": [
+    {
+      "arm": "static_score",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 64,
+      "direction_force_evaluations_second": 64,
+      "force_evaluations_first": 414,
+      "force_evaluations_second": 389,
+      "landing_delta_eV_first": 4.59906005859375,
+      "landing_delta_eV_second": 4.59906005859375,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 42,
+      "selected_direction_kinds_first": [
+        "random",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "random",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "state_id": "intermediate_accepted",
+      "system": "c60",
+      "walk_termination_first": "reached_step_cap",
+      "walk_termination_second": "reached_step_cap"
+    },
+    {
+      "arm": "true_curvature",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 64,
+      "direction_force_evaluations_second": 64,
+      "force_evaluations_first": 394,
+      "force_evaluations_second": 382,
+      "landing_delta_eV_first": 5.41558837890625,
+      "landing_delta_eV_second": 4.599090576171875,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 42,
+      "selected_direction_kinds_first": [
+        "random",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "bond"
+      ],
+      "selected_direction_kinds_second": [
+        "random",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "state_id": "intermediate_accepted",
+      "system": "c60",
+      "walk_termination_first": "reached_step_cap",
+      "walk_termination_second": "reached_step_cap"
+    },
+    {
+      "arm": "static_score",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 64,
+      "direction_force_evaluations_second": 64,
+      "force_evaluations_first": 434,
+      "force_evaluations_second": 449,
+      "landing_delta_eV_first": 5.475189208984375,
+      "landing_delta_eV_second": 7.138092041015625,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 43,
+      "selected_direction_kinds_first": [
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "random",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "random",
+        "momentum"
+      ],
+      "state_id": "intermediate_accepted",
+      "system": "c60",
+      "walk_termination_first": "reached_step_cap",
+      "walk_termination_second": "reached_step_cap"
+    },
+    {
+      "arm": "true_curvature",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 40,
+      "direction_force_evaluations_second": 64,
+      "force_evaluations_first": 313,
+      "force_evaluations_second": 423,
+      "landing_delta_eV_first": 6.3167724609375,
+      "landing_delta_eV_second": 8.35235595703125,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 43,
+      "selected_direction_kinds_first": [
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "state_id": "intermediate_accepted",
+      "system": "c60",
+      "walk_termination_first": "relaxed_geometry_invalid",
+      "walk_termination_second": "reached_step_cap"
+    },
+    {
+      "arm": "static_score",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 64,
+      "direction_force_evaluations_second": 64,
+      "force_evaluations_first": 480,
+      "force_evaluations_second": 390,
+      "landing_delta_eV_first": 3.521270751953125,
+      "landing_delta_eV_second": 3.52142333984375,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 44,
+      "selected_direction_kinds_first": [
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum",
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "state_id": "intermediate_accepted",
+      "system": "c60",
+      "walk_termination_first": "reached_step_cap",
+      "walk_termination_second": "reached_step_cap"
+    },
+    {
+      "arm": "true_curvature",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 56,
+      "direction_force_evaluations_second": 64,
+      "force_evaluations_first": 390,
+      "force_evaluations_second": 440,
+      "landing_delta_eV_first": 5.32061767578125,
+      "landing_delta_eV_second": 4.74066162109375,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 44,
+      "selected_direction_kinds_first": [
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "state_id": "intermediate_accepted",
+      "system": "c60",
+      "walk_termination_first": "walk_displacement_clipped",
+      "walk_termination_second": "relaxed_geometry_invalid"
+    },
+    {
+      "arm": "static_score",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 56,
+      "direction_force_evaluations_second": 64,
+      "force_evaluations_first": 484,
+      "force_evaluations_second": 486,
+      "landing_delta_eV_first": -2.40472412109375,
+      "landing_delta_eV_second": -2.404693603515625,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 42,
+      "selected_direction_kinds_first": [
+        "random",
+        "momentum",
+        "random",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "random",
+        "momentum",
+        "random",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "state_id": "plateau_accepted",
+      "system": "c60",
+      "walk_termination_first": "walk_displacement_clipped",
+      "walk_termination_second": "walk_displacement_clipped"
+    },
+    {
+      "arm": "true_curvature",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 64,
+      "direction_force_evaluations_second": 56,
+      "force_evaluations_first": 442,
+      "force_evaluations_second": 417,
+      "landing_delta_eV_first": -9.66864013671875,
+      "landing_delta_eV_second": -9.668701171875,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 42,
+      "selected_direction_kinds_first": [
+        "random",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "random",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "state_id": "plateau_accepted",
+      "system": "c60",
+      "walk_termination_first": "walk_displacement_clipped",
+      "walk_termination_second": "walk_displacement_clipped"
+    },
+    {
+      "arm": "static_score",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 40,
+      "direction_force_evaluations_second": 40,
+      "force_evaluations_first": 255,
+      "force_evaluations_second": 256,
+      "landing_delta_eV_first": 3.083953857421875,
+      "landing_delta_eV_second": 3.084075927734375,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 43,
+      "selected_direction_kinds_first": [
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "state_id": "plateau_accepted",
+      "system": "c60",
+      "walk_termination_first": "explicit_geometry_invalid",
+      "walk_termination_second": "explicit_geometry_invalid"
+    },
+    {
+      "arm": "true_curvature",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 64,
+      "direction_force_evaluations_second": 64,
+      "force_evaluations_first": 422,
+      "force_evaluations_second": 520,
+      "landing_delta_eV_first": 6.138092041015625,
+      "landing_delta_eV_second": 6.588104248046875,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 43,
+      "selected_direction_kinds_first": [
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "state_id": "plateau_accepted",
+      "system": "c60",
+      "walk_termination_first": "reached_step_cap",
+      "walk_termination_second": "reached_step_cap"
+    },
+    {
+      "arm": "static_score",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 64,
+      "direction_force_evaluations_second": 64,
+      "force_evaluations_first": 385,
+      "force_evaluations_second": 389,
+      "landing_delta_eV_first": -9.030303955078125,
+      "landing_delta_eV_second": -9.0303955078125,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 44,
+      "selected_direction_kinds_first": [
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum",
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum",
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "state_id": "plateau_accepted",
+      "system": "c60",
+      "walk_termination_first": "reached_step_cap",
+      "walk_termination_second": "reached_step_cap"
+    },
+    {
+      "arm": "true_curvature",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 64,
+      "direction_force_evaluations_second": 64,
+      "force_evaluations_first": 325,
+      "force_evaluations_second": 324,
+      "landing_delta_eV_first": -9.030426025390625,
+      "landing_delta_eV_second": -9.03033447265625,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 44,
+      "selected_direction_kinds_first": [
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "bond",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum",
+        "momentum"
+      ],
+      "state_id": "plateau_accepted",
+      "system": "c60",
+      "walk_termination_first": "reached_step_cap",
+      "walk_termination_second": "reached_step_cap"
+    },
+    {
+      "arm": "static_score",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 8,
+      "direction_force_evaluations_second": 8,
+      "force_evaluations_first": 219,
+      "force_evaluations_second": 230,
+      "landing_delta_eV_first": 0.41943359375,
+      "landing_delta_eV_second": 0.4178466796875,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 42,
+      "selected_direction_kinds_first": [
+        "bond"
+      ],
+      "selected_direction_kinds_second": [
+        "bond"
+      ],
+      "state_id": "intermediate_accepted",
+      "system": "pdo",
+      "walk_termination_first": "walk_displacement_clipped",
+      "walk_termination_second": "walk_displacement_clipped"
+    },
+    {
+      "arm": "true_curvature",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 16,
+      "direction_force_evaluations_second": 16,
+      "force_evaluations_first": 263,
+      "force_evaluations_second": 262,
+      "landing_delta_eV_first": -1.03643798828125,
+      "landing_delta_eV_second": -1.03643798828125,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 42,
+      "selected_direction_kinds_first": [
+        "random",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "random",
+        "momentum"
+      ],
+      "state_id": "intermediate_accepted",
+      "system": "pdo",
+      "walk_termination_first": "walk_displacement_clipped",
+      "walk_termination_second": "walk_displacement_clipped"
+    },
+    {
+      "arm": "static_score",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 24,
+      "direction_force_evaluations_second": 24,
+      "force_evaluations_first": 430,
+      "force_evaluations_second": 433,
+      "landing_delta_eV_first": 2.82745361328125,
+      "landing_delta_eV_second": 2.82928466796875,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 43,
+      "selected_direction_kinds_first": [
+        "random",
+        "momentum",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "random",
+        "momentum",
+        "momentum"
+      ],
+      "state_id": "intermediate_accepted",
+      "system": "pdo",
+      "walk_termination_first": "relaxed_geometry_invalid",
+      "walk_termination_second": "relaxed_geometry_invalid"
+    },
+    {
+      "arm": "true_curvature",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 16,
+      "direction_force_evaluations_second": 16,
+      "force_evaluations_first": 189,
+      "force_evaluations_second": 235,
+      "landing_delta_eV_first": 2.4796142578125,
+      "landing_delta_eV_second": 2.07537841796875,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 43,
+      "selected_direction_kinds_first": [
+        "bond",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "bond",
+        "momentum"
+      ],
+      "state_id": "intermediate_accepted",
+      "system": "pdo",
+      "walk_termination_first": "walk_displacement_clipped",
+      "walk_termination_second": "walk_displacement_clipped"
+    },
+    {
+      "arm": "static_score",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 16,
+      "direction_force_evaluations_second": 16,
+      "force_evaluations_first": 265,
+      "force_evaluations_second": 240,
+      "landing_delta_eV_first": 2.35626220703125,
+      "landing_delta_eV_second": 2.35662841796875,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 44,
+      "selected_direction_kinds_first": [
+        "random",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "random",
+        "momentum"
+      ],
+      "state_id": "intermediate_accepted",
+      "system": "pdo",
+      "walk_termination_first": "relaxed_geometry_invalid",
+      "walk_termination_second": "relaxed_geometry_invalid"
+    },
+    {
+      "arm": "true_curvature",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 8,
+      "direction_force_evaluations_second": 8,
+      "force_evaluations_first": 152,
+      "force_evaluations_second": 157,
+      "landing_delta_eV_first": -0.56597900390625,
+      "landing_delta_eV_second": -0.56524658203125,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 44,
+      "selected_direction_kinds_first": [
+        "bond"
+      ],
+      "selected_direction_kinds_second": [
+        "bond"
+      ],
+      "state_id": "intermediate_accepted",
+      "system": "pdo",
+      "walk_termination_first": "walk_displacement_clipped",
+      "walk_termination_second": "walk_displacement_clipped"
+    },
+    {
+      "arm": "static_score",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 8,
+      "direction_force_evaluations_second": 8,
+      "force_evaluations_first": 69,
+      "force_evaluations_second": 73,
+      "landing_delta_eV_first": -0.0001220703125,
+      "landing_delta_eV_second": 0.0,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 42,
+      "selected_direction_kinds_first": [
+        "bond"
+      ],
+      "selected_direction_kinds_second": [
+        "bond"
+      ],
+      "state_id": "plateau_accepted",
+      "system": "pdo",
+      "walk_termination_first": "relaxed_geometry_invalid",
+      "walk_termination_second": "relaxed_geometry_invalid"
+    },
+    {
+      "arm": "true_curvature",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 16,
+      "direction_force_evaluations_second": 16,
+      "force_evaluations_first": 199,
+      "force_evaluations_second": 195,
+      "landing_delta_eV_first": 2.43548583984375,
+      "landing_delta_eV_second": 2.43621826171875,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 42,
+      "selected_direction_kinds_first": [
+        "bond",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "bond",
+        "momentum"
+      ],
+      "state_id": "plateau_accepted",
+      "system": "pdo",
+      "walk_termination_first": "walk_displacement_clipped",
+      "walk_termination_second": "walk_displacement_clipped"
+    },
+    {
+      "arm": "static_score",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 16,
+      "direction_force_evaluations_second": 16,
+      "force_evaluations_first": 269,
+      "force_evaluations_second": 333,
+      "landing_delta_eV_first": -1.305908203125,
+      "landing_delta_eV_second": -0.97100830078125,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 43,
+      "selected_direction_kinds_first": [
+        "random",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "random",
+        "momentum"
+      ],
+      "state_id": "plateau_accepted",
+      "system": "pdo",
+      "walk_termination_first": "relaxed_geometry_invalid",
+      "walk_termination_second": "walk_displacement_clipped"
+    },
+    {
+      "arm": "true_curvature",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 16,
+      "direction_force_evaluations_second": 16,
+      "force_evaluations_first": 306,
+      "force_evaluations_second": 302,
+      "landing_delta_eV_first": -0.8680419921875,
+      "landing_delta_eV_second": -0.86602783203125,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 43,
+      "selected_direction_kinds_first": [
+        "random",
+        "momentum"
+      ],
+      "selected_direction_kinds_second": [
+        "random",
+        "momentum"
+      ],
+      "state_id": "plateau_accepted",
+      "system": "pdo",
+      "walk_termination_first": "walk_displacement_clipped",
+      "walk_termination_second": "walk_displacement_clipped"
+    },
+    {
+      "arm": "static_score",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 8,
+      "direction_force_evaluations_second": 8,
+      "force_evaluations_first": 14,
+      "force_evaluations_second": 14,
+      "landing_delta_eV_first": -0.0001220703125,
+      "landing_delta_eV_second": -0.0001220703125,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 44,
+      "selected_direction_kinds_first": [
+        "bond"
+      ],
+      "selected_direction_kinds_second": [
+        "bond"
+      ],
+      "state_id": "plateau_accepted",
+      "system": "pdo",
+      "walk_termination_first": "explicit_geometry_invalid",
+      "walk_termination_second": "explicit_geometry_invalid"
+    },
+    {
+      "arm": "true_curvature",
+      "certificate_first": true,
+      "certificate_second": true,
+      "direction_force_evaluations_first": 8,
+      "direction_force_evaluations_second": 8,
+      "force_evaluations_first": 162,
+      "force_evaluations_second": 161,
+      "landing_delta_eV_first": -0.8643798828125,
+      "landing_delta_eV_second": -0.8623046875,
+      "landing_geometry_valid_first": true,
+      "landing_geometry_valid_second": true,
+      "seed": 44,
+      "selected_direction_kinds_first": [
+        "bond"
+      ],
+      "selected_direction_kinds_second": [
+        "bond"
+      ],
+      "state_id": "plateau_accepted",
+      "system": "pdo",
+      "walk_termination_first": "walk_displacement_clipped",
+      "walk_termination_second": "walk_displacement_clipped"
+    }
+  ],
+  "schema_version": 1,
+  "total_force_evaluations": 14775,
+  "total_wall_time_s": 302.6306778819999
+}

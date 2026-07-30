@@ -26,3 +26,16 @@ for each system independently, repeat-averaged true curvature must have
 non-positive mean and median landing-energy differences and no greater total
 force cost, with at least one strict improvement. Otherwise the result remains
 experimental and the production default stays unchanged.
+
+## Result
+
+The two cohorts used 14,775 force evaluations and produced 48/48 certified,
+geometry-valid landings with no C60 fragmentation. PdO passed the Pareto gate:
+true curvature won 4/6 groups, improved median landing delta by 0.707 eV, and
+used three fewer repeat-averaged force evaluations. C60 failed: true curvature
+won 2/6 and worsened the median by 0.718 eV; one large win made the mean look
+slightly favorable.
+
+The production default therefore remains `static_score`. The experiment
+supports complementary softness and intent hypotheses, not a universal softest
+mode and not a tuned weighted blend.
