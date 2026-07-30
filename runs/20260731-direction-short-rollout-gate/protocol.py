@@ -213,6 +213,13 @@ def summarize_campaign(
                             -ARMS.index(arm),
                         ),
                     )
+                    lower_rise_arm = min(
+                        ARMS,
+                        key=lambda arm: (
+                            probe[arm]["escape_delta_eV"],
+                            ARMS.index(arm),
+                        ),
+                    )
                     repeat_selections = []
                     for repeat in repeats:
                         repeat_selections.append(
@@ -255,6 +262,9 @@ def summarize_campaign(
                             "terminal_winner_arm": terminal_winner,
                             "prediction_correct": (
                                 selected == terminal_winner
+                            ),
+                            "lower_rise_prediction_correct": (
+                                lower_rise_arm == terminal_winner
                             ),
                             "prediction_stable": (
                                 len(set(repeat_selections)) == 1
@@ -308,6 +318,12 @@ def summarize_campaign(
             accuracy = _mean(
                 [float(row["prediction_correct"]) for row in rows]
             )
+            lower_rise_accuracy = _mean(
+                [
+                    float(row["lower_rise_prediction_correct"])
+                    for row in rows
+                ]
+            )
             stability = _mean(
                 [float(row["prediction_stable"]) for row in rows]
             )
@@ -326,6 +342,9 @@ def summarize_campaign(
             system_results[system] = {
                 "group_count": len(rows),
                 "prediction_accuracy": accuracy,
+                "lower_rise_prediction_accuracy": (
+                    lower_rise_accuracy
+                ),
                 "prediction_stability": stability,
                 "median_regret_eV": float(median(regrets)),
                 "mean_regret_eV": _mean(regrets),

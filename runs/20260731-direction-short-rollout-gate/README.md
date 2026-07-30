@@ -56,3 +56,29 @@ analysis reports:
   the step-zero K4 HVP pool is shared.
 
 The estimate is diagnostic only; no cost is hidden from the campaign ledger.
+
+## Result
+
+The two repeats completed 96/96 geometry-valid probes with exact first-
+direction identity relative to the frozen H8 labels. They used 8,400 force
+evaluations and 189.2 seconds of serial wall time.
+
+The preregistered H2 larger-rise rule failed decisively:
+
+- C60: 0/6 terminal winners, median regret 1.269 eV, mean terminal difference
+  versus `static_score` +1.037 eV;
+- PdO: 2/6 terminal winners, median regret 0.411 eV, mean terminal difference
+  versus `static_score` +0.065 eV.
+
+Even with chosen-trajectory reuse and one shared step-zero K4 HVP pool, the
+estimated mean overhead was 105 FE per C60 trial and 150 FE per PdO trial.
+Therefore the current two-full-arm short racing design is both non-predictive
+under its preregistered rule and too expensive to justify an online
+implementation.
+
+As a post-hoc diagnostic only, the lower-rise arm was the terminal winner in
+6/6 C60 and 4/6 PdO groups. This is consistent with the earlier observation
+that stronger short-horizon uphill motion can encode overshoot, strain, or an
+already-descending path rather than useful barrier progress. It does **not**
+promote the inverse rule: that hypothesis was observed after unblinding and
+requires independent preregistered validation before any implementation.

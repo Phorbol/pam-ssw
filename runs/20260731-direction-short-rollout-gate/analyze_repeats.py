@@ -143,12 +143,13 @@ def _render(payload: Mapping[str, Any]) -> str:
         "",
         "Primary rule: choose the larger true-PES energy rise after H2.",
         "",
-        "| System | Accuracy | Stable | Median regret (eV) | Mean vs static (eV) | Median vs static (eV) | Mean FE overhead | Gate |",
-        "|---|---:|---:|---:|---:|---:|---:|---|",
+        "| System | Larger-rise accuracy | Lower-rise diagnostic | Stable | Median regret (eV) | Mean vs static (eV) | Median vs static (eV) | Mean FE overhead | Gate |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---|",
     ]
     for system, result in analysis["by_system"].items():
         lines.append(
             f"| {system} | {result['prediction_accuracy']:.3f} | "
+            f"{result['lower_rise_prediction_accuracy']:.3f} | "
             f"{result['prediction_stability']:.3f} | "
             f"{result['median_regret_eV']:.6f} | "
             f"{result['mean_difference_vs_static_eV']:.6f} | "

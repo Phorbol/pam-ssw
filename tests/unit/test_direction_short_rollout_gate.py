@@ -142,6 +142,7 @@ def test_primary_h2_gate_requires_same_predictive_rule_in_both_systems() -> None
     assert result["online_racing_stage_allowed"] is True
     assert result["primary_horizon"] == 2
     assert result["by_system"]["c60"]["prediction_accuracy"] == 1.0
+    assert result["by_system"]["c60"]["lower_rise_prediction_accuracy"] == 0.0
     assert result["by_system"]["pdo"]["median_regret_eV"] == 0.0
     assert result["by_system"]["pdo"]["mean_difference_vs_static_eV"] < 0.0
 
