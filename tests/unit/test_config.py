@@ -581,6 +581,22 @@ def test_config_validates_direction_score_sigma_mode():
         SSWConfig(direction_score_sigma_mode="curvature_adaptive")
 
 
+def test_config_validates_direction_ranking_mode_and_keeps_static_default():
+    assert SSWConfig().direction_ranking_mode == "static_score"
+    assert (
+        SSWConfig(direction_ranking_mode="true_curvature").direction_ranking_mode
+        == "true_curvature"
+    )
+
+    with pytest.raises(ValueError, match="direction_ranking_mode"):
+        SSWConfig(direction_ranking_mode="unknown")
+    with pytest.raises(ValueError, match="true_curvature ranking"):
+        SSWConfig(
+            direction_ranking_mode="true_curvature",
+            direction_probe_enabled=True,
+        )
+
+
 def test_config_accepts_default_off_direction_diagnostics():
     config = SSWConfig(direction_diagnostics_enabled=False)
     assert config.direction_diagnostics_enabled is False

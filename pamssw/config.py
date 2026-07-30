@@ -93,6 +93,7 @@ class SSWConfig:
     direction_synthesis_mode: str = "none"
     regularized_ritz_top_k: int = 5
     direction_score_sigma_mode: str = "adaptive"
+    direction_ranking_mode: str = "static_score"
     direction_type_ucb_enabled: bool = False
     direction_type_success_weight: float = 0.0
     direction_type_exploration_weight: float = 0.1
@@ -360,6 +361,24 @@ class SSWConfig:
             )
         if self.direction_score_sigma_mode not in {"adaptive", "trust_scaled", "fixed_reference"}:
             raise ValueError("direction_score_sigma_mode must be adaptive, trust_scaled, or fixed_reference")
+        if self.direction_ranking_mode not in {
+            "static_score",
+            "true_curvature",
+        }:
+            raise ValueError(
+                "direction_ranking_mode must be static_score or true_curvature"
+            )
+        if self.direction_ranking_mode == "true_curvature" and (
+            self.direction_selection_mode != "discrete"
+            or self.direction_synthesis_mode != "none"
+            or self.direction_probe_enabled
+            or self.direction_type_ucb_enabled
+            or self.plateau_evolution_enabled
+        ):
+            raise ValueError(
+                "true_curvature ranking requires discrete native candidates "
+                "without synthesis, probe, direction-type UCB, or plateau evolution"
+            )
         if self.step_length_mode not in {"curvature_adaptive", "per_atom_rms"}:
             raise ValueError("step_length_mode must be curvature_adaptive or per_atom_rms")
         if self.step_rms_scope not in {"all_atoms", "active_atoms"}:

@@ -1824,6 +1824,65 @@ def test_direction_type_bonus_disabled_preserves_winner_and_candidate_count():
     assert choice.candidate_count == 2
 
 
+def test_true_curvature_ranker_uses_paid_true_hvp_not_static_composite(
+    monkeypatch,
+):
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[0.0, 0.0, 0.0]]),
+    )
+    oracle = SoftModeOracle(
+        AnalyticCalculator(Quadratic()),
+        np.random.default_rng(0),
+        candidates=0,
+        direction_ranking_mode="true_curvature",
+    )
+    candidates = [
+        DirectionCandidate(
+            DirectionCandidateKind.MOMENTUM,
+            np.array([1.0, 0.0, 0.0]),
+        ),
+        DirectionCandidate(
+            DirectionCandidateKind.BOND,
+            np.array([0.0, 1.0, 0.0]),
+        ),
+    ]
+    monkeypatch.setattr(
+        oracle.generator,
+        "generate",
+        lambda *args, **kwargs: candidates,
+    )
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda state, proposal, direction: (
+            direction,
+            (5.0 if direction[0] else -1.0) * direction,
+        ),
+    )
+    oracle.scorer = KindScoreScorer(
+        {
+            DirectionCandidateKind.MOMENTUM: 10.0,
+            DirectionCandidateKind.BOND: 0.0,
+        }
+    )
+
+    choice = oracle.choose_direction(
+        state,
+        proposal=ProposalPotential(
+            AnalyticCalculator(Quadratic())
+        ),
+        previous_direction=None,
+        score_sigma=1.0,
+    )
+
+    assert choice.kind == DirectionCandidateKind.BOND
+    assert choice.true_curvature == pytest.approx(-1.0)
+    assert choice.score == pytest.approx(0.0)
+    assert choice.diagnostics["direction_ranking_mode"] == "true_curvature"
+    assert choice.diagnostics["direction_ranking_score"] == pytest.approx(1.0)
+
+
 @pytest.mark.parametrize("bonus_kind", [DirectionCandidateKind.BOND, DirectionCandidateKind.RANDOM])
 def test_direction_type_bonus_can_flip_close_static_scores_from_momentum(bonus_kind):
     state = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))

@@ -1281,6 +1281,7 @@ class SoftModeOracle:
         bond_formation_max_distance: float = 4.0,
         bond_breaking_max_distance: float = 2.0,
         direction_selection_mode: str = "discrete",
+        direction_ranking_mode: str = "static_score",
         block_krylov_depth: int = 3,
         direction_synthesis_mode: str = "none",
         regularized_ritz_top_k: int = 5,
@@ -1297,6 +1298,7 @@ class SoftModeOracle:
         self.hvp_epsilon = hvp_epsilon
         self.anchor_mixing_alpha = anchor_mixing_alpha
         self.direction_selection_mode = direction_selection_mode
+        self.direction_ranking_mode = direction_ranking_mode
         self.block_krylov_depth = block_krylov_depth
         self.direction_synthesis_mode = direction_synthesis_mode
         self.regularized_ritz_top_k = regularized_ritz_top_k
@@ -1377,6 +1379,7 @@ class SoftModeOracle:
         best_curvature: float | None = None
         best_true_curvature: float | None = None
         best_score: float | None = None
+        best_ranking_score: float | None = None
         candidates = self.generator.generate(
             state,
             previous_direction,
@@ -1434,7 +1437,16 @@ class SoftModeOracle:
             )
             score = self._add_direction_type_bonus(score, candidate.kind, direction_type_bonus_fn)
             scored_candidates.append((candidate, hvp, curvature, score))
-            if best_score is None or score > best_score:
+            ranking_score = (
+                score
+                if self.direction_ranking_mode == "static_score"
+                else -float(candidate_true_curvature)
+            )
+            if (
+                best_ranking_score is None
+                or ranking_score > best_ranking_score
+            ):
+                best_ranking_score = ranking_score
                 best_score = score
                 best_curvature = curvature
                 best_true_curvature = candidate_true_curvature
@@ -1578,6 +1590,8 @@ class SoftModeOracle:
                 "evaluated_candidate_kind_counts": (
                     evaluated_candidate_kind_counts
                 ),
+                "direction_ranking_mode": self.direction_ranking_mode,
+                "direction_ranking_score": best_ranking_score,
             },
         )
 
@@ -2403,6 +2417,7 @@ class SurfaceWalker:
             bond_formation_max_distance=config.bond_formation_max_distance,
             bond_breaking_max_distance=config.bond_breaking_max_distance,
             direction_selection_mode=config.direction_selection_mode,
+            direction_ranking_mode=config.direction_ranking_mode,
             block_krylov_depth=config.block_krylov_depth,
             direction_synthesis_mode=config.direction_synthesis_mode,
             regularized_ritz_top_k=config.regularized_ritz_top_k,
