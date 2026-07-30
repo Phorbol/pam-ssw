@@ -2,6 +2,8 @@ import importlib.util
 from pathlib import Path
 import sys
 
+import pytest
+
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 RUN_ROOT = (
@@ -132,3 +134,65 @@ def test_analysis_advances_only_if_residual_ritz_beats_transport_in_both_systems
     ] == [10, 0, 0]
     assert rejected["decision"] == "reject_residual_ritz2"
 
+
+def test_raw_analysis_closes_shared_and_bootstrap_costs_and_provenance():
+    analyzer = _load(ANALYZER_PATH, "_residual_ritz_raw_analyzer")
+    rows = _cohort(residual_wins=True)
+    shared_purpose = {
+        "direction_oracle": 24,
+        "unattributed": 0,
+    }
+    c60 = {
+        "execution_commit": "abc",
+        "shared_provenance": {"model_sha256": "model"},
+        "shared_initial_directions": [
+            {
+                "force_evaluations": 24,
+                "purpose_counts": shared_purpose,
+            }
+            for _ in range(20)
+        ],
+        "cases": [
+            {key: value for key, value in row.items() if key != "system"}
+            for row in rows
+            if row["system"] == "c60"
+        ],
+    }
+    bootstrap_purpose = {
+        "bootstrap_true_quench": 85,
+        "unattributed": 0,
+    }
+    pdo = {
+        "execution_commit": "abc",
+        "model_sha256": "model",
+        "raw_input_sha256": "pdo-input",
+        "bootstrap": {
+            "certificate": True,
+            "geometry_valid": True,
+            "force_evaluations": 85,
+            "purpose_counts": bootstrap_purpose,
+        },
+        "shared_initial_directions": [
+            {
+                "force_evaluations": 24,
+                "purpose_counts": shared_purpose,
+            }
+            for _ in range(10)
+        ],
+        "cases": [
+            {key: value for key, value in row.items() if key != "system"}
+            for row in rows
+            if row["system"] == "pdo"
+        ],
+    }
+
+    evidence = analyzer.analyze_raw(c60, pdo)
+
+    assert evidence["provenance"]["execution_commit"] == "abc"
+    assert evidence["cost_scope"]["c60_shared_direction_fe"] == 480
+    assert evidence["cost_scope"]["pdo_bootstrap_fe"] == 85
+    assert evidence["cost_scope"]["pdo_shared_direction_fe"] == 240
+
+    pdo["execution_commit"] = "different"
+    with pytest.raises(ValueError, match="execution commit"):
+        analyzer.analyze_raw(c60, pdo)
