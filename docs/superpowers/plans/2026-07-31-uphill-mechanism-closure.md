@@ -104,8 +104,8 @@
 - Compares `H=8` and `H=14` under the surviving U4 mechanism.
 - Strictly quenches checkpoints 8 and 14; it does not shoot every checkpoint.
 
-- [ ] Write failing tests for paired configuration diffs, endpoint certificates, termination-reason completeness, and purpose closure.
-- [ ] Implement and verify the fixed-starter C60 gate.
+- [x] Write failing tests for paired configuration diffs and termination-reason completeness; reuse the verified U4 purpose-closure protocol.
+- [x] Implement and verify the fixed-starter C60 gate.
 - [ ] Run two locked starters by three seeds with a 12,000-FE aggregate ceiling.
 - [ ] Add a no-walk-ball replay only for radius-censored pairs; do not scan radius values.
 - [ ] Write the final mechanism conclusion and production-default decision.
