@@ -232,3 +232,43 @@ def test_intent_refresh_protocol_and_analysis_use_the_same_paired_gate():
     assert "continuation_intent_ritz2" in evidence["systems"]["c60"][
         "arm_results"
     ]
+
+
+def test_intent_refresh_analysis_reports_the_two_vector_ritz_gap():
+    analyzer = _load(
+        RUN_ROOT / "analyze_intent_refresh_ablation.py",
+        "_intent_refresh_gap_analyzer",
+    )
+    rows = _cohort(
+        residual_wins=True,
+        candidate_arm="continuation_intent_ritz2",
+    )
+    for row in rows:
+        if row["arm"] != "continuation_intent_ritz2":
+            continue
+        row["direction_trace"] = [
+            {"step": 0},
+            {
+                "step": 1,
+                "krylov_ritz_spectrum": [
+                    {
+                        "curvature": 2.0,
+                        "anchor_abs_overlap": 0.99,
+                    },
+                    {
+                        "curvature": 6.0,
+                        "anchor_abs_overlap": 0.01,
+                    },
+                ],
+            },
+        ]
+
+    evidence = analyzer.analyze_cases(rows)
+
+    assert evidence["systems"]["c60"]["intent_span_mechanism"] == {
+        "observation_count": 20,
+        "median_lower_ritz_curvature": 2.0,
+        "median_upper_ritz_curvature": 6.0,
+        "median_ritz_gap": 4.0,
+        "median_upper_mode_previous_overlap": 0.01,
+    }

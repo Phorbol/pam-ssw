@@ -7,6 +7,7 @@ import argparse
 import importlib.util
 import json
 from pathlib import Path
+import statistics
 import sys
 from typing import Any, Mapping, Sequence
 
@@ -65,7 +66,63 @@ def _rename_row(row: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
-def _relabel_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
+def _intent_span_mechanism(
+    rows: Sequence[Mapping[str, Any]],
+    *,
+    system: str,
+) -> dict[str, Any]:
+    lower_curvatures = []
+    upper_curvatures = []
+    gaps = []
+    upper_overlaps = []
+    for row in rows:
+        if (
+            row["system"] != system
+            or row["arm"] != CANDIDATE_ARM
+        ):
+            continue
+        for direction in row.get("direction_trace", [])[1:]:
+            spectrum = direction.get("krylov_ritz_spectrum")
+            if not isinstance(spectrum, list) or len(spectrum) != 2:
+                continue
+            lower, upper = sorted(
+                spectrum, key=lambda point: float(point["curvature"])
+            )
+            lower_curvature = float(lower["curvature"])
+            upper_curvature = float(upper["curvature"])
+            lower_curvatures.append(lower_curvature)
+            upper_curvatures.append(upper_curvature)
+            gaps.append(upper_curvature - lower_curvature)
+            upper_overlaps.append(
+                float(upper["anchor_abs_overlap"])
+            )
+    if not gaps:
+        return {
+            "observation_count": 0,
+            "median_lower_ritz_curvature": None,
+            "median_upper_ritz_curvature": None,
+            "median_ritz_gap": None,
+            "median_upper_mode_previous_overlap": None,
+        }
+    return {
+        "observation_count": len(gaps),
+        "median_lower_ritz_curvature": float(
+            statistics.median(lower_curvatures)
+        ),
+        "median_upper_ritz_curvature": float(
+            statistics.median(upper_curvatures)
+        ),
+        "median_ritz_gap": float(statistics.median(gaps)),
+        "median_upper_mode_previous_overlap": float(
+            statistics.median(upper_overlaps)
+        ),
+    }
+
+
+def _relabel_evidence(
+    evidence: dict[str, Any],
+    rows: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
     for system in SYSTEMS:
         system_result = evidence["systems"][system]
         arm_results = system_result["arm_results"]
@@ -77,6 +134,9 @@ def _relabel_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
         )
         system_result["candidate_vs_control"] = system_result.pop(
             "residual_vs_control"
+        )
+        system_result["intent_span_mechanism"] = (
+            _intent_span_mechanism(rows, system=system)
         )
     evidence["hypothesis"] = (
         "a two-HVP Ritz solve in the span of the transported mode and "
@@ -100,7 +160,8 @@ def analyze_cases(
     _validate_matrix(rows)
     base = _load(BASE_ANALYZER_PATH, "_intent_refresh_base_analyzer")
     return _relabel_evidence(
-        base.analyze_cases([_rename_row(row) for row in rows])
+        base.analyze_cases([_rename_row(row) for row in rows]),
+        rows,
     )
 
 
@@ -126,7 +187,8 @@ def analyze_raw(
         )
     base = _load(BASE_ANALYZER_PATH, "_intent_refresh_raw_analyzer")
     return _relabel_evidence(
-        base.analyze_raw(transformed[0], transformed[1])
+        base.analyze_raw(transformed[0], transformed[1]),
+        rows,
     )
 
 
