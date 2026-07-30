@@ -155,3 +155,75 @@ def test_classify_gate_distinguishes_selection_generation_and_ambiguous() -> Non
     assert generation["posterior_stage_allowed"] is False
     assert ambiguous["classification"] == "ambiguous"
     assert ambiguous["posterior_stage_allowed"] is False
+
+
+def test_summarize_repeats_separates_mechanism_from_posterior_promotion() -> None:
+    protocol = _load_protocol()
+
+    def campaign(best_index: int, correlation_order: tuple[float, ...]):
+        rows = []
+        for candidate_index, quality in enumerate(correlation_order):
+            rows.append(
+                {
+                    "system": "c60",
+                    "state_id": "plateau_accepted",
+                    "seed": 42,
+                    "candidate_index": candidate_index,
+                    "direction_sha256": f"direction-{candidate_index}",
+                    "static_rank": candidate_index + 1,
+                    "static_score": float(4 - candidate_index),
+                    "landing_delta_eV": (
+                        -10.0 if candidate_index == best_index else quality
+                    ),
+                    "certificate": True,
+                    "landing_geometry_valid": True,
+                }
+            )
+        return rows
+
+    first = campaign(3, (0.0, 1.0, 2.0, 3.0))
+    second = campaign(2, (0.0, 1.0, 2.0, 3.0))
+    comparison = protocol.summarize_repeats(first, second)
+
+    assert comparison["direction_identity_stable"] is True
+    assert comparison["stable_static_winner_miss_count"] == 1
+    assert comparison["best_candidate_identity_stable_count"] == 0
+    assert comparison["static_selector_inadequacy_supported"] is True
+    assert comparison["posterior_promotion_allowed"] is False
+
+
+def test_repeat_ranker_gate_prefers_simpler_physics_before_family_posterior() -> None:
+    protocol = _load_protocol()
+    first = []
+    second = []
+    for seed in (42, 43):
+        best_index = 0 if seed == 42 else 2
+        for candidate_index in range(4):
+            row = {
+                "system": "c60",
+                "state_id": "plateau_accepted",
+                "seed": seed,
+                "candidate_index": candidate_index,
+                "kind": "bond" if candidate_index < 2 else "random",
+                "static_score": float(4 - candidate_index),
+                "curvature": float(4 - candidate_index),
+                "score_sigma": float(
+                    (1.0 / (4 - candidate_index)) ** 0.5
+                ),
+                "true_curvature": float(
+                    abs(candidate_index - best_index)
+                ),
+                "landing_delta_eV": float(
+                    abs(candidate_index - best_index)
+                ),
+            }
+            first.append(row)
+            second.append(dict(row))
+
+    result = protocol.evaluate_repeat_rankers(first, second)
+
+    assert result["overall"]["static_score"]["top1_hits"] == 1
+    assert result["overall"]["true_curvature"]["top1_hits"] == 2
+    assert result["adaptive_score_energy_cost"]["range_eV"] == pytest.approx(0.0)
+    assert result["prospective_true_curvature_ablation_allowed"] is True
+    assert result["family_posterior_promotion_allowed"] is False

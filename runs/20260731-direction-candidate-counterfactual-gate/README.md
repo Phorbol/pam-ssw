@@ -46,3 +46,19 @@ the median score/terminal ordering is non-positive. If the static winner is
 best in every comparable pool with positive ordering, candidate generation is
 the bottleneck. All other outcomes are explicitly ambiguous and do not justify
 adding a posterior selector.
+
+## Repeated result
+
+Two complete executions used 27,860 force evaluations and produced 96/96
+strictly certified, geometry-valid landings. Ten of twelve shared pools missed
+the static winner in both repeats, but the PdO score-ordering sign was not
+repeat-stable. The static scorer is therefore a demonstrated bottleneck, while
+the cross-system posterior-promotion gate remains closed.
+
+All 48 positive-curvature candidates had
+`0.5 * score_sigma**2 * curvature = 0.8 eV` to numerical precision. Thus the
+adaptive score scale exactly cancels the curvature term used for ranking while
+still paying for its HVP. Repeat-averaged counterfactual replay promoted only a
+prospective test of the already-paid true-curvature ranker. A leave-one-group
+beta direction-family rule selected `random` in all 12 folds, so it was a fixed
+family prior rather than context-sensitive posterior learning.

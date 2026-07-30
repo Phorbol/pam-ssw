@@ -211,3 +211,345 @@ def summarize_campaign(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "by_system": by_system,
         "overall": overall,
     }
+
+
+def summarize_repeats(
+    first_rows: Sequence[Mapping[str, Any]],
+    second_rows: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    def case_key(row: Mapping[str, Any]) -> tuple[str, str, int, int]:
+        return (
+            str(row["system"]),
+            str(row["state_id"]),
+            int(row["seed"]),
+            int(row["candidate_index"]),
+        )
+
+    first_by_case = {case_key(row): row for row in first_rows}
+    second_by_case = {case_key(row): row for row in second_rows}
+    if first_by_case.keys() != second_by_case.keys():
+        raise ValueError("repeat campaigns do not contain the same cases")
+    direction_identity_stable = True
+    static_rank_stable = True
+    score_differences: list[float] = []
+    landing_differences: list[float] = []
+    for key in sorted(first_by_case):
+        first = first_by_case[key]
+        second = second_by_case[key]
+        direction_identity_stable &= (
+            first["direction_sha256"] == second["direction_sha256"]
+        )
+        static_rank_stable &= int(first["static_rank"]) == int(
+            second["static_rank"]
+        )
+        score_differences.append(
+            abs(float(first["static_score"]) - float(second["static_score"]))
+        )
+        landing_differences.append(
+            abs(
+                float(first["landing_delta_eV"])
+                - float(second["landing_delta_eV"])
+            )
+        )
+
+    first_analysis = summarize_campaign(first_rows)
+    second_analysis = summarize_campaign(second_rows)
+
+    def group_key(row: Mapping[str, Any]) -> tuple[str, str, int]:
+        return (
+            str(row["system"]),
+            str(row["state_id"]),
+            int(row["seed"]),
+        )
+
+    first_groups = {
+        group_key(row): row
+        for row in first_analysis["group_summaries"]
+    }
+    second_groups = {
+        group_key(row): row
+        for row in second_analysis["group_summaries"]
+    }
+    if first_groups.keys() != second_groups.keys():
+        raise ValueError("repeat group summaries do not align")
+    stable_misses = [
+        key
+        for key in first_groups
+        if not first_groups[key]["static_winner_is_best_valid"]
+        and not second_groups[key]["static_winner_is_best_valid"]
+    ]
+    stable_best = [
+        key
+        for key in first_groups
+        if first_groups[key]["best_valid_candidate_index"]
+        == second_groups[key]["best_valid_candidate_index"]
+    ]
+    stable_misses_by_system = {
+        system: sum(key[0] == system for key in stable_misses)
+        for system in sorted({key[0] for key in first_groups})
+    }
+    groups_by_system = {
+        system: sum(key[0] == system for key in first_groups)
+        for system in stable_misses_by_system
+    }
+    mechanism_supported = all(
+        stable_misses_by_system[system]
+        / groups_by_system[system]
+        > 0.5
+        for system in groups_by_system
+    )
+    posterior_allowed = all(
+        first_analysis["by_system"][system]["classification"]
+        == "selection_bottleneck"
+        and second_analysis["by_system"][system]["classification"]
+        == "selection_bottleneck"
+        for system in groups_by_system
+    )
+    return {
+        "direction_identity_stable": bool(direction_identity_stable),
+        "static_rank_stable": bool(static_rank_stable),
+        "max_static_score_absolute_difference": max(
+            score_differences,
+            default=0.0,
+        ),
+        "median_landing_delta_repeat_difference_eV": float(
+            median(landing_differences)
+        ),
+        "max_landing_delta_repeat_difference_eV": max(
+            landing_differences,
+            default=0.0,
+        ),
+        "group_count": len(first_groups),
+        "stable_static_winner_miss_count": len(stable_misses),
+        "stable_static_winner_miss_by_system": stable_misses_by_system,
+        "best_candidate_identity_stable_count": len(stable_best),
+        "static_selector_inadequacy_supported": bool(
+            mechanism_supported
+        ),
+        "posterior_promotion_allowed": bool(posterior_allowed),
+        "first_analysis": first_analysis,
+        "second_analysis": second_analysis,
+    }
+
+
+def evaluate_repeat_rankers(
+    first_rows: Sequence[Mapping[str, Any]],
+    second_rows: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    def key(row: Mapping[str, Any]) -> tuple[str, str, int, int]:
+        return (
+            str(row["system"]),
+            str(row["state_id"]),
+            int(row["seed"]),
+            int(row["candidate_index"]),
+        )
+
+    first = {key(row): row for row in first_rows}
+    second = {key(row): row for row in second_rows}
+    if first.keys() != second.keys():
+        raise ValueError("ranker campaigns do not contain the same cases")
+    combined: list[dict[str, Any]] = []
+    for case_key in sorted(first):
+        left = first[case_key]
+        right = second[case_key]
+        combined.append(
+            {
+                "system": case_key[0],
+                "state_id": case_key[1],
+                "seed": case_key[2],
+                "candidate_index": case_key[3],
+                "kind": str(left["kind"]),
+                "static_score": 0.5
+                * (
+                    float(left["static_score"])
+                    + float(right["static_score"])
+                ),
+                "curvature": 0.5
+                * (
+                    float(left["curvature"])
+                    + float(right["curvature"])
+                ),
+                "true_curvature": 0.5
+                * (
+                    float(left["true_curvature"])
+                    + float(right["true_curvature"])
+                ),
+                "score_sigma": 0.5
+                * (
+                    float(left["score_sigma"])
+                    + float(right["score_sigma"])
+                ),
+                "landing_delta_eV": 0.5
+                * (
+                    float(left["landing_delta_eV"])
+                    + float(right["landing_delta_eV"])
+                ),
+            }
+        )
+    grouped = group_cases(combined)
+
+    def static_score(group):
+        return max(group, key=lambda row: float(row["static_score"]))
+
+    def inner_curvature(group):
+        return min(group, key=lambda row: float(row["curvature"]))
+
+    def true_curvature(group):
+        return min(group, key=lambda row: float(row["true_curvature"]))
+
+    def family_static(group, kind: str):
+        return max(
+            [row for row in group if row["kind"] == kind],
+            key=lambda row: float(row["static_score"]),
+        )
+
+    selectors = {
+        "static_score": static_score,
+        "inner_curvature": inner_curvature,
+        "true_curvature": true_curvature,
+        "random_then_static": lambda group: family_static(group, "random"),
+        "bond_then_static": lambda group: family_static(group, "bond"),
+    }
+
+    def metrics(
+        selected_groups: Sequence[
+            tuple[Sequence[Mapping[str, Any]], Mapping[str, Any]]
+        ],
+    ) -> dict[str, Any]:
+        regrets = []
+        for group, selected in selected_groups:
+            best = min(
+                group,
+                key=lambda row: float(row["landing_delta_eV"]),
+            )
+            regrets.append(
+                float(selected["landing_delta_eV"])
+                - float(best["landing_delta_eV"])
+            )
+        return {
+            "group_count": len(regrets),
+            "top1_hits": sum(regret <= 1.0e-12 for regret in regrets),
+            "mean_regret_eV": float(np.mean(regrets)),
+            "median_regret_eV": float(median(regrets)),
+            "max_regret_eV": float(max(regrets)),
+        }
+
+    systems = sorted({key[0] for key in grouped})
+    results: dict[str, dict[str, Any]] = {
+        "overall": {},
+        **{system: {} for system in systems},
+    }
+    for name, selector in selectors.items():
+        selections = [
+            (group, selector(group))
+            for group in grouped.values()
+        ]
+        results["overall"][name] = metrics(selections)
+        for system in systems:
+            results[system][name] = metrics(
+                [
+                    pair
+                    for group_key, pair in zip(grouped, selections)
+                    if group_key[0] == system
+                ]
+            )
+
+    posterior_selections = []
+    grouped_items = list(grouped.items())
+    for held_key, held_group in grouped_items:
+        wins = {
+            "bond": [1, 2],
+            "random": [1, 2],
+        }
+        for training_key, training_group in grouped_items:
+            if training_key == held_key:
+                continue
+            best = min(
+                training_group,
+                key=lambda row: float(row["landing_delta_eV"]),
+            )
+            wins[str(best["kind"])][0] += 1
+            wins[str(best["kind"])][1] += 1
+        posterior_means = {
+            kind: successes / total
+            for kind, (successes, total) in wins.items()
+        }
+        selected_kind = max(
+            posterior_means,
+            key=posterior_means.get,
+        )
+        posterior_selections.append(
+            (
+                held_key,
+                held_group,
+                family_static(held_group, selected_kind),
+                selected_kind,
+            )
+        )
+    results["overall"]["loo_beta_family"] = metrics(
+        [
+            (group, selected)
+            for _, group, selected, _ in posterior_selections
+        ]
+    )
+    for system in systems:
+        results[system]["loo_beta_family"] = metrics(
+            [
+                (group, selected)
+                for held_key, group, selected, _ in posterior_selections
+                if held_key[0] == system
+            ]
+        )
+    posterior_kind_counts = {
+        kind: sum(
+            selected_kind == kind
+            for _, _, _, selected_kind in posterior_selections
+        )
+        for kind in ("bond", "random")
+    }
+
+    def dominates_static(name: str) -> bool:
+        strict = False
+        for system in systems:
+            baseline = results[system]["static_score"]
+            candidate = results[system][name]
+            if (
+                candidate["top1_hits"] < baseline["top1_hits"]
+                or candidate["mean_regret_eV"]
+                > baseline["mean_regret_eV"] + 1.0e-12
+                or candidate["median_regret_eV"]
+                > baseline["median_regret_eV"] + 1.0e-12
+            ):
+                return False
+            strict |= (
+                candidate["top1_hits"] > baseline["top1_hits"]
+                or candidate["mean_regret_eV"]
+                < baseline["mean_regret_eV"] - 1.0e-12
+                or candidate["median_regret_eV"]
+                < baseline["median_regret_eV"] - 1.0e-12
+            )
+        return strict
+
+    energy_costs = [
+        0.5
+        * float(row["score_sigma"]) ** 2
+        * float(row["curvature"])
+        for row in combined
+    ]
+    return {
+        **results,
+        "adaptive_score_energy_cost": {
+            "minimum_eV": min(energy_costs),
+            "maximum_eV": max(energy_costs),
+            "range_eV": max(energy_costs) - min(energy_costs),
+        },
+        "loo_beta_selected_kind_counts": posterior_kind_counts,
+        "prospective_true_curvature_ablation_allowed": dominates_static(
+            "true_curvature"
+        ),
+        "family_posterior_promotion_allowed": bool(
+            dominates_static("loo_beta_family")
+            and sum(count > 0 for count in posterior_kind_counts.values())
+            > 1
+        ),
+    }
