@@ -2456,6 +2456,11 @@ class SurfaceWalker:
             return False
         if not self.softening_enabled:
             return False
+        if not (
+            self._softening_scope_enabled("oracle")
+            or self._softening_scope_enabled("proposal")
+        ):
+            return False
         if anchor_direction is None or choice_direction is None:
             return False
         anchor = np.asarray(anchor_direction, dtype=float).reshape(-1)
@@ -3267,7 +3272,17 @@ class SurfaceWalker:
 
         for step_index in range(self.config.max_steps_per_walk):
             softening = self._build_softening(current, anchor_direction)
-            proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
+            oracle_softening = (
+                softening if self._softening_scope_enabled("oracle") else None
+            )
+            proposal_softening = (
+                softening if self._softening_scope_enabled("proposal") else None
+            )
+            proposal = ProposalPotential(
+                self.calculator,
+                biases=biases,
+                softening=oracle_softening,
+            )
             scoring_proposal = self._direction_scoring_proposal(proposal)
             score_sigma_fn = self._direction_score_sigma_fn(sigma_scale, step_target=step_target)
             if plateau_evolution_active:
@@ -3466,7 +3481,17 @@ class SurfaceWalker:
             rebuild_softening_for_choice = self._should_rebuild_softening_for_choice(anchor_direction, choice.direction)
             if rebuild_softening_for_choice:
                 softening = self._build_softening(current, choice.direction)
-                proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
+                oracle_softening = (
+                    softening if self._softening_scope_enabled("oracle") else None
+                )
+                proposal_softening = (
+                    softening if self._softening_scope_enabled("proposal") else None
+                )
+                proposal = ProposalPotential(
+                    self.calculator,
+                    biases=biases,
+                    softening=oracle_softening,
+                )
             with self.calculator.purpose(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK):
                 true_curvature = (
                     choice.true_curvature
@@ -3554,7 +3579,6 @@ class SurfaceWalker:
                     weight=weight,
                 )
             )
-            proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
             trial_state = CartesianCoordinates.from_state(current).displace(TangentVector(choice.direction), sigma)
             if not self.geometry_validator.is_valid_state(trial_state):
                 break
@@ -3569,7 +3593,7 @@ class SurfaceWalker:
             proposal_task = ProposalRelaxationTask(
                 initial_state=trial_state,
                 biases=tuple(biases),
-                softening=softening,
+                softening=proposal_softening,
                 fmax=self.config.proposal_fmax,
                 maxiter=self.config.proposal_relax_steps,
                 coordinate_trust_radius=self.config.proposal_trust_radius,
@@ -4553,6 +4577,9 @@ class SurfaceWalker:
         if not self.softening_enabled or not isinstance(self.config, LSSSWConfig):
             self._local_softening_terms_last = 0
             return None
+        if self.config.local_softening_scope == "none":
+            self._local_softening_terms_last = 0
+            return None
         if self.config.local_softening_mode == "manual" and not self.config.local_softening_pairs:
             self._local_softening_terms_last = 0
             return None
@@ -4577,6 +4604,13 @@ class SurfaceWalker:
         self._local_softening_terms_built_total += self._local_softening_terms_last
         self._local_softening_terms_total = self._local_softening_terms_built_total
         return softening
+
+    def _softening_scope_enabled(self, component: str) -> bool:
+        if component not in {"oracle", "proposal"}:
+            raise ValueError("component must be oracle or proposal")
+        if not self.softening_enabled or not isinstance(self.config, LSSSWConfig):
+            return False
+        return self.config.local_softening_scope in {component, "both"}
 
     def _softening_active_indices(self, seed_state: State, direction: np.ndarray | None = None) -> np.ndarray | None:
         if not isinstance(self.config, LSSSWConfig) or self.config.local_softening_mode != "active_neighbors":

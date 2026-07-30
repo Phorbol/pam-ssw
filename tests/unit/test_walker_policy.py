@@ -96,6 +96,75 @@ def test_walk_exposes_optimizer_neutral_proposal_relaxation_task(monkeypatch):
     assert task.initial_state.positions[0, 0] > state.positions[0, 0]
 
 
+@pytest.mark.parametrize(
+    ("scope", "oracle_softened", "proposal_softened"),
+    [
+        ("none", False, False),
+        ("oracle", True, False),
+        ("proposal", False, True),
+        ("both", True, True),
+    ],
+)
+def test_walk_routes_local_softening_to_documented_scope(
+    monkeypatch,
+    scope,
+    oracle_softened,
+    proposal_softened,
+):
+    class TaskCaptured(RuntimeError):
+        pass
+
+    captured = {}
+
+    class CapturingWalker(SurfaceWalker):
+        def _relax_proposal_task(self, task, *, optimizer, trajectory_callback):
+            captured["task"] = task
+            raise TaskCaptured
+
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]),
+    )
+    walker = CapturingWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            n_bond_pairs=0,
+            proposal_relax_steps=1,
+            local_softening_mode="manual",
+            local_softening_pairs=[(0, 1)],
+            local_softening_scope=scope,
+        ),
+        softening_enabled=True,
+    )
+    direction = np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0])
+    direction /= np.linalg.norm(direction)
+    monkeypatch.setattr(
+        walker.oracle.generator,
+        "generate_initial_direction",
+        lambda *args, **kwargs: direction,
+    )
+
+    def choose_direction(*args, **kwargs):
+        captured["oracle_proposal"] = kwargs.get("proposal", args[1] if len(args) > 1 else None)
+        return DirectionChoice(
+            direction=direction,
+            curvature=-0.5,
+            true_curvature=-0.25,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        )
+
+    monkeypatch.setattr(walker.oracle, "choose_direction", choose_direction)
+
+    with pytest.raises(TaskCaptured):
+        walker._walk_candidate_from_seed(state)
+
+    assert (captured["oracle_proposal"].softening is not None) is oracle_softened
+    assert (captured["task"].softening is not None) is proposal_softened
+
+
 def test_proposal_relaxation_task_snapshots_state_and_bias_arrays():
     state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
     center = np.array([1.0, 0.0, 0.0])

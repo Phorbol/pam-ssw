@@ -21,6 +21,7 @@ def test_ls_ssw_defaults_to_neighbor_auto_mode():
     config = LSSSWConfig()
 
     assert config.local_softening_mode == "neighbor_auto"
+    assert config.local_softening_scope == "both"
     assert config.local_softening_cutoff_scale == 1.25
     assert config.local_softening_active_count is None
     assert config.local_softening_penalty == "buckingham_repulsive"
@@ -51,6 +52,16 @@ def test_ls_ssw_positive_active_count_is_accepted():
 def test_ls_ssw_rejects_invalid_softening_mode():
     with pytest.raises(ValueError, match="local_softening_mode"):
         LSSSWConfig(local_softening_mode="unknown")
+
+
+@pytest.mark.parametrize("scope", ["none", "oracle", "proposal", "both"])
+def test_ls_ssw_accepts_documented_softening_scopes(scope):
+    assert LSSSWConfig(local_softening_scope=scope).local_softening_scope == scope
+
+
+def test_ls_ssw_rejects_invalid_softening_scope():
+    with pytest.raises(ValueError, match="local_softening_scope"):
+        LSSSWConfig(local_softening_scope="adaptive")
 
 
 def test_ls_ssw_rejects_invalid_neighbor_parameters():

@@ -418,6 +418,7 @@ class LSSSWConfig(SSWConfig):
     local_softening_strength: float = 0.6
     local_softening_pairs: list[tuple[int, int]] = field(default_factory=list)
     local_softening_mode: str = "neighbor_auto"
+    local_softening_scope: str = "both"
     local_softening_cutoff_scale: float = 1.25
     local_softening_active_count: int | None = None
     local_softening_penalty: str = "buckingham_repulsive"
@@ -435,6 +436,8 @@ class LSSSWConfig(SSWConfig):
             raise ValueError("local_softening_strength must be positive")
         if self.local_softening_mode not in {"manual", "neighbor_auto", "active_neighbors"}:
             raise ValueError("local_softening_mode must be manual, neighbor_auto, or active_neighbors")
+        if self.local_softening_scope not in {"none", "oracle", "proposal", "both"}:
+            raise ValueError("local_softening_scope must be none, oracle, proposal, or both")
         if self.local_softening_cutoff_scale <= 0:
             raise ValueError("local_softening_cutoff_scale must be positive")
         if self.local_softening_active_count is not None and self.local_softening_active_count <= 0:
