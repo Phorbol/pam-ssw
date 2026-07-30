@@ -33,6 +33,58 @@ def _validate(row: Mapping[str, Any]) -> None:
         raise ValueError("long-campaign row does not close")
 
 
+def _arm_projection(row: Mapping[str, Any]) -> dict[str, Any]:
+    telemetry = row["optimizer_telemetry"]
+    stats = row["stats"]
+    return {
+        "arm": row["arm"],
+        "completed_trials": int(row["completed_trials"]),
+        "recorded_walks": int(row["recorded_walks"]),
+        "trajectory_complete": bool(row.get("trajectory_complete", True)),
+        "best_energy_eV": float(row["best_energy_eV"]),
+        "best_energy_drop_eV": float(row["best_energy_drop_eV"]),
+        "mean_best_energy_improvement_eV": row[
+            "mean_best_energy_improvement_eV"
+        ],
+        "archive_entries": int(row["archive_entries"]),
+        "duplicate_rate": float(row["duplicate_rate"]),
+        "force_evaluations": int(row["force_evaluations"]),
+        "purpose_counts": dict(row["purpose_counts"]),
+        "wall_time_s": float(row["wall_time_s"]),
+        "bias_steps": int(telemetry.get("bias_steps", 0)),
+        "proposal_relax_count": int(
+            telemetry.get("proposal_relax_count", 0)
+        ),
+        "proposal_relax_mean_iterations": float(
+            telemetry.get("proposal_relax_mean_iterations", 0.0)
+        ),
+        "proposal_relax_energy_exploded": int(
+            telemetry.get("proposal_relax_outcome_energy_exploded", 0)
+        ),
+        "proposal_relax_unconverged": int(
+            telemetry.get("proposal_relax_unconverged", 0)
+        ),
+        "true_quench_count": int(telemetry.get("true_quench_count", 0)),
+        "true_quench_mean_iterations": float(
+            telemetry.get("true_quench_mean_iterations", 0.0)
+        ),
+        "true_quench_unconverged": int(
+            telemetry.get("true_quench_unconverged", 0)
+        ),
+        "quench_fallback_attempts": int(
+            telemetry.get("quench_fallback_attempts", 0)
+        ),
+        "quench_fallback_converged": int(
+            telemetry.get("quench_fallback_converged", 0)
+        ),
+        "fragment_rejections": int(stats.get("fragment_rejections", 0)),
+        "energy_sanity_rejections": int(
+            stats.get("energy_sanity_rejections", 0)
+        ),
+        "trust_damage_events": int(stats.get("trust_damage_events", 0)),
+    }
+
+
 def compare_system(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     if len(rows) != 2 or {row.get("arm") for row in rows} != set(ARMS):
         raise ValueError("system comparison requires exactly two arms")
@@ -104,9 +156,26 @@ def compare_system(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
             float(control["wall_time_s"])
             - float(transported["wall_time_s"])
         ),
-        "control": dict(control),
-        "transported": dict(transported),
+        "control": _arm_projection(control),
+        "transported": _arm_projection(transported),
     }
+
+
+def _shared_value(
+    rows: Sequence[Mapping[str, Any]], key: str
+) -> Any | None:
+    values = [row.get(key) for row in rows]
+    if all(value is None for value in values):
+        return None
+    if any(value is None for value in values):
+        raise ValueError(f"incomplete provenance field: {key}")
+    canonical = {
+        json.dumps(value, sort_keys=True, allow_nan=False)
+        for value in values
+    }
+    if len(canonical) != 1:
+        raise ValueError(f"inconsistent provenance field: {key}")
+    return values[0]
 
 
 def analyze(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
@@ -139,9 +208,34 @@ def analyze(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         decision = "seed42_screen_rejects"
     else:
         decision = "seed42_screen_mixed"
+    provenance = {
+        key: value
+        for key in (
+            "execution_commit",
+            "model_path",
+            "model_sha256",
+            "calculator",
+            "runtime_versions",
+            "cuda",
+        )
+        if (value := _shared_value(rows, key)) is not None
+    }
+    for key in ("input_path", "input_sha256"):
+        values = {
+            system: _shared_value(
+                [row for row in rows if row["system"] == system],
+                key,
+            )
+            for system in SYSTEMS
+        }
+        if any(value is not None for value in values.values()):
+            if any(value is None for value in values.values()):
+                raise ValueError(f"incomplete system provenance field: {key}")
+            provenance[key] = values
     return {
         "schema_version": 1,
         "decision": decision,
+        "provenance": provenance,
         "systems": systems,
         "claim_ceiling": (
             "one 200-step campaign seed per system and arm; a survivor gate "
@@ -151,23 +245,98 @@ def analyze(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
 
 
 def _markdown(evidence: Mapping[str, Any]) -> str:
+    if evidence["decision"] == "seed42_screen_survives":
+        conclusion = (
+            "Pure transport survives this screen but is not promoted without "
+            "multi-seed confirmation."
+        )
+    elif evidence["decision"] == "seed42_screen_rejects":
+        conclusion = (
+            "Pure transport is not promoted: its direction-oracle savings do "
+            "not preserve search quality and reliability across both systems."
+        )
+    else:
+        conclusion = (
+            "Pure transport remains a system-dependent cost/search tradeoff "
+            "and is not promoted."
+        )
     lines = [
         "# 200-step direction-transport seed42 screen",
         "",
         f"- Decision: `{evidence['decision']}`",
-        "",
-        "| system | decision | FE saved | direction FE saved | wall s saved |",
-        "|---|---|---:|---:|---:|",
+        f"- Conclusion: {conclusion}",
     ]
+    provenance = evidence.get("provenance", {})
+    if provenance.get("execution_commit") is not None:
+        lines.append(f"- Execution commit: `{provenance['execution_commit']}`")
+    if provenance.get("model_sha256") is not None:
+        lines.append(f"- Model SHA-256: `{provenance['model_sha256']}`")
+    lines.extend(
+        [
+            "",
+            "## Endpoint metrics",
+            "",
+            "| system | arm | best eV | drop eV | mean best gain eV | minima | duplicate | FE | direction FE | proposal FE | quench FE | wall s | quench failures |",
+            "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for system in SYSTEMS:
+        result = evidence["systems"][system]
+        for key in ("control", "transported"):
+            arm = result[key]
+            purposes = arm["purpose_counts"]
+            mean_gain = arm["mean_best_energy_improvement_eV"]
+            mean_gain_text = (
+                "n/a" if mean_gain is None else f"{float(mean_gain):.6f}"
+            )
+            quench_force_evaluations = (
+                int(purposes["bootstrap_true_quench"])
+                + int(purposes["landing_true_quench"])
+            )
+            lines.append(
+                f"| {system} | {arm['arm']} | "
+                f"{arm['best_energy_eV']:.6f} | "
+                f"{arm['best_energy_drop_eV']:.6f} | "
+                f"{mean_gain_text} | {arm['archive_entries']} | "
+                f"{arm['duplicate_rate']:.4f} | "
+                f"{arm['force_evaluations']} | "
+                f"{purposes['direction_oracle']} | "
+                f"{purposes['biased_proposal_relax']} | "
+                f"{quench_force_evaluations} | "
+                f"{arm['wall_time_s']:.3f} | "
+                f"{arm['true_quench_unconverged']} |"
+            )
+    lines.extend(
+        [
+            "",
+            "## Vector decision",
+            "",
+            "| system | decision | FE saved | direction FE saved | wall s saved | final not worse | trajectory not worse | reliability not worse |",
+            "|---|---|---:|---:|---:|---|---|---|",
+        ]
+    )
     for system in SYSTEMS:
         result = evidence["systems"][system]
         lines.append(
             f"| {system} | {result['decision']} | "
             f"{result['force_evaluations_saved']} | "
             f"{result['direction_force_evaluations_saved']} | "
-            f"{result['wall_time_saved_s']:.3f} |"
+            f"{result['wall_time_saved_s']:.3f} | "
+            f"{result['final_best_not_worse']} | "
+            f"{result['trajectory_not_worse']} | "
+            f"{result['no_reliability_regression']} |"
         )
-    lines.extend(["", f"Claim ceiling: {evidence['claim_ceiling']}.", ""])
+    lines.extend(
+        [
+            "",
+            "The comparison is at equal 200-step endpoints. Per-trial cumulative "
+            "force counts were not recorded, so this artifact does not claim an "
+            "equal-force-budget trajectory comparison.",
+            "",
+            f"Claim ceiling: {evidence['claim_ceiling']}.",
+            "",
+        ]
+    )
     return "\n".join(lines)
 
 

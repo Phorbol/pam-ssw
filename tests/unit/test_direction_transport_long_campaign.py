@@ -63,6 +63,9 @@ def _summary(system, arm, *, force_evaluations, best, auc):
         "system": system,
         "seed": 42,
         "arm": arm,
+        "execution_commit": "abc123",
+        "model_sha256": "model123",
+        "input_sha256": f"{system}123",
         "completed_trials": 200,
         "recorded_walks": 200,
         "initial_energy_eV": -100.0,
@@ -83,6 +86,7 @@ def _summary(system, arm, *, force_evaluations, best, auc):
             "n_trials": 200,
             "fragment_rejections": 0,
         },
+        "large_payload_not_part_of_evidence": {"values": list(range(100))},
     }
 
 
@@ -115,6 +119,18 @@ def test_long_campaign_analysis_uses_vector_pareto_gates():
     assert evidence["systems"]["c60"]["decision"] == "pareto_dominates"
     assert evidence["systems"]["pdo"]["decision"] == "pareto_dominates"
     assert evidence["systems"]["c60"]["force_evaluations_saved"] == 20
+    assert "large_payload_not_part_of_evidence" not in evidence["systems"]["c60"]["control"]
+    assert evidence["systems"]["c60"]["control"]["force_evaluations"] == 100
+    assert evidence["systems"]["c60"]["control"]["true_quench_unconverged"] == 0
+    assert evidence["provenance"]["execution_commit"] == "abc123"
+    assert evidence["provenance"]["model_sha256"] == "model123"
+    assert evidence["provenance"]["input_sha256"] == {
+        "c60": "c60123",
+        "pdo": "pdo123",
+    }
+    markdown = analyzer._markdown(evidence)
+    assert "| c60 | fixed_intent_ritz | -105.000000 |" in markdown
+    assert "- Execution commit: `abc123`" in markdown
 
 
 def test_lower_cost_with_worse_search_is_reported_as_tradeoff():
