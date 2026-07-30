@@ -175,6 +175,10 @@ def _system_summary(
     residuals = [
         float(row["max_relative_residual"]) for row in observable
     ]
+    true_residuals = [
+        float(row["max_true_relative_residual"])
+        for row in observable
+    ]
     downstream = [
         float(row["downstream_force_evaluations"])
         for row in observable
@@ -212,6 +216,10 @@ def _system_summary(
         "median_residual_change": _median(changes),
         "spearman_max_residual_vs_downstream_fe": _spearman(
             residuals,
+            downstream,
+        ),
+        "spearman_max_true_residual_vs_downstream_fe": _spearman(
+            true_residuals,
             downstream,
         ),
         "spearman_max_residual_vs_quench_iterations": _spearman(
@@ -313,14 +321,22 @@ def _write_json(path: Path, payload: Any) -> None:
 
 
 def _markdown(evidence: Mapping[str, Any]) -> str:
+    conclusion = (
+        "The residual signal is cross-system consistent enough to justify "
+        "a separate refresh ablation."
+        if evidence["decision"] == "residual_signal_consistent"
+        else "The residual-trigger hypothesis is rejected; no refresh "
+        "threshold should be introduced from this signal."
+    )
     lines = [
         "# Transported-mode residual observation",
         "",
         f"- Decision: `{evidence['decision']}`",
+        f"- Conclusion: {conclusion}",
         f"- Zero extra direction FE: `{evidence['zero_extra_direction_fe']}`",
         "",
-        "| system | observable | median first residual | median max residual | median change | rho residual/downstream FE | rho residual/quench iter | low-cost residual | high-cost residual |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| system | observable | median first residual | median max residual | median change | rho total residual/downstream FE | rho true residual/downstream FE | rho residual/quench iter | low-cost residual | high-cost residual |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for system in SYSTEMS:
         row = evidence["systems"][system]
@@ -331,6 +347,7 @@ def _markdown(evidence: Mapping[str, Any]) -> str:
             f"{row['median_max_relative_residual']:.6f} | "
             f"{row['median_residual_change']:.6f} | "
             f"{row['spearman_max_residual_vs_downstream_fe']:.6f} | "
+            f"{row['spearman_max_true_residual_vs_downstream_fe']:.6f} | "
             f"{row['spearman_max_residual_vs_quench_iterations']:.6f} | "
             f"{row['low_cost_median_max_residual']:.6f} | "
             f"{row['high_cost_median_max_residual']:.6f} |"
@@ -362,13 +379,30 @@ def main(argv: Sequence[str] | None = None) -> None:
         for row in raw_by_system[system]["cases"]
     ]
     evidence = analyze_cases(rows)
+    c60_shared = raw_by_system["c60"].get("shared_provenance", {})
     evidence["provenance"] = {
-        system: {
-            "execution_commit": raw_by_system[system][
+        "c60": {
+            "execution_commit": raw_by_system["c60"][
                 "execution_commit"
             ],
-        }
-        for system in SYSTEMS
+            "model_sha256": c60_shared.get("model_sha256"),
+            "input_sha256": c60_shared.get("raw_input_sha256"),
+            "locked_source_output": c60_shared.get(
+                "locked_source_output"
+            ),
+        },
+        "pdo": {
+            "execution_commit": raw_by_system["pdo"][
+                "execution_commit"
+            ],
+            "model_sha256": raw_by_system["pdo"].get("model_sha256"),
+            "input_sha256": raw_by_system["pdo"].get(
+                "raw_input_sha256"
+            ),
+            "bootstrap_force_evaluations": raw_by_system["pdo"][
+                "bootstrap"
+            ]["force_evaluations"],
+        },
     }
     _write_json(args.evidence, evidence)
     args.conclusion.write_text(_markdown(evidence), encoding="utf-8")

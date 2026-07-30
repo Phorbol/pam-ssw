@@ -159,6 +159,9 @@ def test_residual_analysis_survives_only_for_cross_system_cost_ordering():
         "spearman_max_residual_vs_downstream_fe"
     ] > 0.0
     assert evidence["systems"]["c60"][
+        "spearman_max_true_residual_vs_downstream_fe"
+    ] > 0.0
+    assert evidence["systems"]["c60"][
         "median_residual_change"
     ] > 0.0
     assert evidence["zero_extra_direction_fe"] is True
