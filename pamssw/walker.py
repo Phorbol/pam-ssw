@@ -3253,7 +3253,10 @@ class SurfaceWalker:
         plateau_evolution_active: bool = False,
         initial_direction_choice: DirectionChoice | None = None,
     ) -> State:
-        current = seed_state
+        current, frozen_softening = self._prepare_frozen_local_softening(
+            seed_state
+        )
+        walk_reference = current
         previous_direction: np.ndarray | None = None
         previous_selected_direction: np.ndarray | None = None
         previous_relax_outcome: RelaxOutcomeClass | None = None
@@ -3271,7 +3274,11 @@ class SurfaceWalker:
         )
 
         for step_index in range(self.config.max_steps_per_walk):
-            softening = self._build_softening(current, anchor_direction)
+            softening = (
+                frozen_softening
+                if frozen_softening is not None
+                else self._build_softening(current, anchor_direction)
+            )
             oracle_softening = (
                 softening if self._softening_scope_enabled("oracle") else None
             )
@@ -3478,7 +3485,13 @@ class SurfaceWalker:
                 anchor_direction=anchor_direction,
             )
             self._record_direction_choice(choice)
-            rebuild_softening_for_choice = self._should_rebuild_softening_for_choice(anchor_direction, choice.direction)
+            rebuild_softening_for_choice = (
+                frozen_softening is None
+                and self._should_rebuild_softening_for_choice(
+                    anchor_direction,
+                    choice.direction,
+                )
+            )
             if rebuild_softening_for_choice:
                 softening = self._build_softening(current, choice.direction)
                 oracle_softening = (
@@ -3612,7 +3625,7 @@ class SurfaceWalker:
                     ),
                 )
             current_candidate, clipped = self._clip_walk_displacement(
-                reference=seed_state,
+                reference=walk_reference,
                 candidate=proposal_relax.state,
                 max_displacement=self.config.walk_trust_radius,
             )
@@ -4121,6 +4134,12 @@ class SurfaceWalker:
         self._local_softening_terms_total = 0
         self._local_softening_builds = 0
         self._local_softening_terms_built_total = 0
+        self._local_softening_pre_relaxations = 0
+        self._local_softening_pre_relax_force_evaluations = 0
+        self._local_softening_pre_relax_pls = 0.0
+        self._local_softening_pre_relax_converged = 0
+        self._local_softening_pre_relax_gradient_norm = 0.0
+        self._local_softening_pre_relax_iterations = 0
 
     def _reset_metropolis_stats(self) -> None:
         self._metropolis_trials = 0
@@ -4573,6 +4592,29 @@ class SurfaceWalker:
         summary["force_evaluations"] = self.calculator.snapshot().total
         return summary
 
+    def local_softening_diagnostics(self) -> dict[str, StatsValue]:
+        protocol = (
+            self.config.local_softening_protocol
+            if isinstance(self.config, LSSSWConfig)
+            else "disabled"
+        )
+        return {
+            "protocol": protocol,
+            "terms_last": self._local_softening_terms_last,
+            "builds": self._local_softening_builds,
+            "terms_built_total": self._local_softening_terms_built_total,
+            "pre_relaxations": self._local_softening_pre_relaxations,
+            "pre_relax_force_evaluations": (
+                self._local_softening_pre_relax_force_evaluations
+            ),
+            "pre_relax_pls_eV_per_atom": self._local_softening_pre_relax_pls,
+            "pre_relax_converged": self._local_softening_pre_relax_converged,
+            "pre_relax_gradient_norm": (
+                self._local_softening_pre_relax_gradient_norm
+            ),
+            "pre_relax_iterations": self._local_softening_pre_relax_iterations,
+        }
+
     def _build_softening(self, seed_state: State, direction: np.ndarray | None = None) -> LocalSofteningModel | None:
         if not self.softening_enabled or not isinstance(self.config, LSSSWConfig):
             self._local_softening_terms_last = 0
@@ -4592,6 +4634,9 @@ class SurfaceWalker:
             active_indices=self._softening_active_indices(seed_state, direction),
             penalty=self.config.local_softening_penalty,
             xi=self.config.local_softening_xi,
+            reference_scaled_xi=(
+                self.config.local_softening_protocol == "paper_ordered"
+            ),
             cutoff=self.config.local_softening_cutoff,
             adaptive_strength=self.config.local_softening_adaptive_strength,
             max_strength_scale=self.config.local_softening_max_strength_scale,
@@ -4604,6 +4649,75 @@ class SurfaceWalker:
         self._local_softening_terms_built_total += self._local_softening_terms_last
         self._local_softening_terms_total = self._local_softening_terms_built_total
         return softening
+
+    def _prepare_frozen_local_softening(
+        self,
+        seed_state: State,
+    ) -> tuple[State, LocalSofteningModel | None]:
+        if (
+            not self.softening_enabled
+            or not isinstance(self.config, LSSSWConfig)
+            or self.config.local_softening_protocol != "paper_ordered"
+            or self.config.local_softening_scope == "none"
+        ):
+            return seed_state, None
+        softening = self._build_softening(seed_state)
+        if softening is None:
+            return seed_state, None
+        if self.config.proposal_optimizer == "bias-separated-lbfgs":
+            raise ValueError(
+                "paper_ordered local softening requires an optimizer that "
+                "supports the total softened objective"
+            )
+        proposal = ProposalPotential(self.calculator, softening=softening)
+        relaxer_kwargs = {"optimizer": self.config.proposal_optimizer}
+        if self.config.proposal_optimizer == "safe-lbfgs-total":
+            relaxer_kwargs["component_evaluator"] = proposal.evaluate_parts
+        force_evaluations_before = self.calculator.snapshot().count(
+            EvaluationPurpose.LOCAL_SOFTENING_PRE_RELAX
+        )
+        with self.calculator.purpose(EvaluationPurpose.LOCAL_SOFTENING_PRE_RELAX):
+            initial_true_energy, _ = self.calculator.evaluate_flat(
+                seed_state.flatten_positions(),
+                seed_state,
+            )
+            result = Relaxer(
+                proposal.evaluate,
+                **relaxer_kwargs,
+            ).relax(
+                seed_state,
+                fmax=self.config.proposal_fmax,
+                maxiter=self.config.quench_maxiter,
+                trajectory_callback=self._relaxation_trajectory_callback(
+                    "local_softening_pre_relax"
+                ),
+                trajectory_stride=self.config.relaxation_trajectory_stride,
+            )
+            final_true_energy, _ = self.calculator.evaluate_flat(
+                result.state.flatten_positions(),
+                result.state,
+            )
+        self._local_softening_pre_relaxations += 1
+        self._local_softening_pre_relax_force_evaluations += (
+            self.calculator.snapshot().count(
+                EvaluationPurpose.LOCAL_SOFTENING_PRE_RELAX
+            )
+            - force_evaluations_before
+        )
+        self._local_softening_pre_relax_pls = (
+            float(final_true_energy) - float(initial_true_energy)
+        ) / max(1, seed_state.n_atoms)
+        self._local_softening_pre_relax_converged = int(
+            has_force_convergence_certificate(
+                result,
+                self.config.proposal_fmax,
+            )
+        )
+        self._local_softening_pre_relax_gradient_norm = float(
+            result.gradient_norm
+        )
+        self._local_softening_pre_relax_iterations = int(result.n_iter)
+        return result.state, softening
 
     def _softening_scope_enabled(self, component: str) -> bool:
         if component not in {"oracle", "proposal"}:

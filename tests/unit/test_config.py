@@ -21,6 +21,7 @@ def test_ls_ssw_defaults_to_neighbor_auto_mode():
     config = LSSSWConfig()
 
     assert config.local_softening_mode == "neighbor_auto"
+    assert config.local_softening_protocol == "moving_reference"
     assert config.local_softening_scope == "both"
     assert config.local_softening_cutoff_scale == 1.25
     assert config.local_softening_active_count is None
@@ -28,6 +29,17 @@ def test_ls_ssw_defaults_to_neighbor_auto_mode():
     assert config.local_softening_xi == 0.3
     assert config.local_softening_cutoff == 2.0
     assert config.local_softening_pairs == []
+
+
+def test_ls_ssw_accepts_paper_ordered_protocol():
+    config = LSSSWConfig(local_softening_protocol="paper_ordered")
+
+    assert config.local_softening_protocol == "paper_ordered"
+
+
+def test_ls_ssw_rejects_unknown_softening_protocol():
+    with pytest.raises(ValueError, match="local_softening_protocol"):
+        LSSSWConfig(local_softening_protocol="unknown")
 
 
 def test_ls_ssw_manual_mode_keeps_legacy_pairs():

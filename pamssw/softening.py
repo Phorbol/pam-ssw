@@ -26,6 +26,7 @@ class LocalSofteningModel:
         pbc: tuple[bool, bool, bool] = (False, False, False),
         penalty: str = "gaussian_well",
         xi: float = 0.5,
+        reference_scaled_xi: bool = False,
         cutoff: float | None = 3.0,
         adaptive_strength: bool = False,
         max_strength_scale: float = 3.0,
@@ -48,6 +49,7 @@ class LocalSofteningModel:
             raise ValueError("deviation_scale must be positive")
         self.penalty = penalty
         self.xi = float(xi)
+        self.reference_scaled_xi = bool(reference_scaled_xi)
         self.cutoff = None if cutoff is None else float(cutoff)
         self.adaptive_strength = bool(adaptive_strength)
         self.max_strength_scale = float(max_strength_scale)
@@ -64,6 +66,7 @@ class LocalSofteningModel:
         active_indices: np.ndarray | None = None,
         penalty: str = "gaussian_well",
         xi: float = 0.5,
+        reference_scaled_xi: bool = False,
         cutoff: float | None = 3.0,
         adaptive_strength: bool = False,
         max_strength_scale: float = 3.0,
@@ -105,6 +108,7 @@ class LocalSofteningModel:
             pbc=state.pbc,
             penalty=penalty,
             xi=xi,
+            reference_scaled_xi=reference_scaled_xi,
             cutoff=cutoff,
             adaptive_strength=adaptive_strength,
             max_strength_scale=max_strength_scale,
@@ -137,9 +141,17 @@ class LocalSofteningModel:
             else:
                 if self.cutoff is not None and distance > term.reference_distance + self.cutoff:
                     continue
-                exponent = np.exp(-deviation / self.xi)
+                decay_length = (
+                    self.xi * term.reference_distance
+                    if self.reference_scaled_xi
+                    else self.xi
+                )
+                exponent = np.exp(-deviation / decay_length)
                 energy = strength * exponent
-                d_energy_d_distance = d_strength_d_distance * exponent - strength * exponent / self.xi
+                d_energy_d_distance = (
+                    d_strength_d_distance * exponent
+                    - strength * exponent / decay_length
+                )
             direction = delta / distance
             grad_i = -d_energy_d_distance * direction
             grad_j = -grad_i

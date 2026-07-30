@@ -95,6 +95,35 @@ def test_local_softening_model_buckingham_repulsive_pushes_pair_apart_at_referen
     assert gradient[3] == pytest.approx(-1.2)
 
 
+def test_local_softening_model_reference_scaled_xi_matches_ls_ssw_equation():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [2.0, 0.0, 0.0]]),
+    )
+    model = LocalSofteningModel.from_state(
+        state,
+        pairs=[(0, 1)],
+        strength=0.6,
+        mode="manual",
+        penalty="buckingham_repulsive",
+        xi=0.2,
+        reference_scaled_xi=True,
+        cutoff=None,
+    )
+
+    energy_at_reference, gradient_at_reference = model.evaluate(
+        state.flatten_positions()
+    )
+    displaced = state.flatten_positions()
+    displaced[3] = 2.4
+    energy_after_one_decay_length, _ = model.evaluate(displaced)
+
+    assert energy_at_reference == pytest.approx(0.6)
+    assert gradient_at_reference[0] == pytest.approx(1.5)
+    assert gradient_at_reference[3] == pytest.approx(-1.5)
+    assert energy_after_one_decay_length == pytest.approx(0.6 * np.exp(-1.0))
+
+
 def test_local_softening_model_buckingham_repulsive_respects_cutoff():
     state = State(
         numbers=np.array([1, 1]),

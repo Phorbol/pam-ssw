@@ -576,8 +576,11 @@ def test_attempt_result_and_credited_outcome_are_frozen():
 
 
 def test_terminal_records_preserve_exact_evaluation_vectors_and_legacy_scalar_conversion():
-    exact_counts = EvaluationCounts(
-        (1, 0, 2, 0, 0, 0, 0, 0)
+    exact_counts = EvaluationCounts.from_mapping(
+        {
+            EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH: 1,
+            EvaluationPurpose.DIRECTION_ORACLE: 2,
+        }
     )
     result = AttemptResult(
         action=_action(),

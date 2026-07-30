@@ -110,9 +110,9 @@ def test_evaluation_counts_zero_is_immutable_and_canonical():
 @pytest.mark.parametrize(
     ("values", "error"),
     [
-        ((0,) * 7, ValueError),
-        ((0,) * 7 + (True,), TypeError),
-        ((0,) * 7 + (-1,), ValueError),
+        ((0,) * (len(EvaluationPurpose) - 1), ValueError),
+        ((0,) * (len(EvaluationPurpose) - 1) + (True,), TypeError),
+        ((0,) * (len(EvaluationPurpose) - 1) + (-1,), ValueError),
     ],
 )
 def test_evaluation_counts_reject_invalid_values(values: tuple[int, ...], error: type[Exception]):

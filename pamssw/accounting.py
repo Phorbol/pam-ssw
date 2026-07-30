@@ -30,6 +30,7 @@ class BudgetExceeded(RuntimeError):
 class EvaluationPurpose(Enum):
     BOOTSTRAP_TRUE_QUENCH = "bootstrap_true_quench"
     STARTER_TRUE_QUENCH = "starter_true_quench"
+    LOCAL_SOFTENING_PRE_RELAX = "local_softening_pre_relax"
     DIRECTION_ORACLE = "direction_oracle"
     ESCAPE_TRUE_PES_CHECK = "escape_true_pes_check"
     BIASED_PROPOSAL_RELAX = "biased_proposal_relax"

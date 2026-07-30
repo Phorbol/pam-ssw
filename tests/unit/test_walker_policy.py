@@ -165,6 +165,126 @@ def test_walk_routes_local_softening_to_documented_scope(
     assert (captured["task"].softening is not None) is proposal_softened
 
 
+def test_paper_ordered_softening_prerelaxes_once_and_attributes_evaluations():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(
+            proposal_optimizer="safe-lbfgs-total",
+            proposal_fmax=0.01,
+            proposal_relax_steps=80,
+            local_softening_protocol="paper_ordered",
+            local_softening_mode="manual",
+            local_softening_pairs=[(0, 1)],
+            local_softening_strength=0.2,
+            local_softening_xi=0.2,
+            local_softening_cutoff=None,
+        ),
+        softening_enabled=True,
+    )
+
+    prepared, frozen = walker._prepare_frozen_local_softening(state)
+    counts = walker.calculator.snapshot()
+
+    assert frozen is not None
+    assert frozen.reference_scaled_xi
+    assert frozen.terms[0].reference_distance == pytest.approx(1.0)
+    assert np.linalg.norm(prepared.positions[1] - prepared.positions[0]) > 1.0
+    assert counts.count(EvaluationPurpose.LOCAL_SOFTENING_PRE_RELAX) > 0
+    assert counts.count(EvaluationPurpose.UNATTRIBUTED) == 0
+    diagnostics = walker.local_softening_diagnostics()
+    assert diagnostics["protocol"] == "paper_ordered"
+    assert diagnostics["pre_relaxations"] == 1
+    assert diagnostics["pre_relax_force_evaluations"] == counts.count(
+        EvaluationPurpose.LOCAL_SOFTENING_PRE_RELAX
+    )
+    assert diagnostics["pre_relax_pls_eV_per_atom"] > 0.0
+    assert diagnostics["pre_relax_converged"] == 1
+    assert diagnostics["pre_relax_gradient_norm"] <= 0.01
+
+
+def test_paper_ordered_walk_reuses_frozen_softening_after_prerelax(monkeypatch):
+    class TaskCaptured(RuntimeError):
+        pass
+
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]),
+    )
+    prepared = State(
+        numbers=state.numbers.copy(),
+        positions=np.array([[-0.6, 0.0, 0.0], [0.6, 0.0, 0.0]]),
+    )
+    frozen = LocalSofteningModel.from_state(
+        state,
+        pairs=[(0, 1)],
+        strength=0.2,
+        mode="manual",
+        penalty="buckingham_repulsive",
+        xi=0.2,
+        reference_scaled_xi=True,
+        cutoff=None,
+    )
+    captured = {}
+
+    class CapturingWalker(SurfaceWalker):
+        def _prepare_frozen_local_softening(self, seed_state):
+            return prepared, frozen
+
+        def _build_softening(self, *args, **kwargs):
+            raise AssertionError("paper-ordered walk rebuilt its frozen penalty")
+
+        def _relax_proposal_task(self, task, *, optimizer, trajectory_callback):
+            captured["task"] = task
+            raise TaskCaptured
+
+    walker = CapturingWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            n_bond_pairs=0,
+            proposal_relax_steps=1,
+            local_softening_protocol="paper_ordered",
+            local_softening_mode="manual",
+            local_softening_pairs=[(0, 1)],
+            local_softening_scope="both",
+        ),
+        softening_enabled=True,
+    )
+    direction = np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0])
+    direction /= np.linalg.norm(direction)
+    monkeypatch.setattr(
+        walker.oracle.generator,
+        "generate_initial_direction",
+        lambda *args, **kwargs: direction,
+    )
+
+    def choose_direction(chosen_state, proposal, *args, **kwargs):
+        captured["oracle_state"] = chosen_state
+        captured["oracle_softening"] = proposal.softening
+        return DirectionChoice(
+            direction=direction,
+            curvature=-0.5,
+            true_curvature=-0.25,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        )
+
+    monkeypatch.setattr(walker.oracle, "choose_direction", choose_direction)
+
+    with pytest.raises(TaskCaptured):
+        walker._walk_candidate_from_seed(state)
+
+    assert captured["oracle_state"] is prepared
+    assert captured["oracle_softening"] is frozen
+    assert captured["task"].softening is not frozen
+    assert captured["task"].softening.terms == frozen.terms
+
+
 def test_proposal_relaxation_task_snapshots_state_and_bias_arrays():
     state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
     center = np.array([1.0, 0.0, 0.0])
