@@ -33,12 +33,12 @@
 - [x] Run the focused tests and confirm they fail because termination reasons and control telemetry are absent.
 - [x] Add a single walk-termination recorder and fields for requested/configured/executed sigma, base/final weight, cap status, and true/inner curvature.
 - [x] Run the focused tests and the complete unit baseline.
-- [ ] Commit the observer-only change.
+- [x] Commit the observer-only change (`1c0b258`).
 
 ### Task 2: U4-0 Proposal-Relaxation Censor Audit
 
 **Files:**
-- Create: `runs/20260731-uphill-mechanism-closure/run_u4_0.py`
+- Create: `runs/20260731-uphill-mechanism-closure/run_u4.py`
 - Create: `runs/20260731-uphill-mechanism-closure/protocol.py`
 - Create after execution: `runs/20260731-uphill-mechanism-closure/u4_0_evidence.json`
 - Create after execution: `runs/20260731-uphill-mechanism-closure/u4_0_conclusion.md`
@@ -48,8 +48,8 @@
 - Consumes frozen C60 prefixes that stopped at proposal `maxiter=80`.
 - Produces paired 80-step endpoint versus continuation-to-300 evidence on the identical modified PES.
 
-- [ ] Write failing protocol tests for frozen-prefix identity, cost closure, and certificate classification.
-- [ ] Implement the minimal replay protocol and verify tests.
+- [x] Write failing protocol tests for frozen-task identity and cost closure.
+- [x] Implement the minimal replay protocol and verify tests.
 - [ ] Run at most six C60 prefixes on CUDA.
 - [ ] Stop if continuation changes no certificate or physical endpoint beyond replay noise.
 - [ ] Write and commit the evidence-backed conclusion.
