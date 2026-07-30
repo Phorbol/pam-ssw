@@ -106,6 +106,6 @@
 
 - [x] Write failing tests for paired configuration diffs and termination-reason completeness; reuse the verified U4 purpose-closure protocol.
 - [x] Implement and verify the fixed-starter C60 gate.
-- [ ] Run two locked starters by three seeds with a 12,000-FE aggregate ceiling.
-- [ ] Add a no-walk-ball replay only for radius-censored pairs; do not scan radius values.
-- [ ] Write the final mechanism conclusion and production-default decision.
+- [x] Run two locked starters by three seeds with a 12,000-FE aggregate ceiling.
+- [x] Add one fixed no-walk-ball replay only for the two radius-censored trajectories; do not scan radius values.
+- [x] Write the final mechanism conclusion and retain H=8 as the production default.
