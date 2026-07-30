@@ -360,20 +360,17 @@ def _run_frozen_task(
 
     rows: dict[str, dict[str, Any]] = {}
     landings = {}
+    proposal_states = {}
     for arm in ARM_ORDER:
         task = tasks[arm]
-        if arm == "baseline80":
-            result = frozen.result
-            proposal_counts = frozen.proposal_counts
-            proposal_wall_time = None
-        else:
-            result, proposal_counts, proposal_wall_time = _execute_task(
-                walker,
-                task,
-                frozen.optimizer,
-            )
+        result, proposal_counts, proposal_wall_time = _execute_task(
+            walker,
+            task,
+            frozen.optimizer,
+        )
         validation, landing = _validate_endpoint(walker, result)
         landings[arm] = landing
+        proposal_states[arm] = result.state
         arm_dir = output / "tasks" / task_id / arm
         arm_dir.mkdir(parents=True, exist_ok=True)
         write_state(arm_dir / "proposal_endpoint.xyz", result.state)
@@ -438,6 +435,10 @@ def _run_frozen_task(
                 <= walker.config.dedup_rmsd_tol
             )
         )
+    replay_rmsd = _rmsd(
+        frozen.result.state,
+        proposal_states["baseline80"],
+    )
     return {
         "task_id": task_id,
         "state_id": state_id,
@@ -446,6 +447,30 @@ def _run_frozen_task(
         "frozen_optimizer": frozen.optimizer,
         "baseline_physical_task_fingerprint": (
             protocol.physical_task_fingerprint(frozen.task)
+        ),
+        "selection_run": {
+            "proposal_energy_eV": float(frozen.result.energy),
+            "proposal_gradient_norm_eV_per_A": float(
+                frozen.result.gradient_norm
+            ),
+            "proposal_iterations": int(frozen.result.n_iter),
+            "proposal_certificate": bool(
+                has_force_convergence_certificate(
+                    frozen.result,
+                    frozen.task.fmax,
+                )
+            ),
+            "proposal_termination": (
+                frozen.result.telemetry.termination_reason
+            ),
+            "proposal_counts": frozen.proposal_counts,
+        },
+        "selection_to_baseline_proposal_rmsd_A": (
+            float(replay_rmsd) if np.isfinite(replay_rmsd) else None
+        ),
+        "selection_to_baseline_proposal_energy_delta_eV": float(
+            rows["baseline80"]["proposal_energy_eV"]
+            - frozen.result.energy
         ),
         "rows": rows,
     }
