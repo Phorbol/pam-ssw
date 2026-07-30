@@ -114,8 +114,10 @@ def maxiter_arms(
 def history_arms(
     task: ProposalRelaxationTask,
 ) -> dict[str, ProposalRelaxationTask]:
-    if not task.biases:
-        raise ValueError("history ablation requires at least one Gaussian bias")
+    if len(task.biases) < 2:
+        raise ValueError(
+            "history ablation requires at least two Gaussian biases"
+        )
     return {
         "cumulative": replace(task),
         "newest_only": replace(task, biases=(task.biases[-1],)),

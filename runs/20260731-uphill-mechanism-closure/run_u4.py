@@ -194,7 +194,8 @@ def _preflight(expected_commit: str) -> dict[str, Any]:
         "arm_order": list(ARM_ORDER),
         "selection_rule": (
             "max two proposal maxiter=80 tasks per fixed-starter walk, "
-            "ordered by descending Gaussian-history length"
+            "requiring at least two Gaussian terms and ordered by "
+            "descending Gaussian-history length"
         ),
     }
 
@@ -251,6 +252,7 @@ def _capture_tasks(
         for item in walker.captured_tasks
         if item.result.telemetry.termination_reason == "maxiter"
         and item.task.maxiter == 80
+        and len(item.task.biases) >= 2
     ]
     censored.sort(key=lambda item: len(item.task.biases), reverse=True)
     return walker, censored[:2], _counts_delta(before, after), wall_time

@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 
 import numpy as np
+import pytest
 
 from pamssw.bias import GaussianBiasTerm
 from pamssw.softening import LocalSofteningModel, PairSofteningTerm
@@ -99,6 +100,26 @@ def test_history_arms_change_only_historical_bias_retention():
         arms["cumulative"],
         arms["newest_only"],
     ) == {"bias_history"}
+
+
+def test_history_arms_reject_single_bias_noop():
+    protocol = _protocol()
+    task = _task()
+
+    with pytest.raises(
+        ValueError,
+        match="at least two Gaussian biases",
+    ):
+        protocol.history_arms(
+            ProposalRelaxationTask(
+                initial_state=task.initial_state,
+                biases=(task.biases[-1],),
+                softening=task.softening,
+                fmax=task.fmax,
+                maxiter=task.maxiter,
+                coordinate_trust_radius=task.coordinate_trust_radius,
+            )
+        )
 
 
 def test_softening_arms_change_only_proposal_softening():
