@@ -5724,6 +5724,172 @@ def test_surface_walker_reports_direction_acquisition_diagnostics():
     assert "direction_bond_candidates_valid" in result.stats
 
 
+def test_uphill_control_telemetry_reports_requested_and_actual_controls():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(bias_weight_max=10.0),
+        softening_enabled=False,
+    )
+
+    walker._record_uphill_control(
+        requested_sigma=0.8,
+        executed_sigma=0.6,
+        base_weight=10.0,
+        final_weight=11.5,
+        true_curvature=4.0,
+        inner_curvature=2.0,
+    )
+
+    stats = walker._direction_stats_summary()
+    assert stats["uphill_control_steps"] == 1
+    assert stats["uphill_requested_sigma_mean"] == pytest.approx(0.8)
+    assert stats["uphill_executed_sigma_mean"] == pytest.approx(0.6)
+    assert stats["uphill_sigma_capped_steps"] == 1
+    assert stats["uphill_base_weight_mean"] == pytest.approx(10.0)
+    assert stats["uphill_final_weight_mean"] == pytest.approx(11.5)
+    assert stats["uphill_base_weight_at_config_max_steps"] == 1
+    assert stats["uphill_final_weight_above_config_max_steps"] == 1
+    assert stats["uphill_true_curvature_mean"] == pytest.approx(4.0)
+    assert stats["uphill_inner_curvature_mean"] == pytest.approx(2.0)
+
+
+def test_walk_termination_telemetry_distinguishes_step_cap_and_radius_clip():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(),
+        softening_enabled=False,
+    )
+
+    assert (
+        walker._direction_stats_summary()[
+            "walk_termination_reached_step_cap"
+        ]
+        == 0
+    )
+    walker._record_walk_termination("reached_step_cap")
+    walker._record_walk_termination("walk_displacement_clipped")
+
+    stats = walker._direction_stats_summary()
+    assert stats["walk_terminations"] == 2
+    assert stats["walk_termination_reached_step_cap"] == 1
+    assert stats["walk_termination_walk_displacement_clipped"] == 1
+    assert stats["walk_termination_last_reason"] == "walk_displacement_clipped"
+
+
+def test_walk_records_actual_uphill_controls_and_step_cap_termination(
+    monkeypatch,
+):
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[1.0, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            direction_selection_mode="energy_bounded_anchor",
+            step_length_mode="per_atom_rms",
+            step_rms_scope="all_atoms",
+            target_step_rms=0.1,
+            max_step_rms=0.2,
+            target_uphill_energy=0.0025,
+            proposal_relax_steps=1,
+        ),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0])
+    monkeypatch.setattr(
+        walker.oracle.generator,
+        "generate_initial_direction",
+        lambda *args, **kwargs: direction,
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=direction,
+            curvature=2.0,
+            true_curvature=2.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(
+            task.initial_state,
+            energy=0.0,
+            gradient_norm=0.0,
+            n_iter=0,
+        ),
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    stats = walker._direction_stats_summary()
+    assert stats["uphill_control_steps"] == 1
+    assert stats["uphill_requested_sigma_mean"] == pytest.approx(0.1)
+    assert stats["uphill_executed_sigma_mean"] == pytest.approx(0.05)
+    assert stats["uphill_sigma_capped_steps"] == 1
+    assert stats["walk_termination_reached_step_cap"] == 1
+
+
+def test_walk_records_radius_clip_termination(monkeypatch):
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[1.0, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            max_steps_per_walk=2,
+            oracle_candidates=1,
+            proposal_relax_steps=1,
+        ),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0])
+    monkeypatch.setattr(
+        walker.oracle.generator,
+        "generate_initial_direction",
+        lambda *args, **kwargs: direction,
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=direction,
+            curvature=2.0,
+            true_curvature=2.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(
+            task.initial_state,
+            energy=0.0,
+            gradient_norm=0.0,
+            n_iter=0,
+        ),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_clip_walk_displacement",
+        lambda **kwargs: (kwargs["candidate"], True),
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    stats = walker._direction_stats_summary()
+    assert stats["walk_terminations"] == 1
+    assert stats["walk_termination_walk_displacement_clipped"] == 1
+
+
 def test_surface_walker_rejects_unphysical_energy_drop_before_archive(monkeypatch):
     initial = State(
         numbers=np.array([6, 6]),
@@ -5887,6 +6053,12 @@ def test_per_atom_rms_step_mode_honors_trust_region_sigma_scale_and_cap():
 
     shrunk_sigma = walker._execution_step_scale(state, direction, curvature=0.01, sigma_scale=0.5)
     expanded_sigma = walker._execution_step_scale(state, direction, curvature=0.01, sigma_scale=2.0)
+    expanded_nominal_sigma = walker._nominal_execution_step_scale(
+        state,
+        direction,
+        curvature=0.01,
+        sigma_scale=2.0,
+    )
 
     shrunk_rms = SurfaceWalker._direction_step_metrics(state, direction, shrunk_sigma, 1e-4)[
         "step_displacement_rms_all"
@@ -5896,6 +6068,13 @@ def test_per_atom_rms_step_mode_honors_trust_region_sigma_scale_and_cap():
     ]
     assert shrunk_rms == pytest.approx(0.1)
     assert expanded_rms == pytest.approx(0.35)
+    assert expanded_nominal_sigma > expanded_sigma
+    assert SurfaceWalker._direction_step_metrics(
+        state,
+        direction,
+        expanded_nominal_sigma,
+        1e-4,
+    )["step_displacement_rms_all"] == pytest.approx(0.4)
 
 
 def test_energy_bounded_anchor_uses_the_exact_all_atom_execution_step():

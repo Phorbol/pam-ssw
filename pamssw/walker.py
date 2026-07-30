@@ -42,6 +42,16 @@ from .softening import LocalSofteningModel
 from .state import State
 
 
+WALK_TERMINATION_REASONS = (
+    "reached_step_cap",
+    "continuation_direction_degenerate",
+    "explicit_geometry_invalid",
+    "relaxed_geometry_invalid",
+    "nonfinite_true_energy",
+    "walk_displacement_clipped",
+)
+
+
 @dataclass(frozen=True)
 class ProposalRelaxationTask:
     """Optimizer-neutral defensive snapshot of one biased-PES relaxation problem."""
@@ -3272,6 +3282,7 @@ class SurfaceWalker:
             current,
             trial_index=trial_index,
         )
+        termination_reason = "reached_step_cap"
 
         for step_index in range(self.config.max_steps_per_walk):
             softening = (
@@ -3345,6 +3356,7 @@ class SurfaceWalker:
                         )
                     except ContinuationDirectionDegenerate:
                         self._continuation_projection_degenerate += 1
+                        termination_reason = "continuation_direction_degenerate"
                         break
                 elif self.config.direction_selection_mode in {
                     "continuation_krylov",
@@ -3370,6 +3382,7 @@ class SurfaceWalker:
                             )
                     except ContinuationDirectionDegenerate:
                         self._continuation_projection_degenerate += 1
+                        termination_reason = "continuation_direction_degenerate"
                         break
                     initial_basis = (
                         np.column_stack(
@@ -3527,6 +3540,13 @@ class SurfaceWalker:
                     "oracle_wall_seconds": float(perf_counter() - oracle_started),
                 }
             )
+            requested_sigma = self._nominal_execution_step_scale(
+                current,
+                choice.direction,
+                true_curvature,
+                sigma_scale,
+                step_target=step_target,
+            )
             sigma = self._execution_step_scale(
                 current,
                 choice.direction,
@@ -3534,18 +3554,18 @@ class SurfaceWalker:
                 sigma_scale,
                 step_target=step_target,
             )
+            configured_sigma = sigma
             if self.config.direction_selection_mode == "energy_bounded_anchor":
                 assert energy_bound_target is not None
-                requested_sigma = sigma
                 sigma = self._energy_bounded_execution_step_scale(
-                    requested_step_scale=requested_sigma,
+                    requested_step_scale=configured_sigma,
                     true_curvature=true_curvature,
                     energy_target=energy_bound_target,
                 )
                 choice.diagnostics.update(
                     {
                         "energy_bounded_anchor_requested_step_scale": float(
-                            requested_sigma
+                            configured_sigma
                         ),
                         "energy_bounded_anchor_execution_step_scale": float(
                             sigma
@@ -3554,17 +3574,29 @@ class SurfaceWalker:
                             0.5 * sigma * sigma * true_curvature
                         ),
                         "energy_bounded_anchor_step_capped": bool(
-                            sigma < requested_sigma
+                            sigma < configured_sigma
                             and not np.isclose(
                                 sigma,
-                                requested_sigma,
+                                configured_sigma,
                                 rtol=1.0e-12,
                                 atol=0.0,
                             )
                         ),
                     }
                 )
-            choice.diagnostics["executed_step_scale"] = float(sigma)
+            base_weight = self._bias_weight(inner_curvature, sigma)
+            weight = base_weight * weight_scale
+            choice.diagnostics.update(
+                {
+                    "requested_step_scale": float(requested_sigma),
+                    "configured_step_scale": float(configured_sigma),
+                    "executed_step_scale": float(sigma),
+                    "uphill_base_bias_weight": float(base_weight),
+                    "uphill_final_bias_weight": float(weight),
+                    "uphill_true_curvature": float(true_curvature),
+                    "uphill_inner_curvature": float(inner_curvature),
+                }
+            )
             self._record_direction_diagnostics(
                 trial_index=trial_index,
                 proposal_index=proposal_index,
@@ -3573,7 +3605,14 @@ class SurfaceWalker:
                 anchor_direction=anchor_direction,
             )
             self._record_step_displacement_metrics(current, choice.direction, sigma)
-            weight = self._bias_weight(inner_curvature, sigma) * weight_scale
+            self._record_uphill_control(
+                requested_sigma=requested_sigma,
+                executed_sigma=sigma,
+                base_weight=base_weight,
+                final_weight=weight,
+                true_curvature=true_curvature,
+                inner_curvature=inner_curvature,
+            )
             self._record_bias_weight(weight)
             with self.calculator.purpose(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK):
                 if pending_true_after_state is current:
@@ -3594,6 +3633,7 @@ class SurfaceWalker:
             )
             trial_state = CartesianCoordinates.from_state(current).displace(TangentVector(choice.direction), sigma)
             if not self.geometry_validator.is_valid_state(trial_state):
+                termination_reason = "explicit_geometry_invalid"
                 break
             proposal_optimizer = self._proposal_optimizer_for_outcome(
                 previous_relax_outcome,
@@ -3631,11 +3671,13 @@ class SurfaceWalker:
             )
             self._walk_displacement_clips += int(clipped)
             if not self.geometry_validator.is_valid_state(current_candidate):
+                termination_reason = "relaxed_geometry_invalid"
                 break
             with self.calculator.purpose(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK):
                 true_after = self.calculator.evaluate(current_candidate)
             true_energy_after = true_after.energy
             if not np.isfinite(true_energy_after):
+                termination_reason = "nonfinite_true_energy"
                 break
             proposal_relax = replace(
                 proposal_relax,
@@ -3676,9 +3718,11 @@ class SurfaceWalker:
                 previous_direction = displacement / np.linalg.norm(displacement)
             current = current_candidate
             if clipped:
+                termination_reason = "walk_displacement_clipped"
                 break
             pending_true_after_state = current_candidate
             pending_true_after = true_after
+        self._record_walk_termination(termination_reason)
         return current
 
     def _initialize_walk_direction_context(
@@ -3828,8 +3872,21 @@ class SurfaceWalker:
         sigma_scale: float,
         step_target: float | None = None,
     ) -> float:
+        nominal = self._nominal_execution_step_scale(
+            state,
+            direction,
+            curvature,
+            sigma_scale,
+            step_target=step_target,
+        )
         if self.config.step_length_mode == "curvature_adaptive":
-            return self._scaled_step_scale(curvature, sigma_scale, step_target=step_target)
+            return float(
+                np.clip(
+                    nominal,
+                    self.config.min_step_scale,
+                    self.config.max_step_scale,
+                )
+            )
         metrics = self._direction_step_metrics(
             state,
             direction,
@@ -3842,8 +3899,42 @@ class SurfaceWalker:
             else "direction_per_atom_rms_all"
         )
         direction_rms = max(float(metrics[rms_key]), 1e-12)
-        target_rms = min(self.config.target_step_rms * sigma_scale, self.config.max_step_rms)
-        return float(target_rms / direction_rms)
+        return float(
+            min(
+                nominal,
+                self.config.max_step_rms / direction_rms,
+            )
+        )
+
+    def _nominal_execution_step_scale(
+        self,
+        state: State,
+        direction: np.ndarray,
+        curvature: float,
+        sigma_scale: float,
+        step_target: float | None = None,
+    ) -> float:
+        if self.config.step_length_mode == "curvature_adaptive":
+            target = (
+                self.config.target_uphill_energy
+                if step_target is None
+                else step_target
+            )
+            effective = max(abs(curvature), 1e-4)
+            return float(np.sqrt(2.0 * target / effective) * sigma_scale)
+        metrics = self._direction_step_metrics(
+            state,
+            direction,
+            sigma=1.0,
+            active_threshold=self.config.step_active_threshold,
+        )
+        rms_key = (
+            "direction_per_atom_rms_active"
+            if self.config.step_rms_scope == "active_atoms"
+            else "direction_per_atom_rms_all"
+        )
+        direction_rms = max(float(metrics[rms_key]), 1e-12)
+        return float(self.config.target_step_rms * sigma_scale / direction_rms)
 
     @staticmethod
     def _energy_bounded_execution_step_scale(
@@ -4026,6 +4117,25 @@ class SurfaceWalker:
         self._walk_displacement_clips = 0
         self._fragment_rejections = 0
         self._continuation_projection_degenerate = 0
+        self._uphill_control_steps = 0
+        self._uphill_requested_sigma_sum = 0.0
+        self._uphill_requested_sigma_max = 0.0
+        self._uphill_executed_sigma_sum = 0.0
+        self._uphill_executed_sigma_max = 0.0
+        self._uphill_sigma_capped_steps = 0
+        self._uphill_base_weight_sum = 0.0
+        self._uphill_base_weight_max = 0.0
+        self._uphill_final_weight_sum = 0.0
+        self._uphill_final_weight_max = 0.0
+        self._uphill_base_weight_at_config_max_steps = 0
+        self._uphill_final_weight_above_config_max_steps = 0
+        self._uphill_true_curvature_sum = 0.0
+        self._uphill_inner_curvature_sum = 0.0
+        self._walk_terminations = 0
+        self._walk_termination_counts = {
+            reason: 0 for reason in WALK_TERMINATION_REASONS
+        }
+        self._walk_termination_last_reason = "none"
 
     def _new_direction_type_memory(self) -> DirectionTypeMemory:
         return DirectionTypeMemory(
@@ -4409,6 +4519,74 @@ class SurfaceWalker:
         self._bias_weight_sum += float(weight)
         self._bias_weight_max = max(self._bias_weight_max, float(weight))
 
+    def _record_uphill_control(
+        self,
+        *,
+        requested_sigma: float,
+        executed_sigma: float,
+        base_weight: float,
+        final_weight: float,
+        true_curvature: float,
+        inner_curvature: float,
+    ) -> None:
+        self._uphill_control_steps += 1
+        self._uphill_requested_sigma_sum += float(requested_sigma)
+        self._uphill_requested_sigma_max = max(
+            self._uphill_requested_sigma_max,
+            float(requested_sigma),
+        )
+        self._uphill_executed_sigma_sum += float(executed_sigma)
+        self._uphill_executed_sigma_max = max(
+            self._uphill_executed_sigma_max,
+            float(executed_sigma),
+        )
+        self._uphill_sigma_capped_steps += int(
+            executed_sigma < requested_sigma
+            and not np.isclose(
+                executed_sigma,
+                requested_sigma,
+                rtol=1.0e-12,
+                atol=0.0,
+            )
+        )
+        self._uphill_base_weight_sum += float(base_weight)
+        self._uphill_base_weight_max = max(
+            self._uphill_base_weight_max,
+            float(base_weight),
+        )
+        self._uphill_final_weight_sum += float(final_weight)
+        self._uphill_final_weight_max = max(
+            self._uphill_final_weight_max,
+            float(final_weight),
+        )
+        self._uphill_base_weight_at_config_max_steps += int(
+            base_weight >= self.config.bias_weight_max
+            or np.isclose(
+                base_weight,
+                self.config.bias_weight_max,
+                rtol=1.0e-12,
+                atol=0.0,
+            )
+        )
+        self._uphill_final_weight_above_config_max_steps += int(
+            final_weight > self.config.bias_weight_max
+            and not np.isclose(
+                final_weight,
+                self.config.bias_weight_max,
+                rtol=1.0e-12,
+                atol=0.0,
+            )
+        )
+        self._uphill_true_curvature_sum += float(true_curvature)
+        self._uphill_inner_curvature_sum += float(inner_curvature)
+
+    def _record_walk_termination(self, reason: str) -> None:
+        self._walk_terminations += 1
+        self._walk_termination_counts[reason] = (
+            self._walk_termination_counts.get(reason, 0) + 1
+        )
+        self._walk_termination_last_reason = reason
+
     def _record_direction_choice(self, choice: DirectionChoice) -> None:
         self._direction_choices += 1
         self._direction_candidate_evaluations += choice.candidate_count
@@ -4503,10 +4681,60 @@ class SurfaceWalker:
             "direction_fallback_bond_pairs_generated": self._direction_fallback_bond_pairs_generated,
             "direction_bond_candidates_valid": self._direction_bond_candidates_valid,
             "walk_displacement_clips": self._walk_displacement_clips,
+            "uphill_control_steps": self._uphill_control_steps,
+            "uphill_requested_sigma_mean": float(
+                self._uphill_requested_sigma_sum / self._uphill_control_steps
+                if self._uphill_control_steps
+                else 0.0
+            ),
+            "uphill_requested_sigma_max": float(
+                self._uphill_requested_sigma_max
+            ),
+            "uphill_executed_sigma_mean": float(
+                self._uphill_executed_sigma_sum / self._uphill_control_steps
+                if self._uphill_control_steps
+                else 0.0
+            ),
+            "uphill_executed_sigma_max": float(
+                self._uphill_executed_sigma_max
+            ),
+            "uphill_sigma_capped_steps": self._uphill_sigma_capped_steps,
+            "uphill_base_weight_mean": float(
+                self._uphill_base_weight_sum / self._uphill_control_steps
+                if self._uphill_control_steps
+                else 0.0
+            ),
+            "uphill_base_weight_max": float(self._uphill_base_weight_max),
+            "uphill_final_weight_mean": float(
+                self._uphill_final_weight_sum / self._uphill_control_steps
+                if self._uphill_control_steps
+                else 0.0
+            ),
+            "uphill_final_weight_max": float(self._uphill_final_weight_max),
+            "uphill_base_weight_at_config_max_steps": (
+                self._uphill_base_weight_at_config_max_steps
+            ),
+            "uphill_final_weight_above_config_max_steps": (
+                self._uphill_final_weight_above_config_max_steps
+            ),
+            "uphill_true_curvature_mean": float(
+                self._uphill_true_curvature_sum / self._uphill_control_steps
+                if self._uphill_control_steps
+                else 0.0
+            ),
+            "uphill_inner_curvature_mean": float(
+                self._uphill_inner_curvature_sum / self._uphill_control_steps
+                if self._uphill_control_steps
+                else 0.0
+            ),
+            "walk_terminations": self._walk_terminations,
+            "walk_termination_last_reason": self._walk_termination_last_reason,
             "fragment_rejections": self._fragment_rejections,
             "continuation_projection_degenerate": self._continuation_projection_degenerate,
             "seed_diversity_reseeds": self._seed_diversity_reseeds,
         }
+        for reason, count in sorted(self._walk_termination_counts.items()):
+            summary[f"walk_termination_{reason}"] = count
         summary["direction_type_ucb_enabled"] = int(self.config.direction_type_ucb_enabled)
         for kind in DirectionCandidateKind:
             summary[f"direction_type_selected_{kind.value}"] = self.direction_type_memory.selected_counts.get(kind, 0)
