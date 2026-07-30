@@ -1,0 +1,454 @@
+{
+  "descriptor_cost": {
+    "descriptor_forward_calls": 9,
+    "descriptor_wall_time_s": 0.2012590010126587
+  },
+  "max_cells": 4,
+  "partitions": [
+    {
+      "archive_version": 0,
+      "cell_probabilities": [
+        1.0
+      ],
+      "center_ids": [
+        0
+      ],
+      "conditional_probabilities": [
+        1.0
+      ],
+      "members_by_center": [
+        [
+          0
+        ]
+      ],
+      "policy_version": 0,
+      "probabilities": [
+        1.0
+      ],
+      "starter_ids": [
+        0
+      ]
+    },
+    {
+      "archive_version": 1,
+      "cell_probabilities": [
+        0.5,
+        0.5
+      ],
+      "center_ids": [
+        0,
+        1
+      ],
+      "conditional_probabilities": [
+        1.0,
+        1.0
+      ],
+      "members_by_center": [
+        [
+          0
+        ],
+        [
+          1
+        ]
+      ],
+      "policy_version": 1,
+      "probabilities": [
+        0.5,
+        0.5
+      ],
+      "starter_ids": [
+        0,
+        1
+      ]
+    },
+    {
+      "archive_version": 2,
+      "cell_probabilities": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "center_ids": [
+        0,
+        2,
+        1
+      ],
+      "conditional_probabilities": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "members_by_center": [
+        [
+          0
+        ],
+        [
+          2
+        ],
+        [
+          1
+        ]
+      ],
+      "policy_version": 2,
+      "probabilities": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "starter_ids": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "archive_version": 3,
+      "cell_probabilities": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "center_ids": [
+        0,
+        3,
+        2,
+        1
+      ],
+      "conditional_probabilities": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "members_by_center": [
+        [
+          0
+        ],
+        [
+          3
+        ],
+        [
+          2
+        ],
+        [
+          1
+        ]
+      ],
+      "policy_version": 3,
+      "probabilities": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "starter_ids": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "archive_version": 4,
+      "cell_probabilities": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "center_ids": [
+        0,
+        3,
+        4,
+        2
+      ],
+      "conditional_probabilities": [
+        0.5,
+        0.5,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "members_by_center": [
+        [
+          0,
+          1
+        ],
+        [
+          3
+        ],
+        [
+          4
+        ],
+        [
+          2
+        ]
+      ],
+      "policy_version": 4,
+      "probabilities": [
+        0.125,
+        0.125,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "starter_ids": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "archive_version": 5,
+      "cell_probabilities": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "center_ids": [
+        0,
+        3,
+        4,
+        5
+      ],
+      "conditional_probabilities": [
+        0.5,
+        0.5,
+        0.5,
+        1.0,
+        0.5,
+        1.0
+      ],
+      "members_by_center": [
+        [
+          0,
+          1
+        ],
+        [
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          5
+        ]
+      ],
+      "policy_version": 5,
+      "probabilities": [
+        0.125,
+        0.125,
+        0.125,
+        0.25,
+        0.125,
+        0.25
+      ],
+      "starter_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "archive_version": 6,
+      "cell_probabilities": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "center_ids": [
+        0,
+        3,
+        4,
+        5
+      ],
+      "conditional_probabilities": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1.0,
+        0.5
+      ],
+      "members_by_center": [
+        [
+          0,
+          1
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          5
+        ]
+      ],
+      "policy_version": 6,
+      "probabilities": [
+        0.125,
+        0.125,
+        0.125,
+        0.125,
+        0.125,
+        0.25,
+        0.125
+      ],
+      "starter_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "archive_version": 7,
+      "cell_probabilities": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "center_ids": [
+        0,
+        7,
+        2,
+        3
+      ],
+      "conditional_probabilities": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ],
+      "members_by_center": [
+        [
+          0,
+          1
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "policy_version": 7,
+      "probabilities": [
+        0.125,
+        0.125,
+        0.125,
+        0.125,
+        0.125,
+        0.125,
+        0.125,
+        0.125
+      ],
+      "starter_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "archive_version": 8,
+      "cell_probabilities": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "center_ids": [
+        0,
+        7,
+        2,
+        3
+      ],
+      "conditional_probabilities": [
+        0.5,
+        0.5,
+        0.5,
+        0.3333333333333333,
+        0.5,
+        0.5,
+        0.3333333333333333,
+        0.5,
+        0.3333333333333333
+      ],
+      "members_by_center": [
+        [
+          0,
+          1
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          6,
+          8
+        ]
+      ],
+      "policy_version": 8,
+      "probabilities": [
+        0.125,
+        0.125,
+        0.125,
+        0.08333333333333333,
+        0.125,
+        0.125,
+        0.08333333333333333,
+        0.125,
+        0.08333333333333333
+      ],
+      "starter_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    }
+  ],
+  "schema_version": 1
+}
