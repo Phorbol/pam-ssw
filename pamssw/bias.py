@@ -95,3 +95,55 @@ class GaussianBiasTerm:
 
     def directional_curvature_shift(self) -> float:
         return -self.weight / (self.sigma**2)
+
+
+class QuadraticBiasTerm(GaussianBiasTerm):
+    """Center-curvature-matched quadratic control for Gaussian-bias ablations."""
+
+    def evaluate(
+        self,
+        flat_positions: np.ndarray,
+        cell: np.ndarray | None = None,
+        pbc: tuple[bool, bool, bool] = (False, False, False),
+    ) -> tuple[float, np.ndarray]:
+        flat = np.asarray(flat_positions, dtype=float).reshape(-1)
+        if flat.shape != self.center.shape:
+            raise ValueError(
+                "flat_positions must have the same shape as the quadratic bias center"
+            )
+        if cell is not None and any(pbc):
+            delta = mic_displacement(
+                flat.reshape(-1, 3),
+                self.center.reshape(-1, 3),
+                cell,
+                pbc,
+            ).reshape(-1)
+        else:
+            delta = flat - self.center
+        projection = float(np.dot(delta, self.direction))
+        curvature = self.weight / (self.sigma**2)
+        energy = self.weight - 0.5 * curvature * projection**2
+        gradient = -curvature * projection * self.direction
+        return float(energy), gradient
+
+    def hvp_contribution(
+        self,
+        direction: np.ndarray,
+        flat_positions: np.ndarray,
+        cell: np.ndarray | None = None,
+        pbc: tuple[bool, bool, bool] = (False, False, False),
+    ) -> np.ndarray:
+        flat = np.asarray(flat_positions, dtype=float).reshape(-1)
+        probe = np.asarray(direction, dtype=float).reshape(-1)
+        if probe.shape != self.direction.shape:
+            raise ValueError(
+                "direction must have the same shape as the quadratic bias direction"
+            )
+        if flat.shape != self.center.shape:
+            raise ValueError(
+                "flat_positions must have the same shape as the quadratic bias center"
+            )
+        coefficient = self.directional_curvature_shift() * float(
+            np.dot(self.direction, probe)
+        )
+        return coefficient * self.direction

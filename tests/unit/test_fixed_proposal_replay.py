@@ -11,7 +11,7 @@ from pamssw.proposal_replay import (
     replay_proposal_task_observed,
 )
 from pamssw.accounting import EvaluationPurpose
-from pamssw.bias import GaussianBiasTerm
+from pamssw.bias import GaussianBiasTerm, QuadraticBiasTerm
 from pamssw.calculators import AnalyticCalculator
 from pamssw.config import SSWConfig
 from pamssw.state import State
@@ -266,4 +266,48 @@ def test_observed_replay_reuses_backend_calls_for_true_and_bias_components():
     )
     assert observed.orthogonal_displacement_norm == pytest.approx(
         np.linalg.norm(expected_orthogonal)
+    )
+
+
+def test_observed_replay_can_override_bias_shape_without_mutating_task():
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[1.0, 0.0, 0.0]]),
+    )
+    task = capture_proposal_task(
+        state,
+        AnalyticCalculator(Quadratic()),
+        SSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            proposal_relax_steps=20,
+            proposal_fmax=0.05,
+            rng_seed=29,
+        ),
+        target_bias_count=1,
+    ).task
+    gaussian = task.biases[-1]
+    quadratic = QuadraticBiasTerm(
+        center=gaussian.center,
+        direction=gaussian.direction,
+        sigma=gaussian.sigma,
+        weight=gaussian.weight,
+    )
+
+    observed = replay_proposal_task_observed(
+        task,
+        AnalyticCalculator(Quadratic()),
+        optimizer="ase-fire",
+        biases_override=(quadratic,),
+    )
+
+    expected_bias_energy = quadratic.evaluate(
+        task.initial_state.flatten_positions(),
+        cell=task.initial_state.cell,
+        pbc=task.initial_state.pbc,
+    )[0]
+    assert observed.initial.bias_energy == pytest.approx(expected_bias_energy)
+    assert isinstance(task.biases[-1], GaussianBiasTerm)
+    assert observed.evaluation_counts.total == (
+        observed.result.telemetry.evaluator_calls
     )
