@@ -189,6 +189,34 @@ def test_direction_trace_contract_rejects_a_nonidentical_step_zero_shape():
         )
 
 
+def test_compact_relaxation_diagnostics_retains_only_mechanism_metrics():
+    runner = _load_runner()
+    source = {
+        "proposal_relax_count": 3,
+        "proposal_relax_mean_iterations": 11.5,
+        "proposal_relax_outcome_energy_exploded": 2,
+        "proposal_relax_unconverged": 1,
+        "true_quench_count": 1,
+        "true_quench_mean_iterations": 17.0,
+        "true_quench_unconverged": 0,
+        "quench_fallback_attempts": 1,
+        "quench_fallback_converged": 1,
+        "unrelated_large_payload": [1, 2, 3],
+    }
+
+    assert runner._compact_relaxation_diagnostics(source) == {
+        "proposal_relax_count": 3,
+        "proposal_relax_mean_iterations": 11.5,
+        "proposal_relax_outcome_energy_exploded": 2,
+        "proposal_relax_unconverged": 1,
+        "true_quench_count": 1,
+        "true_quench_mean_iterations": 17.0,
+        "true_quench_unconverged": 0,
+        "quench_fallback_attempts": 1,
+        "quench_fallback_converged": 1,
+    }
+
+
 def _fake_case(state_id, seed, arm, *, meaningful=False):
     trace = [_step_zero_row(direction_hash=f"{state_id}-{seed}")]
     trace.append(_later_row(arm))

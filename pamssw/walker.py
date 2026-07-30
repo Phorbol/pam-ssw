@@ -1826,6 +1826,16 @@ class SoftModeOracle:
             proposal,
             normalized,
         )
+        total_curvature = float(np.dot(normalized, total_hvp))
+        true_curvature = float(np.dot(normalized, true_hvp))
+        total_hvp_norm = float(np.linalg.norm(total_hvp))
+        true_hvp_norm = float(np.linalg.norm(true_hvp))
+        total_residual_norm = float(
+            np.linalg.norm(total_hvp - total_curvature * normalized)
+        )
+        true_residual_norm = float(
+            np.linalg.norm(true_hvp - true_curvature * normalized)
+        )
         atom_squared_amplitudes = np.sum(
             np.square(
                 normalized.reshape(state.n_atoms, 3)[state.movable_mask]
@@ -1837,15 +1847,29 @@ class SoftModeOracle:
         )
         return DirectionChoice(
             direction=normalized,
-            curvature=float(np.dot(normalized, total_hvp)),
+            curvature=total_curvature,
             kind=DirectionCandidateKind.TRANSPORTED,
             candidate_count=1,
             score=None,
-            true_curvature=float(np.dot(normalized, true_hvp)),
+            true_curvature=true_curvature,
             diagnostics={
                 "direction_hvp_count": 1,
                 "continuation_source": "selected_mode",
                 "direction_participation_ratio": participation_ratio,
+                "transported_hvp_norm": total_hvp_norm,
+                "transported_residual_norm": total_residual_norm,
+                "transported_relative_residual": (
+                    total_residual_norm / total_hvp_norm
+                    if total_hvp_norm > 0.0
+                    else 0.0
+                ),
+                "transported_true_hvp_norm": true_hvp_norm,
+                "transported_true_residual_norm": true_residual_norm,
+                "transported_true_relative_residual": (
+                    true_residual_norm / true_hvp_norm
+                    if true_hvp_norm > 0.0
+                    else 0.0
+                ),
             },
         )
 

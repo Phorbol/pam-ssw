@@ -45,6 +45,17 @@ ARMS: dict[str, dict[str, object]] = {
         "block_krylov_depth": 12,
     },
 }
+RELAXATION_DIAGNOSTIC_FIELDS = (
+    "proposal_relax_count",
+    "proposal_relax_mean_iterations",
+    "proposal_relax_outcome_energy_exploded",
+    "proposal_relax_unconverged",
+    "true_quench_count",
+    "true_quench_mean_iterations",
+    "true_quench_unconverged",
+    "quench_fallback_attempts",
+    "quench_fallback_converged",
+)
 
 
 def case_matrix(
@@ -147,6 +158,15 @@ def _read_direction_rows(path: Path) -> list[dict[str, Any]]:
         for line in path.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
+
+
+def _compact_relaxation_diagnostics(
+    diagnostics: Mapping[str, Any],
+) -> dict[str, Any]:
+    return {
+        key: diagnostics[key]
+        for key in RELAXATION_DIAGNOSTIC_FIELDS
+    }
 
 
 def _load_persisted_c60_state(path: Path):
@@ -575,6 +595,9 @@ def _run_case(
         ],
         "generation_wall_time_s": generation_wall_time,
         "quench_wall_time_s": quench_wall_time,
+        "relaxation_diagnostics": _compact_relaxation_diagnostics(
+            diagnostics
+        ),
         "starter_path": str(starter_path),
         "starter_file_sha256": _sha256(starter_path),
         "escape_path": str(escape_path),

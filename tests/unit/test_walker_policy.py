@@ -792,6 +792,74 @@ def test_transport_direction_projects_aligns_and_spends_one_hvp():
     assert choice.diagnostics["continuation_source"] == "selected_mode"
 
 
+def test_transport_direction_reports_existing_hvp_eigen_residual_without_extra_cost():
+    class AnisotropicQuadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.diag(np.arange(1.0, 10.0))
+            gradient = hessian @ flat_positions
+            return 0.5 * float(flat_positions @ gradient), gradient
+
+    state = State(
+        numbers=np.array([6, 6, 6]),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.4, 0.0, 0.0],
+                [0.0, 1.2, 0.0],
+            ]
+        ),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(AnisotropicQuadratic()),
+        config=SSWConfig(
+            direction_selection_mode="transported_direction",
+            n_bond_pairs=0,
+        ),
+        softening_enabled=False,
+    )
+    direction = np.arange(1.0, 10.0)
+    proposal = ProposalPotential(walker.calculator)
+    before = walker.calculator.snapshot().count(
+        EvaluationPurpose.DIRECTION_ORACLE
+    )
+
+    with walker.calculator.purpose(EvaluationPurpose.DIRECTION_ORACLE):
+        choice = walker.oracle.choose_transported_direction(
+            state,
+            proposal,
+            direction,
+            direction,
+        )
+
+    after = walker.calculator.snapshot().count(
+        EvaluationPurpose.DIRECTION_ORACLE
+    )
+    hessian = np.diag(np.arange(1.0, 10.0))
+    total_hvp = hessian @ choice.direction
+    curvature = float(choice.direction @ total_hvp)
+    residual_norm = float(
+        np.linalg.norm(total_hvp - curvature * choice.direction)
+    )
+    relative_residual = residual_norm / float(np.linalg.norm(total_hvp))
+
+    assert after - before == 2
+    assert choice.diagnostics["transported_hvp_norm"] == pytest.approx(
+        np.linalg.norm(total_hvp)
+    )
+    assert choice.diagnostics[
+        "transported_residual_norm"
+    ] == pytest.approx(residual_norm)
+    assert choice.diagnostics[
+        "transported_relative_residual"
+    ] == pytest.approx(relative_residual)
+    assert choice.diagnostics[
+        "transported_true_residual_norm"
+    ] == pytest.approx(residual_norm)
+    assert choice.diagnostics[
+        "transported_true_relative_residual"
+    ] == pytest.approx(relative_residual)
+
+
 def test_continuation_projection_rejects_direction_removed_by_fixed_mask():
     state = State(
         numbers=np.array([1, 1]),
