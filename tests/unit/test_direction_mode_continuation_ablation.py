@@ -207,6 +207,40 @@ def test_direction_trace_contract_uses_configured_continuation_depth():
     }
 
 
+def test_direction_trace_contract_supports_two_vector_intent_refresh():
+    runner = _load_runner()
+    runner.ARMS["continuation_intent_ritz2"] = {
+        "direction_selection_mode": "continuation_intent_krylov",
+        "block_krylov_blocks": 1,
+        "block_krylov_depth": 1,
+    }
+    later = _later_row("continuation_lanczos")
+    later.update(
+        {
+            "krylov_depth": 1,
+            "krylov_initial_basis_columns": [2],
+            "krylov_hvp_requested": 2,
+            "krylov_hvp_consumed": 2,
+            "krylov_hvp_count": 2,
+            "oracle_selection_force_evaluations_delta": 4,
+            "continuation_source": (
+                "selected_mode_plus_initial_intent"
+            ),
+        }
+    )
+
+    audit = runner._validate_direction_trace(
+        arm="continuation_intent_ritz2",
+        direction_rows=[_step_zero_row(), later],
+    )
+
+    assert audit == {
+        "selection_count": 2,
+        "direction_oracle_force_evaluations": 4,
+        "hvp_count": 2,
+    }
+
+
 def test_direction_trace_contract_rejects_a_nonidentical_step_zero_shape():
     runner = _load_runner()
     bad = _step_zero_row()

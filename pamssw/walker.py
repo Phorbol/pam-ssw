@@ -3293,6 +3293,7 @@ class SurfaceWalker:
                 continuation_mode = self.config.direction_selection_mode in {
                     "transported_direction",
                     "continuation_krylov",
+                    "continuation_intent_krylov",
                 }
                 if step_index == 0 and initial_direction_choice is not None:
                     choice = deepcopy(initial_direction_choice)
@@ -3323,7 +3324,10 @@ class SurfaceWalker:
                     except ContinuationDirectionDegenerate:
                         self._continuation_projection_degenerate += 1
                         break
-                elif self.config.direction_selection_mode == "continuation_krylov":
+                elif self.config.direction_selection_mode in {
+                    "continuation_krylov",
+                    "continuation_intent_krylov",
+                }:
                     assert previous_selected_direction is not None
                     try:
                         continuation_direction = self.oracle.project_continuation_direction(
@@ -3331,13 +3335,35 @@ class SurfaceWalker:
                             previous_selected_direction,
                             previous_selected_direction,
                         )
+                        if (
+                            self.config.direction_selection_mode
+                            == "continuation_intent_krylov"
+                        ):
+                            intent_direction = (
+                                self.oracle.project_continuation_direction(
+                                    current,
+                                    anchor_direction,
+                                    anchor_direction,
+                                )
+                            )
                     except ContinuationDirectionDegenerate:
                         self._continuation_projection_degenerate += 1
                         break
+                    initial_basis = (
+                        np.column_stack(
+                            (
+                                continuation_direction,
+                                intent_direction,
+                            )
+                        )
+                        if self.config.direction_selection_mode
+                        == "continuation_intent_krylov"
+                        else continuation_direction[:, None]
+                    )
                     choice = self.oracle._choose_block_krylov_direction(
                         current,
                         scoring_proposal,
-                        (IntentBlock(basis=continuation_direction[:, None]),),
+                        (IntentBlock(basis=initial_basis),),
                         previous_selected_direction,
                         None,
                         None,
@@ -3353,7 +3379,12 @@ class SurfaceWalker:
                     ):
                         choice.direction = -choice.direction
                     choice.kind = DirectionCandidateKind.CONTINUATION_RITZ
-                    choice.diagnostics["continuation_source"] = "selected_mode"
+                    choice.diagnostics["continuation_source"] = (
+                        "selected_mode_plus_initial_intent"
+                        if self.config.direction_selection_mode
+                        == "continuation_intent_krylov"
+                        else "selected_mode"
+                    )
                 else:
                     choice = self.oracle.choose_direction(
                         current,
@@ -3644,6 +3675,7 @@ class SurfaceWalker:
             "block_krylov",
             "transported_direction",
             "continuation_krylov",
+            "continuation_intent_krylov",
         }:
             krylov_intents = (
                 self.oracle.generator.generate_krylov_intents(

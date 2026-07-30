@@ -311,19 +311,23 @@ def _validate_direction_trace(
             if selection_mode == "block_krylov":
                 expected_kind = "block_ritz"
                 expected_columns = [2]
+                expected_source = None
             elif selection_mode == "continuation_krylov":
                 expected_kind = "continuation_ritz"
                 expected_columns = [1]
+                expected_source = "selected_mode"
+            elif selection_mode == "continuation_intent_krylov":
+                expected_kind = "continuation_ritz"
+                expected_columns = [2]
+                expected_source = (
+                    "selected_mode_plus_initial_intent"
+                )
             else:
                 raise ValueError(
                     f"unsupported direction selection mode: {selection_mode}"
                 )
             expected_depth = int(arm_config["block_krylov_depth"])
-            expected_hvps = expected_depth * (
-                sum(expected_columns)
-                if selection_mode == "block_krylov"
-                else 1
-            )
+            expected_hvps = expected_depth * sum(expected_columns)
             expected_force_evaluations = 2 * expected_hvps
             if (
                 row.get("selected_kind") != expected_kind
@@ -338,6 +342,11 @@ def _validate_direction_trace(
                 or row.get("krylov_hvp_count") != expected_hvps
                 or row.get("oracle_selection_force_evaluations_delta")
                 != expected_force_evaluations
+                or (
+                    expected_source is not None
+                    and row.get("continuation_source")
+                    != expected_source
+                )
             ):
                 raise RuntimeError(
                     f"direction row {index} violates Krylov contract"

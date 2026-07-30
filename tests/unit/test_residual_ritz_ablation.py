@@ -76,7 +76,7 @@ def _row(system, state_id, seed, arm, *, delta, total, direction):
     }
 
 
-def _cohort(*, residual_wins):
+def _cohort(*, residual_wins, candidate_arm="residual_ritz2"):
     rows = []
     states = {
         "c60": ("intermediate_accepted", "plateau_accepted"),
@@ -100,7 +100,7 @@ def _cohort(*, residual_wins):
                             system,
                             state_id,
                             seed,
-                            "residual_ritz2",
+                            candidate_arm,
                             delta=-0.2 if residual_wins else 0.0,
                             total=45,
                             direction=4,
@@ -196,3 +196,39 @@ def test_raw_analysis_closes_shared_and_bootstrap_costs_and_provenance():
     pdo["execution_commit"] = "different"
     with pytest.raises(ValueError, match="execution commit"):
         analyzer.analyze_raw(c60, pdo)
+
+
+def test_intent_refresh_protocol_and_analysis_use_the_same_paired_gate():
+    runner = _load(
+        RUN_ROOT / "run_intent_refresh_ablation.py",
+        "_intent_refresh_runner",
+    )
+    analyzer = _load(
+        RUN_ROOT / "analyze_intent_refresh_ablation.py",
+        "_intent_refresh_analyzer",
+    )
+
+    assert runner.ARMS == (
+        "transported_direction",
+        "continuation_intent_ritz2",
+        "fixed_intent_ritz",
+    )
+    assert runner.INTENT_REFRESH_CONFIG == {
+        "direction_selection_mode": "continuation_intent_krylov",
+        "block_krylov_blocks": 1,
+        "block_krylov_depth": 1,
+    }
+    assert len(runner.case_matrix("c60")) == 60
+    assert len(runner.case_matrix("pdo")) == 30
+
+    evidence = analyzer.analyze_cases(
+        _cohort(
+            residual_wins=True,
+            candidate_arm="continuation_intent_ritz2",
+        )
+    )
+
+    assert evidence["decision"] == "advance_continuation_intent_ritz2"
+    assert "continuation_intent_ritz2" in evidence["systems"]["c60"][
+        "arm_results"
+    ]

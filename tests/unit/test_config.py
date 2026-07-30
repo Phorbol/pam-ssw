@@ -410,11 +410,22 @@ def test_config_accepts_direction_continuation_modes_without_changing_default():
         ).direction_selection_mode
         == "continuation_krylov"
     )
+    assert (
+        SSWConfig(
+            direction_selection_mode="continuation_intent_krylov",
+            block_krylov_depth=1,
+        ).direction_selection_mode
+        == "continuation_intent_krylov"
+    )
 
 
 @pytest.mark.parametrize(
     "mode",
-    ["transported_direction", "continuation_krylov"],
+    [
+        "transported_direction",
+        "continuation_krylov",
+        "continuation_intent_krylov",
+    ],
 )
 def test_continuation_modes_reject_regularized_ritz_synthesis(mode):
     with pytest.raises(ValueError, match="explicit direction_selection_mode"):

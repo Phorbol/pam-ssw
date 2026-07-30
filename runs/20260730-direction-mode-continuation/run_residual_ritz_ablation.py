@@ -71,11 +71,14 @@ def _current_commit() -> str:
     ).stdout.strip()
 
 
-def run(
+def run_screen(
     *,
     system: str,
     output_dir: Path,
     expected_git_commit: str,
+    arms: tuple[str, str, str],
+    candidate_arm: str,
+    candidate_config: dict[str, object],
     c60_locked_source: Path | None = None,
 ) -> dict[str, Any]:
     actual_commit = _current_commit()
@@ -92,29 +95,47 @@ def run(
             C60_RUNNER_PATH, "_residual_ritz_c60_runner"
         )
         runner.SEEDS = SEEDS
-        runner.ARMS["residual_ritz2"] = RESIDUAL_RITZ_CONFIG
+        runner.ARMS[candidate_arm] = candidate_config
         runner.MAX_TOTAL_FORCE_EVALUATIONS = (
             MAX_TOTAL_FORCE_EVALUATIONS
         )
         return runner.run(
             output_dir,
             locked_source=Path(c60_locked_source),
-            arms=ARMS,
+            arms=arms,
         )
     if system == "pdo":
         runner = _load_module(
             PDO_RUNNER_PATH, "_residual_ritz_pdo_runner"
         )
         runner.SEEDS = SEEDS
-        runner.ARMS = ARMS
+        runner.ARMS = arms
         runner.EXTRA_DIRECTION_ARMS = {
-            "residual_ritz2": RESIDUAL_RITZ_CONFIG
+            candidate_arm: candidate_config
         }
         runner.MAX_TOTAL_FORCE_EVALUATIONS = (
             MAX_TOTAL_FORCE_EVALUATIONS
         )
         return runner.run(output_dir)
     raise ValueError(f"unknown system: {system}")
+
+
+def run(
+    *,
+    system: str,
+    output_dir: Path,
+    expected_git_commit: str,
+    c60_locked_source: Path | None = None,
+) -> dict[str, Any]:
+    return run_screen(
+        system=system,
+        output_dir=output_dir,
+        expected_git_commit=expected_git_commit,
+        arms=ARMS,
+        candidate_arm="residual_ritz2",
+        candidate_config=RESIDUAL_RITZ_CONFIG,
+        c60_locked_source=c60_locked_source,
+    )
 
 
 def main(argv: Sequence[str] | None = None) -> None:

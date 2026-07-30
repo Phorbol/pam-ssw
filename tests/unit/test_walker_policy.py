@@ -913,6 +913,10 @@ def test_continuation_walk_has_common_first_step_and_keeps_selected_mode(
         "fixed_intent_ritz": ("block_krylov", 6),
         "transported_direction": ("transported_direction", 6),
         "continuation_lanczos": ("continuation_krylov", 12),
+        "continuation_intent_ritz2": (
+            "continuation_intent_krylov",
+            1,
+        ),
     }
 
     for arm, (mode, depth) in arm_settings.items():
@@ -1001,6 +1005,30 @@ def test_continuation_walk_has_common_first_step_and_keeps_selected_mode(
             "continuation_source"
         ]
         == "selected_mode"
+    )
+    assert (
+        rows_by_arm["continuation_intent_ritz2"][1][
+            "krylov_initial_basis_columns"
+        ]
+        == [2]
+    )
+    assert (
+        rows_by_arm["continuation_intent_ritz2"][1][
+            "krylov_hvp_count"
+        ]
+        == 2
+    )
+    assert (
+        rows_by_arm["continuation_intent_ritz2"][1][
+            "oracle_selection_force_evaluations_delta"
+        ]
+        == 4
+    )
+    assert (
+        rows_by_arm["continuation_intent_ritz2"][1][
+            "continuation_source"
+        ]
+        == "selected_mode_plus_initial_intent"
     )
     selected_cosine = rows_by_arm["transported_direction"][1][
         "selected_to_previous_selected_abs_cosine"
