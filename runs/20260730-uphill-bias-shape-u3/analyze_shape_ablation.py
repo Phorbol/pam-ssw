@@ -30,6 +30,10 @@ ROW_KEYS = {
     "last_bias_weight",
     "effective_bias_curvature",
     "certificate_satisfied",
+    "gradient_norm",
+    "n_iter",
+    "termination_reason",
+    "optimizer_success",
     "force_evaluations",
     "purpose_counts",
     "wall_time_s",
@@ -106,6 +110,13 @@ def _arm_summary(task_groups, arm: str) -> dict[str, float]:
         "mean_active_bound_fraction": mean(
             float(row["active_bound_fraction"]) for row in rows
         ),
+        "mean_gradient_norm": mean(
+            float(row["gradient_norm"]) for row in rows
+        ),
+        "maxiter_rate": mean(
+            float(row["termination_reason"] == "maxiter")
+            for row in rows
+        ),
     }
 
 
@@ -122,6 +133,8 @@ def _paired_difference(task_groups) -> dict[str, float]:
             lambda row: row["active_bound_fraction"]
         ),
         "displacement_max": lambda row: row["displacement_max"],
+        "gradient_norm": lambda row: row["gradient_norm"],
+        "n_iter": lambda row: row["n_iter"],
     }
     result = {
         "certificate_rate": mean(
@@ -150,6 +163,18 @@ def _validate_row(row: Mapping[str, object]) -> None:
         raise ValueError("unknown arm_id")
     if row["observer_only_force_evaluations"] != 0:
         raise ValueError("observer-only force evaluations must be zero")
+    if not isinstance(row["termination_reason"], str) or not row[
+        "termination_reason"
+    ]:
+        raise ValueError("termination_reason must be a non-empty string")
+    if row["optimizer_success"] not in {True, False, None}:
+        raise ValueError("optimizer_success must be boolean or null")
+    if (
+        isinstance(row["n_iter"], bool)
+        or not isinstance(row["n_iter"], int)
+        or row["n_iter"] < 0
+    ):
+        raise ValueError("n_iter must be non-negative")
     total = row["force_evaluations"]
     if isinstance(total, bool) or not isinstance(total, int) or total < 0:
         raise ValueError("force_evaluations must be non-negative")
@@ -171,6 +196,7 @@ def _validate_row(row: Mapping[str, object]) -> None:
         "active_bound_fraction",
         "displacement_rms",
         "displacement_max",
+        "gradient_norm",
     ):
         _finite(row[label], label)
     for label in ("initial", "final"):

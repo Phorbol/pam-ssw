@@ -80,6 +80,14 @@ def run_shape_arms(
                     newest.weight / newest.sigma**2
                 ),
                 "certificate_satisfied": replay.certificate_satisfied,
+                "gradient_norm": float(replay.result.gradient_norm),
+                "n_iter": int(replay.result.n_iter),
+                "termination_reason": (
+                    replay.result.telemetry.termination_reason
+                ),
+                "optimizer_success": (
+                    replay.result.telemetry.optimizer_success
+                ),
                 "force_evaluations": counts.total,
                 "purpose_counts": counts.as_dict(),
                 "wall_time_s": replay.wall_time_s,

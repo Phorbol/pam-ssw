@@ -92,6 +92,9 @@ def test_shape_replay_closes_paired_matrix_without_unattributed_calls():
         row["purpose_counts"][EvaluationPurpose.UNATTRIBUTED.value] == 0
         for row in rows
     )
+    assert all(row["n_iter"] >= 0 for row in rows)
+    assert all(row["termination_reason"] for row in rows)
+    assert all(row["gradient_norm"] >= 0.0 for row in rows)
     assert summary["systems"]["analytic"]["task_count"] == 1
     assert "quadratic_minus_gaussian" in summary["systems"]["analytic"]
 
