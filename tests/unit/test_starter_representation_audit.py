@@ -281,6 +281,19 @@ def test_legacy_selector_timing_executes_the_real_full_score_path():
     assert result["uses_real_bandit_selector"] is True
 
 
+def test_artifact_record_uses_portable_relative_name_and_content_hash(tmp_path):
+    runner = _runner()
+    artifact = tmp_path / "representations.npz"
+    artifact.write_bytes(b"portable evidence")
+
+    record = runner.artifact_record(artifact)
+
+    assert record == {
+        "file": "representations.npz",
+        "sha256": "147d50dd26578ea82ecc00f45668f47f97f665c0ae95671fffc78cf4d883a42b",
+    }
+
+
 def test_audit_system_keeps_representation_arms_separate_and_marks_censored_labels(tmp_path):
     runner = _runner()
     state_one = State(

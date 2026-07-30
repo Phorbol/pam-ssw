@@ -571,6 +571,15 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def artifact_record(path: Path) -> dict[str, str]:
+    """Describe a result artifact without embedding a machine-local path."""
+    artifact = Path(path)
+    return {
+        "file": artifact.name,
+        "sha256": _sha256(artifact),
+    }
+
+
 def _git_commit() -> str:
     completed = subprocess.run(
         ["git", "rev-parse", "HEAD"],
@@ -628,10 +637,7 @@ def run_offline_audit(
         archive = output / f"{system}_representations.npz"
         np.savez_compressed(archive, energies=energies, **matrices)
         system_reports[system] = report
-        array_files[system] = {
-            "path": str(archive),
-            "sha256": _sha256(archive),
-        }
+        array_files[system] = artifact_record(archive)
     selector_timing = benchmark_legacy_selector(
         selector_sizes,
         descriptor_dimension=20,
