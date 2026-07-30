@@ -540,6 +540,7 @@ def run(
     *,
     output_dir: Path,
     expected_commit: str,
+    state_source_root: Path,
     systems: Sequence[str],
     state_ids: Sequence[str],
     seeds: Sequence[int],
@@ -567,6 +568,13 @@ def run(
         "_counterfactual_config_gate",
     )
     _strict_wrapper, base_runner = audit._load_frozen_runtime()
+    state_source_root = Path(state_source_root).resolve()
+    if not state_source_root.is_dir():
+        raise FileNotFoundError(state_source_root)
+    # Only provenance-bearing historical outputs are resolved from this
+    # explicit root.  Code and runtime configuration remain pinned to the
+    # execution commit in the current worktree.
+    audit.REPO_ROOT = state_source_root
     calculator = ASECalculator(base_runner._calculator())
     started = perf_counter()
     rows: list[dict[str, Any]] = []
@@ -681,6 +689,7 @@ def run(
     evidence = {
         "schema_version": 1,
         "execution_commit": expected_commit,
+        "state_source_root": str(state_source_root),
         "systems": list(systems),
         "state_ids": list(state_ids),
         "seeds": list(seeds),
@@ -713,6 +722,12 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--expected-commit", required=True)
     parser.add_argument(
+        "--state-source-root",
+        required=True,
+        type=Path,
+        help="repository root containing the checksum-pinned historical outputs",
+    )
+    parser.add_argument(
         "--systems",
         nargs="+",
         choices=protocol.SYSTEMS,
@@ -738,6 +753,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     evidence = run(
         output_dir=args.output,
         expected_commit=args.expected_commit,
+        state_source_root=args.state_source_root,
         systems=args.systems,
         state_ids=args.state_ids,
         seeds=args.seeds,

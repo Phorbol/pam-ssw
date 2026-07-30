@@ -17,6 +17,8 @@ new descriptors, a learned model, or a new direction family.
 
 - Systems: C60 and PdO.
 - States: locked accepted minima at production trials 100 and 180.
+- The runner takes an explicit `--state-source-root`; state and origin-summary
+  bytes are still checked against the preregistered SHA256 registry.
 - Seeds: 42, 43, 44.
 - Candidates per shared pool: four.
 - Total terminal cases: 48.
