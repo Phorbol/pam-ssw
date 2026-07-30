@@ -269,6 +269,8 @@ def _validate_direction_trace(
         raise ValueError(f"unknown arm: {arm}")
     if not direction_rows:
         raise RuntimeError("direction diagnostics contain no selections")
+    arm_config = ARMS[arm]
+    selection_mode = arm_config["direction_selection_mode"]
 
     force_evaluations = 0
     hvp_count = 0
@@ -292,7 +294,7 @@ def _validate_direction_trace(
                     "direction trace violates the common step-zero contract"
                 )
             row_hvps = 0
-        elif arm == "transported_direction":
+        elif selection_mode == "transported_direction":
             if (
                 row.get("selected_kind") != "transported"
                 or row.get("candidate_count") != 1
@@ -306,34 +308,41 @@ def _validate_direction_trace(
                 )
             row_hvps = 1
         else:
-            expected_kind = (
-                "block_ritz"
-                if arm == "fixed_intent_ritz"
-                else "continuation_ritz"
+            if selection_mode == "block_krylov":
+                expected_kind = "block_ritz"
+                expected_columns = [2]
+            elif selection_mode == "continuation_krylov":
+                expected_kind = "continuation_ritz"
+                expected_columns = [1]
+            else:
+                raise ValueError(
+                    f"unsupported direction selection mode: {selection_mode}"
+                )
+            expected_depth = int(arm_config["block_krylov_depth"])
+            expected_hvps = expected_depth * (
+                sum(expected_columns)
+                if selection_mode == "block_krylov"
+                else 1
             )
-            expected_depth = (
-                6 if arm == "fixed_intent_ritz" else 12
-            )
-            expected_columns = (
-                [2] if arm == "fixed_intent_ritz" else [1]
-            )
+            expected_force_evaluations = 2 * expected_hvps
             if (
                 row.get("selected_kind") != expected_kind
                 or row.get("candidate_count") != 0
-                or row.get("krylov_blocks") != 1
+                or row.get("krylov_blocks")
+                != arm_config["block_krylov_blocks"]
                 or row.get("krylov_depth") != expected_depth
                 or row.get("krylov_initial_basis_columns")
                 != expected_columns
-                or row.get("krylov_hvp_requested") != 12
-                or row.get("krylov_hvp_consumed") != 12
-                or row.get("krylov_hvp_count") != 12
+                or row.get("krylov_hvp_requested") != expected_hvps
+                or row.get("krylov_hvp_consumed") != expected_hvps
+                or row.get("krylov_hvp_count") != expected_hvps
                 or row.get("oracle_selection_force_evaluations_delta")
-                != 24
+                != expected_force_evaluations
             ):
                 raise RuntimeError(
                     f"direction row {index} violates Krylov contract"
                 )
-            row_hvps = 12
+            row_hvps = expected_hvps
         if not row.get("selected_direction_sha256"):
             raise RuntimeError(
                 f"direction row {index} lacks a direction hash"

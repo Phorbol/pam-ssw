@@ -24,6 +24,7 @@ SYSTEM = "pdo"
 STATE_ID = "raw_bootstrap"
 SEEDS = (42, 43, 44)
 ARMS = ("fixed_intent_ritz", "transported_direction")
+EXTRA_DIRECTION_ARMS: dict[str, dict[str, object]] = {}
 RAW_INPUT_SHA256 = (
     "68243ceb7c0fbb6ba7a9454d680287eb98c4e5210efbd9ebb63517ba79aaa8b0"
 )
@@ -40,6 +41,7 @@ def case_matrix() -> list[dict[str, Any]]:
 
 def _load_runtime():
     protocol = _load_module(PROTOCOL_PATH, "_pdo_raw_shared_protocol")
+    protocol.ARMS.update(EXTRA_DIRECTION_ARMS)
     audit = _load_module(FIXED_AUDIT_PATH, "_pdo_raw_fixed_audit")
     _strict_wrapper, base_runner = audit._load_frozen_runtime()
     return protocol, base_runner
