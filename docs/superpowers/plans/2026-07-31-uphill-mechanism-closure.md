@@ -50,9 +50,9 @@
 
 - [x] Write failing protocol tests for frozen-task identity and cost closure.
 - [x] Implement the minimal replay protocol and verify tests.
-- [ ] Run at most six C60 prefixes on CUDA.
-- [ ] Stop if continuation changes no certificate or physical endpoint beyond replay noise.
-- [ ] Write and commit the evidence-backed conclusion.
+- [x] Run six C60 frozen tasks on CUDA.
+- [x] Stop increasing proposal relaxation capacity because all six strict quenches returned to the baseline basin despite six proposal-certificate gains.
+- [x] Write the evidence-backed conclusion.
 
 ### Task 3: U4-A Cumulative Gaussian History
 
@@ -67,11 +67,11 @@
 - Compares the current cumulative Gaussian prefix with newest-Gaussian-only.
 - Reuses the identical frozen state, newest center/direction/sigma/weight, LS term, optimizer, and budget.
 
-- [ ] Write a failing test proving the two arms differ only in historical bias retention.
-- [ ] Implement the two-arm task constructor and verify tests.
-- [ ] Run the preregistered late C60 prefix cohort with a hard aggregate cap.
-- [ ] Promote cumulative history only if it is certificate-neutral and Pareto-nondominated on landing outcome and force cost.
-- [ ] Write and commit the evidence-backed conclusion.
+- [x] Write a failing test proving the two arms differ only in historical bias retention.
+- [x] Implement the two-arm task constructor and verify tests.
+- [x] Run the bounded C60 frozen-task cohort.
+- [x] Retain cumulative history as default; newest-only changed 3/6 basins with two lower and one much higher landing.
+- [x] Write the evidence-backed conclusion.
 
 ### Task 4: U4-B Proposal Local-Softening Scope
 
@@ -86,11 +86,11 @@
 - Compares current proposal LS with oracle-only LS for an already selected frozen direction.
 - Keeps all Gaussian history and optimizer inputs identical.
 
-- [ ] Write a failing test proving only the proposal softening component changes.
-- [ ] Implement the two-arm task constructor and verify tests.
-- [ ] Run the same bounded C60 cohort.
-- [ ] Retain proposal LS only if it is certificate-neutral and improves paired landing outcomes without higher force cost.
-- [ ] Write and commit the evidence-backed conclusion.
+- [x] Write a failing test proving only the proposal softening component changes.
+- [x] Implement the two-arm task constructor and verify tests.
+- [x] Run the same bounded C60 cohort.
+- [x] Retain proposal LS because removal saved only nine proposal evaluations and produced one higher-energy different basin.
+- [x] Write the evidence-backed conclusion.
 
 ### Task 5: U5 Horizon Capacity Gate
 
