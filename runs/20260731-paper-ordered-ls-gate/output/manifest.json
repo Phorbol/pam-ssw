@@ -1,0 +1,34 @@
+{
+  "arms": [
+    "none",
+    "current_active",
+    "paper_ordered"
+  ],
+  "execution_commit": "4c459d208c09e48dc04ca0204be3742e7b063dea",
+  "gpu": "NVIDIA GeForce RTX 3060",
+  "model_path": "/root/.cache/mace/mace-omat-0-small.model",
+  "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+  "paper_initial_strength_eV": 0.1083,
+  "paper_xi_dimensionless": 0.2,
+  "schema_version": 1,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "states": {
+    "bootstrap": {
+      "path": "/tmp/SSW-worktrees/direction-continuation-ablation/runs/20260730-starter-cell-online-gate/production-20k-seed42-output/c60/seed-00000042/uniform/archive_minima/entry-00000.xyz",
+      "sha256": "dc7b5850b6c83446b27fa201fb2e29ca37dc34d9e2435092f243b7ba9f96d9aa"
+    },
+    "late": {
+      "path": "/tmp/SSW-worktrees/direction-continuation-ablation/runs/20260730-starter-cell-online-gate/production-20k-seed42-output/c60/seed-00000042/uniform/archive_minima/entry-00041.xyz",
+      "sha256": "f491cf0a2d0aa4e5946c760bb70665c988977fc41e7a2b4a89a825a4b108ea55"
+    },
+    "mid": {
+      "path": "/tmp/SSW-worktrees/direction-continuation-ablation/runs/20260730-starter-cell-online-gate/production-20k-seed42-output/c60/seed-00000042/uniform/archive_minima/entry-00020.xyz",
+      "sha256": "ab1804aba888f079904bb5f9452d4390afda1f5e327ec22e7d9dcbd8df49e5df"
+    }
+  },
+  "system": "c60"
+}
