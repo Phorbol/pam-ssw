@@ -409,9 +409,14 @@ def _run_frozen_task(
     for arm in ARM_ORDER:
         landing = landings[arm]
         row = rows[arm]
-        row["landing_rmsd_to_baseline_A"] = _rmsd(
+        rmsd_to_baseline = _rmsd(
             landing.state,
             baseline.state,
+        )
+        row["landing_rmsd_to_baseline_A"] = (
+            float(rmsd_to_baseline)
+            if np.isfinite(rmsd_to_baseline)
+            else None
         )
         row["landing_descriptor_delta_to_baseline"] = float(
             descriptor_distance(
@@ -425,8 +430,11 @@ def _run_frozen_task(
         row["same_landing_as_baseline"] = bool(
             abs(landing.energy - baseline.energy)
             <= walker.config.dedup_energy_tol
-            and row["landing_rmsd_to_baseline_A"]
-            <= walker.config.dedup_rmsd_tol
+            and row["landing_rmsd_to_baseline_A"] is not None
+            and (
+                row["landing_rmsd_to_baseline_A"]
+                <= walker.config.dedup_rmsd_tol
+            )
         )
     return {
         "task_id": task_id,
