@@ -91,3 +91,31 @@ def test_cell_count_is_derived_only_from_trial_resolution_not_system_energy():
 
     assert runner.cell_count_for_trial_gate(200, observations_per_cell=3) == 66
     assert runner.cell_count_for_trial_gate(50, observations_per_cell=3) == 16
+
+
+def test_production_gate_uses_system_specific_validated_action_kernels(tmp_path):
+    runner = _runner()
+
+    c60 = runner.build_production_config("c60", tmp_path / "c60", master_seed=43)
+    pdo = runner.build_production_config("pdo", tmp_path / "pdo", master_seed=43)
+
+    assert c60.oracle_candidates == 4
+    assert c60.quench_optimizer == "ase-lbfgs"
+    assert c60.quench_fallback_optimizer == "ase-fire"
+    assert c60.quench_fmax == 0.01
+    assert c60.local_softening_active_count == 3
+
+    assert pdo.oracle_candidates == 8
+    assert pdo.quench_optimizer == "scipy-lbfgsb"
+    assert pdo.quench_fallback_optimizer is None
+    assert pdo.quench_fmax == 0.03
+    assert pdo.local_softening_active_count == 5
+
+    for config in (c60, pdo):
+        assert config.rng_seed == 43
+        assert config.proposal_optimizer == "safe-lbfgs-total"
+        assert config.proposal_pool_size == 1
+        assert config.proposal_duplicate_rescue_optimizer is None
+        assert config.accepted_structures_log is None
+        assert config.accepted_structures_dir is None
+        assert config.direction_diagnostics_enabled is False

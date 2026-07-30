@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import asdict, replace
 import importlib.util
 import json
 from pathlib import Path
@@ -14,8 +15,14 @@ from typing import Any, Sequence
 import numpy as np
 from ase import Atoms
 
-from pamssw.exploration import PosteriorExplorationConfig, run_posterior_ssw
+from pamssw import validated_ls_ssw_config
+from pamssw.exploration import (
+    PosteriorExplorationConfig,
+    run_posterior_ls_ssw,
+    run_posterior_ssw,
+)
 from pamssw.exploration.cells import FPSCellPartition, build_fps_cell_partition
+from pamssw.io import write_state
 
 
 RUN_ROOT = Path(__file__).resolve().parent
@@ -24,7 +31,9 @@ PRIOR_HARNESS_PATH = (
     RUN_ROOT.parent / "20260728-posterior-starter-policy-gpu-ablation" / "run_ablation.py"
 )
 POLICIES = ("uniform", "fps_cell_uniform")
+C60_PROFILE = "c60_direction_efficient_validated_20260729"
 _PRIOR_MODULE_NAME = "_starter_cell_gate_prior_harness"
+KERNEL_MODES = ("unsoftened_smoke", "production_ls")
 
 
 def cell_count_for_trial_gate(
@@ -171,6 +180,110 @@ def _descriptor_calculator(prior):
     )
 
 
+def build_production_config(
+    system: str,
+    case_directory: Path,
+    *,
+    master_seed: int,
+):
+    """Resolve the evidence-backed system-specific LS-SSW action kernel."""
+    case_directory = Path(case_directory)
+    if system == "c60":
+        config = validated_ls_ssw_config(
+            C60_PROFILE,
+            output_dir=case_directory,
+            max_trials=200,
+            rng_seed=master_seed,
+            max_force_evals=None,
+        )
+    elif system == "pdo":
+        prior = _load_prior_harness()
+        production = prior._load_production_runner()
+        config = production.build_config(system, case_directory)
+    else:
+        raise ValueError(f"unknown system: {system}")
+    return replace(
+        config,
+        rng_seed=master_seed,
+        accepted_structures_log=None,
+        accepted_structures_dir=None,
+        write_proposal_minima=False,
+        proposal_minima_dir=None,
+        write_relaxation_trajectories=False,
+        relaxation_trajectory_dir=None,
+        direction_diagnostics_enabled=False,
+        direction_diagnostics_path=None,
+        direction_archive_enabled=False,
+        direction_archive_path=None,
+        proposal_pool_size=1,
+        proposal_duplicate_rescue_optimizer=None,
+    )
+
+
+def _run_production_campaign(
+    *,
+    initial_state,
+    calculator_factory,
+    ssw_config,
+    exploration_config,
+    snapshot_builder,
+    prior,
+) -> dict[str, Any]:
+    started = perf_counter()
+    result = run_posterior_ls_ssw(
+        initial_state,
+        calculator_factory,
+        ssw_config,
+        exploration_config,
+        snapshot_builder=snapshot_builder,
+    )
+    wall_time_s = perf_counter() - started
+    minima_directory = exploration_config.run_directory / "archive_minima"
+    minima_directory.mkdir()
+    for entry in result.archive.entries:
+        write_state(
+            minima_directory / f"entry-{entry.entry_id:05d}.xyz",
+            entry.state,
+        )
+    summary = {
+        "schema_version": 1,
+        "policy_name": result.policy_name,
+        "kernel_mode": "production_ls",
+        "master_seed": exploration_config.master_seed,
+        "action_force_budget": exploration_config.action_force_budget,
+        "total_force_budget": result.total_force_budget,
+        "bootstrap_evaluations": result.bootstrap_evaluations,
+        "action_evaluations": result.action_evaluations,
+        "total_evaluations": result.total_evaluations,
+        "unused_force_budget": result.unused_force_budget,
+        "purpose_counts": result.purpose_counts.as_dict(),
+        "completed_batches": result.completed_batches,
+        "completed_attempts": result.completed_attempts,
+        "failed_attempts": result.failed_attempts,
+        "posterior_observed_attempts": result.posterior_observed_attempts,
+        "benchmark_eligible": result.benchmark_eligible,
+        "benchmark_ineligibility_reasons": list(
+            result.benchmark_ineligibility_reasons
+        ),
+        "archive_entries": len(result.archive.entries),
+        "best_archive_energy_eV": min(
+            float(entry.energy) for entry in result.archive.entries
+        ),
+        "bootstrap_energy_eV": float(result.archive.entries[0].energy),
+        "duplicate_rate": result.archive.duplicate_rate(),
+        "campaign_wall_time_s": wall_time_s,
+        "effective_ssw_config": asdict(ssw_config),
+        "event_log": "events.jsonl",
+        "optimizer_diagnostics": "optimizer_diagnostics.json",
+        "archive_minima": "archive_minima",
+    }
+    prior._write_json_exclusive(
+        exploration_config.run_directory / "campaign_summary.json",
+        summary,
+    )
+    return summary
+
+
 def run_gate(
     *,
     output_root: Path,
@@ -181,10 +294,13 @@ def run_gate(
     total_force_budget: int,
     trial_resolution_reference: int,
     observations_per_cell: int = 3,
+    kernel_mode: str = "unsoftened_smoke",
     preflight_only: bool = False,
 ) -> dict[str, Any]:
     """Run the first online gate with one frozen SSW action kernel."""
     prior = _load_prior_harness()
+    if kernel_mode not in KERNEL_MODES:
+        raise ValueError(f"kernel_mode must be one of {KERNEL_MODES!r}")
     output_root = Path(output_root)
     prior._preflight_output_root(output_root)
     manifest = prior.preflight(
@@ -212,8 +328,24 @@ def run_gate(
             ),
             "archive_nodes_deleted": False,
             "direction_uphill_optimizer_frozen": True,
+            "kernel_mode": kernel_mode,
         }
     )
+    if kernel_mode == "production_ls":
+        manifest["projections"] = {
+            system: {
+                "source_config_type": "LSSSWConfig",
+                "softening_enabled": True,
+                "effective_ssw_config": asdict(
+                    build_production_config(
+                        system,
+                        RUN_ROOT / ".preflight" / system,
+                        master_seed=int(manifest["master_seeds"][0]),
+                    )
+                ),
+            }
+            for system in manifest["systems"]
+        }
     if preflight_only:
         return manifest
 
@@ -230,7 +362,22 @@ def run_gate(
                     output_root / system / f"seed-{master_seed:08d}" / policy_name
                 )
                 case_directory.parent.mkdir(parents=True, exist_ok=True)
-                config, projection = prior.build_ssw_config(system, case_directory)
+                if kernel_mode == "production_ls":
+                    config = build_production_config(
+                        system,
+                        case_directory,
+                        master_seed=master_seed,
+                    )
+                    projection = {
+                        "source_config_type": "LSSSWConfig",
+                        "softening_enabled": True,
+                        "effective_ssw_config": asdict(config),
+                    }
+                else:
+                    config, projection = prior.build_ssw_config(
+                        system,
+                        case_directory,
+                    )
                 exploration = PosteriorExplorationConfig(
                     policy_name=policy_name,
                     batch_size=1,
@@ -250,22 +397,32 @@ def run_gate(
                         max_cells=max_cells,
                     )
 
-                def selected_runner(initial, calculator_factory, ssw_config, explore):
-                    return run_posterior_ssw(
-                        initial,
-                        calculator_factory,
-                        ssw_config,
-                        explore,
+                if kernel_mode == "production_ls":
+                    summary = _run_production_campaign(
+                        initial_state=initial_state,
+                        calculator_factory=factory,
+                        ssw_config=config,
+                        exploration_config=exploration,
                         snapshot_builder=builder,
+                        prior=prior,
                     )
+                else:
+                    def selected_runner(initial, calculator_factory, ssw_config, explore):
+                        return run_posterior_ssw(
+                            initial,
+                            calculator_factory,
+                            ssw_config,
+                            explore,
+                            snapshot_builder=builder,
+                        )
 
-                summary = prior.run_campaign(
-                    initial_state=initial_state,
-                    calculator_factory=factory,
-                    ssw_config=config,
-                    exploration_config=exploration,
-                    run_posterior=selected_runner,
-                )
+                    summary = prior.run_campaign(
+                        initial_state=initial_state,
+                        calculator_factory=factory,
+                        ssw_config=config,
+                        exploration_config=exploration,
+                        run_posterior=selected_runner,
+                    )
                 cell_sidecar = None
                 if builder is not None:
                     cell_sidecar = case_directory / "cell_partitions.json"
@@ -317,6 +474,11 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--total-force-budget", type=int, required=True)
     parser.add_argument("--trial-resolution-reference", type=int, required=True)
     parser.add_argument("--observations-per-cell", type=int, default=3)
+    parser.add_argument(
+        "--kernel-mode",
+        choices=KERNEL_MODES,
+        default="unsoftened_smoke",
+    )
     parser.add_argument("--preflight-only", action="store_true")
     return parser.parse_args(argv)
 
@@ -332,6 +494,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         total_force_budget=args.total_force_budget,
         trial_resolution_reference=args.trial_resolution_reference,
         observations_per_cell=args.observations_per_cell,
+        kernel_mode=args.kernel_mode,
         preflight_only=args.preflight_only,
     )
     print(json.dumps(result, indent=2, sort_keys=True, allow_nan=False))
@@ -340,6 +503,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 __all__ = [
     "MACEFPSCellSnapshotBuilder",
+    "build_production_config",
     "cell_count_for_trial_gate",
     "pool_mace_invariants",
     "run_gate",
