@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Measure the complete-action FE and landing trade-off of an actual online first-true-energy-descent stop on 24 fresh paired C60/PdO D0/K4 actions.
+**Goal:** Measure the complete-action FE and landing trade-off of an exact-prefix first-true-energy-descent shadow stop on 24 fresh C60/PdO D0/K4 actions.
 
-**Architecture:** Add one inert protected stop hook to the existing walk loop, expose it only through the current-action research runner's local audit subclass, and build a separate G-E1 protocol/runner.  Reference and stop arms execute the same walker code with seeds 45--47; exact prefix hashes and purpose ledgers are verified before outcomes are compared.
+**Architecture:** Add one inert protected stop hook to the existing walk loop, expose it only through the current-action research runner's local audit subclass, and build a separate G-E1 protocol/runner. One fresh reference path per case records the first descent and cumulative purpose ledger; the exact crossing checkpoint and natural terminal are independently true-quenched, avoiding non-deterministic duplicate GPU replays.
 
 **Tech Stack:** Python 3.12, NumPy, ASE extxyz I/O, existing `pamssw` MACE calculator, `SurfaceWalker`, first-passage quench classifier, pytest.
 
@@ -256,18 +256,19 @@ own executed quench counts.
 - [ ] **Step 2: Implement immutable runtime and pair execution**
 
 Reuse `_load_starter`, `_base_config`, `_generate_action_path` and
-`_quench_checkpoint` from the frozen runners.  For each pair, create fresh
-reference and early directories, instantiate a fresh first-descent observer
-only for the early arm, true-quench terminal endpoints, compute state SHA256
-with the fixed audit helper, and compare prefixes using the pure protocol.
+`_quench_checkpoint` from the frozen runners. For each case, create one fresh
+reference directory and use a shadow observer that latches the first descent
+while returning `None` so propagation continues. True-quench the exact
+crossing checkpoint and terminal endpoint, compute state SHA256 with the fixed
+audit helper, and build the early prefix only from the same recorded path.
 
 - [ ] **Step 3: Implement exact ledger and evidence checks**
 
 Track two separate values:
 
 ```text
-new_validation_fe = force calls actually executed by G-E1
-complete_action_fe = calls the arm would pay online, including reused quench
+new_validation_fe = one generation plus the quenches actually executed by G-E1
+complete_action_fe = prefix generation plus the quench that each arm would pay
 ```
 
 Reject any pair with unclosed purpose counts or unattributed calls.  The
@@ -283,9 +284,10 @@ pytest -q tests/unit/test_online_first_descent_paired_gate.py \
   tests/unit/test_walker_policy.py
 ```
 
-Then run one preregistered pair in a fresh `/tmp/g-e1-smoke-*` directory with
-`--limit-pairs 1`.  Require exact prefix closure, no unattributed FE and a
-mechanically valid evidence file.
+Then run one preregistered case in a fresh `/tmp/g-e1-shadow-smoke-*` directory
+with `--limit-pairs 1`. Require exact same-path prefix closure, no unattributed
+FE and a mechanically valid evidence file. The failed dual-run smoke is not
+reused.
 
 - [ ] **Step 5: Commit the complete runner**
 

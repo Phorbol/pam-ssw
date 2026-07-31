@@ -11,7 +11,7 @@ the conditioning of the final true quench.
 
 G-E1 asks only:
 
-> On fresh actions, does immediately cashing this sufficient lower-basin
+> On fresh actions, would immediately cashing this sufficient lower-basin
 > certificate reduce complete action cost after the true-quench cost is paid?
 
 It does not ask whether first descent is an optimal stopping rule, whether it
@@ -20,15 +20,19 @@ production default.
 
 ## Alternatives considered
 
-### A. Internal stop hook plus a research subclass — selected
+### A. Single-path shadow fork through an internal observer — selected
 
 Add one protected walker method that returns no stop reason by default.  The
 normal walk calls it after the existing finite true-PES endpoint evaluation.
-The G-E1 runner supplies a research-only subclass/observer that returns a stop
-reason on first descent.
+The G-E1 runner supplies a research-only observer that latches the first
+descent but returns no stop reason, so the same fresh path continues to its
+natural terminal. G-E1 true-quenches both the exact crossing state and the
+terminal state; the early arm's generation ledger is the cumulative purpose
+snapshot at the crossing.
 
-This keeps the production path and public configuration unchanged, executes
-the actual online break, and avoids duplicating the uphill loop.
+This keeps the production path and public configuration unchanged, avoids
+duplicating the uphill loop, and makes the early arm an exact prefix of the
+reference rather than a numerically approximate GPU replay.
 
 ### B. Copy the uphill loop into the research runner — rejected
 
@@ -42,6 +46,18 @@ event.
 This would be appropriate only after online evidence.  Adding a user-facing
 boolean before G-E1 would expand the algorithm parameter surface and imply a
 production maturity that G-E0 did not establish.
+
+### D. Execute two nominally identical GPU arms — rejected by smoke
+
+The initial smoke used separate reference and stop walkers with the same
+starter, seed, direction arm and configuration. Before either arm made a
+different stopping decision, repeated float32 GPU MACE evaluations already
+differed: starter energy by about `3.05e-5 eV`, first endpoint energy by about
+`2.14e-4 eV`, and true curvature at the fourth decimal place. Selected
+direction SHA, sigma and bias weight were identical, but optimizer endpoint
+SHA was not. Relaxing prefix equality after observing this drift would mix
+calculator nondeterminism into the stopping effect, so that smoke is excluded
+from scientific evidence.
 
 ## Algorithm seam
 
@@ -62,8 +78,8 @@ reason = self._walk_early_stop_reason(
 The base implementation returns `None`.  No extra force evaluation and no
 new configuration field are introduced.
 
-The research observer records the cumulative purpose ledger and returns
-`"true_energy_descent"` exactly when
+The research observer records the cumulative purpose ledger and latches the
+first row exactly when
 
 ```text
 true_energy < starter_energy - dedup_energy_tol
@@ -83,14 +99,15 @@ definitions as G-E0, but fresh action seeds 45, 46 and 47:
 - paired seeds: 45--47;
 - total pairs: 24.
 
-For each pair:
+For each fresh action pair:
 
-1. run the unchanged reference action to natural termination;
-2. reset the walker and run the first-descent arm with the same starter, seed,
-   direction arm and scientific configuration;
-3. true-quench both returned endpoints; if the stop arm never triggers and its
-   terminal state is hash-identical, reuse the reference landing as evidence
-   but charge the same quench cost to its counterfactual action ledger;
+1. run one unchanged reference action to natural termination while the
+   observer records the first descent and cumulative purpose ledger;
+2. if a crossing occurs, true-quench its exact persisted checkpoint and the
+   natural terminal; otherwise true-quench only the terminal and reuse it for
+   the counterfactual early arm;
+3. reconstruct early complete-action cost as crossing-prefix generation cost
+   plus crossing true-quench cost;
 4. compare the complete cost vector and landing outcomes.
 
 No source action from G-E0 is replayed.  Seeds 42--44 are excluded.
@@ -99,17 +116,16 @@ No source action from G-E0 is replayed.  Seeds 42--44 are excluded.
 
 Before interpreting a pair, require:
 
-- identical starter SHA256 and starter true energy;
-- identical initial anchor SHA256;
-- identical selected-direction SHA256, executed sigma, bias weight and true
-  endpoint energy through the shorter prefix;
-- identical checkpoint-state SHA256 through that prefix;
-- if the early arm does not trigger, identical termination reason and terminal
-  checkpoint hash;
+- the crossing row, direction row and persisted checkpoint have the same
+  one-based step;
+- the observer's cumulative ledger is componentwise no larger than the
+  terminal generation ledger;
+- the early prefix is constructed only from the same reference trace and
+  checkpoint SHA, never from a second GPU execution;
 - exact purpose-ledger closure and `unattributed = 0`.
 
-A prefix mismatch invalidates the pair; it is not counted as an algorithmic
-failure or repaired with tolerances after observing the result.
+A shadow-prefix mismatch invalidates the pair; it is not counted as an
+algorithmic failure or repaired with tolerances after observing the result.
 
 ## Outcome vector
 
@@ -131,7 +147,7 @@ No weighted scalar reward is constructed.
 
 G-E1 admits a later equal-total-budget search gate, G-E2, only if:
 
-1. all 24 paired prefixes and ledgers close;
+1. all 24 shadow prefixes and ledgers close;
 2. at least two fresh pairs trigger;
 3. every triggered early landing is certified and below its starter by the
    existing energy tolerance;
@@ -155,11 +171,13 @@ cannot change a production default regardless of outcome.
 
 The only production-file change is the inert protected hook plus focused unit
 coverage proving that the base hook preserves the original step cap and an
-override stops immediately after the already-paid true-energy evaluation.
+override can observe or stop immediately after the already-paid true-energy
+evaluation.
 
 ## Claim ceiling
 
-G-E1 can establish fresh paired complete-action cost and landing trade-offs
-for 24 C60/PdO D0/K4 actions.  It cannot establish long-search improvement,
+G-E1 can establish fresh exact-prefix counterfactual complete-action cost and
+landing trade-offs for 24 C60/PdO D0/K4 actions. It does not independently
+execute the stopped continuation and cannot establish long-search improvement,
 CuO transfer, statistical significance, canonical sampling correctness or a
 production stopping policy.
