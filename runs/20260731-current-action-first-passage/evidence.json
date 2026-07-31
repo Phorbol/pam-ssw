@@ -1,0 +1,263 @@
+{
+  "action_support_gap_contexts": [],
+  "claim_ceiling": "fixed current-action first-passage mechanism classification; no adaptive horizon, new action family, or selector is promoted",
+  "cohort": {
+    "arms": [
+      "D0_exact_anchor",
+      "K4_discrete"
+    ],
+    "checkpoint_count": 59,
+    "checkpoint_horizons": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "completed_generation_paths": 24,
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "state_ids": [
+      "intermediate_accepted",
+      "plateau_accepted"
+    ],
+    "systems": [
+      "c60",
+      "pdo"
+    ]
+  },
+  "context_summaries": [
+    {
+      "all_horizons_return_seed_count": 0,
+      "arm": "D0_exact_anchor",
+      "case_count": 3,
+      "checkpoint_force_evaluations": 512,
+      "early_escape_then_h8_return_seed_count": 0,
+      "generation_force_evaluations": 704,
+      "labels_by_horizon": {
+        "1": {
+          "RETURN_STARTER": 3
+        },
+        "2": {
+          "RETURN_STARTER": 3
+        },
+        "4": {
+          "ESCAPED_CERTIFIED": 2
+        },
+        "8": {}
+      },
+      "reached_h8_count": 0,
+      "state_id": "intermediate_accepted",
+      "system": "c60"
+    },
+    {
+      "all_horizons_return_seed_count": 1,
+      "arm": "K4_discrete",
+      "case_count": 3,
+      "checkpoint_force_evaluations": 2774,
+      "early_escape_then_h8_return_seed_count": 0,
+      "generation_force_evaluations": 1137,
+      "labels_by_horizon": {
+        "1": {
+          "RETURN_STARTER": 3
+        },
+        "2": {
+          "RETURN_STARTER": 3
+        },
+        "4": {
+          "RETURN_STARTER": 3
+        },
+        "8": {
+          "ESCAPED_CERTIFIED": 1,
+          "INVALID_GEOMETRY": 1,
+          "RETURN_STARTER": 1
+        }
+      },
+      "reached_h8_count": 3,
+      "state_id": "intermediate_accepted",
+      "system": "c60"
+    },
+    {
+      "all_horizons_return_seed_count": 0,
+      "arm": "D0_exact_anchor",
+      "case_count": 3,
+      "checkpoint_force_evaluations": 642,
+      "early_escape_then_h8_return_seed_count": 0,
+      "generation_force_evaluations": 790,
+      "labels_by_horizon": {
+        "1": {
+          "ESCAPED_CERTIFIED": 2,
+          "RETURN_STARTER": 1
+        },
+        "2": {
+          "ESCAPED_CERTIFIED": 1,
+          "INVALID_GEOMETRY": 1,
+          "RETURN_STARTER": 1
+        },
+        "4": {
+          "ESCAPED_CERTIFIED": 1,
+          "INVALID_GEOMETRY": 1
+        },
+        "8": {
+          "ESCAPED_CERTIFIED": 1
+        }
+      },
+      "reached_h8_count": 1,
+      "state_id": "plateau_accepted",
+      "system": "c60"
+    },
+    {
+      "all_horizons_return_seed_count": 0,
+      "arm": "K4_discrete",
+      "case_count": 3,
+      "checkpoint_force_evaluations": 483,
+      "early_escape_then_h8_return_seed_count": 0,
+      "generation_force_evaluations": 995,
+      "labels_by_horizon": {
+        "1": {
+          "ESCAPED_CERTIFIED": 1,
+          "RETURN_STARTER": 2
+        },
+        "2": {
+          "ESCAPED_CERTIFIED": 3
+        },
+        "4": {
+          "ESCAPED_CERTIFIED": 3
+        },
+        "8": {
+          "ESCAPED_CERTIFIED": 1
+        }
+      },
+      "reached_h8_count": 1,
+      "state_id": "plateau_accepted",
+      "system": "c60"
+    },
+    {
+      "all_horizons_return_seed_count": 0,
+      "arm": "D0_exact_anchor",
+      "case_count": 3,
+      "checkpoint_force_evaluations": 326,
+      "early_escape_then_h8_return_seed_count": 0,
+      "generation_force_evaluations": 776,
+      "labels_by_horizon": {
+        "1": {
+          "AMBIGUOUS_MATCH": 2,
+          "ESCAPED_CERTIFIED": 1
+        },
+        "2": {
+          "ESCAPED_CERTIFIED": 2,
+          "INVALID_GEOMETRY": 1
+        },
+        "4": {},
+        "8": {}
+      },
+      "reached_h8_count": 0,
+      "state_id": "intermediate_accepted",
+      "system": "pdo"
+    },
+    {
+      "all_horizons_return_seed_count": 0,
+      "arm": "K4_discrete",
+      "case_count": 3,
+      "checkpoint_force_evaluations": 263,
+      "early_escape_then_h8_return_seed_count": 0,
+      "generation_force_evaluations": 656,
+      "labels_by_horizon": {
+        "1": {
+          "AMBIGUOUS_MATCH": 2,
+          "ESCAPED_CERTIFIED": 1
+        },
+        "2": {
+          "AMBIGUOUS_MATCH": 1,
+          "INVALID_GEOMETRY": 1
+        },
+        "4": {},
+        "8": {}
+      },
+      "reached_h8_count": 0,
+      "state_id": "intermediate_accepted",
+      "system": "pdo"
+    },
+    {
+      "all_horizons_return_seed_count": 0,
+      "arm": "D0_exact_anchor",
+      "case_count": 3,
+      "checkpoint_force_evaluations": 289,
+      "early_escape_then_h8_return_seed_count": 0,
+      "generation_force_evaluations": 620,
+      "labels_by_horizon": {
+        "1": {
+          "ESCAPED_CERTIFIED": 3
+        },
+        "2": {
+          "ESCAPED_CERTIFIED": 1,
+          "INVALID_GEOMETRY": 1
+        },
+        "4": {},
+        "8": {}
+      },
+      "reached_h8_count": 0,
+      "state_id": "plateau_accepted",
+      "system": "pdo"
+    },
+    {
+      "all_horizons_return_seed_count": 0,
+      "arm": "K4_discrete",
+      "case_count": 3,
+      "checkpoint_force_evaluations": 205,
+      "early_escape_then_h8_return_seed_count": 0,
+      "generation_force_evaluations": 282,
+      "labels_by_horizon": {
+        "1": {
+          "ESCAPED_CERTIFIED": 1,
+          "INVALID_GEOMETRY": 2
+        },
+        "2": {
+          "ESCAPED_CERTIFIED": 1
+        },
+        "4": {},
+        "8": {}
+      },
+      "reached_h8_count": 0,
+      "state_id": "plateau_accepted",
+      "system": "pdo"
+    }
+  ],
+  "execution_commit": "8ae07ebd2c88629210694010e2d0af6a2a8de9e0",
+  "horizon_gate_contexts": [],
+  "label_counts": {
+    "AMBIGUOUS_MATCH": 5,
+    "ESCAPED_CERTIFIED": 26,
+    "INVALID_GEOMETRY": 8,
+    "RETURN_STARTER": 20
+  },
+  "max_force_evaluations": 15000,
+  "numerical_matcher_gate_systems": [
+    "pdo"
+  ],
+  "production_default_changed": false,
+  "purpose_counts": {
+    "biased_proposal_relax": 5318,
+    "bootstrap_true_quench": 0,
+    "direction_oracle": 512,
+    "escape_true_pes_check": 181,
+    "landing_true_quench": 5392,
+    "local_softening_pre_relax": 0,
+    "post_relax_validation": 51,
+    "starter_true_quench": 0,
+    "unattributed": 0
+  },
+  "raw_evidence_path": "runs/20260731-current-action-first-passage/output-v3/evidence.json",
+  "raw_evidence_sha256": "9ba5fb4fce7b44dea7cfa4bc0115043e3877adc08c345eaae9aa5fc0117fbdd2",
+  "schema_version": 1,
+  "state_source_root": "/tmp/SSW-worktrees/direction-continuation-ablation",
+  "total_force_evaluations": 11454,
+  "unattributed_force_evaluations": 0,
+  "unlearnable_trajectory_count_by_system": {
+    "c60": 0,
+    "pdo": 4
+  },
+  "wall_time_s": 238.948770108982
+}
