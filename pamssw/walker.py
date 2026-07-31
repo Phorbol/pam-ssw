@@ -4547,6 +4547,7 @@ class SurfaceWalker:
                 "discovered_entry_id": int(discovered_entry_id),
                 "energy": float(energy),
                 "best_energy": float(best_energy),
+                "force_evaluations": int(self.calculator.force_evaluations),
                 "descriptor": structural_descriptor(state).astype(float).tolist(),
             }
             with path.open("a", encoding="utf-8") as handle:

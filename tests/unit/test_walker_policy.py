@@ -5638,7 +5638,32 @@ def test_surface_walker_writes_accepted_structure_log(tmp_path):
         assert payload["discovered_entry_id"] == accepted_records[0].discovered_entry_id
         assert payload["energy"] == pytest.approx(accepted_records[0].energy)
         assert payload["best_energy"] == pytest.approx(result.best_energy)
+        assert payload["force_evaluations"] > 0
+        assert payload["force_evaluations"] <= result.stats["force_evaluations"]
         assert len(payload["descriptor"]) == 20
+
+
+def test_accepted_structure_log_records_cumulative_force_evaluations(tmp_path):
+    log_path = tmp_path / "accepted_structures.jsonl"
+    state = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(accepted_structures_log=str(log_path)),
+        softening_enabled=False,
+    )
+    walker.calculator.evaluate(state)
+
+    walker._record_accepted_structure(
+        trial_index=1,
+        seed_entry_id=0,
+        discovered_entry_id=1,
+        state=state,
+        energy=-1.0,
+        best_energy=-1.0,
+    )
+
+    payload = json.loads(log_path.read_text())
+    assert payload["force_evaluations"] == 1
 
 
 def test_surface_walker_can_write_all_proposal_minima(tmp_path):
