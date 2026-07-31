@@ -147,6 +147,13 @@ def _preflight(expected_commit: str) -> dict[str, Any]:
         "calculator": dict(production.CALCULATOR_CONFIG),
         "inputs": inputs,
         "starter_modes": list(STARTER_MODES),
+        "random_stream_protocol": {
+            "physical_action_stream": "rng_seed",
+            "starter_selection_stream": "SeedSequence([rng_seed, 0x535357])",
+            "reason": (
+                "starter draws must not shift random, bond, or momentum direction draws"
+            ),
+        },
         "mechanism_frozen": (
             "direction generation, local softening, Gaussian-bias propagation, "
             "proposal relaxation, true-PES quench"

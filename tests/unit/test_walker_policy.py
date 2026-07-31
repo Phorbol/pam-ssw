@@ -5779,13 +5779,41 @@ def test_uniform_archive_seed_selection_samples_entries_without_bandit_selector(
             assert upper == 3
             return 1
 
-    walker.rng = SelectMiddle()
+    walker.selection_rng = SelectMiddle()
     selected = walker._select_uniform_seed_entry(archive)
 
     assert selected.entry_id == selected_entry.entry_id
     assert selected.visits == 2
     assert selected.node_trials == 1
     assert walker._same_seed_consecutive == 1
+
+
+def test_starter_selection_does_not_advance_physical_action_random_stream():
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=0.01)
+    entry = archive.add(
+        State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]])),
+        -2.0,
+        None,
+    )
+    walkers = {
+        mode: SurfaceWalker(
+            calculator=AnalyticCalculator(DoubleWell2D()),
+            config=SSWConfig(seed_selection_mode=mode, rng_seed=17),
+            softening_enabled=False,
+        )
+        for mode in ("uniform_archive", "archive_ucb", "metropolis_chain")
+    }
+
+    walkers["uniform_archive"]._select_uniform_seed_entry(archive.clone())
+    walkers["archive_ucb"]._select_seed_entry(archive.clone())
+    walkers["metropolis_chain"]._select_metropolis_seed_entry(entry)
+
+    action_draws = {
+        mode: walker.rng.normal(size=12)
+        for mode, walker in walkers.items()
+    }
+    assert np.array_equal(action_draws["uniform_archive"], action_draws["archive_ucb"])
+    assert np.array_equal(action_draws["uniform_archive"], action_draws["metropolis_chain"])
 
 
 def test_surface_walker_reports_direction_acquisition_diagnostics():

@@ -567,7 +567,90 @@ equal-budget gates 决定。
 walker；每个 system/seed/mode 使用相同 20,000 FE 上限。第一阶段先跑 C60/PdO 的
 seed 42；只有出现可解释且账本闭合的差异，才扩展 seeds 43--44。
 
+首次 seed-42 smoke 暴露了一个必须先消除的混杂：旧实现让 starter 抽样与物理
+direction/action 共用同一随机流；三种 selector 消耗的随机数个数不同，因此相同
+master seed 并不产生配对的首个 action。该 smoke 只保留作诊断，不进入算法比较。
+正式 gate 将 starter/Metropolis acceptance 放到独立确定性随机流，direction、
+bond、momentum 和其他 action 随机数保持原 master-seed 流。这样 selector 抽样本身
+不会平移后续物理 proposal 的随机序列。
+
 这仍不是 posterior 准入。Metropolis 是串行物理基线，不是并行 production 方案。
 只有它在两体系中优于等概率选择和现有 archive-UCB-like，才研究如何把“低能 funnel
 连续性”变成具有非零全局支持、可批量并行的最小概率分配；在此之前不加入 TS、
 MACE embedding、hard top-k/FPS 或新的 acquisition 权重。
+
+## 十四、Safe-LBFGS 审阅并入路线
+
+`Safe-LBFGS-review.md` 对当前优化器证据的分层是合理的，但必须保持以下 claim
+boundary。
+
+### 已由现有实验直接支持
+
+对 Gaussian-biased proposal relaxation，`safe-lbfgs-total` 的收益不是来自新的
+BFGS 更新公式，而是标准 limited-memory BFGS 与该 modified PES 的组合：
+
+1. 最近可靠 secant 给出的自适应 inverse-Hessian 整体尺度有显著、但不充分的正
+   贡献；
+2. 保留至少一条 secant 后，优化器开始学习“少数 bias collective directions”和
+   “其余硬键/软模自由度”之间的各向异性；这是目前最大的局部效率来源；
+3. history 10 相对 history 1 的额外收益主要来自 PdO，在 C60 上不稳定；
+4. 冻结 one-bias task 中，safe 相对 FIRE 的证书率和 FE 更好。
+
+这只能证明 safe 是一个有效的 **proposal backend arm**。端到端等预算 SSW 中 C60
+三 seed 回退、PdO 三 seed 改善，因此它不是跨体系 universal replacement，也不能把
+“更精确地最小化 modified PES”本身当作搜索目标。
+
+### 尚未完成因果归因
+
+当前实现还同时包含：
+
+- total-objective Armijo backtracking；
+- 只接受正曲率 secant；
+- 每原子单步最大位移；
+- minimum-image branch 改变时清空 history；
+- raw active-force 终止证书。
+
+这些机制在代码和数学上各自对应明确 failure mode，但尚未通过单因素 gate 区分各自
+贡献。当前证据也没有严格证明 safe 普遍优于 ASE-LBFGS 或 SciPy L-BFGS-B。
+特别是 `proposal_trust_radius` 目前只有 SciPy backend 实际转化为 Cartesian bounds，
+safe 与 ASE 会静默忽略；因此默认 safe--SciPy 对比的可行域和终止证书并不相同。
+
+### 为什么 total-gradient secant 可能有效
+
+新 Gaussian 以当前结构为中心，随后沿同一方向显式移动约一个 width。proposal
+relaxation 因而从 Gaussian 拐点附近开始：
+
+\[
+q\approx\sigma,\qquad b''(q)\approx0,\qquad |b'(q)|>0.
+\]
+
+点 Hessian 在这里恰好不能表达随后从负曲率到正曲率、再进入有限衰减尾部的变化。
+total-gradient secant 测量的是一次有限原子位移两端的梯度差，因此会自动积累该路径
+上的平均曲率。这个物理图景解释了为什么“只从 secant 中减去解析 bias”的
+`bias-separated-lbfgs` 会失败：它删除了 bias 的有限步曲率，却没有把 exact nonlinear
+bias 放回局部模型。
+
+### 后续准入顺序
+
+Safe-LBFGS 支线不抢占当前 starter gate，并按以下顺序受限推进：
+
+1. **零 FE telemetry 审计**：从已有 C60/PdO 任务统计每个 accepted step 的
+   line-search evaluation、拒绝比例、accepted/rejected secant、MIC reset。若
+   `alpha=1` 已几乎总是接受，则不做 Gaussian-aware line search。
+2. **比较语义闭合**：在任何 safe--SciPy/ASE 新结论前，显式记录各 backend 是否执行
+   coordinate trust region、采用 raw force 还是 projected constrained residual；不再
+   把不同可行域的结果合并为一个“收敛率”。
+3. **最小因果 gate**：只在同一批冻结 one-bias tasks 中比较 baseline safe、
+   history 1/10，以及由 telemetry 指出的一个尚未归因 safeguard。禁止一次展开
+   Armijo、curvature threshold、MIC reset、scale smoothing 的全排列。
+4. **Exact-bias 变体的条件准入**：只有现有 telemetry 表明 line-search 或 secant
+   rejection 是显著 FE 瓶颈，才实现“unknown PES 的 L-BFGS residual model +
+   低维 bias subspace 中的完整 nonlinear Gaussian”。第一门控只做 fixed MIC branch
+   和 1/2/4 个 cumulative biases，并保留当前 safe fallback。
+5. **端到端裁决**：任何固定 proposal task 的 FE 改善都必须回到完整
+   `uphill → proposal relax → true quench → terminal basin`，在 C60/PdO 等预算下
+   比较最低能量、new basin/1000 FE、duplicate return、validity 和 endpoint diversity。
+
+因此，Exact-Bias Composite L-BFGS 是一个有底层结构依据的候选，不是已获准实现的
+下一组件。当前可立即执行的只有步骤 1 的零 FE 审计；其余步骤由该审计和正在运行的
+starter gate 决定。

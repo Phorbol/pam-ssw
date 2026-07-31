@@ -2500,6 +2500,9 @@ class SurfaceWalker:
         self.config = config
         self.softening_enabled = softening_enabled
         self.rng = np.random.default_rng(config.rng_seed)
+        self.selection_rng = np.random.default_rng(
+            np.random.SeedSequence([int(config.rng_seed), 0x535357])
+        )
         bond_pairs = config.local_softening_pairs if softening_enabled and isinstance(config, LSSSWConfig) else []
         self.oracle = SoftModeOracle(
             self.calculator,
@@ -3903,7 +3906,7 @@ class SurfaceWalker:
 
     def _select_seed_entry(self, archive):
         if self.config.use_archive_acquisition:
-            primary = archive.select_seed(self.selector, self.rng)
+            primary = archive.select_seed(self.selector, self.selection_rng)
         else:
             primary = archive.next_seed()
             primary.visits += 1
@@ -3919,7 +3922,9 @@ class SurfaceWalker:
         return entry
 
     def _select_uniform_seed_entry(self, archive):
-        entry = archive.entries[int(self.rng.integers(len(archive.entries)))]
+        entry = archive.entries[
+            int(self.selection_rng.integers(len(archive.entries)))
+        ]
         entry.visits += 1
         entry.node_trials += 1
         self._record_seed_selection(entry)
@@ -3937,7 +3942,7 @@ class SurfaceWalker:
             self._metropolis_accepts += 1
             return candidate_entry
         probability = float(np.exp(-delta / self.config.metropolis_temperature))
-        if self.rng.random() < probability:
+        if self.selection_rng.random() < probability:
             self._metropolis_uphill_accepts += 1
             self._metropolis_accepts += 1
             return candidate_entry
