@@ -154,6 +154,62 @@ def test_proposal_parts_rejects_true_gradient_shape_mismatch():
         potential.evaluate_parts(state.flatten_positions(), state)
 
 
+def test_proposal_batch_preserves_analytic_bias_and_softening_parts():
+    class BatchCalculator:
+        supports_batch_evaluation = True
+
+        def evaluate_flat_many(self, flat_positions, templates):
+            return tuple(
+                (1.25, np.array([0.4, -0.2, 0.1, -0.3, 0.5, -0.4]))
+                for _ in flat_positions
+            )
+
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.2, 0.0, 0.0], [1.2, 0.2, 0.0]]),
+    )
+    bias = GaussianBiasTerm(
+        center=np.zeros(6),
+        direction=np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+        sigma=0.7,
+        weight=0.4,
+    )
+    softening = LocalSofteningModel(
+        [
+            PairSofteningTerm(
+                atom_i=0,
+                atom_j=1,
+                reference_distance=0.8,
+                width=0.3,
+                strength=0.5,
+            )
+        ]
+    )
+    potential = ProposalPotential(
+        BatchCalculator(),
+        biases=[bias],
+        softening=softening,
+    )
+    first = state.flatten_positions()
+    second = first + np.array([0.01, 0.0, 0.0, 0.0, -0.02, 0.0])
+
+    parts = potential.evaluate_parts_many((first, second), (state, state))
+
+    assert len(parts) == 2
+    for positions, value in zip((first, second), parts):
+        bias_energy, bias_gradient = bias.evaluate(positions)
+        softening_energy, softening_gradient = softening.evaluate(positions)
+        assert value.true_energy == pytest.approx(1.25)
+        assert value.bias_energy == pytest.approx(bias_energy)
+        assert value.softening_energy == pytest.approx(softening_energy)
+        np.testing.assert_allclose(value.bias_gradient, bias_gradient)
+        np.testing.assert_allclose(value.softening_gradient, softening_gradient)
+        np.testing.assert_allclose(
+            value.total_gradient,
+            value.true_gradient + bias_gradient + softening_gradient,
+        )
+
+
 def test_gaussian_bias_reports_mic_image_signature():
     term = GaussianBiasTerm(
         center=np.array([0.0, 0.0, 0.0]),

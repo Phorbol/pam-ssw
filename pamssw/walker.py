@@ -119,13 +119,61 @@ class ProposalPotential:
         if flat_positions.shape != expected_shape:
             raise ValueError(f"flat_positions must have shape {expected_shape}")
         true_energy, true_gradient = self.calculator.evaluate_flat(flat_positions, template)
+        return self._combine_parts(
+            flat_positions,
+            template,
+            true_energy,
+            true_gradient,
+        )
+
+    def evaluate(self, flat_positions: np.ndarray, template: State) -> tuple[float, np.ndarray]:
+        evaluation = self.evaluate_parts(flat_positions, template)
+        return evaluation.total_energy, evaluation.total_gradient.copy()
+
+    def evaluate_parts_many(
+        self,
+        flat_positions: tuple[np.ndarray, ...],
+        templates: tuple[State, ...],
+    ) -> tuple[RelaxEvaluation, ...]:
+        positions = tuple(np.asarray(value, dtype=float) for value in flat_positions)
+        state_templates = tuple(templates)
+        if not positions:
+            raise ValueError("batch evaluation requires at least one geometry")
+        if len(positions) != len(state_templates):
+            raise ValueError("flat_positions and templates must have the same length")
+        evaluator = getattr(self.calculator, "evaluate_flat_many", None)
+        if not callable(evaluator):
+            raise TypeError("proposal calculator does not support batch evaluation")
+        true_results = tuple(evaluator(positions, state_templates))
+        if len(true_results) != len(positions):
+            raise ValueError("batch calculator returned the wrong number of results")
+        return tuple(
+            self._combine_parts(position, template, true_energy, true_gradient)
+            for position, template, (true_energy, true_gradient) in zip(
+                positions,
+                state_templates,
+                true_results,
+            )
+        )
+
+    def _combine_parts(
+        self,
+        flat_positions: np.ndarray,
+        template: State,
+        true_energy: float,
+        true_gradient: np.ndarray,
+    ) -> RelaxEvaluation:
         true_gradient = np.asarray(true_gradient, dtype=float)
         if true_gradient.shape != flat_positions.shape:
             raise ValueError("true_gradient must have the same shape as flat_positions")
         bias_energy = 0.0
         bias_gradient = np.zeros_like(true_gradient)
         for bias in self.biases:
-            term_energy, term_gradient = bias.evaluate(flat_positions, cell=template.cell, pbc=template.pbc)
+            term_energy, term_gradient = bias.evaluate(
+                flat_positions,
+                cell=template.cell,
+                pbc=template.pbc,
+            )
             term_gradient = np.asarray(term_gradient, dtype=float)
             if term_gradient.shape != flat_positions.shape:
                 raise ValueError("bias_gradient must have the same shape as flat_positions")
@@ -156,10 +204,6 @@ class ProposalPotential:
             bias_image_signature=bias_image_signature,
             softening_present=self.softening is not None,
         )
-
-    def evaluate(self, flat_positions: np.ndarray, template: State) -> tuple[float, np.ndarray]:
-        evaluation = self.evaluate_parts(flat_positions, template)
-        return evaluation.total_energy, evaluation.total_gradient.copy()
 
 
 @dataclass(frozen=True)
@@ -1407,10 +1451,14 @@ class SoftModeOracle:
         candidate_hvps: list[np.ndarray] = []
         candidate_true_hvps: list[np.ndarray | None] = []
         scored_candidates: list[tuple[DirectionCandidate, np.ndarray, float, float]] = []
-        for candidate in candidates:
+        candidate_hvp_pairs = self._candidate_directional_hvps_many(
+            state,
+            proposal,
+            tuple(candidate.direction for candidate in candidates),
+        )
+        for candidate, (hvp, true_hvp) in zip(candidates, candidate_hvp_pairs):
             rigid_overlap_sum += candidate.rigid_body_overlap
             post_projection_rigid_overlap_sum += candidate.post_projection_rigid_body_overlap
-            hvp, true_hvp = self._candidate_directional_hvps(state, proposal, candidate.direction)
             candidate_hvps.append(hvp)
             candidate_true_hvps.append(true_hvp)
             curvature = float(np.dot(hvp, candidate.direction))
@@ -2381,6 +2429,55 @@ class SoftModeOracle:
         total_hvp = (plus_parts.total_gradient - minus_parts.total_gradient) / scale
         true_hvp = (plus_parts.true_gradient - minus_parts.true_gradient) / scale
         return total_hvp, true_hvp
+
+    def _candidate_directional_hvps_many(
+        self,
+        state: State,
+        proposal: ProposalPotential,
+        directions: tuple[np.ndarray, ...],
+        epsilon: float | None = None,
+    ) -> tuple[tuple[np.ndarray, np.ndarray | None], ...]:
+        if not directions:
+            return ()
+        if not bool(
+            getattr(proposal.calculator, "supports_batch_evaluation", False)
+        ):
+            return tuple(
+                self._candidate_directional_hvps(
+                    state,
+                    proposal,
+                    direction,
+                    epsilon=epsilon,
+                )
+                for direction in directions
+            )
+        epsilon = self.hvp_epsilon if epsilon is None else epsilon
+        coordinates = CartesianCoordinates.from_state(state)
+        displaced_states: list[State] = []
+        for direction in directions:
+            tangent = TangentVector(direction)
+            displaced_states.append(coordinates.displace(tangent, epsilon))
+            displaced_states.append(coordinates.displace(tangent, -epsilon))
+        parts = proposal.evaluate_parts_many(
+            tuple(value.flatten_positions() for value in displaced_states),
+            tuple(displaced_states),
+        )
+        scale = 2.0 * epsilon
+        return tuple(
+            (
+                (
+                    parts[2 * index].total_gradient
+                    - parts[2 * index + 1].total_gradient
+                )
+                / scale,
+                (
+                    parts[2 * index].true_gradient
+                    - parts[2 * index + 1].true_gradient
+                )
+                / scale,
+            )
+            for index in range(len(directions))
+        )
 
     @staticmethod
     def _step_scale_from_curvature(curvature: float) -> float:

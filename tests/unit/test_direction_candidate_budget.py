@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pamssw.accounting import EvalCounter
+from pamssw.accounting import BudgetExceeded, EvalCounter, EvaluationPurpose
 from pamssw.calculators import AnalyticCalculator
 from pamssw.config import SSWConfig
 from pamssw.krylov import IntentBlock
@@ -20,6 +20,19 @@ class Quadratic:
     def energy_gradient(self, flat_positions, state):
         gradient = np.asarray(flat_positions, dtype=float)
         return 0.5 * float(gradient @ gradient), gradient
+
+
+class BatchQuadraticCalculator(AnalyticCalculator):
+    def __init__(self, potential) -> None:
+        super().__init__(potential)
+        self.batch_sizes: list[int] = []
+
+    def evaluate_flat_many(self, flat_positions, templates):
+        self.batch_sizes.append(len(flat_positions))
+        return tuple(
+            self.evaluate_flat(positions, template)
+            for positions, template in zip(flat_positions, templates)
+        )
 
 
 def test_first_step_fills_the_oracle_candidate_budget_with_random_directions():
@@ -146,6 +159,108 @@ def test_discrete_choice_records_exact_evaluated_candidate_source_counts():
         choice.diagnostics["evaluated_candidate_kind_counts"].values()
     ) == choice.candidate_count
     assert calculator.force_evaluations == 2 * choice.candidate_count
+
+
+def test_discrete_choice_batches_all_central_hessian_stencils_without_changing_cost():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+    )
+    backend = BatchQuadraticCalculator(Quadratic())
+    calculator = EvalCounter(backend)
+    oracle = SoftModeOracle(
+        calculator,
+        np.random.default_rng(7),
+        candidates=4,
+        bond_pairs=[(0, 1)],
+        n_bond_pairs=0,
+        enable_momentum_candidate=True,
+    )
+
+    with calculator.purpose(EvaluationPurpose.DIRECTION_ORACLE):
+        choice = oracle.choose_direction(
+            state,
+            ProposalPotential(calculator),
+            previous_direction=np.ones(state.positions.size),
+        )
+
+    assert backend.batch_sizes == [8]
+    assert choice.candidate_count == 4
+    assert choice.curvature == pytest.approx(1.0)
+    assert calculator.force_evaluations == 8
+    assert calculator.snapshot().count(EvaluationPurpose.DIRECTION_ORACLE) == 8
+    assert calculator.snapshot().count(EvaluationPurpose.UNATTRIBUTED) == 0
+
+
+def test_batched_and_serial_candidate_scoring_select_the_same_physical_direction():
+    class CoupledQuadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.diag(np.arange(1.0, 7.0))
+            hessian[0, 3] = hessian[3, 0] = 0.4
+            gradient = hessian @ flat_positions
+            return 0.5 * float(flat_positions @ gradient), gradient
+
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+    )
+    serial_counter = EvalCounter(AnalyticCalculator(CoupledQuadratic()))
+    batch_counter = EvalCounter(BatchQuadraticCalculator(CoupledQuadratic()))
+    serial_oracle = SoftModeOracle(
+        serial_counter,
+        np.random.default_rng(19),
+        candidates=4,
+        n_bond_pairs=0,
+    )
+    batch_oracle = SoftModeOracle(
+        batch_counter,
+        np.random.default_rng(19),
+        candidates=4,
+        n_bond_pairs=0,
+    )
+
+    serial = serial_oracle.choose_direction(
+        state,
+        ProposalPotential(serial_counter),
+        previous_direction=None,
+    )
+    batch = batch_oracle.choose_direction(
+        state,
+        ProposalPotential(batch_counter),
+        previous_direction=None,
+    )
+
+    assert batch.kind is serial.kind
+    assert batch.curvature == pytest.approx(serial.curvature, rel=0.0, abs=1e-12)
+    assert batch.score == pytest.approx(serial.score, rel=0.0, abs=1e-12)
+    np.testing.assert_allclose(batch.direction, serial.direction, rtol=0.0, atol=0.0)
+    assert batch_counter.force_evaluations == serial_counter.force_evaluations == 8
+
+
+def test_k4_batch_hessian_stencil_fails_before_partial_evaluation_when_budget_is_seven():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+    )
+    backend = BatchQuadraticCalculator(Quadratic())
+    calculator = EvalCounter(backend, max_force_evals=7)
+    oracle = SoftModeOracle(
+        calculator,
+        np.random.default_rng(19),
+        candidates=4,
+        n_bond_pairs=0,
+    )
+
+    with calculator.purpose(EvaluationPurpose.DIRECTION_ORACLE):
+        with pytest.raises(BudgetExceeded):
+            oracle.choose_direction(
+                state,
+                ProposalPotential(calculator),
+                previous_direction=None,
+            )
+
+    assert backend.batch_sizes == []
+    assert calculator.snapshot().total == 0
 
 
 def test_block_krylov_reuses_solver_hvps_for_selection_and_true_curvature():
