@@ -15,6 +15,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 PROTOCOL_PATH = (
     REPO_ROOT / "runs" / "20260731-ls-four-operator-gate" / "protocol.py"
 )
+RUNNER_PATH = (
+    REPO_ROOT / "runs" / "20260731-ls-four-operator-gate" / "run_gate.py"
+)
 
 
 def _load_protocol():
@@ -24,6 +27,19 @@ def _load_protocol():
     )
     if spec is None or spec.loader is None:
         raise RuntimeError(f"cannot load {PROTOCOL_PATH}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _load_runner():
+    spec = importlib.util.spec_from_file_location(
+        "_ls_four_operator_runner",
+        RUNNER_PATH,
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load {RUNNER_PATH}")
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
@@ -268,3 +284,42 @@ def test_build_evidence_rejects_incomplete_or_unclosed_cases(mutation):
 
     with pytest.raises(ValueError):
         protocol.build_evidence(cases)
+
+
+def test_runner_contract_reuses_two_true_hvp_stencils_and_forbids_proposal_ls():
+    runner = _load_runner()
+
+    contract = runner.execution_contract(candidate_count=4)
+
+    assert contract == {
+        "true_pes_hvp_geometries": 2,
+        "central_fd_force_evaluations": 16,
+        "operator_a_b_share_true_hvp": True,
+        "operator_c_d_share_true_hvp": True,
+        "analytic_ls_hvp_force_evaluations": 0,
+        "proposal_side_ls": False,
+    }
+
+
+def test_runner_selects_each_operator_from_the_same_candidate_rows():
+    runner = _load_runner()
+    rows = [
+        {
+            "candidate_index": 0,
+            "score_a": 2.0,
+            "score_b": 1.0,
+            "score_c": 0.0,
+            "score_d": 3.0,
+        },
+        {
+            "candidate_index": 1,
+            "score_a": 1.0,
+            "score_b": 2.0,
+            "score_c": 3.0,
+            "score_d": 0.0,
+        },
+    ]
+
+    selected = runner.select_candidate_indices(rows)
+
+    assert selected == {"a": 0, "b": 1, "c": 1, "d": 0}
