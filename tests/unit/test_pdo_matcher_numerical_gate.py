@@ -18,6 +18,12 @@ ANALYZER_PATH = (
     / "20260731-pdo-matcher-numerical-gate"
     / "analyze.py"
 )
+RESCUE_RUNNER_PATH = (
+    REPO_ROOT
+    / "runs"
+    / "20260731-pdo-matcher-numerical-gate"
+    / "run_certificate_rescue.py"
+)
 
 
 def _protocol():
@@ -36,6 +42,18 @@ def _analyzer():
     spec = importlib.util.spec_from_file_location(
         "_pdo_matcher_numerical_analyzer",
         ANALYZER_PATH,
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _rescue_runner():
+    spec = importlib.util.spec_from_file_location(
+        "_pdo_matcher_certificate_rescue",
+        RESCUE_RUNNER_PATH,
     )
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
@@ -302,3 +320,31 @@ def test_strict_requench_requires_both_endpoint_certificates() -> None:
 
     assert decision["classification"] == "strict_requench_unresolved"
     assert decision["offline_label"] == "AMBIGUOUS_MATCH"
+
+
+def test_certificate_rescue_uses_raw_force_not_optimizer_success() -> None:
+    runner = _rescue_runner()
+    scipy_success_without_force_certificate = {
+        "termination_reason": "unconverged",
+        "final": {"max_active_force_eV_per_A": 0.013},
+        "telemetry": {"optimizer_success": True},
+    }
+
+    assert (
+        runner.has_strict_certificate(
+            scipy_success_without_force_certificate,
+            fmax=0.01,
+        )
+        is False
+    )
+
+
+def test_certificate_rescue_accepts_only_converged_raw_force() -> None:
+    runner = _rescue_runner()
+    certified = {
+        "termination_reason": "converged",
+        "final": {"max_active_force_eV_per_A": 0.009},
+        "telemetry": {"optimizer_success": True},
+    }
+
+    assert runner.has_strict_certificate(certified, fmax=0.01) is True

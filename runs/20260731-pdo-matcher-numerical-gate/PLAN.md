@@ -94,3 +94,25 @@ The existing invariant descriptor is reported but is not a second veto in
 this gate: four other pairs already demonstrated descriptor collision on this
 PdO cohort. No production matcher, selector, direction, or default changes are
 authorized.
+
+## Preregistered certificate-rescue closure
+
+Run this closure only because the strict SciPy landing returned
+`optimizer_success=True` while failing the independent raw-force certificate
+(`0.01332 > 0.01 eV/Å`). Prior frozen C60/PdO evidence already selected
+ASE-LBFGS as the strongest single strict-quench arm and FIRE as the only
+fallback covering every ASE-LBFGS certificate failure in that corpus.
+
+- Restart both original frozen endpoints with ASE-LBFGS at `fmax = 0.01`,
+  `maxiter = 400`.
+- Only when an endpoint fails the raw-force certificate, continue from its
+  ASE-LBFGS terminal state with FIRE under the same threshold and iteration
+  limit.
+- Maximum new budget: 1604 force evaluations (two 401-call primary attempts
+  plus two 401-call fallbacks).
+- Apply the same strict endpoint identity decision defined above.
+- Stop after FIRE even if a certificate is still absent; add no third
+  optimizer and tune no optimizer parameter.
+
+This closure resolves the numerical label only. It is not a new optimizer
+ablation and cannot modify the production optimizer stack or matcher.
