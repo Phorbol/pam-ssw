@@ -36,3 +36,35 @@ than the static baseline.
 
 Passing would only permit design of a later posterior experiment. Failure
 closes this low-dimensional posterior route and leaves production unchanged.
+
+## Result
+
+The gate used 48 repeat-averaged candidates from 12 shared K4 groups and added
+zero force evaluations. The posterior stage is **not allowed**.
+
+Under leave-system-out validation:
+
+- `static_score`: 2/12 top-1, mean regret 2.615 eV;
+- softness: 6/12 top-1, mean regret 1.891 eV;
+- intent: 3/12 top-1, mean regret 2.126 eV;
+- combined: 3/12 top-1, mean regret 2.126 eV.
+
+The combined model reached only 2/6 on held-out C60 and 1/6 on held-out PdO,
+with median regrets of 1.800 and 0.626 eV. Leave-context-out was still worse:
+the combined model selected 0/12 terminal winners.
+
+A post-hoc coefficient audit found no large cross-system sign reversal.
+Instead, all paid local features had weak within-system association with
+terminal quality. For C60/PdO respectively, the absolute correlations were
+approximately:
+
+- softness: 0.031 / 0.130;
+- anchor overlap: 0.000 / 0.028;
+- direction family: 0.118 / 0.139.
+
+Thus the failure is not repaired by changing UCB to TS or by placing a more
+formal posterior over the same feature vector. The local K4/HVP descriptors do
+not currently contain enough transferable information about the nonlinear
+H8-plus-quench outcome. A richer posterior would require a new, independently
+justified state/action representation and substantially more action-labelled
+data; it is not a justified next production component.
