@@ -54,9 +54,13 @@ posterior 均未满足准入条件；不得自动展开。
   固定起点中位结果，删除 proposal LS 晋级为显式生产候选；既有命名 C60 profile
   因绑定旧 200-step provenance 不静默修改，全局 `LSSSWConfig` 默认也不改变
   （`runs/20260731-cuo-oracle-scope-production-gate/`）。
-- 因而新的唯一上游问题是 `oracle` 对 `none`：在 proposal LS 已删除后，LS
-  Hessian 变换本身是否改善方向。回答前不开发新 pair 规则、strength schedule、
-  posterior、TS/UCB 或 quadratic propagator。
+- 随后的 G-LS0A 四算符门控已经替代直接长任务 `oracle` 对 `none`。同一批 C60
+  frozen candidates 上，当前 exponential operator 在 33/36 个方向中加硬，中位
+  `+0.7620`；预应变后的真实 PES 在 36/36 个方向中软化，中位 `-1.7651`，但
+  A/B/C/D 在 9/9 blocks 中都给出相同 selected candidate 和完整候选排序。因而
+  不开放完整 action 门或 paper scalar-strength feedback；在出现新的、物理上不同且
+  action-level 可重复的 family 前，仍不开发 pair 规则、posterior、TS/UCB 或
+  quadratic propagator（`runs/20260731-ls-four-operator-gate/`）。
 
 ## 一、重新组织后的总判断
 
