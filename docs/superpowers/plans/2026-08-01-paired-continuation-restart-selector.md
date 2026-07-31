@@ -19,13 +19,13 @@
 - Create: `runs/20260801-selector-support-audit/conclusion.md`
 - Test: `tests/unit/test_selector_support_audit.py`
 
-- [ ] Write pure tests for Shannon effective support, repeat fraction and exact trace closure.
-- [ ] Run the focused test and confirm the missing analyzer fails.
-- [ ] Implement the pure analyzer with no `pamssw` or MACE runtime dependency.
-- [ ] Analyze the nine seed-42 selector traces and record source hashes.
-- [ ] Conclude only whether node-UCB-like is empirically diffuse in these archives; do not infer search superiority.
-- [ ] Run JSON, hash, and focused pytest checks.
-- [ ] Commit the audit independently.
+- [x] Write pure tests for Shannon effective support, repeat fraction and exact trace closure.
+- [x] Run the focused test and confirm the missing analyzer fails.
+- [x] Implement the pure analyzer with no `pamssw` or MACE runtime dependency.
+- [x] Analyze the nine seed-42 selector traces and record source hashes.
+- [x] Conclude only whether node-UCB-like is empirically diffuse in these archives; do not infer search superiority.
+- [x] Run JSON, hash, and focused pytest checks.
+- [x] Commit the audit independently.
 
 ### Task 2: Opt-in snapshot-paired selector
 
@@ -35,12 +35,12 @@
 - Modify: `tests/unit/test_config.py`
 - Modify: `tests/unit/test_walker_policy.py`
 
-- [ ] Add failing config tests accepting only the new exact mode name while retaining `archive_ucb` as default.
-- [ ] Add failing walker tests proving both starters are selected from the same pre-pair archive and the cached uniform entry survives archive growth.
-- [ ] Add a failing test proving selection RNG changes do not shift physical-action RNG draws.
-- [ ] Implement the smallest mode branch and cached starter state.
-- [ ] Run focused config/walker tests, then the broader exploration tests.
-- [ ] Commit implementation independently.
+- [x] Add failing config tests accepting only the new exact mode name while retaining `archive_ucb` as default.
+- [x] Add failing walker tests proving both starters are selected from the same pre-pair archive and the cached uniform entry survives archive growth.
+- [x] Add a failing test proving selection RNG changes do not shift physical-action RNG draws.
+- [x] Implement the smallest mode branch and cached starter state.
+- [x] Run focused config/walker tests, then the broader exploration tests.
+- [x] Commit implementation independently.
 
 ### Task 3: Shared-bootstrap four-arm gate runner
 
@@ -51,13 +51,13 @@
 - Create: `runs/20260801-paired-continuation-restart-gate/run_gate.py`
 - Test: `tests/unit/test_paired_continuation_restart_gate.py`
 
-- [ ] Add pure tests for matrix closure, shared-bootstrap equality, purpose accounting, gain-AUC integration and the exact S-CR1 admission rule.
-- [ ] Implement the pure protocol.
-- [ ] Reuse the existing C60/PdO/CuO resource loaders and frozen production config; change only starter mode and seed.
-- [ ] Persist bootstrap minimum, every arm summary, energy-vs-FE trace, model/input hashes, effective config and purpose ledger.
-- [ ] Add mechanical `--check-evidence` validation.
-- [ ] Run focused tests and a low-budget CUDA smoke excluded from scientific evidence.
-- [ ] Commit the runner before the full experiment.
+- [x] Add pure tests for matrix closure, shared-bootstrap equality, purpose accounting, gain-AUC integration and the exact S-CR1 admission rule.
+- [x] Implement the pure protocol.
+- [x] Reuse the existing C60/PdO/CuO resource loaders and frozen production config; change only starter mode and seed.
+- [x] Persist bootstrap minimum, every arm summary, energy-vs-FE trace, model/input hashes, effective config and purpose ledger.
+- [x] Add mechanical `--check-evidence` validation.
+- [x] Run focused tests and a low-budget CUDA smoke excluded from scientific evidence.
+- [x] Commit the runner before the full experiment.
 
 ### Task 4: Execute S-CR1 and apply the preregistered gate
 
@@ -65,11 +65,11 @@
 - Create after execution: `runs/20260801-paired-continuation-restart-gate/evidence.json`
 - Create after execution: `runs/20260801-paired-continuation-restart-gate/conclusion.md`
 
-- [ ] Execute all 12 system/arm cases at seed 45 and 20,000 total FE per arm.
-- [ ] Verify raw-evidence hash, exact purpose closure, `unattributed=0`, shared bootstrap and complete matrix.
-- [ ] Compute final energy, gain AUC, actions, archive coverage and component costs without scalarization.
-- [ ] Apply the strict two-of-three S-CR1 rule.
-- [ ] If the gate fails, record the mechanism and close Tasks 5-6 without code expansion.
+- [x] Execute all 12 system/arm cases at seed 45 and 20,000 total FE per arm.
+- [x] Verify raw-evidence hash, exact purpose closure, `unattributed=0`, shared bootstrap and complete matrix.
+- [x] Compute final energy, gain AUC, actions, archive coverage and component costs without scalarization.
+- [x] Apply the strict two-of-three S-CR1 rule.
+- [x] If the gate fails, record the mechanism and close Tasks 5-6 without code expansion.
 - [ ] Commit S-CR1 evidence independently.
 
 ### Task 5: Conditional S-CR2 repeat gate
@@ -79,22 +79,22 @@
 - Extend after execution: `runs/20260801-paired-continuation-restart-gate/evidence.json`
 - Extend after execution: `runs/20260801-paired-continuation-restart-gate/conclusion.md`
 
-- [ ] Execute only if S-CR1 admits it.
-- [ ] Run seeds 46-47 for UCB-like, Metropolis and paired best/uniform with exact shared bootstrap.
-- [ ] Verify all 18 new cases and aggregate nine system-seed blocks.
-- [ ] Apply the preregistered six-of-nine and positive-median rule against both comparators.
-- [ ] Record system reversals as evidence against a universal selector, not as a prompt for per-system tuning.
-- [ ] Commit repeated evidence independently.
+- [x] Execute only if S-CR1 admits it. (Not executed: S-CR1 failed.)
+- [x] Run seeds 46-47 for UCB-like, Metropolis and paired best/uniform with exact shared bootstrap. (Not executed: S-CR1 failed.)
+- [x] Verify all 18 new cases and aggregate nine system-seed blocks. (Not applicable: S-CR1 failed.)
+- [x] Apply the preregistered six-of-nine and positive-median rule against both comparators. (Not applicable: S-CR1 failed.)
+- [x] Record system reversals as evidence against a universal selector, not as a prompt for per-system tuning. (S-CR1 already showed the reversal.)
+- [x] Commit repeated evidence independently. (Not applicable: no S-CR2 evidence was generated.)
 
 ### Task 6: Conditional family-posterior admission audit
 
 **Files:**
 - Create only if S-CR2 passes: `runs/20260801-paired-continuation-restart-gate/posterior_admission.md`
 
-- [ ] Separate continuation-lane and restart-lane outcome/cost distributions from the recorded paired policy.
-- [ ] Test whether zero-new-FE pre-action context predicts lane productivity under leave-system-out validation.
-- [ ] Admit only a later two-family posterior experiment if both outcome separability and held-out prediction pass.
-- [ ] Do not implement TS, UCB, PCA, MACE-feature learning or node posteriors in this plan.
+- [x] Separate continuation-lane and restart-lane outcome/cost distributions from the recorded paired policy. (Not executed: S-CR1 failed.)
+- [x] Test whether zero-new-FE pre-action context predicts lane productivity under leave-system-out validation. (Not executed: S-CR1 failed.)
+- [x] Admit only a later two-family posterior experiment if both outcome separability and held-out prediction pass. (Not admitted.)
+- [x] Do not implement TS, UCB, PCA, MACE-feature learning or node posteriors in this plan.
 
 ### Task 7: Verify, reconcile and publish
 

@@ -839,3 +839,40 @@ action 成本合计反而多 58 FE：
 回到决定 basin 可达性的主线：先分离并验证方向产生/评估与给定方向后的 uphill
 propagation；只有形成稳定 action 语义和足够 transition 数据后，才准入
 action-conditioned posterior selector。G-E1 不能外推到 CuO、生产级长任务或统计显著性。
+
+## 十九、growing-arm 存在，但不是当前跨体系首要瓶颈
+
+S-CR0 对 seed-42 的九条既有 20,000-FE 轨迹做了零新增 FE 的 starter-ID 审计。当前
+node-level UCB-like 在 archive 仅有 19--74 个 minima 时，Shannon effective starter
+support 已占最终 archive 的 62.2%--85.4%，三体系平均 72.4%；每个新 node 以零 trials
+进入后获得 exploration bonus，确实形成用户担心的 growing-arm 扩散。这个结果否决了
+直接把每个 node 换成更复杂 TS/posterior arm，但本身不证明广覆盖导致搜索变差。
+
+为检验更低维、物理语义更干净的替代，S-CR1 冻结所有 inner SSW 机制，只把 starter
+改为固定二通道：同一 pre-pair archive snapshot 发出一个当前最低能 continuation 和一个
+全 archive uniform restart。seed 45 的 C60、PdO、CuO 各比较 uniform、现有 UCB-like、
+Metropolis 和 paired 四臂，每臂含相同 shared bootstrap 且总预算严格为 20,000 FE。
+
+paired 的 gain-AUC 只在 PdO 同时胜过 UCB-like 和 Metropolis：
+
+- C60：paired 为 22.684 eV，UCB-like 28.290 eV，Metropolis 26.082 eV；paired duplicate
+  rate 达 39.6%，最低能反复出发强化了 funnel return；
+- PdO：paired 为 4.043 eV，UCB-like 2.926 eV，Metropolis 3.755 eV；paired 同时取得
+  最深末态、70 个 minima 和最低 7.9% duplicate，显示两通道在该轨迹上互补；
+- CuO：paired 末态最深，却到 19,306/20,000 FE 才命中，gain-AUC 2.907 eV，低于
+  Metropolis 3.029 eV 和 uniform 3.141 eV；四臂 duplicate 均为零，starter 不是主要限制。
+
+预注册条件要求至少两体系通过，故裁决为 `DO_NOT_ADMIT_S_CR2`。不运行 seeds 46--47，
+不调整 1:1 比例，不准入 family TS/posterior，也不改变生产默认。12 个任务共 240,000 FE，
+其中 biased proposal relaxation 占 67.7%、landing true quench 18.8%、direction oracle
+11.8%，全部 purpose 闭合且 `unattributed=0`。
+
+物理结论不是“selector 永远不重要”，而是：archive 扩散问题真实存在，但当前 action
+kernel 对不同 PES 的 basin 可达性差异更大。C60 从最低点继续容易返回旧盆地，CuO 的
+starter 改变不影响每步产生新 minimum，只有 PdO 显示固定 continuation/restart 互补。
+因此后续不在 starter 权重、RDF/MACE-PCA 表征或 node posterior 上继续消耗实验预算，
+而回到给定 starter 和 direction 后的 uphill propagation：检查累计 Gaussian bias 是否
+把结构送到可淬火的新 basin 吸引域，以及是否能用更少、物理含义明确的传播机制提高
+跨体系 action 成功率。只有 action family 出现可重复、可条件预测的收益，才重新开放
+action-conditioned Bayesian allocation；批量并行本身不依赖该后验，可以继续用于执行
+独立、有全支持的 action。
