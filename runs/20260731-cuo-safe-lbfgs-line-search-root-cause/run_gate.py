@@ -13,12 +13,16 @@ import subprocess
 import sys
 from time import perf_counter
 
-from pamssw.accounting import EvaluationPurpose
+import numpy as np
+
+from pamssw.accounting import EvalCounter, EvaluationPurpose
 from pamssw.proposal_replay import (
     ProposalTaskNotCaptured,
+    _RecordingProposalPotential,
     capture_proposal_task,
     replay_proposal_task_observed,
 )
+from pamssw.relax import Relaxer, _SAFE_LBFGS_ARMIJO_C1, _SAFE_LBFGS_MAX_LINE_TRIALS
 from pamssw.walker import SurfaceWalker
 
 
@@ -68,6 +72,13 @@ def _sha256(path: Path) -> str:
 
 
 def _replay_row(*, depth: int, variant: str, task, calculator) -> dict:
+    if variant == "safe_lbfgs_with_ls":
+        return _diagnose_safe_lbfgs_with_ls(
+            depth=depth,
+            variant=variant,
+            task=task,
+            calculator=calculator,
+        )
     replay = replay_proposal_task_observed(
         task,
         calculator,
@@ -95,6 +106,136 @@ def _replay_row(*, depth: int, variant: str, task, calculator) -> dict:
         "orthogonal_displacement_norm_A": replay.orthogonal_displacement_norm,
         "gradient_norm_eV_per_A": replay.result.gradient_norm,
     }
+
+
+def _diagnose_safe_lbfgs_with_ls(*, depth: int, variant: str, task, calculator) -> dict:
+    counter = EvalCounter(calculator)
+    proposal = _RecordingProposalPotential(
+        counter,
+        biases=list(task.biases),
+        softening=task.softening,
+    )
+    relaxer = Relaxer(
+        proposal.evaluate,
+        optimizer="safe-lbfgs-total",
+        component_evaluator=proposal.evaluate_parts,
+    )
+    started = perf_counter()
+    with counter.purpose(EvaluationPurpose.BIASED_PROPOSAL_RELAX):
+        result = relaxer.relax(
+            task.initial_state,
+            fmax=task.fmax,
+            maxiter=task.maxiter,
+            coordinate_trust_radius=task.coordinate_trust_radius,
+        )
+    wall_time_s = perf_counter() - started
+    final_flat = result.state.flatten_positions()
+    records = tuple(proposal.records)
+    initial_observation = records[0][1]
+    final_observation = records[-1][1]
+    last_bias = task.biases[-1]
+    endpoint_delta = final_flat - last_bias.center
+    direction_progress = float(np.dot(endpoint_delta, last_bias.direction))
+    orthogonal = endpoint_delta - direction_progress * last_bias.direction
+    row = {
+        "bias_depth": depth,
+        "variant": variant,
+        "softening_terms": 0 if task.softening is None else len(task.softening.terms),
+        "force_evaluations": counter.snapshot().total,
+        "wall_time_s": wall_time_s,
+        "certificate_satisfied": bool(result.gradient_norm <= task.fmax),
+        "termination_reason": result.telemetry.termination_reason,
+        "accepted_steps": result.telemetry.accepted_steps,
+        "rejected_steps": result.telemetry.rejected_steps,
+        "line_search_evaluations": result.telemetry.line_search_evaluations,
+        "accepted_secants": result.telemetry.accepted_secants,
+        "rejected_secants": result.telemetry.rejected_secants,
+        "initial": asdict(initial_observation),
+        "final": asdict(final_observation),
+        "delta_total_energy_eV": final_observation.total_energy - initial_observation.total_energy,
+        "delta_true_energy_eV": final_observation.true_energy - initial_observation.true_energy,
+        "direction_progress_A": direction_progress,
+        "orthogonal_displacement_norm_A": float(np.linalg.norm(orthogonal)),
+        "gradient_norm_eV_per_A": result.gradient_norm,
+    }
+    if result.telemetry.termination_reason != "line_search_failed":
+        return row
+
+    if not np.array_equal(records[-1][0], final_flat):
+        raise RuntimeError("finalization record does not match the returned failed-line state")
+    trial_records = records[-(_SAFE_LBFGS_MAX_LINE_TRIALS + 1) : -1]
+    if len(trial_records) != _SAFE_LBFGS_MAX_LINE_TRIALS:
+        raise RuntimeError("failed line-search record is incomplete")
+    earlier_base_records = [
+        observation
+        for positions, observation in records[: -(_SAFE_LBFGS_MAX_LINE_TRIALS + 1)]
+        if np.array_equal(positions, final_flat)
+    ]
+    if not earlier_base_records:
+        raise RuntimeError("cannot recover the accepted base point for failed line search")
+    base_observation = earlier_base_records[-1]
+    base_parts = proposal.evaluate_parts(final_flat, result.state)
+    active = np.repeat(result.state.movable_mask, 3)
+    component_gradients = {
+        "true": base_parts.true_gradient[active],
+        "bias": base_parts.bias_gradient[active],
+        "softening": base_parts.softening_gradient[active],
+        "total": base_parts.total_gradient[active],
+    }
+    base_energies = {
+        "true": base_observation.true_energy,
+        "bias": base_observation.bias_energy,
+        "softening": base_observation.softening_energy,
+        "total": base_observation.total_energy,
+    }
+    line_scan = []
+    for trial_index, (positions, observation) in enumerate(trial_records):
+        delta = (positions - final_flat)[active]
+        observed_energies = {
+            "true": observation.true_energy,
+            "bias": observation.bias_energy,
+            "softening": observation.softening_energy,
+            "total": observation.total_energy,
+        }
+        predicted = {
+            name: float(np.dot(gradient, delta))
+            for name, gradient in component_gradients.items()
+        }
+        actual = {
+            name: observed_energies[name] - base_energies[name]
+            for name in base_energies
+        }
+        line_scan.append(
+            {
+                "trial_index": trial_index,
+                "relative_alpha": 2.0 ** (-trial_index),
+                "active_displacement_norm_A": float(np.linalg.norm(delta)),
+                "max_atomic_displacement_A": float(
+                    np.linalg.norm(delta.reshape(-1, 3), axis=1).max()
+                ),
+                "predicted_first_order_change_eV": predicted,
+                "actual_change_eV": actual,
+                "armijo_residual_eV": (
+                    actual["total"]
+                    - _SAFE_LBFGS_ARMIJO_C1 * predicted["total"]
+                ),
+            }
+        )
+    row["failed_line_search"] = {
+        "base_energy_eV": base_energies,
+        "repeat_base_energy_eV": {
+            "true": base_parts.true_energy,
+            "bias": base_parts.bias_energy,
+            "softening": base_parts.softening_energy,
+            "total": base_parts.total_energy,
+        },
+        "base_energy_repeat_error_eV": {
+            name: getattr(base_parts, f"{name}_energy") - value
+            for name, value in base_energies.items()
+        },
+        "line_scan": line_scan,
+    }
+    return row
 
 
 def run(output_directory: Path, depths: tuple[int, ...]) -> None:
