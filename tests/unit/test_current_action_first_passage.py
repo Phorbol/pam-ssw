@@ -254,3 +254,37 @@ def test_checkpoint_selection_includes_h8_only_when_reached() -> None:
     )
 
     assert selected == [(1, "h1"), (2, "h2"), (4, "h4"), (8, "h8")]
+
+
+def test_first_relaxed_geometry_failure_is_an_invalid_h1_attempt() -> None:
+    runner = _runner()
+
+    def no_endpoint_match(_attempts, _endpoint, *, tolerance):
+        assert tolerance == pytest.approx(1.0e-8)
+        raise RuntimeError("proposal endpoint does not match")
+
+    accepted, errors, failed = runner.partition_checkpoint_attempts(
+        ["invalid-relaxation"],
+        "starter-endpoint",
+        termination_reason="relaxed_geometry_invalid",
+        _prefix_resolver=no_endpoint_match,
+    )
+
+    assert accepted == []
+    assert errors == [None]
+    assert failed == "invalid-relaxation"
+
+
+def test_unmatched_endpoint_is_not_hidden_for_other_terminations() -> None:
+    runner = _runner()
+
+    def no_endpoint_match(_attempts, _endpoint, *, tolerance):
+        raise RuntimeError("proposal endpoint does not match")
+
+    with pytest.raises(RuntimeError, match="does not match"):
+        runner.partition_checkpoint_attempts(
+            ["attempt"],
+            "endpoint",
+            termination_reason="walk_displacement_clipped",
+            _prefix_resolver=no_endpoint_match,
+        )

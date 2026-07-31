@@ -81,6 +81,42 @@ def select_reachable_checkpoints(
     ]
 
 
+def partition_checkpoint_attempts(
+    attempted_states: Sequence[Any],
+    proposal_endpoint,
+    *,
+    termination_reason: str,
+    _prefix_resolver,
+) -> tuple[list[Any], list[float | None], Any | None]:
+    """Separate accepted macro states from one rejected invalid relaxation.
+
+    Optimizer trajectory callbacks also persist a relaxation that the walker
+    subsequently rejects as invalid.  Such a state is an attempted horizon,
+    not the returned proposal endpoint.
+    """
+
+    try:
+        accepted, errors = _prefix_resolver(
+            attempted_states,
+            proposal_endpoint,
+            tolerance=1.0e-8,
+        )
+    except RuntimeError:
+        if (
+            termination_reason == "relaxed_geometry_invalid"
+            and len(attempted_states) == 1
+        ):
+            return [], [None], attempted_states[0]
+        raise
+    failed = None
+    if (
+        termination_reason == "relaxed_geometry_invalid"
+        and len(attempted_states) > len(accepted)
+    ):
+        failed = attempted_states[len(accepted)]
+    return list(accepted), list(errors), failed
+
+
 def _current_commit() -> str:
     return subprocess.run(
         ["git", "rev-parse", "HEAD"],
@@ -282,11 +318,15 @@ def _generate_action_path(
                 "walk_trust_radius_clipped": bool(clipped),
             }
         )
-    accepted_states, endpoint_errors = (
-        shooting_runner.accepted_checkpoint_prefix(
+    termination_reason = walker._walk_termination_last_reason
+    accepted_states, endpoint_errors, failed_attempt = (
+        partition_checkpoint_attempts(
             attempted_states,
             proposal.state,
-            tolerance=1.0e-8,
+            termination_reason=termination_reason,
+            _prefix_resolver=(
+                shooting_runner.accepted_checkpoint_prefix
+            ),
         )
     )
     accepted_count = len(accepted_states)
@@ -319,6 +359,21 @@ def _generate_action_path(
             }
         )
         selected.append(record)
+    failed_attempt_record = None
+    if failed_attempt is not None:
+        failed_index = accepted_count
+        failed_horizon = failed_index + 1
+        failed_path = attempted_paths[failed_index]
+        failed_attempt_record = {
+            **source_records[failed_index],
+            "horizon": failed_horizon,
+            "checkpoint_path": str(failed_path),
+            "checkpoint_sha256": _file_sha256(failed_path),
+            "endpoint_position_error_A": endpoint_errors[failed_index],
+            "preclassified_label": "INVALID_GEOMETRY",
+        }
+        if failed_horizon in protocol.CHECKPOINT_HORIZONS:
+            selected.append(failed_attempt_record)
     return {
         "system": system,
         "state_id": state_id,
@@ -331,9 +386,10 @@ def _generate_action_path(
         "generation_force_evaluations": force_evaluations,
         "generation_purpose_counts": counts,
         "generation_wall_time_s": generation_wall_time,
-        "walk_termination_reason": walker._walk_termination_last_reason,
+        "walk_termination_reason": termination_reason,
         "reached_macro_steps": accepted_count,
         "attempted_macro_steps": len(attempted_paths),
+        "terminal_failed_attempt": failed_attempt_record,
         "selected_checkpoints": selected,
         "direction_audit": direction_audit,
         "direction_trace": direction_rows,
@@ -389,6 +445,25 @@ def _quench_checkpoint(
     from pamssw.io import read_state
     from pamssw.relax import has_force_convergence_certificate
     from pamssw.walker import SurfaceWalker
+
+    if source.get("preclassified_label") == "INVALID_GEOMETRY":
+        zero_counts = {
+            "bootstrap_true_quench": 0,
+            "starter_true_quench": 0,
+            "local_softening_pre_relax": 0,
+            "direction_oracle": 0,
+            "escape_true_pes_check": 0,
+            "biased_proposal_relax": 0,
+            "landing_true_quench": 0,
+            "post_relax_validation": 0,
+            "unattributed": 0,
+        }
+        return _checkpoint_failure_row(
+            source=source,
+            label="INVALID_GEOMETRY",
+            purpose_counts=zero_counts,
+            wall_time_s=0.0,
+        )
 
     checkpoint_state = read_state(
         Path(source["checkpoint_path"]),
