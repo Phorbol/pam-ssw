@@ -786,3 +786,29 @@ difference slope 与 `g dot p`：
 在该门控前不实现 Exact-Bias Composite L-BFGS。完成后再用 shared bootstrap 扩展
 C60/PdO/CuO selector repeats；下一 selector 候选应先是具有全局非零支持的固定
 continuation/restart policy，而不是每个 archive node 一个 posterior arm。
+
+## 十七、真实 PES 首次下降是充分证书，不是完整 escape 判据
+
+针对“每个外层 micro step 后若真实 PES 能量已低于 macro starter 就停止”的建议，
+G-E0 没有改 walker，也没有重跑方向或 biased relaxation，而是冻结 current-action
+first-passage 的 24 条 C60/PdO D0/K4 路径，并补齐全部 82 个已接受 endpoint 的真实
+能量。停止阈值直接复用 `dedup_energy_tol=0.001 eV`，没有新增连续超参数。
+
+结果有四条路径触发，4/4 crossing 真实淬火后都是认证的更低盆地，合计可少走 15 个
+外层 micro steps。物理原因很直接：现有 walker 已在每一步计算 `true_energy_after`；
+当去 bias 前的真实能量已低于 starter 时，后续真实 PES 淬火提供了一个强的低能盆地
+证书。在线判断本身因此为零额外 FE。
+
+但该证书覆盖很窄。原 first-passage 中 26 个认证 escape horizon 只有 6 个同时满足
+真实能量下降，覆盖率 23.1%。四个触发里，两个避免继续累计 bias 后走向更差终点，一个
+与自然终点等价，另一个从 -7.013 eV 提前兑现却会错过 -9.030 eV 的更深终点。因此：
+
+1. first descent 可以作为“兑现已发现低能 basin”的充分停止事件；
+2. 它不能替代高于 starter 能量处的 barrier crossing/escape 判据；
+3. 它也不是动作内部的最优停止定理，不能加耐心窗口、趋势分数等启发式后直接晋级；
+4. 下一步只准入一个 fresh paired G-E1：相同 starter、方向、Gaussian 和随机流下比较
+   自然传播与 first-descent stop，并按完整 action 总 FE 和后续搜索收益裁决。
+
+G-E0 离线补证新增 117 FE，其中 33 次真实能量检查、82 次 landing true quench、2 次
+post-relax validation；方向、biased proposal relax 和 unattributed 均为零。这个成本
+用于验证规则，不是在线规则的固有成本。当前不修改生产默认。

@@ -263,3 +263,51 @@ def test_case_summary_separates_certificate_savings_and_energy_tradeoff():
     assert summary["saved_outer_micro_steps"] == 1
     assert summary["crossing_is_certified_lower_basin"] is True
     assert summary["tradeoff_class"] == "AVOIDED_OVERSHOOT"
+
+
+def test_evidence_check_recomputes_crossing_aggregate(tmp_path):
+    runner = _runner()
+    zero = runner._zero_counts()
+    path = tmp_path / "evidence.json"
+    path.write_text(
+        json.dumps(
+            {
+                "cohort": {
+                    "case_count": 1,
+                    "accepted_endpoint_count": 1,
+                    "attempted_endpoint_count": 1,
+                },
+                "cases": [
+                    {
+                        "reached_macro_steps": 1,
+                        "attempted_macro_steps": 1,
+                        "energy_rows": [
+                            {
+                                "step": 1,
+                                "checkpoint_delta_eV": 0.2,
+                                "new_force_evaluations": 0,
+                                "purpose_counts": zero,
+                            }
+                        ],
+                        "quench_rows": [],
+                        "first_crossing_step": None,
+                        "crossing_is_certified_lower_basin": False,
+                        "saved_outer_micro_steps": 0,
+                        "tradeoff_class": "UNLEARNABLE",
+                    }
+                ],
+                "aggregate": {
+                    "crossing_path_count": 99,
+                    "certified_lower_basin_count": 0,
+                    "saved_outer_micro_steps": 0,
+                    "tradeoff_counts": {},
+                    "new_force_evaluations": 0,
+                    "purpose_counts": zero,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(RuntimeError, match="crossing aggregate"):
+        runner.check_evidence(path, require_full=False)

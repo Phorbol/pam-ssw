@@ -822,16 +822,72 @@ def run(
 def check_evidence(path: Path, *, require_full: bool = True) -> dict[str, Any]:
     evidence = json.loads(path.read_text(encoding="utf-8"))
     cases = evidence["cases"]
-    if require_full and evidence["cohort"] != {
-        "case_count": 24,
-        "accepted_endpoint_count": 82,
-        "attempted_endpoint_count": 93,
-    }:
-        raise RuntimeError("G-E0 evidence does not contain the full cohort")
+    recomputed_cohort = {
+        "case_count": len(cases),
+        "accepted_endpoint_count": sum(
+            int(case["reached_macro_steps"]) for case in cases
+        ),
+        "attempted_endpoint_count": sum(
+            int(case["attempted_macro_steps"]) for case in cases
+        ),
+    }
+    if evidence["cohort"] != recomputed_cohort:
+        raise RuntimeError("G-E0 cohort aggregate drifted")
+    if require_full:
+        if recomputed_cohort != {
+            "case_count": 24,
+            "accepted_endpoint_count": 82,
+            "attempted_endpoint_count": 93,
+        }:
+            raise RuntimeError("G-E0 evidence does not contain the full cohort")
+        source_context = validate_source_inputs()
+        if evidence["source_raw_evidence_sha256"] != source_context[
+            "source_raw_sha256"
+        ]:
+            raise RuntimeError("G-E0 source evidence SHA256 drifted")
+        if evidence["manifest_sha256"] != _sha256(MANIFEST_PATH):
+            raise RuntimeError("G-E0 manifest SHA256 drifted")
+        manifest_cases = {
+            (
+                str(row["key"][0]),
+                str(row["key"][1]),
+                int(row["key"][2]),
+                str(row["key"][3]),
+            ): row
+            for row in source_context["manifest"]["cases"]
+        }
     for case in cases:
         expected_steps = list(range(1, int(case["reached_macro_steps"]) + 1))
         if [int(row["step"]) for row in case["energy_rows"]] != expected_steps:
             raise RuntimeError("G-E0 case energy steps are not consecutive")
+        if require_full:
+            manifest_case = manifest_cases[_case_key(case)]
+            expected_hashes = [
+                (int(row["step"]), str(row["checkpoint_sha256"]))
+                for row in manifest_case["endpoints"]
+            ]
+            actual_hashes = [
+                (int(row["step"]), str(row["checkpoint_sha256"]))
+                for row in case["energy_rows"]
+            ]
+            if actual_hashes != expected_hashes:
+                raise RuntimeError("G-E0 endpoint manifest projection drifted")
+        quench_rows = {
+            int(row["step"]): row for row in case["quench_rows"]
+        }
+        recomputed = summarize_case_outcome(
+            energy_rows=case["energy_rows"],
+            quench_rows=quench_rows,
+            tolerance=float(case.get("dedup_energy_tol_eV", 0.001)),
+        )
+        for name in (
+            "first_crossing_step",
+            "saved_outer_micro_steps",
+            "crossing_is_certified_lower_basin",
+            "tradeoff_class",
+        ):
+            if recomputed[name] != case[name]:
+                raise RuntimeError(f"G-E0 case outcome drifted: {name}")
     all_rows = [
         row
         for case in cases
@@ -844,6 +900,29 @@ def check_evidence(path: Path, *, require_full: bool = True) -> dict[str, Any]:
         evidence["aggregate"]["new_force_evaluations"]
     ):
         raise RuntimeError("G-E0 aggregate force evaluations drifted")
+    crossing_cases = [
+        case for case in cases if case["first_crossing_step"] is not None
+    ]
+    recomputed_crossing = {
+        "crossing_path_count": len(crossing_cases),
+        "certified_lower_basin_count": sum(
+            bool(case["crossing_is_certified_lower_basin"])
+            for case in crossing_cases
+        ),
+        "saved_outer_micro_steps": sum(
+            int(case["saved_outer_micro_steps"]) for case in crossing_cases
+        ),
+        "tradeoff_counts": dict(
+            sorted(
+                Counter(
+                    str(case["tradeoff_class"]) for case in crossing_cases
+                ).items()
+            )
+        ),
+    }
+    for name, value in recomputed_crossing.items():
+        if evidence["aggregate"][name] != value:
+            raise RuntimeError(f"G-E0 crossing aggregate drifted: {name}")
     return evidence
 
 
