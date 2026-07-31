@@ -390,7 +390,7 @@ def _trajectory_record(
                 pair=pair,
                 frame_index=frame_index,
                 final_frame_index=final_index,
-                case_dir=case_dir,
+                case_dir=case_dir / f"frame-{frame_index:03d}",
                 context=context,
                 runtime=runtime,
                 remaining_budget=max_new_fe - total_new_fe,
@@ -511,7 +511,6 @@ def _holdout_row(
             / str(pair["arm"])
             / f"h{int(pair['horizon']):02d}"
         )
-        case_dir.mkdir(parents=True, exist_ok=False)
         frame = _quench_intermediate_frame(
             pair=pair,
             frame_index=executed_index,
