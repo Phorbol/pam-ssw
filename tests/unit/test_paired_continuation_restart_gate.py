@@ -96,6 +96,25 @@ def test_scr1_admission_requires_strict_win_over_both_comparators_in_two_systems
     assert protocol.scr1_decision(tied)["decision"] == "DO_NOT_ADMIT_S_CR2"
 
 
+def test_partial_smoke_cohort_is_not_given_a_scientific_decision():
+    protocol = _protocol()
+    rows = [
+        {
+            "system": "c60",
+            "seed": 45,
+            "starter_mode": mode,
+            "gain_auc_eV": float(index),
+        }
+        for index, mode in enumerate(protocol.STARTER_MODES)
+    ]
+
+    assert protocol.cohort_decision(rows) == {
+        "decision": "NOT_EVALUATED_PARTIAL_COHORT",
+        "paired_winning_system_count": 0,
+        "paired_winning_systems": [],
+    }
+
+
 def test_runner_changes_only_selector_log_path_and_cuo_scope(tmp_path):
     runner = _runner()
 

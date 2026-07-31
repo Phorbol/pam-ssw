@@ -87,3 +87,21 @@ def scr1_decision(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "paired_winning_system_count": len(winning),
         "paired_winning_systems": winning,
     }
+
+
+def cohort_decision(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    observed = {
+        (str(row["system"]), int(row["seed"]), str(row["starter_mode"]))
+        for row in rows
+    }
+    expected = {
+        (row["system"], int(row["seed"]), row["starter_mode"])
+        for row in case_matrix()
+    }
+    if observed != expected:
+        return {
+            "decision": "NOT_EVALUATED_PARTIAL_COHORT",
+            "paired_winning_system_count": 0,
+            "paired_winning_systems": [],
+        }
+    return scr1_decision(rows)

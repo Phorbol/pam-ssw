@@ -262,7 +262,7 @@ def validate_evidence(evidence: Mapping[str, Any]) -> dict[str, Any]:
         previous = bootstrap_by_block.setdefault(block, bootstrap)
         if bootstrap != previous:
             raise ValueError("shared bootstrap differs within block")
-    decision = protocol.scr1_decision(cases)
+    decision = protocol.cohort_decision(cases)
     if decision != evidence["decision"]:
         raise ValueError("recorded decision does not match protocol")
     return {
@@ -342,7 +342,7 @@ def run_gate(
                 )
                 cases.append(summary)
                 _write_json(output_directory / "partial_cases.json", cases)
-    decision = protocol.scr1_decision(cases)
+    decision = protocol.cohort_decision(cases)
     evidence = {
         "schema_version": 1,
         "execution_commit": _git_commit(),
