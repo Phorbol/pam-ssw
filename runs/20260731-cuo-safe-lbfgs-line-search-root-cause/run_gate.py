@@ -166,15 +166,8 @@ def _diagnose_safe_lbfgs_with_ls(*, depth: int, variant: str, task, calculator) 
     trial_records = records[-(_SAFE_LBFGS_MAX_LINE_TRIALS + 1) : -1]
     if len(trial_records) != _SAFE_LBFGS_MAX_LINE_TRIALS:
         raise RuntimeError("failed line-search record is incomplete")
-    earlier_base_records = [
-        observation
-        for positions, observation in records[: -(_SAFE_LBFGS_MAX_LINE_TRIALS + 1)]
-        if np.array_equal(positions, final_flat)
-    ]
-    if not earlier_base_records:
-        raise RuntimeError("cannot recover the accepted base point for failed line search")
-    base_observation = earlier_base_records[-1]
-    base_parts = proposal.evaluate_parts(final_flat, result.state)
+    base_positions, base_observation = records[-(_SAFE_LBFGS_MAX_LINE_TRIALS + 2)]
+    base_parts = proposal.evaluate_parts(base_positions, task.initial_state)
     active = np.repeat(result.state.movable_mask, 3)
     component_gradients = {
         "true": base_parts.true_gradient[active],
@@ -190,7 +183,7 @@ def _diagnose_safe_lbfgs_with_ls(*, depth: int, variant: str, task, calculator) 
     }
     line_scan = []
     for trial_index, (positions, observation) in enumerate(trial_records):
-        delta = (positions - final_flat)[active]
+        delta = (positions - base_positions)[active]
         observed_energies = {
             "true": observation.true_energy,
             "bias": observation.bias_energy,
