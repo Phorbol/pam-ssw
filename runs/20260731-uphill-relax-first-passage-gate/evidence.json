@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "execution_commit": "b6841e1b50d34bef9f0bda5e7c8d2f189788dcc7",
+  "raw_evidence_path": "runs/20260731-uphill-relax-first-passage-gate/output/evidence.json",
+  "raw_evidence_sha256": "8f406889640746126bdaf3d818c02f7261446b2dca9bf9e25f36ea235624fa69",
+  "raw_discovery_path": "runs/20260731-uphill-relax-first-passage-gate/output/discovery.json",
+  "raw_discovery_sha256": "15171bf3c4574b9f7cb04b9affcd58d691a1dce455f44c55c61a0f1a7dd70317",
+  "source_g_up0_raw_evidence_sha256": "db0dbb47c223149611ae3b5a5eea8b6be90339a725c40e44aa219d58cecc7dfe",
+  "source_first_passage_raw_evidence_sha256": "9ba5fb4fce7b44dea7cfa4bc0115043e3877adc08c345eaae9aa5fc0117fbdd2",
+  "cohort": {
+    "system": "c60",
+    "discovery_trajectory_count": 4,
+    "discovery_frame_count": 238,
+    "holdout_trajectory_count": 4
+  },
+  "discovery": {
+    "stable_final_basin_steps": [45, 15, 23, 12],
+    "final_accepted_steps": [80, 49, 57, 48],
+    "fixed_cutoff": 45,
+    "common_shorter_cutoff": true,
+    "label_counts": {
+      "AMBIGUOUS_MATCH": 13,
+      "ESCAPED_CERTIFIED": 183,
+      "RETURN_STARTER": 42
+    },
+    "landing_relation_counts": {
+      "AMBIGUOUS_LANDING": 32,
+      "DIFFERENT_LANDING": 8,
+      "NOT_APPLICABLE": 42,
+      "NOT_COMPARABLE": 13,
+      "SAME_LANDING": 143
+    },
+    "new_true_quench_force_evaluation_distribution": {
+      "count": 230,
+      "minimum": 26,
+      "median": 49.5,
+      "mean": 88.85652173913043,
+      "maximum": 594
+    }
+  },
+  "holdout": {
+    "final_accepted_steps": [80, 43, 80, 44],
+    "executed_accepted_steps": [45, 43, 45, 44],
+    "reproduced_final_basin_count": 4,
+    "positive_headroom_count": 2,
+    "new_force_evaluations": [84, 0, 41, 0]
+  },
+  "accepted_step_cap_accounting": {
+    "discovery_original_steps": 234,
+    "discovery_capped_steps": 180,
+    "discovery_step_reduction": 54,
+    "holdout_original_steps": 247,
+    "holdout_capped_steps": 177,
+    "holdout_step_reduction": 70,
+    "combined_original_steps": 481,
+    "combined_capped_steps": 357,
+    "combined_step_reduction": 124,
+    "combined_step_reduction_fraction": 0.2577962577962578,
+    "force_evaluation_saving_proven": false
+  },
+  "decision": "RETAIN_CURRENT_LENGTH_NO_PROMOTION",
+  "decision_basis": "the preregistered rule required positive shortening headroom on all four holdouts; only two had trajectories longer than the frozen cutoff",
+  "exploratory_observation": "all four holdouts preserve the final basin under max-cap semantics; two are shortened and two naturally terminate before the cap",
+  "new_force_evaluations": 20562,
+  "max_new_force_evaluations": 32000,
+  "purpose_counts": {
+    "biased_proposal_relax": 0,
+    "bootstrap_true_quench": 0,
+    "direction_oracle": 0,
+    "escape_true_pes_check": 232,
+    "landing_true_quench": 20098,
+    "local_softening_pre_relax": 0,
+    "post_relax_validation": 232,
+    "starter_true_quench": 0,
+    "unattributed": 0
+  },
+  "kernel_wall_time_s": 393.8186776949733,
+  "production_default_changed": false,
+  "claim_ceiling": "accepted-frame C60 first-passage and four-trajectory holdout; not an online full-action FE saving, cross-system cutoff, or production promotion"
+}

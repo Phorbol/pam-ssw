@@ -69,6 +69,17 @@ posterior 均未满足准入条件；不得自动展开。
   均为 0。因此关闭“删除 proposal relax”的路线，但不晋级当前 80-step 长度或自适应
   控制；下一唯一可准入问题是沿已有 optimizer frames 确定最早发生 basin-label 改变的
   relaxation first passage（`runs/20260731-uphill-relax-counterfactual-gate/`）。
+- G-UP1 随后逐一 true-quench 了四条重复因果轨迹的全部 238 个 Safe-LBFGS
+  accepted frames。四条轨迹“稳定进入最终 basin”的步数为 45/80、15/49、
+  23/57、12/48；首次 escape 与稳定进入最终 basin 可相差 32 步，证明 biased
+  relaxation 会先跨越并重定向多个吸引域，而不是单调放大位移。冻结的 45-step
+  cutoff 在四条 holdout 上 4/4 保持最终 basin，但只有两条原轨迹长于 45；因此按
+  预注册的 4/4 positive-headroom 规则不晋级、不改生产默认。20,562 个新增 FE 中
+  20,098 属于 true quench，direction/bias replay/unattributed 均为 0。探索性地，
+  将 45 解释为最大步数 cap 会把八条记录的 481 accepted steps 降到 357，但这不
+  等于 FE 节省；下一步若继续，只允许在未见 action 上做 `natural convergence`
+  对 `max_steps=45` 的完整 action 总成本配对，不能引入自适应 controller
+  （`runs/20260731-uphill-relax-first-passage-gate/`）。
 
 ## 一、重新组织后的总判断
 
