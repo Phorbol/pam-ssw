@@ -124,6 +124,7 @@ def analyze() -> dict[str, Any]:
                 "force_evaluations": row["force_evaluations"],
                 "wall_time_s": row["wall_time_s"],
                 "termination_reason": row["termination_reason"],
+                "optimizer_success": row["telemetry"]["optimizer_success"],
             }
             for endpoint, row in by_endpoint.items()
         },
@@ -152,6 +153,11 @@ def analyze() -> dict[str, Any]:
             "- Strict endpoint ΔE / MIC RMSD / descriptor Δ: "
             f"**{strict_energy_delta:.6f} eV / {strict_rmsd:.6f} Å / "
             f"{strict_descriptor_delta:.6f}**."
+        ),
+        (
+            "- SciPy reported optimizer success for the landing, but the "
+            f"independent raw-force certificate was "
+            f"**{converged['landing']}**."
         ),
         "- Production matcher or default change authorized: **False**.",
         "",
