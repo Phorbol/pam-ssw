@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Matched C60/PdO gate for uniform, archive-UCB-like, and Metropolis starters."""
+"""Matched C60/PdO/CuO gate for uniform, archive-UCB-like, and Metropolis starters."""
 
 from __future__ import annotations
 
@@ -14,21 +14,28 @@ import subprocess
 import sys
 from time import perf_counter
 from typing import Any, Sequence
+from zipfile import ZipFile
 
 import numpy as np
+from ase.io import read
 
 from pamssw.accounting import EvaluationPurpose
 from pamssw.mace_batch import MACEBatchCalculator
+from pamssw.state import State
 from pamssw.walker import SurfaceWalker
 from pamssw.io import write_state
 
 
 RUN_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = RUN_ROOT.parents[1]
+SOURCE_REPO_ROOT = Path("/mnt/d/download/trae-research-code/ssw")
 SOURCE_GATE = (
     RUN_ROOT.parent / "20260730-starter-cell-online-gate" / "run_gate.py"
 )
-SYSTEMS = ("c60", "pdo")
+CUO_ARCHIVE_PATH = SOURCE_REPO_ROOT / "Cu110_Cu10O8.zip"
+CUO_INPUT_MEMBER = "Cu110_Cu10O8/CuO_opt_input.arc"
+CUO_MODEL_MEMBER = "Cu110_Cu10O8/CuO-OMAT_finetune.model"
+SYSTEMS = ("c60", "pdo", "cuo")
 STARTER_MODES = ("uniform_archive", "archive_ucb", "metropolis_chain")
 MAX_TRIALS = 10_000
 DEFAULT_FORCE_BUDGET = 20_000
@@ -72,10 +79,68 @@ def _sha256(path: Path) -> str:
     return sha256(path.read_bytes()).hexdigest()
 
 
+def _zip_member_sha256(archive_path: Path, member: str) -> str:
+    digest = sha256()
+    with ZipFile(archive_path) as archive, archive.open(member) as source:
+        for block in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
 def _write_json(path: Path, payload: Any) -> None:
     path.write_text(
         json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n",
         encoding="utf-8",
+    )
+
+
+def _materialize_cuo_resources(
+    archive_path: Path,
+    target_directory: Path,
+) -> dict[str, Path]:
+    """Materialize only the declared CuO structure and model from the package."""
+    target_directory = Path(target_directory)
+    target_directory.mkdir(parents=True, exist_ok=False)
+    resources = {}
+    with ZipFile(archive_path) as archive:
+        for label, member in (
+            ("input", CUO_INPUT_MEMBER),
+            ("model", CUO_MODEL_MEMBER),
+        ):
+            destination = target_directory / Path(member).name
+            with archive.open(member) as source, destination.open("wb") as sink:
+                for block in iter(lambda: source.read(1024 * 1024), b""):
+                    sink.write(block)
+            resources[label] = destination
+    return resources
+
+
+def _load_state(
+    system: str,
+    cuo_resources: dict[str, Path] | None = None,
+) -> State:
+    source_gate = _load_source_gate()
+    prior = source_gate._load_prior_harness()
+    production = prior._load_production_runner()
+    if system != "cuo":
+        return production.load_state(system)
+    if cuo_resources is None:
+        raise ValueError("CuO resources are required for the CuO case")
+    atoms = read(cuo_resources["input"])
+    positions = np.asarray(atoms.positions, dtype=float)
+    fixed_mask = production.bottom_fixed_mask(positions, 0.35)
+    return State(
+        numbers=np.asarray(atoms.numbers, dtype=int),
+        positions=positions,
+        cell=np.asarray(atoms.cell.array, dtype=float),
+        pbc=(True, True, False),
+        fixed_mask=fixed_mask,
+        metadata={
+            "input": str(cuo_resources["input"]),
+            "system": "cuo",
+            "pbc_mode": "slab",
+            "fixed_bottom_fraction": 0.35,
+        },
     )
 
 
@@ -96,8 +161,12 @@ def build_config(
     if force_budget <= 0:
         raise ValueError("force_budget must be a positive integer")
     source_gate = _load_source_gate()
+    # CuO deliberately inherits the already frozen generic slab action kernel.
+    # This admits a third physical system without tuning the SSW machinery to
+    # the CuO result; only the structure and calculator model differ at runtime.
+    kernel_system = "pdo" if system == "cuo" else system
     frozen = source_gate.build_production_config(
-        system,
+        kernel_system,
         Path(case_directory),
         master_seed=seed,
     )
@@ -110,7 +179,10 @@ def build_config(
     )
 
 
-def _preflight(expected_commit: str) -> dict[str, Any]:
+def _preflight(
+    expected_commit: str,
+    systems: Sequence[str] = SYSTEMS,
+) -> dict[str, Any]:
     import mace
     import torch
 
@@ -127,13 +199,42 @@ def _preflight(expected_commit: str) -> dict[str, Any]:
     source_gate = _load_source_gate()
     prior = source_gate._load_prior_harness()
     production = prior._load_production_runner()
+    ordinary_systems = tuple(system for system in systems if system != "cuo")
     inputs = {
         system: {
             "path": str(production.INPUT_PATHS[system]),
             "sha256": _sha256(production.INPUT_PATHS[system]),
         }
-        for system in SYSTEMS
+        for system in ordinary_systems
     }
+    models = {
+        system: {
+            "path": str(production.MODEL_PATH),
+            "sha256": _sha256(production.MODEL_PATH),
+        }
+        for system in ordinary_systems
+    }
+    if "cuo" in systems:
+        if not CUO_ARCHIVE_PATH.is_file():
+            raise FileNotFoundError(CUO_ARCHIVE_PATH)
+        inputs["cuo"] = {
+            "archive_path": str(CUO_ARCHIVE_PATH),
+            "archive_sha256": _sha256(CUO_ARCHIVE_PATH),
+            "member": CUO_INPUT_MEMBER,
+            "member_sha256": _zip_member_sha256(
+                CUO_ARCHIVE_PATH,
+                CUO_INPUT_MEMBER,
+            ),
+        }
+        models["cuo"] = {
+            "archive_path": str(CUO_ARCHIVE_PATH),
+            "archive_sha256": _sha256(CUO_ARCHIVE_PATH),
+            "member": CUO_MODEL_MEMBER,
+            "member_sha256": _zip_member_sha256(
+                CUO_ARCHIVE_PATH,
+                CUO_MODEL_MEMBER,
+            ),
+        }
     return {
         "schema_version": 1,
         "execution_commit": actual_commit,
@@ -144,6 +245,7 @@ def _preflight(expected_commit: str) -> dict[str, Any]:
         "cuda_device": str(torch.cuda.get_device_name(0)),
         "model_path": str(production.MODEL_PATH),
         "model_sha256": _sha256(production.MODEL_PATH),
+        "models": models,
         "calculator": dict(production.CALCULATOR_CONFIG),
         "inputs": inputs,
         "starter_modes": list(STARTER_MODES),
@@ -161,14 +263,23 @@ def _preflight(expected_commit: str) -> dict[str, Any]:
     }
 
 
-def _calculator():
+def _calculator(
+    system: str,
+    cuo_resources: dict[str, Path] | None = None,
+):
     from mace.calculators import MACECalculator
 
     source_gate = _load_source_gate()
     prior = source_gate._load_prior_harness()
     production = prior._load_production_runner()
+    if system == "cuo":
+        if cuo_resources is None:
+            raise ValueError("CuO resources are required for the CuO calculator")
+        model_path = cuo_resources["model"]
+    else:
+        model_path = production.MODEL_PATH
     mace_calculator = MACECalculator(
-        model_paths=str(production.MODEL_PATH),
+        model_paths=str(model_path),
         **production.CALCULATOR_CONFIG,
     )
     return MACEBatchCalculator(mace_calculator)
@@ -209,11 +320,9 @@ def _run_case(
     starter_mode: str,
     case_directory: Path,
     force_budget: int,
+    cuo_resources: dict[str, Path] | None = None,
 ) -> dict[str, Any]:
-    source_gate = _load_source_gate()
-    prior = source_gate._load_prior_harness()
-    production = prior._load_production_runner()
-    state = production.load_state(system)
+    state = _load_state(system, cuo_resources)
     config = build_config(
         system,
         case_directory,
@@ -222,7 +331,7 @@ def _run_case(
         force_budget=force_budget,
     )
     walker = SurfaceWalker(
-        calculator=_calculator(),
+        calculator=_calculator(system, cuo_resources),
         config=config,
         softening_enabled=True,
     )
@@ -283,7 +392,7 @@ def run_gate(
         raise ValueError("seeds must contain non-negative integers")
     if not starter_modes or any(mode not in STARTER_MODES for mode in starter_modes):
         raise ValueError(f"starter_modes must be drawn from {STARTER_MODES!r}")
-    provenance = _preflight(expected_commit)
+    provenance = _preflight(expected_commit, systems)
     manifest = {
         **provenance,
         "systems": list(systems),
@@ -308,6 +417,12 @@ def run_gate(
         raise FileExistsError(output_directory)
     output_directory.mkdir(parents=True)
     _write_json(output_directory / "manifest.json", manifest)
+    cuo_resources = None
+    if "cuo" in systems:
+        cuo_resources = _materialize_cuo_resources(
+            CUO_ARCHIVE_PATH,
+            output_directory / "cuo-input",
+        )
 
     cases = []
     for system in systems:
@@ -320,6 +435,7 @@ def run_gate(
                     starter_mode=starter_mode,
                     case_directory=output_directory / relative,
                     force_budget=force_budget,
+                    cuo_resources=cuo_resources,
                 )
                 cases.append(
                     {

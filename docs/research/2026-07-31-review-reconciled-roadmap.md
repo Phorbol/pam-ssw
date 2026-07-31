@@ -654,3 +654,50 @@ Safe-LBFGS 支线不抢占当前 starter gate，并按以下顺序受限推进�
 因此，Exact-Bias Composite L-BFGS 是一个有底层结构依据的候选，不是已获准实现的
 下一组件。当前可立即执行的只有步骤 1 的零 FE 审计；其余步骤由该审计和正在运行的
 starter gate 决定。
+
+上述步骤 1 已完成。六条现有 20,000-FE C60/PdO 轨迹中：
+
+- C60 proposal line-search 拒绝率为 2.91%，相对 accepted step 的额外 line
+  evaluation 为 2.99%，rejected secant 为 0.56%；
+- PdO 对应为 4.16%、4.34% 和 0.057%；
+- 两体系均没有 MIC branch reset。
+
+因此 backtracking、secant rejection 和 MIC reset 都不是当前主导 FE 瓶颈。
+Gaussian-aware line search 与 Exact-Bias Composite L-BFGS 暂不准入；Safe-LBFGS
+目前最可信的正机制仍是用保留的有限步 secant 学习 modified PES 的各向异性。
+
+## 十五、跨体系反号、有限预算与 CuO 判别实验
+
+C60 与 PdO 反号不能继续被写成组件的永久否决。今后的负结论必须分成三类：
+
+1. **机制否决**：冻结 task 上直接证明所声称的中间机制没有发生，或账本/物理语义
+   错误；
+2. **有限预算下不晋级**：机制存在，但在已测试体系、seed 和 FE horizon 下没有
+   转化为端到端收益；
+3. **统计未决**：体系间反号、seed 方差或终点稀疏，现有数据不足以确定方向。
+
+只有第一类允许停止该机制；第二类保留为非默认 research arm；第三类必须增加 paired
+seeds、体系或 horizon 后再裁决。不得用固定 trial 数比较，因为不同 arm 的 proposal
+relax 和 true quench 成本可以相差数倍。
+
+仓库根目录的 `Cu110_Cu10O8.zip` 提供第三个真实体系：
+
+- 54 原子 Cu(110)-Cu10O8 slab，46 Cu + 8 O；
+- 周期条件为 `(True, True, False)`；
+- 沿 z 坐标最低 35% 原子固定，沿用历史 CuO/PdO slab 约定；
+- 使用包内 `CuO-OMAT_finetune.model`，而不是 C60/PdO 共用的通用 OMAT 模型。
+
+CuO starter gate 刻意继承冻结的 PdO 通用 slab action kernel，只替换结构和
+calculator model，不做针对结果的超参数调整。它的判别语义是：
+
+- PdO 与 CuO 同号、C60 异号：增加“表面与团簇的物理差异”解释的可信度；
+- PdO 与 CuO 异号：不能宣称 slab 共性，优先检查模型域、结构自由度和 seed 方差；
+- 三者同号：才允许把 selector 机制提升为跨体系候选。
+
+由于 CuO 使用专门微调模型，它不能单独排除 model bias。执行顺序保持分阶段：
+
+1. 收完当前 C60/PdO seed-42、20,000-FE 三 selector gate；
+2. 在 CuO seed 42 做相同三臂 gate，并验证 exact purpose ledger 与固定层；
+3. 只有结果可解释，才扩展 C60/PdO/CuO seeds 43--44；
+4. 对仍可能依赖长 horizon 的组件，报告 best-energy-vs-FE 曲线，并将“20,000 FE
+   未晋级”与“生产级长任务无效”严格区分。
