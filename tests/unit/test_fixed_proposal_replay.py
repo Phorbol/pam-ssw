@@ -13,7 +13,7 @@ from pamssw.proposal_replay import (
 from pamssw.accounting import EvaluationPurpose
 from pamssw.bias import GaussianBiasTerm, QuadraticBiasTerm
 from pamssw.calculators import AnalyticCalculator
-from pamssw.config import SSWConfig
+from pamssw.config import LSSSWConfig, SSWConfig
 from pamssw.state import State
 from pamssw.walker import ProposalRelaxationTask
 
@@ -47,6 +47,41 @@ def test_capture_first_task_stops_before_biased_proposal_evaluation():
         captured.evaluation_counts.count(EvaluationPurpose.BIASED_PROPOSAL_RELAX)
         == 0
     )
+
+
+def test_capture_can_preserve_production_local_softening_when_requested():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]),
+    )
+    config = LSSSWConfig(
+        max_steps_per_walk=1,
+        oracle_candidates=1,
+        proposal_relax_steps=4,
+        proposal_fmax=0.05,
+        local_softening_mode="manual",
+        local_softening_pairs=[(0, 1)],
+        local_softening_scope="proposal",
+        rng_seed=7,
+    )
+
+    default_capture = capture_proposal_task(
+        state,
+        AnalyticCalculator(Quadratic()),
+        config,
+        target_bias_count=1,
+    )
+    softened_capture = capture_proposal_task(
+        state,
+        AnalyticCalculator(Quadratic()),
+        config,
+        target_bias_count=1,
+        softening_enabled=True,
+    )
+
+    assert default_capture.task.softening is None
+    assert softened_capture.task.softening is not None
+    assert len(softened_capture.task.softening.terms) == 1
 
 
 def test_uncaptured_task_failure_preserves_spent_evaluation_counts():

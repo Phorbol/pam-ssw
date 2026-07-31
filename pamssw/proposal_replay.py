@@ -129,6 +129,7 @@ def capture_proposal_task(
     config: SSWConfig,
     *,
     target_bias_count: int,
+    softening_enabled: bool = False,
 ) -> CapturedProposalTask:
     """Freeze one production task immediately before its relaxation starts."""
     if isinstance(target_bias_count, bool) or not isinstance(target_bias_count, int):
@@ -140,7 +141,7 @@ def capture_proposal_task(
     walker = _CapturingSurfaceWalker(
         calculator=calculator,
         config=config,
-        softening_enabled=False,
+        softening_enabled=softening_enabled,
         target_bias_count=target_bias_count,
     )
     try:
