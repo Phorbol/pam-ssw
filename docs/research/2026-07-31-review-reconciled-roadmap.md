@@ -61,6 +61,14 @@ posterior 均未满足准入条件；不得自动展开。
   不开放完整 action 门或 paper scalar-strength feedback；在出现新的、物理上不同且
   action-level 可重复的 family 前，仍不开发 pair 规则、posterior、TS/UCB 或
   quadratic propagator（`runs/20260731-ls-four-operator-gate/`）。
+- 随后的 G-UP0 用现有 C60 proposal-relax 轨迹的 frame 0 构造了严格配对的
+  `explicit displacement → true quench` 反事实。34 对中有 5 对只在 biased-PES
+  relax 后逃出 starter，且在 plateau/D0/h1 与 plateau/K4/h2 两个完整 context 中
+  都达到 2/3 seeds；另有 3 对在两臂都逃逸时落入不同 minima。新增 2,886 FE 全部
+  属于 true-PES check/quench/validation，direction HVP、biased relax 与 unattributed
+  均为 0。因此关闭“删除 proposal relax”的路线，但不晋级当前 80-step 长度或自适应
+  控制；下一唯一可准入问题是沿已有 optimizer frames 确定最早发生 basin-label 改变的
+  relaxation first passage（`runs/20260731-uphill-relax-counterfactual-gate/`）。
 
 ## 一、重新组织后的总判断
 
