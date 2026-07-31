@@ -6,6 +6,36 @@
 > 审阅源文件 SHA256：
 > `8821fc2d37c34cf84efc15a8bda0d9b1eb15f60c2ad79ed96d7ab4d36ee1a829`。
 
+## 执行状态更新（2026-07-31）
+
+本路线的 R1 与唯一触发的 R2-N 分支已经完成：
+
+- R1-B 的两次完整 K4 回放均出现 C60/PdO 质量符号翻转，因此关闭
+  “删除 all-candidate HVP”与 live selected-only-HVP 主张
+  （`runs/20260731-hvp-value-of-information-replay/`）。
+- R1-A 完成 24/24 generation paths、59 个可达 checkpoint quenches，
+  总计 11,454/15,000 FE、`unattributed=0`。R2-N 闭环后标签为
+  31 `ESCAPED_CERTIFIED`、20 `RETURN_STARTER`、8 `INVALID_GEOMETRY`；
+  early-escape→H8-return context 与 D0/K4 action-support-gap context 均为 0
+  （`runs/20260731-current-action-first-passage/`、
+  `runs/20260731-pdo-matcher-numerical-gate/`）。
+- 五个 PdO matcher ambiguity 中，四个是现有全局 descriptor collision；
+  一个 residual pair 经严格双端点重淬火后仍保持 0.278076 eV 能差。闭环额外消耗
+  77 FE（SciPy strict 53 FE；ASE-LBFGS certificate closure 24 FE），没有修改
+  matcher、optimizer 或阈值默认值。
+- 现有 K4 support 的 exact order-statistic 表明 unbiased B2 在 PdO 具有正
+  benefit-cost elasticity，但 C60 两次均低于 1，因此关闭 full-action live B2
+  （`runs/20260731-action-breadth-order-statistic-gate/`）。
+- 同 starter 的八个 K4 central-FD 请求可安全做 MACE graph batching：
+  batch 2/4/8 在 C60 分别加速 1.96/3.17/3.64 倍，在 PdO 加速
+  1.70/2.75/2.96 倍；384 FE 账本闭合且 HVP 误差通过冻结容差
+  （`runs/20260731-k4-hvp-batch-force-gate/`）。
+
+因此当前只开放一个工程上最小的后续：为固定 K4 HVP 添加显式
+`evaluate_many`/单 GPU owner 集成 gate，并证明 purpose ledger 与方向结果不变。
+它只能降低 wall time，不能表述为 FE 或搜索质量提升。R2-S、R2-H、新物理 action、
+full-action B2 与 posterior 均未满足准入条件；不得自动展开。
+
 ## 一、重新组织后的总判断
 
 当前首要科学问题不是 starter selector、TS 或 UCB 的形式，而是：
