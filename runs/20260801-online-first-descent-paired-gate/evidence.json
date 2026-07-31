@@ -1,0 +1,117 @@
+{
+  "aggregate": {
+    "all_triggered_lower_certified": true,
+    "cohort_valid": true,
+    "new_executed_force_evaluations": 7157,
+    "new_executed_purpose_counts": {
+      "biased_proposal_relax": 4387,
+      "bootstrap_true_quench": 0,
+      "direction_oracle": 400,
+      "escape_true_pes_check": 143,
+      "landing_true_quench": 2201,
+      "local_softening_pre_relax": 0,
+      "post_relax_validation": 26,
+      "starter_true_quench": 0,
+      "unattributed": 0
+    },
+    "prefixes_valid": true,
+    "summed_complete_action_fe_saving": -58,
+    "triggered_pair_count": 2,
+    "triggered_tradeoff_counts": {
+      "AVOIDED_OVERSHOOT": 1,
+      "FORGONE_DEEPER_TERMINAL": 1
+    },
+    "wall_time_s": 156.02190334099578
+  },
+  "claim_ceiling": "fresh exact-shadow-prefix complete-action cost audit for 24 C60/PdO D0/K4 actions; not an independently replayed stopped arm, a long-search result, or a production recommendation",
+  "cohort": {
+    "arms": [
+      "D0_exact_anchor",
+      "K4_discrete"
+    ],
+    "pair_count": 24,
+    "seeds": [
+      45,
+      46,
+      47
+    ],
+    "state_ids": [
+      "intermediate_accepted",
+      "plateau_accepted"
+    ],
+    "systems": [
+      "c60",
+      "pdo"
+    ]
+  },
+  "decision": "DO_NOT_ADMIT_G_E2",
+  "excluded_smoke": {
+    "reason": "two nominally identical float32 GPU MACE executions diverged before the stopping decision, so the dual-replay smoke is not scientific evidence",
+    "used_in_decision": false
+  },
+  "execution_commit": "7d60fb2e1f14e5110bca378be6f28d9ac21dd8fe",
+  "production_default_changed": false,
+  "raw_evidence_path": "runs/20260801-online-first-descent-paired-gate/output/evidence.json",
+  "raw_evidence_sha256": "532e0e7004ab340d86994a9c8b243eae689d7ccce8c3d4efff35919be5bbc17c",
+  "schema_version": 1,
+  "trigger_cases": [
+    {
+      "arm": "D0_exact_anchor",
+      "complete_action_fe_saving": -243,
+      "early_complete_action_fe": 633,
+      "early_landing_delta_eV": -3.958831787109375,
+      "early_purpose_counts": {
+        "biased_proposal_relax": 138,
+        "direction_oracle": 4,
+        "escape_true_pes_check": 5,
+        "landing_true_quench": 485,
+        "post_relax_validation": 1
+      },
+      "landing_relation": "DIFFERENT_LANDING",
+      "reference_complete_action_fe": 390,
+      "reference_landing_delta_eV": -3.649810791015625,
+      "reference_purpose_counts": {
+        "biased_proposal_relax": 303,
+        "direction_oracle": 8,
+        "escape_true_pes_check": 7,
+        "landing_true_quench": 71,
+        "post_relax_validation": 1
+      },
+      "reference_terminal_step": 4,
+      "seed": 45,
+      "state_id": "plateau_accepted",
+      "system": "c60",
+      "tradeoff_class": "AVOIDED_OVERSHOOT",
+      "trigger_step": 2
+    },
+    {
+      "arm": "D0_exact_anchor",
+      "complete_action_fe_saving": 185,
+      "early_complete_action_fe": 121,
+      "early_landing_delta_eV": -0.87017822265625,
+      "early_purpose_counts": {
+        "biased_proposal_relax": 85,
+        "direction_oracle": 2,
+        "escape_true_pes_check": 4,
+        "landing_true_quench": 29,
+        "post_relax_validation": 1
+      },
+      "landing_relation": "DIFFERENT_LANDING",
+      "reference_complete_action_fe": 306,
+      "reference_landing_delta_eV": -5.0758056640625,
+      "reference_purpose_counts": {
+        "biased_proposal_relax": 260,
+        "direction_oracle": 8,
+        "escape_true_pes_check": 7,
+        "landing_true_quench": 30,
+        "post_relax_validation": 1
+      },
+      "reference_terminal_step": 4,
+      "seed": 47,
+      "state_id": "plateau_accepted",
+      "system": "c60",
+      "tradeoff_class": "FORGONE_DEEPER_TERMINAL",
+      "trigger_step": 1
+    }
+  ]
+}

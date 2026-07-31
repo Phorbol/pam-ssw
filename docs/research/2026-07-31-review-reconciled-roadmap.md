@@ -812,3 +812,30 @@ first-passage 的 24 条 C60/PdO D0/K4 路径，并补齐全部 82 个已接受 
 G-E0 离线补证新增 117 FE，其中 33 次真实能量检查、82 次 landing true quench、2 次
 post-relax validation；方向、biased proposal relax 和 unattributed 均为零。这个成本
 用于验证规则，不是在线规则的固有成本。当前不修改生产默认。
+
+## 十八、首次真实能量下降不晋级为在线停止策略
+
+G-E1 在 fresh seeds 45--47 上执行了 24 条 C60/PdO D0/K4 action。由于两次名义相同的
+float32 GPU MACE 执行会在停止事件前发生 endpoint 级数值分叉，正式比较没有放宽容差，
+而是只执行一条自然传播路径，用 observer 记录同一路径的精确 crossing checkpoint 和
+累计 purpose ledger，再分别淬火 crossing 与自然终点。24/24 shadow prefix 闭合，
+7,157 次新 FE 全部归因，`unattributed = 0`。
+
+只有两条 C60 plateau D0 action 触发，所有 PdO 和 C60 intermediate 均未触发。两个提前
+landing 都是低于 starter 的认证 basin，继续支持“first descent 是充分证书”；但完整
+action 成本合计反而多 58 FE：
+
+- seed 45 在第 2/4 步停止，虽避免了能量走过头并少付 171 FE 的传播成本，但提前构型
+  true quench 花 485 FE，自然终点只需 71 FE，最终多付 243 FE；
+- seed 47 在第 1/4 步停止净省 185 FE，却错失了再低 4.206 eV 的自然终点。
+
+这给出了干净的物理边界：真实能量已经下降，不代表 crossing state 已接近一个容易收敛
+的局部极小值，也不代表后续 bias 不会打开更深的下降通道。用 micro-step 数估计成本会
+遗漏 true-quench conditioning；用首次低能盆地估计动作价值则会遗漏 continuation value。
+因此 G-E1 返回 `DO_NOT_ADMIT_G_E2`，不增加 patience/window/概率停止器，不修改生产
+默认。内部 hook 保持 inert，只作为研究观测缝隙。
+
+该负结果关闭“低能首次下降 early stop”支线。下一优先级不再优化这个低覆盖事件，而是
+回到决定 basin 可达性的主线：先分离并验证方向产生/评估与给定方向后的 uphill
+propagation；只有形成稳定 action 语义和足够 transition 数据后，才准入
+action-conditioned posterior selector。G-E1 不能外推到 CuO、生产级长任务或统计显著性。
