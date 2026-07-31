@@ -130,6 +130,7 @@ def test_config_validates_seed_diversity_limit():
 
 def test_config_validates_seed_selection_mode():
     assert SSWConfig().seed_selection_mode == "archive_ucb"
+    assert SSWConfig(seed_selection_mode="uniform_archive").seed_selection_mode == "uniform_archive"
     assert SSWConfig(seed_selection_mode="metropolis_chain").metropolis_temperature == 0.26
 
     with pytest.raises(ValueError, match="seed_selection_mode"):

@@ -523,3 +523,51 @@ R1-B 不消耗新 FE，R3 只重复固定请求做工程 profiling。orthogonal�
 
 这些文献只用于说明候选 action 的物理来源；是否进入 PAM-SSW 仍由上述本地 paired
 equal-budget gates 决定。
+
+## 十三、2026-07-31 执行闭环与下一门控
+
+上述“下一次实际执行”已经完成，后续证据改变了下一轮优先级：
+
+1. 24 条 C60/PdO first-passage 轨迹显示，当前位移方向与 Gaussian-bias 推动经常在
+   第八个 uphill micro-step 之前就越过原盆地边界；全部 PdO 轨迹都在 H8 前终止。
+2. 与 terminal action 对齐后，24 个相同 starter/action 中有 21 个最终落入新盆地。
+   因此平台现象不是“整体推不出原盆地”，也没有发现可重复的“已经逃逸、随后被
+   true quench 拉回原盆地”机制。
+3. 延长 uphill horizon、增加 proposal relaxation、删除历史 Gaussian、删除
+   proposal-side local softening 都没有给出跨体系单调收益；这些机制保持冻结。
+4. all-candidate curvature probe 的价值在 C60 与 PdO 间符号翻转，故不删除全部
+   Hessian--vector-product 方向评估。
+5. 已完成同 starter 的有限差分 force stencil batch gate：方向选择和 FE 完全不变，
+   C60/PdO wall speedup 为约 1.9--2.6 倍。它是显式 opt-in 的工程加速，不是搜索
+   质量改进。
+
+随后对六条等概率 starter、每条 20,000 FE 的 C60/PdO 轨迹做了零新增 FE 的
+残差审计：
+
+- 337 个 action 中，297 个产生新 archive minimum，但只有 36 个刷新历史最低能；
+- C60 从当前最低能 starter 出发时 9/13 次刷新最低能，其他 starter 为 8/111；
+- PdO 对应为 9/16 与 10/197；
+- 固定成功发生时刻和当时 archive 大小后，成功 starter 仍在两体系中显著偏向低能
+  排名；详细证据见
+  `runs/20260731-starter-energy-residual-audit/`。
+
+物理图景因此从“方向或 uphill 强度不足”转为：
+
+> 当前 action 常能跨盆地，但昂贵 action 被分配给高能 archive 成员时，多数只增加
+> 盆地多样性，不能继续降低已经找到的势能面底部。
+
+下一次 live gate 只比较 starter 机制，其他物理模块完全冻结：
+
+1. `uniform_archive`：在全部已知极小值中等概率选择，提供 full-support 参考；
+2. `archive_ucb`：冻结当前固定权重、UCB-like 的实现；
+3. `metropolis_chain`：经典 SSW 的连续起点链；向低能 landing 必然移动，向高能
+   landing 按 `exp[-(E_new-E_current)/T]` 接受。
+
+该比较使用同一个单体 `SurfaceWalker`，而不是混用独立 one-action worker 与连续
+walker；每个 system/seed/mode 使用相同 20,000 FE 上限。第一阶段先跑 C60/PdO 的
+seed 42；只有出现可解释且账本闭合的差异，才扩展 seeds 43--44。
+
+这仍不是 posterior 准入。Metropolis 是串行物理基线，不是并行 production 方案。
+只有它在两体系中优于等概率选择和现有 archive-UCB-like，才研究如何把“低能 funnel
+连续性”变成具有非零全局支持、可批量并行的最小概率分配；在此之前不加入 TS、
+MACE embedding、hard top-k/FPS 或新的 acquisition 权重。

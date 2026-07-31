@@ -5758,6 +5758,36 @@ def test_metropolis_seed_selection_counts_visits_without_bandit_selector():
     assert walker._same_seed_consecutive == 1
 
 
+def test_uniform_archive_seed_selection_samples_entries_without_bandit_selector():
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=0.01)
+    archive.add(State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]])), -3.0, None)
+    selected_entry = archive.add(
+        State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]])),
+        -2.0,
+        None,
+    )
+    archive.add(State(numbers=np.array([1]), positions=np.array([[2.0, 0.0, 0.0]])), -1.0, None)
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(seed_selection_mode="uniform_archive", rng_seed=0),
+        softening_enabled=False,
+    )
+
+    class SelectMiddle:
+        @staticmethod
+        def integers(upper):
+            assert upper == 3
+            return 1
+
+    walker.rng = SelectMiddle()
+    selected = walker._select_uniform_seed_entry(archive)
+
+    assert selected.entry_id == selected_entry.entry_id
+    assert selected.visits == 2
+    assert selected.node_trials == 1
+    assert walker._same_seed_consecutive == 1
+
+
 def test_surface_walker_reports_direction_acquisition_diagnostics():
     initial = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))
     walker = SurfaceWalker(

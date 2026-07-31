@@ -280,8 +280,15 @@ class SSWConfig:
             raise ValueError("novelty_probe_scales must contain positive values")
         if self.proposal_trust_radius is not None and self.proposal_trust_radius <= 0:
             raise ValueError("proposal_trust_radius must be positive when set")
-        if self.seed_selection_mode not in {"archive_ucb", "metropolis_chain"}:
-            raise ValueError("seed_selection_mode must be archive_ucb or metropolis_chain")
+        if self.seed_selection_mode not in {
+            "archive_ucb",
+            "uniform_archive",
+            "metropolis_chain",
+        }:
+            raise ValueError(
+                "seed_selection_mode must be archive_ucb, uniform_archive, "
+                "or metropolis_chain"
+            )
         if self.anchor_mixing_alpha is not None and not 0.0 <= self.anchor_mixing_alpha <= 1.0:
             raise ValueError("anchor_mixing_alpha must be between 0 and 1 when set")
         quench_optimizers = {"scipy-lbfgsb", "ase-fire", "ase-lbfgs"}

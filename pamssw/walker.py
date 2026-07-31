@@ -3022,6 +3022,8 @@ class SurfaceWalker:
             damage_events_before = self._trust_damage_events
             if self.config.seed_selection_mode == "metropolis_chain":
                 seed_entry = self._select_metropolis_seed_entry(metropolis_entry)
+            elif self.config.seed_selection_mode == "uniform_archive":
+                seed_entry = self._select_uniform_seed_entry(archive)
             else:
                 seed_entry = self._select_seed_entry(archive)
             plateau_evolution_active = bool(
@@ -3911,6 +3913,13 @@ class SurfaceWalker:
         return selected
 
     def _select_metropolis_seed_entry(self, entry):
+        entry.visits += 1
+        entry.node_trials += 1
+        self._record_seed_selection(entry)
+        return entry
+
+    def _select_uniform_seed_entry(self, archive):
+        entry = archive.entries[int(self.rng.integers(len(archive.entries)))]
         entry.visits += 1
         entry.node_trials += 1
         self._record_seed_selection(entry)
