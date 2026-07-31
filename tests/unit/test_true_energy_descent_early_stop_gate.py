@@ -193,3 +193,73 @@ def test_source_validation_closes_manifest_before_runtime():
     assert context["source_raw_sha256"] == context["manifest"][
         "source_raw_evidence_sha256"
     ]
+
+
+def test_existing_first_crossing_quench_is_reused():
+    runner = _runner()
+    source_checkpoint = {
+        "horizon": 2,
+        "label": "ESCAPED_CERTIFIED",
+        "landing_energy_eV": -17.0,
+        "landing_delta_eV": -7.0,
+        "landing_path": "landing.xyz",
+        "landing_sha256": "a" * 64,
+    }
+
+    row = runner.reused_quench_row(source_checkpoint)
+
+    assert row["step"] == 2
+    assert row["new_force_evaluations"] == 0
+    assert row["evidence_origin"] == "reused_first_passage"
+
+
+def test_only_crossing_and_terminal_can_request_new_quench():
+    runner = _runner()
+
+    assert runner.required_quench_steps(
+        first_crossing=3,
+        terminal=8,
+        reusable={3},
+    ) == (8,)
+    assert runner.required_quench_steps(
+        first_crossing=3,
+        terminal=3,
+        reusable=set(),
+    ) == (3,)
+    assert runner.required_quench_steps(
+        first_crossing=None,
+        terminal=8,
+        reusable=set(),
+    ) == ()
+
+
+def test_case_summary_separates_certificate_savings_and_energy_tradeoff():
+    runner = _runner()
+    energies = [
+        {"step": 1, "checkpoint_delta_eV": 0.2},
+        {"step": 2, "checkpoint_delta_eV": -0.5},
+        {"step": 3, "checkpoint_delta_eV": 0.1},
+    ]
+    quenches = {
+        2: {
+            "step": 2,
+            "label": "ESCAPED_CERTIFIED",
+            "landing_delta_eV": -7.0,
+        },
+        3: {
+            "step": 3,
+            "label": "ESCAPED_CERTIFIED",
+            "landing_delta_eV": 0.2,
+        },
+    }
+
+    summary = runner.summarize_case_outcome(
+        energy_rows=energies,
+        quench_rows=quenches,
+        tolerance=0.001,
+    )
+
+    assert summary["first_crossing_step"] == 2
+    assert summary["saved_outer_micro_steps"] == 1
+    assert summary["crossing_is_certified_lower_basin"] is True
+    assert summary["tradeoff_class"] == "AVOIDED_OVERSHOOT"
