@@ -81,6 +81,15 @@ def _sha256(path: Path) -> str:
     return sha256(path.read_bytes()).hexdigest()
 
 
+def _direction_cosine(left: np.ndarray, right: np.ndarray) -> float:
+    left = np.asarray(left, dtype=float)
+    right = np.asarray(right, dtype=float)
+    denominator = float(np.linalg.norm(left) * np.linalg.norm(right))
+    if denominator <= 0.0:
+        raise ValueError("direction cosine requires nonzero vectors")
+    return float(np.dot(left, right) / denominator)
+
+
 def _current_commit() -> str:
     return subprocess.run(
         ["git", "rev-parse", "HEAD"],
@@ -267,8 +276,9 @@ def run(*, output_dir: Path, expected_commit: str) -> dict[str, object]:
                             "repetition": repetition,
                             "mode": mode,
                             **result,
-                            "direction_cosine_to_serial": float(
-                                np.dot(direction, serial_direction)
+                            "direction_cosine_to_serial": _direction_cosine(
+                                direction,
+                                serial_direction,
                             ),
                         }
                     )

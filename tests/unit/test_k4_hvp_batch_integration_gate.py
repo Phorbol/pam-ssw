@@ -24,6 +24,18 @@ def _protocol():
     return module
 
 
+def _runner():
+    spec = importlib.util.spec_from_file_location(
+        "_test_k4_hvp_batch_integration_runner",
+        RUN_ROOT / "run_gate.py",
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 def _rows(batch_time: float = 1.0, *, batch_kind: str = "random"):
     rows = []
     for system in ("c60", "pdo"):
@@ -79,3 +91,13 @@ def test_gate_rejects_physical_equivalence_without_enough_wall_time_gain():
 
     assert gate["passed"] is False
     assert all(row["same_selected_kind"] is True for row in gate["strata"])
+
+
+def test_runner_computes_a_normalized_cosine_not_a_raw_dot_product():
+    import numpy as np
+
+    runner = _runner()
+    left = np.array([0.999999, 0.0])
+    right = np.array([2.0, 0.0])
+
+    assert runner._direction_cosine(left, right) == 1.0
