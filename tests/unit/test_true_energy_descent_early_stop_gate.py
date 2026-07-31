@@ -4,8 +4,13 @@ import importlib.util
 import json
 from pathlib import Path
 import sys
+from types import SimpleNamespace
 
+import numpy as np
 import pytest
+
+from pamssw.accounting import EvalCounter
+from pamssw.state import State
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -13,6 +18,7 @@ RUN_ROOT = (
     REPO_ROOT / "runs" / "20260801-true-energy-descent-early-stop-gate"
 )
 PROTOCOL_PATH = RUN_ROOT / "protocol.py"
+RUNNER_PATH = RUN_ROOT / "run_gate.py"
 MANIFEST_PATH = RUN_ROOT / "manifest.json"
 
 
@@ -27,6 +33,10 @@ def _load(path: Path, name: str):
 
 def _protocol():
     return _load(PROTOCOL_PATH, "_true_energy_descent_protocol_test")
+
+
+def _runner():
+    return _load(RUNNER_PATH, "_true_energy_descent_runner_test")
 
 
 def test_accepted_steps_exclude_rejected_attempts():
@@ -126,3 +136,60 @@ def test_frozen_manifest_closes_exact_cohort():
     assert manifest["attempted_endpoint_count"] == 93
     assert len(manifest["cases"]) == 24
     assert sum(len(case["endpoints"]) for case in manifest["cases"]) == 82
+
+
+def test_existing_checkpoint_energy_reuses_zero_force_evaluations():
+    runner = _runner()
+
+    row = runner.reused_energy_row(
+        {
+            "horizon": 2,
+            "checkpoint_energy_eV": -10.5,
+            "checkpoint_delta_eV": -0.5,
+        }
+    )
+
+    assert row["step"] == 2
+    assert row["new_force_evaluations"] == 0
+    assert row["evidence_origin"] == "reused_first_passage"
+
+
+class _FakeCalculator:
+    def evaluate(self, _state):
+        return SimpleNamespace(energy=-10.5)
+
+
+def test_missing_energy_costs_one_true_pes_check():
+    runner = _runner()
+    state = State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.4, 0.0, 0.0]]),
+    )
+    calculator = EvalCounter(_FakeCalculator())
+
+    row = runner.evaluate_missing_energy(
+        state,
+        starter_energy=-10.0,
+        calculator=calculator,
+    )
+
+    assert row["checkpoint_energy_eV"] == pytest.approx(-10.5)
+    assert row["checkpoint_delta_eV"] == pytest.approx(-0.5)
+    assert row["new_force_evaluations"] == 1
+    assert row["purpose_counts"]["escape_true_pes_check"] == 1
+    assert row["purpose_counts"]["direction_oracle"] == 0
+    assert row["purpose_counts"]["biased_proposal_relax"] == 0
+    assert row["purpose_counts"]["unattributed"] == 0
+
+
+def test_source_validation_closes_manifest_before_runtime():
+    runner = _runner()
+
+    context = runner.validate_source_inputs()
+
+    assert len(context["cases_by_key"]) == 24
+    assert context["accepted_endpoint_count"] == 82
+    assert context["attempted_endpoint_count"] == 93
+    assert context["source_raw_sha256"] == context["manifest"][
+        "source_raw_evidence_sha256"
+    ]
