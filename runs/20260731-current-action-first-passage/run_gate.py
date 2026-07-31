@@ -81,6 +81,10 @@ def select_reachable_checkpoints(
     ]
 
 
+def notify_walk_step(observer, record: Mapping[str, Any]) -> str | None:
+    return None if observer is None else observer(dict(record))
+
+
 def partition_checkpoint_attempts(
     attempted_states: Sequence[Any],
     proposal_endpoint,
@@ -231,6 +235,7 @@ def _generate_action_path(
     action_runner,
     shooting_runner,
     base_runner,
+    walk_step_observer=None,
 ) -> dict[str, Any]:
     from pamssw.accounting import EvaluationPurpose
     from pamssw.archive import MinimaArchive
@@ -253,10 +258,14 @@ def _generate_action_path(
     class AnchorAuditWalker(SurfaceWalker):
         gate_anchor_sha256: str | None = None
         gate_direction_attempts: list[dict[str, Any]]
+        gate_starter_energy: float | None
+        gate_walk_step_trace: list[dict[str, Any]]
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.gate_direction_attempts = []
+            self.gate_starter_energy = None
+            self.gate_walk_step_trace = []
 
         def _initialize_walk_direction_context(self, current, *, trial_index):
             anchor, intents = super()._initialize_walk_direction_context(
@@ -299,6 +308,29 @@ def _generate_action_path(
                 }
             )
 
+        def _walk_early_stop_reason(
+            self,
+            *,
+            step_index,
+            walk_reference,
+            current,
+            true_energy,
+        ):
+            if self.gate_starter_energy is None:
+                raise RuntimeError("starter energy is unavailable")
+            record = {
+                "step": int(step_index) + 1,
+                "true_energy_eV": float(true_energy),
+                "true_delta_eV": (
+                    float(true_energy) - self.gate_starter_energy
+                ),
+                "cumulative_purpose_counts": (
+                    self.calculator.snapshot().as_dict()
+                ),
+            }
+            self.gate_walk_step_trace.append(record)
+            return notify_walk_step(walk_step_observer, record)
+
     walker = AnchorAuditWalker(
         calculator=calculator,
         config=config,
@@ -314,6 +346,7 @@ def _generate_action_path(
     with walker.calculator.purpose(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK):
         starter_evaluation = walker.calculator.evaluate(state)
     starter_energy = float(starter_evaluation.energy)
+    walker.gate_starter_energy = starter_energy
     starter_entry = archive.add(state, starter_energy, parent_id=None)
     proposal = walker._proposal_pool(
         state,
@@ -462,6 +495,7 @@ def _generate_action_path(
         "selected_checkpoints": selected,
         "direction_audit": direction_audit,
         "direction_trace": direction_rows,
+        "walk_step_trace": walker.gate_walk_step_trace,
         "effective_config": asdict(config),
     }
 

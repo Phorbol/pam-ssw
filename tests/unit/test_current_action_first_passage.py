@@ -256,6 +256,22 @@ def test_checkpoint_selection_includes_h8_only_when_reached() -> None:
     assert selected == [(1, "h1"), (2, "h2"), (4, "h4"), (8, "h8")]
 
 
+def test_walk_step_observer_is_optional_and_forwards_reason() -> None:
+    runner = _runner()
+    record = {"step": 1, "true_energy_eV": -11.0}
+
+    assert runner.notify_walk_step(None, record) is None
+    seen = []
+    reason = runner.notify_walk_step(
+        lambda row: seen.append(row) or "true_energy_descent",
+        record,
+    )
+
+    assert reason == "true_energy_descent"
+    assert seen == [record]
+    assert seen[0] is not record
+
+
 def test_first_relaxed_geometry_failure_is_an_invalid_h1_attempt() -> None:
     runner = _runner()
 
