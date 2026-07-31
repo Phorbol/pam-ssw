@@ -1,0 +1,73 @@
+{
+  "corpus_path": "runs/20260731-pdo-matcher-numerical-gate/strict_requench_corpus.json",
+  "corpus_sha256": "c04854175fb214b607684c69968016ee3b5534a9c85609b55b5bb970122845ec",
+  "endpoints": {
+    "landing": {
+      "certified": true,
+      "fallback": null,
+      "final_energy_eV": -572.0640869140625,
+      "final_max_force_eV_per_A": 0.009452318347936695,
+      "final_stage": "primary",
+      "primary": {
+        "final_max_force_eV_per_A": 0.009452318347936695,
+        "force_evaluations": 22,
+        "termination_reason": "converged",
+        "wall_time_s": 1.822428700979799
+      }
+    },
+    "starter": {
+      "certified": true,
+      "fallback": null,
+      "final_energy_eV": -572.3421630859375,
+      "final_max_force_eV_per_A": 0.00970258143909167,
+      "final_stage": "primary",
+      "primary": {
+        "final_max_force_eV_per_A": 0.00970258143909167,
+        "force_evaluations": 2,
+        "termination_reason": "converged",
+        "wall_time_s": 0.8533122999942861
+      }
+    }
+  },
+  "execution_summary_path": "runs/20260731-pdo-matcher-numerical-gate/certificate-rescue-output/summary.json",
+  "execution_summary_sha256": "bbb1f8769fe2fa63a4a4072e62894390a6cb291908947ebe7fbe1fd8ef812a10",
+  "fallback_count": 0,
+  "gate": {
+    "archive_same": false,
+    "classification": "escaped_certified_after_strict_requench",
+    "energy_same": false,
+    "indexed_geometry_same": true,
+    "offline_label": "ESCAPED_CERTIFIED",
+    "production_matcher_change_allowed": false,
+    "strict_certificate": true
+  },
+  "gpu_wall_time_s": 2.6762570010032505,
+  "new_force_evaluations": 24,
+  "offline_first_passage_closure": {
+    "all_five_ambiguities_resolved_as_escape": true,
+    "counterfactual": {
+      "action_support_gap_contexts": [],
+      "horizon_gate_contexts": [],
+      "label_counts": {
+        "ESCAPED_CERTIFIED": 31,
+        "INVALID_GEOMETRY": 8,
+        "RETURN_STARTER": 20
+      },
+      "numerical_matcher_gate_systems": []
+    },
+    "relabel_basis": {
+      "global_geometry_descriptor_collisions": 4,
+      "strict_requench_certified_splits": 1
+    }
+  },
+  "production_change_allowed": false,
+  "schema_version": 1,
+  "strict_pair": {
+    "descriptor_delta": 0.06588714736923591,
+    "descriptor_tol": 0.1,
+    "energy_delta_eV": 0.278076171875,
+    "energy_tol_eV": 0.001,
+    "indexed_mic_rmsd_A": 0.2311125552235569,
+    "rmsd_tol_A": 0.4
+  }
+}

@@ -37,6 +37,10 @@ runner = _load_module(
     RUN_ROOT / "run_certificate_rescue.py",
     "_pdo_matcher_certificate_runner_analysis",
 )
+matcher_analyzer = _load_module(
+    RUN_ROOT / "analyze.py",
+    "_pdo_matcher_closure_analysis",
+)
 
 
 def _state(payload: Mapping[str, Any]):
@@ -116,6 +120,31 @@ def analyze() -> dict[str, Any]:
         strict_indexed_mic_rmsd_A=rmsd,
         rmsd_tol_A=float(corpus["protocol"]["rmsd_tol_A"]),
     )
+    matcher_evidence_path = RUN_ROOT / "evidence.json"
+    matcher_evidence = json.loads(
+        matcher_evidence_path.read_text(encoding="utf-8")
+    )
+    raw_path = REPO_ROOT / matcher_evidence["raw_evidence_path"]
+    raw = json.loads(raw_path.read_text(encoding="utf-8"))
+    relabel_basis = {
+        "global_geometry_descriptor_collisions": sum(
+            row["mechanism"] == "descriptor_collision_geometry_split"
+            for row in matcher_evidence["pairs"]
+        ),
+        "strict_requench_certified_splits": int(
+            gate["offline_label"] == "ESCAPED_CERTIFIED"
+        ),
+    }
+    relabel_all = (
+        relabel_basis["global_geometry_descriptor_collisions"] == 4
+        and relabel_basis["strict_requench_certified_splits"] == 1
+    )
+    counterfactual_first_passage = (
+        matcher_analyzer._counterfactual_first_passage(
+            raw,
+            relabel=relabel_all,
+        )
+    )
     endpoint_rows: dict[str, Any] = {}
     for endpoint, record in by_endpoint.items():
         final = finals[endpoint]
@@ -174,6 +203,11 @@ def analyze() -> dict[str, Any]:
             "descriptor_tol": corpus["protocol"]["descriptor_tol"],
         },
         "gate": gate,
+        "offline_first_passage_closure": {
+            "all_five_ambiguities_resolved_as_escape": relabel_all,
+            "relabel_basis": relabel_basis,
+            "counterfactual": counterfactual_first_passage,
+        },
         "production_change_allowed": False,
     }
     evidence_path = RUN_ROOT / "certificate_rescue_evidence.json"
@@ -193,6 +227,21 @@ def analyze() -> dict[str, Any]:
             "- Final endpoint ΔE / MIC RMSD / descriptor Δ: "
             f"**{energy_delta:.6f} eV / {rmsd:.6f} Å / "
             f"{descriptor_delta:.6f}**."
+        ),
+        (
+            "- All five original PdO ambiguities resolved offline as escape: "
+            f"**{relabel_all}**."
+        ),
+        (
+            "- Closed first-passage labels (escape / return / invalid): "
+            f"**{counterfactual_first_passage['label_counts'].get('ESCAPED_CERTIFIED', 0)} / "
+            f"{counterfactual_first_passage['label_counts'].get('RETURN_STARTER', 0)} / "
+            f"{counterfactual_first_passage['label_counts'].get('INVALID_GEOMETRY', 0)}**."
+        ),
+        (
+            "- Remaining H8-return or action-support-gap contexts: "
+            f"**{len(counterfactual_first_passage['horizon_gate_contexts'])} / "
+            f"{len(counterfactual_first_passage['action_support_gap_contexts'])}**."
         ),
         "- Production matcher or optimizer change authorized: **False**.",
         "",
