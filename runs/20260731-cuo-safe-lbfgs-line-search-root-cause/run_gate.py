@@ -22,6 +22,7 @@ from pamssw.proposal_replay import (
     capture_proposal_task,
     replay_proposal_task_observed,
 )
+from pamssw.pbc import mic_displacement
 from pamssw.relax import Relaxer, _SAFE_LBFGS_ARMIJO_C1, _SAFE_LBFGS_MAX_LINE_TRIALS
 from pamssw.softening import LocalSofteningModel
 from pamssw.walker import SurfaceWalker
@@ -139,7 +140,12 @@ def _diagnose_safe_lbfgs_with_ls(
     initial_observation = records[0][1]
     final_observation = records[-1][1]
     last_bias = task.biases[-1]
-    endpoint_delta = final_flat - last_bias.center
+    endpoint_delta = mic_displacement(
+        result.state.positions,
+        last_bias.center.reshape(result.state.n_atoms, 3),
+        result.state.cell,
+        result.state.pbc,
+    ).reshape(-1)
     direction_progress = float(np.dot(endpoint_delta, last_bias.direction))
     orthogonal = endpoint_delta - direction_progress * last_bias.direction
     row = {
