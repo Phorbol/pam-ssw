@@ -62,6 +62,25 @@ def test_first_descent_is_strict_at_existing_tolerance():
     assert len(observer.rows) == 2
 
 
+def test_first_descent_uses_same_evaluation_starter_delta_when_available():
+    protocol = _protocol()
+    observer = protocol.FirstDescentObserver(
+        starter_energy_eV=-1000.0,
+        tolerance_eV=0.001,
+    )
+
+    reason = observer(
+        {
+            "step": 1,
+            "true_energy_eV": -10.0,
+            "true_delta_eV": -0.002,
+        }
+    )
+
+    assert reason == "true_energy_descent"
+    assert observer.trigger_step == 1
+
+
 def _prefix_row(step: int) -> dict[str, object]:
     return {
         "step": step,
@@ -154,6 +173,7 @@ def test_reused_quench_is_charged_to_action_but_not_executed_twice():
     executed = runner.compose_arm_cost(
         generation_counts=generation,
         quench_counts=quench,
+        generation_reused=True,
         quench_reused=True,
     )
     fresh = runner.compose_arm_cost(
@@ -162,7 +182,7 @@ def test_reused_quench_is_charged_to_action_but_not_executed_twice():
         quench_reused=False,
     )
 
-    assert executed["new_executed_force_evaluations"] == 24
+    assert executed["new_executed_force_evaluations"] == 0
     assert executed["complete_action_force_evaluations"] == 34
     assert executed["new_executed_purpose_counts"][
         "landing_true_quench"
@@ -201,3 +221,16 @@ def test_prefix_trace_joins_already_recorded_step_evidence():
             "state_sha256": "state-1",
         }
     ]
+
+
+def test_shadow_observer_latches_crossing_without_stopping_walk():
+    protocol = _protocol()
+    runner = _runner()
+    descent = protocol.FirstDescentObserver(
+        starter_energy_eV=-10.0,
+        tolerance_eV=0.001,
+    )
+    shadow = runner.shadow_observer(descent)
+
+    assert shadow({"step": 1, "true_energy_eV": -10.1}) is None
+    assert descent.trigger_step == 1

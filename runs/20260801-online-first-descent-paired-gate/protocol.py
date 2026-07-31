@@ -53,8 +53,16 @@ class FirstDescentObserver:
         self.rows.append(row)
         if self.trigger_step is not None:
             return None
-        boundary = float(self.starter_energy_eV) - float(self.tolerance_eV)
-        if float(row["true_energy_eV"]) < boundary:
+        if "true_delta_eV" in row:
+            crossed = float(row["true_delta_eV"]) < -float(
+                self.tolerance_eV
+            )
+        else:
+            boundary = float(self.starter_energy_eV) - float(
+                self.tolerance_eV
+            )
+            crossed = float(row["true_energy_eV"]) < boundary
+        if crossed:
             self.trigger_step = int(row["step"])
             return "true_energy_descent"
         return None

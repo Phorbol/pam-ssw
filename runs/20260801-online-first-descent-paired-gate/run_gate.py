@@ -107,19 +107,20 @@ def compose_arm_cost(
     *,
     generation_counts: Mapping[str, int],
     quench_counts: Mapping[str, int],
+    generation_reused: bool = False,
     quench_reused: bool,
 ) -> dict[str, Any]:
     complete_counts = _add_counts(generation_counts, quench_counts)
-    executed_counts = (
-        _add_counts(generation_counts)
-        if quench_reused
-        else dict(complete_counts)
+    executed_counts = _add_counts(
+        _zero_counts() if generation_reused else generation_counts,
+        _zero_counts() if quench_reused else quench_counts,
     )
     return {
         "new_executed_purpose_counts": executed_counts,
         "new_executed_force_evaluations": sum(executed_counts.values()),
         "complete_action_purpose_counts": complete_counts,
         "complete_action_force_evaluations": sum(complete_counts.values()),
+        "generation_reused": bool(generation_reused),
         "quench_reused": bool(quench_reused),
     }
 
@@ -149,6 +150,14 @@ def build_prefix_trace(
             }
         )
     return rows
+
+
+def shadow_observer(observer):
+    def observe(record):
+        observer(record)
+        return None
+
+    return observe
 
 
 def _case_key(row: Mapping[str, Any]) -> tuple[str, str, int, str]:
@@ -365,10 +374,13 @@ def _pair_record(
         / arm
     )
     reference_dir = pair_dir / "reference"
-    early_dir = pair_dir / "first_descent"
 
     if perf_counter() - started > max_wall_s:
         raise RuntimeError("G-E1 kernel wall budget exhausted")
+    descent = protocol.FirstDescentObserver(
+        starter_energy_eV=0.0,
+        tolerance_eV=0.001,
+    )
     reference, reference_config = _run_generation(
         case=case,
         arm_dir=reference_dir,
@@ -376,8 +388,21 @@ def _pair_record(
         provenance=provenance,
         runtime=runtime,
         remaining_budget=max_new_fe - total_new_fe,
+        observer=shadow_observer(descent),
     )
     total_new_fe += int(reference["generation_force_evaluations"])
+    if float(reference_config.dedup_energy_tol) != descent.tolerance_eV:
+        raise RuntimeError("G-E1 observer tolerance drifted from config")
+    reference_hashes = _checkpoint_state_hashes(
+        generation=reference,
+        case_dir=reference_dir,
+        starter_state=starter_state,
+        audit=runtime["audit"],
+    )
+    reference_trace = build_prefix_trace(
+        reference,
+        state_hashes=reference_hashes,
+    )
     reference_checkpoint = _terminal_checkpoint(
         generation=reference,
         case_dir=reference_dir,
@@ -396,96 +421,40 @@ def _pair_record(
     )
     total_new_fe += int(reference_quench["force_evaluations"])
 
-    observer = protocol.FirstDescentObserver(
-        starter_energy_eV=float(reference["starter_energy_eV"]),
-        tolerance_eV=float(reference_config.dedup_energy_tol),
-    )
-    early, early_config = _run_generation(
-        case=case,
-        arm_dir=early_dir,
-        starter_state=starter_state,
-        provenance=provenance,
-        runtime=runtime,
-        remaining_budget=max_new_fe - total_new_fe,
-        observer=observer,
-    )
-    total_new_fe += int(early["generation_force_evaluations"])
-    reference_hashes = _checkpoint_state_hashes(
-        generation=reference,
-        case_dir=reference_dir,
-        starter_state=starter_state,
-        audit=runtime["audit"],
-    )
-    early_hashes = _checkpoint_state_hashes(
-        generation=early,
-        case_dir=early_dir,
-        starter_state=starter_state,
-        audit=runtime["audit"],
-    )
-    reference_trace = build_prefix_trace(
-        reference,
-        state_hashes=reference_hashes,
-    )
-    early_trace = build_prefix_trace(early, state_hashes=early_hashes)
-    prefix = protocol.compare_prefix(reference_trace, early_trace)
-    for field, left, right in (
-        (
-            "starter_energy_eV",
-            reference["starter_energy_eV"],
-            early["starter_energy_eV"],
-        ),
-        ("anchor_sha256", reference["anchor_sha256"], early["anchor_sha256"]),
-    ):
-        if left != right:
-            prefix["mismatches"].append(
-                {
-                    "step": None,
-                    "field": field,
-                    "reference": left,
-                    "early": right,
-                }
-            )
-    prefix["prefix_valid"] = not prefix["mismatches"]
-
-    early_checkpoint = _terminal_checkpoint(
-        generation=early,
-        case_dir=early_dir,
-        starter_state=starter_state,
-        runtime=runtime,
-    )
-    no_trigger_same_terminal = bool(
-        observer.trigger_step is None
-        and reference["walk_termination_reason"]
-        == early["walk_termination_reason"]
-        and reference_hashes.get(int(reference["reached_macro_steps"]), provenance["state_sha256"])
-        == early_hashes.get(int(early["reached_macro_steps"]), provenance["state_sha256"])
-    )
-    if observer.trigger_step is None and not no_trigger_same_terminal:
-        prefix["prefix_valid"] = False
-        prefix["mismatches"].append(
-            {
-                "step": None,
-                "field": "untriggered_terminal",
-                "reference": reference["walk_termination_reason"],
-                "early": early["walk_termination_reason"],
-            }
+    trigger_step = descent.trigger_step
+    if trigger_step is None:
+        early_trace = list(reference_trace)
+        early_generation_counts = dict(
+            reference["generation_purpose_counts"]
         )
-    if not prefix["prefix_valid"]:
-        _write_json(pair_dir / "prefix_failure.json", prefix)
-        raise RuntimeError(f"G-E1 paired prefix drifted: {_case_key(case)}")
-
-    if no_trigger_same_terminal:
         early_quench = _reused_quench(reference_quench)
         early_quench_counts = dict(reference_quench["purpose_counts"])
         early_quench_reused = True
     else:
+        if trigger_step > int(reference["reached_macro_steps"]):
+            raise RuntimeError("G-E1 crossing exceeds accepted path")
+        early_trace = list(reference_trace[:trigger_step])
+        crossing_row = descent.rows[trigger_step - 1]
+        early_generation_counts = dict(
+            crossing_row["cumulative_purpose_counts"]
+        )
+        crossing_path = (
+            reference_dir
+            / "macro_checkpoints"
+            / f"step{trigger_step:03d}_checkpoint.xyz"
+        )
+        crossing_checkpoint = {
+            "horizon": trigger_step,
+            "checkpoint_path": str(crossing_path),
+            "checkpoint_sha256": _sha256(crossing_path),
+        }
         early_quench = _run_terminal_quench(
-            checkpoint=early_checkpoint,
-            generation=early,
+            checkpoint=crossing_checkpoint,
+            generation=reference,
             starter_state=starter_state,
-            config=early_config,
+            config=reference_config,
             system=system,
-            quench_dir=early_dir / "terminal_quench",
+            quench_dir=pair_dir / "first_descent_quench",
             remaining_budget=max_new_fe - total_new_fe,
             runtime=runtime,
         )
@@ -493,14 +462,33 @@ def _pair_record(
         early_quench_counts = dict(early_quench["purpose_counts"])
         early_quench_reused = False
 
+    prefix = protocol.compare_prefix(reference_trace, early_trace)
+    terminal_generation_counts = reference["generation_purpose_counts"]
+    for name, value in early_generation_counts.items():
+        if int(value) > int(terminal_generation_counts[name]):
+            prefix["mismatches"].append(
+                {
+                    "step": trigger_step,
+                    "field": f"cumulative_purpose_counts.{name}",
+                    "reference": terminal_generation_counts[name],
+                    "early": value,
+                }
+            )
+    prefix["prefix_valid"] = not prefix["mismatches"]
+    if not prefix["prefix_valid"]:
+        _write_json(pair_dir / "prefix_failure.json", prefix)
+        raise RuntimeError(f"G-E1 paired prefix drifted: {_case_key(case)}")
+
     reference_cost = compose_arm_cost(
         generation_counts=reference["generation_purpose_counts"],
         quench_counts=reference_quench["purpose_counts"],
+        generation_reused=False,
         quench_reused=False,
     )
     early_cost = compose_arm_cost(
-        generation_counts=early["generation_purpose_counts"],
+        generation_counts=early_generation_counts,
         quench_counts=early_quench_counts,
+        generation_reused=True,
         quench_reused=early_quench_reused,
     )
     relation, relation_metrics = _landing_relation(
@@ -525,14 +513,14 @@ def _pair_record(
         **case,
         "state_sha256": provenance["state_sha256"],
         "dedup_energy_tol_eV": tolerance,
-        "triggered": observer.trigger_step is not None,
-        "trigger_step": observer.trigger_step,
+        "triggered": trigger_step is not None,
+        "trigger_step": trigger_step,
         "prefix_valid": prefix["prefix_valid"],
         "prefix_comparison": prefix,
         "reference_trace": reference_trace,
         "early_trace": early_trace,
         "reference_generation": reference,
-        "early_generation": early,
+        "early_generation_purpose_counts": early_generation_counts,
         "reference_quench": reference_quench,
         "early_quench": early_quench,
         "reference_cost": reference_cost,
@@ -565,7 +553,7 @@ def _pair_record(
     _write_json(pair_dir / "pair.json", record)
     print(
         f"[G-E1] {system} {state_id} seed={seed} arm={arm} "
-        f"trigger={observer.trigger_step} prefix={record['prefix_valid']} "
+        f"trigger={trigger_step} prefix={record['prefix_valid']} "
         f"saving={record['complete_action_fe_saving']} "
         f"tradeoff={record['tradeoff_class']} "
         f"new_fe={record['new_executed_force_evaluations']}",
