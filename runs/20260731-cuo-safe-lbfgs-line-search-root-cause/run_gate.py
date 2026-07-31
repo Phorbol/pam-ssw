@@ -23,6 +23,7 @@ from pamssw.proposal_replay import (
     replay_proposal_task_observed,
 )
 from pamssw.relax import Relaxer, _SAFE_LBFGS_ARMIJO_C1, _SAFE_LBFGS_MAX_LINE_TRIALS
+from pamssw.softening import LocalSofteningModel
 from pamssw.walker import SurfaceWalker
 
 
@@ -71,13 +72,14 @@ def _sha256(path: Path) -> str:
     return sha256(path.read_bytes()).hexdigest()
 
 
-def _replay_row(*, depth: int, variant: str, task, calculator) -> dict:
-    if variant == "safe_lbfgs_with_ls":
+def _replay_row(*, depth: int, variant: str, task, calculator, calculator_dtype: str) -> dict:
+    if variant.startswith("safe_lbfgs") and task.softening is not None:
         return _diagnose_safe_lbfgs_with_ls(
             depth=depth,
             variant=variant,
             task=task,
             calculator=calculator,
+            calculator_dtype=calculator_dtype,
         )
     replay = replay_proposal_task_observed(
         task,
@@ -88,6 +90,7 @@ def _replay_row(*, depth: int, variant: str, task, calculator) -> dict:
     return {
         "bias_depth": depth,
         "variant": variant,
+        "calculator_dtype": calculator_dtype,
         "softening_terms": 0 if task.softening is None else len(task.softening.terms),
         "force_evaluations": replay.evaluation_counts.total,
         "wall_time_s": replay.wall_time_s,
@@ -108,7 +111,9 @@ def _replay_row(*, depth: int, variant: str, task, calculator) -> dict:
     }
 
 
-def _diagnose_safe_lbfgs_with_ls(*, depth: int, variant: str, task, calculator) -> dict:
+def _diagnose_safe_lbfgs_with_ls(
+    *, depth: int, variant: str, task, calculator, calculator_dtype: str
+) -> dict:
     counter = EvalCounter(calculator)
     proposal = _RecordingProposalPotential(
         counter,
@@ -140,6 +145,7 @@ def _diagnose_safe_lbfgs_with_ls(*, depth: int, variant: str, task, calculator) 
     row = {
         "bias_depth": depth,
         "variant": variant,
+        "calculator_dtype": calculator_dtype,
         "softening_terms": 0 if task.softening is None else len(task.softening.terms),
         "force_evaluations": counter.snapshot().total,
         "wall_time_s": wall_time_s,
@@ -229,6 +235,44 @@ def _diagnose_safe_lbfgs_with_ls(*, depth: int, variant: str, task, calculator) 
         "line_scan": line_scan,
     }
     return row
+
+
+def _without_softening_cutoff(task):
+    source = task.softening
+    if source is None:
+        raise ValueError("task has no local-softening model")
+    softening = LocalSofteningModel(
+        list(source.terms),
+        cell=source.cell,
+        pbc=source.pbc,
+        penalty=source.penalty,
+        xi=source.xi,
+        reference_scaled_xi=source.reference_scaled_xi,
+        cutoff=None,
+        adaptive_strength=source.adaptive_strength,
+        max_strength_scale=source.max_strength_scale,
+        deviation_scale=source.deviation_scale,
+    )
+    return replace(task, softening=softening)
+
+
+def _calculator(gate, resources, *, dtype: str):
+    if dtype == "float32":
+        return gate._calculator("cuo", resources)
+    if dtype != "float64":
+        raise ValueError("dtype must be float32 or float64")
+    from mace.calculators import MACECalculator
+
+    from pamssw.mace_batch import MACEBatchCalculator
+
+    source_gate = gate._load_source_gate()
+    prior = source_gate._load_prior_harness()
+    production = prior._load_production_runner()
+    settings = dict(production.CALCULATOR_CONFIG)
+    settings.update(default_dtype="float64", inference_precision="float64")
+    return MACEBatchCalculator(
+        MACECalculator(model_paths=str(resources["model"]), **settings)
+    )
 
 
 def run(output_directory: Path, depths: tuple[int, ...]) -> None:
@@ -332,17 +376,26 @@ def run(output_directory: Path, depths: tuple[int, ...]) -> None:
                 "capture_wall_time_s": perf_counter() - capture_started,
             }
         )
+        no_cutoff_task = _without_softening_cutoff(task)
         variants = (
-            ("safe_lbfgs_with_ls", task),
-            ("safe_lbfgs_without_ls", replace(task, softening=None)),
-            ("fire_with_ls", task),
+            ("safe_lbfgs_with_ls", task, "float32"),
+            ("safe_lbfgs_ls_no_cutoff", no_cutoff_task, "float32"),
+            ("safe_lbfgs_with_ls_float64", task, "float64"),
+            ("safe_lbfgs_ls_no_cutoff_float64", no_cutoff_task, "float64"),
+            ("safe_lbfgs_without_ls", replace(task, softening=None), "float32"),
+            ("fire_with_ls", task, "float32"),
         )
-        for variant, variant_task in variants:
+        for variant, variant_task, calculator_dtype in variants:
             row = _replay_row(
                 depth=depth,
                 variant=variant,
                 task=variant_task,
-                calculator=gate._calculator("cuo", resources),
+                calculator=_calculator(
+                    gate,
+                    resources,
+                    dtype=calculator_dtype,
+                ),
+                calculator_dtype=calculator_dtype,
             )
             evidence["replays"].append(row)
             _write_json(output_directory / "evidence.json", evidence)
