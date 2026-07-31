@@ -70,7 +70,7 @@
 - [x] Compute final energy, gain AUC, actions, archive coverage and component costs without scalarization.
 - [x] Apply the strict two-of-three S-CR1 rule.
 - [x] If the gate fails, record the mechanism and close Tasks 5-6 without code expansion.
-- [ ] Commit S-CR1 evidence independently.
+- [x] Commit S-CR1 evidence independently.
 
 ### Task 5: Conditional S-CR2 repeat gate
 
@@ -101,7 +101,7 @@
 **Files:**
 - Modify: `docs/research/2026-07-31-review-reconciled-roadmap.md`
 
-- [ ] Reconcile the selector result with the direction and uphill mechanism closures.
-- [ ] Run all focused selector, walker, exploration, accounting and evidence checks.
-- [ ] Run `git diff --check` and confirm only intended tracked changes.
-- [ ] Push `feature/direction-continuation-ablation` and update PR #14 with the claim ceiling.
+- [x] Reconcile the selector result with the direction and uphill mechanism closures.
+- [x] Run all focused selector, walker, exploration, accounting and evidence checks.
+- [x] Run `git diff --check` and confirm only intended tracked changes.
+- [x] Push `feature/direction-continuation-ablation` and update PR #14 with the claim ceiling.
