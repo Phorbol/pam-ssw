@@ -269,7 +269,9 @@ def _calculator(gate, resources, *, dtype: str):
     prior = source_gate._load_prior_harness()
     production = prior._load_production_runner()
     settings = dict(production.CALCULATOR_CONFIG)
-    settings.update(default_dtype="float64", inference_precision="float64")
+    # This MACE fork uses inference_precision only as an AMP-mode switch;
+    # default_dtype controls whether the loaded model and graph run in double.
+    settings.update(default_dtype="float64", inference_precision="float32")
     return MACEBatchCalculator(
         MACECalculator(model_paths=str(resources["model"]), **settings)
     )
