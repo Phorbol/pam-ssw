@@ -105,7 +105,9 @@ def _run_scope(
 
     stats = dict(result.stats)
     proposal_count = int(stats["proposal_relax_count"])
-    line_failures = int(stats["proposal_relax_termination_line_search_failed"])
+    line_failures = int(
+        stats.get("proposal_relax_termination_line_search_failed", 0)
+    )
     summary = {
         "schema_version": 1,
         "scope": scope,
