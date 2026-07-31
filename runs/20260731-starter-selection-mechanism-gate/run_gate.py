@@ -144,6 +144,14 @@ def _load_state(
     )
 
 
+def _state_facts(state: State) -> dict[str, Any]:
+    return {
+        "n_atoms": int(state.n_atoms),
+        "n_fixed_atoms": int(np.count_nonzero(state.fixed_mask)),
+        "pbc": [bool(value) for value in state.pbc],
+    }
+
+
 def build_config(
     system: str,
     case_directory: Path,
@@ -353,6 +361,7 @@ def _run_case(
         "system": system,
         "seed": seed,
         "starter_mode": starter_mode,
+        "state": _state_facts(state),
         "effective_config": asdict(config),
         "initial_energy_eV": initial_energy,
         "best_energy_eV": best_energy,

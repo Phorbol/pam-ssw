@@ -143,3 +143,8 @@ def test_cuo_state_uses_slab_pbc_and_frozen_lowest_35_percent(tmp_path):
         state.fixed_mask,
         np.array([True, True, True, True, False, False, False, False, False, False]),
     )
+    assert runner._state_facts(state) == {
+        "n_atoms": 10,
+        "n_fixed_atoms": 4,
+        "pbc": [True, True, False],
+    }
