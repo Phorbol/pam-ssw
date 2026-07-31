@@ -85,6 +85,12 @@ line-search-failure burden and FE/action to fall without degrading the achieved
 best energy under the same budget.  Only after that gate should `oracle` versus
 `none` be revisited as a direction-generation question.
 
+That gate subsequently passed at commit `84cacc7`: oracle-only completed 32
+versus 18 macro trials, reduced proposal FE from 17,153 to 15,173, reduced the
+line-search-failure rate from 97.37% to 56.02%, and reached a minimum 0.168 eV
+lower under the same 20,000-FE budget.  See
+`runs/20260731-cuo-oracle-scope-production-gate/stage-report.md`.
+
 ## Claim ceiling
 
 This gate identifies the CuO proposal-relaxation bottleneck and eliminates

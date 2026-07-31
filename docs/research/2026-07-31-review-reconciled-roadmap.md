@@ -41,6 +41,23 @@
 不能表述为 FE 或搜索质量提升。R2-S、R2-H、新物理 action、full-action B2 与
 posterior 均未满足准入条件；不得自动展开。
 
+- CuO 第三体系暴露出独立于 selector 的 proposal-relaxation 瓶颈：当前
+  `local_softening_scope=both` 将 38 项、参考点一阶力非零的指数排斥 LS 势持续
+  加入坐标传播。固定首个 proposal 上，float32 Safe-LBFGS 262 FE 后线搜索失败，
+  float64 跑满 300 步/781 FE 仍有 0.508 eV/A 最大力；只移除 proposal LS 后
+  59 FE 收敛到 0.0385 eV/A。硬 cutoff、双精度和 FIRE 均未解决底层 modified-PES
+  收敛问题（`runs/20260731-cuo-safe-lbfgs-line-search-root-cause/`）。
+- 随后的共享 bootstrap、Metropolis starter、每臂 20,000 FE CuO 门只将 scope
+  从 `both` 改为 `oracle`。oracle-only 将 proposal 失败率从 97.37% 降到
+  56.02%，proposal FE 从 17,153 降到 15,173，完整 macro trials 从 18 增至
+  32，最低能低 0.168 eV，且两臂 `unattributed=0`。结合已有 C60/PdO scope
+  固定起点中位结果，删除 proposal LS 晋级为显式生产候选；既有命名 C60 profile
+  因绑定旧 200-step provenance 不静默修改，全局 `LSSSWConfig` 默认也不改变
+  （`runs/20260731-cuo-oracle-scope-production-gate/`）。
+- 因而新的唯一上游问题是 `oracle` 对 `none`：在 proposal LS 已删除后，LS
+  Hessian 变换本身是否改善方向。回答前不开发新 pair 规则、strength schedule、
+  posterior、TS/UCB 或 quadratic propagator。
+
 ## 一、重新组织后的总判断
 
 当前首要科学问题不是 starter selector、TS 或 UCB 的形式，而是：

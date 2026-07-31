@@ -1,0 +1,52 @@
+{
+  "arms": {
+    "both": {
+      "archive_entries": 19,
+      "best_energy_eV": -201.67266845703125,
+      "completed_trials": 18,
+      "force_evaluations": 20000,
+      "proposal_converged": 0,
+      "proposal_force_evaluations": 17153,
+      "proposal_line_search_failure_rate": 0.9736842105263158,
+      "proposal_line_search_failures": 74,
+      "proposal_mean_iterations": 100.0,
+      "proposal_median_iterations": 73.5,
+      "proposal_p90_iterations": 230.0,
+      "proposal_relax_count": 76,
+      "proposal_rejected_line_trials": 9373,
+      "search_wall_time_s": 611.9744668430067,
+      "unattributed_force_evaluations": 0
+    },
+    "oracle": {
+      "archive_entries": 33,
+      "best_energy_eV": -201.84072875976562,
+      "completed_trials": 32,
+      "force_evaluations": 20000,
+      "proposal_converged": 73,
+      "proposal_force_evaluations": 15173,
+      "proposal_line_search_failure_rate": 0.5602409638554217,
+      "proposal_line_search_failures": 93,
+      "proposal_mean_iterations": 35.43975903614458,
+      "proposal_median_iterations": 30.5,
+      "proposal_p90_iterations": 80.0,
+      "proposal_relax_count": 166,
+      "proposal_rejected_line_trials": 8853,
+      "search_wall_time_s": 608.9898127730121,
+      "unattributed_force_evaluations": 0
+    }
+  },
+  "claim_ceiling": "one-seed CuO equal-20000-FE production gate plus prior C60/PdO fixed-starter scope evidence; no universal LS direction-quality claim",
+  "execution_commit": "84cacc78fe72ad34bddb4c2ff1f5413ba2d6f985",
+  "raw_evidence_sha256": "4394d6ec1e1b1c2a37c62fc59f0befa4995add080f0590c19628f47158099ffb",
+  "schema_version": 1,
+  "shared_bootstrap": {
+    "energy_eV": -198.67739868164062,
+    "force_evaluations": 104,
+    "gradient_norm_eV_per_A": 0.013031412554600814
+  },
+  "single_algorithmic_change": {
+    "from": "both",
+    "parameter": "local_softening_scope",
+    "to": "oracle"
+  }
+}
