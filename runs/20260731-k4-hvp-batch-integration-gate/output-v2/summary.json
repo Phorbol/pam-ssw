@@ -1,0 +1,107 @@
+{
+  "calculator": {
+    "default_dtype": "float32",
+    "device": "cuda",
+    "enable_cueq": false
+  },
+  "cuda_device": "NVIDIA GeForce RTX 3060",
+  "cuda_runtime": "12.8",
+  "evaluation_counts": {
+    "direction_oracle": 384,
+    "total": 384,
+    "unattributed": 0
+  },
+  "execution_commit": "99aa55a8ed2dd8ffd65c7d93be01d7d38bc7c7a2",
+  "gate": {
+    "minimum_speedup": 1.3,
+    "pair_count": 20,
+    "passed": true,
+    "strata": [
+      {
+        "closed_cost": true,
+        "comparisons": 5,
+        "context": "initial",
+        "maximum_curvature_abs_error": 0.0038652536176151386,
+        "maximum_score_abs_error": 0.0038652536176151386,
+        "median_speedup": 2.5897852201719265,
+        "minimum_direction_cosine": 1.0,
+        "passed": true,
+        "same_selected_kind": true,
+        "system": "c60"
+      },
+      {
+        "closed_cost": true,
+        "comparisons": 5,
+        "context": "momentum",
+        "maximum_curvature_abs_error": 0.003794094753672539,
+        "maximum_score_abs_error": 0.003794094753672539,
+        "median_speedup": 2.4429226410818727,
+        "minimum_direction_cosine": 1.0000000000000002,
+        "passed": true,
+        "same_selected_kind": true,
+        "system": "c60"
+      },
+      {
+        "closed_cost": true,
+        "comparisons": 5,
+        "context": "initial",
+        "maximum_curvature_abs_error": 0.0027924288702152467,
+        "maximum_score_abs_error": 0.0027924288702152467,
+        "median_speedup": 1.8694028473415816,
+        "minimum_direction_cosine": 1.0000000000000002,
+        "passed": true,
+        "same_selected_kind": true,
+        "system": "pdo"
+      },
+      {
+        "closed_cost": true,
+        "comparisons": 5,
+        "context": "momentum",
+        "maximum_curvature_abs_error": 0.0015940111150936076,
+        "maximum_score_abs_error": 0.0015940111150936076,
+        "median_speedup": 2.015566316681134,
+        "minimum_direction_cosine": 1.0000000000000002,
+        "passed": true,
+        "same_selected_kind": true,
+        "system": "pdo"
+      }
+    ]
+  },
+  "inputs": {
+    "c60": {
+      "path": "/mnt/d/download/trae-research-code/ssw/runs/20260428-c60-mace-production/prerelaxed_c60.xyz",
+      "sha256": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9"
+    },
+    "pdo": {
+      "path": "/mnt/d/download/trae-research-code/ssw/PdO.xyz",
+      "sha256": "68243ceb7c0fbb6ba7a9454d680287eb98c4e5210efbd9ebb63517ba79aaa8b0"
+    }
+  },
+  "mace": "0.3.14",
+  "model_path": "/root/.cache/mace/mace-omat-0-small.model",
+  "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+  "protocol": {
+    "candidate_count": 4,
+    "central_difference_epsilon_A": 0.001,
+    "contexts": [
+      "initial",
+      "momentum"
+    ],
+    "modes": [
+      "serial",
+      "batch"
+    ],
+    "physical_force_evaluations_per_choice": 8,
+    "repetitions": 5,
+    "systems": [
+      "c60",
+      "pdo"
+    ],
+    "warmup_comparisons_per_stratum": 1
+  },
+  "python": "3.12.12",
+  "row_count": 40,
+  "rows_path": "rows.json",
+  "schema_version": 1,
+  "torch": "2.8.0+cu128"
+}

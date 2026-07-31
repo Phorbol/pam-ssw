@@ -2442,6 +2442,15 @@ class SoftModeOracle:
         if not bool(
             getattr(proposal.calculator, "supports_batch_evaluation", False)
         ):
+            if epsilon is None:
+                return tuple(
+                    self._candidate_directional_hvps(
+                        state,
+                        proposal,
+                        direction,
+                    )
+                    for direction in directions
+                )
             return tuple(
                 self._candidate_directional_hvps(
                     state,

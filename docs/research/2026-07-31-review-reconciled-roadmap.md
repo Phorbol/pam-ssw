@@ -30,11 +30,16 @@
   batch 2/4/8 在 C60 分别加速 1.96/3.17/3.64 倍，在 PdO 加速
   1.70/2.75/2.96 倍；384 FE 账本闭合且 HVP 误差通过冻结容差
   （`runs/20260731-k4-hvp-batch-force-gate/`）。
+- 最小集成门已经完成：实际 `SoftModeOracle` 在 C60/PdO 的 initial 与 momentum
+  上下文中完成 20 组 serial/batch 配对，全部选择同一原子位移方向；C60 中位
+  加速 2.590/2.443 倍，PdO 为 1.869/2.016 倍。含预热共 384 FE，
+  `unattributed=0`（`runs/20260731-k4-hvp-batch-integration-gate/`，
+  `feature/direction-continuation-ablation@99aa55a`）。
 
-因此当前只开放一个工程上最小的后续：为固定 K4 HVP 添加显式
-`evaluate_many`/单 GPU owner 集成 gate，并证明 purpose ledger 与方向结果不变。
-它只能降低 wall time，不能表述为 FE 或搜索质量提升。R2-S、R2-H、新物理 action、
-full-action B2 与 posterior 均未满足准入条件；不得自动展开。
+这个工程后续已经关闭：显式 `MACEBatchCalculator` 只批量执行同一状态的八个
+中心差分构型，普通 `ASECalculator` 和生产默认值不变。它只能降低 wall time，
+不能表述为 FE 或搜索质量提升。R2-S、R2-H、新物理 action、full-action B2 与
+posterior 均未满足准入条件；不得自动展开。
 
 ## 一、重新组织后的总判断
 
