@@ -9,6 +9,7 @@ import sys
 REPO_ROOT = Path(__file__).resolve().parents[2]
 RUN_ROOT = REPO_ROOT / "runs" / "20260801-online-first-descent-paired-gate"
 PROTOCOL_PATH = RUN_ROOT / "protocol.py"
+RUNNER_PATH = RUN_ROOT / "run_gate.py"
 
 
 def _load(path: Path, name: str):
@@ -22,6 +23,10 @@ def _load(path: Path, name: str):
 
 def _protocol():
     return _load(PROTOCOL_PATH, "_online_first_descent_protocol_test")
+
+
+def _runner():
+    return _load(RUNNER_PATH, "_online_first_descent_runner_test")
 
 
 def test_case_matrix_is_fresh_twenty_four_pair_design():
@@ -135,3 +140,64 @@ def test_decision_requires_every_preregistered_mechanism_condition():
     broken[0]["early_complete_action_fe"] = 130
     broken[1]["early_complete_action_fe"] = 70
     assert protocol.build_decision(broken)["decision"] == "DO_NOT_ADMIT_G_E2"
+
+
+def test_reused_quench_is_charged_to_action_but_not_executed_twice():
+    runner = _runner()
+    generation = runner._zero_counts()
+    generation["direction_oracle"] = 4
+    generation["biased_proposal_relax"] = 20
+    quench = runner._zero_counts()
+    quench["escape_true_pes_check"] = 1
+    quench["landing_true_quench"] = 9
+
+    executed = runner.compose_arm_cost(
+        generation_counts=generation,
+        quench_counts=quench,
+        quench_reused=True,
+    )
+    fresh = runner.compose_arm_cost(
+        generation_counts=generation,
+        quench_counts=quench,
+        quench_reused=False,
+    )
+
+    assert executed["new_executed_force_evaluations"] == 24
+    assert executed["complete_action_force_evaluations"] == 34
+    assert executed["new_executed_purpose_counts"][
+        "landing_true_quench"
+    ] == 0
+    assert fresh["new_executed_force_evaluations"] == 34
+    assert fresh["complete_action_force_evaluations"] == 34
+
+
+def test_prefix_trace_joins_already_recorded_step_evidence():
+    runner = _runner()
+    generation = {
+        "direction_trace": [
+            {
+                "selected_direction_sha256": "direction-1",
+                "executed_step_scale": 0.2,
+                "uphill_final_bias_weight": 10.0,
+            }
+        ],
+        "walk_step_trace": [
+            {"step": 1, "true_energy_eV": -11.0}
+        ],
+    }
+
+    rows = runner.build_prefix_trace(
+        generation,
+        state_hashes={1: "state-1"},
+    )
+
+    assert rows == [
+        {
+            "step": 1,
+            "selected_direction_sha256": "direction-1",
+            "executed_step_scale": 0.2,
+            "uphill_final_bias_weight": 10.0,
+            "true_energy_eV": -11.0,
+            "state_sha256": "state-1",
+        }
+    ]
