@@ -2907,6 +2907,43 @@ def test_direction_archive_run_finalizes_productive_and_nonproductive_trials(
     assert record.final_energy == pytest.approx(expected_final_energy)
 
 
+def test_run_can_reuse_one_prequenched_initial_without_repeating_true_quench(
+    monkeypatch,
+):
+    raw = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    minimum = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    prequenched = RelaxResult(
+        minimum,
+        energy=-1.25,
+        gradient_norm=0.0,
+        n_iter=7,
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(max_trials=1),
+        softening_enabled=False,
+    )
+    monkeypatch.setattr(
+        walker,
+        "relax_true_minimum",
+        lambda *args, **kwargs: pytest.fail("shared bootstrap must not be repeated"),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_proposal_pool",
+        lambda *args, **kwargs: (_ for _ in ()).throw(BudgetExceeded("stop")),
+    )
+
+    result = walker.run(
+        minimum,
+        prequenched_initial=prequenched,
+    )
+
+    assert result.best_energy == pytest.approx(-1.25)
+    np.testing.assert_array_equal(result.best_state.positions, minimum.positions)
+    assert result.stats["force_evaluations"] == 0
+
+
 def test_direction_archive_run_does_not_mark_duplicate_after_new_best_as_global_improvement(monkeypatch):
     initial = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
     improved = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))

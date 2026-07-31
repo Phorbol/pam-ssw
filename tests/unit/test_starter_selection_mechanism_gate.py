@@ -148,3 +148,45 @@ def test_cuo_state_uses_slab_pbc_and_frozen_lowest_35_percent(tmp_path):
         "n_fixed_atoms": 4,
         "pbc": [True, True, False],
     }
+
+
+def test_gate_bootstraps_once_per_system_seed_and_reuses_it_for_all_modes(
+    tmp_path,
+    monkeypatch,
+):
+    runner = _load_runner()
+    shared = object()
+    bootstrap_calls = []
+    case_bootstraps = []
+
+    monkeypatch.setattr(
+        runner,
+        "_preflight",
+        lambda expected_commit, systems: {"execution_commit": expected_commit},
+    )
+
+    def fake_bootstrap_case(**kwargs):
+        bootstrap_calls.append((kwargs["system"], kwargs["seed"]))
+        return shared
+
+    def fake_run_case(**kwargs):
+        case_bootstraps.append(kwargs["shared_bootstrap"])
+        return {
+            "best_energy_eV": -1.0,
+            "force_evaluations": kwargs["force_budget"],
+        }
+
+    monkeypatch.setattr(runner, "_bootstrap_case", fake_bootstrap_case)
+    monkeypatch.setattr(runner, "_run_case", fake_run_case)
+
+    runner.run_gate(
+        output_directory=tmp_path / "output",
+        expected_commit="test-commit",
+        systems=("c60",),
+        seeds=(42,),
+        starter_modes=runner.STARTER_MODES,
+        force_budget=20_000,
+    )
+
+    assert bootstrap_calls == [("c60", 42)]
+    assert case_bootstraps == [shared, shared, shared]

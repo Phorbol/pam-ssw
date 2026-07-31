@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import argparse
-from dataclasses import asdict, replace
+from dataclasses import asdict, dataclass, replace
 from hashlib import sha256
 import importlib.util
 import json
@@ -19,8 +19,9 @@ from zipfile import ZipFile
 import numpy as np
 from ase.io import read
 
-from pamssw.accounting import EvaluationPurpose
+from pamssw.accounting import EvaluationCounts, EvaluationPurpose
 from pamssw.mace_batch import MACEBatchCalculator
+from pamssw.result import RelaxResult
 from pamssw.state import State
 from pamssw.walker import SurfaceWalker
 from pamssw.io import write_state
@@ -40,6 +41,13 @@ STARTER_MODES = ("uniform_archive", "archive_ucb", "metropolis_chain")
 MAX_TRIALS = 10_000
 DEFAULT_FORCE_BUDGET = 20_000
 _SOURCE_MODULE_NAME = "_starter_selection_source_gate"
+
+
+@dataclass(frozen=True)
+class SharedBootstrap:
+    result: RelaxResult
+    counts: EvaluationCounts
+    wall_time_s: float
 
 
 def _load_source_gate():
@@ -264,6 +272,10 @@ def _preflight(
                 "starter draws must not shift random, bond, or momentum direction draws"
             ),
         },
+        "bootstrap_protocol": (
+            "one true-PES quench per system/seed; exact minimum and energy reused "
+            "by every starter mode; identical bootstrap FE charged to each case"
+        ),
         "mechanism_frozen": (
             "direction generation, local softening, Gaussian-bias propagation, "
             "proposal relaxation, true-PES quench"
@@ -291,6 +303,60 @@ def _calculator(
         **production.CALCULATOR_CONFIG,
     )
     return MACEBatchCalculator(mace_calculator)
+
+
+def _bootstrap_case(
+    *,
+    system: str,
+    seed: int,
+    bootstrap_directory: Path,
+    force_budget: int,
+    cuo_resources: dict[str, Path] | None = None,
+) -> SharedBootstrap:
+    state = _load_state(system, cuo_resources)
+    config = build_config(
+        system,
+        bootstrap_directory,
+        seed=seed,
+        starter_mode="uniform_archive",
+        force_budget=force_budget,
+    )
+    walker = SurfaceWalker(
+        calculator=_calculator(system, cuo_resources),
+        config=config,
+        softening_enabled=True,
+    )
+    started = perf_counter()
+    result = walker.relax_true_minimum(
+        state,
+        trajectory_name="shared_initial_true_quench",
+        quench_purpose=EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH,
+    )
+    wall_time_s = perf_counter() - started
+    counts = walker.calculator.snapshot()
+    if counts.count(EvaluationPurpose.UNATTRIBUTED) != 0:
+        raise RuntimeError("shared bootstrap contains unattributed work")
+    if counts.total >= force_budget:
+        raise RuntimeError("shared bootstrap exhausted the full campaign budget")
+
+    bootstrap_directory.mkdir(parents=True, exist_ok=False)
+    write_state(bootstrap_directory / "minimum.xyz", result.state)
+    _write_json(
+        bootstrap_directory / "summary.json",
+        {
+            "schema_version": 1,
+            "system": system,
+            "seed": seed,
+            "state": _state_facts(result.state),
+            "energy_eV": float(result.energy),
+            "gradient_norm": float(result.gradient_norm),
+            "iterations": int(result.n_iter),
+            "force_evaluations": counts.total,
+            "purpose_counts": counts.as_dict(),
+            "wall_time_s": wall_time_s,
+        },
+    )
+    return SharedBootstrap(result=result, counts=counts, wall_time_s=wall_time_s)
 
 
 def _energy_trace(result) -> list[dict[str, Any]]:
@@ -328,15 +394,18 @@ def _run_case(
     starter_mode: str,
     case_directory: Path,
     force_budget: int,
+    shared_bootstrap: SharedBootstrap,
     cuo_resources: dict[str, Path] | None = None,
 ) -> dict[str, Any]:
-    state = _load_state(system, cuo_resources)
+    remaining_force_budget = force_budget - shared_bootstrap.counts.total
+    if remaining_force_budget <= 0:
+        raise RuntimeError("shared bootstrap leaves no action budget")
     config = build_config(
         system,
         case_directory,
         seed=seed,
         starter_mode=starter_mode,
-        force_budget=force_budget,
+        force_budget=remaining_force_budget,
     )
     walker = SurfaceWalker(
         calculator=_calculator(system, cuo_resources),
@@ -344,24 +413,43 @@ def _run_case(
         softening_enabled=True,
     )
     started = perf_counter()
-    result = walker.run(state)
-    wall_time_s = perf_counter() - started
-    counts = walker.calculator.snapshot()
-    if counts.total != int(result.stats["force_evaluations"]):
+    result = walker.run(
+        shared_bootstrap.result.state,
+        prequenched_initial=shared_bootstrap.result,
+    )
+    search_wall_time_s = perf_counter() - started
+    search_counts = walker.calculator.snapshot()
+    if search_counts.total != int(result.stats["force_evaluations"]):
         raise RuntimeError("force-evaluation ledger does not close")
+    counts = shared_bootstrap.counts + search_counts
     if counts.count(EvaluationPurpose.UNATTRIBUTED) != 0:
         raise RuntimeError("force-evaluation ledger contains unattributed work")
     if counts.total > force_budget:
         raise RuntimeError("case exceeded its force-evaluation budget")
 
-    initial_energy = float(result.archive.entries[0].energy)
+    initial_energy = float(shared_bootstrap.result.energy)
     best_energy = float(result.best_energy)
+    stats = dict(result.stats)
+    stats.update(
+        {
+            "force_evaluations": counts.total,
+            "energy_evaluations": counts.total,
+            "max_force_evals": force_budget,
+            "shared_bootstrap_force_evaluations": (
+                shared_bootstrap.counts.total
+            ),
+            "search_force_evaluations": search_counts.total,
+        }
+    )
     summary = {
         "schema_version": 1,
         "system": system,
         "seed": seed,
         "starter_mode": starter_mode,
-        "state": _state_facts(state),
+        "state": _state_facts(shared_bootstrap.result.state),
+        "campaign_force_budget": force_budget,
+        "shared_bootstrap_force_evaluations": shared_bootstrap.counts.total,
+        "search_force_evaluations": search_counts.total,
         "effective_config": asdict(config),
         "initial_energy_eV": initial_energy,
         "best_energy_eV": best_energy,
@@ -372,8 +460,10 @@ def _run_case(
         "archive_entries": len(result.archive.entries),
         "duplicate_rate": float(result.archive.duplicate_rate()),
         "budget_exhausted": bool(result.stats["budget_exhausted"]),
-        "wall_time_s": wall_time_s,
-        "stats": result.stats,
+        "shared_bootstrap_wall_time_s": shared_bootstrap.wall_time_s,
+        "search_wall_time_s": search_wall_time_s,
+        "wall_time_s": shared_bootstrap.wall_time_s + search_wall_time_s,
+        "stats": stats,
     }
     case_directory.mkdir(parents=True, exist_ok=False)
     write_state(case_directory / "best_minimum.xyz", result.best_state)
@@ -436,6 +526,18 @@ def run_gate(
     cases = []
     for system in systems:
         for seed in seeds:
+            shared_bootstrap = _bootstrap_case(
+                system=system,
+                seed=seed,
+                bootstrap_directory=(
+                    output_directory
+                    / system
+                    / f"seed-{seed:08d}"
+                    / "bootstrap"
+                ),
+                force_budget=force_budget,
+                cuo_resources=cuo_resources,
+            )
             for starter_mode in starter_modes:
                 relative = Path(system) / f"seed-{seed:08d}" / starter_mode
                 summary = _run_case(
@@ -444,6 +546,7 @@ def run_gate(
                     starter_mode=starter_mode,
                     case_directory=output_directory / relative,
                     force_budget=force_budget,
+                    shared_bootstrap=shared_bootstrap,
                     cuo_resources=cuo_resources,
                 )
                 cases.append(

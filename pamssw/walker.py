@@ -2976,6 +2976,7 @@ class SurfaceWalker:
         initial_quench_purpose: EvaluationPurpose = (
             EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH
         ),
+        prequenched_initial: RelaxResult | None = None,
     ):
         from .archive import MinimaArchive
 
@@ -2996,11 +2997,16 @@ class SurfaceWalker:
         self._reset_direction_archive_records()
         self._reset_direction_archive_output()
         self._prepare_structure_output_dirs()
-        initial = self.relax_true_minimum(
-            initial_state,
-            trajectory_name="initial_true_quench",
-            quench_purpose=initial_quench_purpose,
-        )
+        if prequenched_initial is None:
+            initial = self.relax_true_minimum(
+                initial_state,
+                trajectory_name="initial_true_quench",
+                quench_purpose=initial_quench_purpose,
+            )
+        else:
+            if not isinstance(prequenched_initial, RelaxResult):
+                raise TypeError("prequenched_initial must be a RelaxResult or None")
+            initial = prequenched_initial
         archive = MinimaArchive(
             energy_tol=self.config.dedup_energy_tol,
             rmsd_tol=self.config.dedup_rmsd_tol,

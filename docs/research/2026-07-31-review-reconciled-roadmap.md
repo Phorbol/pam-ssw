@@ -684,7 +684,8 @@ relax 和 true quench 成本可以相差数倍。
 
 - 54 原子 Cu(110)-Cu10O8 slab，46 Cu + 8 O；
 - 周期条件为 `(True, True, False)`；
-- 沿 z 坐标最低 35% 原子固定，沿用历史 CuO/PdO slab 约定；
+- 固定 mask 沿用历史 `z <= quantile(z, 0.35)` 规则；由于 CuO 晶层内 z 完全
+  简并，该阈值实际固定底部两层共 24/54 个 Cu 原子，而不是恰好 35%；
 - 使用包内 `CuO-OMAT_finetune.model`，而不是 C60/PdO 共用的通用 OMAT 模型。
 
 CuO starter gate 刻意继承冻结的 PdO 通用 slab action kernel，只替换结构和
@@ -701,3 +702,10 @@ calculator model，不做针对结果的超参数调整。它的判别语义是�
 3. 只有结果可解释，才扩展 C60/PdO/CuO seeds 43--44；
 4. 对仍可能依赖长 horizon 的组件，报告 best-energy-vs-FE 曲线，并将“20,000 FE
    未晋级”与“生产级长任务无效”严格区分。
+
+首次 CuO 执行发现 independent bootstrap 是新的配对混杂：相同 raw ARC 分别 true
+quench 到 -198.676666 与 -201.044769 eV，bootstrap 成本为 100 与 225 FE。2.368 eV
+的起点差异已经大于待比较的 selector 效应，因此该 CuO 输出整体不进入 selector
+结论。修正后的 runner 每个 system/seed 只执行一次 bootstrap，复用完全相同的 minimum
+坐标和能量，并把相同 bootstrap FE 计入每个 arm 的 20,000-FE 总预算。这个规则也将
+用于后续 C60/PdO paired-seed 扩展；不能再以“通常会收敛到同一 minima”为前提。
