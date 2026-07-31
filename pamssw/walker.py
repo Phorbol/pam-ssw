@@ -2580,6 +2580,7 @@ class SurfaceWalker:
         self.direction_type_memory = self._new_direction_type_memory()
         self._reset_direction_archive_records()
         self._reset_metropolis_stats()
+        self._paired_uniform_entry = None
 
     def _should_rebuild_softening_for_choice(
         self,
@@ -2991,6 +2992,7 @@ class SurfaceWalker:
         self._proposal_duplicate_rescue_successes = 0
         self._energy_sanity_rejections = 0
         self._reset_metropolis_stats()
+        self._paired_uniform_entry = None
         self._reset_accepted_structure_log()
         self._reset_direction_diagnostics()
         self.direction_type_memory = self._new_direction_type_memory()
@@ -3031,6 +3033,11 @@ class SurfaceWalker:
             damage_events_before = self._trust_damage_events
             if self.config.seed_selection_mode == "metropolis_chain":
                 seed_entry = self._select_metropolis_seed_entry(metropolis_entry)
+            elif self.config.seed_selection_mode == "paired_best_uniform":
+                seed_entry = self._select_paired_best_uniform_seed_entry(
+                    archive,
+                    trial_index=trial_index,
+                )
             elif self.config.seed_selection_mode == "uniform_archive":
                 seed_entry = self._select_uniform_seed_entry(archive)
             else:
@@ -3950,6 +3957,25 @@ class SurfaceWalker:
         entry = archive.entries[
             int(self.selection_rng.integers(len(archive.entries)))
         ]
+        entry.visits += 1
+        entry.node_trials += 1
+        self._record_seed_selection(entry)
+        return entry
+
+    def _select_paired_best_uniform_seed_entry(self, archive, trial_index: int):
+        if trial_index % 2 == 0:
+            entry = min(
+                archive.entries,
+                key=lambda item: (item.energy, item.entry_id),
+            )
+            self._paired_uniform_entry = archive.entries[
+                int(self.selection_rng.integers(len(archive.entries)))
+            ]
+        else:
+            entry = self._paired_uniform_entry
+            if entry is None:
+                raise RuntimeError("paired selector has no cached uniform starter")
+            self._paired_uniform_entry = None
         entry.visits += 1
         entry.node_trials += 1
         self._record_seed_selection(entry)

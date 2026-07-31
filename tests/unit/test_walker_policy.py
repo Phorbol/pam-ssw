@@ -5825,6 +5825,70 @@ def test_uniform_archive_seed_selection_samples_entries_without_bandit_selector(
     assert walker._same_seed_consecutive == 1
 
 
+def test_paired_best_uniform_uses_one_frozen_archive_snapshot_for_both_slots():
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=0.01)
+    best = archive.add(
+        State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]])),
+        -3.0,
+        None,
+    )
+    archive.add(
+        State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]])),
+        -2.0,
+        None,
+    )
+    cached_uniform = archive.add(
+        State(numbers=np.array([1]), positions=np.array([[2.0, 0.0, 0.0]])),
+        -1.0,
+        None,
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(seed_selection_mode="paired_best_uniform", rng_seed=0),
+        softening_enabled=False,
+    )
+
+    class SelectLast:
+        @staticmethod
+        def integers(upper):
+            return upper - 1
+
+    walker.selection_rng = SelectLast()
+
+    first = walker._select_paired_best_uniform_seed_entry(archive, trial_index=0)
+    new_best = archive.add(
+        State(numbers=np.array([1]), positions=np.array([[3.0, 0.0, 0.0]])),
+        -4.0,
+        None,
+    )
+    second = walker._select_paired_best_uniform_seed_entry(archive, trial_index=1)
+    third = walker._select_paired_best_uniform_seed_entry(archive, trial_index=2)
+
+    assert first.entry_id == best.entry_id
+    assert second.entry_id == cached_uniform.entry_id
+    assert third.entry_id == new_best.entry_id
+    assert best.node_trials == 1
+    assert cached_uniform.node_trials == 1
+    assert new_best.node_trials == 1
+
+
+def test_paired_best_uniform_rejects_out_of_order_slot_use():
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=0.01)
+    archive.add(
+        State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]])),
+        -2.0,
+        None,
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(seed_selection_mode="paired_best_uniform", rng_seed=0),
+        softening_enabled=False,
+    )
+
+    with pytest.raises(RuntimeError, match="cached uniform starter"):
+        walker._select_paired_best_uniform_seed_entry(archive, trial_index=1)
+
+
 def test_starter_selection_does_not_advance_physical_action_random_stream():
     archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=0.01)
     entry = archive.add(
@@ -5838,12 +5902,20 @@ def test_starter_selection_does_not_advance_physical_action_random_stream():
             config=SSWConfig(seed_selection_mode=mode, rng_seed=17),
             softening_enabled=False,
         )
-        for mode in ("uniform_archive", "archive_ucb", "metropolis_chain")
+        for mode in (
+            "uniform_archive",
+            "archive_ucb",
+            "metropolis_chain",
+            "paired_best_uniform",
+        )
     }
 
     walkers["uniform_archive"]._select_uniform_seed_entry(archive.clone())
     walkers["archive_ucb"]._select_seed_entry(archive.clone())
     walkers["metropolis_chain"]._select_metropolis_seed_entry(entry)
+    walkers["paired_best_uniform"]._select_paired_best_uniform_seed_entry(
+        archive.clone(), trial_index=0
+    )
 
     action_draws = {
         mode: walker.rng.normal(size=12)
@@ -5851,6 +5923,9 @@ def test_starter_selection_does_not_advance_physical_action_random_stream():
     }
     assert np.array_equal(action_draws["uniform_archive"], action_draws["archive_ucb"])
     assert np.array_equal(action_draws["uniform_archive"], action_draws["metropolis_chain"])
+    assert np.array_equal(
+        action_draws["uniform_archive"], action_draws["paired_best_uniform"]
+    )
 
 
 def test_surface_walker_reports_direction_acquisition_diagnostics():

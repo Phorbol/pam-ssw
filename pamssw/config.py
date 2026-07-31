@@ -284,10 +284,11 @@ class SSWConfig:
             "archive_ucb",
             "uniform_archive",
             "metropolis_chain",
+            "paired_best_uniform",
         }:
             raise ValueError(
                 "seed_selection_mode must be archive_ucb, uniform_archive, "
-                "or metropolis_chain"
+                "metropolis_chain, or paired_best_uniform"
             )
         if self.anchor_mixing_alpha is not None and not 0.0 <= self.anchor_mixing_alpha <= 1.0:
             raise ValueError("anchor_mixing_alpha must be between 0 and 1 when set")
