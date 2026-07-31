@@ -6461,6 +6461,56 @@ def test_walk_rebuilds_local_softening_for_each_micro_step():
     assert any(not np.allclose(build_positions[0], positions) for positions in build_positions[1:])
 
 
+def test_walk_early_stop_hook_stops_after_already_paid_true_energy_check():
+    observed = []
+
+    class StopAfterFirstWalker(SurfaceWalker):
+        def _walk_early_stop_reason(
+            self,
+            *,
+            step_index,
+            walk_reference,
+            current,
+            true_energy,
+        ):
+            observed.append(
+                {
+                    "step": int(step_index) + 1,
+                    "walk_reference": walk_reference,
+                    "current": current,
+                    "true_energy": float(true_energy),
+                }
+            )
+            return "unit_test_stop"
+
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[0.1, 0.0, 0.0]]),
+    )
+    walker = StopAfterFirstWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(
+            max_steps_per_walk=3,
+            oracle_candidates=1,
+            n_bond_pairs=0,
+            proposal_relax_steps=1,
+            proposal_fmax=100.0,
+            proposal_trust_radius=None,
+            walk_trust_radius=100.0,
+        ),
+        softening_enabled=True,
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    assert len(observed) == 1
+    assert observed[0]["step"] == 1
+    assert walker._walk_termination_last_reason == "unit_test_stop"
+    assert walker.calculator.snapshot().count(
+        EvaluationPurpose.ESCAPE_TRUE_PES_CHECK
+    ) == 2
+
+
 def test_ls_ssw_reset_local_softening_stats_resets_all_counters():
     state = State(
         numbers=np.array([6, 1]),

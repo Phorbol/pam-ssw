@@ -3382,6 +3382,16 @@ class SurfaceWalker:
             return True
         return bool((float(reference_energy) - float(energy)) > float(limit) * float(n_atoms))
 
+    def _walk_early_stop_reason(
+        self,
+        *,
+        step_index: int,
+        walk_reference: State,
+        current: State,
+        true_energy: float,
+    ) -> str | None:
+        return None
+
     def _walk_candidate_from_seed(
         self,
         seed_state: State,
@@ -3851,6 +3861,15 @@ class SurfaceWalker:
             current = current_candidate
             if clipped:
                 termination_reason = "walk_displacement_clipped"
+                break
+            early_stop_reason = self._walk_early_stop_reason(
+                step_index=step_index,
+                walk_reference=walk_reference,
+                current=current,
+                true_energy=true_energy_after,
+            )
+            if early_stop_reason is not None:
+                termination_reason = early_stop_reason
                 break
             pending_true_after_state = current_candidate
             pending_true_after = true_after
