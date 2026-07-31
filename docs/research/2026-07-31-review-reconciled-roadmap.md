@@ -709,3 +709,40 @@ quench 到 -198.676666 与 -201.044769 eV，bootstrap 成本为 100 与 225 FE�
 结论。修正后的 runner 每个 system/seed 只执行一次 bootstrap，复用完全相同的 minimum
 坐标和能量，并把相同 bootstrap FE 计入每个 arm 的 20,000-FE 总预算。这个规则也将
 用于后续 C60/PdO paired-seed 扩展；不能再以“通常会收敛到同一 minima”为前提。
+
+## 十六、CuO 修正门控后的优先级改变
+
+修正后的 CuO seed-42 三臂共享 -198.677673 eV bootstrap minimum 和相同 108 FE
+bootstrap 成本。20,000-FE 终点为：
+
+- uniform archive: -201.872681 eV；
+- current archive-UCB-like: -201.686523 eV；
+- Metropolis chain: -201.874359 eV。
+
+CuO 的 uniform 与 Metropolis 差 0.00168 eV，应判为并列；单运行下 UCB-like 落后
+0.186 eV，但 CuO float32 GPU 长 relaxation 从第一个 action 就会因微小数值扰动发生
+basin-level 分叉，故不能判为 selector 机制否决。结合 C60/PdO seed 42，只能支持：
+
+1. full-archive uniform 对 global-minimum objective 通常太分散；
+2. low-energy funnel continuation 是正信号；
+3. fixed-weight node-UCB-like 尚未证明优于经典 Metropolis；
+4. 不准入 TS、MACE-feature top-k/FPS 或 node-level posterior。
+
+CuO 同时改变了 Safe-LBFGS 支线的优先级。三臂有 83.3%--85.3% 的全部 FE 花在
+biased proposal relaxation；line-search rejected trials 占 line-search evaluations
+的 57.6%--61.7%，而 C60/PdO 只有约 1.8%--5.6%。77/78、88/93 和 83/89 个 CuO
+proposal relaxations 分别以 `line_search_failed` 终止。此前“backtracking 不是
+瓶颈”的结论只能保留为 C60/PdO 局部证据，不能跨体系推广。
+
+因此下一实际门控从“扩大 selector seeds”改为更底层的 CuO fixed-task line-search
+consistency probe。冻结 proposal state、全部 cumulative Gaussian、L-BFGS history
+与 search direction，沿同一方向计算 modified-PES 的 alpha scan，并比较 finite
+difference slope 与 `g dot p`：
+
+- 小 alpha 下不一致：先处理 calculator precision/energy-force consistency；
+- 存在下降区间但 Armijo 漏掉：只测试 acceptance/scaling；
+- 能量与力一致但强非二次：才允许 nonmonotone 或 analytic-bias-aware step model。
+
+在该门控前不实现 Exact-Bias Composite L-BFGS。完成后再用 shared bootstrap 扩展
+C60/PdO/CuO selector repeats；下一 selector 候选应先是具有全局非零支持的固定
+continuation/restart policy，而不是每个 archive node 一个 posterior arm。
