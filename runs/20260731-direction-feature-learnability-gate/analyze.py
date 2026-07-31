@@ -48,13 +48,17 @@ def run(first_path: Path, second_path: Path) -> dict[str, Any]:
                 "path": str(first_path),
                 "execution_commit": first["execution_commit"],
                 "case_count": first["case_count"],
-                "force_evaluations": first["force_evaluations"],
+                "force_evaluations": first[
+                    "total_force_evaluations"
+                ],
             },
             {
                 "path": str(second_path),
                 "execution_commit": second["execution_commit"],
                 "case_count": second["case_count"],
-                "force_evaluations": second["force_evaluations"],
+                "force_evaluations": second[
+                    "total_force_evaluations"
+                ],
             },
         ],
         "new_force_evaluations": 0,

@@ -12,12 +12,25 @@ PROTOCOL_PATH = (
     / "20260731-direction-feature-learnability-gate"
     / "protocol.py"
 )
+ANALYZE_PATH = PROTOCOL_PATH.with_name("analyze.py")
 
 
 def _load_protocol():
     spec = importlib.util.spec_from_file_location(
         "_direction_feature_learnability_protocol_test",
         PROTOCOL_PATH,
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _load_analyzer():
+    spec = importlib.util.spec_from_file_location(
+        "_direction_feature_learnability_analyzer_test",
+        ANALYZE_PATH,
     )
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
@@ -165,3 +178,30 @@ def test_posterior_gate_rejects_failure_in_either_held_out_system() -> None:
 
     passing["combined"]["by_system"]["pdo"]["top1_accuracy"] = 3 / 6
     assert protocol.posterior_stage_allowed(passing) is False
+
+
+def test_analyzer_reads_counterfactual_total_force_field(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    analyzer = _load_analyzer()
+    campaign = {
+        "case_count": 48,
+        "execution_commit": "abc",
+        "total_force_evaluations": 123,
+        "rows": [],
+    }
+    first = tmp_path / "first.json"
+    second = tmp_path / "second.json"
+    first.write_text(__import__("json").dumps(campaign))
+    second.write_text(__import__("json").dumps(campaign))
+    monkeypatch.setattr(
+        analyzer.protocol,
+        "summarize",
+        lambda left, right: {"posterior_stage_allowed": False},
+    )
+
+    result = analyzer.run(first, second)
+
+    assert result["source_campaigns"][0]["force_evaluations"] == 123
+    assert result["new_force_evaluations"] == 0
