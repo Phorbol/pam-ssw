@@ -103,14 +103,16 @@ def partition_checkpoint_attempts(
         )
     except RuntimeError:
         if (
-            termination_reason == "relaxed_geometry_invalid"
+            termination_reason
+            in {"relaxed_geometry_invalid", "explicit_geometry_invalid"}
             and len(attempted_states) == 1
         ):
             return [], [None], attempted_states[0]
         raise
     failed = None
     if (
-        termination_reason == "relaxed_geometry_invalid"
+        termination_reason
+        in {"relaxed_geometry_invalid", "explicit_geometry_invalid"}
         and len(attempted_states) > len(accepted)
     ):
         failed = attempted_states[len(accepted)]
@@ -250,6 +252,11 @@ def _generate_action_path(
 
     class AnchorAuditWalker(SurfaceWalker):
         gate_anchor_sha256: str | None = None
+        gate_direction_attempts: list[dict[str, Any]]
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.gate_direction_attempts = []
 
         def _initialize_walk_direction_context(self, current, *, trial_index):
             anchor, intents = super()._initialize_walk_direction_context(
@@ -262,6 +269,35 @@ def _generate_action_path(
             elif self.gate_anchor_sha256 != anchor_hash:
                 raise RuntimeError("one action regenerated a different anchor")
             return anchor, intents
+
+        def _record_direction_diagnostics(
+            self,
+            *,
+            trial_index,
+            proposal_index,
+            step_index,
+            choice,
+            anchor_direction,
+        ):
+            super()._record_direction_diagnostics(
+                trial_index=trial_index,
+                proposal_index=proposal_index,
+                step_index=step_index,
+                choice=choice,
+                anchor_direction=anchor_direction,
+            )
+            self.gate_direction_attempts.append(
+                {
+                    "step_index": int(step_index) + 1,
+                    "direction": np.asarray(
+                        choice.direction,
+                        dtype=float,
+                    ).copy(),
+                    "sigma": float(
+                        choice.diagnostics["executed_step_scale"]
+                    ),
+                }
+            )
 
     walker = AnchorAuditWalker(
         calculator=calculator,
@@ -289,10 +325,44 @@ def _generate_action_path(
     )[0]
     generation_wall_time = float(perf_counter() - started)
 
-    raw_paths = shooting_runner.discover_checkpoint_paths(trajectory_dir)
+    termination_reason = walker._walk_termination_last_reason
+    raw_paths = sorted(trajectory_dir.glob("*proposal_relax.xyz"))
     attempted_paths: list[Path] = []
     attempted_states = []
     source_records = []
+    if raw_paths:
+        raw_paths = shooting_runner.discover_checkpoint_paths(trajectory_dir)
+    elif termination_reason == "explicit_geometry_invalid":
+        if len(walker.gate_direction_attempts) != 1:
+            raise RuntimeError(
+                "explicit invalid path cannot be reconstructed uniquely"
+            )
+        from pamssw.coordinates import CartesianCoordinates, TangentVector
+
+        attempt = walker.gate_direction_attempts[0]
+        explicit_trial = CartesianCoordinates.from_state(proposal.state).displace(
+            TangentVector(attempt["direction"]),
+            attempt["sigma"],
+        )
+        explicit_path = (
+            case_dir
+            / "macro_checkpoints"
+            / "step001_checkpoint.xyz"
+        )
+        explicit_path.parent.mkdir(parents=True, exist_ok=True)
+        base_runner.write_state(explicit_path, explicit_trial)
+        attempted_paths.append(explicit_path)
+        attempted_states.append(explicit_trial)
+        source_records.append(
+            {
+                "raw_optimizer_checkpoint_path": None,
+                "raw_optimizer_checkpoint_sha256": None,
+                "walk_trust_radius_clipped": False,
+                "explicit_trial_reconstructed": True,
+            }
+        )
+    else:
+        raise ValueError("trajectory directory contains no checkpoints")
     for step_index, raw_path in enumerate(raw_paths, start=1):
         raw_state = shooting_runner._state_from_checkpoint(raw_path, state)
         effective_state, clipped = shooting_runner.effective_checkpoint_state(
@@ -318,7 +388,6 @@ def _generate_action_path(
                 "walk_trust_radius_clipped": bool(clipped),
             }
         )
-    termination_reason = walker._walk_termination_last_reason
     accepted_states, endpoint_errors, failed_attempt = (
         partition_checkpoint_attempts(
             attempted_states,

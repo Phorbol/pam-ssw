@@ -275,6 +275,24 @@ def test_first_relaxed_geometry_failure_is_an_invalid_h1_attempt() -> None:
     assert failed == "invalid-relaxation"
 
 
+def test_explicit_geometry_failure_without_optimizer_trace_is_invalid_h1() -> None:
+    runner = _runner()
+
+    def no_endpoint_match(_attempts, _endpoint, *, tolerance):
+        raise RuntimeError("proposal endpoint does not match")
+
+    accepted, errors, failed = runner.partition_checkpoint_attempts(
+        ["reconstructed-explicit-trial"],
+        "starter-endpoint",
+        termination_reason="explicit_geometry_invalid",
+        _prefix_resolver=no_endpoint_match,
+    )
+
+    assert accepted == []
+    assert errors == [None]
+    assert failed == "reconstructed-explicit-trial"
+
+
 def test_unmatched_endpoint_is_not_hidden_for_other_terminations() -> None:
     runner = _runner()
 
