@@ -160,7 +160,7 @@ def decide(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         row for row in rows if row["causal_outcome"] != "UNLEARNABLE"
     ]
     repeated = repeated_contexts(
-        learnable,
+        rows,
         outcome="RELAXED_ONLY_ESCAPE",
         required_seed_count=2,
         required_context_size=3,
@@ -252,4 +252,3 @@ def build_evidence(
         ),
         "pairs": list(rows),
     }
-

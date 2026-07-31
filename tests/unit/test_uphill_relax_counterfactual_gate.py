@@ -188,6 +188,20 @@ def test_repeated_relaxed_only_escape_retains_relaxation():
     ]
 
 
+def test_complete_context_keeps_unlearnable_third_seed_in_denominator():
+    protocol = _protocol()
+    rows = [
+        _decision_row(42, "RELAXED_ONLY_ESCAPE"),
+        _decision_row(43, "RELAXED_ONLY_ESCAPE"),
+        _decision_row(44, "UNLEARNABLE"),
+    ]
+
+    result = protocol.decide(rows)
+
+    assert result["decision"] == "RETAIN_RELAXATION_CAUSAL_SIGNAL"
+    assert result["repeated_relaxed_only_contexts"][0]["seeds"] == [42, 43]
+
+
 def test_exact_reproduction_is_the_only_redundancy_signal():
     protocol = _protocol()
     exact = [
