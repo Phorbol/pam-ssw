@@ -242,7 +242,7 @@ capacity and horizon questions.
 git diff --check
 ```
 
-- [ ] **Step 3: Push and update PR #14**
+- [x] **Step 3: Push and update PR #14**
 
 Publish the decision, raw evidence hash, exact FE breakdown, test result and
 claim ceiling. Do not present an unpromoted experimental wrapper as a user
