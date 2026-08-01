@@ -2,9 +2,20 @@ from __future__ import annotations
 
 from dataclasses import FrozenInstanceError
 
+import numpy as np
 import pytest
 
-from pamssw.result import ActionRecord, UphillStepRecord, UphillWalkTrace
+from pamssw import SSWConfig
+from pamssw.accounting import EvaluationPurpose
+from pamssw.calculators import AnalyticCalculator
+from pamssw.result import (
+    ActionRecord,
+    RelaxResult,
+    UphillStepRecord,
+    UphillWalkTrace,
+)
+from pamssw.state import State
+from pamssw.walker import DirectionCandidateKind, DirectionChoice, SurfaceWalker
 
 
 def _step(
@@ -123,3 +134,78 @@ def test_empty_walk_has_no_derived_height() -> None:
     assert trace.observed_terminal_height_eV is None
     assert trace.target_delivery_ratio is None
 
+
+class _Quadratic:
+    def energy_gradient(self, flat_positions, state):
+        gradient = np.asarray(flat_positions, dtype=float).copy()
+        return 0.5 * float(gradient @ gradient), gradient
+
+
+def test_walk_trace_reuses_existing_true_pes_checks_without_new_evaluations(
+    monkeypatch,
+) -> None:
+    class DeterministicWalker(SurfaceWalker):
+        def _relax_proposal_task(self, task, *, optimizer, trajectory_callback):
+            state = task.initial_state
+            return RelaxResult(
+                state=state,
+                energy=0.5 * float(state.flatten_positions() @ state.flatten_positions()),
+                gradient_norm=float(np.linalg.norm(state.flatten_positions())),
+                n_iter=0,
+            )
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    walker = DeterministicWalker(
+        calculator=AnalyticCalculator(_Quadratic()),
+        config=SSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            direction_curvature_source="inner",
+            proposal_relax_steps=1,
+            rng_seed=7,
+        ),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0])
+    monkeypatch.setattr(
+        walker.oracle.generator,
+        "generate_initial_direction",
+        lambda *args, **kwargs: direction,
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=direction,
+            curvature=-0.5,
+            true_curvature=-0.5,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+    monkeypatch.setattr(walker, "_build_softening", lambda *args, **kwargs: None)
+    before = walker.calculator.snapshot()
+    trace_sink = []
+
+    result = walker._walk_candidate_from_seed(
+        state,
+        step_target=0.8,
+        trace_sink=trace_sink,
+    )
+
+    after = walker.calculator.snapshot()
+    assert len(trace_sink) == 1
+    trace = trace_sink[0]
+    assert len(trace.steps) == 1
+    step = trace.steps[0]
+    assert step.step_index == 0
+    assert step.true_energy_before_eV == pytest.approx(0.5)
+    assert step.true_energy_after_eV == pytest.approx(
+        0.5 * float(result.flatten_positions() @ result.flatten_positions())
+    )
+    assert step.direction_oracle_force_evaluations == 0
+    assert step.biased_relax_force_evaluations == 0
+    assert step.true_pes_check_force_evaluations == 2
+    assert after.total - before.total == 2
+    assert after.count(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK) == 2
+    assert after.count(EvaluationPurpose.UNATTRIBUTED) == 0

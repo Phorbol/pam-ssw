@@ -36,7 +36,15 @@ from .relax import (
     has_force_convergence_certificate,
     relax_with_certificate_fallback,
 )
-from .result import RelaxOutcomeClass, RelaxResult, SearchResult, StatsValue, WalkRecord
+from .result import (
+    RelaxOutcomeClass,
+    RelaxResult,
+    SearchResult,
+    StatsValue,
+    UphillStepRecord,
+    UphillWalkTrace,
+    WalkRecord,
+)
 from .rigid import project_out_rigid_body_modes, rigid_body_overlap
 from .softening import LocalSofteningModel
 from .state import State
@@ -3411,6 +3419,8 @@ class SurfaceWalker:
         selected_direction_kinds: set[DirectionCandidateKind] | None = None,
         plateau_evolution_active: bool = False,
         initial_direction_choice: DirectionChoice | None = None,
+        *,
+        trace_sink: list[UphillWalkTrace] | None = None,
     ) -> State:
         current, frozen_softening = self._prepare_frozen_local_softening(
             seed_state
@@ -3432,8 +3442,13 @@ class SurfaceWalker:
             trial_index=trial_index,
         )
         termination_reason = "reached_step_cap"
+        trace_target = float(
+            self.config.target_uphill_energy if step_target is None else step_target
+        )
+        step_records: list[UphillStepRecord] = []
 
         for step_index in range(self.config.max_steps_per_walk):
+            step_counts_before = self.calculator.snapshot()
             softening = (
                 frozen_softening
                 if frozen_softening is not None
@@ -3866,21 +3881,73 @@ class SurfaceWalker:
             if np.linalg.norm(displacement) > 1e-8:
                 previous_direction = displacement / np.linalg.norm(displacement)
             current = current_candidate
+            early_stop_reason = None
             if clipped:
                 termination_reason = "walk_displacement_clipped"
-                break
-            early_stop_reason = self._walk_early_stop_reason(
-                step_index=step_index,
-                walk_reference=walk_reference,
-                current=current,
-                true_energy=true_energy_after,
+            else:
+                early_stop_reason = self._walk_early_stop_reason(
+                    step_index=step_index,
+                    walk_reference=walk_reference,
+                    current=current,
+                    true_energy=true_energy_after,
+                )
+                if early_stop_reason is not None:
+                    termination_reason = early_stop_reason
+            step_counts_after = self.calculator.snapshot()
+            step_termination_reason = (
+                termination_reason
+                if clipped or early_stop_reason is not None
+                else (
+                    "reached_step_cap"
+                    if step_index + 1 == self.config.max_steps_per_walk
+                    else "continued"
+                )
             )
-            if early_stop_reason is not None:
-                termination_reason = early_stop_reason
+            step_records.append(
+                UphillStepRecord(
+                    step_index=step_index,
+                    direction_kind=choice.kind.value,
+                    target_eV=trace_target,
+                    true_energy_before_eV=float(true_energy_before),
+                    true_energy_after_eV=float(true_energy_after),
+                    requested_sigma=float(requested_sigma),
+                    executed_sigma=float(sigma),
+                    base_bias_weight=float(base_weight),
+                    final_bias_weight=float(weight),
+                    true_curvature=float(true_curvature),
+                    inner_curvature=float(inner_curvature),
+                    proposal_relax_iterations=int(proposal_relax.n_iter),
+                    proposal_relax_outcome=proposal_relax.outcome_class.value,
+                    proposal_relax_termination=proposal_relax.telemetry.termination_reason,
+                    direction_oracle_force_evaluations=(
+                        step_counts_after.count(EvaluationPurpose.DIRECTION_ORACLE)
+                        - step_counts_before.count(EvaluationPurpose.DIRECTION_ORACLE)
+                    ),
+                    biased_relax_force_evaluations=(
+                        step_counts_after.count(EvaluationPurpose.BIASED_PROPOSAL_RELAX)
+                        - step_counts_before.count(EvaluationPurpose.BIASED_PROPOSAL_RELAX)
+                    ),
+                    true_pes_check_force_evaluations=(
+                        step_counts_after.count(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK)
+                        - step_counts_before.count(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK)
+                    ),
+                    displacement_clipped=bool(clipped),
+                    step_termination_reason=step_termination_reason,
+                )
+            )
+            if clipped or early_stop_reason is not None:
                 break
             pending_true_after_state = current_candidate
             pending_true_after = true_after
         self._record_walk_termination(termination_reason)
+        if trace_sink is not None:
+            trace_sink.append(
+                UphillWalkTrace(
+                    target_eV=trace_target,
+                    termination_reason=termination_reason,
+                    steps=tuple(step_records),
+                )
+            )
         return current
 
     def _initialize_walk_direction_context(
