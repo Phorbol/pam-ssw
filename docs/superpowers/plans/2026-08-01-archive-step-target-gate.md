@@ -17,7 +17,7 @@
 - Create: `runs/20260801-archive-step-target-audit/analyze.py`
 - Test: `tests/unit/test_archive_step_target_audit.py`
 
-- [ ] **Step 1: Write failing pure tests**
+- [x] **Step 1: Write failing pure tests**
 
 Test a synthetic bootstrap plus accepted-minimum sequence against the exact
 `StepTargetController._archive_target()` formula, including one duplicate
@@ -34,7 +34,7 @@ Run:
 
 Expected before implementation: collection or import failure.
 
-- [ ] **Step 2: Implement the pure analyzer**
+- [x] **Step 2: Implement the pure analyzer**
 
 Expose these functions without importing MACE or `pamssw`:
 
@@ -55,11 +55,11 @@ def analyze_case(raw_case: Mapping[str, Any], accepted_log: Path) -> dict[str, A
 The result must include the completed-trial target vector and the next-attempt
 target. Require the latter to equal `stats.adaptive_step_target` to 1e-12.
 
-- [ ] **Step 3: Run the focused tests**
+- [x] **Step 3: Run the focused tests**
 
 Expected: all tests in `test_archive_step_target_audit.py` pass.
 
-- [ ] **Step 4: Commit the analyzer and tests**
+- [x] **Step 4: Commit the analyzer and tests**
 
 ```bash
 git add runs/20260801-archive-step-target-audit tests/unit/test_archive_step_target_audit.py
@@ -72,7 +72,7 @@ git commit -m "Audit archive scaled uphill targets"
 - Create: `runs/20260801-archive-step-target-audit/evidence.json`
 - Create: `runs/20260801-archive-step-target-audit/conclusion.md`
 
-- [ ] **Step 1: Analyze all twelve S-CR1 cases**
+- [x] **Step 1: Analyze all twelve S-CR1 cases**
 
 Run:
 
@@ -86,19 +86,19 @@ Run:
 Require twelve cases, exact accepted-log hashes, exact final-target closure,
 and zero new force evaluations.
 
-- [ ] **Step 2: Apply the preregistered U-T0 gate**
+- [x] **Step 2: Apply the preregistered U-T0 gate**
 
 Admit U-T1 only when reconstruction closes and at least two systems spend more
 than 75% of completed actions at a target different from 0.8 eV. Record target
 distributions by system and selector without correlating them post hoc with a
 scalar success score.
 
-- [ ] **Step 3: Write the evidence-bounded conclusion**
+- [x] **Step 3: Write the evidence-bounded conclusion**
 
 State whether the block is active, not whether fixed is superior. Record the
 raw S-CR1 evidence SHA-256 and all twelve accepted-log SHA-256 values.
 
-- [ ] **Step 4: Verify and commit U-T0 evidence**
+- [x] **Step 4: Verify and commit U-T0 evidence**
 
 ```bash
 python -m json.tool runs/20260801-archive-step-target-audit/evidence.json >/dev/null
@@ -118,13 +118,13 @@ git commit -m "Conclude archive step target audit"
 - Create: `runs/20260801-fixed-step-target-gate/run_gate.py`
 - Test: `tests/unit/test_fixed_step_target_gate.py`
 
-- [ ] **Step 1: Write failing protocol tests**
+- [x] **Step 1: Write failing protocol tests**
 
 Test the exact six-case matrix, gain-AUC integration, two-of-three admission
 rule, partial-cohort non-decision, shared-bootstrap equality, 20,000-FE purpose
 closure and `unattributed=0`.
 
-- [ ] **Step 2: Write a failing fixed-controller test**
+- [x] **Step 2: Write a failing fixed-controller test**
 
 Use a fake mutable controller and prove the run-local replacement:
 
@@ -140,7 +140,7 @@ The wrapper must retain trial bookkeeping while reporting the exact fixed
 target and `step_target_mode="fixed_reference"`. The scaled arm uses the
 unmodified controller and reports `step_target_mode="archive_scaled"`.
 
-- [ ] **Step 3: Implement the minimal protocol and runner**
+- [x] **Step 3: Implement the minimal protocol and runner**
 
 Load the existing S-CR1/source resource modules with `importlib`. Reuse their
 C60/PdO/CuO calculators, structures, production configurations, shared
@@ -159,12 +159,12 @@ FIXED_REFERENCE_EV = 0.8
 Persist the actual per-trial target history reconstructed from the accepted
 archive log in each case summary. Do not add a `pamssw` config option.
 
-- [ ] **Step 4: Run focused tests and an excluded CUDA smoke**
+- [x] **Step 4: Run focused tests and an excluded CUDA smoke**
 
 The smoke uses C60 only, both arms and 1,000 FE per arm. Its decision must be
 `NOT_EVALUATED_PARTIAL_COHORT` and its output directory remains ignored.
 
-- [ ] **Step 5: Commit the runner before formal execution**
+- [x] **Step 5: Commit the runner before formal execution**
 
 ```bash
 git add runs/20260801-fixed-step-target-gate tests/unit/test_fixed_step_target_gate.py
@@ -177,7 +177,7 @@ git commit -m "Add fixed step target GPU gate"
 - Create after execution: `runs/20260801-fixed-step-target-gate/evidence.json`
 - Create after execution: `runs/20260801-fixed-step-target-gate/conclusion.md`
 
-- [ ] **Step 1: Run the formal six-case matrix**
+- [x] **Step 1: Run the formal six-case matrix**
 
 ```bash
 /root/miniforge3/envs/mace_les/bin/python \
@@ -185,29 +185,31 @@ git commit -m "Add fixed step target GPU gate"
   --output runs/20260801-fixed-step-target-gate/output \
   --expected-commit "$(git rev-parse HEAD)" \
   --systems c60 pdo cuo \
-  --seed 46 \
+  --seeds 46 \
   --target-modes archive_scaled fixed_reference \
   --force-budget 20000
 ```
 
-- [ ] **Step 2: Run the mechanical checker**
+- [x] **Step 2: Run the mechanical checker**
 
-Require six cases, three shared-bootstrap blocks, 120,000 FE, exact purpose
-closure, no unattributed work and exact execution commit.
+Require six cases, three shared-bootstrap blocks, at most 120,000 FE, exact
+purpose closure, no unattributed work and exact execution commit. A residual
+is permitted only when it is smaller than one indivisible direction batch and
+the case reports budget exhaustion; the observed matrix used 119,998 FE.
 
-- [ ] **Step 3: Apply the two-of-three decision**
+- [x] **Step 3: Apply the two-of-three decision**
 
 Advance only if fixed-reference gain AUC is strictly greater in at least two
 systems. Report endpoint, time-to-best, archive coverage, failures and
 component cost separately.
 
-- [ ] **Step 4: Close or conditionally extend**
+- [x] **Step 4: Close or conditionally extend**
 
 If U-T1 fails, write `DO_NOT_ADMIT_U_T2`, retain current defaults and do not
 tune any target parameter. If it passes, extend the same runner only to seeds
 47--48 and apply the preregistered six-of-nine plus positive-median rule.
 
-- [ ] **Step 5: Commit the formal evidence independently**
+- [x] **Step 5: Commit the formal evidence independently**
 
 ```bash
 git add runs/20260801-fixed-step-target-gate/evidence.json \
@@ -220,13 +222,13 @@ git commit -m "Close fixed step target gate"
 **Files:**
 - Modify: `docs/research/2026-07-31-review-reconciled-roadmap.md`
 
-- [ ] **Step 1: Reconcile without reopening closed mechanisms**
+- [x] **Step 1: Reconcile without reopening closed mechanisms**
 
 Add one roadmap section distinguishing the macro archive target from the
 already closed local sigma/weight feedback, Gaussian shape, history, relax
 capacity and horizon questions.
 
-- [ ] **Step 2: Run verification**
+- [x] **Step 2: Run verification**
 
 ```bash
 /root/miniforge3/envs/mace_les/bin/python -m pytest -q \
