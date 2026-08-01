@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from pamssw import SSWConfig
-from pamssw.accounting import EvaluationPurpose
+from pamssw.accounting import BudgetExceeded, EvaluationPurpose
 from pamssw.calculators import AnalyticCalculator
 from pamssw.result import (
     ActionRecord,
@@ -15,7 +15,12 @@ from pamssw.result import (
     UphillWalkTrace,
 )
 from pamssw.state import State
-from pamssw.walker import DirectionCandidateKind, DirectionChoice, SurfaceWalker
+from pamssw.walker import (
+    CandidateProposal,
+    DirectionCandidateKind,
+    DirectionChoice,
+    SurfaceWalker,
+)
 
 
 def _step(
@@ -209,3 +214,110 @@ def test_walk_trace_reuses_existing_true_pes_checks_without_new_evaluations(
     assert after.total - before.total == 2
     assert after.count(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK) == 2
     assert after.count(EvaluationPurpose.UNATTRIBUTED) == 0
+
+
+def _search_states() -> tuple[State, State]:
+    initial = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+    )
+    proposal = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.4, 0.0, 0.0]]),
+    )
+    return initial, proposal
+
+
+def _run_one_traced_action(monkeypatch, *, outcome: str):
+    initial, proposal_state = _search_states()
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(_Quadratic()),
+        config=SSWConfig(
+            max_trials=1,
+            max_steps_per_walk=1,
+            proposal_pool_size=1,
+            quench_fmax=0.05,
+        ),
+        softening_enabled=False,
+    )
+    trace = _walk()
+    monkeypatch.setattr(
+        walker,
+        "_proposal_pool",
+        lambda *args, **kwargs: [
+            CandidateProposal("test", proposal_state, walk_trace=trace)
+        ],
+    )
+    if outcome == "fragment":
+        monkeypatch.setattr(walker, "_is_fragmented_cluster", lambda *args: True)
+
+    def fake_landing(state, trajectory_name=None, *, quench_purpose=None):
+        with walker.calculator.purpose(EvaluationPurpose.LANDING_TRUE_QUENCH):
+            walker.calculator.evaluate(state)
+        if outcome == "budget_exhausted":
+            raise BudgetExceeded("synthetic landing stop")
+        if outcome == "duplicate":
+            return RelaxResult(initial, energy=-10.0, gradient_norm=0.08, n_iter=3)
+        return RelaxResult(proposal_state, energy=-10.2, gradient_norm=0.04, n_iter=4)
+
+    monkeypatch.setattr(walker, "relax_true_minimum", fake_landing)
+    prequenched = RelaxResult(initial, energy=-10.0, gradient_norm=0.0, n_iter=2)
+    return walker.run(initial, prequenched_initial=prequenched)
+
+
+def test_search_action_history_joins_new_global_minimum_and_landing_cost(
+    monkeypatch,
+) -> None:
+    result = _run_one_traced_action(monkeypatch, outcome="accepted")
+
+    assert len(result.action_history) == 1
+    action = result.action_history[0]
+    assert (action.trial_index, action.proposal_index, action.seed_entry_id) == (0, 0, 0)
+    assert action.walk is _walk() or action.walk == _walk()
+    assert action.escape_energy_eV == pytest.approx(-9.2)
+    assert action.landing_energy_eV == pytest.approx(-10.2)
+    assert action.landing_gradient_norm == pytest.approx(0.04)
+    assert action.landing_iterations == 4
+    assert action.landing_converged is True
+    assert action.landing_force_evaluations == 1
+    assert action.accepted_new_basin is True
+    assert action.is_duplicate is False
+    assert action.global_improved is True
+    assert action.status == "accepted"
+
+
+def test_search_action_history_records_duplicate_landing(monkeypatch) -> None:
+    result = _run_one_traced_action(monkeypatch, outcome="duplicate")
+
+    action = result.action_history[0]
+    assert action.accepted_new_basin is False
+    assert action.is_duplicate is True
+    assert action.global_improved is False
+    assert action.status == "duplicate"
+    assert action.landing_force_evaluations == 1
+
+
+def test_search_action_history_records_fragment_rejection(monkeypatch) -> None:
+    result = _run_one_traced_action(monkeypatch, outcome="fragment")
+
+    action = result.action_history[0]
+    assert action.accepted_new_basin is False
+    assert action.is_duplicate is None
+    assert action.global_improved is False
+    assert action.status == "fragment_rejected"
+    assert action.landing_force_evaluations == 1
+
+
+def test_search_action_history_records_landing_budget_exhaustion(monkeypatch) -> None:
+    result = _run_one_traced_action(monkeypatch, outcome="budget_exhausted")
+
+    action = result.action_history[0]
+    assert action.landing_energy_eV is None
+    assert action.landing_iterations is None
+    assert action.landing_converged is None
+    assert action.landing_force_evaluations == 1
+    assert action.accepted_new_basin is None
+    assert action.is_duplicate is None
+    assert action.global_improved is None
+    assert action.status == "landing_budget_exhausted"
+    assert result.stats["budget_exhausted"] == 1

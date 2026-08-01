@@ -37,6 +37,7 @@ from .relax import (
     relax_with_certificate_fallback,
 )
 from .result import (
+    ActionRecord,
     RelaxOutcomeClass,
     RelaxResult,
     SearchResult,
@@ -1307,6 +1308,7 @@ class CandidateProposal:
     state: State
     allow_duplicate_rescue: bool = True
     selected_direction_kinds: frozenset[DirectionCandidateKind] = field(default_factory=frozenset)
+    walk_trace: UphillWalkTrace | None = None
 
 
 class SoftModeOracle:
@@ -3025,6 +3027,7 @@ class SurfaceWalker:
         best_entry = archive.add(initial.state, initial.energy, parent_id=None)
         metropolis_entry = best_entry
         walk_history: list[WalkRecord] = []
+        action_history: list[ActionRecord] = []
         local_relaxations = 1
 
         completed_trials = 0
@@ -3083,6 +3086,9 @@ class SurfaceWalker:
             proposal_index = 0
             while proposal_index < len(proposals):
                 proposal = proposals[proposal_index]
+                landing_counts_before = self.calculator.snapshot().count(
+                    EvaluationPurpose.LANDING_TRUE_QUENCH
+                )
                 try:
                     candidate = self.relax_true_minimum(
                         proposal.state,
@@ -3091,9 +3097,37 @@ class SurfaceWalker:
                         ),
                     )
                 except BudgetExceeded:
+                    landing_force_evaluations = (
+                        self.calculator.snapshot().count(
+                            EvaluationPurpose.LANDING_TRUE_QUENCH
+                        )
+                        - landing_counts_before
+                    )
+                    action_history.append(
+                        self._build_action_record(
+                            trial_index=trial_index,
+                            proposal_index=proposal_index,
+                            seed_entry_id=seed_entry.entry_id,
+                            seed_energy=seed_entry.energy,
+                            proposal=proposal,
+                            step_target=step_target,
+                            candidate=None,
+                            landing_force_evaluations=landing_force_evaluations,
+                            accepted_new_basin=None,
+                            is_duplicate=None,
+                            global_improved=None,
+                            status="landing_budget_exhausted",
+                        )
+                    )
                     budget_exhausted = True
                     self._discard_direction_archive_trial(trial_index)
                     break
+                landing_force_evaluations = (
+                    self.calculator.snapshot().count(
+                        EvaluationPurpose.LANDING_TRUE_QUENCH
+                    )
+                    - landing_counts_before
+                )
                 local_relaxations += 1
                 if self._is_fragmented_cluster(seed_entry.state, candidate.state):
                     self._write_proposal_minimum(
@@ -3112,6 +3146,22 @@ class SurfaceWalker:
                         accepted_new_basin=False,
                         global_improved=False,
                         final_energy=candidate.energy,
+                    )
+                    action_history.append(
+                        self._build_action_record(
+                            trial_index=trial_index,
+                            proposal_index=proposal_index,
+                            seed_entry_id=seed_entry.entry_id,
+                            seed_energy=seed_entry.energy,
+                            proposal=proposal,
+                            step_target=step_target,
+                            candidate=candidate,
+                            landing_force_evaluations=landing_force_evaluations,
+                            accepted_new_basin=False,
+                            is_duplicate=None,
+                            global_improved=False,
+                            status="fragment_rejected",
+                        )
                     )
                     proposal_index += 1
                     continue
@@ -3132,6 +3182,22 @@ class SurfaceWalker:
                         accepted_new_basin=False,
                         global_improved=False,
                         final_energy=candidate.energy,
+                    )
+                    action_history.append(
+                        self._build_action_record(
+                            trial_index=trial_index,
+                            proposal_index=proposal_index,
+                            seed_entry_id=seed_entry.entry_id,
+                            seed_energy=seed_entry.energy,
+                            proposal=proposal,
+                            step_target=step_target,
+                            candidate=candidate,
+                            landing_force_evaluations=landing_force_evaluations,
+                            accepted_new_basin=False,
+                            is_duplicate=None,
+                            global_improved=False,
+                            status="energy_sanity_rejected",
+                        )
                     )
                     proposal_index += 1
                     continue
@@ -3173,6 +3239,22 @@ class SurfaceWalker:
                 reward = self.proposal_scorer.score(outcome)
                 rank_key = self.proposal_scorer.rank_key(outcome)
                 proposal_global_improved = discovered.energy < best_entry.energy - 1e-12
+                action_history.append(
+                    self._build_action_record(
+                        trial_index=trial_index,
+                        proposal_index=proposal_index,
+                        seed_entry_id=seed_entry.entry_id,
+                        seed_energy=seed_entry.energy,
+                        proposal=proposal,
+                        step_target=step_target,
+                        candidate=candidate,
+                        landing_force_evaluations=landing_force_evaluations,
+                        accepted_new_basin=is_new,
+                        is_duplicate=is_duplicate,
+                        global_improved=proposal_global_improved,
+                        status="accepted" if is_new else "duplicate",
+                    )
+                )
                 self._finalize_direction_archive_trial(
                     trial_index,
                     proposal_index=proposal_index,
@@ -3204,6 +3286,7 @@ class SurfaceWalker:
                 ):
                     self._proposal_duplicate_rescue_attempts += 1
                     rescue_direction_kinds: set[DirectionCandidateKind] = set()
+                    rescue_trace_sink: list[UphillWalkTrace] = []
                     try:
                         rescue_state = self._walk_candidate_from_seed(
                             seed_entry.state,
@@ -3215,6 +3298,7 @@ class SurfaceWalker:
                             proposal_optimizer_override=self.config.proposal_duplicate_rescue_optimizer,
                             selected_direction_kinds=rescue_direction_kinds,
                             plateau_evolution_active=plateau_evolution_active,
+                            trace_sink=rescue_trace_sink,
                         )
                     except BudgetExceeded:
                         budget_exhausted = True
@@ -3227,6 +3311,9 @@ class SurfaceWalker:
                             rescue_state,
                             allow_duplicate_rescue=False,
                             selected_direction_kinds=frozenset(rescue_direction_kinds),
+                            walk_trace=(
+                                rescue_trace_sink[0] if rescue_trace_sink else None
+                            ),
                         )
                     )
                 if proposal.label == "duplicate_rescue" and is_new:
@@ -3305,6 +3392,7 @@ class SurfaceWalker:
             best_energy=best_entry.energy,
             archive=archive,
             walk_history=walk_history,
+            action_history=action_history,
             stats={
                 "n_trials": completed_trials,
                 "configured_max_trials": self.config.max_trials,
@@ -3366,6 +3454,7 @@ class SurfaceWalker:
         proposals: list[CandidateProposal] = []
         for proposal_index in range(self.config.proposal_pool_size):
             selected_direction_kinds: set[DirectionCandidateKind] = set()
+            trace_sink: list[UphillWalkTrace] = []
             state = self._walk_candidate_from_seed(
                 seed_state,
                 archive,
@@ -3376,6 +3465,7 @@ class SurfaceWalker:
                 proposal_optimizer_override=proposal_optimizer_override,
                 selected_direction_kinds=selected_direction_kinds,
                 plateau_evolution_active=plateau_evolution_active,
+                trace_sink=trace_sink,
             )
             proposals.append(
                 CandidateProposal(
@@ -3383,9 +3473,60 @@ class SurfaceWalker:
                     state,
                     allow_duplicate_rescue=allow_duplicate_rescue,
                     selected_direction_kinds=frozenset(selected_direction_kinds),
+                    walk_trace=trace_sink[0] if trace_sink else None,
                 )
             )
         return proposals
+
+    def _build_action_record(
+        self,
+        *,
+        trial_index: int,
+        proposal_index: int,
+        seed_entry_id: int,
+        seed_energy: float,
+        proposal: CandidateProposal,
+        step_target: float,
+        candidate: RelaxResult | None,
+        landing_force_evaluations: int,
+        accepted_new_basin: bool | None,
+        is_duplicate: bool | None,
+        global_improved: bool | None,
+        status: str,
+    ) -> ActionRecord:
+        walk = proposal.walk_trace
+        if walk is None:
+            walk = UphillWalkTrace(
+                target_eV=float(step_target),
+                termination_reason="trace_unavailable",
+                steps=(),
+            )
+        escape_energy = (
+            None if not walk.steps else walk.steps[-1].true_energy_after_eV
+        )
+        return ActionRecord(
+            trial_index=trial_index,
+            proposal_index=proposal_index,
+            seed_entry_id=seed_entry_id,
+            seed_energy_eV=float(seed_energy),
+            walk=walk,
+            escape_energy_eV=escape_energy,
+            landing_energy_eV=(None if candidate is None else float(candidate.energy)),
+            landing_gradient_norm=(
+                None if candidate is None else float(candidate.gradient_norm)
+            ),
+            landing_iterations=(None if candidate is None else int(candidate.n_iter)),
+            landing_converged=(
+                None
+                if candidate is None
+                else has_force_convergence_certificate(candidate, self.config.quench_fmax)
+            ),
+            landing_force_evaluations=int(landing_force_evaluations),
+            accepted_new_basin=accepted_new_basin,
+            is_duplicate=is_duplicate,
+            global_improved=global_improved,
+            status=status,
+        )
 
     def _is_unphysical_energy_drop(self, energy: float, reference_energy: float, n_atoms: int) -> bool:
         limit = self.config.max_energy_drop_per_atom
