@@ -876,3 +876,40 @@ starter 改变不影响每步产生新 minimum，只有 PdO 显示固定 continu
 跨体系 action 成功率。只有 action family 出现可重复、可条件预测的收益，才重新开放
 action-conditioned Bayesian allocation；批量并行本身不依赖该后验，可以继续用于执行
 独立、有全支持的 action。
+
+## 二十、archive 能量跨度不是局域势垒，但固定 target 也未通过替换门槛
+
+U-T0 发现另一个此前未单独归因的 macro 机制：每次 action 前，配置中的
+`target_uphill_energy=0.8 eV` 会被 archive 全部极小值的能量跨度替换，并经
+`0.04--4.0 eV` 截断。该 target 同时进入方向评分、初始位移、Gaussian width 和
+micro-step trust。既有 S-CR1 轨迹中，C60、PdO、CuO 分别有 97.9%、98.7%、96.4%
+的 action 偏离 0.8 eV，因此它不是 inactive 配置，而是强作用的上坡传播 block。
+
+U-T1/U-T2 冻结 shared bootstrap、Metropolis starter、方向、local softening、累计
+Gaussian、micro-step trust、Safe-LBFGS、true quench 和随机流，只比较 archive-scaled
+与固定 0.8 eV。C60/PdO/CuO、seeds 46--48 每臂 20,000 FE，共 359,998 次有归因 FE，
+`unattributed=0`。预注册判据要求 fixed 的 gain-AUC 至少赢 6/9 个体系--种子配对块，
+且配对差值中位数为正；实际只赢 5/9，中位数为 +0.0157 eV，故裁决为
+`RETAIN_ARCHIVE_SCALED_DEFAULT`，生产默认不变。
+
+这个裁决不能写成 archive range 是正确 barrier estimator。相反，实验给出了更清楚的
+物理边界：
+
+1. C60 seeds 46/47 的 scaled target 均值为 1.87/2.10 eV，明显高于 0.8 eV，scaled
+   两次获胜；seed 48 的 scaled target 均值只有 0.705 eV，fixed 获胜。足够强的 escape
+   对团簇有正信号，但 archive range 的 seed dependence 很强。
+2. PdO scaled target 均值为 0.36--0.51 eV，CuO 为 0.18--0.24 eV；fixed 各赢 2/3，
+   支持部分 slab 轨迹中当前 adaptive uphill 被压得不够强，但差值仍反号，不能统一换成
+   0.8 eV。
+3. fixed 的终点与 gain-AUC 也可反号。target 改变导致后续 basin-level 路径分叉，早期
+   预算收益、最终最低点与 continuation value 不是同一个目标。
+4. 两臂的成本结构几乎不变：proposal relax 约 68%、landing true quench 约 18%、
+   direction oracle 约 12%。本门控改变的是可达盆地，不是通过减少某一类调用取胜。
+
+因此关闭“继续扫描 fixed target 或 archive scale 系数”的低归因支线，也不直接换成
+OPES-like bias、CCQN 或更复杂 trust controller。下一门控先补齐零额外 PES 调用的
+action-level 观测：每个 micro step 已计算的真实 PES 高度、首次/最大上坡、达到 target
+的比例、传播终点的 true-quench conditioning 和 terminal basin。先回答“何种已观测的
+逃逸状态真正对应新低能 basin、成本是多少”，再决定固定传播、局域反馈或限制性二次步
+是否值得实现。只有该 action 语义稳定后，才重新开放 action-conditioned posterior 和
+批量 Bayesian allocation。
