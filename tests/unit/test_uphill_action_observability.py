@@ -88,7 +88,7 @@ def _record(**overrides) -> ActionRecord:
     return ActionRecord(**values)
 
 
-def _summary(*, unattributed: int = 0, force_evaluations: int = 18):
+def _summary(*, unattributed: int = 0, force_evaluations: int = 32):
     return {
         "system": "c60",
         "seed": 49,
@@ -97,10 +97,10 @@ def _summary(*, unattributed: int = 0, force_evaluations: int = 18):
             "bootstrap_true_quench": 0,
             "starter_true_quench": 0,
             "local_softening_pre_relax": 0,
-            "direction_oracle": 4,
-            "escape_true_pes_check": 4,
+            "direction_oracle": 6,
+            "escape_true_pes_check": 6,
             "biased_proposal_relax": 0,
-            "landing_true_quench": 10,
+            "landing_true_quench": 20,
             "post_relax_validation": 0,
             "unattributed": unattributed,
         },
@@ -141,6 +141,10 @@ def test_analyze_case_uses_exact_ratio_boundary_and_landing_drop() -> None:
     assert result["new_basin_rate"] == pytest.approx(0.5)
     assert result["duplicate_rate"] == pytest.approx(0.5)
     assert result["landing_quench_drop_eV"]["max"] == pytest.approx(1.0)
+    assert result["first_delivery_step"]["median"] == pytest.approx(2.0)
+    assert result["steps_after_first_delivery"]["median"] == pytest.approx(0.0)
+    assert result["action_force_evaluations"]["direction_oracle"] == 6
+    assert result["unrecorded_action_force_evaluations"]["direction_oracle"] == 0
 
 
 def test_analyzer_rejects_missing_actions_duplicate_keys_and_open_ledgers() -> None:
@@ -150,6 +154,6 @@ def test_analyzer_rejects_missing_actions_duplicate_keys_and_open_ledgers() -> N
     with pytest.raises(ValueError, match="duplicate action key"):
         analyze.analyze_cases([(_summary(), [row, row], "hash")])
     with pytest.raises(ValueError, match="does not close"):
-        analyze.analyze_case(_summary(force_evaluations=19), [row])
+        analyze.analyze_case(_summary(force_evaluations=33), [row])
     with pytest.raises(ValueError, match="unattributed"):
-        analyze.analyze_case(_summary(unattributed=1, force_evaluations=19), [row])
+        analyze.analyze_case(_summary(unattributed=1, force_evaluations=33), [row])

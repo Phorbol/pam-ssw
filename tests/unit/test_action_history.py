@@ -140,6 +140,31 @@ def test_empty_walk_has_no_derived_height() -> None:
     assert trace.target_delivery_ratio is None
 
 
+def test_walk_trace_can_retain_incomplete_tail_cost_beyond_completed_steps() -> None:
+    trace = UphillWalkTrace(
+        0.8,
+        "relaxed_geometry_invalid",
+        (_step(0, -10.0, -9.6),),
+        direction_oracle_force_evaluations=5,
+        biased_relax_force_evaluations=9,
+        true_pes_check_force_evaluations=3,
+    )
+
+    assert trace.direction_oracle_force_evaluations == 5
+    assert trace.biased_relax_force_evaluations == 9
+    assert trace.true_pes_check_force_evaluations == 3
+
+
+def test_walk_trace_rejects_total_cost_smaller_than_completed_step_cost() -> None:
+    with pytest.raises(ValueError, match="cannot be smaller"):
+        UphillWalkTrace(
+            0.8,
+            "reached_step_cap",
+            (_step(0, -10.0, -9.6),),
+            direction_oracle_force_evaluations=1,
+        )
+
+
 class _Quadratic:
     def energy_gradient(self, flat_positions, state):
         gradient = np.asarray(flat_positions, dtype=float).copy()
@@ -211,9 +236,70 @@ def test_walk_trace_reuses_existing_true_pes_checks_without_new_evaluations(
     assert step.direction_oracle_force_evaluations == 0
     assert step.biased_relax_force_evaluations == 0
     assert step.true_pes_check_force_evaluations == 2
+    assert trace.true_pes_check_force_evaluations == 2
     assert after.total - before.total == 2
     assert after.count(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK) == 2
     assert after.count(EvaluationPurpose.UNATTRIBUTED) == 0
+
+
+def test_walk_trace_totals_include_relax_cost_from_incomplete_geometry_tail(
+    monkeypatch,
+) -> None:
+    class TailWalker(SurfaceWalker):
+        def _relax_proposal_task(self, task, *, optimizer, trajectory_callback):
+            evaluation = self.calculator.evaluate(task.initial_state)
+            return RelaxResult(
+                state=task.initial_state,
+                energy=evaluation.energy,
+                gradient_norm=float(np.linalg.norm(evaluation.gradient)),
+                n_iter=1,
+            )
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    walker = TailWalker(
+        calculator=AnalyticCalculator(_Quadratic()),
+        config=SSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            direction_curvature_source="inner",
+            proposal_relax_steps=1,
+        ),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0])
+    monkeypatch.setattr(
+        walker.oracle.generator,
+        "generate_initial_direction",
+        lambda *args, **kwargs: direction,
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=direction,
+            curvature=-0.5,
+            true_curvature=-0.5,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+    monkeypatch.setattr(walker, "_build_softening", lambda *args, **kwargs: None)
+    validity = iter((True, False))
+    monkeypatch.setattr(
+        type(walker.geometry_validator),
+        "is_valid_state",
+        lambda self, *args, **kwargs: next(validity),
+    )
+    trace_sink = []
+
+    walker._walk_candidate_from_seed(state, step_target=0.8, trace_sink=trace_sink)
+
+    trace = trace_sink[0]
+    assert trace.termination_reason == "relaxed_geometry_invalid"
+    assert trace.steps == ()
+    assert trace.direction_oracle_force_evaluations == 0
+    assert trace.biased_relax_force_evaluations == 1
+    assert trace.true_pes_check_force_evaluations == 1
 
 
 def _search_states() -> tuple[State, State]:

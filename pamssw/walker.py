@@ -3563,6 +3563,7 @@ class SurfaceWalker:
         *,
         trace_sink: list[UphillWalkTrace] | None = None,
     ) -> State:
+        walk_counts_before = self.calculator.snapshot()
         current, frozen_softening = self._prepare_frozen_local_softening(
             seed_state
         )
@@ -4082,11 +4083,24 @@ class SurfaceWalker:
             pending_true_after = true_after
         self._record_walk_termination(termination_reason)
         if trace_sink is not None:
+            walk_counts_after = self.calculator.snapshot()
             trace_sink.append(
                 UphillWalkTrace(
                     target_eV=trace_target,
                     termination_reason=termination_reason,
                     steps=tuple(step_records),
+                    direction_oracle_force_evaluations=(
+                        walk_counts_after.count(EvaluationPurpose.DIRECTION_ORACLE)
+                        - walk_counts_before.count(EvaluationPurpose.DIRECTION_ORACLE)
+                    ),
+                    biased_relax_force_evaluations=(
+                        walk_counts_after.count(EvaluationPurpose.BIASED_PROPOSAL_RELAX)
+                        - walk_counts_before.count(EvaluationPurpose.BIASED_PROPOSAL_RELAX)
+                    ),
+                    true_pes_check_force_evaluations=(
+                        walk_counts_after.count(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK)
+                        - walk_counts_before.count(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK)
+                    ),
                 )
             )
         return current

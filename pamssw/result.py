@@ -114,6 +114,9 @@ class UphillWalkTrace:
     target_eV: float
     termination_reason: str
     steps: tuple[UphillStepRecord, ...]
+    direction_oracle_force_evaluations: int | None = None
+    biased_relax_force_evaluations: int | None = None
+    true_pes_check_force_evaluations: int | None = None
     observed_max_height_eV: float | None = field(init=False)
     observed_terminal_height_eV: float | None = field(init=False)
     target_delivery_ratio: float | None = field(init=False)
@@ -125,6 +128,28 @@ class UphillWalkTrace:
             raise ValueError("step indices must be ordered from zero")
         if any(not isclose(step.target_eV, self.target_eV) for step in self.steps):
             raise ValueError("step target_eV must match walk target_eV")
+        purpose_fields = (
+            (
+                "direction_oracle_force_evaluations",
+                sum(step.direction_oracle_force_evaluations for step in self.steps),
+            ),
+            (
+                "biased_relax_force_evaluations",
+                sum(step.biased_relax_force_evaluations for step in self.steps),
+            ),
+            (
+                "true_pes_check_force_evaluations",
+                sum(step.true_pes_check_force_evaluations for step in self.steps),
+            ),
+        )
+        for name, completed_step_total in purpose_fields:
+            value = getattr(self, name)
+            if value is None:
+                object.__setattr__(self, name, completed_step_total)
+            elif value < completed_step_total:
+                raise ValueError(
+                    f"{name} cannot be smaller than completed step cost"
+                )
         if not self.steps:
             object.__setattr__(self, "observed_max_height_eV", None)
             object.__setattr__(self, "observed_terminal_height_eV", None)

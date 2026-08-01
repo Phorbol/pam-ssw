@@ -100,19 +100,37 @@ def analyze_case(
     improved_count = sum(row["global_improved"] is True for row in actions)
     landing_fe = sum(int(row["landing_force_evaluations"]) for row in actions)
     direction_fe = sum(
-        int(step["direction_oracle_force_evaluations"])
+        int(
+            row["walk"].get("direction_oracle_force_evaluations")
+            if row["walk"].get("direction_oracle_force_evaluations") is not None
+            else sum(
+                int(step["direction_oracle_force_evaluations"])
+                for step in row["walk"]["steps"]
+            )
+        )
         for row in actions
-        for step in row["walk"]["steps"]
     )
     proposal_fe = sum(
-        int(step["biased_relax_force_evaluations"])
+        int(
+            row["walk"].get("biased_relax_force_evaluations")
+            if row["walk"].get("biased_relax_force_evaluations") is not None
+            else sum(
+                int(step["biased_relax_force_evaluations"])
+                for step in row["walk"]["steps"]
+            )
+        )
         for row in actions
-        for step in row["walk"]["steps"]
     )
     true_check_fe = sum(
-        int(step["true_pes_check_force_evaluations"])
+        int(
+            row["walk"].get("true_pes_check_force_evaluations")
+            if row["walk"].get("true_pes_check_force_evaluations") is not None
+            else sum(
+                int(step["true_pes_check_force_evaluations"])
+                for step in row["walk"]["steps"]
+            )
+        )
         for row in actions
-        for step in row["walk"]["steps"]
     )
     quench_drops = [
         float(row["escape_energy_eV"]) - float(row["landing_energy_eV"])
@@ -120,11 +138,62 @@ def analyze_case(
         if row["escape_energy_eV"] is not None and row["landing_energy_eV"] is not None
     ]
     step_rows = [step for row in actions for step in row["walk"]["steps"]]
+    first_delivery_steps = []
+    steps_after_first_delivery = []
+    post_delivery_force_evaluations = 0
+    terminal_below_reference = 0
+    intermediate_below_reference = 0
+    for row in actions:
+        steps = row["walk"]["steps"]
+        if not steps:
+            continue
+        reference = float(steps[0]["true_energy_before_eV"])
+        target = float(row["walk"]["target_eV"])
+        running_height = 0.0
+        first_delivery = None
+        for index, step in enumerate(steps):
+            running_height = max(
+                running_height,
+                float(step["true_energy_before_eV"]) - reference,
+                float(step["true_energy_after_eV"]) - reference,
+            )
+            if first_delivery is None and running_height >= target:
+                first_delivery = index + 1
+        if first_delivery is not None:
+            first_delivery_steps.append(first_delivery)
+            steps_after_first_delivery.append(len(steps) - first_delivery)
+            for step in steps[first_delivery:]:
+                post_delivery_force_evaluations += sum(
+                    int(step[name])
+                    for name in (
+                        "direction_oracle_force_evaluations",
+                        "biased_relax_force_evaluations",
+                        "true_pes_check_force_evaluations",
+                    )
+                )
+        terminal_below_reference += int(
+            float(steps[-1]["true_energy_after_eV"]) < reference
+        )
+        intermediate_below_reference += int(
+            any(float(step["true_energy_after_eV"]) < reference for step in steps[:-1])
+        )
     nonproposal = {
         "direction_oracle": direction_fe,
         "true_pes_check": true_check_fe,
         "landing_true_quench": landing_fe,
     }
+    recorded_by_purpose = {
+        "direction_oracle": direction_fe,
+        "biased_proposal_relax": proposal_fe,
+        "escape_true_pes_check": true_check_fe,
+        "landing_true_quench": landing_fe,
+    }
+    unrecorded_by_purpose = {
+        name: purpose_counts[name] - recorded
+        for name, recorded in recorded_by_purpose.items()
+    }
+    if any(value < 0 for value in unrecorded_by_purpose.values()):
+        raise ValueError("action purpose totals exceed the global ledger")
     return {
         "system": str(summary["system"]),
         "seed": int(summary["seed"]),
@@ -146,6 +215,11 @@ def analyze_case(
             ]
         ),
         "target_delivery_ratio": _distribution(ratios),
+        "first_delivery_step": _distribution(first_delivery_steps),
+        "steps_after_first_delivery": _distribution(steps_after_first_delivery),
+        "post_delivery_completed_step_force_evaluations": post_delivery_force_evaluations,
+        "terminal_below_walk_reference_count": terminal_below_reference,
+        "intermediate_below_walk_reference_count": intermediate_below_reference,
         "delivered_action_count": len(delivered),
         "unattained_action_count": len(unattained),
         "missing_delivery_ratio_count": missing_ratio,
@@ -171,8 +245,17 @@ def analyze_case(
             "biased_proposal_relax": proposal_fe,
             "recorded_total": direction_fe + true_check_fe + proposal_fe + landing_fe,
         },
+        "unrecorded_action_force_evaluations": unrecorded_by_purpose,
+        "action_force_evaluation_coverage": {
+            name: _rate(recorded_by_purpose[name], purpose_counts[name])
+            for name in recorded_by_purpose
+        },
         "landing_is_largest_nonproposal_cost": bool(
             landing_fe == max(nonproposal.values())
+        ),
+        "proposal_relax_is_largest_action_cost": bool(
+            purpose_counts["biased_proposal_relax"]
+            == max(purpose_counts[name] for name in recorded_by_purpose)
         ),
         "force_evaluations": force_evaluations,
         "purpose_counts": purpose_counts,
@@ -206,10 +289,12 @@ def analyze_cases(
     )
     delivered_but_unproductive = sum(
         row["delivered_action_count"] > row["action_count"] / 2
-        and (
-            row["delivered_unproductive_count"] > row["delivered_action_count"] / 2
-            or row["landing_is_largest_nonproposal_cost"]
-        )
+        and row["delivered_unproductive_count"] > row["delivered_action_count"] / 2
+        for row in cases
+    )
+    delivered_proposal_cost_dominant = sum(
+        row["delivered_action_count"] > row["action_count"] / 2
+        and row["proposal_relax_is_largest_action_cost"]
         for row in cases
     )
     diagnosis = (
@@ -218,7 +303,11 @@ def analyze_cases(
         else (
             "DELIVERED_BUT_UNPRODUCTIVE"
             if delivered_but_unproductive >= 2
-            else "MIXED_SCALAR_TARGET_EVIDENCE"
+            else (
+                "TARGET_DELIVERED_PROPOSAL_RELAX_COST_DOMINANT"
+                if delivered_proposal_cost_dominant >= 2
+                else "MIXED_SCALAR_TARGET_EVIDENCE"
+            )
         )
     )
     return {
@@ -226,6 +315,9 @@ def analyze_cases(
         "diagnosis": diagnosis,
         "systems_target_not_delivered": target_not_delivered,
         "systems_delivered_but_unproductive": delivered_but_unproductive,
+        "systems_target_delivered_proposal_relax_cost_dominant": (
+            delivered_proposal_cost_dominant
+        ),
         "unattributed_force_evaluations": sum(
             row["purpose_counts"]["unattributed"] for row in cases
         ),
@@ -262,4 +354,3 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

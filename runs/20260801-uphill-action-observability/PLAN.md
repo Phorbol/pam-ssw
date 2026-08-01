@@ -40,3 +40,19 @@ or maximum along the optimizer line search.
 The label chooses the next mechanism gate only. One seed cannot promote a new
 controller or support posterior training.
 
+## Analysis correction after the first raw cohort
+
+The first 60,000-FE execution exposed two observability defects before a final
+claim was accepted:
+
+1. the original second label conflated an unproductive landing distribution
+   with landing being the largest *non-proposal* cost, even when most landings
+   were new basins;
+2. completed-step sums omitted the cost of an interrupted final micro step.
+
+The confirmatory schema therefore records exact walk-level purpose totals and
+splits `DELIVERED_BUT_UNPRODUCTIVE` from
+`TARGET_DELIVERED_PROPOSAL_RELAX_COST_DOMINANT`. The raw first execution remains
+preserved in ignored `output/`; it is not used as a confirmatory replicate.
+No search decision, calculator call, random draw, or production parameter is
+changed by this correction.
