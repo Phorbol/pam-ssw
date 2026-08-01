@@ -1,0 +1,186 @@
+{
+  "schema_version": 2,
+  "diagnosis": "TARGET_DELIVERED_PROPOSAL_RELAX_COST_DOMINANT",
+  "production_default_changed": false,
+  "executions": [
+    {
+      "name": "raw_observability",
+      "execution_commit": "db28232b17ae9cee11e7447cb4c086242e445c70",
+      "force_evaluations": 60000,
+      "unattributed_force_evaluations": 0,
+      "wall_time_s": 1275.2615350889992,
+      "raw_evidence_sha256": "155577a38588a243866cec6a50f23cf3621f5fdf25985fca5ad6058117a90d7d",
+      "cost_schema": "completed_micro_steps_only"
+    },
+    {
+      "name": "confirmatory_exact_walk_cost",
+      "execution_commit": "abe51b606940e903c3e5882e589c6579b8517b94",
+      "force_evaluations": 59989,
+      "unused_force_evaluations": 11,
+      "unattributed_force_evaluations": 0,
+      "wall_time_s": 1273.5897187650007,
+      "raw_evidence_sha256": "859892b8e5b7de82d64a740c137a3c55df036148a1c2c99715729c7d665e58fc",
+      "cost_schema": "exact_completed_walk_totals"
+    }
+  ],
+  "systems": {
+    "c60": {
+      "raw": {
+        "actions": 52,
+        "best_energy_eV": -507.8953552246094,
+        "energy_drop_eV": 33.225677490234375,
+        "new_basin_rate": 0.6730769230769231,
+        "global_improvement_rate": 0.28846153846153844,
+        "delivered_rate": 0.9411764705882353,
+        "median_first_delivery_step": 1.0,
+        "median_steps_after_first_delivery": 6.0,
+        "post_delivery_completed_step_force_evaluations": 11543,
+        "purpose_counts": {
+          "biased_proposal_relax": 13102,
+          "direction_oracle": 2792,
+          "escape_true_pes_check": 387,
+          "landing_true_quench": 3618
+        },
+        "action_history_sha256": "0c49217b285d22cd153d1b893fa343dc58382110fbff9a1b957a9bc53643a11f"
+      },
+      "confirmatory": {
+        "actions": 46,
+        "best_energy_eV": -498.0315856933594,
+        "energy_drop_eV": 23.361907958984375,
+        "new_basin_rate": 0.8478260869565217,
+        "global_improvement_rate": 0.391304347826087,
+        "delivered_rate": 0.9772727272727273,
+        "median_first_delivery_step": 1.0,
+        "median_steps_after_first_delivery": 7.0,
+        "post_delivery_completed_step_force_evaluations": 11070,
+        "purpose_counts": {
+          "biased_proposal_relax": 12606,
+          "direction_oracle": 2136,
+          "escape_true_pes_check": 309,
+          "landing_true_quench": 4854
+        },
+        "action_cost_coverage": {
+          "biased_proposal_relax": 0.9836585752816119,
+          "direction_oracle": 0.9850187265917603,
+          "escape_true_pes_check": 0.9838187702265372,
+          "landing_true_quench": 1.0
+        },
+        "action_history_sha256": "75d0f2a49d321b54a450f6f636f0a0e937aa0bd126fa5cd1cadac0219f35e71e"
+      }
+    },
+    "pdo": {
+      "raw": {
+        "actions": 79,
+        "best_energy_eV": -574.18115234375,
+        "energy_drop_eV": 5.7841796875,
+        "new_basin_rate": 0.8987341772151899,
+        "global_improvement_rate": 0.08860759493670886,
+        "delivered_rate": 0.9863013698630136,
+        "median_first_delivery_step": 1.0,
+        "median_steps_after_first_delivery": 0.0,
+        "post_delivery_completed_step_force_evaluations": 3399,
+        "purpose_counts": {
+          "biased_proposal_relax": 12299,
+          "direction_oracle": 2224,
+          "escape_true_pes_check": 189,
+          "landing_true_quench": 5172
+        },
+        "action_history_sha256": "90e55412c562c532e82665105d17d60a2946be830f71650be7626a6e95f547b2"
+      },
+      "confirmatory": {
+        "actions": 77,
+        "best_energy_eV": -573.489990234375,
+        "energy_drop_eV": 5.0931396484375,
+        "new_basin_rate": 0.8571428571428571,
+        "global_improvement_rate": 0.06493506493506493,
+        "delivered_rate": 0.9848484848484849,
+        "median_first_delivery_step": 1.0,
+        "median_steps_after_first_delivery": 1.0,
+        "post_delivery_completed_step_force_evaluations": 4533,
+        "purpose_counts": {
+          "biased_proposal_relax": 12363,
+          "direction_oracle": 2208,
+          "escape_true_pes_check": 187,
+          "landing_true_quench": 5116
+        },
+        "action_cost_coverage": {
+          "biased_proposal_relax": 1.0,
+          "direction_oracle": 1.0,
+          "escape_true_pes_check": 1.0,
+          "landing_true_quench": 1.0
+        },
+        "action_history_sha256": "6d9ab7d4e8854c2eda2e2f7b65fcd681bc373db9dbd72ae668222f9e07fc8ba4"
+      }
+    },
+    "cuo": {
+      "raw": {
+        "actions": 30,
+        "best_energy_eV": -202.58941650390625,
+        "energy_drop_eV": 3.910858154296875,
+        "new_basin_rate": 1.0,
+        "global_improvement_rate": 0.16666666666666666,
+        "delivered_rate": 0.9666666666666667,
+        "median_first_delivery_step": 1.0,
+        "median_steps_after_first_delivery": 6.0,
+        "post_delivery_completed_step_force_evaluations": 14178,
+        "purpose_counts": {
+          "biased_proposal_relax": 15021,
+          "direction_oracle": 2704,
+          "escape_true_pes_check": 199,
+          "landing_true_quench": 1932
+        },
+        "action_history_sha256": "0b18f468479cd83e5c13df88ec16dbf1f1cc73a9559cd85c4b4c058cae47b69f"
+      },
+      "confirmatory": {
+        "actions": 34,
+        "best_energy_eV": -201.99996948242188,
+        "energy_drop_eV": 3.323486328125,
+        "new_basin_rate": 1.0,
+        "global_improvement_rate": 0.20588235294117646,
+        "delivered_rate": 0.9705882352941176,
+        "median_first_delivery_step": 1.0,
+        "median_steps_after_first_delivery": 2.0,
+        "post_delivery_completed_step_force_evaluations": 12491,
+        "purpose_counts": {
+          "biased_proposal_relax": 14770,
+          "direction_oracle": 2688,
+          "escape_true_pes_check": 202,
+          "landing_true_quench": 2202
+        },
+        "action_cost_coverage": {
+          "biased_proposal_relax": 0.9470548408937034,
+          "direction_oracle": 0.9583333333333334,
+          "escape_true_pes_check": 0.9653465346534653,
+          "landing_true_quench": 1.0
+        },
+        "action_history_sha256": "0b3ae20c7b18687d4b7d7f45eb156cbd983bd1d7233dc4b4724f95a3b5c39116"
+      }
+    }
+  },
+  "stable_findings": {
+    "target_delivery": "94.1-98.6% of measurable actions across both executions and all systems",
+    "first_delivery": "median first delivery is micro-step 1 in all six system-execution blocks",
+    "dominant_cost": "biased proposal relaxation is 61.5-75.1% of total force evaluations",
+    "basin_escape": "new-basin rate is 67.3-100%, so inability to leave the starter basin is not the common bottleneck",
+    "route_quality": "global-improvement rate is only 6.5-39.1% and is much lower than new-basin rate",
+    "reproducibility": "float32 GPU basin trajectories and final best energies diverge between nominally identical runs"
+  },
+  "semantic_boundary": {
+    "observed_height": "maximum over already-evaluated micro-step endpoints, not a line-search maximum, saddle point, or barrier",
+    "archive_scaled_target": "a direction-scoring and trust scale under per_atom_rms execution, not an enforced macro escape height",
+    "post_delivery_cost": "an upper bound on work after proxy first passage, not force evaluations proven removable by early stopping",
+    "censored_tail": "the final budget-aborted proposal is not returned as an ActionRecord; global purpose ledgers remain exact"
+  },
+  "next_gate": {
+    "name": "fixed H4 versus H8 equal-budget propagation gate",
+    "changes_only": "max_steps_per_walk",
+    "forbidden": [
+      "adaptive first-delivery stopping",
+      "first-descent stopping",
+      "target coefficient scan",
+      "new posterior or selector",
+      "OPES, CCQN, MD, or GA hybridization"
+    ]
+  },
+  "claim_ceiling": "two numerically divergent seed-49 executions on C60, PdO and CuO; mechanism and cost evidence, not statistical significance or a new production default"
+}

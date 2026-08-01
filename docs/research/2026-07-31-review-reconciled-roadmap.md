@@ -913,3 +913,41 @@ action-level 观测：每个 micro step 已计算的真实 PES 高度、首次/�
 逃逸状态真正对应新低能 basin、成本是多少”，再决定固定传播、局域反馈或限制性二次步
 是否值得实现。只有该 action 语义稳定后，才重新开放 action-conditioned posterior 和
 批量 Bayesian allocation。
+
+## 二十一、uphill 足够强，但 eV target 不是被执行的 macro 高度
+
+U-O1 已补齐零新增 FE 的 typed action history，并在 C60、PdO、CuO seed 49 上执行两次
+同配置 20,000-FE cohort。首次执行为 60,000 FE；修正 interrupted-tail 核算后的确认执行
+为 59,989 FE，PdO 剩余 11 FE 小于一次 HVP batch。两次均 `unattributed=0`，GPU wall
+总时分别为 1,275.3 和 1,273.6 秒。
+
+两次长链因 float32 GPU 数值扰动发生 basin 路径分叉，最低能终值不能作为 paired 复现；
+但以下机制量跨两次执行稳定：
+
+1. 六个体系—执行块中 94.1--98.6% 的可测 action 达到记录的 energy scale，首次达到的
+   中位数全部为第一个 micro-step；共同问题不是“uphill 不够猛”。
+2. 当前 production 使用 `per_atom_rms` execution，真实步长由 `target_step_rms` 和方向的
+   per-atom RMS 决定。archive-scaled eV 值只进入方向评分尺度和 trust error floor，
+   不是强制执行的 macro barrier/height target。U-T1/U-T2 因而应解释为 scoring/trust
+   scale gate，不是 barrier-height gate。
+3. proposal relax 在所有体系和两次执行中占总 FE 的 61.5--75.1%，是唯一稳定的共同
+   成本主项。首次 proxy delivery 后，C60/CuO 仍各付约 1.1--1.4 万 FE；PdO 因大量
+   geometry/walk clip 自然缩短，只付约 0.34--0.45 万 FE。
+4. 新 basin 率仍高：C60 67.3--84.8%、PdO 85.7--89.9%、CuO 100%；global-best
+   improvement 率仅为 28.8--39.1%、6.5--8.9%、16.7--20.6%。瓶颈是“以何种成本走向
+   有后续价值的 basin”，不是单纯离开 starter。
+
+这组结果否决三个直接跳跃：不增加 generic bias，不把首次达到 eV proxy 变成 adaptive
+stop，也不因为 proposal relax 昂贵就删除它。既有 G-UP0 已证明 biased relaxation 在
+部分 context 中因果性地跨越 basin attraction boundary；H8/H14 与 G-E1 又证明更长传播
+和 first-descent stop 都没有单调收益。
+
+下一门控只比较 fixed H4 与 fixed H8，在相同 total FE 下冻结 starter、方向、Gaussian、
+trust、proposal optimizer 和 true quench。它回答缩短 serial propagation 后，多执行的
+action 数能否补偿单 action continuation capacity 的损失。禁止同时引入 target 系数扫描、
+adaptive stopping、OPES/CCQN、MD/GA hybrid 或 posterior。只有离散 horizon 与 direction
+family 形成稳定、全局有支持的 action arms 后，才重新开放 contextual posterior。
+
+当前 action history 仍将最后一个在 proposal 生成中耗尽预算的 action 视为 right-censored；
+其成本已在全局 purpose ledger 精确核算，但在补齐 censored-action event 前，不得宣称这已
+是无偏的 posterior training dataset。
