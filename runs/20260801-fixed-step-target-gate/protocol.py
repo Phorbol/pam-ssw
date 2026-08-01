@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from statistics import median
 from typing import Any, Mapping, Sequence
 
 
@@ -101,3 +102,44 @@ def cohort_decision(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
             "fixed_winning_systems": [],
         }
     return ut1_decision(rows)
+
+
+def ut2_decision(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    """Apply the preregistered three-system, three-seed repeat gate."""
+
+    required = {
+        (system, seed, target_mode)
+        for system in SYSTEMS
+        for seed in (46, 47, 48)
+        for target_mode in TARGET_MODES
+    }
+    observed = [
+        (str(row["system"]), int(row["seed"]), str(row["target_mode"]))
+        for row in rows
+    ]
+    if len(observed) != len(required) or set(observed) != required:
+        raise ValueError("U-T2 rows do not contain the required matrix")
+    indexed = {
+        key: float(row["gain_auc_eV"])
+        for key, row in zip(observed, rows)
+    }
+    deltas = [
+        indexed[(system, seed, "fixed_reference")]
+        - indexed[(system, seed, "archive_scaled")]
+        for system in SYSTEMS
+        for seed in (46, 47, 48)
+    ]
+    fixed_wins = sum(delta > 0.0 for delta in deltas)
+    median_delta = float(median(deltas))
+    admit = fixed_wins >= 6 and median_delta > 0.0
+    return {
+        "decision": (
+            "ADMIT_FIXED_REFERENCE_FOR_PRODUCTION_REVIEW"
+            if admit
+            else "RETAIN_ARCHIVE_SCALED_DEFAULT"
+        ),
+        "fixed_winning_block_count": fixed_wins,
+        "total_block_count": len(deltas),
+        "median_fixed_minus_scaled_gain_auc_eV": median_delta,
+        "fixed_minus_scaled_gain_auc_eV": deltas,
+    }

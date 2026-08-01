@@ -259,13 +259,30 @@ def validate_evidence(evidence: Mapping[str, Any]) -> dict[str, Any]:
     if keys != expected:
         raise ValueError("case matrix does not close")
     bootstrap_by_block = {}
+    unused_force_evaluations = 0
+    maximum_case_budget_residual = 0
     for row in cases:
         total = int(row["force_evaluations"])
         budget = int(row["campaign_force_budget"])
-        if total != budget or budget != int(
-            evidence["cohort"]["force_budget_per_case"]
-        ):
+        if budget != int(evidence["cohort"]["force_budget_per_case"]):
             raise ValueError("campaign force budget does not close")
+        residual = budget - total
+        if residual < 0:
+            raise ValueError("campaign force budget does not close")
+        if residual:
+            if not bool(row.get("budget_exhausted", False)):
+                raise ValueError("campaign stopped prematurely below its force budget")
+            oracle_candidates = int(row["effective_config"]["oracle_candidates"])
+            maximum_atomic_batch = 2 * oracle_candidates
+            if residual >= maximum_atomic_batch:
+                raise ValueError(
+                    "campaign budget residual exceeds one atomic batch"
+                )
+        unused_force_evaluations += residual
+        maximum_case_budget_residual = max(
+            maximum_case_budget_residual,
+            residual,
+        )
         if sum(int(value) for value in row["purpose_counts"].values()) != total:
             raise ValueError("purpose ledger does not close")
         if int(row["purpose_counts"].get("unattributed", -1)) != 0:
@@ -285,6 +302,8 @@ def validate_evidence(evidence: Mapping[str, Any]) -> dict[str, Any]:
     return {
         "case_count": len(cases),
         "unattributed": 0,
+        "unused_force_evaluations": unused_force_evaluations,
+        "maximum_case_budget_residual": maximum_case_budget_residual,
         "shared_bootstrap_block_count": len(bootstrap_by_block),
         **decision,
     }

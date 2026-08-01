@@ -173,7 +173,7 @@ def test_runner_uses_metropolis_and_changes_no_production_target_config(tmp_path
             assert scaled.local_softening_scope == "oracle"
 
 
-def test_validate_evidence_requires_shared_bootstrap_and_exact_ledger():
+def test_validate_evidence_requires_shared_bootstrap_and_closed_ledger():
     runner = _runner()
     purpose = {"biased_proposal_relax": 19_950, "bootstrap_true_quench": 50, "unattributed": 0}
     cases = []
@@ -186,6 +186,8 @@ def test_validate_evidence_requires_shared_bootstrap_and_exact_ledger():
                 "shared_bootstrap_force_evaluations": 50,
                 "force_evaluations": 20_000,
                 "campaign_force_budget": 20_000,
+                "budget_exhausted": True,
+                "effective_config": {"oracle_candidates": 8},
                 "purpose_counts": purpose,
             }
         )
@@ -209,3 +211,117 @@ def test_validate_evidence_requires_shared_bootstrap_and_exact_ledger():
     broken["cases"][1]["bootstrap_energy_eV"] = -2.0
     with pytest.raises(ValueError, match="shared bootstrap"):
         runner.validate_evidence(broken)
+
+
+def test_validate_evidence_allows_only_atomic_batch_budget_residual():
+    runner = _runner()
+    purpose = {
+        "biased_proposal_relax": 19_940,
+        "bootstrap_true_quench": 50,
+        "direction_oracle": 8,
+        "unattributed": 0,
+    }
+    cases = []
+    for row in _decision_rows():
+        cases.append(
+            {
+                **row,
+                "bootstrap_state_sha256": f"state-{row['system']}",
+                "bootstrap_energy_eV": -1.0,
+                "shared_bootstrap_force_evaluations": 50,
+                "force_evaluations": 19_998,
+                "campaign_force_budget": 20_000,
+                "budget_exhausted": True,
+                "effective_config": {"oracle_candidates": 8},
+                "purpose_counts": purpose,
+            }
+        )
+    evidence = {
+        "cases": cases,
+        "cohort": {
+            "systems": ["c60", "pdo", "cuo"],
+            "seeds": [46],
+            "target_modes": ["archive_scaled", "fixed_reference"],
+            "force_budget_per_case": 20_000,
+        },
+        "decision": runner.protocol.cohort_decision(cases),
+    }
+
+    checked = runner.validate_evidence(evidence)
+    assert checked["unused_force_evaluations"] == 12
+    assert checked["maximum_case_budget_residual"] == 2
+
+    not_exhausted = deepcopy(evidence)
+    not_exhausted["cases"][0]["budget_exhausted"] = False
+    with pytest.raises(ValueError, match="prematurely"):
+        runner.validate_evidence(not_exhausted)
+
+    too_large = deepcopy(evidence)
+    too_large["cases"][0]["force_evaluations"] = 19_984
+    too_large["cases"][0]["purpose_counts"] = {
+        "biased_proposal_relax": 19_926,
+        "bootstrap_true_quench": 50,
+        "direction_oracle": 8,
+        "unattributed": 0,
+    }
+    with pytest.raises(ValueError, match="atomic batch"):
+        runner.validate_evidence(too_large)
+
+
+def test_ut2_decision_requires_six_of_nine_and_positive_median():
+    protocol = _protocol()
+    rows = []
+    deltas = [1.0, 0.5, -0.1, 0.4, -0.2, 0.3, 0.2, -0.3, 0.1]
+    for (system, seed), delta in zip(
+        (
+            (system, seed)
+            for system in protocol.SYSTEMS
+            for seed in (46, 47, 48)
+        ),
+        deltas,
+    ):
+        rows.extend(
+            [
+                {
+                    "system": system,
+                    "seed": seed,
+                    "target_mode": "archive_scaled",
+                    "gain_auc_eV": 2.0,
+                },
+                {
+                    "system": system,
+                    "seed": seed,
+                    "target_mode": "fixed_reference",
+                    "gain_auc_eV": 2.0 + delta,
+                },
+            ]
+        )
+
+    admitted = protocol.ut2_decision(rows)
+    assert admitted["decision"] == "ADMIT_FIXED_REFERENCE_FOR_PRODUCTION_REVIEW"
+    assert admitted["fixed_winning_block_count"] == 6
+    assert admitted["median_fixed_minus_scaled_gain_auc_eV"] == pytest.approx(0.2)
+
+    rows[-1]["gain_auc_eV"] = 1.0
+    rejected = protocol.ut2_decision(rows)
+    assert rejected["decision"] == "RETAIN_ARCHIVE_SCALED_DEFAULT"
+    assert rejected["fixed_winning_block_count"] == 5
+
+
+def test_ut2_decision_rejects_incomplete_or_duplicate_matrix():
+    protocol = _protocol()
+    rows = [
+        {
+            "system": system,
+            "seed": seed,
+            "target_mode": mode,
+            "gain_auc_eV": 1.0,
+        }
+        for system in protocol.SYSTEMS
+        for seed in (46, 47, 48)
+        for mode in protocol.TARGET_MODES
+    ]
+    with pytest.raises(ValueError, match="required matrix"):
+        protocol.ut2_decision(rows[:-1])
+    with pytest.raises(ValueError, match="required matrix"):
+        protocol.ut2_decision(rows + [rows[0]])
