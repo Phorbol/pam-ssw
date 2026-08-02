@@ -156,7 +156,22 @@ def validate_replayed_pool(
         for candidate in replayed_candidates
     ]
     if reference_identity != replayed_identity:
-        raise RuntimeError("replayed candidate identity differs from the shared pool")
+        direction_errors = []
+        for reference_candidate, replayed_candidate in zip(
+            reference_candidates,
+            replayed_candidates,
+        ):
+            left = np.asarray(reference_candidate.get("direction_values", []), dtype=float)
+            right = np.asarray(replayed_candidate.get("direction_values", []), dtype=float)
+            direction_errors.append(
+                None
+                if left.shape != right.shape or left.size == 0
+                else float(np.max(np.abs(left - right)))
+            )
+        raise RuntimeError(
+            "replayed candidate identity differs from the shared pool; "
+            f"direction_max_abs_errors={direction_errors}"
+        )
 
     reference_prefix = reference["prefix"]
     replayed_prefix = replayed["prefix"]
@@ -272,6 +287,10 @@ def evaluate_native_pool(
                 "candidate_index": candidate_index,
                 "kind": candidate.kind.value,
                 "direction": np.asarray(candidate.direction, dtype=float).copy(),
+                "direction_values": np.asarray(
+                    candidate.direction,
+                    dtype=float,
+                ).tolist(),
                 "direction_sha256": direction_sha256(candidate.direction),
                 "curvature": curvature,
                 "true_curvature": true_curvature,
@@ -420,6 +439,10 @@ class StepOneController:
                     "kind": candidate.kind.value,
                     "static_rank": int(reference_records[index]["static_rank"]),
                     "direction_sha256": direction_sha256(candidate.direction),
+                    "direction_values": np.asarray(
+                        candidate.direction,
+                        dtype=float,
+                    ).tolist(),
                 }
                 for index, candidate in enumerate(candidates)
             ]
