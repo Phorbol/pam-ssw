@@ -951,3 +951,31 @@ family 形成稳定、全局有支持的 action arms 后，才重新开放 conte
 当前 action history 仍将最后一个在 proposal 生成中耗尽预算的 action 视为 right-censored；
 其成本已在全局 purpose ledger 精确核算，但在补齐 censored-action event 前，不得宣称这已
 是无偏的 posterior training dataset。
+
+## 二十二、固定 H4 通过 survivor gate，但尚不是 production default
+
+在 U-O1 明确 eV target 不是被执行的 barrier height 后，下一门控没有加入 adaptive stop，
+而是把传播 horizon 离散成 fixed H4/H8。C60、PdO、CuO seed 49 的六臂各含 shared
+bootstrap 且总预算严格为 20,000 FE；除输出路径外，effective config 只允许
+`max_steps_per_walk` 不同。总计 120,000 FE、2,646.7 秒，`unattributed=0`。
+
+H4 相对 H8 的 gain-AUC 在 C60、PdO、CuO 分别为 `+3.4907`、`+0.0874`、`+0.2399 eV`，
+故通过预注册的 2/3-system、正中位 survivor 条件。但物理证据不等强：
+
+- C60 中 H4 少 18 个 micro-step、增加 29 个 action，并更早命中深 basin；同时 duplicate
+  从 H8 的 11 增至 46，新 minima 和 global-improvement 次数反而更少。H8 的后四步仍
+  提供单 action basin diversity。
+- PdO 只有 119/121 个总 micro-step、两臂均为 77 个 action；horizon 几乎未被实际触发，
+  小 AUC 差不能作为 H4 机制证据，且 H8 最终低 0.300 eV。
+- CuO 中 H4 少 20 个 micro-step、增加 9 个 action，new minima 与 global improvement
+  同时增加，AUC 和最终能量都改善，是最干净的正信号。
+
+首次派生 decision 用 landing success rate 比较，因 PdO 的 `74/76 < 75/77` 产生伪证书
+回退。typed action history 证明两臂在相同 20k FE 下都恰有两个真实 certificate failure；
+H4 另有一个在 landing 前预算耗尽的 right-censored action。裁决改为比较等预算 failure
+count，并由回归测试固定；零新增 FE 重算后为 `ADMIT_H4_REPEAT_GATE`。
+
+因此 production 仍保留 H8。下一步只允许 H4/H8 多 seed repeat，不开放 H5/H6、adaptive
+first-passage、direction-score 修改、starter UCB/TS 或 posterior。这个结果也强化了
+direction--propagator 耦合：方向质量必须由完整 fidelity-conditioned landing 定义，不能
+脱离传播 horizon 用单一曲率或短程 proxy 贴全局标签。

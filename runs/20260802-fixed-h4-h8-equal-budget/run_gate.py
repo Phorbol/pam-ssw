@@ -107,13 +107,14 @@ def build_config(
     return replace(base, max_steps_per_walk=int(horizon))
 
 
-def _strict_certificate_rate(actions: Sequence[Mapping[str, Any]]) -> float:
+def _strict_certificate_stats(
+    actions: Sequence[Mapping[str, Any]],
+) -> tuple[float, int]:
     attempted = [row for row in actions if row["landing_converged"] is not None]
     if not attempted:
-        return 0.0
-    return float(
-        sum(row["landing_converged"] is True for row in attempted) / len(attempted)
-    )
+        return 0.0, 0
+    successes = sum(row["landing_converged"] is True for row in attempted)
+    return float(successes / len(attempted)), len(attempted) - successes
 
 
 def _run_case(
@@ -182,6 +183,7 @@ def _run_case(
         bootstrap_force_evaluations=shared_bootstrap.counts.total,
     )
     initial_energy = float(shared_bootstrap.result.energy)
+    certificate_rate, certificate_failures = _strict_certificate_stats(action_rows)
     summary = {
         "schema_version": 1,
         "system": system,
@@ -209,7 +211,8 @@ def _run_case(
         "duplicate_rate": float(result.archive.duplicate_rate()),
         "budget_exhausted": bool(result.stats["budget_exhausted"]),
         "action_count": len(action_rows),
-        "strict_landing_certificate_rate": _strict_certificate_rate(action_rows),
+        "strict_landing_certificate_rate": certificate_rate,
+        "strict_landing_failure_count": certificate_failures,
         "action_history_sha256": action_sha256,
         "search_wall_time_s": search_wall_time_s,
         "wall_time_s": shared_bootstrap.wall_time_s + search_wall_time_s,

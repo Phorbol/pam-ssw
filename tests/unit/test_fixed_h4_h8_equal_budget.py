@@ -78,6 +78,7 @@ def _rows(deltas: tuple[float, float, float]):
                     "horizon": 4,
                     "gain_auc_eV": 5.0 + delta,
                     "strict_landing_certificate_rate": 1.0,
+                    "strict_landing_failure_count": 0,
                 },
                 {
                     "system": system,
@@ -85,6 +86,7 @@ def _rows(deltas: tuple[float, float, float]):
                     "horizon": 8,
                     "gain_auc_eV": 5.0,
                     "strict_landing_certificate_rate": 1.0,
+                    "strict_landing_failure_count": 0,
                 },
             ]
         )
@@ -101,11 +103,30 @@ def test_decision_advances_only_two_system_positive_median_without_regression() 
     assert failed["decision"] == "RETAIN_H8_STOP_SHORT_HORIZON_BRANCH"
 
     invalid = _rows((1.0, 0.5, -0.1))
-    invalid[0]["strict_landing_certificate_rate"] = 0.8
+    invalid[0]["strict_landing_failure_count"] = 1
     assert (
         protocol.cohort_decision(invalid)["decision"]
         == "RETAIN_H8_STOP_SHORT_HORIZON_BRANCH"
     )
+
+
+def test_equal_budget_decision_uses_failure_count_not_attempt_denominator() -> None:
+    rows = _rows((1.0, 0.5, 0.1))
+    pdo_h4 = next(
+        row for row in rows if row["system"] == "pdo" and row["horizon"] == 4
+    )
+    pdo_h8 = next(
+        row for row in rows if row["system"] == "pdo" and row["horizon"] == 8
+    )
+    pdo_h4["strict_landing_certificate_rate"] = 74 / 76
+    pdo_h8["strict_landing_certificate_rate"] = 75 / 77
+    pdo_h4["strict_landing_failure_count"] = 2
+    pdo_h8["strict_landing_failure_count"] = 2
+
+    result = protocol.cohort_decision(rows)
+
+    assert result["decision"] == "ADMIT_H4_REPEAT_GATE"
+    assert result["certificate_regression_systems"] == []
 
 
 def test_runner_builds_only_horizon_difference(tmp_path: Path) -> None:

@@ -1,0 +1,177 @@
+{
+  "schema_version": 2,
+  "execution_commit": "be1727f3d051126b27061f3d41c601c5455f07d3",
+  "production_default_changed": false,
+  "raw_execution": {
+    "force_evaluations": 120000,
+    "wall_time_s": 2646.68869368,
+    "unattributed_force_evaluations": 0,
+    "unused_force_evaluations": 0,
+    "pre_metric_fix_evidence_sha256": "38456fae0c64ffc8a2423e0af252867a44c221a318416c8577716291634626e7",
+    "reconciled_evidence_sha256": "c7a0307569f6321875037a3c6cb11266642d523cbdcfd590727f01eb9e77fdc0",
+    "analysis_new_force_evaluations": 0
+  },
+  "decision": {
+    "result": "ADMIT_H4_REPEAT_GATE",
+    "h4_winning_gain_auc_systems": [
+      "c60",
+      "pdo",
+      "cuo"
+    ],
+    "median_h4_minus_h8_gain_auc_eV": 0.23989959945678707,
+    "certificate_regression_systems": []
+  },
+  "systems": {
+    "c60": {
+      "h4": {
+        "best_energy_eV": -507.7017822265625,
+        "energy_drop_eV": 33.0321044921875,
+        "gain_auc_eV": 24.71637574157715,
+        "actions": 79,
+        "micro_steps": 299,
+        "new_minima": 33,
+        "global_improvements": 12,
+        "duplicates": 46,
+        "certificate_failures": 0,
+        "biased_proposal_relax_FE": 10650,
+        "direction_oracle_FE": 2488,
+        "landing_true_quench_FE": 6352,
+        "wall_time_s": 316.5519661530125,
+        "action_history_sha256": "564104ae130693f59f098cd2c76df94a8f35d8576108983e0d427bb10da89fc7"
+      },
+      "h8": {
+        "best_energy_eV": -506.115234375,
+        "energy_drop_eV": 31.445556640625,
+        "gain_auc_eV": 21.225705389404297,
+        "actions": 50,
+        "micro_steps": 317,
+        "new_minima": 39,
+        "global_improvements": 15,
+        "duplicates": 11,
+        "certificate_failures": 0,
+        "biased_proposal_relax_FE": 13276,
+        "direction_oracle_FE": 2648,
+        "landing_true_quench_FE": 3606,
+        "wall_time_s": 314.76501965601346,
+        "action_history_sha256": "a98c67a3166a99388a50501d085294c073ce23482966eb439eff4b0ab07a98e2"
+      },
+      "h4_minus_h8": {
+        "gain_auc_eV": 3.4906703521728524,
+        "final_energy_drop_eV": 1.5865478515625,
+        "actions": 29,
+        "micro_steps": -18,
+        "new_minima": -6,
+        "global_improvements": -3,
+        "biased_proposal_relax_FE": -2626,
+        "landing_true_quench_FE": 2746
+      }
+    },
+    "pdo": {
+      "h4": {
+        "best_energy_eV": -574.8145751953125,
+        "energy_drop_eV": 6.4176025390625,
+        "gain_auc_eV": 5.6004059112548825,
+        "actions": 77,
+        "micro_steps": 119,
+        "new_minima": 70,
+        "global_improvements": 6,
+        "duplicates": 6,
+        "certificate_failures": 2,
+        "biased_proposal_relax_FE": 12222,
+        "direction_oracle_FE": 2224,
+        "landing_true_quench_FE": 5244,
+        "wall_time_s": 438.89880558499135,
+        "action_history_sha256": "c29116085fe7c2f8fbf3913b4882fac0b904fa4485b001044c432f66742ded9d"
+      },
+      "h8": {
+        "best_energy_eV": -575.1145629882812,
+        "energy_drop_eV": 6.71759033203125,
+        "gain_auc_eV": 5.513034097290039,
+        "actions": 77,
+        "micro_steps": 121,
+        "new_minima": 68,
+        "global_improvements": 10,
+        "duplicates": 9,
+        "certificate_failures": 2,
+        "biased_proposal_relax_FE": 12138,
+        "direction_oracle_FE": 2368,
+        "landing_true_quench_FE": 5179,
+        "wall_time_s": 431.6869446729979,
+        "action_history_sha256": "4676259e9a93f0a8b6475cae29e9e185c41bdb4591195f8ce6604aa0199dad79"
+      },
+      "h4_minus_h8": {
+        "gain_auc_eV": 0.08737181396484317,
+        "final_energy_drop_eV": -0.29998779296875,
+        "actions": 0,
+        "micro_steps": -2,
+        "new_minima": 2,
+        "global_improvements": -4,
+        "biased_proposal_relax_FE": 84,
+        "landing_true_quench_FE": 65
+      }
+    },
+    "cuo": {
+      "h4": {
+        "best_energy_eV": -202.14256286621094,
+        "energy_drop_eV": 1.0975799560546875,
+        "gain_auc_eV": 0.7930672889709472,
+        "actions": 42,
+        "micro_steps": 136,
+        "new_minima": 42,
+        "global_improvements": 10,
+        "duplicates": 0,
+        "certificate_failures": 0,
+        "biased_proposal_relax_FE": 14406,
+        "direction_oracle_FE": 2256,
+        "landing_true_quench_FE": 2895,
+        "wall_time_s": 578.0040153599984,
+        "action_history_sha256": "a5f4e857ad3062daf80d712f00309f5a747afbdb7ac7c168137911196655d45d"
+      },
+      "h8": {
+        "best_energy_eV": -201.68496704101562,
+        "energy_drop_eV": 0.639984130859375,
+        "gain_auc_eV": 0.5531676895141602,
+        "actions": 33,
+        "micro_steps": 156,
+        "new_minima": 33,
+        "global_improvements": 5,
+        "duplicates": 0,
+        "certificate_failures": 0,
+        "biased_proposal_relax_FE": 14774,
+        "direction_oracle_FE": 2592,
+        "landing_true_quench_FE": 2187,
+        "wall_time_s": 573.9119181790011,
+        "action_history_sha256": "dd8a642e510c07c845139cb6035fa12e2a84fb4a37acb3bfbe2fd1615465712d"
+      },
+      "h4_minus_h8": {
+        "gain_auc_eV": 0.23989959945678707,
+        "final_energy_drop_eV": 0.4575958251953125,
+        "actions": 9,
+        "micro_steps": -20,
+        "new_minima": 9,
+        "global_improvements": 5,
+        "biased_proposal_relax_FE": -368,
+        "landing_true_quench_FE": 708
+      }
+    }
+  },
+  "interpretation": {
+    "c60": "H4 shifts FE from repeated biased relaxation to more terminal quenches and finds a deep basin earlier, but returns duplicates much more often and produces fewer new minima and fewer total global-improvement events.",
+    "pdo": "The horizon is almost inactive because existing geometry and displacement terminations end most walks before H4; the small positive AUC delta is not strong mechanism evidence and H8 reaches the lower final minimum.",
+    "cuo": "H4 removes 20 micro-steps, completes nine more actions, and improves both AUC and final energy without certificate loss; this is the cleanest positive horizon signal.",
+    "wall_time": "H4 is not a wall-time acceleration in this sequential single-GPU runner because saved proposal work is largely reinvested in additional true quenches.",
+    "selector_boundary": "This gate freezes Metropolis starter selection and does not validate archive-UCB, direction-type UCB, Thompson sampling, or a posterior."
+  },
+  "next_gate": {
+    "name": "H4 versus H8 repeated-seed equal-budget confirmation",
+    "purpose": "test whether the C60/CuO AUC sign survives path sensitivity and whether PdO remains horizon-insensitive",
+    "forbidden": [
+      "H5/H6 sweep",
+      "adaptive first-passage stop",
+      "direction-score changes",
+      "starter-selector changes",
+      "new posterior or learned classifier"
+    ]
+  },
+  "claim_ceiling": "one seed on three float32 GPU PES searches; admits a repeated-seed gate but not an H4 production default"
+}

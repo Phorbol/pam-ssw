@@ -118,8 +118,8 @@ def cohort_decision(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     regressions = [
         system
         for system in SYSTEMS
-        if float(indexed[(system, 4)]["strict_landing_certificate_rate"])
-        < float(indexed[(system, 8)]["strict_landing_certificate_rate"])
+        if _certificate_failure_count(indexed[(system, 4)])
+        > _certificate_failure_count(indexed[(system, 8)])
     ]
     median_delta = float(median(deltas.values()))
     admit = len(winners) >= 2 and median_delta > 0.0 and not regressions
@@ -134,3 +134,13 @@ def cohort_decision(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "h4_minus_h8_gain_auc_eV": deltas,
         "certificate_regression_systems": regressions,
     }
+
+
+def _certificate_failure_count(row: Mapping[str, Any]) -> int:
+    explicit = row.get("strict_landing_failure_count")
+    if explicit is not None:
+        return int(explicit)
+    attempted = int(row["action_analysis"]["landing_quench_drop_eV"]["count"])
+    rate = float(row["strict_landing_certificate_rate"])
+    successes = int(round(attempted * rate))
+    return attempted - successes
