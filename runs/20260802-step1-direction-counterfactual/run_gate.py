@@ -365,8 +365,8 @@ class StepOneController:
             raise RuntimeError("step-one gate requires direction-type bonus disabled")
         if bool(kwargs.get("plateau_evolution_active", False)):
             raise RuntimeError("step-one gate requires plateau evolution disabled")
-        if int(kwargs.get("archive_momentum_limit", 0)) != 0:
-            raise RuntimeError("step-one gate requires archive momentum disabled")
+        if kwargs.get("archive_momentum_history"):
+            raise RuntimeError("step-one gate requires an empty archive-momentum history")
         if kwargs.get("krylov_intents") is not None:
             raise RuntimeError("step-one gate requires the native discrete pool")
 
@@ -527,6 +527,7 @@ def build_config(system: str, case_directory: Path, *, seed: int):
         direction_type_ucb_enabled=False,
         direction_archive_enabled=False,
         direction_archive_path=None,
+        archive_escape_momentum_enabled=False,
         plateau_evolution_enabled=False,
         accepted_structures_log=None,
         accepted_structures_dir=None,

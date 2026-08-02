@@ -48,6 +48,14 @@ def test_step_zero_hash_matches_frozen_gate_representation() -> None:
     assert runner._step_zero_direction_sha256(direction) == expected
 
 
+def test_gate_disables_only_archive_momentum_not_plain_momentum(tmp_path) -> None:
+    config = runner.build_config("c60", tmp_path, seed=52)
+
+    assert config.enable_momentum_candidate is True
+    assert config.archive_escape_momentum_enabled is False
+    assert config.direction_archive_enabled is False
+
+
 def _pool_rows(
     *,
     system: str = "c60",
