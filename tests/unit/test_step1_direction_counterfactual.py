@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 from copy import deepcopy
+from hashlib import sha256
 from pathlib import Path
 import sys
 
@@ -37,6 +38,14 @@ def _load(path: Path, name: str):
 
 protocol = _load(RUN_ROOT / "protocol.py", "_step1_direction_protocol_test")
 runner = _load(RUN_ROOT / "run_gate.py", "_step1_direction_runner_test")
+
+
+def test_step_zero_hash_matches_frozen_gate_representation() -> None:
+    direction = np.array([2.0, 0.0, -2.0])
+    normalized = direction / np.linalg.norm(direction)
+    expected = sha256(np.asarray(normalized, dtype="<f8").tobytes()).hexdigest()
+
+    assert runner._step_zero_direction_sha256(direction) == expected
 
 
 def _pool_rows(

@@ -84,6 +84,16 @@ def direction_sha256(direction: np.ndarray) -> str:
     return _array_sha256(values / norm)
 
 
+def _step_zero_direction_sha256(direction: np.ndarray) -> str:
+    """Match the frozen 20260731 step-0 gate's hash representation."""
+
+    values = np.asarray(direction, dtype=float).reshape(-1)
+    norm = float(np.linalg.norm(values))
+    if not np.isfinite(norm) or norm <= 1.0e-12:
+        raise ValueError("direction must have a finite nonzero norm")
+    return sha256(np.asarray(values / norm, dtype="<f8").tobytes()).hexdigest()
+
+
 def bias_sha256(biases: Sequence[Any]) -> str:
     digest = sha256()
     digest.update(np.asarray([len(biases)], dtype="<i8").tobytes())
@@ -464,7 +474,7 @@ class PostStepZeroRNGWalker(SurfaceWalker):
             state,
             trial_index=trial_index,
         )
-        if direction_sha256(anchor) != self._step_zero_anchor_sha256:
+        if _step_zero_direction_sha256(anchor) != self._step_zero_anchor_sha256:
             raise RuntimeError("replayed walk generated a different step-0 anchor")
         self.rng.bit_generator.state = deepcopy(
             self._post_step_zero_pool_rng_state
