@@ -776,6 +776,7 @@ def _capture_shared_step_one_prefix(
         if int(record["static_rank"]) == 1
     )
     continuations = []
+    traces = []
     started = perf_counter()
     walker._walk_candidate_from_seed(
         starter_state,
@@ -787,6 +788,7 @@ def _capture_shared_step_one_prefix(
         initial_direction_choice=step_zero_pool["choices"][static_winner],
         pause_after_step=0,
         continuation_sink=continuations,
+        trace_sink=traces,
     )
     counts = walker.calculator.snapshot()
     if counts.count(EvaluationPurpose.UNATTRIBUTED) != 0:
@@ -797,6 +799,9 @@ def _capture_shared_step_one_prefix(
         "purpose_counts": counts.as_dict(),
         "wall_time_s": perf_counter() - started,
         "step_zero_static_winner_index": static_winner,
+        "termination_reason": (
+            "missing_trace" if not traces else str(traces[0].termination_reason)
+        ),
     }
 
 
@@ -831,8 +836,12 @@ def _run_group(
             "right_censored_before_step1": True,
             "rows": [],
             "step_zero_pool_force_evaluations": int(step_zero_pool["force_evaluations"]),
+            "step_zero_pool_purpose_counts": dict(step_zero_pool["purpose_counts"]),
             "shared_prefix_force_evaluations": int(shared_prefix["force_evaluations"]),
             "shared_prefix_purpose_counts": dict(shared_prefix["purpose_counts"]),
+            "shared_prefix_termination_reason": str(
+                shared_prefix["termination_reason"]
+            ),
             "effective_config": asdict(config),
         }
     reference_row, reference_pool = _run_arm(
@@ -891,6 +900,9 @@ def _run_group(
         "shared_prefix_force_evaluations": int(shared_prefix["force_evaluations"]),
         "shared_prefix_purpose_counts": dict(shared_prefix["purpose_counts"]),
         "shared_prefix_wall_time_s": float(shared_prefix["wall_time_s"]),
+        "shared_prefix_termination_reason": str(
+            shared_prefix["termination_reason"]
+        ),
         "step_one_shared_pool_force_evaluations": int(
             reference_pool["direction_oracle_force_evaluations"]
         ),

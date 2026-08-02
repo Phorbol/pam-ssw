@@ -1,6 +1,6 @@
 # Step-1 Direction Counterfactual Gate Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build and execute a run-local causal gate that forces every production K4 candidate at micro-step 1, giving momentum, bond, and random directions repeatable full-H8 landing labels from an identical biased prefix.
 
@@ -16,7 +16,7 @@
 - Create: `runs/20260802-step1-direction-counterfactual/protocol.py`
 - Create: `tests/unit/test_step1_direction_counterfactual.py`
 
-- [ ] **Step 1: Write failing protocol tests**
+- [x] **Step 1: Write failing protocol tests**
 
 Require the ordered matrix and conservative repeat decisions:
 
@@ -47,7 +47,7 @@ def test_static_bottleneck_requires_every_system_to_pass():
     assert result["posterior_gate_allowed"] is False
 ```
 
-- [ ] **Step 2: Run the focused test and confirm RED**
+- [x] **Step 2: Run the focused test and confirm RED**
 
 ```bash
 /root/miniforge3/envs/mace_les/bin/python -m pytest -q \
@@ -56,7 +56,7 @@ def test_static_bottleneck_requires_every_system_to_pass():
 
 Expected: import failure because `protocol.py` does not exist.
 
-- [ ] **Step 3: Implement the minimal pure protocol**
+- [x] **Step 3: Implement the minimal pure protocol**
 
 Define `SYSTEMS = ("c60", "pdo", "cuo")`, `SEEDS = (52, 53, 54)`, and
 `REPEATS = (0, 1)`. Implement these exact public call signatures:
@@ -71,11 +71,11 @@ repeat-stable best candidates, compute static-winner and momentum regrets, and
 apply the exact source/static/posterior stop rules from the design. It must not
 fit weights.
 
-- [ ] **Step 4: Run focused tests and confirm GREEN**
+- [x] **Step 4: Run focused tests and confirm GREEN**
 
 Expected: every test in `test_step1_direction_counterfactual.py` passes.
 
-- [ ] **Step 5: Commit the protocol**
+- [x] **Step 5: Commit the protocol**
 
 ```bash
 git add runs/20260802-step1-direction-counterfactual/protocol.py \
@@ -90,7 +90,7 @@ git commit -m "Add step-one direction gate protocol"
 - Create: `runs/20260802-step1-direction-counterfactual/.gitignore`
 - Modify: `tests/unit/test_step1_direction_counterfactual.py`
 
-- [ ] **Step 1: Add failing hash and replay tests**
+- [x] **Step 1: Add failing hash and replay tests**
 
 ```python
 def test_prefix_certificate_changes_with_positions_or_bias():
@@ -108,11 +108,11 @@ def test_replayed_pool_requires_exact_identity_and_one_momentum():
         runner.validate_replayed_pool(reference, reversed_pool(reference))
 ```
 
-- [ ] **Step 2: Run tests and confirm RED**
+- [x] **Step 2: Run tests and confirm RED**
 
 Expected: runner module or helper import failure.
 
-- [ ] **Step 3: Implement deterministic hashes and prefix validation**
+- [x] **Step 3: Implement deterministic hashes and prefix validation**
 
 Implement `direction_sha256`, `bias_sha256`, `prefix_certificate`, and
 `validate_replayed_pool`. Hash normalized directions and little-endian float64
@@ -121,7 +121,7 @@ Validation requires four candidates, exactly one momentum, at least one
 non-momentum, identical kind/index/hash/static-rank, identical bias hashes, and
 maximum absolute position difference no larger than `1e-10 Å`.
 
-- [ ] **Step 4: Implement one native pool evaluator**
+- [x] **Step 4: Implement one native pool evaluator**
 
 ```python
 def evaluate_native_pool(
@@ -143,7 +143,7 @@ def evaluate_native_pool(
 Four candidates must cost exactly eight shared direction-oracle force
 evaluations. Do not add a second HVP implementation.
 
-- [ ] **Step 5: Run focused and neighboring direction tests**
+- [x] **Step 5: Run focused and neighboring direction tests**
 
 ```bash
 /root/miniforge3/envs/mace_les/bin/python -m pytest -q \
@@ -152,7 +152,7 @@ evaluations. Do not add a second HVP implementation.
   tests/unit/test_walker_policy.py
 ```
 
-- [ ] **Step 6: Commit pool helpers**
+- [x] **Step 6: Commit pool helpers**
 
 ```bash
 git add runs/20260802-step1-direction-counterfactual \
@@ -166,7 +166,7 @@ git commit -m "Add shared step-one direction pool runner"
 - Modify: `runs/20260802-step1-direction-counterfactual/run_gate.py`
 - Modify: `tests/unit/test_step1_direction_counterfactual.py`
 
-- [ ] **Step 1: Add failing controller tests**
+- [x] **Step 1: Add failing controller tests**
 
 ```python
 def test_controller_branches_only_at_step_one():
@@ -190,11 +190,11 @@ def test_forced_controller_charges_no_step1_selection_hvp():
     assert after.direction_oracle - before.direction_oracle == 0
 ```
 
-- [ ] **Step 2: Run tests and confirm RED**
+- [x] **Step 2: Run tests and confirm RED**
 
 Expected: `StepOneController` is missing.
 
-- [ ] **Step 3: Implement `StepOneController`**
+- [x] **Step 3: Implement `StepOneController`**
 
 The first normal oracle call is step 1 because step 0 uses
 `initial_direction_choice`. The reference controller calls
@@ -203,13 +203,13 @@ validate identity, restore `post_pool_rng_state`, and return a deep copy of the
 stored forced choice with `shared_step1_direction=True`. All later calls
 delegate to the original production chooser.
 
-- [ ] **Step 4: Implement post-step-0 RNG replay**
+- [x] **Step 4: Implement post-step-0 RNG replay**
 
 Subclass `SurfaceWalker._initialize_walk_direction_context` using the existing
 counterfactual pattern: regenerate/check the anchor, then restore the shared
 post-step-0-pool RNG state before executing the shared step-0 choice.
 
-- [ ] **Step 5: Implement terminal outcome capture**
+- [x] **Step 5: Implement terminal outcome capture**
 
 For every candidate/repeat, create an independent walker/archive, install the
 controller, execute `_walk_candidate_from_seed` with the shared step-0 choice,
@@ -219,12 +219,12 @@ time. Require `unattributed=0` and exact ledger closure. Count the reference
 static-winner trajectory as repeat 0, so each pool executes exactly eight
 terminal arms.
 
-- [ ] **Step 6: Run all focused neighboring tests**
+- [x] **Step 6: Run all focused neighboring tests**
 
 Expected: step-one, direction-budget, walker-policy, action-history, and
 accounting tests all pass.
 
-- [ ] **Step 7: Commit forced replay**
+- [x] **Step 7: Commit forced replay**
 
 ```bash
 git add runs/20260802-step1-direction-counterfactual/run_gate.py \
@@ -239,33 +239,33 @@ git commit -m "Add forced step-one direction replay"
 - Create: `runs/20260802-step1-direction-counterfactual/conclusion.md`
 - Modify: `docs/research/2026-07-31-review-reconciled-roadmap.md`
 
-- [ ] **Step 1: Run CUDA preflight and one C60 seed52 smoke**
+- [x] **Step 1: Run CUDA preflight and one C60 seed52 smoke**
 
 Require current commit, clean tracked worktree, RTX 3060, exact input/model
 hashes, H8, K4, static ranker, direction-type UCB disabled, one momentum in the
 step-1 pool, four stable candidate identities, eight terminal arms,
 `unattributed=0`, and exact ledger closure. Smoke output remains ignored.
 
-- [ ] **Step 2: Run the fixed production matrix**
+- [x] **Step 2: Run the fixed production matrix**
 
 Execute C60/PdO/CuO seeds 52--54. Stop if cumulative new FE exceeds 60,000 or
 single-GPU wall time exceeds 35 minutes. Record but do not replace a pool that
 terminates before step 1.
 
-- [ ] **Step 3: Derive compact evidence with zero new PES calls**
+- [x] **Step 3: Derive compact evidence with zero new PES calls**
 
 Run `protocol.summarize_repeats`; preserve raw evidence SHA256, FE purposes,
 prefix validity, every per-pool metric, and the categorical decision. Explain
 C60, PdO, and CuO separately.
 
-- [ ] **Step 4: Apply stop rules without tuning**
+- [x] **Step 4: Apply stop rules without tuning**
 
 A source-dominance pass permits only one later source-only prospective gate. A
 repeat-stable static-bottleneck pass permits only a separately designed
 family-context posterior gate. Mixed evidence stops without source quotas,
 static-weight tuning, UCB, TS, or descriptor changes.
 
-- [ ] **Step 5: Run final verification**
+- [x] **Step 5: Run final verification**
 
 ```bash
 /root/miniforge3/envs/mace_les/bin/python -m pytest -q \
@@ -284,7 +284,7 @@ git diff --check
 Expected: zero failures, valid JSON, exact purpose closure, and no production
 default change.
 
-- [ ] **Step 6: Commit, push, and update PR #14**
+- [x] **Step 6: Commit, push, and update PR #14**
 
 Commit only the run-local gate, tests, compact evidence, conclusion, and
 roadmap; keep raw trajectories ignored. Push

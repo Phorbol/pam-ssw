@@ -1010,3 +1010,56 @@ pool 的方向来源与排序归因：冻结 starter 和 H8 propagator，对同�
 记录完整 landing outcome，并分开 escape、new basin、global improvement 与成本。先验证
 哪类方向信息具有可重复的 outcome likelihood，再考虑 family-level posterior；不再调
 starter UCB-like 固定权重，也不直接换成 TS。
+
+## 二十四、step-1 方向门控揭示 curvature-neutral ranking 与 delayed-credit 噪声
+
+方向来源/排序门控在 micro-step 1 分叉，而不是继续使用没有 previous displacement 的
+step-0 数据。第一次实现通过独立重跑 step 0 构造前缀；CUDA 诊断发现 Gaussian bias
+参数完全相同，但 proposal relaxation 的坐标可漂移 0.00524 Å，归一化的实际 displacement
+方向 L2 差为 0.00474。放宽 hash 会把不同的物理前缀伪装成反事实。因此新增了最小
+`UphillWalkContinuation`：step 0 只执行一次，冻结坐标、累计 bias、已选择/已实现方向、
+trust scales、true-PES endpoint、anchor 与 RNG，再从完全相同的 state 分叉。解析测试证明
+pause/resume 与不中断路径的坐标和总 FE 完全一致。
+
+正式矩阵为 C60/PdO/CuO、seeds 52--54、固定 H8/K4；最多 72 条 terminal arms，实际两个
+PdO 前缀在 step 1 前终止，得到 7 个 usable pools、56 条 H8 remainder + true quench。
+总成本 27,310 FE、635.69 秒，56/56 strict certificate，landing geometry/fragmentation/
+`unattributed` 均为零。两个 right-censored pool 的 step-0 K4 共 16 FE 在原始总数中存在，
+但旧删失返回分支漏写 purpose 子账本；紧凑 evidence 明确重建为 `direction_oracle` 并闭合，
+运行器已修复，原始执行产物不回写。
+
+方向来源没有跨体系稳定优势：C60、PdO、CuO 的 repeat-stable best pools 分别为 1/3、0/1、
+2/3；stable static miss 为 1、0、2。score/terminal Spearman 中位数分别为
+`(-0.60,-0.20)`、`(+0.80,+0.40)`、`(0.00,+0.60)`。因此裁决为
+`STOP_NON_IDENTIFIABLE_DIRECTION_LABELS`，不开放 family prior、UCB/TS 或 classifier。
+
+更重要的机制发现来自当前公式。在所有 usable pools 中，正曲率候选未触及 sigma clip，
+adaptive score sigma 满足
+
+\[
+\sigma_i=s\sqrt{2E_*/\kappa_i},\qquad
+\tfrac12\sigma_i^2\kappa_i=s^2E_*.
+\]
+
+四个候选的显式 quadratic energy score 因而完全相同，最大 pool 内差仅
+`4.44e-16 eV`。HVP curvature 在此不负责排序，而是设置每个候选的 execution scale；剩余
+continuity/anchor/novelty/damage 项使 momentum 在 7/7 pools 中都是 static rank 1。
+这不能直接推出删除 HVP，因为 selected direction 的步长与 bias strength 仍依赖 curvature。
+零 FE projected replay 也再次发生体系反号：selected-only uniform 在 C60 降低 median
+regret（5.4275→3.9469 eV），PdO 却从 0.0003 恶化到 1.3413 eV，CuO 从 0.4128 恶化到
+0.5914 eV；故 continuation all-candidate HVP 也不做 universal 删除。
+
+step-1 immediate true-energy response 的 repeat median drift 仅为 C60 0.0110 eV、PdO
+0.0168 eV、CuO 0.00024 eV；terminal landing 的最大 repeat drift 却为 6.15、0.0025、
+1.82 eV。后续六步的 bias relaxation、方向重选与 quench 将微小数值差放大为 basin 分叉。
+因此当前瓶颈不是缺一个形式更漂亮的 bandit，而是 credit assignment：local direction
+response 是相对稳定的因果标签，完整 H8 landing 是带 downstream policy 的分布式延迟标签。
+
+下一阶段不扫描 static weights，也不立刻训练 posterior。必须先把 action 语义拆成：
+
+1. local causal response：有效 geometry、真实 PES 即时响应、模型误差和成本；
+2. macro policy value：在固定 continuation policy 下的 landing 分布，而不是单次 winner。
+
+只有 macro action 或重复 rollout distribution 在跨体系 context 中可辨识，才重新开放
+action-conditioned posterior 与异步 batch allocation。精确 continuation snapshot 保留为
+并行因果分叉基础设施，不改变 production 默认搜索策略。

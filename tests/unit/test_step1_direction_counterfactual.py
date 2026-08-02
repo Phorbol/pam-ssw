@@ -504,6 +504,7 @@ def test_uphill_walk_pause_resume_matches_uninterrupted_analytic_path() -> None:
     prefix_archive = MinimaArchive(energy_tol=1.0e-3, rmsd_tol=0.15)
     prefix_entry = prefix_archive.add(state, 0.5, parent_id=None)
     continuations = []
+    prefix_traces = []
     prefix_walker._walk_candidate_from_seed(
         state,
         prefix_archive,
@@ -512,6 +513,7 @@ def test_uphill_walk_pause_resume_matches_uninterrupted_analytic_path() -> None:
         initial_direction_choice=initial_choice,
         pause_after_step=0,
         continuation_sink=continuations,
+        trace_sink=prefix_traces,
     )
     prefix_count = prefix_walker.calculator.snapshot().total
 
@@ -531,6 +533,7 @@ def test_uphill_walk_pause_resume_matches_uninterrupted_analytic_path() -> None:
     )
 
     assert len(continuations) == 1
+    assert prefix_traces[0].termination_reason == "paused_for_continuation"
     assert continuations[0].next_step_index == 1
     assert [step.step_index for step in resumed_traces[0].steps] == [0, 1]
     assert prefix_count + resumed_walker.calculator.snapshot().total == uninterrupted_count
