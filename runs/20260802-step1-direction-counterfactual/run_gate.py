@@ -600,6 +600,7 @@ def _run_arm(
     shared_bootstrap,
     config,
     step_zero_pool: Mapping[str, Any],
+    shared_continuation,
     reference_pool: Mapping[str, Any] | None,
     cuo_resources,
 ) -> tuple[dict[str, Any], Mapping[str, Any] | None]:
@@ -638,13 +639,7 @@ def _run_arm(
         trial_index=0,
         proposal_index=0,
         seed_entry_id=starter_entry.entry_id,
-        initial_direction_choice=step_zero_pool["choices"][
-            next(
-                index
-                for index, record in enumerate(step_zero_pool["records"])
-                if int(record["static_rank"]) == 1
-            )
-        ],
+        continuation=shared_continuation,
         trace_sink=traces,
     )
     if controller.reference_pool is None:
@@ -692,10 +687,8 @@ def _run_arm(
         walker._is_fragmented_cluster(starter_state, landing.state)
     )
     trace = traces[0]
-    step_zero_true_energy = (
-        None
-        if not trace.steps
-        else float(trace.steps[0].true_energy_after_eV)
+    step_zero_true_energy = float(
+        shared_continuation.completed_steps[0].true_energy_after_eV
     )
     row = {
         "system": system,
@@ -750,6 +743,63 @@ def _run_arm(
     return row, controller.reference_pool
 
 
+def _capture_shared_step_one_prefix(
+    *,
+    system: str,
+    config,
+    step_zero_pool: Mapping[str, Any],
+    shared_bootstrap,
+    cuo_resources,
+):
+    from pamssw.archive import MinimaArchive
+
+    walker = _new_walker(
+        system=system,
+        config=config,
+        step_zero_pool=step_zero_pool,
+        cuo_resources=cuo_resources,
+    )
+    archive = MinimaArchive(
+        energy_tol=config.dedup_energy_tol,
+        rmsd_tol=config.dedup_rmsd_tol,
+        max_prototypes=config.max_prototypes,
+    )
+    starter_state = shared_bootstrap.result.state
+    starter_entry = archive.add(
+        starter_state,
+        float(shared_bootstrap.result.energy),
+        parent_id=None,
+    )
+    static_winner = next(
+        index
+        for index, record in enumerate(step_zero_pool["records"])
+        if int(record["static_rank"]) == 1
+    )
+    continuations = []
+    started = perf_counter()
+    walker._walk_candidate_from_seed(
+        starter_state,
+        archive,
+        walker.step_target_controller.target(archive),
+        trial_index=0,
+        proposal_index=0,
+        seed_entry_id=starter_entry.entry_id,
+        initial_direction_choice=step_zero_pool["choices"][static_winner],
+        pause_after_step=0,
+        continuation_sink=continuations,
+    )
+    counts = walker.calculator.snapshot()
+    if counts.count(EvaluationPurpose.UNATTRIBUTED) != 0:
+        raise RuntimeError("shared step-0 prefix contains unattributed evaluations")
+    return {
+        "continuation": None if not continuations else continuations[0],
+        "force_evaluations": counts.total,
+        "purpose_counts": counts.as_dict(),
+        "wall_time_s": perf_counter() - started,
+        "step_zero_static_winner_index": static_winner,
+    }
+
+
 def _run_group(
     *,
     system: str,
@@ -767,6 +817,24 @@ def _run_group(
         ),
         config=config,
     )
+    shared_prefix = _capture_shared_step_one_prefix(
+        system=system,
+        config=config,
+        step_zero_pool=step_zero_pool,
+        shared_bootstrap=shared_bootstrap,
+        cuo_resources=cuo_resources,
+    )
+    if shared_prefix["continuation"] is None:
+        return {
+            "system": system,
+            "seed": seed,
+            "right_censored_before_step1": True,
+            "rows": [],
+            "step_zero_pool_force_evaluations": int(step_zero_pool["force_evaluations"]),
+            "shared_prefix_force_evaluations": int(shared_prefix["force_evaluations"]),
+            "shared_prefix_purpose_counts": dict(shared_prefix["purpose_counts"]),
+            "effective_config": asdict(config),
+        }
     reference_row, reference_pool = _run_arm(
         system=system,
         seed=seed,
@@ -776,6 +844,7 @@ def _run_group(
         shared_bootstrap=shared_bootstrap,
         config=config,
         step_zero_pool=step_zero_pool,
+        shared_continuation=shared_prefix["continuation"],
         reference_pool=None,
         cuo_resources=cuo_resources,
     )
@@ -806,6 +875,7 @@ def _run_group(
                 shared_bootstrap=shared_bootstrap,
                 config=config,
                 step_zero_pool=step_zero_pool,
+                shared_continuation=shared_prefix["continuation"],
                 reference_pool=reference_pool,
                 cuo_resources=cuo_resources,
             )
@@ -818,6 +888,9 @@ def _run_group(
         "rows": rows,
         "step_zero_pool_force_evaluations": int(step_zero_pool["force_evaluations"]),
         "step_zero_pool_purpose_counts": dict(step_zero_pool["purpose_counts"]),
+        "shared_prefix_force_evaluations": int(shared_prefix["force_evaluations"]),
+        "shared_prefix_purpose_counts": dict(shared_prefix["purpose_counts"]),
+        "shared_prefix_wall_time_s": float(shared_prefix["wall_time_s"]),
         "step_one_shared_pool_force_evaluations": int(
             reference_pool["direction_oracle_force_evaluations"]
         ),
@@ -889,6 +962,7 @@ def run_gate(
     new_force_evaluations = sum(
         int(group["bootstrap_force_evaluations"])
         + int(group["step_zero_pool_force_evaluations"])
+        + int(group["shared_prefix_force_evaluations"])
         + sum(int(row.get("force_evaluations", 0)) for row in group["rows"])
         for group in groups
     )

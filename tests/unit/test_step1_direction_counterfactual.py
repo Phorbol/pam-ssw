@@ -455,3 +455,83 @@ def test_forced_controller_charges_no_step1_selection_hvp() -> None:
 
     after = replay_walker.calculator.snapshot()
     assert after.total - before.total == 0
+
+
+def test_uphill_walk_pause_resume_matches_uninterrupted_analytic_path() -> None:
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+    )
+    config = SSWConfig(
+        max_steps_per_walk=2,
+        oracle_candidates=2,
+        n_bond_pairs=1,
+        proposal_relax_steps=2,
+        proposal_fmax=1.0e-4,
+        rng_seed=29,
+    )
+    direction = np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0])
+    direction /= np.linalg.norm(direction)
+    initial_choice = DirectionChoice(
+        direction=direction,
+        curvature=1.0,
+        true_curvature=1.0,
+        kind=DirectionCandidateKind.BOND,
+        candidate_count=1,
+    )
+
+    uninterrupted = SurfaceWalker(
+        calculator=AnalyticCalculator(_Quadratic()),
+        config=config,
+        softening_enabled=False,
+    )
+    uninterrupted_archive = MinimaArchive(energy_tol=1.0e-3, rmsd_tol=0.15)
+    uninterrupted_entry = uninterrupted_archive.add(state, 0.5, parent_id=None)
+    expected = uninterrupted._walk_candidate_from_seed(
+        state,
+        uninterrupted_archive,
+        trial_index=0,
+        seed_entry_id=uninterrupted_entry.entry_id,
+        initial_direction_choice=initial_choice,
+    )
+    uninterrupted_count = uninterrupted.calculator.snapshot().total
+
+    prefix_walker = SurfaceWalker(
+        calculator=AnalyticCalculator(_Quadratic()),
+        config=config,
+        softening_enabled=False,
+    )
+    prefix_archive = MinimaArchive(energy_tol=1.0e-3, rmsd_tol=0.15)
+    prefix_entry = prefix_archive.add(state, 0.5, parent_id=None)
+    continuations = []
+    prefix_walker._walk_candidate_from_seed(
+        state,
+        prefix_archive,
+        trial_index=0,
+        seed_entry_id=prefix_entry.entry_id,
+        initial_direction_choice=initial_choice,
+        pause_after_step=0,
+        continuation_sink=continuations,
+    )
+    prefix_count = prefix_walker.calculator.snapshot().total
+
+    resumed_walker = SurfaceWalker(
+        calculator=AnalyticCalculator(_Quadratic()),
+        config=config,
+        softening_enabled=False,
+    )
+    resumed_traces = []
+    resumed = resumed_walker._walk_candidate_from_seed(
+        state,
+        prefix_archive,
+        trial_index=0,
+        seed_entry_id=prefix_entry.entry_id,
+        continuation=continuations[0],
+        trace_sink=resumed_traces,
+    )
+
+    assert len(continuations) == 1
+    assert continuations[0].next_step_index == 1
+    assert [step.step_index for step in resumed_traces[0].steps] == [0, 1]
+    assert prefix_count + resumed_walker.calculator.snapshot().total == uninterrupted_count
+    np.testing.assert_allclose(resumed.positions, expected.positions, atol=1.0e-12)

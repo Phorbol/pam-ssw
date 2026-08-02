@@ -53,6 +53,7 @@ from .state import State
 
 WALK_TERMINATION_REASONS = (
     "reached_step_cap",
+    "paused_for_continuation",
     "continuation_direction_degenerate",
     "explicit_geometry_invalid",
     "relaxed_geometry_invalid",
@@ -276,6 +277,28 @@ class DirectionChoice:
     archive_momentum_candidate_count: int = 0
     true_curvature: float | None = None
     diagnostics: dict[str, object] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class UphillWalkContinuation:
+    """Complete physical state needed to resume between uphill micro-steps."""
+
+    current: State
+    walk_reference: State
+    frozen_softening: LocalSofteningModel | None
+    previous_direction: np.ndarray | None
+    previous_selected_direction: np.ndarray | None
+    previous_relax_outcome: RelaxOutcomeClass | None
+    biases: tuple[GaussianBiasTerm, ...]
+    sigma_scale: float
+    weight_scale: float
+    pending_true_after: object
+    anchor_direction: np.ndarray
+    krylov_intents: tuple[IntentBlock, ...] | None
+    trace_target: float
+    completed_steps: tuple[UphillStepRecord, ...]
+    next_step_index: int
+    rng_state: dict[str, object]
 
 
 @dataclass(frozen=True)
@@ -3562,34 +3585,77 @@ class SurfaceWalker:
         initial_direction_choice: DirectionChoice | None = None,
         *,
         trace_sink: list[UphillWalkTrace] | None = None,
+        pause_after_step: int | None = None,
+        continuation_sink: list[UphillWalkContinuation] | None = None,
+        continuation: UphillWalkContinuation | None = None,
     ) -> State:
+        if (pause_after_step is None) != (continuation_sink is None):
+            raise ValueError(
+                "pause_after_step and continuation_sink must be provided together"
+            )
+        if pause_after_step is not None and pause_after_step < 0:
+            raise ValueError("pause_after_step must be non-negative")
+        if continuation is not None and initial_direction_choice is not None:
+            raise ValueError(
+                "initial_direction_choice cannot be combined with continuation"
+            )
         walk_counts_before = self.calculator.snapshot()
-        current, frozen_softening = self._prepare_frozen_local_softening(
-            seed_state
-        )
-        walk_reference = current
-        previous_direction: np.ndarray | None = None
-        previous_selected_direction: np.ndarray | None = None
-        previous_relax_outcome: RelaxOutcomeClass | None = None
-        biases: list[GaussianBiasTerm] = []
-        sigma_scale = 1.0
-        weight_scale = 1.0
-        pending_true_after_state: State | None = None
-        pending_true_after = None
-        (
-            anchor_direction,
-            krylov_intents,
-        ) = self._initialize_walk_direction_context(
-            current,
-            trial_index=trial_index,
-        )
+        if continuation is None:
+            current, frozen_softening = self._prepare_frozen_local_softening(
+                seed_state
+            )
+            walk_reference = current
+            previous_direction: np.ndarray | None = None
+            previous_selected_direction: np.ndarray | None = None
+            previous_relax_outcome: RelaxOutcomeClass | None = None
+            biases: list[GaussianBiasTerm] = []
+            sigma_scale = 1.0
+            weight_scale = 1.0
+            pending_true_after_state: State | None = None
+            pending_true_after = None
+            (
+                anchor_direction,
+                krylov_intents,
+            ) = self._initialize_walk_direction_context(
+                current,
+                trial_index=trial_index,
+            )
+            start_step_index = 0
+            trace_target = float(
+                self.config.target_uphill_energy
+                if step_target is None
+                else step_target
+            )
+            step_records: list[UphillStepRecord] = []
+        else:
+            current = deepcopy(continuation.current)
+            frozen_softening = deepcopy(continuation.frozen_softening)
+            walk_reference = deepcopy(continuation.walk_reference)
+            previous_direction = deepcopy(continuation.previous_direction)
+            previous_selected_direction = deepcopy(
+                continuation.previous_selected_direction
+            )
+            previous_relax_outcome = continuation.previous_relax_outcome
+            biases = list(deepcopy(continuation.biases))
+            sigma_scale = float(continuation.sigma_scale)
+            weight_scale = float(continuation.weight_scale)
+            pending_true_after_state = current
+            pending_true_after = deepcopy(continuation.pending_true_after)
+            anchor_direction = np.asarray(
+                continuation.anchor_direction,
+                dtype=float,
+            ).copy()
+            krylov_intents = deepcopy(continuation.krylov_intents)
+            start_step_index = int(continuation.next_step_index)
+            trace_target = float(continuation.trace_target)
+            step_records = list(deepcopy(continuation.completed_steps))
+            self.rng.bit_generator.state = deepcopy(continuation.rng_state)
         termination_reason = "reached_step_cap"
-        trace_target = float(
-            self.config.target_uphill_energy if step_target is None else step_target
-        )
-        step_records: list[UphillStepRecord] = []
 
-        for step_index in range(self.config.max_steps_per_walk):
+        for step_index in range(
+            start_step_index,
+            self.config.max_steps_per_walk,
+        ):
             step_counts_before = self.calculator.snapshot()
             softening = (
                 frozen_softening
@@ -4081,26 +4147,72 @@ class SurfaceWalker:
                 break
             pending_true_after_state = current_candidate
             pending_true_after = true_after
+            if pause_after_step == step_index:
+                continuation_sink.append(
+                    UphillWalkContinuation(
+                        current=deepcopy(current),
+                        walk_reference=deepcopy(walk_reference),
+                        frozen_softening=deepcopy(frozen_softening),
+                        previous_direction=deepcopy(previous_direction),
+                        previous_selected_direction=deepcopy(
+                            previous_selected_direction
+                        ),
+                        previous_relax_outcome=previous_relax_outcome,
+                        biases=tuple(deepcopy(biases)),
+                        sigma_scale=float(sigma_scale),
+                        weight_scale=float(weight_scale),
+                        pending_true_after=deepcopy(pending_true_after),
+                        anchor_direction=np.asarray(
+                            anchor_direction,
+                            dtype=float,
+                        ).copy(),
+                        krylov_intents=deepcopy(krylov_intents),
+                        trace_target=trace_target,
+                        completed_steps=tuple(deepcopy(step_records)),
+                        next_step_index=step_index + 1,
+                        rng_state=deepcopy(self.rng.bit_generator.state),
+                    )
+                )
+                termination_reason = "paused_for_continuation"
+                break
         self._record_walk_termination(termination_reason)
         if trace_sink is not None:
             walk_counts_after = self.calculator.snapshot()
+            direction_force_evaluations = (
+                sum(
+                    step.direction_oracle_force_evaluations
+                    for step in step_records
+                )
+                if continuation is not None
+                else walk_counts_after.count(EvaluationPurpose.DIRECTION_ORACLE)
+                - walk_counts_before.count(EvaluationPurpose.DIRECTION_ORACLE)
+            )
+            biased_relax_force_evaluations = (
+                sum(
+                    step.biased_relax_force_evaluations
+                    for step in step_records
+                )
+                if continuation is not None
+                else walk_counts_after.count(EvaluationPurpose.BIASED_PROPOSAL_RELAX)
+                - walk_counts_before.count(EvaluationPurpose.BIASED_PROPOSAL_RELAX)
+            )
+            true_pes_check_force_evaluations = (
+                sum(
+                    step.true_pes_check_force_evaluations
+                    for step in step_records
+                )
+                if continuation is not None
+                else walk_counts_after.count(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK)
+                - walk_counts_before.count(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK)
+            )
             trace_sink.append(
                 UphillWalkTrace(
                     target_eV=trace_target,
                     termination_reason=termination_reason,
                     steps=tuple(step_records),
-                    direction_oracle_force_evaluations=(
-                        walk_counts_after.count(EvaluationPurpose.DIRECTION_ORACLE)
-                        - walk_counts_before.count(EvaluationPurpose.DIRECTION_ORACLE)
-                    ),
-                    biased_relax_force_evaluations=(
-                        walk_counts_after.count(EvaluationPurpose.BIASED_PROPOSAL_RELAX)
-                        - walk_counts_before.count(EvaluationPurpose.BIASED_PROPOSAL_RELAX)
-                    ),
-                    true_pes_check_force_evaluations=(
-                        walk_counts_after.count(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK)
-                        - walk_counts_before.count(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK)
-                    ),
+                    direction_oracle_force_evaluations=direction_force_evaluations,
+                    biased_relax_force_evaluations=biased_relax_force_evaluations,
+                    true_pes_check_force_evaluations=true_pes_check_force_evaluations,
                 )
             )
         return current
