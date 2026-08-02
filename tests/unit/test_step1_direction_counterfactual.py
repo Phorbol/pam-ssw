@@ -1,10 +1,25 @@
 from __future__ import annotations
 
 import importlib.util
+from copy import deepcopy
 from pathlib import Path
 import sys
 
+import numpy as np
 import pytest
+
+from pamssw.bias import GaussianBiasTerm
+from pamssw.archive import MinimaArchive
+from pamssw.calculators import AnalyticCalculator
+from pamssw.config import SSWConfig
+from pamssw.state import State
+from pamssw.walker import (
+    CandidateDirectionGenerator,
+    DirectionCandidateKind,
+    DirectionChoice,
+    ProposalPotential,
+    SurfaceWalker,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -21,6 +36,7 @@ def _load(path: Path, name: str):
 
 
 protocol = _load(RUN_ROOT / "protocol.py", "_step1_direction_protocol_test")
+runner = _load(RUN_ROOT / "run_gate.py", "_step1_direction_runner_test")
 
 
 def _pool_rows(
@@ -130,3 +146,295 @@ def test_cross_system_momentum_dominance_opens_only_source_gate() -> None:
     assert result["source_only_gate_allowed"] is True
     assert result["posterior_gate_allowed"] is False
     assert result["decision"] == "ALLOW_SOURCE_ONLY_PROSPECTIVE_GATE"
+
+
+def _state(shift: float = 0.0) -> State:
+    return State(
+        numbers=np.array([6, 6]),
+        positions=np.array([[shift, 0.0, 0.0], [1.4, 0.0, 0.0]]),
+    )
+
+
+def _proposal(weight: float = 1.0) -> ProposalPotential:
+    bias = GaussianBiasTerm(
+        center=np.array([0.0, 0.0, 0.0, 1.4, 0.0, 0.0]),
+        direction=np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0]),
+        sigma=0.5,
+        weight=weight,
+    )
+    return ProposalPotential(calculator=None, biases=[bias])
+
+
+def _serialized_pool():
+    return {
+        "prefix": runner.prefix_certificate(
+            _state(),
+            _proposal(),
+            np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0]),
+        ),
+        "candidates": [
+            {
+                "candidate_index": index,
+                "kind": kind,
+                "static_rank": index + 1,
+                "direction_sha256": f"direction-{index}",
+            }
+            for index, kind in enumerate(
+                ("momentum", "bond", "bond", "random")
+            )
+        ],
+    }
+
+
+def test_prefix_certificate_changes_with_positions_or_bias() -> None:
+    direction = np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0])
+
+    reference = runner.prefix_certificate(_state(), _proposal(), direction)
+    moved = runner.prefix_certificate(_state(shift=1.0e-4), _proposal(), direction)
+    changed = runner.prefix_certificate(_state(), _proposal(weight=2.0), direction)
+
+    assert reference["positions_sha256"] != moved["positions_sha256"]
+    assert reference["biases_sha256"] != changed["biases_sha256"]
+    assert reference["bias_count"] == 1
+
+
+def test_replayed_pool_requires_exact_identity_and_one_momentum() -> None:
+    reference = _serialized_pool()
+    runner.validate_replayed_pool(reference, deepcopy(reference))
+
+    changed = deepcopy(reference)
+    changed["candidates"][1]["direction_sha256"] = "changed"
+    with pytest.raises(RuntimeError, match="candidate identity"):
+        runner.validate_replayed_pool(reference, changed)
+
+    no_momentum = deepcopy(reference)
+    no_momentum["candidates"][0]["kind"] = "random"
+    with pytest.raises(RuntimeError, match="one momentum"):
+        runner.validate_replayed_pool(no_momentum, no_momentum)
+
+
+def test_replayed_pool_rejects_prefix_position_drift() -> None:
+    reference = _serialized_pool()
+    replayed = deepcopy(reference)
+    replayed["prefix"]["positions"] = np.asarray(
+        replayed["prefix"]["positions"], dtype=float
+    ).copy()
+    replayed["prefix"]["positions"][0][0] += 2.0e-10
+
+    with pytest.raises(RuntimeError, match="prefix positions"):
+        runner.validate_replayed_pool(reference, replayed)
+
+
+class _Quadratic:
+    def energy_gradient(self, flat_positions, state):
+        values = np.asarray(flat_positions, dtype=float)
+        return 0.5 * float(values @ values), values
+
+
+def test_native_step1_pool_uses_one_batched_hvp_per_candidate() -> None:
+    state = State(
+        numbers=np.array([1, 1, 1, 1]),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0],
+                [4.0, 0.0, 0.0],
+                [4.0, 1.0, 0.0],
+            ]
+        ),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(_Quadratic()),
+        config=SSWConfig(
+            oracle_candidates=4,
+            n_bond_pairs=1,
+            direction_selection_mode="discrete",
+        ),
+        softening_enabled=False,
+    )
+    walker.oracle.generator = CandidateDirectionGenerator(
+        walker.rng,
+        n_random=4,
+        bond_pairs=[(0, 1)],
+        n_bond_pairs=1,
+        bond_distance_threshold=2.0,
+    )
+    archive = MinimaArchive(energy_tol=1.0e-3, rmsd_tol=0.15)
+    archive.add(state, 0.0, parent_id=None)
+    previous = np.array(
+        [1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0]
+    )
+
+    pool = runner.evaluate_native_pool(
+        walker=walker,
+        state=state,
+        proposal=ProposalPotential(walker.calculator),
+        previous_direction=previous,
+        anchor_direction=previous,
+        archive=archive,
+        history_gradient=None,
+        continuity_weight=walker.config.continuity_weight,
+        n_bond_pairs=walker.config.n_bond_pairs,
+        score_sigma=None,
+        score_sigma_fn=walker._direction_score_sigma_fn(1.0),
+        step_scale_fn=lambda curvature: walker._scaled_step_scale(curvature, 1.0),
+    )
+
+    assert [record["kind"] for record in pool["candidates"]] == [
+        "momentum",
+        "bond",
+        "bond",
+        "random",
+    ]
+    assert sorted(record["static_rank"] for record in pool["candidates"]) == [1, 2, 3, 4]
+    assert len(pool["choices"]) == 4
+    assert pool["direction_oracle_force_evaluations"] == 8
+
+
+def _step1_case():
+    state = State(
+        numbers=np.array([1, 1, 1, 1]),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0],
+                [4.0, 0.0, 0.0],
+                [4.0, 1.0, 0.0],
+            ]
+        ),
+    )
+    config = SSWConfig(
+        oracle_candidates=4,
+        n_bond_pairs=1,
+        direction_selection_mode="discrete",
+        rng_seed=17,
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(_Quadratic()),
+        config=config,
+        softening_enabled=False,
+    )
+    walker.oracle.generator = CandidateDirectionGenerator(
+        walker.rng,
+        n_random=4,
+        bond_pairs=[(0, 1)],
+        n_bond_pairs=1,
+        bond_distance_threshold=2.0,
+    )
+    archive = MinimaArchive(energy_tol=1.0e-3, rmsd_tol=0.15)
+    archive.add(state, 0.0, parent_id=None)
+    previous = np.array(
+        [1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0]
+    )
+    kwargs = {
+        "anchor_direction": previous,
+        "step_scale_fn": lambda curvature: walker._scaled_step_scale(curvature, 1.0),
+        "archive": archive,
+        "history_gradient": None,
+        "continuity_weight": walker.config.continuity_weight,
+        "n_bond_pairs": walker.config.n_bond_pairs,
+        "score_sigma": None,
+        "score_sigma_fn": walker._direction_score_sigma_fn(1.0),
+        "direction_type_bonus_fn": None,
+        "plateau_evolution_active": False,
+        "plateau_history": [],
+        "plateau_evolution_children": 0,
+        "plateau_evolution_crossover_pairs": 0,
+        "plateau_evolution_mutation_count": 0,
+        "archive_momentum_history": [],
+        "archive_momentum_limit": 0,
+        "energy_bound_step_scale": None,
+        "energy_bound_target": None,
+    }
+    return walker, state, ProposalPotential(walker.calculator), previous, kwargs
+
+
+def test_controller_branches_only_at_first_normal_oracle_call() -> None:
+    reference_walker, state, proposal, previous, kwargs = _step1_case()
+    reference_pool = runner.evaluate_native_pool(
+        walker=reference_walker,
+        state=state,
+        proposal=proposal,
+        previous_direction=previous,
+        anchor_direction=kwargs["anchor_direction"],
+        archive=kwargs["archive"],
+        history_gradient=kwargs["history_gradient"],
+        continuity_weight=kwargs["continuity_weight"],
+        n_bond_pairs=kwargs["n_bond_pairs"],
+        score_sigma=kwargs["score_sigma"],
+        score_sigma_fn=kwargs["score_sigma_fn"],
+        step_scale_fn=kwargs["step_scale_fn"],
+    )
+    replay_walker, replay_state, replay_proposal, replay_previous, replay_kwargs = _step1_case()
+    later_choice = DirectionChoice(
+        direction=replay_previous / np.linalg.norm(replay_previous),
+        curvature=1.0,
+        kind=DirectionCandidateKind.MOMENTUM,
+        candidate_count=1,
+    )
+    later_calls = []
+
+    def original_choose(*args, **inner_kwargs):
+        later_calls.append((args, inner_kwargs))
+        return later_choice
+
+    controller = runner.StepOneController(
+        walker=replay_walker,
+        original_choose=original_choose,
+        reference_pool=reference_pool,
+        forced_index=2,
+    )
+
+    forced = controller(
+        replay_state,
+        replay_proposal,
+        replay_previous,
+        **replay_kwargs,
+    )
+    later = controller(
+        replay_state,
+        replay_proposal,
+        replay_previous,
+        **replay_kwargs,
+    )
+
+    assert forced.diagnostics["shared_step1_direction"] is True
+    assert forced.diagnostics["candidate_index"] == 2
+    assert later is later_choice
+    assert len(later_calls) == 1
+
+
+def test_forced_controller_charges_no_step1_selection_hvp() -> None:
+    reference_walker, state, proposal, previous, kwargs = _step1_case()
+    reference_pool = runner.evaluate_native_pool(
+        walker=reference_walker,
+        state=state,
+        proposal=proposal,
+        previous_direction=previous,
+        anchor_direction=kwargs["anchor_direction"],
+        archive=kwargs["archive"],
+        history_gradient=kwargs["history_gradient"],
+        continuity_weight=kwargs["continuity_weight"],
+        n_bond_pairs=kwargs["n_bond_pairs"],
+        score_sigma=kwargs["score_sigma"],
+        score_sigma_fn=kwargs["score_sigma_fn"],
+        step_scale_fn=kwargs["step_scale_fn"],
+    )
+    replay_walker, replay_state, replay_proposal, replay_previous, replay_kwargs = _step1_case()
+    controller = runner.StepOneController(
+        walker=replay_walker,
+        original_choose=replay_walker.oracle.choose_direction,
+        reference_pool=reference_pool,
+        forced_index=2,
+    )
+    before = replay_walker.calculator.snapshot()
+
+    controller(
+        replay_state,
+        replay_proposal,
+        replay_previous,
+        **replay_kwargs,
+    )
+
+    after = replay_walker.calculator.snapshot()
+    assert after.total - before.total == 0
