@@ -129,6 +129,68 @@ def test_equal_budget_decision_uses_failure_count_not_attempt_denominator() -> N
     assert result["certificate_regression_systems"] == []
 
 
+def _repeat_rows(deltas_by_system: dict[str, tuple[float, float, float]]):
+    rows = []
+    for system in ("c60", "pdo", "cuo"):
+        for seed, delta in zip((49, 50, 51), deltas_by_system[system]):
+            rows.extend(
+                [
+                    {
+                        "system": system,
+                        "seed": seed,
+                        "horizon": 4,
+                        "gain_auc_eV": 5.0 + delta,
+                        "strict_landing_failure_count": 0,
+                    },
+                    {
+                        "system": system,
+                        "seed": seed,
+                        "horizon": 8,
+                        "gain_auc_eV": 5.0,
+                        "strict_landing_failure_count": 0,
+                    },
+                ]
+            )
+    return rows
+
+
+def test_repeat_decision_stops_h4_when_any_system_flips_sign() -> None:
+    rows = _repeat_rows(
+        {
+            "c60": (1.0, -0.2, 0.3),
+            "pdo": (0.4, 0.2, 0.1),
+            "cuo": (0.5, 0.4, 0.2),
+        }
+    )
+
+    result = protocol.repeated_seed_decision(rows, seeds=(49, 50, 51))
+
+    assert result["decision"] == "RETAIN_H8_STOP_SHORT_HORIZON_BRANCH"
+    assert result["sign_flip_systems"] == ["c60"]
+    assert result["system_win_counts"]["c60"] == {"h4": 2, "h8": 1}
+
+
+def test_repeat_decision_requires_complete_consistent_safe_cohort() -> None:
+    rows = _repeat_rows(
+        {
+            "c60": (1.0, 0.2, 0.3),
+            "pdo": (0.4, 0.2, 0.1),
+            "cuo": (0.5, 0.4, 0.2),
+        }
+    )
+    passed = protocol.repeated_seed_decision(rows, seeds=(49, 50, 51))
+    assert passed["decision"] == "ADMIT_H4_PRODUCTION_DEFAULT"
+
+    regressed = [dict(row) for row in rows]
+    regressed[0]["strict_landing_failure_count"] = 1
+    failed = protocol.repeated_seed_decision(regressed, seeds=(49, 50, 51))
+    assert failed["decision"] == "RETAIN_H8_STOP_SHORT_HORIZON_BRANCH"
+    assert failed["certificate_regression_pairs"] == ["c60:49"]
+
+    partial = protocol.repeated_seed_decision(rows[:-1], seeds=(49, 50, 51))
+    assert partial["decision"] == "NOT_EVALUATED_PARTIAL_REPEAT_COHORT"
+
+
 def test_runner_builds_only_horizon_difference(tmp_path: Path) -> None:
     runner = _load(RUN_ROOT / "run_gate.py", "_fixed_h4_h8_runner_test")
     h4 = runner.build_config(

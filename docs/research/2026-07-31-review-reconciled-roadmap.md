@@ -979,3 +979,34 @@ count，并由回归测试固定；零新增 FE 重算后为 `ADMIT_H4_REPEAT_GA
 first-passage、direction-score 修改、starter UCB/TS 或 posterior。这个结果也强化了
 direction--propagator 耦合：方向质量必须由完整 fidelity-conditioned landing 定义，不能
 脱离传播 horizon 用单一曲率或短程 proxy 贴全局标签。
+
+## 二十三、三种子复验否决 universal H4，停止 horizon 调参
+
+H4/H8 repeat 追加 seeds 50、51，并与 seed49 合并为 18 个 paired arms。所有 pair 继续
+共享 bootstrap，唯一 scientific config 差异仍是 `max_steps_per_walk=4/8`。总 campaign
+budget 为 360,000 FE，实际使用 359,960 FE，剩余 40 FE，`unattributed=0`；GPU wall
+time 合计 7,781.37 秒。没有 H4 landing certificate regression。
+
+预算归一化 gain-AUC 的 `H4-H8` 配对差值为：
+
+- C60：`+3.4907, -1.1543, -0.5474 eV`，中位数 `-0.5474 eV`；
+- PdO：`+0.0874, +0.7426, +0.6725 eV`，中位数 `+0.6725 eV`；
+- CuO：`+0.2399, -0.5083, -0.2809 eV`，中位数 `-0.2809 eV`。
+
+C60 和 CuO 均发生预注册的跨 seed 符号翻转，故裁决为
+`RETAIN_H8_STOP_SHORT_HORIZON_BRANCH`。production H8 不变，不运行 H5/H6，也不把
+adaptive stopping 重新包装后继续调参。
+
+物理归因进一步收紧：C60 的 H4 在三个 seed 都增加 terminal action，但同时显著增加
+duplicate，只有 seed49 偶然较早命中深 basin；CuO 的 H4 同样稳定增加 action throughput，
+但 seeds 50/51 的 H8 用更少 action 更早进入更深 basin，证明第五至第八步有时确实在累积
+bias 并跨越短 trajectory 难以跨越的势垒。PdO 虽然三次 AUC 正号，但每对总 micro-step
+只差 2--6 步、action 数几乎相同，nominal horizon 很少成为 active constraint；而最终最低
+能也只有 seed50 支持 H4，因此不能作为 universal H4 的补救证据。
+
+这一门控关闭全局 horizon 常数优化。H4/H8 仅保留为未来可能的离散 fidelity arms；在
+context 可预测性通过留体系验证前，不训练 horizon selector。下一主线转向共享 candidate
+pool 的方向来源与排序归因：冻结 starter 和 H8 propagator，对同一 starter 的候选方向
+记录完整 landing outcome，并分开 escape、new basin、global improvement 与成本。先验证
+哪类方向信息具有可重复的 outcome likelihood，再考虑 family-level posterior；不再调
+starter UCB-like 固定权重，也不直接换成 TS。

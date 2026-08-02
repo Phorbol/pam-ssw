@@ -136,6 +136,71 @@ def cohort_decision(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     }
 
 
+def repeated_seed_decision(
+    rows: Sequence[Mapping[str, Any]],
+    *,
+    seeds: Sequence[int],
+) -> dict[str, Any]:
+    seeds = tuple(int(seed) for seed in seeds)
+    expected = case_matrix(seeds=seeds)
+    observed = [
+        {
+            "system": str(row["system"]),
+            "seed": int(row["seed"]),
+            "horizon": int(row["horizon"]),
+        }
+        for row in rows
+    ]
+    if observed != expected:
+        return {
+            "decision": "NOT_EVALUATED_PARTIAL_REPEAT_COHORT",
+            "sign_flip_systems": [],
+            "system_win_counts": {},
+            "paired_gain_auc_deltas_eV": {},
+            "certificate_regression_pairs": [],
+        }
+
+    indexed = {
+        (str(row["system"]), int(row["seed"]), int(row["horizon"])): row
+        for row in rows
+    }
+    deltas: dict[str, dict[str, float]] = {}
+    win_counts: dict[str, dict[str, int]] = {}
+    sign_flips = []
+    regressions = []
+    for system in SYSTEMS:
+        system_deltas = {
+            str(seed): float(indexed[(system, seed, 4)]["gain_auc_eV"])
+            - float(indexed[(system, seed, 8)]["gain_auc_eV"])
+            for seed in seeds
+        }
+        deltas[system] = system_deltas
+        h4_wins = sum(delta > 0.0 for delta in system_deltas.values())
+        win_counts[system] = {"h4": h4_wins, "h8": len(seeds) - h4_wins}
+        if 0 < h4_wins < len(seeds):
+            sign_flips.append(system)
+        for seed in seeds:
+            if _certificate_failure_count(indexed[(system, seed, 4)]) > (
+                _certificate_failure_count(indexed[(system, seed, 8)])
+            ):
+                regressions.append(f"{system}:{seed}")
+
+    admit = not sign_flips and not regressions and all(
+        counts["h4"] == len(seeds) for counts in win_counts.values()
+    )
+    return {
+        "decision": (
+            "ADMIT_H4_PRODUCTION_DEFAULT"
+            if admit
+            else "RETAIN_H8_STOP_SHORT_HORIZON_BRANCH"
+        ),
+        "sign_flip_systems": sign_flips,
+        "system_win_counts": win_counts,
+        "paired_gain_auc_deltas_eV": deltas,
+        "certificate_regression_pairs": regressions,
+    }
+
+
 def _certificate_failure_count(row: Mapping[str, Any]) -> int:
     explicit = row.get("strict_landing_failure_count")
     if explicit is not None:
