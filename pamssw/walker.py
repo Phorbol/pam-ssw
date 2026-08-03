@@ -5,7 +5,7 @@ import sys
 from hashlib import sha256
 from copy import deepcopy
 from collections import Counter, deque
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum
 from math import log1p, sqrt
@@ -3657,6 +3657,7 @@ class SurfaceWalker:
             self.config.max_steps_per_walk,
         ):
             step_counts_before = self.calculator.snapshot()
+            active_biases = self._active_walk_biases(biases)
             softening = (
                 frozen_softening
                 if frozen_softening is not None
@@ -3670,7 +3671,7 @@ class SurfaceWalker:
             )
             proposal = ProposalPotential(
                 self.calculator,
-                biases=biases,
+                biases=active_biases,
                 softening=oracle_softening,
             )
             scoring_proposal = self._direction_scoring_proposal(proposal)
@@ -3804,7 +3805,10 @@ class SurfaceWalker:
                             step_target=step_target,
                         ),
                         archive=archive,
-                        history_gradient=self._history_bias_gradient(current, biases),
+                        history_gradient=self._history_bias_gradient(
+                            current,
+                            active_biases,
+                        ),
                         continuity_weight=self._continuity_weight_for_outcome(previous_relax_outcome),
                         n_bond_pairs=self._n_bond_pairs_for_outcome(previous_relax_outcome),
                         score_sigma=(
@@ -3887,7 +3891,7 @@ class SurfaceWalker:
                 )
                 proposal = ProposalPotential(
                     self.calculator,
-                    biases=biases,
+                    biases=active_biases,
                     softening=oracle_softening,
                 )
             with self.calculator.purpose(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK):
@@ -4017,7 +4021,7 @@ class SurfaceWalker:
                 raise ValueError("bias-separated-lbfgs does not support local softening")
             proposal_task = ProposalRelaxationTask(
                 initial_state=trial_state,
-                biases=tuple(biases),
+                biases=self._active_walk_biases(biases),
                 softening=proposal_softening,
                 fmax=self.config.proposal_fmax,
                 maxiter=self.config.proposal_relax_steps,
@@ -4561,7 +4565,10 @@ class SurfaceWalker:
         self._step_displacement_max_atom_max = max(self._step_displacement_max_atom_max, max_atom)
 
     @staticmethod
-    def _history_bias_gradient(state: State, biases: list[GaussianBiasTerm]) -> np.ndarray | None:
+    def _history_bias_gradient(
+        state: State,
+        biases: Sequence[GaussianBiasTerm],
+    ) -> np.ndarray | None:
         if not biases:
             return None
         flat_positions = state.flatten_positions()
@@ -4570,6 +4577,14 @@ class SurfaceWalker:
             _, bias_gradient = bias.evaluate(flat_positions, cell=state.cell, pbc=state.pbc)
             gradient += bias_gradient
         return gradient
+
+    @staticmethod
+    def _active_walk_biases(
+        biases: Sequence[GaussianBiasTerm],
+    ) -> tuple[GaussianBiasTerm, ...]:
+        """Return the Gaussian history acting on the current walk state."""
+
+        return tuple(biases)
 
     def _direction_scoring_proposal(self, inner_proposal: ProposalPotential) -> ProposalPotential:
         if self.config.direction_curvature_source == "true":

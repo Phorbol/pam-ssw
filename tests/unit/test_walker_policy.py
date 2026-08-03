@@ -96,6 +96,59 @@ def test_walk_exposes_optimizer_neutral_proposal_relaxation_task(monkeypatch):
     assert task.initial_state.positions[0, 0] > state.positions[0, 0]
 
 
+def test_walk_bias_view_can_remove_older_gaussians_without_changing_storage(monkeypatch):
+    class LatestOnlyWalker(SurfaceWalker):
+        @staticmethod
+        def _active_walk_biases(biases):
+            return tuple(biases[-1:])
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    walker = LatestOnlyWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            max_steps_per_walk=3,
+            oracle_candidates=1,
+            proposal_relax_steps=0,
+            min_step_scale=0.1,
+            max_step_scale=0.1,
+            walk_trust_radius=10.0,
+        ),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0])
+    oracle_bias_counts = []
+    task_bias_counts = []
+
+    def choose_direction(_state, proposal, *_args, **_kwargs):
+        oracle_bias_counts.append(len(proposal.biases))
+        return DirectionChoice(
+            direction=direction,
+            curvature=1.0,
+            true_curvature=1.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        )
+
+    def retain_initial_state(task, **_kwargs):
+        task_bias_counts.append(len(task.biases))
+        return RelaxResult(
+            state=task.initial_state,
+            energy=0.0,
+            gradient_norm=0.0,
+            n_iter=0,
+        )
+
+    monkeypatch.setattr(walker.oracle, "choose_direction", choose_direction)
+    monkeypatch.setattr(walker, "_relax_proposal_task", retain_initial_state)
+
+    traces = []
+    walker._walk_candidate_from_seed(state, trace_sink=traces)
+
+    assert oracle_bias_counts == [0, 1, 1]
+    assert task_bias_counts == [1, 1, 1]
+    assert len(traces[0].steps) == 3
+
+
 @pytest.mark.parametrize(
     ("scope", "oracle_softened", "proposal_softened"),
     [
