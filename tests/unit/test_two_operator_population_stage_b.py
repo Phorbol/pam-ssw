@@ -741,6 +741,41 @@ def test_basin_split_diagnostic_exposes_energy_only_archive_split():
     ) == "archive_match"
 
 
+def test_geometry_audit_summary_keeps_archive_split_separate_from_primary_label():
+    analyzer = load_analyzer()
+    summary = analyzer.summarize_geometry_audit_rows(
+        [
+            {
+                "operator_family": "direct",
+                "same_starter_basin": True,
+                "archive_same_starter_basin": False,
+                "archive_rmsd_A": 0.02,
+                "classification": "energy_only_split",
+            }
+        ]
+    )
+    assert summary["direct_nonstarter_count"] == 0
+    assert summary["direct_energy_only_split_count"] == 1
+
+
+def test_reference_comparison_reports_input_drift_without_hiding_it():
+    runner = load_runner()
+    analyzer = load_analyzer()
+    reference = synthetic_full_pair_records(runner)
+    corrected = __import__("copy").deepcopy(reference)
+    corrected[-1]["direction_sha256"] = "b" * 64
+
+    comparison = analyzer.compare_pair_inputs(reference, corrected)
+
+    assert comparison["pair_count"] == 18
+    assert comparison["same_starter_sha256_count"] == 18
+    assert comparison["same_execution_sigma_count"] == 18
+    assert comparison["same_direction_sha256_count"] == 17
+    assert comparison["direction_changed_pairs"] == [
+        {"system": "cuo", "starter_context": "h8_best", "seed": 57}
+    ]
+
+
 def test_analyze_directory_writes_deterministic_compact_evidence(tmp_path):
     runner = load_runner()
     analyzer = load_analyzer()

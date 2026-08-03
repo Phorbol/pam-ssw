@@ -189,6 +189,80 @@ def finite_float_or_none(value: float) -> float | None:
     return value if math.isfinite(value) else None
 
 
+def summarize_geometry_audit_rows(rows) -> dict[str, object]:
+    counts = Counter(row["classification"] for row in rows)
+    direct_rows = [row for row in rows if row["operator_family"] == "direct"]
+    direct_nonstarter = [
+        row for row in direct_rows if not row["same_starter_basin"]
+    ]
+    return {
+        "classification_counts": dict(sorted(counts.items())),
+        "direct_nonstarter_count": len(direct_nonstarter),
+        "direct_energy_only_split_count": sum(
+            row["classification"] == "energy_only_split"
+            for row in direct_rows
+        ),
+        "direct_nonstarter_archive_rmsd_A_distribution": _distribution(
+            row["archive_rmsd_A"]
+            for row in direct_nonstarter
+            if row["archive_rmsd_A"] is not None
+        ),
+    }
+
+
+def compare_pair_inputs(reference_pairs, observed_pairs) -> dict[str, object]:
+    def keyed(rows):
+        return {
+            (
+                row["system"],
+                row["starter_context"],
+                int(row["seed"]),
+            ): row
+            for row in rows
+        }
+
+    reference = keyed(reference_pairs)
+    observed = keyed(observed_pairs)
+    if set(reference) != set(observed):
+        raise ValueError("reference and observed pair keys differ")
+    ordered_keys = sorted(
+        reference,
+        key=lambda key: (
+            protocol.SYSTEMS.index(key[0]),
+            protocol.STARTERS.index(key[1]),
+            protocol.SEEDS.index(key[2]),
+        ),
+    )
+    direction_changed = [
+        key
+        for key in ordered_keys
+        if reference[key]["direction_sha256"]
+        != observed[key]["direction_sha256"]
+    ]
+    return {
+        "pair_count": len(ordered_keys),
+        "same_starter_sha256_count": sum(
+            reference[key]["starter_sha256"]
+            == observed[key]["starter_sha256"]
+            for key in ordered_keys
+        ),
+        "same_execution_sigma_count": sum(
+            reference[key]["execution_sigma"]
+            == observed[key]["execution_sigma"]
+            for key in ordered_keys
+        ),
+        "same_direction_sha256_count": len(ordered_keys) - len(direction_changed),
+        "direction_changed_pairs": [
+            {
+                "system": system,
+                "starter_context": starter,
+                "seed": seed,
+            }
+            for system, starter, seed in direction_changed
+        ],
+    }
+
+
 def _geometry_audit(input_directory: Path, pairs) -> dict[str, object]:
     """Audit basin labels from saved coordinates without new PES evaluations."""
     from pamssw.archive import MinimaArchive
@@ -239,22 +313,11 @@ def _geometry_audit(input_directory: Path, pairs) -> dict[str, object]:
                     ),
                 }
             )
-    counts = Counter(row["classification"] for row in rows)
-    direct_rows = [row for row in rows if row["operator_family"] == "direct"]
-    direct_nonstarter = [row for row in direct_rows if not row["same_starter_basin"]]
     return {
         "new_force_evaluations": 0,
         "complete": not missing and len(rows) == 2 * len(pairs),
         "missing_artifacts": missing,
-        "classification_counts": dict(sorted(counts.items())),
-        "direct_nonstarter_count": len(direct_nonstarter),
-        "direct_energy_only_split_count": sum(
-            row["classification"] == "energy_only_split"
-            for row in direct_nonstarter
-        ),
-        "direct_nonstarter_archive_rmsd_A_distribution": _distribution(
-            row["archive_rmsd_A"] for row in direct_nonstarter
-        ),
+        **summarize_geometry_audit_rows(rows),
         "rows": rows,
     }
 
@@ -425,6 +488,7 @@ def analyze_directory(
     output: Path,
     *,
     provenance,
+    reference_directory: Path | None = None,
 ):
     input_directory = Path(input_directory)
     paths = sorted(input_directory.glob("**/pair.json"))
@@ -450,6 +514,16 @@ def analyze_directory(
         input_directory,
         pairs,
     )
+    if reference_directory is not None:
+        reference_paths = sorted(Path(reference_directory).glob("**/pair.json"))
+        reference_pairs = [
+            json.loads(path.read_text(encoding="utf-8"))
+            for path in reference_paths
+        ]
+        evidence["reference_input_comparison"] = compare_pair_inputs(
+            reference_pairs,
+            pairs,
+        )
     _write_json(output, evidence)
     return evidence
 
@@ -513,6 +587,7 @@ def parse_args(argv=None):
         type=Path,
         default=RUN_ROOT / "output/evidence.json",
     )
+    parser.add_argument("--reference", type=Path)
     return parser.parse_args(argv)
 
 
@@ -522,6 +597,7 @@ def main(argv=None) -> int:
         args.input,
         args.output,
         provenance=runtime_provenance(),
+        reference_directory=args.reference,
     )
     print(json.dumps(evidence["decision"], indent=2, sort_keys=True))
     return 0
