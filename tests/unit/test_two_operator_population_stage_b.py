@@ -18,10 +18,23 @@ from pamssw.walker import GeometryValidator
 
 ROOT = Path(__file__).resolve().parents[2]
 PATH = ROOT / "runs/20260803-two-operator-population-gate/run_stage_b.py"
+ANALYZER_PATH = ROOT / "runs/20260803-two-operator-population-gate/analyze_stage_b.py"
 
 
 def load_runner():
     spec = importlib.util.spec_from_file_location("_two_operator_stage_b", PATH)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_analyzer():
+    spec = importlib.util.spec_from_file_location(
+        "_two_operator_stage_b_analyzer",
+        ANALYZER_PATH,
+    )
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
@@ -428,3 +441,145 @@ def test_stage_b_requires_stage_a_admission(tmp_path):
     path.write_text('{"decision": "CLOSE_TWO_OPERATOR_PORTFOLIO"}\n')
     with pytest.raises(RuntimeError, match="did not admit"):
         runner.require_stage_a_admission(path)
+
+
+def synthetic_full_pair_records(runner):
+    records = []
+    for case in runner.protocol.case_matrix():
+        shared = 8
+        starter_counts = {"starter_true_quench": 1, "unattributed": 0}
+        direct_new = case.starter_context == "bootstrap"
+        actions = [
+            {
+                "system": case.system,
+                "starter_context": case.starter_context,
+                "seed": case.seed,
+                "operator_family": "direct",
+                "certified": True,
+                "same_starter_basin": not direct_new,
+                "geometry_valid": True,
+                "fragmented": False,
+                "budget_censored": False,
+                "landing_delta_eV": -1.0 if direct_new else 0.0,
+                "improved_global_best": direct_new,
+                "force_evaluations": 80,
+                "fully_loaded_force_evaluations": 88,
+                "wall_time_s": 1.0,
+                "fully_loaded_wall_time_s": 1.1,
+                "purpose_counts": {
+                    "landing_true_quench": 79,
+                    "post_relax_validation": 1,
+                    "unattributed": 0,
+                },
+            },
+            {
+                "system": case.system,
+                "starter_context": case.starter_context,
+                "seed": case.seed,
+                "operator_family": "ssw",
+                "certified": True,
+                "same_starter_basin": False,
+                "geometry_valid": True,
+                "fragmented": False,
+                "budget_censored": False,
+                "landing_delta_eV": -1.0,
+                "improved_global_best": True,
+                "force_evaluations": 300,
+                "fully_loaded_force_evaluations": 308,
+                "wall_time_s": 4.0,
+                "fully_loaded_wall_time_s": 4.1,
+                "purpose_counts": {
+                    "direction_oracle": 24,
+                    "biased_proposal_relax": 200,
+                    "escape_true_pes_check": 10,
+                    "landing_true_quench": 65,
+                    "post_relax_validation": 1,
+                    "unattributed": 0,
+                },
+            },
+        ]
+        artifact = next(
+            item
+            for item in runner.starter_artifacts()
+            if item.system == case.system and item.context == case.starter_context
+        )
+        records.append(
+            {
+                "schema_version": 1,
+                "system": case.system,
+                "starter_context": case.starter_context,
+                "seed": case.seed,
+                "starter_sha256": artifact.sha256,
+                "fixed_atom_count": runner.protocol.FIXED_ATOM_COUNTS[case.system],
+                "direction_sha256": "a" * 64,
+                "execution_sigma": 0.2,
+                "shared_direction_force_evaluations": shared,
+                "shared_initial_direction_wall_time_s": 0.1,
+                "starter_validation_purpose_counts": starter_counts,
+                "starter_validation_wall_time_s": 0.2,
+                "actions": actions,
+                "pair_force_evaluations": 389,
+                "pair_wall_time_s": 5.2,
+                "effective_config": {},
+            }
+        )
+    return records
+
+
+def test_build_evidence_closes_full_matrix_and_applies_preregistered_decision():
+    runner = load_runner()
+    analyzer = load_analyzer()
+    pairs = synthetic_full_pair_records(runner)
+    evidence = analyzer.build_evidence(pairs, provenance={"git_commit": "abc"})
+    assert evidence["purpose_ledger_closes"] is True
+    assert evidence["unattributed_force_evaluations"] == 0
+    assert evidence["decision"]["decision"] == "ADMIT_STAGE_C_DESIGN"
+    assert len(evidence["system_summaries"]) == 3
+    assert evidence["pooled_summary"]["action_count"] == 36
+    assert evidence["global_force_evaluations"] == 18 * 389
+    assert (
+        evidence["system_summaries"]["c60"]["ssw"]["purpose_counts"]
+        ["biased_proposal_relax"]
+        == 6 * 200
+    )
+    assert evidence["pooled_summary"]["paired_regret_eV_distribution"]["count"] == 18
+    assert len(evidence["provenance"]["effective_config_manifest"]) == 18
+
+
+def test_build_evidence_rejects_action_ledger_drift():
+    runner = load_runner()
+    analyzer = load_analyzer()
+    pairs = synthetic_full_pair_records(runner)
+    pairs[0]["actions"][0]["force_evaluations"] += 1
+    with pytest.raises(ValueError, match="ledger"):
+        analyzer.build_evidence(pairs, provenance={})
+
+
+def test_analyze_directory_writes_deterministic_compact_evidence(tmp_path):
+    runner = load_runner()
+    analyzer = load_analyzer()
+    input_directory = tmp_path / "raw"
+    for pair in synthetic_full_pair_records(runner):
+        path = (
+            input_directory
+            / pair["system"]
+            / pair["starter_context"]
+            / f"seed-{pair['seed']:08d}"
+            / "pair.json"
+        )
+        runner.write_json(path, pair)
+    first = tmp_path / "first.json"
+    second = tmp_path / "second.json"
+    analyzer.analyze_directory(
+        input_directory,
+        first,
+        provenance={"git_commit": "abc"},
+    )
+    analyzer.analyze_directory(
+        input_directory,
+        second,
+        provenance={"git_commit": "abc"},
+    )
+    assert first.read_bytes() == second.read_bytes()
+    payload = __import__("json").loads(first.read_text(encoding="utf-8"))
+    assert payload["provenance"]["raw_pair_manifest_count"] == 18
