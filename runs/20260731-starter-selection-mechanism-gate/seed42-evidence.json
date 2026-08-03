@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "claim_boundary": {
+    "c60_pdo": "independent bootstraps agreed within 6e-5 eV; useful seed-42 evidence but not the corrected future protocol",
+    "cuo": "one exact shared bootstrap reused by all arms; float32 CUDA action trajectories remain numerically sensitive",
+    "statistics": "single seed per system; mechanism evidence, not a production ranking"
+  },
+  "force_budget_per_case": 20000,
+  "rows": [
+    {
+      "system": "c60",
+      "starter_mode": "uniform_archive",
+      "initial_energy_eV": -474.6697082519531,
+      "best_energy_eV": -490.0940246582031,
+      "energy_drop_eV": 15.42431640625,
+      "force_evaluations": 20000,
+      "completed_trials": 42,
+      "archive_entries": 40,
+      "wall_time_s": 346.7619811090117
+    },
+    {
+      "system": "c60",
+      "starter_mode": "archive_ucb",
+      "initial_energy_eV": -474.66973876953125,
+      "best_energy_eV": -496.6598815917969,
+      "energy_drop_eV": 21.990142822265625,
+      "force_evaluations": 20000,
+      "completed_trials": 49,
+      "archive_entries": 40,
+      "wall_time_s": 342.1151687669917
+    },
+    {
+      "system": "c60",
+      "starter_mode": "metropolis_chain",
+      "initial_energy_eV": -474.6697692871094,
+      "best_energy_eV": -496.3407287597656,
+      "energy_drop_eV": 21.67095947265625,
+      "force_evaluations": 20000,
+      "completed_trials": 40,
+      "archive_entries": 38,
+      "wall_time_s": 338.6681462819979
+    },
+    {
+      "system": "pdo",
+      "starter_mode": "uniform_archive",
+      "initial_energy_eV": -568.39697265625,
+      "best_energy_eV": -572.5205078125,
+      "energy_drop_eV": 4.12353515625,
+      "force_evaluations": 20000,
+      "completed_trials": 72,
+      "archive_entries": 63,
+      "wall_time_s": 450.6134222029941
+    },
+    {
+      "system": "pdo",
+      "starter_mode": "archive_ucb",
+      "initial_energy_eV": -568.39697265625,
+      "best_energy_eV": -573.7589111328125,
+      "energy_drop_eV": 5.3619384765625,
+      "force_evaluations": 20000,
+      "completed_trials": 79,
+      "archive_entries": 74,
+      "wall_time_s": 464.0470284660114
+    },
+    {
+      "system": "pdo",
+      "starter_mode": "metropolis_chain",
+      "initial_energy_eV": -568.39697265625,
+      "best_energy_eV": -575.166015625,
+      "energy_drop_eV": 6.76904296875,
+      "force_evaluations": 20000,
+      "completed_trials": 74,
+      "archive_entries": 68,
+      "wall_time_s": 461.668135179003
+    },
+    {
+      "system": "cuo",
+      "starter_mode": "uniform_archive",
+      "initial_energy_eV": -198.67767333984375,
+      "best_energy_eV": -201.8726806640625,
+      "energy_drop_eV": 3.19500732421875,
+      "force_evaluations": 20000,
+      "shared_bootstrap_force_evaluations": 108,
+      "search_force_evaluations": 19892,
+      "completed_trials": 17,
+      "archive_entries": 18,
+      "wall_time_s": 605.9233919740072,
+      "proposal_force_share": 0.85345,
+      "direction_force_share": 0.0624,
+      "landing_quench_force_share": 0.0731,
+      "line_search_rejected_fraction": 0.5825696210015964,
+      "line_search_failed_tasks": 77,
+      "proposal_relaxation_tasks": 78
+    },
+    {
+      "system": "cuo",
+      "starter_mode": "archive_ucb",
+      "initial_energy_eV": -198.67767333984375,
+      "best_energy_eV": -201.6865234375,
+      "energy_drop_eV": 3.00885009765625,
+      "force_evaluations": 20000,
+      "shared_bootstrap_force_evaluations": 108,
+      "search_force_evaluations": 19892,
+      "completed_trials": 18,
+      "archive_entries": 19,
+      "wall_time_s": 608.0388299080078,
+      "proposal_force_share": 0.8479,
+      "direction_force_share": 0.0752,
+      "landing_quench_force_share": 0.065,
+      "line_search_rejected_fraction": 0.6168196087901473,
+      "line_search_failed_tasks": 88,
+      "proposal_relaxation_tasks": 93
+    },
+    {
+      "system": "cuo",
+      "starter_mode": "metropolis_chain",
+      "initial_energy_eV": -198.67767333984375,
+      "best_energy_eV": -201.87435913085938,
+      "energy_drop_eV": 3.196685791015625,
+      "force_evaluations": 20000,
+      "shared_bootstrap_force_evaluations": 108,
+      "search_force_evaluations": 19892,
+      "completed_trials": 20,
+      "archive_entries": 21,
+      "wall_time_s": 608.7110270770208,
+      "proposal_force_share": 0.83275,
+      "direction_force_share": 0.072,
+      "landing_quench_force_share": 0.08335,
+      "line_search_rejected_fraction": 0.5757464960390006,
+      "line_search_failed_tasks": 83,
+      "proposal_relaxation_tasks": 89
+    }
+  ],
+  "metropolis": {
+    "c60": {
+      "attempts": 40,
+      "accepts": 15,
+      "downhill_accepts": 15,
+      "uphill_accepts": 0
+    },
+    "pdo": {
+      "attempts": 74,
+      "accepts": 23,
+      "downhill_accepts": 11,
+      "uphill_accepts": 12
+    },
+    "cuo": {
+      "attempts": 20,
+      "accepts": 4,
+      "downhill_accepts": 3,
+      "uphill_accepts": 1
+    }
+  },
+  "cuo_provenance": {
+    "archive_sha256": "914133194053c563c23d8372a8911491b730d7f3f77f83c7d414b554ecde7944",
+    "input_member_sha256": "e85337f201224a527ff7b61d3de29fa54e2aa7a1f27c4d6460532f02aebff510",
+    "model_member_sha256": "ba0221816afc046175e27ffa04934b8f7c543b8c81cdfc33a0f98cd12dd333b6",
+    "n_atoms": 54,
+    "n_fixed_atoms": 24,
+    "pbc": [
+      true,
+      true,
+      false
+    ],
+    "execution_commit": "ccbe6d697261f22aa2ee17cdb26f98f24ea660b6"
+  }
+}

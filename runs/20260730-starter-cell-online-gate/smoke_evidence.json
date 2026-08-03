@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "execution_commit": "64b569c019f5ca93e1653797ba1ab29b9ad19eba",
+  "scope": "mechanism smoke only; not a selector performance decision",
+  "systems": {
+    "c60": {
+      "uniform": {
+        "actions": 9,
+        "total_force_evaluations": 5425,
+        "unused_force_budget": 575,
+        "archive_entries": 10,
+        "best_energy_drop_eV": 15.919189453125,
+        "wall_time_s": 126.43009036500007
+      },
+      "fps_cell_uniform": {
+        "actions": 9,
+        "total_force_evaluations": 5260,
+        "unused_force_budget": 740,
+        "archive_entries": 10,
+        "best_energy_drop_eV": 14.277099609375,
+        "wall_time_s": 96.6538132380083,
+        "last_cell_sizes": [2, 2, 2, 3],
+        "descriptor_forward_calls": 9,
+        "descriptor_wall_time_s": 0.2012590010126587
+      }
+    },
+    "pdo": {
+      "uniform": {
+        "actions": 15,
+        "total_force_evaluations": 5125,
+        "unused_force_budget": 875,
+        "archive_entries": 15,
+        "best_energy_drop_eV": 3.5904541015625,
+        "wall_time_s": 121.28663237400178
+      },
+      "fps_cell_uniform": {
+        "actions": 18,
+        "total_force_evaluations": 5387,
+        "unused_force_budget": 613,
+        "archive_entries": 15,
+        "best_energy_drop_eV": 3.590576171875,
+        "wall_time_s": 128.23649388900958,
+        "last_cell_sizes": [3, 2, 2, 7],
+        "descriptor_forward_calls": 14,
+        "descriptor_wall_time_s": 0.3207148000219604
+      }
+    }
+  },
+  "checks": {
+    "benchmark_eligible_all_campaigns": true,
+    "terminal_action_failures": 0,
+    "force_ledgers_close": true,
+    "unattributed_force_evaluations": 0,
+    "event_snapshot_probabilities_match_actions": true,
+    "cell_sidecars_match_event_snapshots": true,
+    "two_stage_probability_decomposition_exact": true,
+    "full_archive_support": true,
+    "archive_nodes_deleted": false
+  },
+  "claim_boundary": {
+    "single_seed": true,
+    "short_actions_per_arm": true,
+    "unsoftened_action_kernel": true,
+    "production_kernel_policy_ranking_supported": false,
+    "ts_or_ucb_conclusion_supported": false
+  }
+}

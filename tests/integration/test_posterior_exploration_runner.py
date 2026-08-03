@@ -10,6 +10,7 @@ from pamssw.calculators import AnalyticCalculator
 from pamssw.config import LSSSWConfig, SSWConfig
 from pamssw.exploration import PosteriorExplorationConfig, PosteriorExplorationResult
 from pamssw.exploration.actions import AttemptStatus
+from pamssw.exploration.cells import build_fps_cell_partition
 from pamssw.exploration.campaign import CampaignStopReason
 from pamssw.exploration.runner import (
     BootstrapConvergenceError,
@@ -439,6 +440,44 @@ def test_posterior_runner_uses_real_threaded_ssw_with_exact_budget_and_event_led
         remaining -= sum(
             sum(attempt["evaluation_counts"].values()) for attempt in attempts
         )
+
+
+def test_posterior_runner_accepts_a_full_support_cell_snapshot_builder(tmp_path: Path):
+    exploration_config = _runner_exploration_config(
+        tmp_path / "cell-policy",
+        policy_name="fps_cell_uniform",
+        batch_size=1,
+        max_workers=1,
+    )
+
+    def snapshot_builder(archive, posterior, version, archive_version):
+        del posterior
+        partition = build_fps_cell_partition(
+            tuple(entry.entry_id for entry in archive.entries),
+            np.array([[entry.energy] for entry in archive.entries]),
+            max_cells=2,
+        )
+        return partition.policy_snapshot(version=version, archive_version=archive_version)
+
+    result = run_posterior_ssw(
+        _runner_state(),
+        lambda: AnalyticCalculator(DoubleWell2D()),
+        _runner_ssw_config(),
+        exploration_config,
+        snapshot_builder=snapshot_builder,
+    )
+
+    assert result.policy_name == "fps_cell_uniform"
+    rows = [
+        json.loads(line)
+        for line in (exploration_config.run_directory / "events.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    snapshots = [row for row in rows if row["record_type"] == "policy_snapshot"]
+    assert snapshots
+    assert all(row["policy_name"] == "fps_cell_uniform" for row in snapshots)
+    assert all(row["support_complete"] is True for row in snapshots)
 
 
 def test_optimizer_diagnostics_writer_never_overwrites_an_existing_sidecar(tmp_path: Path):

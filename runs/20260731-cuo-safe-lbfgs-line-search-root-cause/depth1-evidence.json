@@ -1,0 +1,30 @@
+{
+  "claim_ceiling": "one fixed CuO depth-1 proposal mechanism gate; no production default or terminal search-quality claim",
+  "cuo_archive_sha256": "914133194053c563c23d8372a8911491b730d7f3f77f83c7d414b554ecde7944",
+  "execution_commit": "2dfb4899496bb030c8632294c651e21a873e7275",
+  "frozen_task": {
+    "bias_count": 1,
+    "bootstrap_force_evaluations": 108,
+    "fixed_atoms": 24,
+    "n_atoms": 54,
+    "proposal_fmax_eV_per_A": 0.05,
+    "proposal_maxiter": 300,
+    "softening_terms": 38
+  },
+  "mechanism": {
+    "float32_repeat_base_energy_error_eV": 0.0000152587890625,
+    "initial_softening_energy_eV": 5.999608598778147,
+    "smallest_line_actual_total_change_eV": 0.000015094365210188698,
+    "smallest_line_predicted_total_change_eV": -2.5588765647068315e-7,
+    "softening_pair_reference_force_magnitude_eV_per_A": 0.5
+  },
+  "schema_version": 1,
+  "variants": [
+    {"name": "safe_lbfgs_with_ls_float32", "termination": "line_search_failed", "force_evaluations": 262, "wall_time_s": 8.594171304022893, "rejected_line_trials": 124, "final_gradient_norm_eV_per_A": 0.48558305566921717},
+    {"name": "safe_lbfgs_ls_no_cutoff_float32", "termination": "line_search_failed", "force_evaluations": 245, "wall_time_s": 8.00058906400227, "rejected_line_trials": 106, "final_gradient_norm_eV_per_A": 0.5503571691929302},
+    {"name": "safe_lbfgs_with_ls_float64", "termination": "maxiter", "force_evaluations": 781, "wall_time_s": 164.8391330440063, "rejected_line_trials": 479, "final_gradient_norm_eV_per_A": 0.5083572232095966},
+    {"name": "safe_lbfgs_ls_no_cutoff_float64", "termination": "maxiter", "force_evaluations": 833, "wall_time_s": 175.12936267699115, "rejected_line_trials": 531, "final_gradient_norm_eV_per_A": 0.504519183291409},
+    {"name": "safe_lbfgs_without_ls_float32", "termination": "converged", "force_evaluations": 59, "wall_time_s": 2.0174656009767205, "rejected_line_trials": 1, "final_gradient_norm_eV_per_A": 0.03854603313868887},
+    {"name": "fire_with_ls_float32", "termination": "maxiter", "force_evaluations": 166, "wall_time_s": 5.65859818898025, "rejected_line_trials": 0, "final_gradient_norm_eV_per_A": 0.340945288763049}
+  ]
+}

@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from time import perf_counter
-from typing import Any, Mapping
+from typing import Any, Mapping, Sequence
 
 import numpy as np
 
 from .accounting import EvalCounter, EvaluationCounts, EvaluationPurpose
-from .bias import GaussianBiasTerm
+from .bias import GaussianBiasTerm, QuadraticBiasTerm
 from .config import SSWConfig
 from .coordinates import CartesianCoordinates, TangentVector
 from .pbc import mic_displacement
@@ -129,6 +129,7 @@ def capture_proposal_task(
     config: SSWConfig,
     *,
     target_bias_count: int,
+    softening_enabled: bool = False,
 ) -> CapturedProposalTask:
     """Freeze one production task immediately before its relaxation starts."""
     if isinstance(target_bias_count, bool) or not isinstance(target_bias_count, int):
@@ -140,7 +141,7 @@ def capture_proposal_task(
     walker = _CapturingSurfaceWalker(
         calculator=calculator,
         config=config,
-        softening_enabled=False,
+        softening_enabled=softening_enabled,
         target_bias_count=target_bias_count,
     )
     try:
@@ -239,12 +240,24 @@ def replay_proposal_task_observed(
     calculator,
     *,
     optimizer: str,
+    biases_override: Sequence[
+        GaussianBiasTerm | QuadraticBiasTerm
+    ] | None = None,
 ) -> ObservedProposalReplayResult:
     """Replay a task and retain components from normal backend evaluations."""
+    biases = (
+        tuple(task.biases)
+        if biases_override is None
+        else tuple(biases_override)
+    )
+    if len(biases) != len(task.biases):
+        raise ValueError(
+            "biases_override must preserve the frozen task bias count"
+        )
     counter = EvalCounter(calculator)
     proposal = _RecordingProposalPotential(
         counter,
-        biases=list(task.biases),
+        biases=list(biases),
         softening=task.softening,
     )
     result, wall_time_s = _run_proposal_task(
@@ -257,7 +270,7 @@ def replay_proposal_task_observed(
         task.initial_state.flatten_positions()
     )
     final = proposal.observation_at(result.state.flatten_positions())
-    last_bias = task.biases[-1]
+    last_bias = biases[-1]
     endpoint_delta = mic_displacement(
         result.state.positions,
         last_bias.center.reshape(result.state.n_atoms, 3),

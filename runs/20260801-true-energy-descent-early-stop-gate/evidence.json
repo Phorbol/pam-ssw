@@ -1,0 +1,100 @@
+{
+  "aggregate": {
+    "certified_lower_basin_count": 4,
+    "crossing_path_count": 4,
+    "new_force_evaluations": 117,
+    "purpose_counts": {
+      "biased_proposal_relax": 0,
+      "bootstrap_true_quench": 0,
+      "direction_oracle": 0,
+      "escape_true_pes_check": 33,
+      "landing_true_quench": 82,
+      "local_softening_pre_relax": 0,
+      "post_relax_validation": 2,
+      "starter_true_quench": 0,
+      "unattributed": 0
+    },
+    "saved_outer_micro_steps": 15,
+    "source_labeled_escape_count": 26,
+    "source_labeled_escape_crossing_count": 6,
+    "tradeoff_counts": {
+      "AVOIDED_OVERSHOOT": 2,
+      "ENERGY_EQUIVALENT": 1,
+      "FORGONE_DEEPER_TERMINAL": 1
+    },
+    "trigger_coverage_on_source_labeled_horizons": 0.23076923076923078,
+    "trigger_precision_on_crossing_paths": 1.0,
+    "wall_time_s": 4.788903190987185
+  },
+  "claim_ceiling": "offline first-descent certificate audit on the frozen 24-path C60/PdO D0/K4 corpus; this is not an online stopping result or a production-default recommendation",
+  "cohort": {
+    "accepted_endpoint_count": 82,
+    "attempted_endpoint_count": 93,
+    "case_count": 24
+  },
+  "decision": "ADMIT_FRESH_ONLINE_G_E1",
+  "execution_commit": "d16fe64ed5318c295be911388c41dbeadce2f62a",
+  "manifest_sha256": "6da6b1d228767eaaf66884f24093d8c7db6c32691b80fe19b95678763d4f226f",
+  "production_default_changed": false,
+  "raw_evidence_path": "runs/20260801-true-energy-descent-early-stop-gate/output/evidence.json",
+  "raw_evidence_sha256": "2daf2d5dd02b843b7f90b93ef4bed6b59932d1a5f579458c493878239fd3bdf4",
+  "schema_version": 1,
+  "trigger_cases": [
+    {
+      "arm": "K4_discrete",
+      "crossing_checkpoint_delta_eV": -1.055450439453125,
+      "crossing_landing_delta_eV": -2.464630126953125,
+      "crossing_step": 5,
+      "landing_relation": "AMBIGUOUS_LANDING",
+      "saved_outer_micro_steps": 2,
+      "seed": 42,
+      "state_id": "plateau_accepted",
+      "system": "c60",
+      "terminal_landing_delta_eV": -2.404693603515625,
+      "terminal_step": 7,
+      "tradeoff_class": "AVOIDED_OVERSHOOT"
+    },
+    {
+      "arm": "D0_exact_anchor",
+      "crossing_checkpoint_delta_eV": -3.881378173828125,
+      "crossing_landing_delta_eV": -7.079010009765625,
+      "crossing_step": 1,
+      "landing_relation": "DIFFERENT_LANDING",
+      "saved_outer_micro_steps": 7,
+      "seed": 43,
+      "state_id": "plateau_accepted",
+      "system": "c60",
+      "terminal_landing_delta_eV": 0.1759033203125,
+      "terminal_step": 8,
+      "tradeoff_class": "AVOIDED_OVERSHOOT"
+    },
+    {
+      "arm": "K4_discrete",
+      "crossing_checkpoint_delta_eV": -2.832366943359375,
+      "crossing_landing_delta_eV": -7.012847900390625,
+      "crossing_step": 2,
+      "landing_relation": "DIFFERENT_LANDING",
+      "saved_outer_micro_steps": 6,
+      "seed": 44,
+      "state_id": "plateau_accepted",
+      "system": "c60",
+      "terminal_landing_delta_eV": -9.030487060546875,
+      "terminal_step": 8,
+      "tradeoff_class": "FORGONE_DEEPER_TERMINAL"
+    },
+    {
+      "arm": "D0_exact_anchor",
+      "crossing_checkpoint_delta_eV": -0.085205078125,
+      "crossing_landing_delta_eV": -0.8404541015625,
+      "crossing_step": 1,
+      "landing_relation": "SAME_LANDING",
+      "saved_outer_micro_steps": 0,
+      "seed": 43,
+      "state_id": "plateau_accepted",
+      "system": "pdo",
+      "terminal_landing_delta_eV": -0.8404541015625,
+      "terminal_step": 1,
+      "tradeoff_class": "ENERGY_EQUIVALENT"
+    }
+  ]
+}

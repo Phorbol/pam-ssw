@@ -28,6 +28,28 @@ class RecordingCalculator:
             raise RuntimeError("calculator failed")
 
 
+class RecordingBatchCalculator(RecordingCalculator):
+    def __init__(self, fail: bool = False) -> None:
+        super().__init__()
+        self.fail = fail
+        self.batch_calls = 0
+        self.batch_sizes: list[int] = []
+
+    def evaluate_flat_many(
+        self,
+        flat_positions: tuple[np.ndarray, ...],
+        templates: tuple[State, ...],
+    ) -> tuple[tuple[float, np.ndarray], ...]:
+        self.batch_calls += 1
+        self.batch_sizes.append(len(flat_positions))
+        if self.fail:
+            raise RuntimeError("batch calculator failed")
+        return tuple(
+            (float(index), np.full_like(positions, float(index)))
+            for index, positions in enumerate(flat_positions)
+        )
+
+
 class ConcurrentBarrierCalculator:
     """Record each call while keeping a fixed number of calls in flight."""
 
@@ -110,9 +132,9 @@ def test_evaluation_counts_zero_is_immutable_and_canonical():
 @pytest.mark.parametrize(
     ("values", "error"),
     [
-        ((0,) * 7, ValueError),
-        ((0,) * 7 + (True,), TypeError),
-        ((0,) * 7 + (-1,), ValueError),
+        ((0,) * (len(EvaluationPurpose) - 1), ValueError),
+        ((0,) * (len(EvaluationPurpose) - 1) + (True,), TypeError),
+        ((0,) * (len(EvaluationPurpose) - 1) + (-1,), ValueError),
     ],
 )
 def test_evaluation_counts_reject_invalid_values(values: tuple[int, ...], error: type[Exception]):
@@ -384,3 +406,75 @@ def test_budget_rejection_does_not_delegate_or_increment(method: str, state: Sta
     assert calculator.calls == 1
     assert counter.force_evaluations == 1
     assert counter.energy_evaluations == 1
+
+
+def test_batch_evaluation_counts_each_geometry_under_one_physical_purpose(state: State):
+    calculator = RecordingBatchCalculator()
+    counter = EvalCounter(calculator, max_force_evals=4)
+    positions = tuple(state.flatten_positions() + index for index in range(4))
+    templates = (state,) * 4
+
+    with counter.purpose(EvaluationPurpose.DIRECTION_ORACLE):
+        results = counter.evaluate_flat_many(positions, templates)
+
+    assert calculator.batch_calls == 1
+    assert calculator.batch_sizes == [4]
+    assert [energy for energy, _ in results] == [0.0, 1.0, 2.0, 3.0]
+    assert counter.force_evaluations == 4
+    assert counter.energy_evaluations == 4
+    assert counter.snapshot().count(EvaluationPurpose.DIRECTION_ORACLE) == 4
+
+
+def test_batch_budget_is_rejected_before_any_geometry_is_evaluated(state: State):
+    calculator = RecordingBatchCalculator()
+    counter = EvalCounter(calculator, max_force_evals=3)
+    positions = tuple(state.flatten_positions() + index for index in range(4))
+
+    with counter.purpose(EvaluationPurpose.DIRECTION_ORACLE):
+        with pytest.raises(BudgetExceeded) as captured:
+            counter.evaluate_flat_many(positions, (state,) * 4)
+
+    assert calculator.batch_calls == 0
+    assert counter.snapshot() == EvaluationCounts.zero()
+    assert captured.value.evaluation_counts == EvaluationCounts.zero()
+
+
+def test_started_failing_batch_counts_all_submitted_geometries(state: State):
+    calculator = RecordingBatchCalculator(fail=True)
+    counter = EvalCounter(calculator)
+    positions = tuple(state.flatten_positions() + index for index in range(4))
+
+    with counter.purpose(EvaluationPurpose.DIRECTION_ORACLE):
+        with pytest.raises(RuntimeError, match="batch calculator failed"):
+            counter.evaluate_flat_many(positions, (state,) * 4)
+
+    assert calculator.batch_calls == 1
+    assert counter.snapshot().count(EvaluationPurpose.DIRECTION_ORACLE) == 4
+
+
+def test_batch_api_rejects_non_batch_calculator_without_changing_ledger(state: State):
+    counter = EvalCounter(RecordingCalculator())
+
+    with pytest.raises(TypeError, match="batch evaluation"):
+        counter.evaluate_flat_many((state.flatten_positions(),), (state,))
+
+    assert counter.snapshot() == EvaluationCounts.zero()
+
+
+@pytest.mark.parametrize(
+    ("positions", "templates"),
+    [
+        ((), ()),
+        ((np.zeros(3),), ()),
+    ],
+)
+def test_batch_api_rejects_empty_or_misaligned_inputs_without_changing_ledger(
+    positions,
+    templates,
+):
+    counter = EvalCounter(RecordingBatchCalculator())
+
+    with pytest.raises(ValueError):
+        counter.evaluate_flat_many(positions, templates)
+
+    assert counter.snapshot() == EvaluationCounts.zero()

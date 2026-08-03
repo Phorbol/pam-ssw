@@ -1,0 +1,387 @@
+{
+  "action_evidence_path": "runs/20260731-action-family-transfer-gate/output/evidence.json",
+  "action_evidence_sha256": "218d891ff2f3f9d20fbc00a66cf0653fea67d4ba400068b0ba318874a976bf79",
+  "analysis": {
+    "by_system": {
+      "c60": {
+        "family_rotation_no_hvp": {
+          "group_count": 6,
+          "mean_projected_force_evaluations": 394.3333333333333,
+          "mean_terminal_regret_eV": 3.9349492390950522,
+          "median_projected_force_evaluations": 396.375,
+          "median_terminal_regret_eV": 2.9137039184570312
+        },
+        "static_k4": {
+          "group_count": 6,
+          "mean_projected_force_evaluations": 404.4166666666667,
+          "mean_terminal_regret_eV": 3.6943791707356772,
+          "median_projected_force_evaluations": 419.0,
+          "median_terminal_regret_eV": 2.89508056640625
+        },
+        "uniform_no_hvp": {
+          "group_count": 6,
+          "mean_projected_force_evaluations": 385.4166666666667,
+          "mean_terminal_regret_eV": 3.133398691813151,
+          "median_projected_force_evaluations": 386.1875,
+          "median_terminal_regret_eV": 3.2124366760253906
+        }
+      },
+      "pdo": {
+        "family_rotation_no_hvp": {
+          "group_count": 6,
+          "mean_projected_force_evaluations": 204.79166666666666,
+          "mean_terminal_regret_eV": 1.1561533610026042,
+          "median_projected_force_evaluations": 213.375,
+          "median_terminal_regret_eV": 1.2085800170898438
+        },
+        "static_k4": {
+          "group_count": 6,
+          "mean_projected_force_evaluations": 195.83333333333334,
+          "mean_terminal_regret_eV": 1.5365397135416667,
+          "median_projected_force_evaluations": 237.5,
+          "median_terminal_regret_eV": 1.2818756103515625
+        },
+        "uniform_no_hvp": {
+          "group_count": 6,
+          "mean_projected_force_evaluations": 191.0,
+          "mean_terminal_regret_eV": 1.1288503011067708,
+          "median_projected_force_evaluations": 187.6875,
+          "median_terminal_regret_eV": 1.19927978515625
+        }
+      }
+    },
+    "gate": {
+      "family_rotation_no_hvp": {
+        "by_system": {
+          "c60": {
+            "pass": false,
+            "projected_cost_lower": true,
+            "projected_force_evaluation_delta": -22.625,
+            "quality_delta_eV": 0.01862335205078125,
+            "quality_not_worse": false
+          },
+          "pdo": {
+            "pass": true,
+            "projected_cost_lower": true,
+            "projected_force_evaluation_delta": -24.125,
+            "quality_delta_eV": -0.07329559326171875,
+            "quality_not_worse": true
+          }
+        },
+        "cross_system_pass": false,
+        "quality_sign_flip": true
+      },
+      "initial_all_candidate_hvp_deletion_supported": false,
+      "live_selected_only_hvp_gate_allowed": false,
+      "uniform_no_hvp": {
+        "by_system": {
+          "c60": {
+            "pass": false,
+            "projected_cost_lower": true,
+            "projected_force_evaluation_delta": -32.8125,
+            "quality_delta_eV": 0.3173561096191406,
+            "quality_not_worse": false
+          },
+          "pdo": {
+            "pass": true,
+            "projected_cost_lower": true,
+            "projected_force_evaluation_delta": -49.8125,
+            "quality_delta_eV": -0.0825958251953125,
+            "quality_not_worse": true
+          }
+        },
+        "cross_system_pass": false,
+        "quality_sign_flip": true
+      }
+    },
+    "group_summaries": [
+      {
+        "best_pool_landing_delta_eV": 2.56988525390625,
+        "family_rotation_no_hvp": {
+          "landing_delta_eV": 4.765357971191406,
+          "projected_force_evaluations": 362.25,
+          "terminal_regret_eV": 2.1954727172851562
+        },
+        "rotated_family": "bond",
+        "seed": 42,
+        "state_id": "intermediate_accepted",
+        "static_k4": {
+          "landing_delta_eV": 4.5991363525390625,
+          "projected_force_evaluations": 387.5,
+          "terminal_regret_eV": 2.0292510986328125
+        },
+        "system": "c60",
+        "uniform_no_hvp": {
+          "landing_delta_eV": 4.174934387207031,
+          "projected_force_evaluations": 353.25,
+          "terminal_regret_eV": 1.6050491333007812
+        }
+      },
+      {
+        "best_pool_landing_delta_eV": 4.57763671875e-05,
+        "family_rotation_no_hvp": {
+          "landing_delta_eV": 9.1552734375e-05,
+          "projected_force_evaluations": 227.0,
+          "terminal_regret_eV": 4.57763671875e-05
+        },
+        "rotated_family": "random",
+        "seed": 43,
+        "state_id": "intermediate_accepted",
+        "static_k4": {
+          "landing_delta_eV": 7.23724365234375,
+          "projected_force_evaluations": 452.0,
+          "terminal_regret_eV": 7.2371978759765625
+        },
+        "system": "c60",
+        "uniform_no_hvp": {
+          "landing_delta_eV": 3.3885536193847656,
+          "projected_force_evaluations": 302.5,
+          "terminal_regret_eV": 3.388507843017578
+        }
+      },
+      {
+        "best_pool_landing_delta_eV": 2.865692138671875,
+        "family_rotation_no_hvp": {
+          "landing_delta_eV": 4.340484619140625,
+          "projected_force_evaluations": 542.75,
+          "terminal_regret_eV": 1.47479248046875
+        },
+        "rotated_family": "bond",
+        "seed": 44,
+        "state_id": "intermediate_accepted",
+        "static_k4": {
+          "landing_delta_eV": 4.7407379150390625,
+          "projected_force_evaluations": 443.0,
+          "terminal_regret_eV": 1.8750457763671875
+        },
+        "system": "c60",
+        "uniform_no_hvp": {
+          "landing_delta_eV": 3.672901153564453,
+          "projected_force_evaluations": 487.125,
+          "terminal_regret_eV": 0.8072090148925781
+        }
+      },
+      {
+        "best_pool_landing_delta_eV": -9.6685791015625,
+        "family_rotation_no_hvp": {
+          "landing_delta_eV": -6.036643981933594,
+          "projected_force_evaluations": 430.5,
+          "terminal_regret_eV": 3.6319351196289062
+        },
+        "rotated_family": "random",
+        "seed": 42,
+        "state_id": "plateau_accepted",
+        "static_k4": {
+          "landing_delta_eV": -2.4047088623046875,
+          "projected_force_evaluations": 494.5,
+          "terminal_regret_eV": 7.2638702392578125
+        },
+        "system": "c60",
+        "uniform_no_hvp": {
+          "landing_delta_eV": -5.3729705810546875,
+          "projected_force_evaluations": 419.125,
+          "terminal_regret_eV": 4.2956085205078125
+        }
+      },
+      {
+        "best_pool_landing_delta_eV": -0.6768035888671875,
+        "family_rotation_no_hvp": {
+          "landing_delta_eV": 4.6110076904296875,
+          "projected_force_evaluations": 343.25,
+          "terminal_regret_eV": 5.287811279296875
+        },
+        "rotated_family": "bond",
+        "seed": 43,
+        "state_id": "plateau_accepted",
+        "static_k4": {
+          "landing_delta_eV": 3.0841064453125,
+          "projected_force_evaluations": 254.5,
+          "terminal_regret_eV": 3.7609100341796875
+        },
+        "system": "c60",
+        "uniform_no_hvp": {
+          "landing_delta_eV": 2.3595619201660156,
+          "projected_force_evaluations": 319.375,
+          "terminal_regret_eV": 3.036365509033203
+        }
+      },
+      {
+        "best_pool_landing_delta_eV": -9.030441284179688,
+        "family_rotation_no_hvp": {
+          "landing_delta_eV": 1.98919677734375,
+          "projected_force_evaluations": 460.25,
+          "terminal_regret_eV": 11.019638061523438
+        },
+        "rotated_family": "random",
+        "seed": 44,
+        "state_id": "plateau_accepted",
+        "static_k4": {
+          "landing_delta_eV": -9.030441284179688,
+          "projected_force_evaluations": 395.0,
+          "terminal_regret_eV": 0.0
+        },
+        "system": "c60",
+        "uniform_no_hvp": {
+          "landing_delta_eV": -3.3627891540527344,
+          "projected_force_evaluations": 431.125,
+          "terminal_regret_eV": 5.667652130126953
+        }
+      },
+      {
+        "best_pool_landing_delta_eV": -1.0362548828125,
+        "family_rotation_no_hvp": {
+          "landing_delta_eV": 0.8190460205078125,
+          "projected_force_evaluations": 202.5,
+          "terminal_regret_eV": 1.8553009033203125
+        },
+        "rotated_family": "bond",
+        "seed": 42,
+        "state_id": "intermediate_accepted",
+        "static_k4": {
+          "landing_delta_eV": 0.418304443359375,
+          "projected_force_evaluations": 224.5,
+          "terminal_regret_eV": 1.454559326171875
+        },
+        "system": "pdo",
+        "uniform_no_hvp": {
+          "landing_delta_eV": 0.2071685791015625,
+          "projected_force_evaluations": 222.625,
+          "terminal_regret_eV": 1.2434234619140625
+        }
+      },
+      {
+        "best_pool_landing_delta_eV": 0.0,
+        "family_rotation_no_hvp": {
+          "landing_delta_eV": 1.435333251953125,
+          "projected_force_evaluations": 224.25,
+          "terminal_regret_eV": 1.435333251953125
+        },
+        "rotated_family": "random",
+        "seed": 43,
+        "state_id": "intermediate_accepted",
+        "static_k4": {
+          "landing_delta_eV": 2.87066650390625,
+          "projected_force_evaluations": 314.5,
+          "terminal_regret_eV": 2.87066650390625
+        },
+        "system": "pdo",
+        "uniform_no_hvp": {
+          "landing_delta_eV": 1.2459945678710938,
+          "projected_force_evaluations": 173.75,
+          "terminal_regret_eV": 1.2459945678710938
+        }
+      },
+      {
+        "best_pool_landing_delta_eV": -0.5643310546875,
+        "family_rotation_no_hvp": {
+          "landing_delta_eV": -0.2821502685546875,
+          "projected_force_evaluations": 105.25,
+          "terminal_regret_eV": 0.2821807861328125
+        },
+        "rotated_family": "bond",
+        "seed": 44,
+        "state_id": "intermediate_accepted",
+        "static_k4": {
+          "landing_delta_eV": 2.356109619140625,
+          "projected_force_evaluations": 250.5,
+          "terminal_regret_eV": 2.920440673828125
+        },
+        "system": "pdo",
+        "uniform_no_hvp": {
+          "landing_delta_eV": 0.5908050537109375,
+          "projected_force_evaluations": 160.25,
+          "terminal_regret_eV": 1.1551361083984375
+        }
+      },
+      {
+        "best_pool_landing_delta_eV": -1.1092529296875,
+        "family_rotation_no_hvp": {
+          "landing_delta_eV": -0.1274261474609375,
+          "projected_force_evaluations": 281.5,
+          "terminal_regret_eV": 0.9818267822265625
+        },
+        "rotated_family": "random",
+        "seed": 42,
+        "state_id": "plateau_accepted",
+        "static_k4": {
+          "landing_delta_eV": -6.103515625e-05,
+          "projected_force_evaluations": 69.0,
+          "terminal_regret_eV": 1.10919189453125
+        },
+        "system": "pdo",
+        "uniform_no_hvp": {
+          "landing_delta_eV": 0.5452499389648438,
+          "projected_force_evaluations": 201.625,
+          "terminal_regret_eV": 1.6545028686523438
+        }
+      },
+      {
+        "best_pool_landing_delta_eV": -1.1380615234375,
+        "family_rotation_no_hvp": {
+          "landing_delta_eV": 0.5138702392578125,
+          "projected_force_evaluations": 158.25,
+          "terminal_regret_eV": 1.6519317626953125
+        },
+        "rotated_family": "bond",
+        "seed": 43,
+        "state_id": "plateau_accepted",
+        "static_k4": {
+          "landing_delta_eV": -1.1380615234375,
+          "projected_force_evaluations": 302.5,
+          "terminal_regret_eV": 0.0
+        },
+        "system": "pdo",
+        "uniform_no_hvp": {
+          "landing_delta_eV": -0.2452850341796875,
+          "projected_force_evaluations": 217.625,
+          "terminal_regret_eV": 0.8927764892578125
+        }
+      },
+      {
+        "best_pool_landing_delta_eV": -0.86431884765625,
+        "family_rotation_no_hvp": {
+          "landing_delta_eV": -0.13397216796875,
+          "projected_force_evaluations": 257.0,
+          "terminal_regret_eV": 0.7303466796875
+        },
+        "rotated_family": "random",
+        "seed": 44,
+        "state_id": "plateau_accepted",
+        "static_k4": {
+          "landing_delta_eV": 6.103515625e-05,
+          "projected_force_evaluations": 14.0,
+          "terminal_regret_eV": 0.8643798828125
+        },
+        "system": "pdo",
+        "uniform_no_hvp": {
+          "landing_delta_eV": -0.283050537109375,
+          "projected_force_evaluations": 170.125,
+          "terminal_regret_eV": 0.581268310546875
+        }
+      }
+    ],
+    "quality": {
+      "complete_expected_group_count": 12,
+      "eligible_group_count": 12,
+      "excluded_group_count": 0,
+      "excluded_groups": []
+    },
+    "scope": "initial K4 candidate ranking only; continuation HVP policy is unchanged in every forced trajectory"
+  },
+  "d0_k4_live_anchor": {
+    "c60": {
+      "median_d0_minus_k4_force_evaluations": -32.5,
+      "median_d0_minus_k4_landing_delta_eV": 2.0269622802734375,
+      "pair_count": 6
+    },
+    "pdo": {
+      "median_d0_minus_k4_force_evaluations": 64.5,
+      "median_d0_minus_k4_landing_delta_eV": -0.527862548828125,
+      "pair_count": 6
+    }
+  },
+  "new_force_evaluations": 0,
+  "repeat_evidence_path": "runs/20260731-direction-candidate-counterfactual-gate/repeat_evidence.json",
+  "repeat_evidence_sha256": "cb19e5b4b9a8839ad917f287177251d179e6b0e662c4be6fa56a8d12bd347d5d",
+  "schema_version": 1
+}

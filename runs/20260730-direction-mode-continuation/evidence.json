@@ -1,0 +1,204 @@
+{
+  "arm_results": {
+    "continuation_lanczos": {
+      "certificate_count": 6,
+      "completed_cases": 6,
+      "continuation_projection_degenerate_count": 0,
+      "direction_force_evaluations": 1008,
+      "fallback_count": 0,
+      "fragmented_count": 0,
+      "generation_wall_time_s": 48.21213343300042,
+      "geometry_invalid_count": 0,
+      "meaningful_conditions": [
+        {
+          "seed": 43,
+          "state_id": "plateau_accepted"
+        },
+        {
+          "seed": 44,
+          "state_id": "plateau_accepted"
+        }
+      ],
+      "meaningful_outcome_count": 2,
+      "median_abs_consecutive_mode_cosine": 0.8464999354914934,
+      "median_force_evaluations": 380.5,
+      "median_landing_delta_eV": 6.103515625e-05,
+      "new_basin_count": 3,
+      "quench_wall_time_s": 3.7228869989994564,
+      "total_force_evaluations": 2372
+    },
+    "fixed_intent_ritz": {
+      "certificate_count": 6,
+      "completed_cases": 6,
+      "continuation_projection_degenerate_count": 0,
+      "direction_force_evaluations": 744,
+      "fallback_count": 0,
+      "fragmented_count": 0,
+      "generation_wall_time_s": 45.849170359997515,
+      "geometry_invalid_count": 0,
+      "meaningful_conditions": [
+        {
+          "seed": 43,
+          "state_id": "plateau_accepted"
+        }
+      ],
+      "meaningful_outcome_count": 1,
+      "median_abs_consecutive_mode_cosine": 0.9815304558831492,
+      "median_force_evaluations": 391.5,
+      "median_landing_delta_eV": 0.0001220703125,
+      "new_basin_count": 3,
+      "quench_wall_time_s": 5.470163908001268,
+      "total_force_evaluations": 2289
+    },
+    "transported_direction": {
+      "certificate_count": 6,
+      "completed_cases": 6,
+      "continuation_projection_degenerate_count": 0,
+      "direction_force_evaluations": 76,
+      "fallback_count": 0,
+      "fragmented_count": 0,
+      "generation_wall_time_s": 32.7764977780007,
+      "geometry_invalid_count": 0,
+      "meaningful_conditions": [
+        {
+          "seed": 43,
+          "state_id": "plateau_accepted"
+        },
+        {
+          "seed": 44,
+          "state_id": "plateau_accepted"
+        }
+      ],
+      "meaningful_outcome_count": 2,
+      "median_abs_consecutive_mode_cosine": 0.9999985743986759,
+      "median_force_evaluations": 307.5,
+      "median_landing_delta_eV": 0.580963134765625,
+      "new_basin_count": 5,
+      "quench_wall_time_s": 7.518920117998277,
+      "total_force_evaluations": 1850
+    }
+  },
+  "bootstrap_force_evaluations": 0,
+  "certificate_count": 18,
+  "claim_ceiling": "paired three-seed C60 direction-mechanism ablation; no cross-system or long-run superiority claim",
+  "cohort": {
+    "arms": [
+      "fixed_intent_ritz",
+      "transported_direction",
+      "continuation_lanczos"
+    ],
+    "completed_cases": 18,
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "states": [
+      "intermediate_accepted",
+      "plateau_accepted"
+    ]
+  },
+  "decision": "transported_direction_survives",
+  "execution_commit": "b46753c7834bd9eed4e1a7965ed2cde6e8d1fd6f",
+  "meaningful_energy_drop_threshold_eV": 0.001,
+  "production_default_changed": false,
+  "schema_version": 1,
+  "shared_initial_direction": {
+    "force_evaluations": 144,
+    "selection_count": 6
+  },
+  "shared_provenance": {
+    "bootstrap_force_evaluations": 0,
+    "bootstrap_skipped": true,
+    "locked_source_output": "/tmp/SSW-worktrees/uphill-propagation-ablation/runs/20260729-anchor-consistent-direction-ablation/output",
+    "model_path": "/root/.cache/mace/mace-omat-0-small.model",
+    "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+    "raw_input_path": "/mnt/d/download/trae-research-code/ssw/runs/20260428-c60-mace-production/prerelaxed_c60.xyz",
+    "raw_input_sha256": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9",
+    "selection_rationale": "exact state-hash-matched starters persisted by the preceding validated 18-case cohort"
+  },
+  "state_provenance": {
+    "intermediate_accepted": {
+      "intent_seed": 71002,
+      "model_path": "/root/.cache/mace/mace-omat-0-small.model",
+      "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+      "origin_commit": "32980ad9154ec6481b310477dd7b85597cefd49a",
+      "origin_execution_commit": "32980ad9154ec6481b310477dd7b85597cefd49a",
+      "origin_run": "runs/20260728-safe-lbfgs-strict-quench-200-production/output-c60-seed42",
+      "origin_state_id": "trial0100_entry0072",
+      "origin_summary": "runs/20260728-safe-lbfgs-strict-quench-200-production/output-c60-seed42/summary.json",
+      "origin_summary_path": "runs/20260728-safe-lbfgs-strict-quench-200-production/output-c60-seed42/summary.json",
+      "origin_summary_sha256": "40d1f0d1c1cf81c374df6107fc4c31316dc313dd2b783cb503250ba931bf78cb",
+      "persisted_starter_path": "/tmp/SSW-worktrees/uphill-propagation-ablation/runs/20260729-anchor-consistent-direction-ablation/output/cases/intermediate_accepted-seed42-detached_ritz/starter.xyz",
+      "persisted_starter_sha256": "0a0174688f393669ee2a466de44c327981fc1c7e306b1e3b403ef7a4ff571212",
+      "phase": "intermediate",
+      "selection_rationale": "Accepted trial 100 entry 72; preregistered midpoint of the 200-trial trajectory.",
+      "source": "locked_accepted_structure",
+      "state_id": "intermediate_accepted",
+      "state_sha256": "16e204ec8a5cf555e5d094ef289ce90ae2bb2326f66eaf537b82022877ebbbf4",
+      "structure_path": "runs/20260728-safe-lbfgs-strict-quench-200-production/output-c60-seed42/accepted_minima/trial0100_entry0072_accepted.xyz",
+      "structure_runtime_path": "/tmp/SSW-worktrees/posterior-terminal-outcome-validation/runs/20260728-safe-lbfgs-strict-quench-200-production/output-c60-seed42/accepted_minima/trial0100_entry0072_accepted.xyz",
+      "structure_sha256": "9bccc945de41f193ae7fd603d34114bb71ab3d270c5ad7bbe182f806a71f55f9",
+      "structure_sha256_verified": "9bccc945de41f193ae7fd603d34114bb71ab3d270c5ad7bbe182f806a71f55f9"
+    },
+    "plateau_accepted": {
+      "intent_seed": 71003,
+      "model_path": "/root/.cache/mace/mace-omat-0-small.model",
+      "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+      "origin_commit": "32980ad9154ec6481b310477dd7b85597cefd49a",
+      "origin_execution_commit": "32980ad9154ec6481b310477dd7b85597cefd49a",
+      "origin_run": "runs/20260728-safe-lbfgs-strict-quench-200-production/output-c60-seed42",
+      "origin_state_id": "trial0180_entry0125",
+      "origin_summary": "runs/20260728-safe-lbfgs-strict-quench-200-production/output-c60-seed42/summary.json",
+      "origin_summary_path": "runs/20260728-safe-lbfgs-strict-quench-200-production/output-c60-seed42/summary.json",
+      "origin_summary_sha256": "40d1f0d1c1cf81c374df6107fc4c31316dc313dd2b783cb503250ba931bf78cb",
+      "persisted_starter_path": "/tmp/SSW-worktrees/uphill-propagation-ablation/runs/20260729-anchor-consistent-direction-ablation/output/cases/plateau_accepted-seed42-detached_ritz/starter.xyz",
+      "persisted_starter_sha256": "20c6f4e78cb86be131905d34e840615ed74ceb64219b8a174762d0b4596e6e22",
+      "phase": "plateau",
+      "selection_rationale": "Accepted trial 180 entry 125; locked late-trajectory plateau-window state.",
+      "source": "locked_accepted_structure",
+      "state_id": "plateau_accepted",
+      "state_sha256": "c6a97aaf608c2f7c15d8761a74c58f63ef5bb3d0abba6cc9dce33f0b6ca616bb",
+      "structure_path": "runs/20260728-safe-lbfgs-strict-quench-200-production/output-c60-seed42/accepted_minima/trial0180_entry0125_accepted.xyz",
+      "structure_runtime_path": "/tmp/SSW-worktrees/posterior-terminal-outcome-validation/runs/20260728-safe-lbfgs-strict-quench-200-production/output-c60-seed42/accepted_minima/trial0180_entry0125_accepted.xyz",
+      "structure_sha256": "7807d87f6274c22e3925c1b82a76c8e2e6880c5cfe83d346656a85fbe9886b37",
+      "structure_sha256_verified": "7807d87f6274c22e3925c1b82a76c8e2e6880c5cfe83d346656a85fbe9886b37"
+    }
+  },
+  "survivor_gates": {
+    "continuation_lanczos": {
+      "cheaper_control_event_reproduction": false,
+      "continuity_improved": false,
+      "extra_meaningful_paired_event": true,
+      "no_validity_regression": true,
+      "terminal_gain": true
+    },
+    "transported_direction": {
+      "cheaper_control_event_reproduction": true,
+      "continuity_improved": true,
+      "extra_meaningful_paired_event": true,
+      "no_validity_regression": true,
+      "terminal_gain": true
+    }
+  },
+  "survivors": [
+    "transported_direction"
+  ],
+  "totals": {
+    "case_force_evaluations": 6511,
+    "force_evaluations": 6655,
+    "generation_wall_time_s": 126.83780157099864,
+    "purpose_counts": {
+      "biased_proposal_relax": 3738,
+      "bootstrap_true_quench": 0,
+      "direction_oracle": 1972,
+      "escape_true_pes_check": 178,
+      "landing_true_quench": 749,
+      "post_relax_validation": 18,
+      "starter_true_quench": 0,
+      "unattributed": 0
+    },
+    "quench_wall_time_s": 16.711971024999002,
+    "unattributed_force_evaluations": 0
+  }
+}

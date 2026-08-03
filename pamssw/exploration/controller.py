@@ -27,7 +27,7 @@ from .actions import (
 )
 from .batch import plan_batch
 from .committed import CommittedExplorationBatch
-from .policies import SUPPORTED_POLICIES, build_policy_snapshot
+from .policies import CUSTOM_POLICIES, SUPPORTED_POLICIES, build_policy_snapshot
 from .posterior import StarterProductivityPosterior
 
 
@@ -38,6 +38,10 @@ class BatchLog(Protocol):
 
 
 Worker = Callable[[StarterAction, State], AttemptResult]
+SnapshotBuilder = Callable[
+    [MinimaArchive, StarterProductivityPosterior, int, int],
+    PolicySnapshot,
+]
 
 
 @dataclass(frozen=True)
@@ -69,6 +73,8 @@ def _policy_name(value: object) -> str:
         raise ValueError("legacy UCB is an external comparator and is not a supported policy")
     if value not in SUPPORTED_POLICIES:
         raise ValueError(f"unsupported policy: {value}")
+    if value in CUSTOM_POLICIES:
+        raise ValueError(f"{value} requires a snapshot_builder")
     return value
 
 
@@ -91,10 +97,18 @@ class ExplorationController:
         event_log: BatchLog,
         *,
         require_exact_cost: bool = False,
+        snapshot_builder: SnapshotBuilder | None = None,
     ) -> None:
         if not isinstance(archive, MinimaArchive):
             raise ValueError("archive must be a MinimaArchive")
-        self.policy_name = _policy_name(policy_name)
+        if snapshot_builder is None:
+            self.policy_name = _policy_name(policy_name)
+        else:
+            if not isinstance(policy_name, str) or not policy_name.strip():
+                raise ValueError("policy_name must be a nonempty string")
+            if not callable(snapshot_builder):
+                raise ValueError("snapshot_builder must be callable")
+            self.policy_name = policy_name
         self.master_seed = _nonnegative_int("master_seed", master_seed)
         if not callable(getattr(event_log, "append_batch", None)):
             raise ValueError("event_log must provide a callable append_batch method")
@@ -104,6 +118,7 @@ class ExplorationController:
         self.archive = archive.clone()
         self.event_log = event_log
         self.require_exact_cost = require_exact_cost
+        self.snapshot_builder = snapshot_builder
         self.posterior = StarterProductivityPosterior()
         self.policy_version = 0
         self.archive_version = 0
@@ -139,13 +154,7 @@ class ExplorationController:
                 raise ValueError("worker must be callable")
 
             planning_posterior = self.posterior.clone()
-            snapshot = build_policy_snapshot(
-                self.policy_name,
-                tuple(entry.entry_id for entry in self.archive.entries),
-                planning_posterior,
-                self.policy_version,
-                self.archive_version,
-            )
+            snapshot = self._build_policy_snapshot(planning_posterior)
             actions = plan_batch(snapshot, self.batch_id, batch_size, self.master_seed, force_budget)
             dispatch_archive = self.archive.clone()
             dispatch_entries = _entries_by_id(dispatch_archive)
@@ -203,6 +212,35 @@ class ExplorationController:
                 next_batch_id=self.batch_id + 1,
             )
             return self._reconcile_pending_commit().outcomes
+
+    def _build_policy_snapshot(
+        self,
+        planning_posterior: StarterProductivityPosterior,
+    ) -> PolicySnapshot:
+        starter_ids = tuple(entry.entry_id for entry in self.archive.entries)
+        if self.snapshot_builder is None:
+            return build_policy_snapshot(
+                self.policy_name,
+                starter_ids,
+                planning_posterior,
+                self.policy_version,
+                self.archive_version,
+            )
+        snapshot = self.snapshot_builder(
+            self.archive,
+            planning_posterior,
+            self.policy_version,
+            self.archive_version,
+        )
+        if not isinstance(snapshot, PolicySnapshot):
+            raise ValueError("snapshot_builder must return a PolicySnapshot")
+        if snapshot.policy_name != self.policy_name:
+            raise ValueError("snapshot_builder policy_name must match the controller")
+        if snapshot.eligible_starter_ids != tuple(sorted(starter_ids)):
+            raise ValueError("snapshot_builder must retain every archive starter")
+        if not snapshot.support_complete:
+            raise ValueError("custom snapshot_builder must retain complete support")
+        return snapshot
 
     def reconcile_pending_commit(self) -> CommittedExplorationBatch:
         """Retry the exact pending log write without dispatching new work."""
@@ -291,4 +329,10 @@ def _credit_result(
     )
 
 
-__all__ = ["BatchLog", "ExplorationController", "UnknownActionCostError", "Worker"]
+__all__ = [
+    "BatchLog",
+    "ExplorationController",
+    "SnapshotBuilder",
+    "UnknownActionCostError",
+    "Worker",
+]

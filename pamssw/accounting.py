@@ -30,6 +30,7 @@ class BudgetExceeded(RuntimeError):
 class EvaluationPurpose(Enum):
     BOOTSTRAP_TRUE_QUENCH = "bootstrap_true_quench"
     STARTER_TRUE_QUENCH = "starter_true_quench"
+    LOCAL_SOFTENING_PRE_RELAX = "local_softening_pre_relax"
     DIRECTION_ORACLE = "direction_oracle"
     ESCAPE_TRUE_PES_CHECK = "escape_true_pes_check"
     BIASED_PROPOSAL_RELAX = "biased_proposal_relax"
@@ -128,6 +129,12 @@ class EvalCounter:
     _lock: threading.Lock = field(default_factory=threading.Lock, init=False, repr=False)
     _purpose_local: threading.local = field(default_factory=threading.local, init=False, repr=False)
 
+    @property
+    def supports_batch_evaluation(self) -> bool:
+        evaluator = getattr(self.calculator, "evaluate_flat_many", None)
+        declared = getattr(self.calculator, "supports_batch_evaluation", None)
+        return callable(evaluator) and (True if declared is None else bool(declared))
+
     def evaluate(self, state: State):
         self._start_evaluation()
         return self.calculator.evaluate(state)
@@ -135,6 +142,23 @@ class EvalCounter:
     def evaluate_flat(self, flat_positions: np.ndarray, template: State) -> tuple[float, np.ndarray]:
         self._start_evaluation()
         return self.calculator.evaluate_flat(flat_positions, template)
+
+    def evaluate_flat_many(
+        self,
+        flat_positions: tuple[np.ndarray, ...],
+        templates: tuple[State, ...],
+    ) -> tuple[tuple[float, np.ndarray], ...]:
+        positions = tuple(flat_positions)
+        state_templates = tuple(templates)
+        if not positions:
+            raise ValueError("batch evaluation requires at least one geometry")
+        if len(positions) != len(state_templates):
+            raise ValueError("flat_positions and templates must have the same length")
+        evaluator = getattr(self.calculator, "evaluate_flat_many", None)
+        if not callable(evaluator):
+            raise TypeError("calculator does not support batch evaluation")
+        self._start_evaluations(len(positions))
+        return tuple(evaluator(positions, state_templates))
 
     @contextmanager
     def purpose(self, purpose: EvaluationPurpose) -> Iterator[None]:
@@ -159,20 +183,28 @@ class EvalCounter:
         return stack
 
     def _start_evaluation(self) -> None:
+        self._start_evaluations(1)
+
+    def _start_evaluations(self, count: int) -> None:
+        if isinstance(count, bool) or not isinstance(count, int) or count <= 0:
+            raise ValueError("evaluation count must be a positive integer")
         with self._lock:
-            if self.max_force_evals is not None and self.force_evaluations >= self.max_force_evals:
+            if (
+                self.max_force_evals is not None
+                and self.force_evaluations + count > self.max_force_evals
+            ):
                 raise BudgetExceeded(
                     "force-evaluation budget exhausted",
                     evaluation_counts=EvaluationCounts(tuple(self._purpose_counts)),
                 )
-            self._record_started()
+            self._record_started(count)
 
-    def _record_started(self) -> None:
-        self.force_evaluations += 1
-        self.energy_evaluations += 1
+    def _record_started(self, count: int = 1) -> None:
+        self.force_evaluations += count
+        self.energy_evaluations += count
         stack = self._purpose_stack()
         purpose = stack[-1] if stack else EvaluationPurpose.UNATTRIBUTED
-        self._purpose_counts[list(EvaluationPurpose).index(purpose)] += 1
+        self._purpose_counts[list(EvaluationPurpose).index(purpose)] += count
 
     def exhausted(self) -> bool:
         with self._lock:

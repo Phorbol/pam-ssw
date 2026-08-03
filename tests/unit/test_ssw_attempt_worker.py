@@ -349,6 +349,33 @@ def test_first_evaluation_wrapper_does_not_serialize_later_calls():
     assert all(wrapped.calculator.calls == 2 for wrapped in wrappers)
 
 
+def test_first_evaluation_wrapper_preserves_explicit_batch_capability():
+    class BatchCalculator(_Calculator):
+        def __init__(self):
+            self.batch_calls = 0
+
+        def evaluate_flat_many(self, flat_positions, templates):
+            self.batch_calls += 1
+            return tuple(
+                (0.0, np.zeros_like(positions))
+                for positions in flat_positions
+            )
+
+    calculator = BatchCalculator()
+    wrapped = worker_module._FirstEvaluationSerializedCalculator(
+        calculator,
+        Lock(),
+    )
+    state = _state()
+    positions = (state.flatten_positions(),) * 4
+
+    results = wrapped.evaluate_flat_many(positions, (state,) * 4)
+
+    assert wrapped.supports_batch_evaluation is True
+    assert calculator.batch_calls == 1
+    assert len(results) == 4
+
+
 @pytest.mark.parametrize(
     "config",
     [

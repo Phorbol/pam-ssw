@@ -1,0 +1,705 @@
+{
+  "accepted_endpoint_count": 82,
+  "attempted_endpoint_count": 93,
+  "case_count": 24,
+  "cases": [
+    {
+      "attempted_macro_steps": 5,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000042/D0_exact_anchor/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "889759e254d130e4c99e5e2def9b863b7854f53a9975ed217dfbfbc9cab4f4fd",
+          "step": 1
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000042/D0_exact_anchor/macro_checkpoints/step002_checkpoint.xyz",
+          "checkpoint_sha256": "63ebe4d031f8c8cb6f0c60d78c26fb8beaeebc04819f3fdb65550f71af08859e",
+          "step": 2
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000042/D0_exact_anchor/macro_checkpoints/step003_checkpoint.xyz",
+          "checkpoint_sha256": "99f54781a851acd3b4e1e03bb65e3c8ebd341ead4e106bf47ec84fa64b4ac207",
+          "step": 3
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000042/D0_exact_anchor/macro_checkpoints/step004_checkpoint.xyz",
+          "checkpoint_sha256": "dab0b926d04f0fc0aa3571e9d1f5085d92f6d272012aa81188b3f1786b485985",
+          "step": 4
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000042/D0_exact_anchor/macro_checkpoints/step005_checkpoint.xyz",
+          "checkpoint_sha256": "39292d89c935da904723253b7a57eb84b97d3cd41efabdf9e800636201e13ccf",
+          "step": 5
+        }
+      ],
+      "key": [
+        "c60",
+        "intermediate_accepted",
+        42,
+        "D0_exact_anchor"
+      ],
+      "reached_macro_steps": 5
+    },
+    {
+      "attempted_macro_steps": 8,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000042/K4_discrete/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "b762b3ab2f912d586771cec16a60e79e242d0df487da3e26fcfc0b9d54803f69",
+          "step": 1
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000042/K4_discrete/macro_checkpoints/step002_checkpoint.xyz",
+          "checkpoint_sha256": "cf2e48f43ef34c168ee8c070d0f0bd57c5e62e27a920e3fd3eed8e8784f9c327",
+          "step": 2
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000042/K4_discrete/macro_checkpoints/step003_checkpoint.xyz",
+          "checkpoint_sha256": "a4bd0376a81bf8e52df7bd1ab338876820410a4128dc38e25cf9a6d7ea7fd123",
+          "step": 3
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000042/K4_discrete/macro_checkpoints/step004_checkpoint.xyz",
+          "checkpoint_sha256": "3ca4618c069890d2618a908a1bb82cfd746c2d0a4773e2c16693a5fa03e4640d",
+          "step": 4
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000042/K4_discrete/macro_checkpoints/step005_checkpoint.xyz",
+          "checkpoint_sha256": "dcc00be0135be964d9ded3d3b9bc133bbea70c305071e7e0d6c38633aeb8a5e1",
+          "step": 5
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000042/K4_discrete/macro_checkpoints/step006_checkpoint.xyz",
+          "checkpoint_sha256": "fc8ac55facd2fed97f5458e2ac7cc0de68632470b5915e316e47c051bf344ea5",
+          "step": 6
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000042/K4_discrete/macro_checkpoints/step007_checkpoint.xyz",
+          "checkpoint_sha256": "619ab11aa6b17e82abd8793406b77af479bdbb8ef8ebf330b4f4ef7814498116",
+          "step": 7
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000042/K4_discrete/macro_checkpoints/step008_checkpoint.xyz",
+          "checkpoint_sha256": "a7645b1bf58ea66d74b214334067b5b69dfd9a529c33fe86fe63ed1b8e9fb9aa",
+          "step": 8
+        }
+      ],
+      "key": [
+        "c60",
+        "intermediate_accepted",
+        42,
+        "K4_discrete"
+      ],
+      "reached_macro_steps": 8
+    },
+    {
+      "attempted_macro_steps": 3,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000043/D0_exact_anchor/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "891b4634d8963135e26d9241867f44855ee3a01bcd9ed36a64ff3a6d556e218e",
+          "step": 1
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000043/D0_exact_anchor/macro_checkpoints/step002_checkpoint.xyz",
+          "checkpoint_sha256": "dcea4f9243173ba79657858a1178c8dc6bff07c51726ffd969f43b7b81d33803",
+          "step": 2
+        }
+      ],
+      "key": [
+        "c60",
+        "intermediate_accepted",
+        43,
+        "D0_exact_anchor"
+      ],
+      "reached_macro_steps": 2
+    },
+    {
+      "attempted_macro_steps": 8,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000043/K4_discrete/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "c32321d5b9199eeea1bbeaa487f31f30071f9f361e9500876f238d9df55c895a",
+          "step": 1
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000043/K4_discrete/macro_checkpoints/step002_checkpoint.xyz",
+          "checkpoint_sha256": "c70396437de87d847ddc94c0a3e39dead71880a41442d5426cc288e1beff8830",
+          "step": 2
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000043/K4_discrete/macro_checkpoints/step003_checkpoint.xyz",
+          "checkpoint_sha256": "cab2d4afc386224fe0ea7e31860c7b86b1e3b1ac286deedf3498b2f79cb5d0c7",
+          "step": 3
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000043/K4_discrete/macro_checkpoints/step004_checkpoint.xyz",
+          "checkpoint_sha256": "4123c32c4ac0fc5e267692ae31ffe8688f9f4b720dd8f0a6a682ba34474c4474",
+          "step": 4
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000043/K4_discrete/macro_checkpoints/step005_checkpoint.xyz",
+          "checkpoint_sha256": "361b0d0e89efe543e04e5268ee9f79262d4f3699759327ec3d178ce85bdc7a1a",
+          "step": 5
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000043/K4_discrete/macro_checkpoints/step006_checkpoint.xyz",
+          "checkpoint_sha256": "8e03ec4c3eab46ee8a4e96bd2f528e99428626b24ee795b4e7adb8c1cd041a33",
+          "step": 6
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000043/K4_discrete/macro_checkpoints/step007_checkpoint.xyz",
+          "checkpoint_sha256": "5fca45f9c1a7118021282708ad2346d5721c96baeebbcec203695db1388bb361",
+          "step": 7
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000043/K4_discrete/macro_checkpoints/step008_checkpoint.xyz",
+          "checkpoint_sha256": "0fd590db9dc75ffbf30852bd353e2974ce9ec592fd255eac9eec7f09c71074e4",
+          "step": 8
+        }
+      ],
+      "key": [
+        "c60",
+        "intermediate_accepted",
+        43,
+        "K4_discrete"
+      ],
+      "reached_macro_steps": 8
+    },
+    {
+      "attempted_macro_steps": 5,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000044/D0_exact_anchor/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "1841628eb5509049048825dd473f4cdbb2f1573928bad227b5a029b215ebd96a",
+          "step": 1
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000044/D0_exact_anchor/macro_checkpoints/step002_checkpoint.xyz",
+          "checkpoint_sha256": "14537ebffbfc2fbf2d84308659d9475e8b6460b4bdf59d50d84bc906bd908910",
+          "step": 2
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000044/D0_exact_anchor/macro_checkpoints/step003_checkpoint.xyz",
+          "checkpoint_sha256": "d56a1684b6678b5a7ee1c7f764a1862be55927b89a800dadc7263c4024ce5ef0",
+          "step": 3
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000044/D0_exact_anchor/macro_checkpoints/step004_checkpoint.xyz",
+          "checkpoint_sha256": "5311a9b160ef248c1bf285688a2326827335c55865b6c497280193b9e6c8a582",
+          "step": 4
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000044/D0_exact_anchor/macro_checkpoints/step005_checkpoint.xyz",
+          "checkpoint_sha256": "f90b722460a2f6b5132d91311e609ad96d8f823f246a0e525b6aea04d75b067b",
+          "step": 5
+        }
+      ],
+      "key": [
+        "c60",
+        "intermediate_accepted",
+        44,
+        "D0_exact_anchor"
+      ],
+      "reached_macro_steps": 5
+    },
+    {
+      "attempted_macro_steps": 8,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000044/K4_discrete/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "d540150d9db1e1949868702c4e95736681071741ab682f18bc4f8ee62452ad3d",
+          "step": 1
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000044/K4_discrete/macro_checkpoints/step002_checkpoint.xyz",
+          "checkpoint_sha256": "25cfb0d1df8ad218b3b3f10d16ad1a1b9657975c4e9ada5d61a7ad41af97ec19",
+          "step": 2
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000044/K4_discrete/macro_checkpoints/step003_checkpoint.xyz",
+          "checkpoint_sha256": "ab69310689572cd1c40c2847d4f7fd21f829b400f8a5f781cf633b6e06c2a656",
+          "step": 3
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000044/K4_discrete/macro_checkpoints/step004_checkpoint.xyz",
+          "checkpoint_sha256": "bcb745e3378e3ab4eb82baca46bdf71029228e76f4ae22ea34bd7ec8bca44f1b",
+          "step": 4
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000044/K4_discrete/macro_checkpoints/step005_checkpoint.xyz",
+          "checkpoint_sha256": "4272c30e2664a77ac2c1b1680610716d6a28da337a958dc6e43ba435f4b04998",
+          "step": 5
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000044/K4_discrete/macro_checkpoints/step006_checkpoint.xyz",
+          "checkpoint_sha256": "50ca28873848e77c1e5a4934490a740e70bd575e7f3a81494fedc0eb04e3322e",
+          "step": 6
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/intermediate_accepted/seed-00000044/K4_discrete/macro_checkpoints/step007_checkpoint.xyz",
+          "checkpoint_sha256": "d2131c541f9d02363cdf2d5a4452891d17852a5f270330a2f80d99b9497e426d",
+          "step": 7
+        }
+      ],
+      "key": [
+        "c60",
+        "intermediate_accepted",
+        44,
+        "K4_discrete"
+      ],
+      "reached_macro_steps": 7
+    },
+    {
+      "attempted_macro_steps": 2,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000042/D0_exact_anchor/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "868746484cb30a4ac579882f390b15a477845ba5134e26297d9558982baaaa0e",
+          "step": 1
+        }
+      ],
+      "key": [
+        "c60",
+        "plateau_accepted",
+        42,
+        "D0_exact_anchor"
+      ],
+      "reached_macro_steps": 1
+    },
+    {
+      "attempted_macro_steps": 7,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000042/K4_discrete/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "7305a4468e6dc310e8f58f435ae66b772ca8025fcfb62424f82ef6b4d786d9be",
+          "step": 1
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000042/K4_discrete/macro_checkpoints/step002_checkpoint.xyz",
+          "checkpoint_sha256": "07fc78ec89643db81df10da5327e16ab3fd2f83043cfcfa197e213c81b8dd2b3",
+          "step": 2
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000042/K4_discrete/macro_checkpoints/step003_checkpoint.xyz",
+          "checkpoint_sha256": "0631ce242ded5ec99506b5e2db8ddc8ce3567da9fc848d63bd62b4fbe1718205",
+          "step": 3
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000042/K4_discrete/macro_checkpoints/step004_checkpoint.xyz",
+          "checkpoint_sha256": "40ea2b73b729d31c553e8876ea6a7193827267d26efcdf0ecee866251f0fb917",
+          "step": 4
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000042/K4_discrete/macro_checkpoints/step005_checkpoint.xyz",
+          "checkpoint_sha256": "2d555b6fb581a565b21a53bb3cbdfa735698f619a687e4ef0eae3cff3b4eb4f8",
+          "step": 5
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000042/K4_discrete/macro_checkpoints/step006_checkpoint.xyz",
+          "checkpoint_sha256": "cdcb36ac5d7f91e3aa27a34a88ee87e854a6b4bfacd69d48d708424a3b0348ed",
+          "step": 6
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000042/K4_discrete/macro_checkpoints/step007_checkpoint.xyz",
+          "checkpoint_sha256": "0c6e85740fcefaaf5e9ec5d4ae454982e3a8bf35d2dd65186a76b16da3fd33b7",
+          "step": 7
+        }
+      ],
+      "key": [
+        "c60",
+        "plateau_accepted",
+        42,
+        "K4_discrete"
+      ],
+      "reached_macro_steps": 7
+    },
+    {
+      "attempted_macro_steps": 8,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000043/D0_exact_anchor/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "8a41f2cd833cf52bb8209d9fa554c18d4372e6925a025d8d4a8addfaf2ad4668",
+          "step": 1
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000043/D0_exact_anchor/macro_checkpoints/step002_checkpoint.xyz",
+          "checkpoint_sha256": "0d843243141248584ce73d5689a15a11561651794343efe9c8db721e8cf5a811",
+          "step": 2
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000043/D0_exact_anchor/macro_checkpoints/step003_checkpoint.xyz",
+          "checkpoint_sha256": "6f72bf8bc67bdfd1ffc6aaf6b72895bbe8b6e5a16bdd1957913e910d8b091ebe",
+          "step": 3
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000043/D0_exact_anchor/macro_checkpoints/step004_checkpoint.xyz",
+          "checkpoint_sha256": "1e224e4eea11810f2edcde7581c37304afb35c94f3fde8e65c54c778e8693fb9",
+          "step": 4
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000043/D0_exact_anchor/macro_checkpoints/step005_checkpoint.xyz",
+          "checkpoint_sha256": "17c6d6d93566afcc0e380a07e66c8a52308ea50f2c1d4457887db7a3542be664",
+          "step": 5
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000043/D0_exact_anchor/macro_checkpoints/step006_checkpoint.xyz",
+          "checkpoint_sha256": "3d0d10a5aecca0d64ac165b0e86e33ef0b604d9c8c43794499f310d9a4430f93",
+          "step": 6
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000043/D0_exact_anchor/macro_checkpoints/step007_checkpoint.xyz",
+          "checkpoint_sha256": "7bb72015ceab0235c44e8780fc02fe82a351d9dbe3bfd74eb8165fbd0d8aa101",
+          "step": 7
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000043/D0_exact_anchor/macro_checkpoints/step008_checkpoint.xyz",
+          "checkpoint_sha256": "6a15adc698fef4a7631721f8fb9bd6a0ef5fd7e0cdabdd40f62946d1d32ee362",
+          "step": 8
+        }
+      ],
+      "key": [
+        "c60",
+        "plateau_accepted",
+        43,
+        "D0_exact_anchor"
+      ],
+      "reached_macro_steps": 8
+    },
+    {
+      "attempted_macro_steps": 4,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000043/K4_discrete/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "0a15c9b92e76fbf9f6f65f22a42a15b2904ef3ac157b3b0fe7e5ffbacb67ced4",
+          "step": 1
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000043/K4_discrete/macro_checkpoints/step002_checkpoint.xyz",
+          "checkpoint_sha256": "7d6a5e294ea512681113c1a257bc277e3f22cc8eff55a24896f07078982cdada",
+          "step": 2
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000043/K4_discrete/macro_checkpoints/step003_checkpoint.xyz",
+          "checkpoint_sha256": "5fed7afbf8290cf1e03fa9d17f7106123686b03e85fba4f47f3eda3ad91d07ea",
+          "step": 3
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000043/K4_discrete/macro_checkpoints/step004_checkpoint.xyz",
+          "checkpoint_sha256": "4bb2b32a744bed69a43b96765606c97bc694ddc3cf72dc04ea395fb4503cf222",
+          "step": 4
+        }
+      ],
+      "key": [
+        "c60",
+        "plateau_accepted",
+        43,
+        "K4_discrete"
+      ],
+      "reached_macro_steps": 4
+    },
+    {
+      "attempted_macro_steps": 4,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000044/D0_exact_anchor/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "a4fdb53b0aee2dd596502a8d26e00633d87304490177a22ad73efc04af50f5b1",
+          "step": 1
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000044/D0_exact_anchor/macro_checkpoints/step002_checkpoint.xyz",
+          "checkpoint_sha256": "18c1cf83e4ceaa639534f81d064210bbc0a6dc0ea296ef89c79ba4f709e43d96",
+          "step": 2
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000044/D0_exact_anchor/macro_checkpoints/step003_checkpoint.xyz",
+          "checkpoint_sha256": "ea83cfc20a50acc2528e93ea666f3863e58777cd921e43246ae3d6972f2b4f0f",
+          "step": 3
+        }
+      ],
+      "key": [
+        "c60",
+        "plateau_accepted",
+        44,
+        "D0_exact_anchor"
+      ],
+      "reached_macro_steps": 3
+    },
+    {
+      "attempted_macro_steps": 8,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000044/K4_discrete/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "e33f77ac737d3d2c079e97a5bd891a136978d983f736bc08301d737d6ead36a9",
+          "step": 1
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000044/K4_discrete/macro_checkpoints/step002_checkpoint.xyz",
+          "checkpoint_sha256": "a9f0ff19cd7198e4263412e6fd1a71685cf7c7a74c3cb73f16167db3bb615491",
+          "step": 2
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000044/K4_discrete/macro_checkpoints/step003_checkpoint.xyz",
+          "checkpoint_sha256": "cffa3129706e60c4a52cf101dff597869a73024e694b507c8a6b2242ac6fae18",
+          "step": 3
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000044/K4_discrete/macro_checkpoints/step004_checkpoint.xyz",
+          "checkpoint_sha256": "229f756b91e5109d88fc6bc1ca031cf8ba23bf7587f2e51fb074df90b4a6e6a7",
+          "step": 4
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000044/K4_discrete/macro_checkpoints/step005_checkpoint.xyz",
+          "checkpoint_sha256": "d4c8ee39e1d3fd20188878b318ac109d0ebdf7bd7b044cccca6383dc3270bf57",
+          "step": 5
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000044/K4_discrete/macro_checkpoints/step006_checkpoint.xyz",
+          "checkpoint_sha256": "cb945580d1e2a9e44acbb4d5910ad47377b4e961f5df521049ce02c91633b66a",
+          "step": 6
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000044/K4_discrete/macro_checkpoints/step007_checkpoint.xyz",
+          "checkpoint_sha256": "7e45be33ef9cd09f67752fe6ae9fd6a882c837140c6cd55a367ab1dda316ae2b",
+          "step": 7
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/c60/plateau_accepted/seed-00000044/K4_discrete/macro_checkpoints/step008_checkpoint.xyz",
+          "checkpoint_sha256": "bfce023cd47f2ba90d59bb2316c55eac417d540343c046611cf41ecdef96fdc7",
+          "step": 8
+        }
+      ],
+      "key": [
+        "c60",
+        "plateau_accepted",
+        44,
+        "K4_discrete"
+      ],
+      "reached_macro_steps": 8
+    },
+    {
+      "attempted_macro_steps": 2,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/pdo/intermediate_accepted/seed-00000042/D0_exact_anchor/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "82ad52623754dce2bab1d088cffd85b0f117eb01e6555285faa813a4c8efc18c",
+          "step": 1
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/pdo/intermediate_accepted/seed-00000042/D0_exact_anchor/macro_checkpoints/step002_checkpoint.xyz",
+          "checkpoint_sha256": "232fea08c2690d5881b4c49a5c31b867e40474abba69826f589ff82d1db272f2",
+          "step": 2
+        }
+      ],
+      "key": [
+        "pdo",
+        "intermediate_accepted",
+        42,
+        "D0_exact_anchor"
+      ],
+      "reached_macro_steps": 2
+    },
+    {
+      "attempted_macro_steps": 1,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/pdo/intermediate_accepted/seed-00000042/K4_discrete/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "88067e70e13d522306419e6d2f1490008e28bcab2527ec75d8cde5697fe27ac6",
+          "step": 1
+        }
+      ],
+      "key": [
+        "pdo",
+        "intermediate_accepted",
+        42,
+        "K4_discrete"
+      ],
+      "reached_macro_steps": 1
+    },
+    {
+      "attempted_macro_steps": 3,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/pdo/intermediate_accepted/seed-00000043/D0_exact_anchor/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "abc3ebbeb7cdfc86c3a48aba8c03971e123e30c5b6a87c6c7ada9e35ad7db97a",
+          "step": 1
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/pdo/intermediate_accepted/seed-00000043/D0_exact_anchor/macro_checkpoints/step002_checkpoint.xyz",
+          "checkpoint_sha256": "7ee1350877d52b237eb8fdd76fc6689dedc68abf00a421be9292a1676d06cf70",
+          "step": 2
+        }
+      ],
+      "key": [
+        "pdo",
+        "intermediate_accepted",
+        43,
+        "D0_exact_anchor"
+      ],
+      "reached_macro_steps": 2
+    },
+    {
+      "attempted_macro_steps": 3,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/pdo/intermediate_accepted/seed-00000043/K4_discrete/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "70c052401270ae9f207fb8245c7271b15c6d7dd01718a4e31760ba62ce3903e7",
+          "step": 1
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/pdo/intermediate_accepted/seed-00000043/K4_discrete/macro_checkpoints/step002_checkpoint.xyz",
+          "checkpoint_sha256": "f9789559d327e53b49ad037791ad058845375afc4e2d67aed20f0cf948294a62",
+          "step": 2
+        }
+      ],
+      "key": [
+        "pdo",
+        "intermediate_accepted",
+        43,
+        "K4_discrete"
+      ],
+      "reached_macro_steps": 2
+    },
+    {
+      "attempted_macro_steps": 2,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/pdo/intermediate_accepted/seed-00000044/D0_exact_anchor/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "551a8c5fb93172ac625da4e00989f7154702eaafd207491880fea1d4132d8988",
+          "step": 1
+        }
+      ],
+      "key": [
+        "pdo",
+        "intermediate_accepted",
+        44,
+        "D0_exact_anchor"
+      ],
+      "reached_macro_steps": 1
+    },
+    {
+      "attempted_macro_steps": 2,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/pdo/intermediate_accepted/seed-00000044/K4_discrete/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "80341ed89a5f5cae9df85e4b60dbad1870d8ca209c708d8a1684d78a1f33949a",
+          "step": 1
+        }
+      ],
+      "key": [
+        "pdo",
+        "intermediate_accepted",
+        44,
+        "K4_discrete"
+      ],
+      "reached_macro_steps": 1
+    },
+    {
+      "attempted_macro_steps": 2,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/pdo/plateau_accepted/seed-00000042/D0_exact_anchor/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "94d62dd2a3054f213fc080e3c1e09c4ecdb3a8d6fdc4323ad1a458b87cb9a937",
+          "step": 1
+        }
+      ],
+      "key": [
+        "pdo",
+        "plateau_accepted",
+        42,
+        "D0_exact_anchor"
+      ],
+      "reached_macro_steps": 1
+    },
+    {
+      "attempted_macro_steps": 1,
+      "endpoints": [],
+      "key": [
+        "pdo",
+        "plateau_accepted",
+        42,
+        "K4_discrete"
+      ],
+      "reached_macro_steps": 0
+    },
+    {
+      "attempted_macro_steps": 1,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/pdo/plateau_accepted/seed-00000043/D0_exact_anchor/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "028a1d09e0f659a365bb1d05a57b8625160994d81be62ba85cd2c270de42acef",
+          "step": 1
+        }
+      ],
+      "key": [
+        "pdo",
+        "plateau_accepted",
+        43,
+        "D0_exact_anchor"
+      ],
+      "reached_macro_steps": 1
+    },
+    {
+      "attempted_macro_steps": 2,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/pdo/plateau_accepted/seed-00000043/K4_discrete/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "a72c148982070e4d4a36ccfe9a7ddd4bd8423dc6261c6497e33b383b9f35dd06",
+          "step": 1
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/pdo/plateau_accepted/seed-00000043/K4_discrete/macro_checkpoints/step002_checkpoint.xyz",
+          "checkpoint_sha256": "985ae1d038a9a696e0fc65bac15db678a32ed571063047a981d2525fd24d51c2",
+          "step": 2
+        }
+      ],
+      "key": [
+        "pdo",
+        "plateau_accepted",
+        43,
+        "K4_discrete"
+      ],
+      "reached_macro_steps": 2
+    },
+    {
+      "attempted_macro_steps": 3,
+      "endpoints": [
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/pdo/plateau_accepted/seed-00000044/D0_exact_anchor/macro_checkpoints/step001_checkpoint.xyz",
+          "checkpoint_sha256": "acc09575d53996793242d0dca76a4385571fb9f9974dffca5da19cc50ca103c8",
+          "step": 1
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/pdo/plateau_accepted/seed-00000044/D0_exact_anchor/macro_checkpoints/step002_checkpoint.xyz",
+          "checkpoint_sha256": "6e4b60116128882c9dc2af4297e8f499fd049d9abc28e68148f5569a3175e441",
+          "step": 2
+        },
+        {
+          "checkpoint_path": "runs/20260731-current-action-first-passage/output-v3/cases/pdo/plateau_accepted/seed-00000044/D0_exact_anchor/macro_checkpoints/step003_checkpoint.xyz",
+          "checkpoint_sha256": "85bfe01cd6f3eb66a16e10359f25c8c2e3842df9d4ee20c90ca19be8844e544b",
+          "step": 3
+        }
+      ],
+      "key": [
+        "pdo",
+        "plateau_accepted",
+        44,
+        "D0_exact_anchor"
+      ],
+      "reached_macro_steps": 3
+    },
+    {
+      "attempted_macro_steps": 1,
+      "endpoints": [],
+      "key": [
+        "pdo",
+        "plateau_accepted",
+        44,
+        "K4_discrete"
+      ],
+      "reached_macro_steps": 0
+    }
+  ],
+  "schema_version": 1,
+  "source_raw_evidence_sha256": "9ba5fb4fce7b44dea7cfa4bc0115043e3877adc08c345eaae9aa5fc0117fbdd2"
+}

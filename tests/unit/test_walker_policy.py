@@ -15,6 +15,7 @@ from pamssw.state import State
 from pamssw.softening import LocalSofteningModel, PairSofteningTerm
 from pamssw.walker import (
     CandidateDirectionGenerator,
+    ContinuationDirectionDegenerate,
     DirectionCandidateKind,
     DirectionCandidate,
     DirectionScorer,
@@ -93,6 +94,248 @@ def test_walk_exposes_optimizer_neutral_proposal_relaxation_task(monkeypatch):
     assert not hasattr(task, "optimizer")
     assert task.initial_state.numbers.tolist() == [1]
     assert task.initial_state.positions[0, 0] > state.positions[0, 0]
+
+
+def test_walk_bias_view_can_remove_older_gaussians_without_changing_storage(monkeypatch):
+    class LatestOnlyWalker(SurfaceWalker):
+        @staticmethod
+        def _active_walk_biases(biases):
+            return tuple(biases[-1:])
+
+    state = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    walker = LatestOnlyWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            max_steps_per_walk=3,
+            oracle_candidates=1,
+            proposal_relax_steps=0,
+            min_step_scale=0.1,
+            max_step_scale=0.1,
+            walk_trust_radius=10.0,
+        ),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0])
+    oracle_bias_counts = []
+    task_bias_counts = []
+
+    def choose_direction(_state, proposal, *_args, **_kwargs):
+        oracle_bias_counts.append(len(proposal.biases))
+        return DirectionChoice(
+            direction=direction,
+            curvature=1.0,
+            true_curvature=1.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        )
+
+    def retain_initial_state(task, **_kwargs):
+        task_bias_counts.append(len(task.biases))
+        return RelaxResult(
+            state=task.initial_state,
+            energy=0.0,
+            gradient_norm=0.0,
+            n_iter=0,
+        )
+
+    monkeypatch.setattr(walker.oracle, "choose_direction", choose_direction)
+    monkeypatch.setattr(walker, "_relax_proposal_task", retain_initial_state)
+
+    traces = []
+    walker._walk_candidate_from_seed(state, trace_sink=traces)
+
+    assert oracle_bias_counts == [0, 1, 1]
+    assert task_bias_counts == [1, 1, 1]
+    assert len(traces[0].steps) == 3
+
+
+@pytest.mark.parametrize(
+    ("scope", "oracle_softened", "proposal_softened"),
+    [
+        ("none", False, False),
+        ("oracle", True, False),
+        ("proposal", False, True),
+        ("both", True, True),
+    ],
+)
+def test_walk_routes_local_softening_to_documented_scope(
+    monkeypatch,
+    scope,
+    oracle_softened,
+    proposal_softened,
+):
+    class TaskCaptured(RuntimeError):
+        pass
+
+    captured = {}
+
+    class CapturingWalker(SurfaceWalker):
+        def _relax_proposal_task(self, task, *, optimizer, trajectory_callback):
+            captured["task"] = task
+            raise TaskCaptured
+
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]),
+    )
+    walker = CapturingWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            n_bond_pairs=0,
+            proposal_relax_steps=1,
+            local_softening_mode="manual",
+            local_softening_pairs=[(0, 1)],
+            local_softening_scope=scope,
+        ),
+        softening_enabled=True,
+    )
+    direction = np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0])
+    direction /= np.linalg.norm(direction)
+    monkeypatch.setattr(
+        walker.oracle.generator,
+        "generate_initial_direction",
+        lambda *args, **kwargs: direction,
+    )
+
+    def choose_direction(*args, **kwargs):
+        captured["oracle_proposal"] = kwargs.get("proposal", args[1] if len(args) > 1 else None)
+        return DirectionChoice(
+            direction=direction,
+            curvature=-0.5,
+            true_curvature=-0.25,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        )
+
+    monkeypatch.setattr(walker.oracle, "choose_direction", choose_direction)
+
+    with pytest.raises(TaskCaptured):
+        walker._walk_candidate_from_seed(state)
+
+    assert (captured["oracle_proposal"].softening is not None) is oracle_softened
+    assert (captured["task"].softening is not None) is proposal_softened
+
+
+def test_paper_ordered_softening_prerelaxes_once_and_attributes_evaluations():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(
+            proposal_optimizer="safe-lbfgs-total",
+            proposal_fmax=0.01,
+            proposal_relax_steps=80,
+            local_softening_protocol="paper_ordered",
+            local_softening_mode="manual",
+            local_softening_pairs=[(0, 1)],
+            local_softening_strength=0.2,
+            local_softening_xi=0.2,
+            local_softening_cutoff=None,
+        ),
+        softening_enabled=True,
+    )
+
+    prepared, frozen = walker._prepare_frozen_local_softening(state)
+    counts = walker.calculator.snapshot()
+
+    assert frozen is not None
+    assert frozen.reference_scaled_xi
+    assert frozen.terms[0].reference_distance == pytest.approx(1.0)
+    assert np.linalg.norm(prepared.positions[1] - prepared.positions[0]) > 1.0
+    assert counts.count(EvaluationPurpose.LOCAL_SOFTENING_PRE_RELAX) > 0
+    assert counts.count(EvaluationPurpose.UNATTRIBUTED) == 0
+    diagnostics = walker.local_softening_diagnostics()
+    assert diagnostics["protocol"] == "paper_ordered"
+    assert diagnostics["pre_relaxations"] == 1
+    assert diagnostics["pre_relax_force_evaluations"] == counts.count(
+        EvaluationPurpose.LOCAL_SOFTENING_PRE_RELAX
+    )
+    assert diagnostics["pre_relax_pls_eV_per_atom"] > 0.0
+    assert diagnostics["pre_relax_converged"] == 1
+    assert diagnostics["pre_relax_gradient_norm"] <= 0.01
+
+
+def test_paper_ordered_walk_reuses_frozen_softening_after_prerelax(monkeypatch):
+    class TaskCaptured(RuntimeError):
+        pass
+
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]),
+    )
+    prepared = State(
+        numbers=state.numbers.copy(),
+        positions=np.array([[-0.6, 0.0, 0.0], [0.6, 0.0, 0.0]]),
+    )
+    frozen = LocalSofteningModel.from_state(
+        state,
+        pairs=[(0, 1)],
+        strength=0.2,
+        mode="manual",
+        penalty="buckingham_repulsive",
+        xi=0.2,
+        reference_scaled_xi=True,
+        cutoff=None,
+    )
+    captured = {}
+
+    class CapturingWalker(SurfaceWalker):
+        def _prepare_frozen_local_softening(self, seed_state):
+            return prepared, frozen
+
+        def _build_softening(self, *args, **kwargs):
+            raise AssertionError("paper-ordered walk rebuilt its frozen penalty")
+
+        def _relax_proposal_task(self, task, *, optimizer, trajectory_callback):
+            captured["task"] = task
+            raise TaskCaptured
+
+    walker = CapturingWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            n_bond_pairs=0,
+            proposal_relax_steps=1,
+            local_softening_protocol="paper_ordered",
+            local_softening_mode="manual",
+            local_softening_pairs=[(0, 1)],
+            local_softening_scope="both",
+        ),
+        softening_enabled=True,
+    )
+    direction = np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0])
+    direction /= np.linalg.norm(direction)
+    monkeypatch.setattr(
+        walker.oracle.generator,
+        "generate_initial_direction",
+        lambda *args, **kwargs: direction,
+    )
+
+    def choose_direction(chosen_state, proposal, *args, **kwargs):
+        captured["oracle_state"] = chosen_state
+        captured["oracle_softening"] = proposal.softening
+        return DirectionChoice(
+            direction=direction,
+            curvature=-0.5,
+            true_curvature=-0.25,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        )
+
+    monkeypatch.setattr(walker.oracle, "choose_direction", choose_direction)
+
+    with pytest.raises(TaskCaptured):
+        walker._walk_candidate_from_seed(state)
+
+    assert captured["oracle_state"] is prepared
+    assert captured["oracle_softening"] is frozen
+    assert captured["task"].softening is not frozen
+    assert captured["task"].softening.terms == frozen.terms
 
 
 def test_proposal_relaxation_task_snapshots_state_and_bias_arrays():
@@ -754,6 +997,440 @@ def test_block_krylov_selects_lowest_block_without_native_scoring(monkeypatch):
     assert choice.diagnostics["krylov_hvp_count"] == 2
 
 
+def test_transport_direction_projects_aligns_and_spends_one_hvp():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            direction_selection_mode="transported_direction",
+            n_bond_pairs=0,
+        ),
+        softening_enabled=False,
+    )
+    previous = np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0])
+    proposal = ProposalPotential(walker.calculator)
+    before = walker.calculator.snapshot().count(
+        EvaluationPurpose.DIRECTION_ORACLE
+    )
+
+    with walker.calculator.purpose(EvaluationPurpose.DIRECTION_ORACLE):
+        choice = walker.oracle.choose_transported_direction(
+            state,
+            proposal,
+            -previous,
+            previous,
+        )
+
+    after = walker.calculator.snapshot().count(
+        EvaluationPurpose.DIRECTION_ORACLE
+    )
+    assert after - before == 2
+    assert np.dot(choice.direction, previous) > 0.0
+    assert choice.kind is DirectionCandidateKind.TRANSPORTED
+    assert choice.diagnostics["direction_hvp_count"] == 1
+    assert choice.diagnostics["continuation_source"] == "selected_mode"
+
+
+def test_transport_direction_reports_existing_hvp_eigen_residual_without_extra_cost():
+    class AnisotropicQuadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.diag(np.arange(1.0, 10.0))
+            gradient = hessian @ flat_positions
+            return 0.5 * float(flat_positions @ gradient), gradient
+
+    state = State(
+        numbers=np.array([6, 6, 6]),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.4, 0.0, 0.0],
+                [0.0, 1.2, 0.0],
+            ]
+        ),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(AnisotropicQuadratic()),
+        config=SSWConfig(
+            direction_selection_mode="transported_direction",
+            n_bond_pairs=0,
+        ),
+        softening_enabled=False,
+    )
+    direction = np.arange(1.0, 10.0)
+    proposal = ProposalPotential(walker.calculator)
+    before = walker.calculator.snapshot().count(
+        EvaluationPurpose.DIRECTION_ORACLE
+    )
+
+    with walker.calculator.purpose(EvaluationPurpose.DIRECTION_ORACLE):
+        choice = walker.oracle.choose_transported_direction(
+            state,
+            proposal,
+            direction,
+            direction,
+        )
+
+    after = walker.calculator.snapshot().count(
+        EvaluationPurpose.DIRECTION_ORACLE
+    )
+    hessian = np.diag(np.arange(1.0, 10.0))
+    total_hvp = hessian @ choice.direction
+    curvature = float(choice.direction @ total_hvp)
+    residual_norm = float(
+        np.linalg.norm(total_hvp - curvature * choice.direction)
+    )
+    relative_residual = residual_norm / float(np.linalg.norm(total_hvp))
+
+    assert after - before == 2
+    assert choice.diagnostics["transported_hvp_norm"] == pytest.approx(
+        np.linalg.norm(total_hvp)
+    )
+    assert choice.diagnostics[
+        "transported_residual_norm"
+    ] == pytest.approx(residual_norm)
+    assert choice.diagnostics[
+        "transported_relative_residual"
+    ] == pytest.approx(relative_residual)
+    assert choice.diagnostics[
+        "transported_true_residual_norm"
+    ] == pytest.approx(residual_norm)
+    assert choice.diagnostics[
+        "transported_true_relative_residual"
+    ] == pytest.approx(relative_residual)
+
+
+def test_continuation_projection_rejects_direction_removed_by_fixed_mask():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]),
+        fixed_mask=np.array([True, True]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            direction_selection_mode="transported_direction",
+            n_bond_pairs=0,
+        ),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0])
+
+    with pytest.raises(
+        ContinuationDirectionDegenerate,
+        match="vanished after projection",
+    ):
+        walker.oracle.choose_transported_direction(
+            state,
+            ProposalPotential(walker.calculator),
+            direction,
+            direction,
+        )
+
+
+def test_continuation_walk_has_common_first_step_and_keeps_selected_mode(
+    monkeypatch,
+    tmp_path,
+):
+    class ThreeAtomQuadratic:
+        def energy_gradient(self, flat_positions, state):
+            hessian = np.diag(np.arange(1.0, 10.0))
+            gradient = hessian @ flat_positions
+            return 0.5 * float(flat_positions @ gradient), gradient
+
+    state = State(
+        numbers=np.array([6, 6, 6]),
+        positions=np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.4, 0.0, 0.0],
+                [0.0, 1.2, 0.0],
+            ]
+        ),
+    )
+    rows_by_arm = {}
+    arm_settings = {
+        "fixed_intent_ritz": ("block_krylov", 6),
+        "transported_direction": ("transported_direction", 6),
+        "continuation_lanczos": ("continuation_krylov", 12),
+        "continuation_intent_ritz2": (
+            "continuation_intent_krylov",
+            1,
+        ),
+    }
+
+    for arm, (mode, depth) in arm_settings.items():
+        diagnostic_path = tmp_path / f"{arm}.jsonl"
+        walker = SurfaceWalker(
+            calculator=AnalyticCalculator(ThreeAtomQuadratic()),
+            config=SSWConfig(
+                rng_seed=42,
+                max_steps_per_walk=2,
+                oracle_candidates=1,
+                n_bond_pairs=0,
+                proposal_relax_steps=0,
+                direction_selection_mode=mode,
+                block_krylov_blocks=1,
+                block_krylov_depth=depth,
+                direction_curvature_source="true",
+                target_negative_curvature=10.0,
+                direction_diagnostics_enabled=True,
+                direction_diagnostics_path=str(diagnostic_path),
+            ),
+            softening_enabled=False,
+        )
+
+        def relax_with_transverse_component(task, **kwargs):
+            positions = task.initial_state.positions.copy()
+            positions[0, 1] += 0.02
+            positions[1, 1] -= 0.02
+            return RelaxResult(
+                task.initial_state.with_flat_positions(positions.reshape(-1)),
+                energy=0.0,
+                gradient_norm=0.0,
+                n_iter=0,
+            )
+
+        monkeypatch.setattr(
+            walker,
+            "_relax_proposal_task",
+            relax_with_transverse_component,
+        )
+        walker._walk_candidate_from_seed(state)
+        rows_by_arm[arm] = [
+            json.loads(line)
+            for line in diagnostic_path.read_text().splitlines()
+        ]
+
+    first_hashes = {
+        rows[0]["selected_direction_sha256"]
+        for rows in rows_by_arm.values()
+    }
+    assert len(first_hashes) == 1
+    assert all(
+        rows[0]["selected_kind"] == "block_ritz"
+        for rows in rows_by_arm.values()
+    )
+    assert (
+        rows_by_arm["transported_direction"][1][
+            "direction_hvp_count"
+        ]
+        == 1
+    )
+    assert (
+        rows_by_arm["transported_direction"][1][
+            "continuation_source"
+        ]
+        == "selected_mode"
+    )
+    assert (
+        rows_by_arm["transported_direction"][1][
+            "direction_participation_ratio"
+        ]
+        > 0.0
+    )
+    assert all(
+        row["executed_step_scale"] > 0.0
+        for rows in rows_by_arm.values()
+        for row in rows
+    )
+    assert (
+        rows_by_arm["continuation_lanczos"][1][
+            "krylov_initial_basis_columns"
+        ]
+        == [1]
+    )
+    assert (
+        rows_by_arm["continuation_lanczos"][1][
+            "continuation_source"
+        ]
+        == "selected_mode"
+    )
+    assert (
+        rows_by_arm["continuation_intent_ritz2"][1][
+            "krylov_initial_basis_columns"
+        ]
+        == [2]
+    )
+    assert (
+        rows_by_arm["continuation_intent_ritz2"][1][
+            "krylov_hvp_count"
+        ]
+        == 2
+    )
+    assert (
+        rows_by_arm["continuation_intent_ritz2"][1][
+            "oracle_selection_force_evaluations_delta"
+        ]
+        == 4
+    )
+    assert (
+        rows_by_arm["continuation_intent_ritz2"][1][
+            "continuation_source"
+        ]
+        == "selected_mode_plus_initial_intent"
+    )
+    selected_cosine = rows_by_arm["transported_direction"][1][
+        "selected_to_previous_selected_abs_cosine"
+    ]
+    relaxed_cosine = rows_by_arm["transported_direction"][1][
+        "selected_to_previous_relaxed_abs_cosine"
+    ]
+    assert selected_cosine > 0.999
+    assert selected_cosine > relaxed_cosine
+
+
+def test_continuation_walk_stops_without_fallback_on_degenerate_projection(
+    monkeypatch,
+):
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            rng_seed=42,
+            max_steps_per_walk=2,
+            oracle_candidates=1,
+            n_bond_pairs=0,
+            proposal_relax_steps=0,
+            direction_selection_mode="transported_direction",
+            block_krylov_blocks=1,
+            block_krylov_depth=6,
+            target_negative_curvature=10.0,
+        ),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0])
+    monkeypatch.setattr(
+        walker.oracle,
+        "_choose_block_krylov_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=direction / np.linalg.norm(direction),
+            curvature=1.0,
+            kind=DirectionCandidateKind.BLOCK_RITZ,
+            candidate_count=0,
+            true_curvature=1.0,
+        ),
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_transported_direction",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            ContinuationDirectionDegenerate(
+                "continuation direction vanished after projection"
+            )
+        ),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(
+            task.initial_state,
+            energy=0.0,
+            gradient_norm=0.0,
+            n_iter=0,
+        ),
+    )
+
+    result = walker._walk_candidate_from_seed(state)
+
+    assert isinstance(result, State)
+    assert (
+        walker._direction_stats_summary()[
+            "continuation_projection_degenerate"
+        ]
+        == 1
+    )
+
+
+def test_walk_executes_a_shared_initial_direction_without_recomputing_it(
+    monkeypatch,
+    tmp_path,
+):
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]),
+    )
+    diagnostic_path = tmp_path / "shared-initial.jsonl"
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            rng_seed=42,
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            n_bond_pairs=0,
+            proposal_relax_steps=0,
+            direction_selection_mode="transported_direction",
+            block_krylov_blocks=1,
+            block_krylov_depth=6,
+            target_negative_curvature=10.0,
+            direction_diagnostics_enabled=True,
+            direction_diagnostics_path=str(diagnostic_path),
+        ),
+        softening_enabled=False,
+    )
+    direction = (
+        np.array([1.0, 0.0, 0.0, -1.0, 0.0, 0.0])
+        / np.sqrt(2.0)
+    )
+    shared_choice = DirectionChoice(
+        direction=direction,
+        curvature=1.0,
+        kind=DirectionCandidateKind.BLOCK_RITZ,
+        candidate_count=0,
+        true_curvature=1.0,
+        diagnostics={
+            "krylov_blocks": 1,
+            "krylov_depth": 6,
+            "krylov_hvp_count": 12,
+            "krylov_hvp_requested": 12,
+            "krylov_hvp_consumed": 12,
+            "krylov_initial_basis_columns": [2],
+        },
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "_choose_block_krylov_direction",
+        lambda *args, **kwargs: pytest.fail(
+            "shared initial direction was recomputed"
+        ),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(
+            task.initial_state,
+            energy=0.0,
+            gradient_norm=0.0,
+            n_iter=0,
+        ),
+    )
+
+    walker._walk_candidate_from_seed(
+        state,
+        initial_direction_choice=shared_choice,
+    )
+
+    [row] = [
+        json.loads(line)
+        for line in diagnostic_path.read_text().splitlines()
+    ]
+    assert row["shared_initial_direction"] is True
+    assert row["oracle_selection_force_evaluations_delta"] == 0
+    assert row["selected_direction_sha256"] == (
+        SurfaceWalker._continuation_diagnostics(
+            direction,
+            None,
+            None,
+            direction,
+        )["selected_direction_sha256"]
+    )
+
+
 @pytest.mark.parametrize(
     ("force_softening_rebuild", "extra_direction_evaluations"),
     [(False, 2), (True, 2)],
@@ -1198,6 +1875,65 @@ def test_direction_type_bonus_disabled_preserves_winner_and_candidate_count():
 
     assert choice.kind == DirectionCandidateKind.MOMENTUM
     assert choice.candidate_count == 2
+
+
+def test_true_curvature_ranker_uses_paid_true_hvp_not_static_composite(
+    monkeypatch,
+):
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[0.0, 0.0, 0.0]]),
+    )
+    oracle = SoftModeOracle(
+        AnalyticCalculator(Quadratic()),
+        np.random.default_rng(0),
+        candidates=0,
+        direction_ranking_mode="true_curvature",
+    )
+    candidates = [
+        DirectionCandidate(
+            DirectionCandidateKind.MOMENTUM,
+            np.array([1.0, 0.0, 0.0]),
+        ),
+        DirectionCandidate(
+            DirectionCandidateKind.BOND,
+            np.array([0.0, 1.0, 0.0]),
+        ),
+    ]
+    monkeypatch.setattr(
+        oracle.generator,
+        "generate",
+        lambda *args, **kwargs: candidates,
+    )
+    monkeypatch.setattr(
+        oracle,
+        "_candidate_directional_hvps",
+        lambda state, proposal, direction: (
+            direction,
+            (5.0 if direction[0] else -1.0) * direction,
+        ),
+    )
+    oracle.scorer = KindScoreScorer(
+        {
+            DirectionCandidateKind.MOMENTUM: 10.0,
+            DirectionCandidateKind.BOND: 0.0,
+        }
+    )
+
+    choice = oracle.choose_direction(
+        state,
+        proposal=ProposalPotential(
+            AnalyticCalculator(Quadratic())
+        ),
+        previous_direction=None,
+        score_sigma=1.0,
+    )
+
+    assert choice.kind == DirectionCandidateKind.BOND
+    assert choice.true_curvature == pytest.approx(-1.0)
+    assert choice.score == pytest.approx(0.0)
+    assert choice.diagnostics["direction_ranking_mode"] == "true_curvature"
+    assert choice.diagnostics["direction_ranking_score"] == pytest.approx(1.0)
 
 
 @pytest.mark.parametrize("bonus_kind", [DirectionCandidateKind.BOND, DirectionCandidateKind.RANDOM])
@@ -2222,6 +2958,43 @@ def test_direction_archive_run_finalizes_productive_and_nonproductive_trials(
     record = walker._direction_archive_records[0]
     assert record.productive is expected_productive
     assert record.final_energy == pytest.approx(expected_final_energy)
+
+
+def test_run_can_reuse_one_prequenched_initial_without_repeating_true_quench(
+    monkeypatch,
+):
+    raw = State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]]))
+    minimum = State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]]))
+    prequenched = RelaxResult(
+        minimum,
+        energy=-1.25,
+        gradient_norm=0.0,
+        n_iter=7,
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(max_trials=1),
+        softening_enabled=False,
+    )
+    monkeypatch.setattr(
+        walker,
+        "relax_true_minimum",
+        lambda *args, **kwargs: pytest.fail("shared bootstrap must not be repeated"),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_proposal_pool",
+        lambda *args, **kwargs: (_ for _ in ()).throw(BudgetExceeded("stop")),
+    )
+
+    result = walker.run(
+        minimum,
+        prequenched_initial=prequenched,
+    )
+
+    assert result.best_energy == pytest.approx(-1.25)
+    np.testing.assert_array_equal(result.best_state.positions, minimum.positions)
+    assert result.stats["force_evaluations"] == 0
 
 
 def test_direction_archive_run_does_not_mark_duplicate_after_new_best_as_global_improvement(monkeypatch):
@@ -4918,7 +5691,32 @@ def test_surface_walker_writes_accepted_structure_log(tmp_path):
         assert payload["discovered_entry_id"] == accepted_records[0].discovered_entry_id
         assert payload["energy"] == pytest.approx(accepted_records[0].energy)
         assert payload["best_energy"] == pytest.approx(result.best_energy)
+        assert payload["force_evaluations"] > 0
+        assert payload["force_evaluations"] <= result.stats["force_evaluations"]
         assert len(payload["descriptor"]) == 20
+
+
+def test_accepted_structure_log_records_cumulative_force_evaluations(tmp_path):
+    log_path = tmp_path / "accepted_structures.jsonl"
+    state = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(accepted_structures_log=str(log_path)),
+        softening_enabled=False,
+    )
+    walker.calculator.evaluate(state)
+
+    walker._record_accepted_structure(
+        trial_index=1,
+        seed_entry_id=0,
+        discovered_entry_id=1,
+        state=state,
+        energy=-1.0,
+        best_energy=-1.0,
+    )
+
+    payload = json.loads(log_path.read_text())
+    assert payload["force_evaluations"] == 1
 
 
 def test_surface_walker_can_write_all_proposal_minima(tmp_path):
@@ -5075,6 +5873,139 @@ def test_metropolis_seed_selection_counts_visits_without_bandit_selector():
     assert walker._same_seed_consecutive == 1
 
 
+def test_uniform_archive_seed_selection_samples_entries_without_bandit_selector():
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=0.01)
+    archive.add(State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]])), -3.0, None)
+    selected_entry = archive.add(
+        State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]])),
+        -2.0,
+        None,
+    )
+    archive.add(State(numbers=np.array([1]), positions=np.array([[2.0, 0.0, 0.0]])), -1.0, None)
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(seed_selection_mode="uniform_archive", rng_seed=0),
+        softening_enabled=False,
+    )
+
+    class SelectMiddle:
+        @staticmethod
+        def integers(upper):
+            assert upper == 3
+            return 1
+
+    walker.selection_rng = SelectMiddle()
+    selected = walker._select_uniform_seed_entry(archive)
+
+    assert selected.entry_id == selected_entry.entry_id
+    assert selected.visits == 2
+    assert selected.node_trials == 1
+    assert walker._same_seed_consecutive == 1
+
+
+def test_paired_best_uniform_uses_one_frozen_archive_snapshot_for_both_slots():
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=0.01)
+    best = archive.add(
+        State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]])),
+        -3.0,
+        None,
+    )
+    archive.add(
+        State(numbers=np.array([1]), positions=np.array([[1.0, 0.0, 0.0]])),
+        -2.0,
+        None,
+    )
+    cached_uniform = archive.add(
+        State(numbers=np.array([1]), positions=np.array([[2.0, 0.0, 0.0]])),
+        -1.0,
+        None,
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(seed_selection_mode="paired_best_uniform", rng_seed=0),
+        softening_enabled=False,
+    )
+
+    class SelectLast:
+        @staticmethod
+        def integers(upper):
+            return upper - 1
+
+    walker.selection_rng = SelectLast()
+
+    first = walker._select_paired_best_uniform_seed_entry(archive, trial_index=0)
+    new_best = archive.add(
+        State(numbers=np.array([1]), positions=np.array([[3.0, 0.0, 0.0]])),
+        -4.0,
+        None,
+    )
+    second = walker._select_paired_best_uniform_seed_entry(archive, trial_index=1)
+    third = walker._select_paired_best_uniform_seed_entry(archive, trial_index=2)
+
+    assert first.entry_id == best.entry_id
+    assert second.entry_id == cached_uniform.entry_id
+    assert third.entry_id == new_best.entry_id
+    assert best.node_trials == 1
+    assert cached_uniform.node_trials == 1
+    assert new_best.node_trials == 1
+
+
+def test_paired_best_uniform_rejects_out_of_order_slot_use():
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=0.01)
+    archive.add(
+        State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]])),
+        -2.0,
+        None,
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(DoubleWell2D()),
+        config=SSWConfig(seed_selection_mode="paired_best_uniform", rng_seed=0),
+        softening_enabled=False,
+    )
+
+    with pytest.raises(RuntimeError, match="cached uniform starter"):
+        walker._select_paired_best_uniform_seed_entry(archive, trial_index=1)
+
+
+def test_starter_selection_does_not_advance_physical_action_random_stream():
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=0.01)
+    entry = archive.add(
+        State(numbers=np.array([1]), positions=np.array([[0.0, 0.0, 0.0]])),
+        -2.0,
+        None,
+    )
+    walkers = {
+        mode: SurfaceWalker(
+            calculator=AnalyticCalculator(DoubleWell2D()),
+            config=SSWConfig(seed_selection_mode=mode, rng_seed=17),
+            softening_enabled=False,
+        )
+        for mode in (
+            "uniform_archive",
+            "archive_ucb",
+            "metropolis_chain",
+            "paired_best_uniform",
+        )
+    }
+
+    walkers["uniform_archive"]._select_uniform_seed_entry(archive.clone())
+    walkers["archive_ucb"]._select_seed_entry(archive.clone())
+    walkers["metropolis_chain"]._select_metropolis_seed_entry(entry)
+    walkers["paired_best_uniform"]._select_paired_best_uniform_seed_entry(
+        archive.clone(), trial_index=0
+    )
+
+    action_draws = {
+        mode: walker.rng.normal(size=12)
+        for mode, walker in walkers.items()
+    }
+    assert np.array_equal(action_draws["uniform_archive"], action_draws["archive_ucb"])
+    assert np.array_equal(action_draws["uniform_archive"], action_draws["metropolis_chain"])
+    assert np.array_equal(
+        action_draws["uniform_archive"], action_draws["paired_best_uniform"]
+    )
+
+
 def test_surface_walker_reports_direction_acquisition_diagnostics():
     initial = State(numbers=np.array([1]), positions=np.array([[0.2, 0.0, 0.0]]))
     walker = SurfaceWalker(
@@ -5098,6 +6029,172 @@ def test_surface_walker_reports_direction_acquisition_diagnostics():
     assert "direction_bond_pairs_requested" in result.stats
     assert "direction_bond_pairs_generated" in result.stats
     assert "direction_bond_candidates_valid" in result.stats
+
+
+def test_uphill_control_telemetry_reports_requested_and_actual_controls():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(bias_weight_max=10.0),
+        softening_enabled=False,
+    )
+
+    walker._record_uphill_control(
+        requested_sigma=0.8,
+        executed_sigma=0.6,
+        base_weight=10.0,
+        final_weight=11.5,
+        true_curvature=4.0,
+        inner_curvature=2.0,
+    )
+
+    stats = walker._direction_stats_summary()
+    assert stats["uphill_control_steps"] == 1
+    assert stats["uphill_requested_sigma_mean"] == pytest.approx(0.8)
+    assert stats["uphill_executed_sigma_mean"] == pytest.approx(0.6)
+    assert stats["uphill_sigma_capped_steps"] == 1
+    assert stats["uphill_base_weight_mean"] == pytest.approx(10.0)
+    assert stats["uphill_final_weight_mean"] == pytest.approx(11.5)
+    assert stats["uphill_base_weight_at_config_max_steps"] == 1
+    assert stats["uphill_final_weight_above_config_max_steps"] == 1
+    assert stats["uphill_true_curvature_mean"] == pytest.approx(4.0)
+    assert stats["uphill_inner_curvature_mean"] == pytest.approx(2.0)
+
+
+def test_walk_termination_telemetry_distinguishes_step_cap_and_radius_clip():
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(),
+        softening_enabled=False,
+    )
+
+    assert (
+        walker._direction_stats_summary()[
+            "walk_termination_reached_step_cap"
+        ]
+        == 0
+    )
+    walker._record_walk_termination("reached_step_cap")
+    walker._record_walk_termination("walk_displacement_clipped")
+
+    stats = walker._direction_stats_summary()
+    assert stats["walk_terminations"] == 2
+    assert stats["walk_termination_reached_step_cap"] == 1
+    assert stats["walk_termination_walk_displacement_clipped"] == 1
+    assert stats["walk_termination_last_reason"] == "walk_displacement_clipped"
+
+
+def test_walk_records_actual_uphill_controls_and_step_cap_termination(
+    monkeypatch,
+):
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[1.0, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            direction_selection_mode="energy_bounded_anchor",
+            step_length_mode="per_atom_rms",
+            step_rms_scope="all_atoms",
+            target_step_rms=0.1,
+            max_step_rms=0.2,
+            target_uphill_energy=0.0025,
+            proposal_relax_steps=1,
+        ),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0])
+    monkeypatch.setattr(
+        walker.oracle.generator,
+        "generate_initial_direction",
+        lambda *args, **kwargs: direction,
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=direction,
+            curvature=2.0,
+            true_curvature=2.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(
+            task.initial_state,
+            energy=0.0,
+            gradient_norm=0.0,
+            n_iter=0,
+        ),
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    stats = walker._direction_stats_summary()
+    assert stats["uphill_control_steps"] == 1
+    assert stats["uphill_requested_sigma_mean"] == pytest.approx(0.1)
+    assert stats["uphill_executed_sigma_mean"] == pytest.approx(0.05)
+    assert stats["uphill_sigma_capped_steps"] == 1
+    assert stats["walk_termination_reached_step_cap"] == 1
+
+
+def test_walk_records_radius_clip_termination(monkeypatch):
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[1.0, 0.0, 0.0]]),
+    )
+    walker = SurfaceWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=SSWConfig(
+            max_steps_per_walk=2,
+            oracle_candidates=1,
+            proposal_relax_steps=1,
+        ),
+        softening_enabled=False,
+    )
+    direction = np.array([1.0, 0.0, 0.0])
+    monkeypatch.setattr(
+        walker.oracle.generator,
+        "generate_initial_direction",
+        lambda *args, **kwargs: direction,
+    )
+    monkeypatch.setattr(
+        walker.oracle,
+        "choose_direction",
+        lambda *args, **kwargs: DirectionChoice(
+            direction=direction,
+            curvature=2.0,
+            true_curvature=2.0,
+            kind=DirectionCandidateKind.RANDOM,
+            candidate_count=1,
+        ),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_relax_proposal_task",
+        lambda task, **kwargs: RelaxResult(
+            task.initial_state,
+            energy=0.0,
+            gradient_norm=0.0,
+            n_iter=0,
+        ),
+    )
+    monkeypatch.setattr(
+        walker,
+        "_clip_walk_displacement",
+        lambda **kwargs: (kwargs["candidate"], True),
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    stats = walker._direction_stats_summary()
+    assert stats["walk_terminations"] == 1
+    assert stats["walk_termination_walk_displacement_clipped"] == 1
 
 
 def test_surface_walker_rejects_unphysical_energy_drop_before_archive(monkeypatch):
@@ -5263,6 +6360,12 @@ def test_per_atom_rms_step_mode_honors_trust_region_sigma_scale_and_cap():
 
     shrunk_sigma = walker._execution_step_scale(state, direction, curvature=0.01, sigma_scale=0.5)
     expanded_sigma = walker._execution_step_scale(state, direction, curvature=0.01, sigma_scale=2.0)
+    expanded_nominal_sigma = walker._nominal_execution_step_scale(
+        state,
+        direction,
+        curvature=0.01,
+        sigma_scale=2.0,
+    )
 
     shrunk_rms = SurfaceWalker._direction_step_metrics(state, direction, shrunk_sigma, 1e-4)[
         "step_displacement_rms_all"
@@ -5272,6 +6375,13 @@ def test_per_atom_rms_step_mode_honors_trust_region_sigma_scale_and_cap():
     ]
     assert shrunk_rms == pytest.approx(0.1)
     assert expanded_rms == pytest.approx(0.35)
+    assert expanded_nominal_sigma > expanded_sigma
+    assert SurfaceWalker._direction_step_metrics(
+        state,
+        direction,
+        expanded_nominal_sigma,
+        1e-4,
+    )["step_displacement_rms_all"] == pytest.approx(0.4)
 
 
 def test_energy_bounded_anchor_uses_the_exact_all_atom_execution_step():
@@ -5502,6 +6612,56 @@ def test_walk_rebuilds_local_softening_for_each_micro_step():
 
     assert len(build_positions) == 3
     assert any(not np.allclose(build_positions[0], positions) for positions in build_positions[1:])
+
+
+def test_walk_early_stop_hook_stops_after_already_paid_true_energy_check():
+    observed = []
+
+    class StopAfterFirstWalker(SurfaceWalker):
+        def _walk_early_stop_reason(
+            self,
+            *,
+            step_index,
+            walk_reference,
+            current,
+            true_energy,
+        ):
+            observed.append(
+                {
+                    "step": int(step_index) + 1,
+                    "walk_reference": walk_reference,
+                    "current": current,
+                    "true_energy": float(true_energy),
+                }
+            )
+            return "unit_test_stop"
+
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[0.1, 0.0, 0.0]]),
+    )
+    walker = StopAfterFirstWalker(
+        calculator=AnalyticCalculator(Quadratic()),
+        config=LSSSWConfig(
+            max_steps_per_walk=3,
+            oracle_candidates=1,
+            n_bond_pairs=0,
+            proposal_relax_steps=1,
+            proposal_fmax=100.0,
+            proposal_trust_radius=None,
+            walk_trust_radius=100.0,
+        ),
+        softening_enabled=True,
+    )
+
+    walker._walk_candidate_from_seed(state)
+
+    assert len(observed) == 1
+    assert observed[0]["step"] == 1
+    assert walker._walk_termination_last_reason == "unit_test_stop"
+    assert walker.calculator.snapshot().count(
+        EvaluationPurpose.ESCAPE_TRUE_PES_CHECK
+    ) == 2
 
 
 def test_ls_ssw_reset_local_softening_stats_resets_all_counters():

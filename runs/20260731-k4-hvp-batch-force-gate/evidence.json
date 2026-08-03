@@ -1,0 +1,222 @@
+{
+  "cuda_device": "NVIDIA GeForce RTX 3060",
+  "evaluation_counts": {
+    "direction_oracle": 384,
+    "total": 384,
+    "unattributed": 0
+  },
+  "execution_commit": "a915eca0c8a585fab9e0adce32bdd60879af79c9",
+  "gate": {
+    "batches": [
+      {
+        "batch_size": 2,
+        "passed": true,
+        "systems": [
+          "c60",
+          "pdo"
+        ]
+      },
+      {
+        "batch_size": 4,
+        "passed": true,
+        "systems": [
+          "c60",
+          "pdo"
+        ]
+      },
+      {
+        "batch_size": 8,
+        "passed": true,
+        "systems": [
+          "c60",
+          "pdo"
+        ]
+      }
+    ],
+    "force_service_gate_allowed": true,
+    "minimum_speedup": 1.3,
+    "production_change_allowed": false,
+    "surviving_batch_sizes": [
+      2,
+      4,
+      8
+    ]
+  },
+  "mode_rows": [
+    {
+      "batch_size": 2,
+      "equivalence": {
+        "max_abs_curvature_error_eV_per_A2": 0.004245415114514373,
+        "max_abs_energy_error_eV": 9.1552734375e-05,
+        "max_abs_force_error_eV_per_A": 2.1904706954956055e-05,
+        "relative_hvp_norm_error": 0.0005585820027826319
+      },
+      "equivalent": true,
+      "median_batch_wall_time_s": 0.35366089901071973,
+      "median_serial_wall_time_s": 0.6743846999888774,
+      "median_speedup": 1.9571830215705095,
+      "mode": "batch2",
+      "speedups": [
+        1.8659571975609273,
+        2.15487288024635,
+        1.9571830215705095,
+        1.8798777160204554,
+        1.969443438382784
+      ],
+      "system": "c60",
+      "thresholds": {
+        "max_abs_curvature_error_eV_per_A2": 0.1,
+        "max_abs_energy_error_eV": 0.005,
+        "max_abs_force_error_eV_per_A": 0.0005,
+        "relative_hvp_norm_error": 0.005
+      }
+    },
+    {
+      "batch_size": 4,
+      "equivalence": {
+        "max_abs_curvature_error_eV_per_A2": 0.006234362296247298,
+        "max_abs_energy_error_eV": 0.000152587890625,
+        "max_abs_force_error_eV_per_A": 1.755356788635254e-05,
+        "relative_hvp_norm_error": 0.0005712265643871397
+      },
+      "equivalent": true,
+      "median_batch_wall_time_s": 0.20853899998473935,
+      "median_serial_wall_time_s": 0.6743846999888774,
+      "median_speedup": 3.174992218025275,
+      "mode": "batch4",
+      "speedups": [
+        3.174992218025275,
+        3.051619083118129,
+        3.905150076121721,
+        3.233854099416551,
+        3.1188011422008315
+      ],
+      "system": "c60",
+      "thresholds": {
+        "max_abs_curvature_error_eV_per_A2": 0.1,
+        "max_abs_energy_error_eV": 0.005,
+        "max_abs_force_error_eV_per_A": 0.0005,
+        "relative_hvp_norm_error": 0.005
+      }
+    },
+    {
+      "batch_size": 8,
+      "equivalence": {
+        "max_abs_curvature_error_eV_per_A2": 0.0045148721039929285,
+        "max_abs_energy_error_eV": 0.0001220703125,
+        "max_abs_force_error_eV_per_A": 2.1412968635559082e-05,
+        "relative_hvp_norm_error": 0.0005894698535651172
+      },
+      "equivalent": true,
+      "median_batch_wall_time_s": 0.1807699000055436,
+      "median_serial_wall_time_s": 0.6743846999888774,
+      "median_speedup": 3.6353167388665697,
+      "mode": "batch8",
+      "speedups": [
+        3.502244905768473,
+        7.841780365359455,
+        9.493608856104094,
+        3.6353167388665697,
+        3.5980619560048313
+      ],
+      "system": "c60",
+      "thresholds": {
+        "max_abs_curvature_error_eV_per_A2": 0.1,
+        "max_abs_energy_error_eV": 0.005,
+        "max_abs_force_error_eV_per_A": 0.0005,
+        "relative_hvp_norm_error": 0.005
+      }
+    },
+    {
+      "batch_size": 2,
+      "equivalence": {
+        "max_abs_curvature_error_eV_per_A2": 0.003065048633384748,
+        "max_abs_energy_error_eV": 0.00018310546875,
+        "max_abs_force_error_eV_per_A": 1.2725591659545898e-05,
+        "relative_hvp_norm_error": 0.002012857843416376
+      },
+      "equivalent": true,
+      "median_batch_wall_time_s": 0.420914599992102,
+      "median_serial_wall_time_s": 0.7137504010170233,
+      "median_speedup": 1.6957130995941123,
+      "mode": "batch2",
+      "speedups": [
+        1.7973030406016663,
+        1.6957130995941123,
+        1.811226361002415,
+        1.669820813163627,
+        1.4736861700186425
+      ],
+      "system": "pdo",
+      "thresholds": {
+        "max_abs_curvature_error_eV_per_A2": 0.1,
+        "max_abs_energy_error_eV": 0.005,
+        "max_abs_force_error_eV_per_A": 0.0005,
+        "relative_hvp_norm_error": 0.005
+      }
+    },
+    {
+      "batch_size": 4,
+      "equivalence": {
+        "max_abs_curvature_error_eV_per_A2": 0.0041205219406474924,
+        "max_abs_energy_error_eV": 0.0001220703125,
+        "max_abs_force_error_eV_per_A": 1.761317253112793e-05,
+        "relative_hvp_norm_error": 0.0020095272360246535
+      },
+      "equivalent": true,
+      "median_batch_wall_time_s": 0.2574435000133235,
+      "median_serial_wall_time_s": 0.7137504010170233,
+      "median_speedup": 2.7470346411214686,
+      "mode": "batch4",
+      "speedups": [
+        3.0020942352208255,
+        2.831056527882471,
+        2.7470346411214686,
+        2.626730739572984,
+        2.3860975357651824
+      ],
+      "system": "pdo",
+      "thresholds": {
+        "max_abs_curvature_error_eV_per_A2": 0.1,
+        "max_abs_energy_error_eV": 0.005,
+        "max_abs_force_error_eV_per_A": 0.0005,
+        "relative_hvp_norm_error": 0.005
+      }
+    },
+    {
+      "batch_size": 8,
+      "equivalence": {
+        "max_abs_curvature_error_eV_per_A2": 0.002795490757982577,
+        "max_abs_energy_error_eV": 0.0001220703125,
+        "max_abs_force_error_eV_per_A": 1.7464160919189453e-05,
+        "relative_hvp_norm_error": 0.0020978629870770293
+      },
+      "equivalent": true,
+      "median_batch_wall_time_s": 0.2400218999828212,
+      "median_serial_wall_time_s": 0.7137504010170233,
+      "median_speedup": 2.9617895172277757,
+      "mode": "batch8",
+      "speedups": [
+        3.136100497719263,
+        2.9617895172277757,
+        6.677068146754716,
+        2.9241578706218143,
+        2.5630997474728154
+      ],
+      "system": "pdo",
+      "thresholds": {
+        "max_abs_curvature_error_eV_per_A2": 0.1,
+        "max_abs_energy_error_eV": 0.005,
+        "max_abs_force_error_eV_per_A": 0.0005,
+        "relative_hvp_norm_error": 0.005
+      }
+    }
+  ],
+  "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+  "new_force_evaluations": 384,
+  "raw_rows_path": "runs/20260731-k4-hvp-batch-force-gate/output/rows.json",
+  "raw_rows_sha256": "c0609f1a8acc760564af100284c5a578a5a7c9656fea65cc911040e6659f08e6",
+  "raw_summary_path": "runs/20260731-k4-hvp-batch-force-gate/output/summary.json",
+  "raw_summary_sha256": "8b4bd35447f66ba26d4ef606b41bace31b0e2fe8673c840eae4b90395c7b88e5",
+  "schema_version": 1
+}

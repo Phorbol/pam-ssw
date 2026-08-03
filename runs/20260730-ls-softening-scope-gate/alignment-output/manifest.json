@@ -1,0 +1,69 @@
+{
+  "arm": "both_choice_aligned",
+  "baseline_evidence": "/tmp/SSW-worktrees/direction-continuation-ablation/runs/20260730-ls-softening-scope-gate/output/evidence.json",
+  "execution_commit": "3f09357d5fc14b5fefc8387410832f0ae0887ee2",
+  "frozen_components": [
+    "starter",
+    "candidate RNG seed",
+    "direction portfolio",
+    "Gaussian bias updater",
+    "proposal optimizer",
+    "true quench",
+    "structure matcher"
+  ],
+  "gpu": "NVIDIA GeForce RTX 3060",
+  "model_path": "/root/.cache/mace/mace-omat-0-small.model",
+  "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+  "schema_version": 1,
+  "scopes": [
+    "none",
+    "oracle",
+    "proposal",
+    "both"
+  ],
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "single_change": {
+    "choice_aligned_softening_enabled": [
+      false,
+      true
+    ]
+  },
+  "states": {
+    "c60": {
+      "bootstrap": {
+        "path": "/tmp/SSW-worktrees/direction-continuation-ablation/runs/20260730-starter-cell-online-gate/production-20k-seed42-output/c60/seed-00000042/uniform/archive_minima/entry-00000.xyz",
+        "sha256": "dc7b5850b6c83446b27fa201fb2e29ca37dc34d9e2435092f243b7ba9f96d9aa"
+      },
+      "late": {
+        "path": "/tmp/SSW-worktrees/direction-continuation-ablation/runs/20260730-starter-cell-online-gate/production-20k-seed42-output/c60/seed-00000042/uniform/archive_minima/entry-00041.xyz",
+        "sha256": "f491cf0a2d0aa4e5946c760bb70665c988977fc41e7a2b4a89a825a4b108ea55"
+      },
+      "mid": {
+        "path": "/tmp/SSW-worktrees/direction-continuation-ablation/runs/20260730-starter-cell-online-gate/production-20k-seed42-output/c60/seed-00000042/uniform/archive_minima/entry-00020.xyz",
+        "sha256": "ab1804aba888f079904bb5f9452d4390afda1f5e327ec22e7d9dcbd8df49e5df"
+      }
+    },
+    "pdo": {
+      "bootstrap": {
+        "path": "/tmp/SSW-worktrees/direction-continuation-ablation/runs/20260730-starter-cell-online-gate/production-20k-seed42-output/pdo/seed-00000042/uniform/archive_minima/entry-00000.xyz",
+        "sha256": "01d263098d7281d5a4e3b4785307d21147caf1d3a6d43183dc2c0d64b2a94fdc"
+      },
+      "late": {
+        "path": "/tmp/SSW-worktrees/direction-continuation-ablation/runs/20260730-starter-cell-online-gate/production-20k-seed42-output/pdo/seed-00000042/uniform/archive_minima/entry-00064.xyz",
+        "sha256": "b4a1de7b0c4a40c92fbfe967a4927d7b554e4f98fd998987182be0a93d9278aa"
+      },
+      "mid": {
+        "path": "/tmp/SSW-worktrees/direction-continuation-ablation/runs/20260730-starter-cell-online-gate/production-20k-seed42-output/pdo/seed-00000042/uniform/archive_minima/entry-00032.xyz",
+        "sha256": "7e678ad548e2d0426fcb531c397c70c9705c159fb571219d11b338d7f28e571d"
+      }
+    }
+  },
+  "systems": [
+    "c60",
+    "pdo"
+  ]
+}

@@ -305,6 +305,21 @@ class _FirstEvaluationSerializedCalculator:
             template,
         )
 
+    @property
+    def supports_batch_evaluation(self) -> bool:
+        evaluator = getattr(self.calculator, "evaluate_flat_many", None)
+        declared = getattr(self.calculator, "supports_batch_evaluation", None)
+        return callable(evaluator) and (True if declared is None else bool(declared))
+
+    def evaluate_flat_many(self, flat_positions, templates):
+        if not self.supports_batch_evaluation:
+            raise TypeError("calculator does not support batch evaluation")
+        return self._evaluate_once(
+            self.calculator.evaluate_flat_many,
+            flat_positions,
+            templates,
+        )
+
     def _evaluate_once(self, evaluator, *args):
         if self._first_evaluation_complete:
             return evaluator(*args)

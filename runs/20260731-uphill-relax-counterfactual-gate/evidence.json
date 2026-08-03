@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "execution_commit": "66e7764e1435bd89f79be618bb0e3aacf073f926",
+  "analysis_commit": "858404e",
+  "raw_evidence_path": "runs/20260731-uphill-relax-counterfactual-gate/output/evidence.json",
+  "raw_evidence_sha256": "db0dbb47c223149611ae3b5a5eea8b6be90339a725c40e44aa219d58cecc7dfe",
+  "source_raw_evidence_sha256": "9ba5fb4fce7b44dea7cfa4bc0115043e3877adc08c345eaae9aa5fc0117fbdd2",
+  "cohort": {
+    "system": "c60",
+    "state_ids": [
+      "intermediate_accepted",
+      "plateau_accepted"
+    ],
+    "seeds": [42, 43, 44],
+    "arms": ["D0_exact_anchor", "K4_discrete"],
+    "horizons": [1, 2, 4],
+    "pair_count": 34
+  },
+  "decision": "RETAIN_RELAXATION_CAUSAL_SIGNAL",
+  "outcome_counts": {
+    "BOTH_RETURN_STARTER": 19,
+    "DIFFERENT_ESCAPED_LANDINGS": 3,
+    "RELAXED_ONLY_ESCAPE": 5,
+    "SAME_ESCAPED_LANDING": 4,
+    "UNLEARNABLE": 3
+  },
+  "explicit_label_counts": {
+    "ESCAPED_CERTIFIED": 10,
+    "RETURN_STARTER": 24
+  },
+  "relaxed_label_counts": {
+    "ESCAPED_CERTIFIED": 13,
+    "INVALID_GEOMETRY": 2,
+    "RETURN_STARTER": 19
+  },
+  "repeated_relaxed_only_contexts": [
+    {
+      "state_id": "plateau_accepted",
+      "arm": "D0_exact_anchor",
+      "horizon": 1,
+      "seed_count": 2,
+      "seeds": [42, 43]
+    },
+    {
+      "state_id": "plateau_accepted",
+      "arm": "K4_discrete",
+      "horizon": 2,
+      "seed_count": 2,
+      "seeds": [43, 44]
+    }
+  ],
+  "new_force_evaluations": 2886,
+  "max_new_force_evaluations": 5000,
+  "new_purpose_counts": {
+    "escape_true_pes_check": 34,
+    "landing_true_quench": 2818,
+    "post_relax_validation": 34,
+    "direction_oracle": 0,
+    "biased_proposal_relax": 0,
+    "unattributed": 0
+  },
+  "new_force_evaluation_distribution": {
+    "minimum": 22,
+    "median": 38,
+    "mean": 84.88235294117646,
+    "maximum": 526
+  },
+  "source_corpus_cost": {
+    "generation_force_evaluations": 3626,
+    "direction_oracle": 406,
+    "biased_proposal_relax": 3130,
+    "escape_true_pes_check": 90,
+    "selected_relaxed_checkpoint_force_evaluations": 3548,
+    "selected_relaxed_checkpoint_force_evaluation_median": 44,
+    "selected_relaxed_checkpoint_force_evaluation_mean": 104.3529411764706
+  },
+  "wall_time_s": {
+    "explicit_gate_kernel": 57.42091866300325,
+    "explicit_pair_sum": 55.96303715411341,
+    "source_c60_generation_pair_sum": 73.19943133904599,
+    "source_selected_relaxed_quench_pair_sum": 68.04780490102712
+  },
+  "production_default_changed": false,
+  "claim_ceiling": "paired C60 local counterfactual at recorded SSW macro states; not an online explicit-only walk, an optimal relax-length result, or a cross-system promotion"
+}

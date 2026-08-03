@@ -6,7 +6,10 @@ from .actions import PolicySnapshot
 from .posterior import StarterProductivityPosterior
 
 
-SUPPORTED_POLICIES = frozenset({"uniform", "posterior_proportional", "minimal_ucb"})
+CUSTOM_POLICIES = frozenset({"fps_cell_uniform"})
+SUPPORTED_POLICIES = frozenset(
+    {"uniform", "posterior_proportional", "minimal_ucb"} | CUSTOM_POLICIES
+)
 
 
 def _canonical_eligible_starter_ids(
@@ -44,6 +47,8 @@ def build_policy_snapshot(
         raise ValueError("legacy UCB is an external comparator and is not a supported policy")
     if policy_name not in SUPPORTED_POLICIES:
         raise ValueError(f"unsupported policy: {policy_name}")
+    if policy_name in CUSTOM_POLICIES:
+        raise ValueError(f"{policy_name} requires a snapshot_builder")
     if not isinstance(posterior, StarterProductivityPosterior):
         raise ValueError("posterior must be a StarterProductivityPosterior")
 
@@ -105,4 +110,4 @@ def build_policy_snapshot(
     )
 
 
-__all__ = ["SUPPORTED_POLICIES", "build_policy_snapshot"]
+__all__ = ["CUSTOM_POLICIES", "SUPPORTED_POLICIES", "build_policy_snapshot"]

@@ -28,7 +28,7 @@ from .campaign import (
     PosteriorExplorationConfig,
     PosteriorExplorationResult,
 )
-from .controller import ExplorationController
+from .controller import ExplorationController, SnapshotBuilder
 from .event_log import ExplorationEventLog
 from .ssw_worker import SSWAttemptWorker
 
@@ -131,6 +131,8 @@ def run_posterior_ssw(
     calculator_factory: Callable[[], object],
     ssw_config: SSWConfig,
     exploration_config: PosteriorExplorationConfig,
+    *,
+    snapshot_builder: SnapshotBuilder | None = None,
 ) -> PosteriorExplorationResult:
     """Run a fixed-budget posterior campaign with unsoftened SSW attempts."""
     if type(ssw_config) is not SSWConfig:
@@ -143,6 +145,7 @@ def run_posterior_ssw(
         ssw_config,
         exploration_config,
         softening_enabled=False,
+        snapshot_builder=snapshot_builder,
     )
 
 
@@ -151,6 +154,8 @@ def run_posterior_ls_ssw(
     calculator_factory: Callable[[], object],
     ssw_config: LSSSWConfig,
     exploration_config: PosteriorExplorationConfig,
+    *,
+    snapshot_builder: SnapshotBuilder | None = None,
 ) -> PosteriorExplorationResult:
     """Run a fixed-budget posterior campaign with locally softened SSW attempts."""
     if not isinstance(ssw_config, LSSSWConfig):
@@ -163,6 +168,7 @@ def run_posterior_ls_ssw(
         ssw_config,
         exploration_config,
         softening_enabled=True,
+        snapshot_builder=snapshot_builder,
     )
 
 
@@ -173,6 +179,7 @@ def _run_posterior_campaign(
     exploration_config: PosteriorExplorationConfig,
     *,
     softening_enabled: bool,
+    snapshot_builder: SnapshotBuilder | None,
 ) -> PosteriorExplorationResult:
     """Compose the existing exact-accounting exploration primitives once."""
     if not isinstance(ssw_config, SSWConfig):
@@ -215,6 +222,7 @@ def _run_posterior_campaign(
         exploration_config.master_seed,
         event_log,
         require_exact_cost=True,
+        snapshot_builder=snapshot_builder,
     )
     outcomes: list[CreditedOutcome] = []
     with ThreadPoolExecutor(max_workers=exploration_config.max_workers) as executor:

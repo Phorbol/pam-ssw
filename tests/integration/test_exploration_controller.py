@@ -17,6 +17,7 @@ from pamssw.calculators import AnalyticCalculator
 from pamssw.config import SSWConfig
 from pamssw.exploration import SSWAttemptWorker
 from pamssw.exploration.actions import AttemptResult, AttemptStatus, StarterAction
+from pamssw.exploration.cells import build_fps_cell_partition
 from pamssw.exploration.controller import ExplorationController, UnknownActionCostError
 from pamssw.exploration.event_log import ExplorationEventLog
 from pamssw.potentials import DoubleWell2D
@@ -35,6 +36,14 @@ def _archive() -> MinimaArchive:
     archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=0.05)
     archive.add(_state(-1.0, label="left"), -1.0, parent_id=None)
     archive.add(_state(1.0, label="right"), -0.9, parent_id=None)
+    return archive
+
+
+def _cell_archive() -> MinimaArchive:
+    archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=0.05)
+    for entry_id, x in enumerate((0.0, 1.0, 2.0, 10.0)):
+        entry = archive.add(_state(x), -float(entry_id), parent_id=None)
+        assert entry.entry_id == entry_id
     return archive
 
 
@@ -243,6 +252,54 @@ def test_parallel_controller_commits_and_logs_in_slot_order_despite_completion_o
     assert rows[-1]["action_ids"] == [outcome.action_id for outcome in outcomes]
     assert controller.posterior.completed_attempts == 3
     assert (controller.policy_version, controller.archive_version, controller.batch_id) == (1, 1, 1)
+
+
+def test_controller_accepts_custom_cell_snapshot_builder_and_logs_exact_marginals(
+    tmp_path: Path,
+) -> None:
+    partitions = []
+
+    def snapshot_builder(archive, posterior, version, archive_version):
+        del posterior
+        partition = build_fps_cell_partition(
+            tuple(entry.entry_id for entry in archive.entries),
+            np.array([[entry.state.positions[0, 0]] for entry in archive.entries]),
+            max_cells=2,
+        )
+        partitions.append(partition)
+        return partition.policy_snapshot(version=version, archive_version=archive_version)
+
+    event_path = tmp_path / "events.jsonl"
+    controller = ExplorationController(
+        _cell_archive(),
+        "fps_cell_uniform",
+        4,
+        ExplorationEventLog(event_path),
+        snapshot_builder=snapshot_builder,
+    )
+
+    def worker(action: StarterAction, starter_state: State) -> AttemptResult:
+        return _completed(action, starter_state.positions[0, 0], -99.0)
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        controller.run_batch(executor, worker, batch_size=1, force_budget=10)
+
+    assert len(partitions) == 1
+    assert partitions[0].probabilities == (1.0 / 6.0, 1.0 / 6.0, 1.0 / 6.0, 0.5)
+    snapshot_row = json.loads(event_path.read_text(encoding="utf-8").splitlines()[0])
+    assert snapshot_row["policy_name"] == "fps_cell_uniform"
+    assert snapshot_row["eligible_starter_ids"] == [0, 1, 2, 3]
+    assert snapshot_row["probabilities"] == [1.0 / 6.0, 1.0 / 6.0, 1.0 / 6.0, 0.5]
+
+
+def test_controller_rejects_custom_policy_name_without_a_snapshot_builder(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="requires a snapshot_builder"):
+        ExplorationController(
+            _cell_archive(),
+            "fps_cell_uniform",
+            4,
+            ExplorationEventLog(tmp_path / "events.jsonl"),
+        )
 
 
 def test_workers_receive_isolated_starter_state_copies_and_cannot_mutate_archives(tmp_path: Path) -> None:

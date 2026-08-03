@@ -1,0 +1,186 @@
+{
+  "cost_scope": {
+    "c60_action_fe": 22115,
+    "c60_shared_direction_fe": 480,
+    "c60_total_fe": 22595,
+    "pdo_action_fe": 14537,
+    "pdo_bootstrap_fe": 85,
+    "pdo_shared_direction_fe": 240,
+    "pdo_total_fe": 14862
+  },
+  "decision": "reject_continuation_intent_ritz2",
+  "hypothesis": "a two-HVP Ritz solve in the span of the transported mode and the original random/bond intent supplies enough independent direction renewal to preserve landing quality",
+  "provenance": {
+    "c60_raw_input_sha256": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9",
+    "execution_commit": "b193539b87c667a1f6d7a20d592f006a0c71af26",
+    "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+    "pdo_raw_input_sha256": "68243ceb7c0fbb6ba7a9454d680287eb98c4e5210efbd9ebb63517ba79aaa8b0"
+  },
+  "schema_version": 1,
+  "systems": {
+    "c60": {
+      "advance_gate": false,
+      "arm_results": {
+        "continuation_intent_ritz2": {
+          "case_count": 20,
+          "certificate_count": 20,
+          "direction_force_evaluations": 488,
+          "median_abs_consecutive_direction_cosine": 0.9999421580247554,
+          "median_escape_delta_eV": 11.943389892578125,
+          "median_landing_delta_eV": 8.735000610351562,
+          "median_selected_curvature": 7.137744179616801,
+          "median_true_curvature": 6.145429399433768,
+          "new_basin_count": 19,
+          "post_step_zero_direction_count": 122,
+          "proposal_energy_exploded": 8,
+          "proposal_force_evaluations": 5398,
+          "proposal_unconverged": 29,
+          "quench_force_evaluations": 1196,
+          "total_force_evaluations": 7300,
+          "wall_time_s": 141.4754162310055
+        },
+        "fixed_intent_ritz": {
+          "case_count": 20,
+          "certificate_count": 20,
+          "direction_force_evaluations": 2472,
+          "median_abs_consecutive_direction_cosine": 0.9671594651665791,
+          "median_escape_delta_eV": 2.051055908203125,
+          "median_landing_delta_eV": 6.103515625e-05,
+          "median_selected_curvature": 2.8586210958790392,
+          "median_true_curvature": 3.3022631582204895,
+          "new_basin_count": 10,
+          "post_step_zero_direction_count": 103,
+          "proposal_energy_exploded": 0,
+          "proposal_force_evaluations": 4314,
+          "proposal_unconverged": 17,
+          "quench_force_evaluations": 687,
+          "total_force_evaluations": 7669,
+          "wall_time_s": 148.82375754399982
+        },
+        "transported_direction": {
+          "case_count": 20,
+          "certificate_count": 20,
+          "direction_force_evaluations": 258,
+          "median_abs_consecutive_direction_cosine": 0.9999957264767846,
+          "median_escape_delta_eV": 12.711227416992188,
+          "median_landing_delta_eV": 2.5817413330078125,
+          "median_selected_curvature": 7.642085854267379,
+          "median_true_curvature": 6.523518534941294,
+          "new_basin_count": 19,
+          "post_step_zero_direction_count": 129,
+          "proposal_energy_exploded": 10,
+          "proposal_force_evaluations": 5144,
+          "proposal_unconverged": 28,
+          "quench_force_evaluations": 1520,
+          "total_force_evaluations": 7146,
+          "wall_time_s": 139.22352771598526
+        }
+      },
+      "candidate_vs_control": {
+        "landing_delta_wins_ties_losses": [
+          5,
+          0,
+          15
+        ],
+        "median_paired_landing_delta_difference_eV": 4.7873382568359375
+      },
+      "candidate_vs_transport": {
+        "landing_delta_wins_ties_losses": [
+          8,
+          1,
+          11
+        ],
+        "median_paired_landing_delta_difference_eV": 6.103515625e-05
+      },
+      "intent_span_mechanism": {
+        "median_lower_ritz_curvature": 7.137744179616801,
+        "median_ritz_gap": 32.9165067492373,
+        "median_upper_mode_previous_overlap": 0.008439581011344158,
+        "median_upper_ritz_curvature": 40.65257080597668,
+        "observation_count": 122
+      }
+    },
+    "pdo": {
+      "advance_gate": false,
+      "arm_results": {
+        "continuation_intent_ritz2": {
+          "case_count": 10,
+          "certificate_count": 10,
+          "direction_force_evaluations": 112,
+          "median_abs_consecutive_direction_cosine": 0.999579092323313,
+          "median_escape_delta_eV": 1.636993408203125,
+          "median_landing_delta_eV": -1.748870849609375,
+          "median_selected_curvature": 4.0713529750752935,
+          "median_true_curvature": 2.8359364154502247,
+          "new_basin_count": 10,
+          "post_step_zero_direction_count": 28,
+          "proposal_energy_exploded": 1,
+          "proposal_force_evaluations": 2580,
+          "proposal_unconverged": 0,
+          "quench_force_evaluations": 1540,
+          "total_force_evaluations": 4310,
+          "wall_time_s": 108.19434365901543
+        },
+        "fixed_intent_ritz": {
+          "case_count": 10,
+          "certificate_count": 10,
+          "direction_force_evaluations": 1368,
+          "median_abs_consecutive_direction_cosine": 0.5394891410593231,
+          "median_escape_delta_eV": 0.4591064453125,
+          "median_landing_delta_eV": -2.01470947265625,
+          "median_selected_curvature": 1.0764464868696229,
+          "median_true_curvature": 1.020418235090874,
+          "new_basin_count": 10,
+          "post_step_zero_direction_count": 57,
+          "proposal_energy_exploded": 0,
+          "proposal_force_evaluations": 2952,
+          "proposal_unconverged": 0,
+          "quench_force_evaluations": 1547,
+          "total_force_evaluations": 5973,
+          "wall_time_s": 148.7123352259805
+        },
+        "transported_direction": {
+          "case_count": 10,
+          "certificate_count": 10,
+          "direction_force_evaluations": 56,
+          "median_abs_consecutive_direction_cosine": 1.0000000000000002,
+          "median_escape_delta_eV": 1.390045166015625,
+          "median_landing_delta_eV": -1.398895263671875,
+          "median_selected_curvature": 4.1636825766587915,
+          "median_true_curvature": 2.7750262611739944,
+          "new_basin_count": 10,
+          "post_step_zero_direction_count": 28,
+          "proposal_energy_exploded": 1,
+          "proposal_force_evaluations": 2670,
+          "proposal_unconverged": 0,
+          "quench_force_evaluations": 1450,
+          "total_force_evaluations": 4254,
+          "wall_time_s": 105.75740886499989
+        }
+      },
+      "candidate_vs_control": {
+        "landing_delta_wins_ties_losses": [
+          6,
+          0,
+          4
+        ],
+        "median_paired_landing_delta_difference_eV": -0.735626220703125
+      },
+      "candidate_vs_transport": {
+        "landing_delta_wins_ties_losses": [
+          5,
+          0,
+          5
+        ],
+        "median_paired_landing_delta_difference_eV": 0.077056884765625
+      },
+      "intent_span_mechanism": {
+        "median_lower_ritz_curvature": 4.0713529750752935,
+        "median_ritz_gap": 4.937629729895348,
+        "median_upper_mode_previous_overlap": 0.02899780197674423,
+        "median_upper_ritz_curvature": 8.873850166860155,
+        "observation_count": 28
+      }
+    }
+  }
+}

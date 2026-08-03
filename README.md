@@ -182,6 +182,33 @@ The profile writes accepted-minimum and direction diagnostics below
 `output_dir`. Users should record the structure, model, and calculator
 provenance alongside the returned `result.stats`.
 
+### Optional MACE batching for four-direction curvature evaluation
+
+The validated profile evaluates four candidate displacement directions by
+central force differences, so one direction choice queries the true potential
+at eight independent geometries.  On a single GPU these geometries can be
+submitted as one MACE graph batch without changing the directions, the
+finite-difference formula, or the force-evaluation budget:
+
+```python
+from mace.calculators import MACECalculator
+from pamssw.mace_batch import MACEBatchCalculator
+
+calculator = MACEBatchCalculator(
+    MACECalculator(
+        model_paths=["/path/to/mace-omat-0-small.model"],
+        device="cuda",
+        default_dtype="float32",
+    )
+)
+```
+
+This is explicit and opt-in. Each of the eight structures is still charged as
+one force evaluation. The integration gate on MACE 0.3.14 selected the same
+physical direction in C60 and fixed-bottom PdO while reducing direction-choice
+wall time; it does not establish better search quality or fewer force calls.
+Ordinary `ASECalculator` behavior is unchanged.
+
 ## Manual Starting Parameters
 
 After extensive testing on C60 clusters and PdO slabs with MACE OMAT small, the

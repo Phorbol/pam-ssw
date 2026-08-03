@@ -11,9 +11,9 @@ from pamssw.proposal_replay import (
     replay_proposal_task_observed,
 )
 from pamssw.accounting import EvaluationPurpose
-from pamssw.bias import GaussianBiasTerm
+from pamssw.bias import GaussianBiasTerm, QuadraticBiasTerm
 from pamssw.calculators import AnalyticCalculator
-from pamssw.config import SSWConfig
+from pamssw.config import LSSSWConfig, SSWConfig
 from pamssw.state import State
 from pamssw.walker import ProposalRelaxationTask
 
@@ -47,6 +47,41 @@ def test_capture_first_task_stops_before_biased_proposal_evaluation():
         captured.evaluation_counts.count(EvaluationPurpose.BIASED_PROPOSAL_RELAX)
         == 0
     )
+
+
+def test_capture_can_preserve_production_local_softening_when_requested():
+    state = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[-0.5, 0.0, 0.0], [0.5, 0.0, 0.0]]),
+    )
+    config = LSSSWConfig(
+        max_steps_per_walk=1,
+        oracle_candidates=1,
+        proposal_relax_steps=4,
+        proposal_fmax=0.05,
+        local_softening_mode="manual",
+        local_softening_pairs=[(0, 1)],
+        local_softening_scope="proposal",
+        rng_seed=7,
+    )
+
+    default_capture = capture_proposal_task(
+        state,
+        AnalyticCalculator(Quadratic()),
+        config,
+        target_bias_count=1,
+    )
+    softened_capture = capture_proposal_task(
+        state,
+        AnalyticCalculator(Quadratic()),
+        config,
+        target_bias_count=1,
+        softening_enabled=True,
+    )
+
+    assert default_capture.task.softening is None
+    assert softened_capture.task.softening is not None
+    assert len(softened_capture.task.softening.terms) == 1
 
 
 def test_uncaptured_task_failure_preserves_spent_evaluation_counts():
@@ -266,4 +301,48 @@ def test_observed_replay_reuses_backend_calls_for_true_and_bias_components():
     )
     assert observed.orthogonal_displacement_norm == pytest.approx(
         np.linalg.norm(expected_orthogonal)
+    )
+
+
+def test_observed_replay_can_override_bias_shape_without_mutating_task():
+    state = State(
+        numbers=np.array([1]),
+        positions=np.array([[1.0, 0.0, 0.0]]),
+    )
+    task = capture_proposal_task(
+        state,
+        AnalyticCalculator(Quadratic()),
+        SSWConfig(
+            max_steps_per_walk=1,
+            oracle_candidates=1,
+            proposal_relax_steps=20,
+            proposal_fmax=0.05,
+            rng_seed=29,
+        ),
+        target_bias_count=1,
+    ).task
+    gaussian = task.biases[-1]
+    quadratic = QuadraticBiasTerm(
+        center=gaussian.center,
+        direction=gaussian.direction,
+        sigma=gaussian.sigma,
+        weight=gaussian.weight,
+    )
+
+    observed = replay_proposal_task_observed(
+        task,
+        AnalyticCalculator(Quadratic()),
+        optimizer="ase-fire",
+        biases_override=(quadratic,),
+    )
+
+    expected_bias_energy = quadratic.evaluate(
+        task.initial_state.flatten_positions(),
+        cell=task.initial_state.cell,
+        pbc=task.initial_state.pbc,
+    )[0]
+    assert observed.initial.bias_energy == pytest.approx(expected_bias_energy)
+    assert isinstance(task.biases[-1], GaussianBiasTerm)
+    assert observed.evaluation_counts.total == (
+        observed.result.telemetry.evaluator_calls
     )

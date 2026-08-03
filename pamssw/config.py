@@ -93,6 +93,7 @@ class SSWConfig:
     direction_synthesis_mode: str = "none"
     regularized_ritz_top_k: int = 5
     direction_score_sigma_mode: str = "adaptive"
+    direction_ranking_mode: str = "static_score"
     direction_type_ucb_enabled: bool = False
     direction_type_success_weight: float = 0.0
     direction_type_exploration_weight: float = 0.1
@@ -279,8 +280,16 @@ class SSWConfig:
             raise ValueError("novelty_probe_scales must contain positive values")
         if self.proposal_trust_radius is not None and self.proposal_trust_radius <= 0:
             raise ValueError("proposal_trust_radius must be positive when set")
-        if self.seed_selection_mode not in {"archive_ucb", "metropolis_chain"}:
-            raise ValueError("seed_selection_mode must be archive_ucb or metropolis_chain")
+        if self.seed_selection_mode not in {
+            "archive_ucb",
+            "uniform_archive",
+            "metropolis_chain",
+            "paired_best_uniform",
+        }:
+            raise ValueError(
+                "seed_selection_mode must be archive_ucb, uniform_archive, "
+                "metropolis_chain, or paired_best_uniform"
+            )
         if self.anchor_mixing_alpha is not None and not 0.0 <= self.anchor_mixing_alpha <= 1.0:
             raise ValueError("anchor_mixing_alpha must be between 0 and 1 when set")
         quench_optimizers = {"scipy-lbfgsb", "ase-fire", "ase-lbfgs"}
@@ -327,12 +336,16 @@ class SSWConfig:
             "exact_anchor",
             "anchor_krylov",
             "energy_bounded_anchor",
+            "transported_direction",
+            "continuation_krylov",
+            "continuation_intent_krylov",
         }
         if self.direction_selection_mode not in direction_selection_modes:
             raise ValueError(
                 "direction_selection_mode must be discrete, rayleigh_ritz, "
-                "block_krylov, exact_anchor, anchor_krylov, or "
-                "energy_bounded_anchor"
+                "block_krylov, exact_anchor, anchor_krylov, "
+                "energy_bounded_anchor, transported_direction, or "
+                "continuation_krylov/continuation_intent_krylov"
             )
         if self.direction_synthesis_mode not in {"none", "regularized_ritz"}:
             raise ValueError("direction_synthesis_mode must be none or regularized_ritz")
@@ -344,6 +357,9 @@ class SSWConfig:
                 "exact_anchor",
                 "anchor_krylov",
                 "energy_bounded_anchor",
+                "transported_direction",
+                "continuation_krylov",
+                "continuation_intent_krylov",
             }
             and self.direction_synthesis_mode == "regularized_ritz"
         ):
@@ -353,6 +369,24 @@ class SSWConfig:
             )
         if self.direction_score_sigma_mode not in {"adaptive", "trust_scaled", "fixed_reference"}:
             raise ValueError("direction_score_sigma_mode must be adaptive, trust_scaled, or fixed_reference")
+        if self.direction_ranking_mode not in {
+            "static_score",
+            "true_curvature",
+        }:
+            raise ValueError(
+                "direction_ranking_mode must be static_score or true_curvature"
+            )
+        if self.direction_ranking_mode == "true_curvature" and (
+            self.direction_selection_mode != "discrete"
+            or self.direction_synthesis_mode != "none"
+            or self.direction_probe_enabled
+            or self.direction_type_ucb_enabled
+            or self.plateau_evolution_enabled
+        ):
+            raise ValueError(
+                "true_curvature ranking requires discrete native candidates "
+                "without synthesis, probe, direction-type UCB, or plateau evolution"
+            )
         if self.step_length_mode not in {"curvature_adaptive", "per_atom_rms"}:
             raise ValueError("step_length_mode must be curvature_adaptive or per_atom_rms")
         if self.step_rms_scope not in {"all_atoms", "active_atoms"}:
@@ -411,6 +445,8 @@ class LSSSWConfig(SSWConfig):
     local_softening_strength: float = 0.6
     local_softening_pairs: list[tuple[int, int]] = field(default_factory=list)
     local_softening_mode: str = "neighbor_auto"
+    local_softening_protocol: str = "moving_reference"
+    local_softening_scope: str = "both"
     local_softening_cutoff_scale: float = 1.25
     local_softening_active_count: int | None = None
     local_softening_penalty: str = "buckingham_repulsive"
@@ -428,6 +464,12 @@ class LSSSWConfig(SSWConfig):
             raise ValueError("local_softening_strength must be positive")
         if self.local_softening_mode not in {"manual", "neighbor_auto", "active_neighbors"}:
             raise ValueError("local_softening_mode must be manual, neighbor_auto, or active_neighbors")
+        if self.local_softening_protocol not in {"moving_reference", "paper_ordered"}:
+            raise ValueError(
+                "local_softening_protocol must be moving_reference or paper_ordered"
+            )
+        if self.local_softening_scope not in {"none", "oracle", "proposal", "both"}:
+            raise ValueError("local_softening_scope must be none, oracle, proposal, or both")
         if self.local_softening_cutoff_scale <= 0:
             raise ValueError("local_softening_cutoff_scale must be positive")
         if self.local_softening_active_count is not None and self.local_softening_active_count <= 0:

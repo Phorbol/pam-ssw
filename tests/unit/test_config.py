@@ -21,12 +21,25 @@ def test_ls_ssw_defaults_to_neighbor_auto_mode():
     config = LSSSWConfig()
 
     assert config.local_softening_mode == "neighbor_auto"
+    assert config.local_softening_protocol == "moving_reference"
+    assert config.local_softening_scope == "both"
     assert config.local_softening_cutoff_scale == 1.25
     assert config.local_softening_active_count is None
     assert config.local_softening_penalty == "buckingham_repulsive"
     assert config.local_softening_xi == 0.3
     assert config.local_softening_cutoff == 2.0
     assert config.local_softening_pairs == []
+
+
+def test_ls_ssw_accepts_paper_ordered_protocol():
+    config = LSSSWConfig(local_softening_protocol="paper_ordered")
+
+    assert config.local_softening_protocol == "paper_ordered"
+
+
+def test_ls_ssw_rejects_unknown_softening_protocol():
+    with pytest.raises(ValueError, match="local_softening_protocol"):
+        LSSSWConfig(local_softening_protocol="unknown")
 
 
 def test_ls_ssw_manual_mode_keeps_legacy_pairs():
@@ -51,6 +64,16 @@ def test_ls_ssw_positive_active_count_is_accepted():
 def test_ls_ssw_rejects_invalid_softening_mode():
     with pytest.raises(ValueError, match="local_softening_mode"):
         LSSSWConfig(local_softening_mode="unknown")
+
+
+@pytest.mark.parametrize("scope", ["none", "oracle", "proposal", "both"])
+def test_ls_ssw_accepts_documented_softening_scopes(scope):
+    assert LSSSWConfig(local_softening_scope=scope).local_softening_scope == scope
+
+
+def test_ls_ssw_rejects_invalid_softening_scope():
+    with pytest.raises(ValueError, match="local_softening_scope"):
+        LSSSWConfig(local_softening_scope="adaptive")
 
 
 def test_ls_ssw_rejects_invalid_neighbor_parameters():
@@ -107,7 +130,12 @@ def test_config_validates_seed_diversity_limit():
 
 def test_config_validates_seed_selection_mode():
     assert SSWConfig().seed_selection_mode == "archive_ucb"
+    assert SSWConfig(seed_selection_mode="uniform_archive").seed_selection_mode == "uniform_archive"
     assert SSWConfig(seed_selection_mode="metropolis_chain").metropolis_temperature == 0.26
+    assert (
+        SSWConfig(seed_selection_mode="paired_best_uniform").seed_selection_mode
+        == "paired_best_uniform"
+    )
 
     with pytest.raises(ValueError, match="seed_selection_mode"):
         SSWConfig(seed_selection_mode="unknown")
@@ -395,6 +423,46 @@ def test_config_validates_direction_selection_mode():
         SSWConfig(direction_selection_mode="unknown")
 
 
+def test_config_accepts_direction_continuation_modes_without_changing_default():
+    assert SSWConfig().direction_selection_mode == "discrete"
+    assert (
+        SSWConfig(
+            direction_selection_mode="transported_direction"
+        ).direction_selection_mode
+        == "transported_direction"
+    )
+    assert (
+        SSWConfig(
+            direction_selection_mode="continuation_krylov",
+            block_krylov_depth=12,
+        ).direction_selection_mode
+        == "continuation_krylov"
+    )
+    assert (
+        SSWConfig(
+            direction_selection_mode="continuation_intent_krylov",
+            block_krylov_depth=1,
+        ).direction_selection_mode
+        == "continuation_intent_krylov"
+    )
+
+
+@pytest.mark.parametrize(
+    "mode",
+    [
+        "transported_direction",
+        "continuation_krylov",
+        "continuation_intent_krylov",
+    ],
+)
+def test_continuation_modes_reject_regularized_ritz_synthesis(mode):
+    with pytest.raises(ValueError, match="explicit direction_selection_mode"):
+        SSWConfig(
+            direction_selection_mode=mode,
+            direction_synthesis_mode="regularized_ritz",
+        )
+
+
 def test_energy_bounded_anchor_requires_exact_step_scale_semantics():
     with pytest.raises(ValueError, match="step_length_mode"):
         SSWConfig(
@@ -516,6 +584,22 @@ def test_config_validates_direction_score_sigma_mode():
         SSWConfig(direction_score_sigma_mode="unknown")
     with pytest.raises(ValueError, match="direction_score_sigma_mode"):
         SSWConfig(direction_score_sigma_mode="curvature_adaptive")
+
+
+def test_config_validates_direction_ranking_mode_and_keeps_static_default():
+    assert SSWConfig().direction_ranking_mode == "static_score"
+    assert (
+        SSWConfig(direction_ranking_mode="true_curvature").direction_ranking_mode
+        == "true_curvature"
+    )
+
+    with pytest.raises(ValueError, match="direction_ranking_mode"):
+        SSWConfig(direction_ranking_mode="unknown")
+    with pytest.raises(ValueError, match="true_curvature ranking"):
+        SSWConfig(
+            direction_ranking_mode="true_curvature",
+            direction_probe_enabled=True,
+        )
 
 
 def test_config_accepts_default_off_direction_diagnostics():

@@ -1,0 +1,172 @@
+{
+  "cost_scope": {
+    "c60_action_fe": 22583,
+    "c60_shared_direction_fe": 480,
+    "c60_total_fe": 23063,
+    "pdo_action_fe": 14224,
+    "pdo_bootstrap_fe": 85,
+    "pdo_shared_direction_fe": 240,
+    "pdo_total_fe": 14549
+  },
+  "decision": "reject_residual_ritz2",
+  "hypothesis": "a two-HVP Rayleigh-Ritz correction in span(v, residual) recovers landing quality lost by pure transport at lower cost than a fresh fixed-intent Ritz solve",
+  "provenance": {
+    "c60_raw_input_sha256": "c63788c18cbed305963213b47eabd9fdc4d06dac118da6a1a9e16621d5e32bf9",
+    "execution_commit": "80d1216b16ae28a6575d483e9365026c9271055d",
+    "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+    "pdo_raw_input_sha256": "68243ceb7c0fbb6ba7a9454d680287eb98c4e5210efbd9ebb63517ba79aaa8b0"
+  },
+  "schema_version": 1,
+  "systems": {
+    "c60": {
+      "advance_gate": false,
+      "arm_results": {
+        "fixed_intent_ritz": {
+          "case_count": 20,
+          "certificate_count": 20,
+          "direction_force_evaluations": 2544,
+          "median_abs_consecutive_direction_cosine": 0.958794182998057,
+          "median_escape_delta_eV": 2.8338623046875,
+          "median_landing_delta_eV": 6.103515625e-05,
+          "median_selected_curvature": 2.8743184820036927,
+          "median_true_curvature": 3.281231412127509,
+          "new_basin_count": 12,
+          "post_step_zero_direction_count": 106,
+          "proposal_energy_exploded": 2,
+          "proposal_force_evaluations": 4423,
+          "proposal_unconverged": 21,
+          "quench_force_evaluations": 616,
+          "total_force_evaluations": 7785,
+          "wall_time_s": 148.11599217102048
+        },
+        "residual_ritz2": {
+          "case_count": 20,
+          "certificate_count": 20,
+          "direction_force_evaluations": 556,
+          "median_abs_consecutive_direction_cosine": 0.9942677018197322,
+          "median_escape_delta_eV": 11.165496826171875,
+          "median_landing_delta_eV": 4.658935546875,
+          "median_selected_curvature": 3.5263635682562646,
+          "median_true_curvature": 3.296646716236854,
+          "new_basin_count": 20,
+          "post_step_zero_direction_count": 139,
+          "proposal_energy_exploded": 9,
+          "proposal_force_evaluations": 5116,
+          "proposal_unconverged": 22,
+          "quench_force_evaluations": 1095,
+          "total_force_evaluations": 7006,
+          "wall_time_s": 132.63105390399141
+        },
+        "transported_direction": {
+          "case_count": 20,
+          "certificate_count": 20,
+          "direction_force_evaluations": 254,
+          "median_abs_consecutive_direction_cosine": 0.9999946386774673,
+          "median_escape_delta_eV": 12.653564453125,
+          "median_landing_delta_eV": 1.304229736328125,
+          "median_selected_curvature": 7.552522293329522,
+          "median_true_curvature": 6.529912723065364,
+          "new_basin_count": 18,
+          "post_step_zero_direction_count": 127,
+          "proposal_energy_exploded": 10,
+          "proposal_force_evaluations": 5387,
+          "proposal_unconverged": 26,
+          "quench_force_evaluations": 1929,
+          "total_force_evaluations": 7792,
+          "wall_time_s": 149.24602716200025
+        }
+      },
+      "residual_vs_control": {
+        "landing_delta_wins_ties_losses": [
+          5,
+          0,
+          15
+        ],
+        "median_paired_landing_delta_difference_eV": 1.6839141845703125
+      },
+      "residual_vs_transport": {
+        "landing_delta_wins_ties_losses": [
+          10,
+          1,
+          9
+        ],
+        "median_paired_landing_delta_difference_eV": -0.3228607177734375
+      }
+    },
+    "pdo": {
+      "advance_gate": false,
+      "arm_results": {
+        "fixed_intent_ritz": {
+          "case_count": 10,
+          "certificate_count": 10,
+          "direction_force_evaluations": 1200,
+          "median_abs_consecutive_direction_cosine": 0.5606665489299724,
+          "median_escape_delta_eV": 1.077178955078125,
+          "median_landing_delta_eV": -2.256103515625,
+          "median_selected_curvature": 1.1073776203744365,
+          "median_true_curvature": 1.0687555576998258,
+          "new_basin_count": 10,
+          "post_step_zero_direction_count": 50,
+          "proposal_energy_exploded": 2,
+          "proposal_force_evaluations": 2739,
+          "proposal_unconverged": 0,
+          "quench_force_evaluations": 1479,
+          "total_force_evaluations": 5516,
+          "wall_time_s": 136.0373981720113
+        },
+        "residual_ritz2": {
+          "case_count": 10,
+          "certificate_count": 10,
+          "direction_force_evaluations": 144,
+          "median_abs_consecutive_direction_cosine": 0.9883091024640795,
+          "median_escape_delta_eV": 1.49847412109375,
+          "median_landing_delta_eV": -1.33697509765625,
+          "median_selected_curvature": 1.9491226882950723,
+          "median_true_curvature": 1.3347586263054052,
+          "new_basin_count": 10,
+          "post_step_zero_direction_count": 36,
+          "proposal_energy_exploded": 0,
+          "proposal_force_evaluations": 2675,
+          "proposal_unconverged": 0,
+          "quench_force_evaluations": 1324,
+          "total_force_evaluations": 4229,
+          "wall_time_s": 103.52190389401949
+        },
+        "transported_direction": {
+          "case_count": 10,
+          "certificate_count": 10,
+          "direction_force_evaluations": 62,
+          "median_abs_consecutive_direction_cosine": 1.0,
+          "median_escape_delta_eV": 0.581298828125,
+          "median_landing_delta_eV": -1.74359130859375,
+          "median_selected_curvature": 4.732678940772481,
+          "median_true_curvature": 3.090025521682865,
+          "new_basin_count": 10,
+          "post_step_zero_direction_count": 31,
+          "proposal_energy_exploded": 0,
+          "proposal_force_evaluations": 3056,
+          "proposal_unconverged": 0,
+          "quench_force_evaluations": 1281,
+          "total_force_evaluations": 4479,
+          "wall_time_s": 111.30151496302278
+        }
+      },
+      "residual_vs_control": {
+        "landing_delta_wins_ties_losses": [
+          4,
+          0,
+          6
+        ],
+        "median_paired_landing_delta_difference_eV": 0.6533203125
+      },
+      "residual_vs_transport": {
+        "landing_delta_wins_ties_losses": [
+          3,
+          0,
+          7
+        ],
+        "median_paired_landing_delta_difference_eV": 0.172760009765625
+      }
+    }
+  }
+}

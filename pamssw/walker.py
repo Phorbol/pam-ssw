@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import json
 import sys
+from hashlib import sha256
 from copy import deepcopy
 from collections import Counter, deque
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum
 from math import log1p, sqrt
@@ -35,10 +36,30 @@ from .relax import (
     has_force_convergence_certificate,
     relax_with_certificate_fallback,
 )
-from .result import RelaxOutcomeClass, RelaxResult, SearchResult, StatsValue, WalkRecord
+from .result import (
+    ActionRecord,
+    RelaxOutcomeClass,
+    RelaxResult,
+    SearchResult,
+    StatsValue,
+    UphillStepRecord,
+    UphillWalkTrace,
+    WalkRecord,
+)
 from .rigid import project_out_rigid_body_modes, rigid_body_overlap
 from .softening import LocalSofteningModel
 from .state import State
+
+
+WALK_TERMINATION_REASONS = (
+    "reached_step_cap",
+    "paused_for_continuation",
+    "continuation_direction_degenerate",
+    "explicit_geometry_invalid",
+    "relaxed_geometry_invalid",
+    "nonfinite_true_energy",
+    "walk_displacement_clipped",
+)
 
 
 @dataclass(frozen=True)
@@ -108,13 +129,61 @@ class ProposalPotential:
         if flat_positions.shape != expected_shape:
             raise ValueError(f"flat_positions must have shape {expected_shape}")
         true_energy, true_gradient = self.calculator.evaluate_flat(flat_positions, template)
+        return self._combine_parts(
+            flat_positions,
+            template,
+            true_energy,
+            true_gradient,
+        )
+
+    def evaluate(self, flat_positions: np.ndarray, template: State) -> tuple[float, np.ndarray]:
+        evaluation = self.evaluate_parts(flat_positions, template)
+        return evaluation.total_energy, evaluation.total_gradient.copy()
+
+    def evaluate_parts_many(
+        self,
+        flat_positions: tuple[np.ndarray, ...],
+        templates: tuple[State, ...],
+    ) -> tuple[RelaxEvaluation, ...]:
+        positions = tuple(np.asarray(value, dtype=float) for value in flat_positions)
+        state_templates = tuple(templates)
+        if not positions:
+            raise ValueError("batch evaluation requires at least one geometry")
+        if len(positions) != len(state_templates):
+            raise ValueError("flat_positions and templates must have the same length")
+        evaluator = getattr(self.calculator, "evaluate_flat_many", None)
+        if not callable(evaluator):
+            raise TypeError("proposal calculator does not support batch evaluation")
+        true_results = tuple(evaluator(positions, state_templates))
+        if len(true_results) != len(positions):
+            raise ValueError("batch calculator returned the wrong number of results")
+        return tuple(
+            self._combine_parts(position, template, true_energy, true_gradient)
+            for position, template, (true_energy, true_gradient) in zip(
+                positions,
+                state_templates,
+                true_results,
+            )
+        )
+
+    def _combine_parts(
+        self,
+        flat_positions: np.ndarray,
+        template: State,
+        true_energy: float,
+        true_gradient: np.ndarray,
+    ) -> RelaxEvaluation:
         true_gradient = np.asarray(true_gradient, dtype=float)
         if true_gradient.shape != flat_positions.shape:
             raise ValueError("true_gradient must have the same shape as flat_positions")
         bias_energy = 0.0
         bias_gradient = np.zeros_like(true_gradient)
         for bias in self.biases:
-            term_energy, term_gradient = bias.evaluate(flat_positions, cell=template.cell, pbc=template.pbc)
+            term_energy, term_gradient = bias.evaluate(
+                flat_positions,
+                cell=template.cell,
+                pbc=template.pbc,
+            )
             term_gradient = np.asarray(term_gradient, dtype=float)
             if term_gradient.shape != flat_positions.shape:
                 raise ValueError("bias_gradient must have the same shape as flat_positions")
@@ -145,10 +214,6 @@ class ProposalPotential:
             bias_image_signature=bias_image_signature,
             softening_present=self.softening is not None,
         )
-
-    def evaluate(self, flat_positions: np.ndarray, template: State) -> tuple[float, np.ndarray]:
-        evaluation = self.evaluate_parts(flat_positions, template)
-        return evaluation.total_energy, evaluation.total_gradient.copy()
 
 
 @dataclass(frozen=True)
@@ -212,6 +277,28 @@ class DirectionChoice:
     archive_momentum_candidate_count: int = 0
     true_curvature: float | None = None
     diagnostics: dict[str, object] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class UphillWalkContinuation:
+    """Complete physical state needed to resume between uphill micro-steps."""
+
+    current: State
+    walk_reference: State
+    frozen_softening: LocalSofteningModel | None
+    previous_direction: np.ndarray | None
+    previous_selected_direction: np.ndarray | None
+    previous_relax_outcome: RelaxOutcomeClass | None
+    biases: tuple[GaussianBiasTerm, ...]
+    sigma_scale: float
+    weight_scale: float
+    pending_true_after: object
+    anchor_direction: np.ndarray
+    krylov_intents: tuple[IntentBlock, ...] | None
+    trace_target: float
+    completed_steps: tuple[UphillStepRecord, ...]
+    next_step_index: int
+    rng_state: dict[str, object]
 
 
 @dataclass(frozen=True)
@@ -572,6 +659,13 @@ class StepTargetController:
         return float(np.clip(self.eta_energy_scale * scale, self.min_target, self.max_target))
 
 
+class ContinuationDirectionDegenerate(RuntimeError):
+    """The stored continuation mode has no admissible movable component."""
+
+
+CONTINUATION_INITIAL_KRYLOV_DEPTH = 6
+
+
 class DirectionCandidateKind(str, Enum):
     MOMENTUM = "momentum"
     ANCHOR = "anchor"
@@ -582,6 +676,8 @@ class DirectionCandidateKind(str, Enum):
     RITZ = "ritz"
     RITZ_REG = "ritz_reg"
     BLOCK_RITZ = "block_ritz"
+    TRANSPORTED = "transported"
+    CONTINUATION_RITZ = "continuation_ritz"
     ENERGY_BOUNDED_ANCHOR = "energy_bounded_anchor"
     EVOLVED = "evolved"
     ARCHIVE_MOMENTUM = "archive_momentum"
@@ -1235,6 +1331,7 @@ class CandidateProposal:
     state: State
     allow_duplicate_rescue: bool = True
     selected_direction_kinds: frozenset[DirectionCandidateKind] = field(default_factory=frozenset)
+    walk_trace: UphillWalkTrace | None = None
 
 
 class SoftModeOracle:
@@ -1261,6 +1358,7 @@ class SoftModeOracle:
         bond_formation_max_distance: float = 4.0,
         bond_breaking_max_distance: float = 2.0,
         direction_selection_mode: str = "discrete",
+        direction_ranking_mode: str = "static_score",
         block_krylov_depth: int = 3,
         direction_synthesis_mode: str = "none",
         regularized_ritz_top_k: int = 5,
@@ -1277,6 +1375,7 @@ class SoftModeOracle:
         self.hvp_epsilon = hvp_epsilon
         self.anchor_mixing_alpha = anchor_mixing_alpha
         self.direction_selection_mode = direction_selection_mode
+        self.direction_ranking_mode = direction_ranking_mode
         self.block_krylov_depth = block_krylov_depth
         self.direction_synthesis_mode = direction_synthesis_mode
         self.regularized_ritz_top_k = regularized_ritz_top_k
@@ -1357,6 +1456,7 @@ class SoftModeOracle:
         best_curvature: float | None = None
         best_true_curvature: float | None = None
         best_score: float | None = None
+        best_ranking_score: float | None = None
         candidates = self.generator.generate(
             state,
             previous_direction,
@@ -1384,10 +1484,14 @@ class SoftModeOracle:
         candidate_hvps: list[np.ndarray] = []
         candidate_true_hvps: list[np.ndarray | None] = []
         scored_candidates: list[tuple[DirectionCandidate, np.ndarray, float, float]] = []
-        for candidate in candidates:
+        candidate_hvp_pairs = self._candidate_directional_hvps_many(
+            state,
+            proposal,
+            tuple(candidate.direction for candidate in candidates),
+        )
+        for candidate, (hvp, true_hvp) in zip(candidates, candidate_hvp_pairs):
             rigid_overlap_sum += candidate.rigid_body_overlap
             post_projection_rigid_overlap_sum += candidate.post_projection_rigid_body_overlap
-            hvp, true_hvp = self._candidate_directional_hvps(state, proposal, candidate.direction)
             candidate_hvps.append(hvp)
             candidate_true_hvps.append(true_hvp)
             curvature = float(np.dot(hvp, candidate.direction))
@@ -1414,7 +1518,16 @@ class SoftModeOracle:
             )
             score = self._add_direction_type_bonus(score, candidate.kind, direction_type_bonus_fn)
             scored_candidates.append((candidate, hvp, curvature, score))
-            if best_score is None or score > best_score:
+            ranking_score = (
+                score
+                if self.direction_ranking_mode == "static_score"
+                else -float(candidate_true_curvature)
+            )
+            if (
+                best_ranking_score is None
+                or ranking_score > best_ranking_score
+            ):
+                best_ranking_score = ranking_score
                 best_score = score
                 best_curvature = curvature
                 best_true_curvature = candidate_true_curvature
@@ -1558,6 +1671,8 @@ class SoftModeOracle:
                 "evaluated_candidate_kind_counts": (
                     evaluated_candidate_kind_counts
                 ),
+                "direction_ranking_mode": self.direction_ranking_mode,
+                "direction_ranking_score": best_ranking_score,
             },
         )
 
@@ -1569,6 +1684,8 @@ class SoftModeOracle:
         anchor_direction: np.ndarray | None,
         energy_bound_step_scale: float | None,
         energy_bound_target: float | None,
+        *,
+        depth: int | None = None,
     ) -> DirectionChoice:
         if not isinstance(krylov_intents, tuple) or not krylov_intents:
             raise ValueError("krylov_intents must be a non-empty tuple for block_krylov mode")
@@ -1586,11 +1703,12 @@ class SoftModeOracle:
             projected_true.reshape(state.n_atoms, 3)[state.fixed_mask] = 0.0
             return projected_total, projected_true
 
+        krylov_depth = self.block_krylov_depth if depth is None else depth
         results = [
             solve_krylov_block(
                 intent,
                 directional_hvps,
-                depth=self.block_krylov_depth,
+                depth=krylov_depth,
                 reference_direction=anchor_direction,
             )
             for intent in krylov_intents
@@ -1727,12 +1845,12 @@ class SoftModeOracle:
         ]
         diagnostics: dict[str, object] = {
             "krylov_blocks": int(len(results)),
-            "krylov_depth": int(self.block_krylov_depth),
+            "krylov_depth": int(krylov_depth),
             "krylov_selected_block": int(selected_block),
             "krylov_hvp_count": int(sum(result.hvp_count for result in results)),
             "krylov_hvp_requested": int(
                 sum(intent.basis.shape[1] for intent in krylov_intents)
-                * self.block_krylov_depth
+                * krylov_depth
             ),
             "krylov_hvp_consumed": int(sum(result.hvp_count for result in results)),
             "krylov_initial_basis_columns": [
@@ -1795,6 +1913,87 @@ class SoftModeOracle:
             true_curvature=selected_true_curvature,
             diagnostics=diagnostics,
         )
+
+    def choose_transported_direction(
+        self,
+        state: State,
+        proposal: ProposalPotential,
+        direction: np.ndarray,
+        reference: np.ndarray,
+    ) -> DirectionChoice:
+        normalized = self.project_continuation_direction(
+            state,
+            direction,
+            reference,
+        )
+        total_hvp, true_hvp = self._candidate_directional_hvps(
+            state,
+            proposal,
+            normalized,
+        )
+        total_curvature = float(np.dot(normalized, total_hvp))
+        true_curvature = float(np.dot(normalized, true_hvp))
+        total_hvp_norm = float(np.linalg.norm(total_hvp))
+        true_hvp_norm = float(np.linalg.norm(true_hvp))
+        total_residual_norm = float(
+            np.linalg.norm(total_hvp - total_curvature * normalized)
+        )
+        true_residual_norm = float(
+            np.linalg.norm(true_hvp - true_curvature * normalized)
+        )
+        atom_squared_amplitudes = np.sum(
+            np.square(
+                normalized.reshape(state.n_atoms, 3)[state.movable_mask]
+            ),
+            axis=1,
+        )
+        participation_ratio = 1.0 / float(
+            np.dot(atom_squared_amplitudes, atom_squared_amplitudes)
+        )
+        return DirectionChoice(
+            direction=normalized,
+            curvature=total_curvature,
+            kind=DirectionCandidateKind.TRANSPORTED,
+            candidate_count=1,
+            score=None,
+            true_curvature=true_curvature,
+            diagnostics={
+                "direction_hvp_count": 1,
+                "continuation_source": "selected_mode",
+                "direction_participation_ratio": participation_ratio,
+                "transported_hvp_norm": total_hvp_norm,
+                "transported_residual_norm": total_residual_norm,
+                "transported_relative_residual": (
+                    total_residual_norm / total_hvp_norm
+                    if total_hvp_norm > 0.0
+                    else 0.0
+                ),
+                "transported_true_hvp_norm": true_hvp_norm,
+                "transported_true_residual_norm": true_residual_norm,
+                "transported_true_relative_residual": (
+                    true_residual_norm / true_hvp_norm
+                    if true_hvp_norm > 0.0
+                    else 0.0
+                ),
+            },
+        )
+
+    def project_continuation_direction(
+        self,
+        state: State,
+        direction: np.ndarray,
+        reference: np.ndarray,
+    ) -> np.ndarray:
+        projected = project_out_rigid_body_modes(state, direction)
+        projected.reshape(state.n_atoms, 3)[state.fixed_mask] = 0.0
+        normalized = self._normalized_or_none(projected)
+        if normalized is None:
+            raise ContinuationDirectionDegenerate(
+                "continuation direction vanished after projection"
+            )
+        if float(np.dot(normalized, reference)) < 0.0:
+            normalized = -normalized
+        return normalized
 
     def _choose_exact_anchor_direction(
         self,
@@ -2264,6 +2463,64 @@ class SoftModeOracle:
         true_hvp = (plus_parts.true_gradient - minus_parts.true_gradient) / scale
         return total_hvp, true_hvp
 
+    def _candidate_directional_hvps_many(
+        self,
+        state: State,
+        proposal: ProposalPotential,
+        directions: tuple[np.ndarray, ...],
+        epsilon: float | None = None,
+    ) -> tuple[tuple[np.ndarray, np.ndarray | None], ...]:
+        if not directions:
+            return ()
+        if not bool(
+            getattr(proposal.calculator, "supports_batch_evaluation", False)
+        ):
+            if epsilon is None:
+                return tuple(
+                    self._candidate_directional_hvps(
+                        state,
+                        proposal,
+                        direction,
+                    )
+                    for direction in directions
+                )
+            return tuple(
+                self._candidate_directional_hvps(
+                    state,
+                    proposal,
+                    direction,
+                    epsilon=epsilon,
+                )
+                for direction in directions
+            )
+        epsilon = self.hvp_epsilon if epsilon is None else epsilon
+        coordinates = CartesianCoordinates.from_state(state)
+        displaced_states: list[State] = []
+        for direction in directions:
+            tangent = TangentVector(direction)
+            displaced_states.append(coordinates.displace(tangent, epsilon))
+            displaced_states.append(coordinates.displace(tangent, -epsilon))
+        parts = proposal.evaluate_parts_many(
+            tuple(value.flatten_positions() for value in displaced_states),
+            tuple(displaced_states),
+        )
+        scale = 2.0 * epsilon
+        return tuple(
+            (
+                (
+                    parts[2 * index].total_gradient
+                    - parts[2 * index + 1].total_gradient
+                )
+                / scale,
+                (
+                    parts[2 * index].true_gradient
+                    - parts[2 * index + 1].true_gradient
+                )
+                / scale,
+            )
+            for index in range(len(directions))
+        )
+
     @staticmethod
     def _step_scale_from_curvature(curvature: float) -> float:
         effective = max(abs(curvature), 1e-4)
@@ -2276,6 +2533,9 @@ class SurfaceWalker:
         self.config = config
         self.softening_enabled = softening_enabled
         self.rng = np.random.default_rng(config.rng_seed)
+        self.selection_rng = np.random.default_rng(
+            np.random.SeedSequence([int(config.rng_seed), 0x535357])
+        )
         bond_pairs = config.local_softening_pairs if softening_enabled and isinstance(config, LSSSWConfig) else []
         self.oracle = SoftModeOracle(
             self.calculator,
@@ -2299,6 +2559,7 @@ class SurfaceWalker:
             bond_formation_max_distance=config.bond_formation_max_distance,
             bond_breaking_max_distance=config.bond_breaking_max_distance,
             direction_selection_mode=config.direction_selection_mode,
+            direction_ranking_mode=config.direction_ranking_mode,
             block_krylov_depth=config.block_krylov_depth,
             direction_synthesis_mode=config.direction_synthesis_mode,
             regularized_ritz_top_k=config.regularized_ritz_top_k,
@@ -2352,6 +2613,7 @@ class SurfaceWalker:
         self.direction_type_memory = self._new_direction_type_memory()
         self._reset_direction_archive_records()
         self._reset_metropolis_stats()
+        self._paired_uniform_entry = None
 
     def _should_rebuild_softening_for_choice(
         self,
@@ -2361,6 +2623,11 @@ class SurfaceWalker:
         if not getattr(self.config, "choice_aligned_softening_enabled", False):
             return False
         if not self.softening_enabled:
+            return False
+        if not (
+            self._softening_scope_enabled("oracle")
+            or self._softening_scope_enabled("proposal")
+        ):
             return False
         if anchor_direction is None or choice_direction is None:
             return False
@@ -2524,6 +2791,41 @@ class SurfaceWalker:
         if anchor_norm < 1e-12 or chosen_norm < 1e-12:
             return None
         return float(np.dot(anchor, chosen) / (anchor_norm * chosen_norm))
+
+    @classmethod
+    def _continuation_diagnostics(
+        cls,
+        selected_direction: np.ndarray,
+        previous_selected_direction: np.ndarray | None,
+        previous_relaxed_direction: np.ndarray | None,
+        anchor_direction: np.ndarray | None,
+    ) -> dict[str, object]:
+        selected = np.asarray(selected_direction, dtype=float).reshape(-1)
+        selected = selected / np.linalg.norm(selected)
+
+        def cosine(reference: np.ndarray | None) -> float | None:
+            return cls._direction_anchor_cosine(reference, selected)
+
+        selected_cosine = cosine(previous_selected_direction)
+        relaxed_cosine = cosine(previous_relaxed_direction)
+        anchor_cosine = cosine(anchor_direction)
+        return {
+            "selected_direction_sha256": sha256(
+                np.asarray(selected, dtype="<f8").tobytes()
+            ).hexdigest(),
+            "selected_to_previous_selected_cosine": selected_cosine,
+            "selected_to_previous_selected_abs_cosine": (
+                None if selected_cosine is None else abs(selected_cosine)
+            ),
+            "selected_to_previous_relaxed_cosine": relaxed_cosine,
+            "selected_to_previous_relaxed_abs_cosine": (
+                None if relaxed_cosine is None else abs(relaxed_cosine)
+            ),
+            "selected_to_anchor_cosine": anchor_cosine,
+            "selected_to_anchor_abs_cosine": (
+                None if anchor_cosine is None else abs(anchor_cosine)
+            ),
+        }
 
     def _capture_direction_record(
         self,
@@ -2708,6 +3010,7 @@ class SurfaceWalker:
         initial_quench_purpose: EvaluationPurpose = (
             EvaluationPurpose.BOOTSTRAP_TRUE_QUENCH
         ),
+        prequenched_initial: RelaxResult | None = None,
     ):
         from .archive import MinimaArchive
 
@@ -2722,17 +3025,23 @@ class SurfaceWalker:
         self._proposal_duplicate_rescue_successes = 0
         self._energy_sanity_rejections = 0
         self._reset_metropolis_stats()
+        self._paired_uniform_entry = None
         self._reset_accepted_structure_log()
         self._reset_direction_diagnostics()
         self.direction_type_memory = self._new_direction_type_memory()
         self._reset_direction_archive_records()
         self._reset_direction_archive_output()
         self._prepare_structure_output_dirs()
-        initial = self.relax_true_minimum(
-            initial_state,
-            trajectory_name="initial_true_quench",
-            quench_purpose=initial_quench_purpose,
-        )
+        if prequenched_initial is None:
+            initial = self.relax_true_minimum(
+                initial_state,
+                trajectory_name="initial_true_quench",
+                quench_purpose=initial_quench_purpose,
+            )
+        else:
+            if not isinstance(prequenched_initial, RelaxResult):
+                raise TypeError("prequenched_initial must be a RelaxResult or None")
+            initial = prequenched_initial
         archive = MinimaArchive(
             energy_tol=self.config.dedup_energy_tol,
             rmsd_tol=self.config.dedup_rmsd_tol,
@@ -2741,6 +3050,7 @@ class SurfaceWalker:
         best_entry = archive.add(initial.state, initial.energy, parent_id=None)
         metropolis_entry = best_entry
         walk_history: list[WalkRecord] = []
+        action_history: list[ActionRecord] = []
         local_relaxations = 1
 
         completed_trials = 0
@@ -2757,6 +3067,13 @@ class SurfaceWalker:
             damage_events_before = self._trust_damage_events
             if self.config.seed_selection_mode == "metropolis_chain":
                 seed_entry = self._select_metropolis_seed_entry(metropolis_entry)
+            elif self.config.seed_selection_mode == "paired_best_uniform":
+                seed_entry = self._select_paired_best_uniform_seed_entry(
+                    archive,
+                    trial_index=trial_index,
+                )
+            elif self.config.seed_selection_mode == "uniform_archive":
+                seed_entry = self._select_uniform_seed_entry(archive)
             else:
                 seed_entry = self._select_seed_entry(archive)
             plateau_evolution_active = bool(
@@ -2792,6 +3109,9 @@ class SurfaceWalker:
             proposal_index = 0
             while proposal_index < len(proposals):
                 proposal = proposals[proposal_index]
+                landing_counts_before = self.calculator.snapshot().count(
+                    EvaluationPurpose.LANDING_TRUE_QUENCH
+                )
                 try:
                     candidate = self.relax_true_minimum(
                         proposal.state,
@@ -2800,9 +3120,37 @@ class SurfaceWalker:
                         ),
                     )
                 except BudgetExceeded:
+                    landing_force_evaluations = (
+                        self.calculator.snapshot().count(
+                            EvaluationPurpose.LANDING_TRUE_QUENCH
+                        )
+                        - landing_counts_before
+                    )
+                    action_history.append(
+                        self._build_action_record(
+                            trial_index=trial_index,
+                            proposal_index=proposal_index,
+                            seed_entry_id=seed_entry.entry_id,
+                            seed_energy=seed_entry.energy,
+                            proposal=proposal,
+                            step_target=step_target,
+                            candidate=None,
+                            landing_force_evaluations=landing_force_evaluations,
+                            accepted_new_basin=None,
+                            is_duplicate=None,
+                            global_improved=None,
+                            status="landing_budget_exhausted",
+                        )
+                    )
                     budget_exhausted = True
                     self._discard_direction_archive_trial(trial_index)
                     break
+                landing_force_evaluations = (
+                    self.calculator.snapshot().count(
+                        EvaluationPurpose.LANDING_TRUE_QUENCH
+                    )
+                    - landing_counts_before
+                )
                 local_relaxations += 1
                 if self._is_fragmented_cluster(seed_entry.state, candidate.state):
                     self._write_proposal_minimum(
@@ -2821,6 +3169,22 @@ class SurfaceWalker:
                         accepted_new_basin=False,
                         global_improved=False,
                         final_energy=candidate.energy,
+                    )
+                    action_history.append(
+                        self._build_action_record(
+                            trial_index=trial_index,
+                            proposal_index=proposal_index,
+                            seed_entry_id=seed_entry.entry_id,
+                            seed_energy=seed_entry.energy,
+                            proposal=proposal,
+                            step_target=step_target,
+                            candidate=candidate,
+                            landing_force_evaluations=landing_force_evaluations,
+                            accepted_new_basin=False,
+                            is_duplicate=None,
+                            global_improved=False,
+                            status="fragment_rejected",
+                        )
                     )
                     proposal_index += 1
                     continue
@@ -2841,6 +3205,22 @@ class SurfaceWalker:
                         accepted_new_basin=False,
                         global_improved=False,
                         final_energy=candidate.energy,
+                    )
+                    action_history.append(
+                        self._build_action_record(
+                            trial_index=trial_index,
+                            proposal_index=proposal_index,
+                            seed_entry_id=seed_entry.entry_id,
+                            seed_energy=seed_entry.energy,
+                            proposal=proposal,
+                            step_target=step_target,
+                            candidate=candidate,
+                            landing_force_evaluations=landing_force_evaluations,
+                            accepted_new_basin=False,
+                            is_duplicate=None,
+                            global_improved=False,
+                            status="energy_sanity_rejected",
+                        )
                     )
                     proposal_index += 1
                     continue
@@ -2882,6 +3262,22 @@ class SurfaceWalker:
                 reward = self.proposal_scorer.score(outcome)
                 rank_key = self.proposal_scorer.rank_key(outcome)
                 proposal_global_improved = discovered.energy < best_entry.energy - 1e-12
+                action_history.append(
+                    self._build_action_record(
+                        trial_index=trial_index,
+                        proposal_index=proposal_index,
+                        seed_entry_id=seed_entry.entry_id,
+                        seed_energy=seed_entry.energy,
+                        proposal=proposal,
+                        step_target=step_target,
+                        candidate=candidate,
+                        landing_force_evaluations=landing_force_evaluations,
+                        accepted_new_basin=is_new,
+                        is_duplicate=is_duplicate,
+                        global_improved=proposal_global_improved,
+                        status="accepted" if is_new else "duplicate",
+                    )
+                )
                 self._finalize_direction_archive_trial(
                     trial_index,
                     proposal_index=proposal_index,
@@ -2913,6 +3309,7 @@ class SurfaceWalker:
                 ):
                     self._proposal_duplicate_rescue_attempts += 1
                     rescue_direction_kinds: set[DirectionCandidateKind] = set()
+                    rescue_trace_sink: list[UphillWalkTrace] = []
                     try:
                         rescue_state = self._walk_candidate_from_seed(
                             seed_entry.state,
@@ -2924,6 +3321,7 @@ class SurfaceWalker:
                             proposal_optimizer_override=self.config.proposal_duplicate_rescue_optimizer,
                             selected_direction_kinds=rescue_direction_kinds,
                             plateau_evolution_active=plateau_evolution_active,
+                            trace_sink=rescue_trace_sink,
                         )
                     except BudgetExceeded:
                         budget_exhausted = True
@@ -2936,6 +3334,9 @@ class SurfaceWalker:
                             rescue_state,
                             allow_duplicate_rescue=False,
                             selected_direction_kinds=frozenset(rescue_direction_kinds),
+                            walk_trace=(
+                                rescue_trace_sink[0] if rescue_trace_sink else None
+                            ),
                         )
                     )
                 if proposal.label == "duplicate_rescue" and is_new:
@@ -3014,6 +3415,7 @@ class SurfaceWalker:
             best_energy=best_entry.energy,
             archive=archive,
             walk_history=walk_history,
+            action_history=action_history,
             stats={
                 "n_trials": completed_trials,
                 "configured_max_trials": self.config.max_trials,
@@ -3075,6 +3477,7 @@ class SurfaceWalker:
         proposals: list[CandidateProposal] = []
         for proposal_index in range(self.config.proposal_pool_size):
             selected_direction_kinds: set[DirectionCandidateKind] = set()
+            trace_sink: list[UphillWalkTrace] = []
             state = self._walk_candidate_from_seed(
                 seed_state,
                 archive,
@@ -3085,6 +3488,7 @@ class SurfaceWalker:
                 proposal_optimizer_override=proposal_optimizer_override,
                 selected_direction_kinds=selected_direction_kinds,
                 plateau_evolution_active=plateau_evolution_active,
+                trace_sink=trace_sink,
             )
             proposals.append(
                 CandidateProposal(
@@ -3092,9 +3496,60 @@ class SurfaceWalker:
                     state,
                     allow_duplicate_rescue=allow_duplicate_rescue,
                     selected_direction_kinds=frozenset(selected_direction_kinds),
+                    walk_trace=trace_sink[0] if trace_sink else None,
                 )
             )
         return proposals
+
+    def _build_action_record(
+        self,
+        *,
+        trial_index: int,
+        proposal_index: int,
+        seed_entry_id: int,
+        seed_energy: float,
+        proposal: CandidateProposal,
+        step_target: float,
+        candidate: RelaxResult | None,
+        landing_force_evaluations: int,
+        accepted_new_basin: bool | None,
+        is_duplicate: bool | None,
+        global_improved: bool | None,
+        status: str,
+    ) -> ActionRecord:
+        walk = proposal.walk_trace
+        if walk is None:
+            walk = UphillWalkTrace(
+                target_eV=float(step_target),
+                termination_reason="trace_unavailable",
+                steps=(),
+            )
+        escape_energy = (
+            None if not walk.steps else walk.steps[-1].true_energy_after_eV
+        )
+        return ActionRecord(
+            trial_index=trial_index,
+            proposal_index=proposal_index,
+            seed_entry_id=seed_entry_id,
+            seed_energy_eV=float(seed_energy),
+            walk=walk,
+            escape_energy_eV=escape_energy,
+            landing_energy_eV=(None if candidate is None else float(candidate.energy)),
+            landing_gradient_norm=(
+                None if candidate is None else float(candidate.gradient_norm)
+            ),
+            landing_iterations=(None if candidate is None else int(candidate.n_iter)),
+            landing_converged=(
+                None
+                if candidate is None
+                else has_force_convergence_certificate(candidate, self.config.quench_fmax)
+            ),
+            landing_force_evaluations=int(landing_force_evaluations),
+            accepted_new_basin=accepted_new_basin,
+            is_duplicate=is_duplicate,
+            global_improved=global_improved,
+            status=status,
+        )
 
     def _is_unphysical_energy_drop(self, energy: float, reference_energy: float, n_atoms: int) -> bool:
         limit = self.config.max_energy_drop_per_atom
@@ -3105,6 +3560,16 @@ class SurfaceWalker:
         if not np.isfinite(energy) or not np.isfinite(reference_energy):
             return True
         return bool((float(reference_energy) - float(energy)) > float(limit) * float(n_atoms))
+
+    def _walk_early_stop_reason(
+        self,
+        *,
+        step_index: int,
+        walk_reference: State,
+        current: State,
+        true_energy: float,
+    ) -> str | None:
+        return None
 
     def _walk_candidate_from_seed(
         self,
@@ -3117,26 +3582,98 @@ class SurfaceWalker:
         proposal_optimizer_override: str | None = None,
         selected_direction_kinds: set[DirectionCandidateKind] | None = None,
         plateau_evolution_active: bool = False,
+        initial_direction_choice: DirectionChoice | None = None,
+        *,
+        trace_sink: list[UphillWalkTrace] | None = None,
+        pause_after_step: int | None = None,
+        continuation_sink: list[UphillWalkContinuation] | None = None,
+        continuation: UphillWalkContinuation | None = None,
     ) -> State:
-        current = seed_state
-        previous_direction: np.ndarray | None = None
-        previous_relax_outcome: RelaxOutcomeClass | None = None
-        biases: list[GaussianBiasTerm] = []
-        sigma_scale = 1.0
-        weight_scale = 1.0
-        pending_true_after_state: State | None = None
-        pending_true_after = None
-        (
-            anchor_direction,
-            krylov_intents,
-        ) = self._initialize_walk_direction_context(
-            current,
-            trial_index=trial_index,
-        )
+        if (pause_after_step is None) != (continuation_sink is None):
+            raise ValueError(
+                "pause_after_step and continuation_sink must be provided together"
+            )
+        if pause_after_step is not None and pause_after_step < 0:
+            raise ValueError("pause_after_step must be non-negative")
+        if continuation is not None and initial_direction_choice is not None:
+            raise ValueError(
+                "initial_direction_choice cannot be combined with continuation"
+            )
+        walk_counts_before = self.calculator.snapshot()
+        if continuation is None:
+            current, frozen_softening = self._prepare_frozen_local_softening(
+                seed_state
+            )
+            walk_reference = current
+            previous_direction: np.ndarray | None = None
+            previous_selected_direction: np.ndarray | None = None
+            previous_relax_outcome: RelaxOutcomeClass | None = None
+            biases: list[GaussianBiasTerm] = []
+            sigma_scale = 1.0
+            weight_scale = 1.0
+            pending_true_after_state: State | None = None
+            pending_true_after = None
+            (
+                anchor_direction,
+                krylov_intents,
+            ) = self._initialize_walk_direction_context(
+                current,
+                trial_index=trial_index,
+            )
+            start_step_index = 0
+            trace_target = float(
+                self.config.target_uphill_energy
+                if step_target is None
+                else step_target
+            )
+            step_records: list[UphillStepRecord] = []
+        else:
+            current = deepcopy(continuation.current)
+            frozen_softening = deepcopy(continuation.frozen_softening)
+            walk_reference = deepcopy(continuation.walk_reference)
+            previous_direction = deepcopy(continuation.previous_direction)
+            previous_selected_direction = deepcopy(
+                continuation.previous_selected_direction
+            )
+            previous_relax_outcome = continuation.previous_relax_outcome
+            biases = list(deepcopy(continuation.biases))
+            sigma_scale = float(continuation.sigma_scale)
+            weight_scale = float(continuation.weight_scale)
+            pending_true_after_state = current
+            pending_true_after = deepcopy(continuation.pending_true_after)
+            anchor_direction = np.asarray(
+                continuation.anchor_direction,
+                dtype=float,
+            ).copy()
+            krylov_intents = deepcopy(continuation.krylov_intents)
+            start_step_index = int(continuation.next_step_index)
+            trace_target = float(continuation.trace_target)
+            step_records = list(deepcopy(continuation.completed_steps))
+            self.rng.bit_generator.state = deepcopy(continuation.rng_state)
+        termination_reason = "reached_step_cap"
 
-        for step_index in range(self.config.max_steps_per_walk):
-            softening = self._build_softening(current, anchor_direction)
-            proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
+        for step_index in range(
+            start_step_index,
+            self.config.max_steps_per_walk,
+        ):
+            step_counts_before = self.calculator.snapshot()
+            active_biases = self._active_walk_biases(biases)
+            softening = (
+                frozen_softening
+                if frozen_softening is not None
+                else self._build_softening(current, anchor_direction)
+            )
+            oracle_softening = (
+                softening if self._softening_scope_enabled("oracle") else None
+            )
+            proposal_softening = (
+                softening if self._softening_scope_enabled("proposal") else None
+            )
+            proposal = ProposalPotential(
+                self.calculator,
+                biases=active_biases,
+                softening=oracle_softening,
+            )
             scoring_proposal = self._direction_scoring_proposal(proposal)
             score_sigma_fn = self._direction_score_sigma_fn(sigma_scale, step_target=step_target)
             if plateau_evolution_active:
@@ -3159,51 +3696,164 @@ class SurfaceWalker:
                     == "energy_bounded_anchor"
                     else (None, None)
                 )
-                choice = self.oracle.choose_direction(
-                    current,
-                    scoring_proposal,
-                    previous_direction,
-                    anchor_direction=anchor_direction,
-                    step_scale_fn=lambda curvature: self._scaled_step_scale(
-                        curvature,
-                        sigma_scale,
-                        step_target=step_target,
-                    ),
-                    archive=archive,
-                    history_gradient=self._history_bias_gradient(current, biases),
-                    continuity_weight=self._continuity_weight_for_outcome(previous_relax_outcome),
-                    n_bond_pairs=self._n_bond_pairs_for_outcome(previous_relax_outcome),
-                    score_sigma=(
-                        None
-                        if score_sigma_fn is not None
-                        else self._direction_score_sigma(sigma_scale, step_target=step_target)
-                    ),
-                    score_sigma_fn=score_sigma_fn,
-                    direction_type_bonus_fn=(
-                        self.direction_type_memory.bonus if self.config.direction_type_ucb_enabled else None
-                    ),
-                    plateau_evolution_active=plateau_evolution_active,
-                    plateau_history=(
-                        self.successful_records(
-                            seed_entry_id=seed_entry_id,
-                            limit=self.config.plateau_evolution_history_limit,
+                continuation_mode = self.config.direction_selection_mode in {
+                    "transported_direction",
+                    "continuation_krylov",
+                    "continuation_intent_krylov",
+                }
+                if step_index == 0 and initial_direction_choice is not None:
+                    choice = deepcopy(initial_direction_choice)
+                    choice.direction = np.asarray(
+                        initial_direction_choice.direction,
+                        dtype=float,
+                    ).copy()
+                    choice.diagnostics["shared_initial_direction"] = True
+                elif continuation_mode and step_index == 0:
+                    choice = self.oracle._choose_block_krylov_direction(
+                        current,
+                        scoring_proposal,
+                        krylov_intents,
+                        anchor_direction,
+                        None,
+                        None,
+                        depth=CONTINUATION_INITIAL_KRYLOV_DEPTH,
+                    )
+                elif self.config.direction_selection_mode == "transported_direction":
+                    assert previous_selected_direction is not None
+                    try:
+                        choice = self.oracle.choose_transported_direction(
+                            current,
+                            scoring_proposal,
+                            previous_selected_direction,
+                            previous_selected_direction,
                         )
-                        if plateau_evolution_active
-                        else []
-                    ),
-                    plateau_evolution_children=self.config.plateau_evolution_children,
-                    plateau_evolution_crossover_pairs=self.config.plateau_evolution_crossover_pairs,
-                    plateau_evolution_mutation_count=self.config.plateau_evolution_mutation_count,
-                    archive_momentum_history=self._archive_momentum_history_for_seed(seed_entry_id),
-                    archive_momentum_limit=self.config.archive_escape_momentum_limit,
-                    **(
-                        {"krylov_intents": krylov_intents}
-                        if krylov_intents is not None
-                        else {}
-                    ),
-                    energy_bound_step_scale=energy_bound_step_scale,
-                    energy_bound_target=energy_bound_target,
+                    except ContinuationDirectionDegenerate:
+                        self._continuation_projection_degenerate += 1
+                        termination_reason = "continuation_direction_degenerate"
+                        break
+                elif self.config.direction_selection_mode in {
+                    "continuation_krylov",
+                    "continuation_intent_krylov",
+                }:
+                    assert previous_selected_direction is not None
+                    try:
+                        continuation_direction = self.oracle.project_continuation_direction(
+                            current,
+                            previous_selected_direction,
+                            previous_selected_direction,
+                        )
+                        if (
+                            self.config.direction_selection_mode
+                            == "continuation_intent_krylov"
+                        ):
+                            intent_direction = (
+                                self.oracle.project_continuation_direction(
+                                    current,
+                                    anchor_direction,
+                                    anchor_direction,
+                                )
+                            )
+                    except ContinuationDirectionDegenerate:
+                        self._continuation_projection_degenerate += 1
+                        termination_reason = "continuation_direction_degenerate"
+                        break
+                    initial_basis = (
+                        np.column_stack(
+                            (
+                                continuation_direction,
+                                intent_direction,
+                            )
+                        )
+                        if self.config.direction_selection_mode
+                        == "continuation_intent_krylov"
+                        else continuation_direction[:, None]
+                    )
+                    choice = self.oracle._choose_block_krylov_direction(
+                        current,
+                        scoring_proposal,
+                        (IntentBlock(basis=initial_basis),),
+                        previous_selected_direction,
+                        None,
+                        None,
+                    )
+                    if (
+                        float(
+                            np.dot(
+                                choice.direction,
+                                previous_selected_direction,
+                            )
+                        )
+                        < 0.0
+                    ):
+                        choice.direction = -choice.direction
+                    choice.kind = DirectionCandidateKind.CONTINUATION_RITZ
+                    choice.diagnostics["continuation_source"] = (
+                        "selected_mode_plus_initial_intent"
+                        if self.config.direction_selection_mode
+                        == "continuation_intent_krylov"
+                        else "selected_mode"
+                    )
+                else:
+                    choice = self.oracle.choose_direction(
+                        current,
+                        scoring_proposal,
+                        previous_direction,
+                        anchor_direction=anchor_direction,
+                        step_scale_fn=lambda curvature: self._scaled_step_scale(
+                            curvature,
+                            sigma_scale,
+                            step_target=step_target,
+                        ),
+                        archive=archive,
+                        history_gradient=self._history_bias_gradient(
+                            current,
+                            active_biases,
+                        ),
+                        continuity_weight=self._continuity_weight_for_outcome(previous_relax_outcome),
+                        n_bond_pairs=self._n_bond_pairs_for_outcome(previous_relax_outcome),
+                        score_sigma=(
+                            None
+                            if score_sigma_fn is not None
+                            else self._direction_score_sigma(sigma_scale, step_target=step_target)
+                        ),
+                        score_sigma_fn=score_sigma_fn,
+                        direction_type_bonus_fn=(
+                            self.direction_type_memory.bonus if self.config.direction_type_ucb_enabled else None
+                        ),
+                        plateau_evolution_active=plateau_evolution_active,
+                        plateau_history=(
+                            self.successful_records(
+                                seed_entry_id=seed_entry_id,
+                                limit=self.config.plateau_evolution_history_limit,
+                            )
+                            if plateau_evolution_active
+                            else []
+                        ),
+                        plateau_evolution_children=self.config.plateau_evolution_children,
+                        plateau_evolution_crossover_pairs=self.config.plateau_evolution_crossover_pairs,
+                        plateau_evolution_mutation_count=self.config.plateau_evolution_mutation_count,
+                        archive_momentum_history=self._archive_momentum_history_for_seed(seed_entry_id),
+                        archive_momentum_limit=self.config.archive_escape_momentum_limit,
+                        **(
+                            {"krylov_intents": krylov_intents}
+                            if krylov_intents is not None
+                            else {}
+                        ),
+                        energy_bound_step_scale=energy_bound_step_scale,
+                        energy_bound_target=energy_bound_target,
+                    )
+            choice.diagnostics.update(
+                self._continuation_diagnostics(
+                    choice.direction,
+                    previous_selected_direction,
+                    previous_direction,
+                    anchor_direction,
                 )
+            )
+            previous_selected_direction = np.asarray(
+                choice.direction,
+                dtype=float,
+            ).copy()
             choice.diagnostics.update(
                 {
                     "oracle_selection_force_evaluations_delta": int(
@@ -3224,10 +3874,26 @@ class SurfaceWalker:
                 anchor_direction=anchor_direction,
             )
             self._record_direction_choice(choice)
-            rebuild_softening_for_choice = self._should_rebuild_softening_for_choice(anchor_direction, choice.direction)
+            rebuild_softening_for_choice = (
+                frozen_softening is None
+                and self._should_rebuild_softening_for_choice(
+                    anchor_direction,
+                    choice.direction,
+                )
+            )
             if rebuild_softening_for_choice:
                 softening = self._build_softening(current, choice.direction)
-                proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
+                oracle_softening = (
+                    softening if self._softening_scope_enabled("oracle") else None
+                )
+                proposal_softening = (
+                    softening if self._softening_scope_enabled("proposal") else None
+                )
+                proposal = ProposalPotential(
+                    self.calculator,
+                    biases=active_biases,
+                    softening=oracle_softening,
+                )
             with self.calculator.purpose(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK):
                 true_curvature = (
                     choice.true_curvature
@@ -3250,6 +3916,13 @@ class SurfaceWalker:
                     "oracle_wall_seconds": float(perf_counter() - oracle_started),
                 }
             )
+            requested_sigma = self._nominal_execution_step_scale(
+                current,
+                choice.direction,
+                true_curvature,
+                sigma_scale,
+                step_target=step_target,
+            )
             sigma = self._execution_step_scale(
                 current,
                 choice.direction,
@@ -3257,18 +3930,18 @@ class SurfaceWalker:
                 sigma_scale,
                 step_target=step_target,
             )
+            configured_sigma = sigma
             if self.config.direction_selection_mode == "energy_bounded_anchor":
                 assert energy_bound_target is not None
-                requested_sigma = sigma
                 sigma = self._energy_bounded_execution_step_scale(
-                    requested_step_scale=requested_sigma,
+                    requested_step_scale=configured_sigma,
                     true_curvature=true_curvature,
                     energy_target=energy_bound_target,
                 )
                 choice.diagnostics.update(
                     {
                         "energy_bounded_anchor_requested_step_scale": float(
-                            requested_sigma
+                            configured_sigma
                         ),
                         "energy_bounded_anchor_execution_step_scale": float(
                             sigma
@@ -3277,16 +3950,29 @@ class SurfaceWalker:
                             0.5 * sigma * sigma * true_curvature
                         ),
                         "energy_bounded_anchor_step_capped": bool(
-                            sigma < requested_sigma
+                            sigma < configured_sigma
                             and not np.isclose(
                                 sigma,
-                                requested_sigma,
+                                configured_sigma,
                                 rtol=1.0e-12,
                                 atol=0.0,
                             )
                         ),
                     }
                 )
+            base_weight = self._bias_weight(inner_curvature, sigma)
+            weight = base_weight * weight_scale
+            choice.diagnostics.update(
+                {
+                    "requested_step_scale": float(requested_sigma),
+                    "configured_step_scale": float(configured_sigma),
+                    "executed_step_scale": float(sigma),
+                    "uphill_base_bias_weight": float(base_weight),
+                    "uphill_final_bias_weight": float(weight),
+                    "uphill_true_curvature": float(true_curvature),
+                    "uphill_inner_curvature": float(inner_curvature),
+                }
+            )
             self._record_direction_diagnostics(
                 trial_index=trial_index,
                 proposal_index=proposal_index,
@@ -3295,7 +3981,14 @@ class SurfaceWalker:
                 anchor_direction=anchor_direction,
             )
             self._record_step_displacement_metrics(current, choice.direction, sigma)
-            weight = self._bias_weight(inner_curvature, sigma) * weight_scale
+            self._record_uphill_control(
+                requested_sigma=requested_sigma,
+                executed_sigma=sigma,
+                base_weight=base_weight,
+                final_weight=weight,
+                true_curvature=true_curvature,
+                inner_curvature=inner_curvature,
+            )
             self._record_bias_weight(weight)
             with self.calculator.purpose(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK):
                 if pending_true_after_state is current:
@@ -3314,9 +4007,9 @@ class SurfaceWalker:
                     weight=weight,
                 )
             )
-            proposal = ProposalPotential(self.calculator, biases=biases, softening=softening)
             trial_state = CartesianCoordinates.from_state(current).displace(TangentVector(choice.direction), sigma)
             if not self.geometry_validator.is_valid_state(trial_state):
+                termination_reason = "explicit_geometry_invalid"
                 break
             proposal_optimizer = self._proposal_optimizer_for_outcome(
                 previous_relax_outcome,
@@ -3328,8 +4021,8 @@ class SurfaceWalker:
                 raise ValueError("bias-separated-lbfgs does not support local softening")
             proposal_task = ProposalRelaxationTask(
                 initial_state=trial_state,
-                biases=tuple(biases),
-                softening=softening,
+                biases=self._active_walk_biases(biases),
+                softening=proposal_softening,
                 fmax=self.config.proposal_fmax,
                 maxiter=self.config.proposal_relax_steps,
                 coordinate_trust_radius=self.config.proposal_trust_radius,
@@ -3348,17 +4041,19 @@ class SurfaceWalker:
                     ),
                 )
             current_candidate, clipped = self._clip_walk_displacement(
-                reference=seed_state,
+                reference=walk_reference,
                 candidate=proposal_relax.state,
                 max_displacement=self.config.walk_trust_radius,
             )
             self._walk_displacement_clips += int(clipped)
             if not self.geometry_validator.is_valid_state(current_candidate):
+                termination_reason = "relaxed_geometry_invalid"
                 break
             with self.calculator.purpose(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK):
                 true_after = self.calculator.evaluate(current_candidate)
             true_energy_after = true_after.energy
             if not np.isfinite(true_energy_after):
+                termination_reason = "nonfinite_true_energy"
                 break
             proposal_relax = replace(
                 proposal_relax,
@@ -3398,10 +4093,132 @@ class SurfaceWalker:
             if np.linalg.norm(displacement) > 1e-8:
                 previous_direction = displacement / np.linalg.norm(displacement)
             current = current_candidate
+            early_stop_reason = None
             if clipped:
+                termination_reason = "walk_displacement_clipped"
+            else:
+                early_stop_reason = self._walk_early_stop_reason(
+                    step_index=step_index,
+                    walk_reference=walk_reference,
+                    current=current,
+                    true_energy=true_energy_after,
+                )
+                if early_stop_reason is not None:
+                    termination_reason = early_stop_reason
+            step_counts_after = self.calculator.snapshot()
+            step_termination_reason = (
+                termination_reason
+                if clipped or early_stop_reason is not None
+                else (
+                    "reached_step_cap"
+                    if step_index + 1 == self.config.max_steps_per_walk
+                    else "continued"
+                )
+            )
+            step_records.append(
+                UphillStepRecord(
+                    step_index=step_index,
+                    direction_kind=choice.kind.value,
+                    target_eV=trace_target,
+                    true_energy_before_eV=float(true_energy_before),
+                    true_energy_after_eV=float(true_energy_after),
+                    requested_sigma=float(requested_sigma),
+                    executed_sigma=float(sigma),
+                    base_bias_weight=float(base_weight),
+                    final_bias_weight=float(weight),
+                    true_curvature=float(true_curvature),
+                    inner_curvature=float(inner_curvature),
+                    proposal_relax_iterations=int(proposal_relax.n_iter),
+                    proposal_relax_outcome=proposal_relax.outcome_class.value,
+                    proposal_relax_termination=proposal_relax.telemetry.termination_reason,
+                    direction_oracle_force_evaluations=(
+                        step_counts_after.count(EvaluationPurpose.DIRECTION_ORACLE)
+                        - step_counts_before.count(EvaluationPurpose.DIRECTION_ORACLE)
+                    ),
+                    biased_relax_force_evaluations=(
+                        step_counts_after.count(EvaluationPurpose.BIASED_PROPOSAL_RELAX)
+                        - step_counts_before.count(EvaluationPurpose.BIASED_PROPOSAL_RELAX)
+                    ),
+                    true_pes_check_force_evaluations=(
+                        step_counts_after.count(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK)
+                        - step_counts_before.count(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK)
+                    ),
+                    displacement_clipped=bool(clipped),
+                    step_termination_reason=step_termination_reason,
+                )
+            )
+            if clipped or early_stop_reason is not None:
                 break
             pending_true_after_state = current_candidate
             pending_true_after = true_after
+            if pause_after_step == step_index:
+                continuation_sink.append(
+                    UphillWalkContinuation(
+                        current=deepcopy(current),
+                        walk_reference=deepcopy(walk_reference),
+                        frozen_softening=deepcopy(frozen_softening),
+                        previous_direction=deepcopy(previous_direction),
+                        previous_selected_direction=deepcopy(
+                            previous_selected_direction
+                        ),
+                        previous_relax_outcome=previous_relax_outcome,
+                        biases=tuple(deepcopy(biases)),
+                        sigma_scale=float(sigma_scale),
+                        weight_scale=float(weight_scale),
+                        pending_true_after=deepcopy(pending_true_after),
+                        anchor_direction=np.asarray(
+                            anchor_direction,
+                            dtype=float,
+                        ).copy(),
+                        krylov_intents=deepcopy(krylov_intents),
+                        trace_target=trace_target,
+                        completed_steps=tuple(deepcopy(step_records)),
+                        next_step_index=step_index + 1,
+                        rng_state=deepcopy(self.rng.bit_generator.state),
+                    )
+                )
+                termination_reason = "paused_for_continuation"
+                break
+        self._record_walk_termination(termination_reason)
+        if trace_sink is not None:
+            walk_counts_after = self.calculator.snapshot()
+            direction_force_evaluations = (
+                sum(
+                    step.direction_oracle_force_evaluations
+                    for step in step_records
+                )
+                if continuation is not None
+                else walk_counts_after.count(EvaluationPurpose.DIRECTION_ORACLE)
+                - walk_counts_before.count(EvaluationPurpose.DIRECTION_ORACLE)
+            )
+            biased_relax_force_evaluations = (
+                sum(
+                    step.biased_relax_force_evaluations
+                    for step in step_records
+                )
+                if continuation is not None
+                else walk_counts_after.count(EvaluationPurpose.BIASED_PROPOSAL_RELAX)
+                - walk_counts_before.count(EvaluationPurpose.BIASED_PROPOSAL_RELAX)
+            )
+            true_pes_check_force_evaluations = (
+                sum(
+                    step.true_pes_check_force_evaluations
+                    for step in step_records
+                )
+                if continuation is not None
+                else walk_counts_after.count(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK)
+                - walk_counts_before.count(EvaluationPurpose.ESCAPE_TRUE_PES_CHECK)
+            )
+            trace_sink.append(
+                UphillWalkTrace(
+                    target_eV=trace_target,
+                    termination_reason=termination_reason,
+                    steps=tuple(step_records),
+                    direction_oracle_force_evaluations=direction_force_evaluations,
+                    biased_relax_force_evaluations=biased_relax_force_evaluations,
+                    true_pes_check_force_evaluations=true_pes_check_force_evaluations,
+                )
+            )
         return current
 
     def _initialize_walk_direction_context(
@@ -3431,7 +4248,12 @@ class SurfaceWalker:
                 ),
             )
         )
-        if self.config.direction_selection_mode == "block_krylov":
+        if self.config.direction_selection_mode in {
+            "block_krylov",
+            "transported_direction",
+            "continuation_krylov",
+            "continuation_intent_krylov",
+        }:
             krylov_intents = (
                 self.oracle.generator.generate_krylov_intents(
                     state,
@@ -3454,7 +4276,7 @@ class SurfaceWalker:
 
     def _select_seed_entry(self, archive):
         if self.config.use_archive_acquisition:
-            primary = archive.select_seed(self.selector, self.rng)
+            primary = archive.select_seed(self.selector, self.selection_rng)
         else:
             primary = archive.next_seed()
             primary.visits += 1
@@ -3464,6 +4286,34 @@ class SurfaceWalker:
         return selected
 
     def _select_metropolis_seed_entry(self, entry):
+        entry.visits += 1
+        entry.node_trials += 1
+        self._record_seed_selection(entry)
+        return entry
+
+    def _select_uniform_seed_entry(self, archive):
+        entry = archive.entries[
+            int(self.selection_rng.integers(len(archive.entries)))
+        ]
+        entry.visits += 1
+        entry.node_trials += 1
+        self._record_seed_selection(entry)
+        return entry
+
+    def _select_paired_best_uniform_seed_entry(self, archive, trial_index: int):
+        if trial_index % 2 == 0:
+            entry = min(
+                archive.entries,
+                key=lambda item: (item.energy, item.entry_id),
+            )
+            self._paired_uniform_entry = archive.entries[
+                int(self.selection_rng.integers(len(archive.entries)))
+            ]
+        else:
+            entry = self._paired_uniform_entry
+            if entry is None:
+                raise RuntimeError("paired selector has no cached uniform starter")
+            self._paired_uniform_entry = None
         entry.visits += 1
         entry.node_trials += 1
         self._record_seed_selection(entry)
@@ -3481,7 +4331,7 @@ class SurfaceWalker:
             self._metropolis_accepts += 1
             return candidate_entry
         probability = float(np.exp(-delta / self.config.metropolis_temperature))
-        if self.rng.random() < probability:
+        if self.selection_rng.random() < probability:
             self._metropolis_uphill_accepts += 1
             self._metropolis_accepts += 1
             return candidate_entry
@@ -3546,8 +4396,21 @@ class SurfaceWalker:
         sigma_scale: float,
         step_target: float | None = None,
     ) -> float:
+        nominal = self._nominal_execution_step_scale(
+            state,
+            direction,
+            curvature,
+            sigma_scale,
+            step_target=step_target,
+        )
         if self.config.step_length_mode == "curvature_adaptive":
-            return self._scaled_step_scale(curvature, sigma_scale, step_target=step_target)
+            return float(
+                np.clip(
+                    nominal,
+                    self.config.min_step_scale,
+                    self.config.max_step_scale,
+                )
+            )
         metrics = self._direction_step_metrics(
             state,
             direction,
@@ -3560,8 +4423,42 @@ class SurfaceWalker:
             else "direction_per_atom_rms_all"
         )
         direction_rms = max(float(metrics[rms_key]), 1e-12)
-        target_rms = min(self.config.target_step_rms * sigma_scale, self.config.max_step_rms)
-        return float(target_rms / direction_rms)
+        return float(
+            min(
+                nominal,
+                self.config.max_step_rms / direction_rms,
+            )
+        )
+
+    def _nominal_execution_step_scale(
+        self,
+        state: State,
+        direction: np.ndarray,
+        curvature: float,
+        sigma_scale: float,
+        step_target: float | None = None,
+    ) -> float:
+        if self.config.step_length_mode == "curvature_adaptive":
+            target = (
+                self.config.target_uphill_energy
+                if step_target is None
+                else step_target
+            )
+            effective = max(abs(curvature), 1e-4)
+            return float(np.sqrt(2.0 * target / effective) * sigma_scale)
+        metrics = self._direction_step_metrics(
+            state,
+            direction,
+            sigma=1.0,
+            active_threshold=self.config.step_active_threshold,
+        )
+        rms_key = (
+            "direction_per_atom_rms_active"
+            if self.config.step_rms_scope == "active_atoms"
+            else "direction_per_atom_rms_all"
+        )
+        direction_rms = max(float(metrics[rms_key]), 1e-12)
+        return float(self.config.target_step_rms * sigma_scale / direction_rms)
 
     @staticmethod
     def _energy_bounded_execution_step_scale(
@@ -3668,7 +4565,10 @@ class SurfaceWalker:
         self._step_displacement_max_atom_max = max(self._step_displacement_max_atom_max, max_atom)
 
     @staticmethod
-    def _history_bias_gradient(state: State, biases: list[GaussianBiasTerm]) -> np.ndarray | None:
+    def _history_bias_gradient(
+        state: State,
+        biases: Sequence[GaussianBiasTerm],
+    ) -> np.ndarray | None:
         if not biases:
             return None
         flat_positions = state.flatten_positions()
@@ -3677,6 +4577,14 @@ class SurfaceWalker:
             _, bias_gradient = bias.evaluate(flat_positions, cell=state.cell, pbc=state.pbc)
             gradient += bias_gradient
         return gradient
+
+    @staticmethod
+    def _active_walk_biases(
+        biases: Sequence[GaussianBiasTerm],
+    ) -> tuple[GaussianBiasTerm, ...]:
+        """Return the Gaussian history acting on the current walk state."""
+
+        return tuple(biases)
 
     def _direction_scoring_proposal(self, inner_proposal: ProposalPotential) -> ProposalPotential:
         if self.config.direction_curvature_source == "true":
@@ -3743,6 +4651,26 @@ class SurfaceWalker:
         self._archive_escape_momentum_candidates_generated = 0
         self._walk_displacement_clips = 0
         self._fragment_rejections = 0
+        self._continuation_projection_degenerate = 0
+        self._uphill_control_steps = 0
+        self._uphill_requested_sigma_sum = 0.0
+        self._uphill_requested_sigma_max = 0.0
+        self._uphill_executed_sigma_sum = 0.0
+        self._uphill_executed_sigma_max = 0.0
+        self._uphill_sigma_capped_steps = 0
+        self._uphill_base_weight_sum = 0.0
+        self._uphill_base_weight_max = 0.0
+        self._uphill_final_weight_sum = 0.0
+        self._uphill_final_weight_max = 0.0
+        self._uphill_base_weight_at_config_max_steps = 0
+        self._uphill_final_weight_above_config_max_steps = 0
+        self._uphill_true_curvature_sum = 0.0
+        self._uphill_inner_curvature_sum = 0.0
+        self._walk_terminations = 0
+        self._walk_termination_counts = {
+            reason: 0 for reason in WALK_TERMINATION_REASONS
+        }
+        self._walk_termination_last_reason = "none"
 
     def _new_direction_type_memory(self) -> DirectionTypeMemory:
         return DirectionTypeMemory(
@@ -3851,6 +4779,12 @@ class SurfaceWalker:
         self._local_softening_terms_total = 0
         self._local_softening_builds = 0
         self._local_softening_terms_built_total = 0
+        self._local_softening_pre_relaxations = 0
+        self._local_softening_pre_relax_force_evaluations = 0
+        self._local_softening_pre_relax_pls = 0.0
+        self._local_softening_pre_relax_converged = 0
+        self._local_softening_pre_relax_gradient_norm = 0.0
+        self._local_softening_pre_relax_iterations = 0
 
     def _reset_metropolis_stats(self) -> None:
         self._metropolis_trials = 0
@@ -3962,6 +4896,7 @@ class SurfaceWalker:
                 "discovered_entry_id": int(discovered_entry_id),
                 "energy": float(energy),
                 "best_energy": float(best_energy),
+                "force_evaluations": int(self.calculator.force_evaluations),
                 "descriptor": structural_descriptor(state).astype(float).tolist(),
             }
             with path.open("a", encoding="utf-8") as handle:
@@ -4120,6 +5055,74 @@ class SurfaceWalker:
         self._bias_weight_sum += float(weight)
         self._bias_weight_max = max(self._bias_weight_max, float(weight))
 
+    def _record_uphill_control(
+        self,
+        *,
+        requested_sigma: float,
+        executed_sigma: float,
+        base_weight: float,
+        final_weight: float,
+        true_curvature: float,
+        inner_curvature: float,
+    ) -> None:
+        self._uphill_control_steps += 1
+        self._uphill_requested_sigma_sum += float(requested_sigma)
+        self._uphill_requested_sigma_max = max(
+            self._uphill_requested_sigma_max,
+            float(requested_sigma),
+        )
+        self._uphill_executed_sigma_sum += float(executed_sigma)
+        self._uphill_executed_sigma_max = max(
+            self._uphill_executed_sigma_max,
+            float(executed_sigma),
+        )
+        self._uphill_sigma_capped_steps += int(
+            executed_sigma < requested_sigma
+            and not np.isclose(
+                executed_sigma,
+                requested_sigma,
+                rtol=1.0e-12,
+                atol=0.0,
+            )
+        )
+        self._uphill_base_weight_sum += float(base_weight)
+        self._uphill_base_weight_max = max(
+            self._uphill_base_weight_max,
+            float(base_weight),
+        )
+        self._uphill_final_weight_sum += float(final_weight)
+        self._uphill_final_weight_max = max(
+            self._uphill_final_weight_max,
+            float(final_weight),
+        )
+        self._uphill_base_weight_at_config_max_steps += int(
+            base_weight >= self.config.bias_weight_max
+            or np.isclose(
+                base_weight,
+                self.config.bias_weight_max,
+                rtol=1.0e-12,
+                atol=0.0,
+            )
+        )
+        self._uphill_final_weight_above_config_max_steps += int(
+            final_weight > self.config.bias_weight_max
+            and not np.isclose(
+                final_weight,
+                self.config.bias_weight_max,
+                rtol=1.0e-12,
+                atol=0.0,
+            )
+        )
+        self._uphill_true_curvature_sum += float(true_curvature)
+        self._uphill_inner_curvature_sum += float(inner_curvature)
+
+    def _record_walk_termination(self, reason: str) -> None:
+        self._walk_terminations += 1
+        self._walk_termination_counts[reason] = (
+            self._walk_termination_counts.get(reason, 0) + 1
+        )
+        self._walk_termination_last_reason = reason
+
     def _record_direction_choice(self, choice: DirectionChoice) -> None:
         self._direction_choices += 1
         self._direction_candidate_evaluations += choice.candidate_count
@@ -4214,9 +5217,60 @@ class SurfaceWalker:
             "direction_fallback_bond_pairs_generated": self._direction_fallback_bond_pairs_generated,
             "direction_bond_candidates_valid": self._direction_bond_candidates_valid,
             "walk_displacement_clips": self._walk_displacement_clips,
+            "uphill_control_steps": self._uphill_control_steps,
+            "uphill_requested_sigma_mean": float(
+                self._uphill_requested_sigma_sum / self._uphill_control_steps
+                if self._uphill_control_steps
+                else 0.0
+            ),
+            "uphill_requested_sigma_max": float(
+                self._uphill_requested_sigma_max
+            ),
+            "uphill_executed_sigma_mean": float(
+                self._uphill_executed_sigma_sum / self._uphill_control_steps
+                if self._uphill_control_steps
+                else 0.0
+            ),
+            "uphill_executed_sigma_max": float(
+                self._uphill_executed_sigma_max
+            ),
+            "uphill_sigma_capped_steps": self._uphill_sigma_capped_steps,
+            "uphill_base_weight_mean": float(
+                self._uphill_base_weight_sum / self._uphill_control_steps
+                if self._uphill_control_steps
+                else 0.0
+            ),
+            "uphill_base_weight_max": float(self._uphill_base_weight_max),
+            "uphill_final_weight_mean": float(
+                self._uphill_final_weight_sum / self._uphill_control_steps
+                if self._uphill_control_steps
+                else 0.0
+            ),
+            "uphill_final_weight_max": float(self._uphill_final_weight_max),
+            "uphill_base_weight_at_config_max_steps": (
+                self._uphill_base_weight_at_config_max_steps
+            ),
+            "uphill_final_weight_above_config_max_steps": (
+                self._uphill_final_weight_above_config_max_steps
+            ),
+            "uphill_true_curvature_mean": float(
+                self._uphill_true_curvature_sum / self._uphill_control_steps
+                if self._uphill_control_steps
+                else 0.0
+            ),
+            "uphill_inner_curvature_mean": float(
+                self._uphill_inner_curvature_sum / self._uphill_control_steps
+                if self._uphill_control_steps
+                else 0.0
+            ),
+            "walk_terminations": self._walk_terminations,
+            "walk_termination_last_reason": self._walk_termination_last_reason,
             "fragment_rejections": self._fragment_rejections,
+            "continuation_projection_degenerate": self._continuation_projection_degenerate,
             "seed_diversity_reseeds": self._seed_diversity_reseeds,
         }
+        for reason, count in sorted(self._walk_termination_counts.items()):
+            summary[f"walk_termination_{reason}"] = count
         summary["direction_type_ucb_enabled"] = int(self.config.direction_type_ucb_enabled)
         for kind in DirectionCandidateKind:
             summary[f"direction_type_selected_{kind.value}"] = self.direction_type_memory.selected_counts.get(kind, 0)
@@ -4302,8 +5356,34 @@ class SurfaceWalker:
         summary["force_evaluations"] = self.calculator.snapshot().total
         return summary
 
+    def local_softening_diagnostics(self) -> dict[str, StatsValue]:
+        protocol = (
+            self.config.local_softening_protocol
+            if isinstance(self.config, LSSSWConfig)
+            else "disabled"
+        )
+        return {
+            "protocol": protocol,
+            "terms_last": self._local_softening_terms_last,
+            "builds": self._local_softening_builds,
+            "terms_built_total": self._local_softening_terms_built_total,
+            "pre_relaxations": self._local_softening_pre_relaxations,
+            "pre_relax_force_evaluations": (
+                self._local_softening_pre_relax_force_evaluations
+            ),
+            "pre_relax_pls_eV_per_atom": self._local_softening_pre_relax_pls,
+            "pre_relax_converged": self._local_softening_pre_relax_converged,
+            "pre_relax_gradient_norm": (
+                self._local_softening_pre_relax_gradient_norm
+            ),
+            "pre_relax_iterations": self._local_softening_pre_relax_iterations,
+        }
+
     def _build_softening(self, seed_state: State, direction: np.ndarray | None = None) -> LocalSofteningModel | None:
         if not self.softening_enabled or not isinstance(self.config, LSSSWConfig):
+            self._local_softening_terms_last = 0
+            return None
+        if self.config.local_softening_scope == "none":
             self._local_softening_terms_last = 0
             return None
         if self.config.local_softening_mode == "manual" and not self.config.local_softening_pairs:
@@ -4318,6 +5398,9 @@ class SurfaceWalker:
             active_indices=self._softening_active_indices(seed_state, direction),
             penalty=self.config.local_softening_penalty,
             xi=self.config.local_softening_xi,
+            reference_scaled_xi=(
+                self.config.local_softening_protocol == "paper_ordered"
+            ),
             cutoff=self.config.local_softening_cutoff,
             adaptive_strength=self.config.local_softening_adaptive_strength,
             max_strength_scale=self.config.local_softening_max_strength_scale,
@@ -4330,6 +5413,82 @@ class SurfaceWalker:
         self._local_softening_terms_built_total += self._local_softening_terms_last
         self._local_softening_terms_total = self._local_softening_terms_built_total
         return softening
+
+    def _prepare_frozen_local_softening(
+        self,
+        seed_state: State,
+    ) -> tuple[State, LocalSofteningModel | None]:
+        if (
+            not self.softening_enabled
+            or not isinstance(self.config, LSSSWConfig)
+            or self.config.local_softening_protocol != "paper_ordered"
+            or self.config.local_softening_scope == "none"
+        ):
+            return seed_state, None
+        softening = self._build_softening(seed_state)
+        if softening is None:
+            return seed_state, None
+        if self.config.proposal_optimizer == "bias-separated-lbfgs":
+            raise ValueError(
+                "paper_ordered local softening requires an optimizer that "
+                "supports the total softened objective"
+            )
+        proposal = ProposalPotential(self.calculator, softening=softening)
+        relaxer_kwargs = {"optimizer": self.config.proposal_optimizer}
+        if self.config.proposal_optimizer == "safe-lbfgs-total":
+            relaxer_kwargs["component_evaluator"] = proposal.evaluate_parts
+        force_evaluations_before = self.calculator.snapshot().count(
+            EvaluationPurpose.LOCAL_SOFTENING_PRE_RELAX
+        )
+        with self.calculator.purpose(EvaluationPurpose.LOCAL_SOFTENING_PRE_RELAX):
+            initial_true_energy, _ = self.calculator.evaluate_flat(
+                seed_state.flatten_positions(),
+                seed_state,
+            )
+            result = Relaxer(
+                proposal.evaluate,
+                **relaxer_kwargs,
+            ).relax(
+                seed_state,
+                fmax=self.config.proposal_fmax,
+                maxiter=self.config.quench_maxiter,
+                trajectory_callback=self._relaxation_trajectory_callback(
+                    "local_softening_pre_relax"
+                ),
+                trajectory_stride=self.config.relaxation_trajectory_stride,
+            )
+            final_true_energy, _ = self.calculator.evaluate_flat(
+                result.state.flatten_positions(),
+                result.state,
+            )
+        self._local_softening_pre_relaxations += 1
+        self._local_softening_pre_relax_force_evaluations += (
+            self.calculator.snapshot().count(
+                EvaluationPurpose.LOCAL_SOFTENING_PRE_RELAX
+            )
+            - force_evaluations_before
+        )
+        self._local_softening_pre_relax_pls = (
+            float(final_true_energy) - float(initial_true_energy)
+        ) / max(1, seed_state.n_atoms)
+        self._local_softening_pre_relax_converged = int(
+            has_force_convergence_certificate(
+                result,
+                self.config.proposal_fmax,
+            )
+        )
+        self._local_softening_pre_relax_gradient_norm = float(
+            result.gradient_norm
+        )
+        self._local_softening_pre_relax_iterations = int(result.n_iter)
+        return result.state, softening
+
+    def _softening_scope_enabled(self, component: str) -> bool:
+        if component not in {"oracle", "proposal"}:
+            raise ValueError("component must be oracle or proposal")
+        if not self.softening_enabled or not isinstance(self.config, LSSSWConfig):
+            return False
+        return self.config.local_softening_scope in {component, "both"}
 
     def _softening_active_indices(self, seed_state: State, direction: np.ndarray | None = None) -> np.ndarray | None:
         if not isinstance(self.config, LSSSWConfig) or self.config.local_softening_mode != "active_neighbors":

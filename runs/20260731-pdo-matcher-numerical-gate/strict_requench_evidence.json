@@ -1,0 +1,61 @@
+{
+  "corpus_path": "runs/20260731-pdo-matcher-numerical-gate/strict_requench_corpus.json",
+  "corpus_sha256": "c04854175fb214b607684c69968016ee3b5534a9c85609b55b5bb970122845ec",
+  "execution_summary_path": "runs/20260731-pdo-matcher-numerical-gate/strict-requench-output/summary.json",
+  "execution_summary_sha256": "d8a72ec4e1cf547a9aa77030a4b1b3aa144cbf34e9b3743ef1ab6aa462adbb2a",
+  "gate": {
+    "archive_same": false,
+    "classification": "strict_requench_unresolved",
+    "energy_same": false,
+    "indexed_geometry_same": true,
+    "offline_label": "AMBIGUOUS_MATCH",
+    "production_matcher_change_allowed": false,
+    "strict_certificate": false
+  },
+  "gpu_wall_time_s": 6.757094161002897,
+  "new_force_evaluations": 53,
+  "original_observation": {
+    "landing_delta_eV": 0.27996826171875,
+    "landing_energy_eV": -572.0621337890625,
+    "landing_final_max_force_eV_per_A": 0.020653068797951087,
+    "landing_force_evaluations": 43,
+    "starter_energy_eV": -572.3421020507812
+  },
+  "schema_version": 1,
+  "strict_endpoints": {
+    "landing": {
+      "converged": false,
+      "energy_drop_eV": -0.0015869140625,
+      "final_energy_eV": -572.063720703125,
+      "final_max_force_eV_per_A": 0.013322849307007242,
+      "force_evaluations": 25,
+      "initial_energy_eV": -572.0621337890625,
+      "initial_max_force_eV_per_A": 0.02065083612801189,
+      "iterations": 7,
+      "optimizer_success": true,
+      "termination_reason": "unconverged",
+      "wall_time_s": 1.0117734980012756
+    },
+    "starter": {
+      "converged": true,
+      "energy_drop_eV": -0.0001220703125,
+      "final_energy_eV": -572.34228515625,
+      "final_max_force_eV_per_A": 0.006374023975744671,
+      "force_evaluations": 28,
+      "initial_energy_eV": -572.3421630859375,
+      "initial_max_force_eV_per_A": 0.009702534536571411,
+      "iterations": 3,
+      "optimizer_success": true,
+      "termination_reason": "converged",
+      "wall_time_s": 5.744851063005626
+    }
+  },
+  "strict_pair": {
+    "descriptor_delta": 0.07052229976917401,
+    "descriptor_tol": 0.1,
+    "energy_delta_eV": 0.278564453125,
+    "energy_tol_eV": 0.001,
+    "indexed_mic_rmsd_A": 0.2312741168161123,
+    "rmsd_tol_A": 0.4
+  }
+}

@@ -1,0 +1,107 @@
+# Paired Continuation/Restart Selector Gate Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Determine whether a fixed full-support best-continuation/uniform-restart pair is a cleaner and more effective starter policy than node-level UCB-like selection or a Metropolis chain.
+
+**Architecture:** First audit existing selector traces without new PES calls. Then add one opt-in two-slot selector implemented inside the existing walker seed-selection seam. A dedicated shared-bootstrap runner freezes all inner-kernel mechanics and performs preregistered C60/PdO/CuO fixed-FE comparisons.
+
+**Tech Stack:** Python, NumPy, pytest, ASE, MACE CUDA, existing `BudgetedCalculator` purpose ledger.
+
+---
+
+### Task 1: Zero-FE growing-arm audit
+
+**Files:**
+- Create: `runs/20260801-selector-support-audit/PLAN.md`
+- Create: `runs/20260801-selector-support-audit/analyze.py`
+- Create: `runs/20260801-selector-support-audit/evidence.json`
+- Create: `runs/20260801-selector-support-audit/conclusion.md`
+- Test: `tests/unit/test_selector_support_audit.py`
+
+- [x] Write pure tests for Shannon effective support, repeat fraction and exact trace closure.
+- [x] Run the focused test and confirm the missing analyzer fails.
+- [x] Implement the pure analyzer with no `pamssw` or MACE runtime dependency.
+- [x] Analyze the nine seed-42 selector traces and record source hashes.
+- [x] Conclude only whether node-UCB-like is empirically diffuse in these archives; do not infer search superiority.
+- [x] Run JSON, hash, and focused pytest checks.
+- [x] Commit the audit independently.
+
+### Task 2: Opt-in snapshot-paired selector
+
+**Files:**
+- Modify: `pamssw/config.py`
+- Modify: `pamssw/walker.py`
+- Modify: `tests/unit/test_config.py`
+- Modify: `tests/unit/test_walker_policy.py`
+
+- [x] Add failing config tests accepting only the new exact mode name while retaining `archive_ucb` as default.
+- [x] Add failing walker tests proving both starters are selected from the same pre-pair archive and the cached uniform entry survives archive growth.
+- [x] Add a failing test proving selection RNG changes do not shift physical-action RNG draws.
+- [x] Implement the smallest mode branch and cached starter state.
+- [x] Run focused config/walker tests, then the broader exploration tests.
+- [x] Commit implementation independently.
+
+### Task 3: Shared-bootstrap four-arm gate runner
+
+**Files:**
+- Create: `runs/20260801-paired-continuation-restart-gate/.gitignore`
+- Create: `runs/20260801-paired-continuation-restart-gate/PLAN.md`
+- Create: `runs/20260801-paired-continuation-restart-gate/protocol.py`
+- Create: `runs/20260801-paired-continuation-restart-gate/run_gate.py`
+- Test: `tests/unit/test_paired_continuation_restart_gate.py`
+
+- [x] Add pure tests for matrix closure, shared-bootstrap equality, purpose accounting, gain-AUC integration and the exact S-CR1 admission rule.
+- [x] Implement the pure protocol.
+- [x] Reuse the existing C60/PdO/CuO resource loaders and frozen production config; change only starter mode and seed.
+- [x] Persist bootstrap minimum, every arm summary, energy-vs-FE trace, model/input hashes, effective config and purpose ledger.
+- [x] Add mechanical `--check-evidence` validation.
+- [x] Run focused tests and a low-budget CUDA smoke excluded from scientific evidence.
+- [x] Commit the runner before the full experiment.
+
+### Task 4: Execute S-CR1 and apply the preregistered gate
+
+**Files:**
+- Create after execution: `runs/20260801-paired-continuation-restart-gate/evidence.json`
+- Create after execution: `runs/20260801-paired-continuation-restart-gate/conclusion.md`
+
+- [x] Execute all 12 system/arm cases at seed 45 and 20,000 total FE per arm.
+- [x] Verify raw-evidence hash, exact purpose closure, `unattributed=0`, shared bootstrap and complete matrix.
+- [x] Compute final energy, gain AUC, actions, archive coverage and component costs without scalarization.
+- [x] Apply the strict two-of-three S-CR1 rule.
+- [x] If the gate fails, record the mechanism and close Tasks 5-6 without code expansion.
+- [x] Commit S-CR1 evidence independently.
+
+### Task 5: Conditional S-CR2 repeat gate
+
+**Files:**
+- Extend: `runs/20260801-paired-continuation-restart-gate/run_gate.py`
+- Extend after execution: `runs/20260801-paired-continuation-restart-gate/evidence.json`
+- Extend after execution: `runs/20260801-paired-continuation-restart-gate/conclusion.md`
+
+- [x] Execute only if S-CR1 admits it. (Not executed: S-CR1 failed.)
+- [x] Run seeds 46-47 for UCB-like, Metropolis and paired best/uniform with exact shared bootstrap. (Not executed: S-CR1 failed.)
+- [x] Verify all 18 new cases and aggregate nine system-seed blocks. (Not applicable: S-CR1 failed.)
+- [x] Apply the preregistered six-of-nine and positive-median rule against both comparators. (Not applicable: S-CR1 failed.)
+- [x] Record system reversals as evidence against a universal selector, not as a prompt for per-system tuning. (S-CR1 already showed the reversal.)
+- [x] Commit repeated evidence independently. (Not applicable: no S-CR2 evidence was generated.)
+
+### Task 6: Conditional family-posterior admission audit
+
+**Files:**
+- Create only if S-CR2 passes: `runs/20260801-paired-continuation-restart-gate/posterior_admission.md`
+
+- [x] Separate continuation-lane and restart-lane outcome/cost distributions from the recorded paired policy. (Not executed: S-CR1 failed.)
+- [x] Test whether zero-new-FE pre-action context predicts lane productivity under leave-system-out validation. (Not executed: S-CR1 failed.)
+- [x] Admit only a later two-family posterior experiment if both outcome separability and held-out prediction pass. (Not admitted.)
+- [x] Do not implement TS, UCB, PCA, MACE-feature learning or node posteriors in this plan.
+
+### Task 7: Verify, reconcile and publish
+
+**Files:**
+- Modify: `docs/research/2026-07-31-review-reconciled-roadmap.md`
+
+- [x] Reconcile the selector result with the direction and uphill mechanism closures.
+- [x] Run all focused selector, walker, exploration, accounting and evidence checks.
+- [x] Run `git diff --check` and confirm only intended tracked changes.
+- [x] Push `feature/direction-continuation-ablation` and update PR #14 with the claim ceiling.

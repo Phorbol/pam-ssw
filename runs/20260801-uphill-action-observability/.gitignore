@@ -1,0 +1,4 @@
+output/
+smoke-output/
+confirm-output/
+__pycache__/

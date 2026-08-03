@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "execution_commit": "ce30890a657046315dc5872ea4a1f30f571949d0",
+  "decision": "RETAIN_H8_STOP_SHORT_HORIZON_BRANCH",
+  "production_default_changed": false,
+  "cohort": {
+    "systems": ["c60", "pdo", "cuo"],
+    "seeds": [49, 50, 51],
+    "horizons": [4, 8],
+    "force_budget_per_case": 20000,
+    "case_count": 18,
+    "campaign_force_budget": 360000,
+    "actual_force_evaluations": 359960,
+    "unused_force_evaluations": 40,
+    "unattributed_force_evaluations": 0,
+    "wall_time_s": 7781.370289031998
+  },
+  "paired_gain_auc_deltas_eV": {
+    "c60": {
+      "49": 3.4906703521728524,
+      "50": -1.15425014038086,
+      "51": -0.5474237899780263
+    },
+    "pdo": {
+      "49": 0.08737181396484317,
+      "50": 0.7426064392089842,
+      "51": 0.6725233032226559
+    },
+    "cuo": {
+      "49": 0.23989959945678707,
+      "50": -0.5082602867126464,
+      "51": -0.2809455604553226
+    }
+  },
+  "system_summary": {
+    "c60": {
+      "h4_wins": 1,
+      "h8_wins_or_ties": 2,
+      "mean_delta_eV": 0.5963321406046553,
+      "median_delta_eV": -0.5474237899780263
+    },
+    "pdo": {
+      "h4_wins": 3,
+      "h8_wins_or_ties": 0,
+      "mean_delta_eV": 0.500833852132161,
+      "median_delta_eV": 0.6725233032226559
+    },
+    "cuo": {
+      "h4_wins": 1,
+      "h8_wins_or_ties": 2,
+      "mean_delta_eV": -0.18310208257039398,
+      "median_delta_eV": -0.2809455604553226
+    }
+  },
+  "sign_flip_systems": ["c60", "cuo"],
+  "certificate_regression_pairs": [],
+  "raw_evidence": {
+    "seed49_sha256": "c7a0307569f6321875037a3c6cb11266642d523cbdcfd590727f01eb9e77fdc0",
+    "seeds50_51_sha256": "4db4520911afa8644aa4602f48531af4b06c27b451d7111976e6a002ac6dea6c"
+  },
+  "claim_ceiling": "three paired seeds on three float32 GPU PES searches; sufficient to stop the universal H4 branch, not a statistical significance claim or evidence for a learned context policy"
+}

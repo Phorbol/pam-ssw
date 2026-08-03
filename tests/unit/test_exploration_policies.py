@@ -22,7 +22,12 @@ def test_uniform_has_sorted_complete_support_and_exact_equal_probabilities():
     )
 
     assert exploration.build_policy_snapshot is build_policy_snapshot
-    assert set(SUPPORTED_POLICIES) == {"uniform", "posterior_proportional", "minimal_ucb"}
+    assert set(SUPPORTED_POLICIES) == {
+        "uniform",
+        "posterior_proportional",
+        "minimal_ucb",
+        "fps_cell_uniform",
+    }
     assert snapshot.policy_name == "uniform"
     assert snapshot.version == 4
     assert snapshot.archive_version == 11
@@ -130,6 +135,17 @@ def test_legacy_and_unknown_policies_are_rejected(policy_name, message):
     with pytest.raises(ValueError, match=message):
         build_policy_snapshot(
             policy_name,
+            (1,),
+            StarterProductivityPosterior(),
+            version=0,
+            archive_version=0,
+        )
+
+
+def test_cell_policy_requires_an_archive_feature_snapshot_builder():
+    with pytest.raises(ValueError, match="requires a snapshot_builder"):
+        build_policy_snapshot(
+            "fps_cell_uniform",
             (1,),
             StarterProductivityPosterior(),
             version=0,

@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "execution_commit": "c82603c078dee3589f8e9f06c299e899f8cd3318",
+  "raw_evidence_path": "output/evidence.json",
+  "raw_evidence_sha256": "218d891ff2f3f9d20fbc00a66cf0653fea67d4ba400068b0ba318874a976bf79",
+  "completed_cases": 36,
+  "total_force_evaluations": 12019,
+  "wall_time_s": 245.62603968800977,
+  "strict_certificates": 36,
+  "fragmented_landings": 0,
+  "unattributed_force_evaluations": 0,
+  "shared_anchor_groups": 12,
+  "posterior_promotion_allowed": false,
+  "context_wins": {
+    "c60": {
+      "D0_exact_anchor": 2,
+      "D1_anchor_krylov_d2": 2,
+      "K4_discrete": 2
+    },
+    "pdo": {
+      "D0_exact_anchor": 3,
+      "D1_anchor_krylov_d2": 0,
+      "K4_discrete": 3
+    }
+  },
+  "by_system": {
+    "c60": {
+      "D0_exact_anchor": {
+        "mean_landing_delta_eV": 3.921747843424479,
+        "median_landing_delta_eV": 1.619049072265625,
+        "mean_force_evaluations": 372.3333333333333,
+        "lower_landing_count": 2
+      },
+      "D1_anchor_krylov_d2": {
+        "mean_landing_delta_eV": 1.2284749348958333,
+        "median_landing_delta_eV": 0.088134765625,
+        "mean_force_evaluations": 408.5,
+        "lower_landing_count": 1
+      },
+      "K4_discrete": {
+        "mean_landing_delta_eV": 0.8567403157552084,
+        "median_landing_delta_eV": 3.6177215576171875,
+        "mean_force_evaluations": 399.6666666666667,
+        "lower_landing_count": 2
+      }
+    },
+    "pdo": {
+      "D0_exact_anchor": {
+        "mean_landing_delta_eV": 0.4548543294270833,
+        "median_landing_delta_eV": -0.075439453125,
+        "mean_force_evaluations": 324.3333333333333,
+        "lower_landing_count": 3
+      },
+      "D1_anchor_krylov_d2": {
+        "mean_landing_delta_eV": 1.0359700520833333,
+        "median_landing_delta_eV": 0.84130859375,
+        "mean_force_evaluations": 289.6666666666667,
+        "lower_landing_count": 2
+      },
+      "K4_discrete": {
+        "mean_landing_delta_eV": 0.6277974446614584,
+        "median_landing_delta_eV": 0.20916748046875,
+        "mean_force_evaluations": 208.66666666666666,
+        "lower_landing_count": 2
+      }
+    }
+  },
+  "held_out": {
+    "c60": {
+      "training_system": "pdo",
+      "selected_arm": "D0_exact_anchor",
+      "improvement_over_uniform_eV": -1.9194268120659723,
+      "pareto_dominated": false,
+      "passes": false
+    },
+    "pdo": {
+      "training_system": "c60",
+      "selected_arm": "K4_discrete",
+      "improvement_over_uniform_eV": 0.07840983072916663,
+      "pareto_dominated": false,
+      "passes": true
+    }
+  }
+}
