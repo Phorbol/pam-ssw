@@ -65,3 +65,53 @@ def test_pairing_summary_separates_support_from_energy_ordering():
     assert summary["both_escape"] == 0
     assert summary["neither_escape"] == 0
     assert summary["newest_lower_energy"] == 1
+
+
+def test_family_purpose_counts_do_not_mix_shared_or_other_arm_work():
+    analyzer = load(ANALYZER_PATH, "_bias_history_analyzer_ledger_test")
+    rows = [
+        {
+            "operator_family": "cumulative",
+            "purpose_counts": {
+                "biased_proposal_relax": 10,
+                "landing_true_quench": 4,
+            },
+        },
+        {
+            "operator_family": "newest_only",
+            "purpose_counts": {
+                "biased_proposal_relax": 7,
+                "landing_true_quench": 5,
+            },
+        },
+    ]
+    assert analyzer.family_purpose_counts(rows) == {
+        "cumulative": {
+            "biased_proposal_relax": 10,
+            "landing_true_quench": 4,
+        },
+        "newest_only": {
+            "biased_proposal_relax": 7,
+            "landing_true_quench": 5,
+        },
+    }
+
+
+def test_family_wall_times_report_exclusive_and_fully_loaded_costs():
+    analyzer = load(ANALYZER_PATH, "_bias_history_analyzer_wall_test")
+    rows = [
+        {
+            "operator_family": "cumulative",
+            "wall_time_s": 2.0,
+            "fully_loaded_wall_time_s": 3.0,
+        },
+        {
+            "operator_family": "newest_only",
+            "wall_time_s": 1.5,
+            "fully_loaded_wall_time_s": 2.5,
+        },
+    ]
+    assert analyzer.family_wall_times(rows) == {
+        "cumulative": {"exclusive_wall_time_s": 2.0, "fully_loaded_wall_time_s": 3.0},
+        "newest_only": {"exclusive_wall_time_s": 1.5, "fully_loaded_wall_time_s": 2.5},
+    }

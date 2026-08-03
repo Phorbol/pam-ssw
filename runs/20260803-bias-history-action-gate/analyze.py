@@ -116,6 +116,36 @@ def _purpose_ledger(pairs):
     return dict(sorted(counts.items()))
 
 
+def family_purpose_counts(rows):
+    result = {family: Counter() for family in protocol.FAMILIES}
+    for row in rows:
+        result[row["operator_family"]].update(
+            {str(key): int(value) for key, value in row["purpose_counts"].items()}
+        )
+    return {
+        family: dict(sorted(counts.items()))
+        for family, counts in result.items()
+    }
+
+
+def family_wall_times(rows):
+    return {
+        family: {
+            "exclusive_wall_time_s": sum(
+                float(row["wall_time_s"])
+                for row in rows
+                if row["operator_family"] == family
+            ),
+            "fully_loaded_wall_time_s": sum(
+                float(row["fully_loaded_wall_time_s"])
+                for row in rows
+                if row["operator_family"] == family
+            ),
+        }
+        for family in protocol.FAMILIES
+    }
+
+
 def _system_summary(rows):
     result = {}
     for system in protocol.SYSTEMS:
@@ -206,6 +236,8 @@ def analyze(output: Path, *, reference: Path | None = None):
         "pairing_summary": pairing_summary(actions),
         "system_summary": _system_summary(actions),
         "purpose_counts": ledger,
+        "family_exclusive_purpose_counts": family_purpose_counts(actions),
+        "family_wall_times": family_wall_times(actions),
         "force_evaluations": pair_total,
         "pair_wall_time_s": sum(float(pair["pair_wall_time_s"]) for pair in pairs),
         "completed_pairs": len(pairs),

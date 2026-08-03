@@ -1,0 +1,184 @@
+{
+  "basin_label_mode": "geometry_primary",
+  "completed_actions": 36,
+  "completed_pairs": 18,
+  "decision": {
+    "aggregate_escape_counts": {
+      "cumulative": 16,
+      "newest_only": 15
+    },
+    "certificate_counts": {
+      "c60:cumulative": 6,
+      "c60:newest_only": 6,
+      "cuo:cumulative": 6,
+      "cuo:newest_only": 6,
+      "pdo:cumulative": 6,
+      "pdo:newest_only": 6
+    },
+    "context_escape_counts": {
+      "c60:bootstrap": {
+        "cumulative": 3,
+        "newest_only": 3
+      },
+      "c60:h8_best": {
+        "cumulative": 2,
+        "newest_only": 1
+      },
+      "cuo:bootstrap": {
+        "cumulative": 3,
+        "newest_only": 3
+      },
+      "cuo:h8_best": {
+        "cumulative": 2,
+        "newest_only": 2
+      },
+      "pdo:bootstrap": {
+        "cumulative": 3,
+        "newest_only": 3
+      },
+      "pdo:h8_best": {
+        "cumulative": 3,
+        "newest_only": 3
+      }
+    },
+    "cumulative_only_support_contexts": 0,
+    "decision": "RETAIN_CUMULATIVE_CLOSE_NEWEST_ONLY",
+    "fully_loaded_force_evaluations": {
+      "cumulative": 8715,
+      "newest_only": 6828
+    },
+    "newest_only_support_contexts": 0,
+    "no_context_escape_loss": false,
+    "numerical_acceptability": true
+  },
+  "family_exclusive_purpose_counts": {
+    "cumulative": {
+      "biased_proposal_relax": 4868,
+      "bootstrap_true_quench": 0,
+      "direction_oracle": 936,
+      "escape_true_pes_check": 74,
+      "landing_true_quench": 1069,
+      "local_softening_pre_relax": 0,
+      "post_relax_validation": 18,
+      "starter_true_quench": 0,
+      "unattributed": 0
+    },
+    "newest_only": {
+      "biased_proposal_relax": 3196,
+      "bootstrap_true_quench": 0,
+      "direction_oracle": 1184,
+      "escape_true_pes_check": 91,
+      "landing_true_quench": 589,
+      "local_softening_pre_relax": 0,
+      "post_relax_validation": 18,
+      "starter_true_quench": 0,
+      "unattributed": 0
+    }
+  },
+  "family_wall_times": {
+    "cumulative": {
+      "exclusive_wall_time_s": 165.3840711840603,
+      "fully_loaded_wall_time_s": 207.7631132780225
+    },
+    "newest_only": {
+      "exclusive_wall_time_s": 110.2416214850382,
+      "fully_loaded_wall_time_s": 152.6206635790004
+    }
+  },
+  "force_evaluations": 13841,
+  "pair_wall_time_s": 324.7664184360474,
+  "pairing_summary": {
+    "both_escape": 15,
+    "cumulative_lower_energy": 8,
+    "cumulative_only_escape": 1,
+    "energy_tie": 1,
+    "neither_escape": 2,
+    "newest_lower_energy": 9,
+    "newest_only_escape": 0
+  },
+  "production_default_changed": false,
+  "purpose_counts": {
+    "biased_proposal_relax": 9538,
+    "bootstrap_true_quench": 0,
+    "direction_oracle": 2360,
+    "escape_true_pes_check": 201,
+    "landing_true_quench": 1658,
+    "local_softening_pre_relax": 0,
+    "post_relax_validation": 54,
+    "starter_true_quench": 30,
+    "unattributed": 0
+  },
+  "reference_input_comparison": {
+    "counts": {
+      "direction_sha256_equal": 18,
+      "execution_sigma_equal": 18,
+      "pairs": 18,
+      "starter_sha256_equal": 18
+    },
+    "mismatches": []
+  },
+  "schema_version": 1,
+  "starter_preparation_mode": "shared_true_quench",
+  "system_summary": {
+    "c60": {
+      "cumulative": {
+        "actions": 6,
+        "certified": 6,
+        "geometric_escapes": 5,
+        "history_reduction_active_actions": 0,
+        "median_fully_loaded_force_evaluations": 350.5,
+        "median_landing_delta_eV": 0.3029632568359375,
+        "total_fully_loaded_force_evaluations": 2227
+      },
+      "newest_only": {
+        "actions": 6,
+        "certified": 6,
+        "geometric_escapes": 4,
+        "history_reduction_active_actions": 6,
+        "median_fully_loaded_force_evaluations": 305.5,
+        "median_landing_delta_eV": 0.3029327392578125,
+        "total_fully_loaded_force_evaluations": 1928
+      }
+    },
+    "cuo": {
+      "cumulative": {
+        "actions": 6,
+        "certified": 6,
+        "geometric_escapes": 5,
+        "history_reduction_active_actions": 0,
+        "median_fully_loaded_force_evaluations": 694.5,
+        "median_landing_delta_eV": -0.3597869873046875,
+        "total_fully_loaded_force_evaluations": 4384
+      },
+      "newest_only": {
+        "actions": 6,
+        "certified": 6,
+        "geometric_escapes": 5,
+        "history_reduction_active_actions": 6,
+        "median_fully_loaded_force_evaluations": 424.5,
+        "median_landing_delta_eV": -0.6884231567382812,
+        "total_fully_loaded_force_evaluations": 2612
+      }
+    },
+    "pdo": {
+      "cumulative": {
+        "actions": 6,
+        "certified": 6,
+        "geometric_escapes": 6,
+        "history_reduction_active_actions": 0,
+        "median_fully_loaded_force_evaluations": 336.5,
+        "median_landing_delta_eV": 1.303802490234375,
+        "total_fully_loaded_force_evaluations": 2104
+      },
+      "newest_only": {
+        "actions": 6,
+        "certified": 6,
+        "geometric_escapes": 6,
+        "history_reduction_active_actions": 6,
+        "median_fully_loaded_force_evaluations": 375.0,
+        "median_landing_delta_eV": 0.087432861328125,
+        "total_fully_loaded_force_evaluations": 2288
+      }
+    }
+  }
+}
