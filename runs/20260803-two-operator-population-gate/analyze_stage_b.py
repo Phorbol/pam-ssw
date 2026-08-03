@@ -161,6 +161,90 @@ def _canonical_sha256(payload) -> str:
     return sha256(encoded).hexdigest()
 
 
+def classify_basin_split(
+    *,
+    same_starter_basin: bool,
+    landing_delta_eV: float,
+    energy_tolerance_eV: float,
+    archive_rmsd_A: float,
+    rmsd_tolerance_A: float,
+) -> str:
+    """Explain which archive predicate separated a landing from its starter."""
+    if same_starter_basin:
+        return "archive_match"
+    energy_split = abs(float(landing_delta_eV)) > float(energy_tolerance_eV)
+    geometry_split = float(archive_rmsd_A) > float(rmsd_tolerance_A)
+    if energy_split and geometry_split:
+        return "energy_and_geometry_split"
+    if energy_split:
+        return "energy_only_split"
+    if geometry_split:
+        return "geometry_only_split"
+    return "inconsistent_with_archive_predicate"
+
+
+def _geometry_audit(input_directory: Path, pairs) -> dict[str, object]:
+    """Audit basin labels from saved coordinates without new PES evaluations."""
+    from pamssw.archive import MinimaArchive
+    from pamssw.io import read_state
+
+    rows = []
+    missing = []
+    for pair in pairs:
+        case_directory = (
+            Path(input_directory)
+            / pair["system"]
+            / pair["starter_context"]
+            / f"seed-{int(pair['seed']):08d}"
+        )
+        starter_path = case_directory / "starter.xyz"
+        for action in pair["actions"]:
+            landing_path = case_directory / f"{action['operator_family']}-landing.xyz"
+            if not starter_path.is_file() or not landing_path.is_file():
+                missing.append(str(landing_path.relative_to(input_directory)))
+                continue
+            starter = read_state(starter_path)
+            landing = read_state(landing_path)
+            rmsd = MinimaArchive._rmsd(starter, landing)
+            config = pair["effective_config"]
+            rows.append(
+                {
+                    "system": pair["system"],
+                    "starter_context": pair["starter_context"],
+                    "seed": int(pair["seed"]),
+                    "operator_family": action["operator_family"],
+                    "same_starter_basin": bool(action["same_starter_basin"]),
+                    "landing_delta_eV": float(action["landing_delta_eV"]),
+                    "archive_rmsd_A": float(rmsd),
+                    "classification": classify_basin_split(
+                        same_starter_basin=bool(action["same_starter_basin"]),
+                        landing_delta_eV=float(action["landing_delta_eV"]),
+                        energy_tolerance_eV=float(config["dedup_energy_tol"]),
+                        archive_rmsd_A=rmsd,
+                        rmsd_tolerance_A=float(config["dedup_rmsd_tol"]),
+                    ),
+                }
+            )
+    counts = Counter(row["classification"] for row in rows)
+    direct_rows = [row for row in rows if row["operator_family"] == "direct"]
+    direct_nonstarter = [row for row in direct_rows if not row["same_starter_basin"]]
+    return {
+        "new_force_evaluations": 0,
+        "complete": not missing and len(rows) == 2 * len(pairs),
+        "missing_artifacts": missing,
+        "classification_counts": dict(sorted(counts.items())),
+        "direct_nonstarter_count": len(direct_nonstarter),
+        "direct_energy_only_split_count": sum(
+            row["classification"] == "energy_only_split"
+            for row in direct_nonstarter
+        ),
+        "direct_nonstarter_archive_rmsd_A_distribution": _distribution(
+            row["archive_rmsd_A"] for row in direct_nonstarter
+        ),
+        "rows": rows,
+    }
+
+
 def build_evidence(pair_records, provenance) -> dict[str, object]:
     pairs = sorted(
         pair_records,
@@ -335,6 +419,10 @@ def analyze_directory(
             "raw_pair_manifest_count": len(manifest),
             "raw_pair_manifest": manifest,
         },
+    )
+    evidence["posthoc_geometry_audit"] = _geometry_audit(
+        input_directory,
+        pairs,
     )
     _write_json(output, evidence)
     return evidence

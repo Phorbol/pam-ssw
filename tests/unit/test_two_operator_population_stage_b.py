@@ -555,6 +555,31 @@ def test_build_evidence_rejects_action_ledger_drift():
         analyzer.build_evidence(pairs, provenance={})
 
 
+def test_basin_split_diagnostic_exposes_energy_only_archive_split():
+    analyzer = load_analyzer()
+    assert analyzer.classify_basin_split(
+        same_starter_basin=False,
+        landing_delta_eV=-0.002,
+        energy_tolerance_eV=0.001,
+        archive_rmsd_A=0.02,
+        rmsd_tolerance_A=0.4,
+    ) == "energy_only_split"
+    assert analyzer.classify_basin_split(
+        same_starter_basin=False,
+        landing_delta_eV=-0.5,
+        energy_tolerance_eV=0.001,
+        archive_rmsd_A=0.8,
+        rmsd_tolerance_A=0.4,
+    ) == "energy_and_geometry_split"
+    assert analyzer.classify_basin_split(
+        same_starter_basin=True,
+        landing_delta_eV=0.0,
+        energy_tolerance_eV=0.001,
+        archive_rmsd_A=0.01,
+        rmsd_tolerance_A=0.4,
+    ) == "archive_match"
+
+
 def test_analyze_directory_writes_deterministic_compact_evidence(tmp_path):
     runner = load_runner()
     analyzer = load_analyzer()
