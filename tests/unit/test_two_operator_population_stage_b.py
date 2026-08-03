@@ -267,6 +267,50 @@ def test_geometry_primary_basin_label_does_not_split_on_energy_alone():
     assert row["basin_label_mode"] == "geometry_primary"
 
 
+def test_geometry_primary_serializes_archive_infinite_distance_as_distinct(tmp_path):
+    runner = load_runner()
+    starter = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+    )
+    landing = RelaxResult(
+        state=starter.with_flat_positions(
+            np.array([[0.0, 0.0, 0.0], [3.0, 0.0, 0.0]]).reshape(-1)
+        ),
+        energy=-2.0,
+        gradient_norm=0.0,
+        n_iter=1,
+    )
+    config = SSWConfig(quench_fmax=0.1, dedup_rmsd_tol=0.4)
+
+    class Walker:
+        geometry_validator = GeometryValidator()
+
+        @staticmethod
+        def _is_fragmented_cluster(_starter, _landing):
+            return False
+
+    row = runner.landing_action_row(
+        system="c60",
+        starter_context="bootstrap",
+        seed=55,
+        family="ssw",
+        starter_state=starter,
+        starter_energy=0.0,
+        landing=landing,
+        walker=Walker(),
+        counts={"landing_true_quench": 1, "unattributed": 0},
+        config=config,
+        wall_time_s=0.1,
+        basin_label_mode="geometry_primary",
+    )
+
+    assert row["same_starter_basin"] is False
+    assert row["starter_landing_rmsd_A"] is None
+    assert row["starter_landing_rmsd_finite"] is False
+    runner.write_json(tmp_path / "row.json", row)
+
+
 def test_run_pair_executes_two_arms_from_one_analytic_action_input(
     tmp_path,
     monkeypatch,
@@ -672,6 +716,8 @@ def test_build_evidence_rejects_action_ledger_drift():
 
 def test_basin_split_diagnostic_exposes_energy_only_archive_split():
     analyzer = load_analyzer()
+    assert analyzer.finite_float_or_none(float("inf")) is None
+    assert analyzer.finite_float_or_none(0.25) == pytest.approx(0.25)
     assert analyzer.classify_basin_split(
         same_starter_basin=False,
         landing_delta_eV=-0.002,

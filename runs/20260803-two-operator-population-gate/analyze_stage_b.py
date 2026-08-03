@@ -8,6 +8,7 @@ from collections import Counter
 from hashlib import sha256
 import importlib.util
 import json
+import math
 import platform
 from pathlib import Path
 from statistics import mean, median
@@ -183,6 +184,11 @@ def classify_basin_split(
     return "inconsistent_with_archive_predicate"
 
 
+def finite_float_or_none(value: float) -> float | None:
+    value = float(value)
+    return value if math.isfinite(value) else None
+
+
 def _geometry_audit(input_directory: Path, pairs) -> dict[str, object]:
     """Audit basin labels from saved coordinates without new PES evaluations."""
     from pamssw.archive import MinimaArchive
@@ -222,7 +228,8 @@ def _geometry_audit(input_directory: Path, pairs) -> dict[str, object]:
                     "same_starter_basin": bool(action["same_starter_basin"]),
                     "archive_same_starter_basin": archive_same_starter_basin,
                     "landing_delta_eV": float(action["landing_delta_eV"]),
-                    "archive_rmsd_A": float(rmsd),
+                    "archive_rmsd_A": finite_float_or_none(rmsd),
+                    "archive_rmsd_finite": math.isfinite(rmsd),
                     "classification": classify_basin_split(
                         same_starter_basin=archive_same_starter_basin,
                         landing_delta_eV=float(action["landing_delta_eV"]),

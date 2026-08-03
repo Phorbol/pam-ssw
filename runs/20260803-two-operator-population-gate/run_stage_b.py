@@ -332,6 +332,7 @@ def landing_action_row(
             "budget_censored": bool(budget_censored),
             "landing_delta_eV": None,
             "starter_landing_rmsd_A": None,
+            "starter_landing_rmsd_finite": None,
             "archive_same_starter_basin": None,
             "basin_label_mode": basin_label_mode,
             "improved_global_best": False,
@@ -359,6 +360,7 @@ def landing_action_row(
         and has_force_convergence_certificate(landing, config.quench_fmax)
     )
     starter_landing_rmsd = MinimaArchive._rmsd(starter_state, landing.state)
+    starter_landing_rmsd_finite = bool(np.isfinite(starter_landing_rmsd))
     archive_same_starter_basin = bool(
         landing_entry.entry_id == starter_entry.entry_id
     )
@@ -375,7 +377,12 @@ def landing_action_row(
         "certified": certified,
         "same_starter_basin": bool(same_starter_basin),
         "archive_same_starter_basin": archive_same_starter_basin,
-        "starter_landing_rmsd_A": float(starter_landing_rmsd),
+        "starter_landing_rmsd_A": (
+            float(starter_landing_rmsd)
+            if starter_landing_rmsd_finite
+            else None
+        ),
+        "starter_landing_rmsd_finite": starter_landing_rmsd_finite,
         "basin_label_mode": basin_label_mode,
         "geometry_valid": geometry_valid,
         "fragmented": fragmented,
