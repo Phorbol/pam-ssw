@@ -207,6 +207,12 @@ def _geometry_audit(input_directory: Path, pairs) -> dict[str, object]:
             landing = read_state(landing_path)
             rmsd = MinimaArchive._rmsd(starter, landing)
             config = pair["effective_config"]
+            archive_same_starter_basin = bool(
+                action.get(
+                    "archive_same_starter_basin",
+                    action["same_starter_basin"],
+                )
+            )
             rows.append(
                 {
                     "system": pair["system"],
@@ -214,10 +220,11 @@ def _geometry_audit(input_directory: Path, pairs) -> dict[str, object]:
                     "seed": int(pair["seed"]),
                     "operator_family": action["operator_family"],
                     "same_starter_basin": bool(action["same_starter_basin"]),
+                    "archive_same_starter_basin": archive_same_starter_basin,
                     "landing_delta_eV": float(action["landing_delta_eV"]),
                     "archive_rmsd_A": float(rmsd),
                     "classification": classify_basin_split(
-                        same_starter_basin=bool(action["same_starter_basin"]),
+                        same_starter_basin=archive_same_starter_basin,
                         landing_delta_eV=float(action["landing_delta_eV"]),
                         energy_tolerance_eV=float(config["dedup_energy_tol"]),
                         archive_rmsd_A=rmsd,
@@ -363,6 +370,18 @@ def build_evidence(pair_records, provenance) -> dict[str, object]:
             "pair_count": len(pairs),
             "action_count": len(actions),
             "max_force_evaluations": protocol.MAX_FORCE_EVALUATIONS,
+            "starter_preparation_modes": sorted(
+                {
+                    pair.get(
+                        "starter_preparation_mode",
+                        "single_point_certificate",
+                    )
+                    for pair in pairs
+                }
+            ),
+            "basin_label_modes": sorted(
+                {pair.get("basin_label_mode", "archive") for pair in pairs}
+            ),
         },
         "global_force_evaluations": global_force_evaluations,
         "purpose_counts": dict(sorted(purpose_counts.items())),

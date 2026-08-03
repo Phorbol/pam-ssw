@@ -311,11 +311,14 @@ def landing_action_row(
     config,
     wall_time_s,
     budget_censored=False,
+    basin_label_mode="archive",
 ):
     from pamssw.archive import MinimaArchive
     from pamssw.relax import has_force_convergence_certificate
 
     counts = {str(key): int(value) for key, value in counts.items()}
+    if basin_label_mode not in {"archive", "geometry_primary"}:
+        raise ValueError("unknown basin label mode")
     if landing is None:
         return {
             "system": system,
@@ -328,6 +331,9 @@ def landing_action_row(
             "fragmented": False,
             "budget_censored": bool(budget_censored),
             "landing_delta_eV": None,
+            "starter_landing_rmsd_A": None,
+            "archive_same_starter_basin": None,
+            "basin_label_mode": basin_label_mode,
             "improved_global_best": False,
             "force_evaluations": sum(counts.values()),
             "wall_time_s": float(wall_time_s),
@@ -352,15 +358,25 @@ def landing_action_row(
         and not fragmented
         and has_force_convergence_certificate(landing, config.quench_fmax)
     )
+    starter_landing_rmsd = MinimaArchive._rmsd(starter_state, landing.state)
+    archive_same_starter_basin = bool(
+        landing_entry.entry_id == starter_entry.entry_id
+    )
+    same_starter_basin = (
+        archive_same_starter_basin
+        if basin_label_mode == "archive"
+        else starter_landing_rmsd <= float(config.dedup_rmsd_tol)
+    )
     return {
         "system": system,
         "starter_context": starter_context,
         "seed": int(seed),
         "operator_family": family,
         "certified": certified,
-        "same_starter_basin": bool(
-            landing_entry.entry_id == starter_entry.entry_id
-        ),
+        "same_starter_basin": bool(same_starter_basin),
+        "archive_same_starter_basin": archive_same_starter_basin,
+        "starter_landing_rmsd_A": float(starter_landing_rmsd),
+        "basin_label_mode": basin_label_mode,
         "geometry_valid": geometry_valid,
         "fragmented": fragmented,
         "budget_censored": bool(budget_censored),
@@ -397,6 +413,8 @@ def serialize_pair(
     initial_direction_wall_time_s=0.0,
     ssw_wall_time_s=0.0,
     direct_wall_time_s=0.0,
+    starter_preparation_mode="single_point_certificate",
+    basin_label_mode="archive",
 ):
     shared_direction_fe = int(
         ssw_trace.steps[0].direction_oracle_force_evaluations
@@ -416,6 +434,7 @@ def serialize_pair(
             config=config,
             wall_time_s=direct_wall_time_s,
             budget_censored=direct_budget_censored,
+            basin_label_mode=basin_label_mode,
         ),
         landing_action_row(
             system=system,
@@ -433,6 +452,7 @@ def serialize_pair(
                 float(ssw_wall_time_s) - float(initial_direction_wall_time_s),
             ),
             budget_censored=ssw_budget_censored,
+            basin_label_mode=basin_label_mode,
         ),
     ]
     for action in actions:
@@ -452,6 +472,8 @@ def serialize_pair(
         "starter_path": str(starter_artifact.path.relative_to(REPO_ROOT)),
         "starter_sha256": starter_artifact.sha256,
         "fixed_atom_count": int(np.count_nonzero(starter_state.fixed_mask)),
+        "starter_preparation_mode": starter_preparation_mode,
+        "basin_label_mode": basin_label_mode,
         "direction_sha256": sha256(
             np.asarray(direction, dtype=np.float64).tobytes()
         ).hexdigest(),
@@ -495,6 +517,8 @@ def write_prefix_censored_pair(
     output_directory,
     starter_validation_wall_time_s,
     prefix_wall_time_s,
+    starter_preparation_mode="single_point_certificate",
+    basin_label_mode="archive",
 ):
     from pamssw.io import write_state
 
@@ -514,6 +538,7 @@ def write_prefix_censored_pair(
             config=config,
             wall_time_s=0.0,
             budget_censored=prefix_budget_exhausted,
+            basin_label_mode=basin_label_mode,
         ),
         landing_action_row(
             system=system,
@@ -528,6 +553,7 @@ def write_prefix_censored_pair(
             config=config,
             wall_time_s=prefix_wall_time_s,
             budget_censored=prefix_budget_exhausted,
+            basin_label_mode=basin_label_mode,
         ),
     ]
     for action in actions:
@@ -544,6 +570,8 @@ def write_prefix_censored_pair(
         "starter_path": str(starter_artifact.path.relative_to(REPO_ROOT)),
         "starter_sha256": starter_artifact.sha256,
         "fixed_atom_count": int(np.count_nonzero(starter_state.fixed_mask)),
+        "starter_preparation_mode": starter_preparation_mode,
+        "basin_label_mode": basin_label_mode,
         "direction_sha256": None,
         "execution_sigma": None,
         "paired_input_censored": True,
@@ -578,6 +606,8 @@ def run_pair(
     seed: int,
     output_directory: Path,
     cuo_resources,
+    shared_bootstrap_true_quench: bool = False,
+    basin_label_mode: str = "archive",
 ):
     from pamssw.accounting import BudgetExceeded, EvaluationPurpose
     from pamssw.archive import MinimaArchive
@@ -606,16 +636,30 @@ def run_pair(
     )
 
     starter_validation_started = perf_counter()
-    with ssw.calculator.purpose(EvaluationPurpose.STARTER_TRUE_QUENCH):
-        starter_evaluation = ssw.calculator.evaluate(starter)
+    if shared_bootstrap_true_quench:
+        starter_result = ssw.relax_true_minimum(
+            starter,
+            trajectory_name="shared-starter-bootstrap",
+            quench_purpose=EvaluationPurpose.STARTER_TRUE_QUENCH,
+        )
+        starter_state = starter_result.state
+        starter_energy = float(starter_result.energy)
+        starter_max_force = float(starter_result.gradient_norm)
+        starter_preparation_mode = "shared_true_quench"
+    else:
+        with ssw.calculator.purpose(EvaluationPurpose.STARTER_TRUE_QUENCH):
+            starter_evaluation = ssw.calculator.evaluate(starter)
+        starter_state = starter
+        starter_energy = float(starter_evaluation.energy)
+        movable_forces = np.linalg.norm(
+            -starter_evaluation.gradient,
+            axis=1,
+        )[starter.movable_mask]
+        starter_max_force = (
+            float(np.max(movable_forces)) if movable_forces.size else 0.0
+        )
+        starter_preparation_mode = "single_point_certificate"
     starter_validation_wall_time_s = perf_counter() - starter_validation_started
-    starter_state = starter
-    starter_energy = float(starter_evaluation.energy)
-    movable_forces = np.linalg.norm(
-        -starter_evaluation.gradient,
-        axis=1,
-    )[starter.movable_mask]
-    starter_max_force = float(np.max(movable_forces)) if movable_forces.size else 0.0
     if starter_max_force > config.quench_fmax:
         raise RuntimeError(
             f"locked starter lost its force certificate: {starter_max_force}"
@@ -676,6 +720,8 @@ def run_pair(
             output_directory=output_directory,
             starter_validation_wall_time_s=starter_validation_wall_time_s,
             prefix_wall_time_s=prefix_wall_time_s,
+            starter_preparation_mode=starter_preparation_mode,
+            basin_label_mode=basin_label_mode,
         )
     prefix_wall_time_s = perf_counter() - prefix_started
     if (
@@ -766,6 +812,8 @@ def run_pair(
         ),
         ssw_wall_time_s=prefix_wall_time_s + continuation_wall_time_s,
         direct_wall_time_s=direct_wall_time_s,
+        starter_preparation_mode=starter_preparation_mode,
+        basin_label_mode=basin_label_mode,
     )
     write_state(output_directory / "starter.xyz", starter_state)
     if ssw_landing is not None:
@@ -801,6 +849,8 @@ def run_campaign(
     seeds,
     max_force_evaluations: int,
     cuo_resources,
+    shared_bootstrap_true_quench: bool = False,
+    basin_label_mode: str = "archive",
 ):
     if (
         isinstance(max_force_evaluations, bool)
@@ -822,6 +872,19 @@ def run_campaign(
         if pair_path.is_file():
             pair = json.loads(pair_path.read_text(encoding="utf-8"))
             validate_pair_record(pair)
+            expected_preparation = (
+                "shared_true_quench"
+                if shared_bootstrap_true_quench
+                else "single_point_certificate"
+            )
+            if pair.get(
+                "starter_preparation_mode",
+                "single_point_certificate",
+            ) != expected_preparation or pair.get(
+                "basin_label_mode",
+                "archive",
+            ) != basin_label_mode:
+                raise RuntimeError("existing pair execution mode does not match request")
         else:
             if max_force_evaluations - consumed < protocol.PAIR_SUBMISSION_CAP:
                 raise RuntimeError(
@@ -833,6 +896,8 @@ def run_campaign(
                 seed=case.seed,
                 output_directory=case_directory,
                 cuo_resources=cuo_resources,
+                shared_bootstrap_true_quench=shared_bootstrap_true_quench,
+                basin_label_mode=basin_label_mode,
             )
             validate_pair_record(pair)
         consumed += int(pair["pair_force_evaluations"])
@@ -847,6 +912,12 @@ def run_campaign(
                 "force_evaluations": consumed,
                 "completed_pairs": len(rows),
                 "expected_pairs": len(cases),
+                "starter_preparation_mode": (
+                    "shared_true_quench"
+                    if shared_bootstrap_true_quench
+                    else "single_point_certificate"
+                ),
+                "basin_label_mode": basin_label_mode,
                 "cases": [
                     {
                         "system": row["system"],
@@ -877,6 +948,12 @@ def run_campaign(
         "force_evaluations": consumed,
         "completed_pairs": len(rows),
         "expected_pairs": len(cases),
+        "starter_preparation_mode": (
+            "shared_true_quench"
+            if shared_bootstrap_true_quench
+            else "single_point_certificate"
+        ),
+        "basin_label_mode": basin_label_mode,
         "pairs": rows,
     }
 
@@ -924,6 +1001,16 @@ def parse_args(argv=None):
         type=Path,
         default=RUN_ROOT / "output/stage-a.json",
     )
+    parser.add_argument(
+        "--shared-bootstrap-true-quench",
+        action="store_true",
+        help="true-quench each shared starter once before branching",
+    )
+    parser.add_argument(
+        "--basin-label-mode",
+        choices=("archive", "geometry_primary"),
+        default="archive",
+    )
     return parser.parse_args(argv)
 
 
@@ -939,6 +1026,8 @@ def main(argv=None) -> int:
             seeds=tuple(args.seeds),
             max_force_evaluations=args.max_force_evaluations,
             cuo_resources=None,
+            shared_bootstrap_true_quench=args.shared_bootstrap_true_quench,
+            basin_label_mode=args.basin_label_mode,
         )
     else:
         with TemporaryDirectory(prefix="pamssw-two-operator-cuo-") as temporary:
@@ -953,6 +1042,8 @@ def main(argv=None) -> int:
                 seeds=tuple(args.seeds),
                 max_force_evaluations=args.max_force_evaluations,
                 cuo_resources=cuo_resources,
+                shared_bootstrap_true_quench=args.shared_bootstrap_true_quench,
+                basin_label_mode=args.basin_label_mode,
             )
     print(
         json.dumps(

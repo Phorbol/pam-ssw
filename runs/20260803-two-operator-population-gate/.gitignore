@@ -1,3 +1,5 @@
 output/
 smoke-output/
+corrected-output/
+corrected-smoke-output/
 __pycache__/

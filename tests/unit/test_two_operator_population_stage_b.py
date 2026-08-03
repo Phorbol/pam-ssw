@@ -10,6 +10,7 @@ import pytest
 from pamssw.accounting import EvaluationCounts, EvaluationPurpose
 from pamssw.calculators import AnalyticCalculator
 from pamssw.config import LSSSWConfig, SSWConfig
+from pamssw.io import read_state
 from pamssw.potentials import DoubleWell2D
 from pamssw.result import RelaxResult, UphillStepRecord, UphillWalkTrace
 from pamssw.state import State
@@ -218,6 +219,54 @@ def test_serialize_pair_charges_shared_direction_once_globally():
     assert pair["pair_wall_time_s"] == pytest.approx(1.7)
 
 
+def test_geometry_primary_basin_label_does_not_split_on_energy_alone():
+    runner = load_runner()
+    starter = State(
+        numbers=np.array([1, 1]),
+        positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+    )
+    landing = RelaxResult(
+        state=starter.with_flat_positions(
+            np.array([[0.0, 0.0, 0.0], [1.02, 0.0, 0.0]]).reshape(-1)
+        ),
+        energy=-1.002,
+        gradient_norm=0.0,
+        n_iter=1,
+    )
+    config = SSWConfig(
+        quench_fmax=0.1,
+        dedup_energy_tol=0.001,
+        dedup_rmsd_tol=0.4,
+    )
+
+    class Walker:
+        geometry_validator = GeometryValidator()
+
+        @staticmethod
+        def _is_fragmented_cluster(_starter, _landing):
+            return False
+
+    row = runner.landing_action_row(
+        system="c60",
+        starter_context="bootstrap",
+        seed=55,
+        family="direct",
+        starter_state=starter,
+        starter_energy=-1.0,
+        landing=landing,
+        walker=Walker(),
+        counts={"landing_true_quench": 1, "unattributed": 0},
+        config=config,
+        wall_time_s=0.1,
+        basin_label_mode="geometry_primary",
+    )
+
+    assert row["same_starter_basin"] is True
+    assert row["archive_same_starter_basin"] is False
+    assert row["starter_landing_rmsd_A"] < config.dedup_rmsd_tol
+    assert row["basin_label_mode"] == "geometry_primary"
+
+
 def test_run_pair_executes_two_arms_from_one_analytic_action_input(
     tmp_path,
     monkeypatch,
@@ -274,6 +323,63 @@ def test_run_pair_executes_two_arms_from_one_analytic_action_input(
     )
     assert all(row["purpose_counts"].get("unattributed", 0) == 0 for row in pair["actions"])
     assert (tmp_path / "pair.json").is_file()
+
+
+def test_run_pair_true_quenches_the_shared_starter_before_branching(
+    tmp_path,
+    monkeypatch,
+):
+    runner = load_runner()
+    starter = State(numbers=np.array([1]), positions=np.array([[-0.9, 0.0, 0.0]]))
+    config = LSSSWConfig(
+        max_trials=1,
+        max_steps_per_walk=1,
+        target_uphill_energy=0.2,
+        quench_fmax=1.0e-3,
+        quench_maxiter=80,
+        quench_optimizer="scipy-lbfgsb",
+        oracle_candidates=1,
+        proposal_relax_steps=4,
+        proposal_fmax=0.05,
+        proposal_optimizer="scipy-lbfgsb",
+        rng_seed=55,
+        max_force_evals=400,
+        proposal_pool_size=1,
+        local_softening_scope="oracle",
+        local_softening_protocol="moving_reference",
+    )
+    monkeypatch.setattr(
+        runner,
+        "load_locked_starter",
+        lambda system, context, cuo_resources: starter,
+    )
+    monkeypatch.setattr(
+        runner,
+        "make_calculator",
+        lambda system, cuo_resources: AnalyticCalculator(DoubleWell2D()),
+    )
+    monkeypatch.setattr(
+        runner,
+        "build_config",
+        lambda system, case_directory, seed: config,
+    )
+
+    pair = runner.run_pair(
+        system="c60",
+        starter_context="bootstrap",
+        seed=55,
+        output_directory=tmp_path,
+        cuo_resources=None,
+        shared_bootstrap_true_quench=True,
+        basin_label_mode="geometry_primary",
+    )
+
+    assert pair["starter_preparation_mode"] == "shared_true_quench"
+    assert pair["basin_label_mode"] == "geometry_primary"
+    assert pair["starter_validation_purpose_counts"]["starter_true_quench"] > 0
+    assert pair["starter_validation_purpose_counts"]["post_relax_validation"] == 1
+    prepared = read_state(tmp_path / "starter.xyz")
+    assert prepared.positions[0, 0] == pytest.approx(-1.0, abs=1.0e-3)
 
 
 def test_selected_cases_preserve_preregistered_order():
@@ -426,6 +532,9 @@ def test_cli_parser_accepts_one_pair_smoke_selection(tmp_path):
             "55",
             "--max-force-evaluations",
             "4000",
+            "--shared-bootstrap-true-quench",
+            "--basin-label-mode",
+            "geometry_primary",
         ]
     )
     assert args.output == tmp_path
@@ -433,6 +542,8 @@ def test_cli_parser_accepts_one_pair_smoke_selection(tmp_path):
     assert args.starters == ["bootstrap"]
     assert args.seeds == [55]
     assert args.max_force_evaluations == 4000
+    assert args.shared_bootstrap_true_quench is True
+    assert args.basin_label_mode == "geometry_primary"
 
 
 def test_stage_b_requires_stage_a_admission(tmp_path):
@@ -544,6 +655,10 @@ def test_build_evidence_closes_full_matrix_and_applies_preregistered_decision():
     )
     assert evidence["pooled_summary"]["paired_regret_eV_distribution"]["count"] == 18
     assert len(evidence["provenance"]["effective_config_manifest"]) == 18
+    assert evidence["cohort"]["starter_preparation_modes"] == [
+        "single_point_certificate"
+    ]
+    assert evidence["cohort"]["basin_label_modes"] == ["archive"]
 
 
 def test_build_evidence_rejects_action_ledger_drift():
