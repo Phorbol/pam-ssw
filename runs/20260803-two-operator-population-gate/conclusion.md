@@ -1,148 +1,154 @@
-# Two-operator population gate: Stage A/B conclusion
+# Two-operator population gate：最终结论
 
-## Outcome
+## 最终决定
 
-Stage A admitted a fresh paired experiment from a zero-new-force-evaluation
-replay. Stage B then completed the exact frozen cohort: three systems, two
-starter contexts, three seeds, 18 paired inputs, and 36 terminal actions.
-Every action produced a force-converged, geometry-valid certificate. The
-global purpose ledger closes at 9,147 force evaluations with zero unattributed
-work and no budget censoring.
-
-The preregistered code decision is:
+本轮先后完成了原始 Stage B 和一次 measurement-validity repair。修复后的预注册判决为：
 
 ```text
-ADMIT_STAGE_C_DESIGN
-direct_viability_contexts: 2
-ssw_exclusive_support_contexts: 4
+CLOSE_TWO_OPERATOR_PORTFOLIO
+direct_viability_contexts: 0
+ssw_exclusive_support_contexts: 6
 numerical_acceptability: true
 ```
 
-That formal decision is preserved in `evidence.json`. It is not, however, a
-valid physical admission of the direct operator. A zero-new-FE audit of the
-saved coordinates found that all five direct actions labelled as non-starter
-landings were separated from the starter only by the archive energy predicate.
-Their archive RMSD was 0.0089--0.0209 A, far below the configured 0.4 A
-tolerance, while their energy changes of 1.19--3.11 meV just exceeded the
-0.001 eV deduplication tolerance. The direct viability rule therefore passed
-on five energy-only splits, not on five demonstrated barrier crossings.
+因此关闭
 
-The scientific disposition is consequently **do not advance to Stage C yet**.
-This is a measurement-validity failure, not a post-hoc change of the gate
-thresholds and not evidence that a two-operator population is useless.
+```text
+direct displacement + true quench
+```
 
-## Physical experiment
+作为当前通用 SSW 低成本互补算子的分支。它不进入 batch scheduler，不进入 UCB/TS，
+也不参与后验 allocation。保留 H8 serial SSW 作为 reference action。
 
-Each pair used the same frozen starter, initial direction, displacement scale,
-potential, constraints, and final true-PES quench.
+这不是因为 direct 算子更便宜但收益略低，而是因为在当前共享方向和位移尺度下，它没有
+产生一个经过几何确认的跨盆地结果。
 
-The direct arm applied only
+## 为什么原始 Stage B 的形式判决失效
+
+原始实验完成了 C60、PdO、CuO 上 18 个 paired input 和 36 个 terminal action，形式判决为
+`ADMIT_STAGE_C_DESIGN`。其中 direct 被记为 5 个 non-starter landing。
+
+随后对保存坐标进行零新增力评估审计，发现这 5 个结果的 starter--landing RMSD 只有
+0.0089--0.0209 Å，远低于 0.4 Å 几何阈值。它们只是比冻结 starter 多下降了
+1.19--3.11 meV，恰好超过 archive 的 0.001 eV energy tolerance。现有 matcher 要求能量和
+RMSD 同时满足阈值才能合并，因此仅由毫电子伏能量差便创建了新 basin ID。
+
+更具体地说，原始 runner 使用 `STARTER_TRUE_QUENCH` 记账名做了一次能量/力验证，但没有
+真正淬火 starter；direct arm 随后执行严格 true quench，于是同一势阱内残余弛豫被错误
+解释成 escape。
+
+这属于 observable 失效，不是 direct 的正向机制证据。
+
+## 修复实验
+
+修复只改变两个测量语义：
+
+1. 每个 pair 在分叉前用与 terminal landing 相同的 optimizer 和 `fmax` 真正淬火一次
+   starter；该成本在 pair 中只计算一次。
+2. `same_starter_basin` 由等价淬火端点之间的几何 RMSD 决定。能量差继续记录，但不能单独
+   创建跨盆地标签。
+
+没有改变：
+
+- C60、PdO、CuO 三个体系；
+- bootstrap、H8-best 两种 starter context；
+- seeds 55、56、57；
+- direction generator、direction ranking 和局域软化；
+- displacement scale；
+- H8 Gaussian bias、proposal optimizer 和 terminal true quench；
+- force-evaluation 上限和判决阈值。
+
+18/18 个 starter SHA-256 和 displacement scale 与原实验相同；17/18 个初始方向哈希完全
+相同。CuO/H8-best/seed56 的方向哈希发生变化，作为 float32 GPU 路径敏感性保留，未补跑或
+替换。这个单点变化不影响 direct 在六个 context 中全部失去 viability 的结论。
+
+## 修复后的物理结果
+
+| system | direct 几何跨盆地 | SSW 几何跨盆地 | direct median FE | SSW median FE | direct median ΔE (eV) | SSW median ΔE (eV) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| C60 | 0/6 | 5/6 | 35.5 | 317.0 | +0.000031 | +0.303055 |
+| PdO | 0/6 | 6/6 | 39.0 | 336.5 | -0.000336 | +0.406342 |
+| CuO | 0/6 | 5/6 | 39.0 | 776.0 | -0.000580 | -0.460327 |
+
+汇总后：
+
+- direct：0/18 个几何跨盆地；
+- SSW：16/18 个几何跨盆地；
+- direct-only support：0；
+- SSW-only support：16；
+- neither：2；
+- 36/36 个 action 均得到收敛、几何有效的 terminal certificate；
+- 无 fragmentation、无 budget censoring、无 unattributed force evaluation。
+
+direct 的终点能量分布在修复前后几乎不变。这进一步说明原来的 5 个“成功”不是随机复验
+丢失，而是同一批局部弛豫被新的正确 observable 重新标记。
+
+## 底层物理图像
+
+direct arm 执行
 
 \[
-x_{\mathrm{direct}} = x_0 + \sigma u
+x_{\rm direct}=x_0+\sigma u
 \]
 
-before the true-PES quench. The SSW arm started from the same displacement but
-then accumulated Gaussian bias and repeatedly relaxed on the biased surface
-before removing the bias and quenching on the true surface.
+然后立即回到真实 PES 做下降。若这个点仍处于原 attraction basin，梯度流会抹去位移并
+返回原极小值。当前 18 个方向和尺度全部属于这种情况。
 
-The resulting physical picture is simple. A large instantaneous displacement
-does not by itself create an escape: the true-PES gradient usually carries the
-structure back into the original attraction basin. The serial biased path
-suppresses this return channel long enough for the remaining degrees of
-freedom to accommodate the displacement and cross a basin boundary. In this
-cohort the direct landing remained within 0.021 A RMSD of its starter whenever
-the archive called it new. SSW produced 17 formal non-starter landings, 16 of
-which also crossed the configured geometric RMSD boundary.
+SSW arm 从同一个初始位移出发，但累计 Gaussian bias，并在修改后的势能面上允许其余自由度
+持续弛豫。bias 抑制了沿原路径返回的通道；正交自由度可以协同适应局部结构变化，直至越过
+basin boundary。移除 bias 后再 true quench，16/18 次仍落入几何不同的 basin。
 
-This supports the causal value of biased proposal relaxation. It does not show
-that the current adaptive Gaussian schedule, H8 horizon, or optimizer is
-optimal.
+因此 proposal relaxation 不是可以由一次大位移替代的数值装饰。它承担的是“保持逃逸方向的
+同时，让高维结构完成横向适应”的物理作用。
 
-## System-level evidence
+这个结果只证明 biased propagation 的必要性，不证明当前 adaptive Gaussian schedule、
+trust feedback、H8 或 SAFE-LBFGS 已经最优。
 
-All costs below are fully loaded action costs: the shared initial-direction
-cost is charged to either arm when comparing that arm as a standalone action.
+## 成本闭环
 
-| system | formal direct non-starter | SSW non-starter | direct median FE | SSW median FE | direct median delta-E (eV) | SSW median delta-E (eV) |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| C60 | 0/6 | 5/6 | 35.5 | 348.5 | +0.000015 | +0.302811 |
-| PdO | 2/6 | 6/6 | 39.0 | 360.5 | -0.000244 | +1.101990 |
-| CuO | 3/6 | 6/6 | 39.0 | 635.5 | -0.000610 | -0.452408 |
+corrected campaign 使用 9,166 次 force evaluation；原始 campaign 为 9,147，修复净增加
+19 次。共享 starter true-quench 因 starter 已有 force certificate，实际只需 30 次
+`starter_true_quench` 和 18 次相应 post-relax validation。
 
-The two PdO and three CuO direct counts in this table are exactly the five
-energy-only false basin splits described above. C60 already showed the cleaner
-behavior: all six direct perturbations quenched back to the starter, whereas
-five SSW paths reached other structures.
-
-SSW is an exploration operator, not an energy-monotone minimizer. It found
-substantially lower landings in some C60, PdO, and CuO pairs, but also higher
-landings, especially from the later PdO and C60 starters. The observed SSW
-landing changes span -5.192 to +4.085 eV. This wide distribution is the cost of
-crossing basin boundaries and is precisely why terminal energy alone is not a
-clean label for direction quality.
-
-## Cost anatomy
-
-The exact global ledger is:
-
-| purpose | force evaluations | share of total |
+| purpose | force evaluations | 总成本占比 |
 | --- | ---: | ---: |
-| shared/staged direction oracle | 1,248 | 13.6% |
-| biased proposal relaxation | 6,281 | 68.7% |
-| true-PES escape checks | 115 | 1.3% |
-| terminal true-PES quench | 1,449 | 15.8% |
-| starter validation | 18 | 0.2% |
-| post-relax validation | 36 | 0.4% |
+| biased proposal relaxation | 6,210 | 67.8% |
+| direction oracle | 1,272 | 13.9% |
+| terminal true-PES quench | 1,487 | 16.2% |
+| escape true-PES check | 113 | 1.2% |
+| post-relax validation | 54 | 0.6% |
+| shared starter true-quench | 30 | 0.3% |
 | unattributed | 0 | 0.0% |
 
-The direct arms used 442 exclusive FE, including 424 terminal-quench FE. The
-SSW arms used 8,447 exclusive FE: 6,281 for biased relaxation, 1,008 for
-direction work after removing the shared prefix, 115 for escape checks, 1,025
-for terminal quench, and 18 for validation. Fully loaded totals were 682 FE for
-direct and 8,687 FE for SSW.
+direct fully-loaded cost 为 682 FE；SSW fully-loaded cost 为 8,676 FE。direct 的便宜并没有被
+昂贵 terminal quench 抵消，它确实便宜；但它的物理 support 为零，所以“每千 FE 成功率”
+不能通过把同盆地 refinement 计作成功来人为抬高。
 
-The cheaper direct propagation was not cancelled by a more expensive final
-quench: its quench was also cheaper. The issue is physical support, not hidden
-cost. Direct perturbation was about 9--16 times cheaper in median FE by system,
-but its apparent five escapes were local refinement artefacts. Conversely,
-biased proposal relaxation is the dominant SSW cost and the dominant source of
-genuine basin displacement. This identifies proposal propagation as the
-correct scientific optimization target after basin labels are repaired.
+单卡 RTX 3060 的 summed pair telemetry 为 223.95 s。wall time 只作为执行遥测，科学预算仍
+使用逐结构 force evaluation。
 
-The summed per-pair execution telemetry was 209.7 seconds on an NVIDIA GeForce
-RTX 3060. Pooled fully loaded medians were 0.78 seconds for direct and 8.58
-seconds for SSW. Wall time is environment-specific telemetry; force evaluations
-remain the comparison budget.
+## 对整体研究计划的约束
 
-## Claim ceiling
-
-This is a deterministic, paired, three-seed mechanism gate under one MACE
-model and six frozen starter contexts. It establishes that:
-
-- the accounting adapter closes exactly under real GPU execution;
-- the current SSW path repeatedly produces large structural displacements
-  that direct displacement plus quench does not reproduce;
-- biased proposal relaxation, not terminal quench, consumes most SSW force
-  evaluations;
-- the current energy-and-RMSD archive predicate can turn millielectronvolt
-  relaxation drift into a false new-basin label.
-
-It does not establish production superiority, optimal operator allocation,
-long-run minima discovery, transfer across potentials, or a valid Bayesian
-posterior. It also does not justify changing the production default.
+1. 暂停 two-operator posterior、UCB/TS allocation 和 direct/SSW batch BO；不存在可学习的
+   non-dominated direct arm。
+2. 不因 direct 失败而引入 MD、GA、CCQN 或更多 operator。它们是新的独立假设，不能作为
+   当前实验的 rescue component。
+3. 保留 serial H8 SSW reference。现有证据再次确认 proposal propagation 是跨盆地的因果
+   block，同时占据约三分之二计算成本。
+4. geometry-primary 标签足以否定这批 direct escape，但并不解决一般 periodic、permutation、
+   symmetry-aware minima matching；不能将本研究辅助标签直接宣称为生产 matcher 完成版。
+5. 不改变 production default。
 
 ```text
 production_default_changed: false
 ```
 
-## One next action
+## 唯一下一步
 
-Run one measurement-validity repair of the same 18-pair cohort: true-quench
-each frozen starter once with the identical terminal optimizer before the two
-arms branch, charge that bootstrap once to the pair, and require a geometric
-basin change between equally quenched endpoints rather than allowing an energy
-difference alone to create a new basin. Freeze this definition before rerun
-and keep systems, starters, seeds, directions, SSW configuration, and all
-budgets unchanged. Stage C batching remains blocked until direct viability is
-re-evaluated under that corrected observable.
+返回 SSW-only 的单轴 propagation-cost 问题，但不再扫描 horizon：此前 H4/H8 复验已经保留
+H8 并关闭 universal short-horizon 分支。下一轮应先复用当前 18 个共享 starter/direction
+输入，构造一个只改变 biased propagation 更新律的 paired gate；terminal quench、direction、
+H8 上限和 basin observable 全部冻结。候选必须先从现有 adaptive schedule 中删去或替换一个
+明确的机制，而不是添加多个 Gaussian/OPES/CCQN 组件。只有当该单一改变在每千 FE 的几何
+跨盆地支持上重复改善，才进入 SSW-only GPU active-set batching；否则保留当前 serial SSW，
+转回方向/action posterior 研究。
