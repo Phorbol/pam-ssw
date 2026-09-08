@@ -32,10 +32,12 @@ from .pbc import mic_displacement, mic_distance_matrix, wrap_positions
 from .relax import (
     RelaxEvaluation,
     Relaxer,
+    QuenchConvergenceError,
     has_force_convergence_certificate,
+    has_minimum_convergence_certificate,
     relax_with_certificate_fallback,
 )
-from .result import RelaxOutcomeClass, RelaxResult, SearchResult, StatsValue, WalkRecord
+from .result import QuenchFailure, RelaxOutcomeClass, RelaxResult, SearchResult, StatsValue, WalkRecord
 from .rigid import project_out_rigid_body_modes, rigid_body_overlap
 from .softening import LocalSofteningModel
 from .state import State
@@ -2656,6 +2658,24 @@ class SurfaceWalker:
             "direction_archive_productive_records": sum(1 for record in records if record.productive is True),
         }
 
+    def _quench_stress_tol(self) -> float | None:
+        return None if self.config.quench_cell_mode == "fixed" else self.config.quench_stress_tol
+
+    def _has_quench_certificate(self, result: RelaxResult) -> bool:
+        return has_minimum_convergence_certificate(
+            result, self.config.quench_fmax, self._quench_stress_tol(),
+        )
+
+    def _true_relaxer(self, optimizer: str):
+        if self.config.quench_cell_mode == "fixed":
+            return Relaxer(self.calculator.evaluate_flat, optimizer=optimizer)
+        from .cell_relax import CellRelaxer
+        return CellRelaxer(
+            self.calculator, optimizer=optimizer, mode=self.config.quench_cell_mode,
+            pressure_gpa=self.config.external_pressure_gpa,
+            stress_tol=self.config.quench_stress_tol,
+        )
+
     def relax_true_minimum(
         self,
         state: State,
@@ -2665,17 +2685,11 @@ class SurfaceWalker:
     ) -> RelaxResult:
         if not self.geometry_validator.is_valid_state(state):
             raise BudgetExceeded("invalid geometry before true relaxation")
-        primary_relaxer = Relaxer(
-            self.calculator.evaluate_flat,
-            optimizer=self.config.quench_optimizer,
-        )
+        primary_relaxer = self._true_relaxer(self.config.quench_optimizer)
         fallback_relaxer = (
             None
             if self.config.quench_fallback_optimizer is None
-            else Relaxer(
-                self.calculator.evaluate_flat,
-                optimizer=self.config.quench_fallback_optimizer,
-            )
+            else self._true_relaxer(self.config.quench_fallback_optimizer)
         )
         relax_config = RelaxConfig(fmax=self.config.quench_fmax, maxiter=self.config.quench_maxiter)
         with self.calculator.purpose(quench_purpose):
@@ -2688,18 +2702,32 @@ class SurfaceWalker:
                 on_fallback_start=self._record_quench_fallback_start,
                 trajectory_callback=self._relaxation_trajectory_callback(trajectory_name),
                 trajectory_stride=self.config.relaxation_trajectory_stride,
+                stress_tol=self._quench_stress_tol(),
             )
         result = fallback_result.final
         if fallback_result.fallback_used:
             self._quench_fallback_converged += int(
-                has_force_convergence_certificate(result, relax_config.fmax)
+                self._has_quench_certificate(result)
             )
         with self.calculator.purpose(EvaluationPurpose.POST_RELAX_VALIDATION):
             valid_post_relax_state = self.geometry_validator.is_valid_evaluation(result.state, self.calculator)
         if not valid_post_relax_state:
             raise BudgetExceeded("invalid geometry after true relaxation")
         self._record_relax_result("true_quench", result, relax_config.fmax)
-        return result
+        metadata = dict(result.state.metadata)
+        if self.config.quench_cell_mode == "fixed":
+            for key in ("enthalpy", "stress", "stress_norm", "external_pressure_gpa"):
+                metadata.pop(key, None)
+        metadata.update(
+            potential_energy=result.energy if result.potential_energy is None else result.potential_energy,
+            force_max=result.gradient_norm,
+            quench_fmax=self.config.quench_fmax,
+            quench_cell_mode=self.config.quench_cell_mode,
+            quench_certified=self._has_quench_certificate(result),
+        )
+        if result.state.cell is not None:
+            metadata["volume"] = float(abs(np.linalg.det(result.state.cell)))
+        return replace(result, state=replace(result.state, metadata=metadata))
 
     def run(
         self,
@@ -2733,14 +2761,22 @@ class SurfaceWalker:
             trajectory_name="initial_true_quench",
             quench_purpose=initial_quench_purpose,
         )
+        if not self._has_quench_certificate(initial):
+            raise QuenchConvergenceError(
+                "initial true quench did not produce a certified minimum",
+                relaxation=initial,
+                evaluation_counts=self.calculator.snapshot(),
+            )
         archive = MinimaArchive(
             energy_tol=self.config.dedup_energy_tol,
             rmsd_tol=self.config.dedup_rmsd_tol,
             max_prototypes=self.config.max_prototypes,
+            cell_tol=self.config.dedup_cell_tol,
         )
         best_entry = archive.add(initial.state, initial.energy, parent_id=None)
         metropolis_entry = best_entry
         walk_history: list[WalkRecord] = []
+        quench_failures: list[QuenchFailure] = []
         local_relaxations = 1
 
         completed_trials = 0
@@ -2804,6 +2840,30 @@ class SurfaceWalker:
                     self._discard_direction_archive_trial(trial_index)
                     break
                 local_relaxations += 1
+                if not self._has_quench_certificate(candidate):
+                    quench_failures.append(QuenchFailure(
+                        trial_index=trial_index + 1,
+                        proposal_index=proposal_index + 1,
+                        seed_entry_id=seed_entry.entry_id,
+                        relaxation=candidate,
+                    ))
+                    self._write_proposal_minimum(
+                        trial_index=trial_index + 1,
+                        proposal_index=proposal_index + 1,
+                        state=candidate.state,
+                        energy=candidate.energy,
+                        seed_entry_id=seed_entry.entry_id,
+                        status="uncertified",
+                    )
+                    self._finalize_direction_archive_trial(
+                        trial_index,
+                        proposal_index=proposal_index,
+                        accepted_new_basin=False,
+                        global_improved=False,
+                        final_energy=None,
+                    )
+                    proposal_index += 1
+                    continue
                 if self._is_fragmented_cluster(seed_entry.state, candidate.state):
                     self._write_proposal_minimum(
                         trial_index=trial_index + 1,
@@ -2873,7 +2933,7 @@ class SurfaceWalker:
                     status="accepted" if is_new else "duplicate",
                 )
                 outcome = ProposalOutcome(
-                    energy=candidate.energy,
+                    energy=discovered.energy,
                     previous_best_energy=previous_best_energy,
                     is_new_minimum=is_new,
                     is_duplicate=is_duplicate,
@@ -3014,11 +3074,15 @@ class SurfaceWalker:
             best_energy=best_entry.energy,
             archive=archive,
             walk_history=walk_history,
+            quench_failures=quench_failures,
             stats={
                 "n_trials": completed_trials,
                 "configured_max_trials": self.config.max_trials,
                 "n_minima": len(archive.entries),
                 "local_relaxations": local_relaxations,
+                "quench_certificate_rejections": len(quench_failures),
+                "archive_energy_mismatch_hits": archive.energy_mismatch_hits,
+                "archive_max_energy_mismatch": archive.max_energy_mismatch,
                 "force_evaluations": self.calculator.force_evaluations,
                 "energy_evaluations": self.calculator.energy_evaluations,
                 "max_force_evals": self.config.max_force_evals if self.config.max_force_evals is not None else 0,
@@ -3036,6 +3100,10 @@ class SurfaceWalker:
                 "max_node_duplicate_failure_rate": frontier_stats["max_node_duplicate_failure_rate"],
                 "coordinate_system": "cartesian_fixed_cell",
                 "variable_cell_supported": 0,
+                "quench_cell_mode": self.config.quench_cell_mode,
+                "objective": "energy" if self.config.quench_cell_mode == "fixed" else "enthalpy",
+                "external_pressure_gpa": self.config.external_pressure_gpa,
+                "quench_stress_tol": self._quench_stress_tol(),
                 "quench_optimizer": self.config.quench_optimizer,
                 "quench_fallback_optimizer": self.config.quench_fallback_optimizer,
                 "quench_fallback_attempts": self._quench_fallback_attempts,
@@ -3963,6 +4031,7 @@ class SurfaceWalker:
                 "energy": float(energy),
                 "best_energy": float(best_energy),
                 "descriptor": structural_descriptor(state).astype(float).tolist(),
+                **self._quench_output_metadata(state),
             }
             with path.open("a", encoding="utf-8") as handle:
                 handle.write(json.dumps(payload, sort_keys=True) + "\n")
@@ -3996,6 +4065,7 @@ class SurfaceWalker:
                 "discovered_entry_id": discovered_entry_id,
                 "energy": energy,
                 "status": "accepted",
+                **self._quench_output_metadata(state),
             },
         )
 
@@ -4024,8 +4094,18 @@ class SurfaceWalker:
                 "discovered_entry_id": -1 if discovered_entry_id is None else discovered_entry_id,
                 "energy": energy,
                 "status": status,
+                **self._quench_output_metadata(state),
             },
         )
+
+    @staticmethod
+    def _quench_output_metadata(state: State) -> dict[str, object]:
+        # Only called for true-quench endpoints, never for intermediate biased
+        # trajectory frames whose inherited metadata may describe their seed.
+        keys = ("potential_energy", "enthalpy", "volume", "external_pressure_gpa",
+                "stress_norm", "force_max", "quench_cell_mode", "quench_fmax",
+                "quench_certified")
+        return {key: state.metadata[key] for key in keys if key in state.metadata}
 
     def _trajectory_name(
         self,
@@ -4085,7 +4165,9 @@ class SurfaceWalker:
         stats["n_iter_values"].append(result.n_iter)
         stats["max_gradient"] = max(float(stats["max_gradient"]), result.gradient_norm)
         stats["unconverged"] += int(
-            not has_force_convergence_certificate(result, fmax)
+            not has_minimum_convergence_certificate(
+                result, fmax, self._quench_stress_tol() if label == "true_quench" else None,
+            )
         )
         stats["bound_fraction_sum"] += result.active_bound_fraction
         stats["max_bound_fraction"] = max(float(stats["max_bound_fraction"]), result.active_bound_fraction)

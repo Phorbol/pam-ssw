@@ -11,6 +11,7 @@ from typing import Callable
 from ..accounting import BudgetExceeded, EvaluationCounts, EvaluationPurpose
 from ..config import LSSSWConfig, SSWConfig
 from ..result import SearchResult
+from ..relax import QuenchConvergenceError
 from ..state import State
 from ..walker import GeometryValidator, SurfaceWalker
 from .actions import AttemptResult, AttemptStatus, StarterAction
@@ -31,6 +32,8 @@ class SSWAttemptWorker:
             raise ValueError("calculator_factory must be callable")
         if not isinstance(config, SSWConfig):
             raise ValueError("config must be an SSWConfig")
+        if config.quench_cell_mode != "fixed":
+            raise ValueError("posterior cell quenching is not supported; use run_ssw or run_ls_ssw")
         if not isinstance(softening_enabled, bool):
             raise ValueError("softening_enabled must be a boolean")
         if softening_enabled and not isinstance(config, LSSSWConfig):
@@ -119,6 +122,16 @@ class SSWAttemptWorker:
                 deepcopy(starter_state),
                 initial_quench_purpose=EvaluationPurpose.STARTER_TRUE_QUENCH,
             )
+        except QuenchConvergenceError:
+            evaluation_counts = _calculator_snapshot(walker)
+            terminal = _failed_result(
+                action, AttemptStatus.INVALID, evaluation_counts, "uncertified_starter",
+            )
+            self._record_diagnostics_safely(
+                action, walker=walker, stage="uncertified_starter",
+                force_evaluations=evaluation_counts.total,
+            )
+            return terminal
         except BudgetExceeded:
             evaluation_counts = _calculator_snapshot(walker)
             if _counter_exhausted(walker):
@@ -384,6 +397,10 @@ def _map_search_result(
             AttemptStatus.FRAGMENTED,
             evaluation_counts,
             "fragment_rejections_without_landing",
+        )
+    if result.quench_failures:
+        return _failed_result(
+            action, AttemptStatus.INVALID, evaluation_counts, "uncertified_landing",
         )
     return _failed_result(action, AttemptStatus.INVALID, evaluation_counts, "no_landing_minimum")
 

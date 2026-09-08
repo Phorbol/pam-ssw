@@ -26,6 +26,7 @@ def test_package_root_exports_only_the_public_posterior_exploration_types():
     assert pamssw.BootstrapConvergenceError is BootstrapConvergenceError
     assert set(pamssw.__all__) == {
         "BootstrapConvergenceError",
+        "QuenchConvergenceError",
         "ExplorationController",
         "LSSSWConfig",
         "RelaxConfig",

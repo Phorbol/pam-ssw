@@ -55,6 +55,19 @@ class RelaxResult:
     displacement_max: float = 0.0
     outcome_class: RelaxOutcomeClass = RelaxOutcomeClass.USEFUL_PROGRESS
     telemetry: RelaxTelemetry = field(default_factory=RelaxTelemetry)
+    stress_norm: float | None = None
+    potential_energy: float | None = None
+    volume: float | None = None
+
+
+@dataclass(frozen=True)
+class QuenchFailure:
+    """Uncertified landing, retained for inspection but never an archive node."""
+
+    trial_index: int
+    proposal_index: int
+    seed_entry_id: int
+    relaxation: RelaxResult
 
 
 @dataclass(frozen=True)
@@ -74,3 +87,4 @@ class SearchResult:
     archive: Any
     walk_history: list[WalkRecord] = field(default_factory=list)
     stats: dict[str, StatsValue] = field(default_factory=dict)
+    quench_failures: list[QuenchFailure] = field(default_factory=list)

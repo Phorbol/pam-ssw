@@ -30,6 +30,10 @@ class SSWConfig:
     quench_maxiter: int = 400
     quench_optimizer: str = "scipy-lbfgsb"
     quench_fallback_optimizer: str | None = None
+    quench_cell_mode: str = "fixed"
+    quench_stress_tol: float = 1e-3  # eV / Angstrom^3, allowed stress residual
+    external_pressure_gpa: float = 0.0
+    dedup_cell_tol: float = 1e-3  # dimensionless relative cell deformation
     dedup_rmsd_tol: float = 0.1
     dedup_energy_tol: float = 1e-3
     rng_seed: int = 0
@@ -291,6 +295,21 @@ class SSWConfig:
         }
         if self.quench_optimizer not in quench_optimizers:
             raise ValueError("quench_optimizer must be one of scipy-lbfgsb, ase-fire, ase-lbfgs")
+        if self.quench_cell_mode not in {"fixed", "volume_only", "shape", "slab_xy"}:
+            raise ValueError("quench_cell_mode must be fixed, volume_only, shape, or slab_xy")
+        if not isfinite(self.quench_stress_tol) or self.quench_stress_tol <= 0:
+            raise ValueError("quench_stress_tol must be positive and finite")
+        if not isfinite(self.external_pressure_gpa):
+            raise ValueError("external_pressure_gpa must be finite")
+        if not isfinite(self.dedup_cell_tol) or self.dedup_cell_tol < 0:
+            raise ValueError("dedup_cell_tol must be finite and nonnegative")
+        if self.quench_cell_mode != "fixed":
+            if self.quench_optimizer not in {"ase-fire", "ase-lbfgs"}:
+                raise ValueError("cell quenching requires ase-fire or ase-lbfgs")
+            if self.quench_fallback_optimizer not in {None, "ase-fire", "ase-lbfgs"}:
+                raise ValueError("cell quench fallback requires ase-fire or ase-lbfgs")
+        if self.external_pressure_gpa != 0 and self.quench_cell_mode in {"fixed", "slab_xy"}:
+            raise ValueError("nonzero external pressure requires bulk cell quenching")
         if (
             self.quench_fallback_optimizer is not None
             and self.quench_fallback_optimizer not in quench_optimizers

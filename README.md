@@ -1,7 +1,7 @@
 # pamssw
 
-`pamssw` is a compact implementation of SSW and LS-SSW for fixed-cell atomistic
-global optimization. It is designed for practical basin discovery: start from one
+`pamssw` implements SSW and LS-SSW with fixed-cell atomistic propagation and
+an experimental option for cell-relaxed true quenching. It is designed for practical basin discovery: start from one
 structure, walk on a biased potential surface, quench on the true potential, and
 keep a deduplicated archive of minima.
 
@@ -30,15 +30,87 @@ Included:
 
 Not included:
 
-- Variable-cell search
+- Generalized atomic/cell SSW escape directions (cell-relaxed true quenching is experimental)
 - Transition-state refinement
 - IRC or fake-IRC
 - Canonical sampling or Metropolis-Hastings correction
 - A full workflow wrapper for reading arbitrary structure files from the CLI
 
-For periodic slabs, treat the current implementation as fixed-cell SSW/LS-SSW.
-It can evaluate periodic energies and forces, but the workflow does not optimize
-the cell.
+The default periodic slab workflow uses fixed-cell SSW/LS-SSW. Experimental
+`slab_xy` true quenching can relax in-plane lattice vectors as described below.
+
+## Certified minima and experimental cell quenching
+
+Searches require a force-certified initial minimum. If its primary and configured
+fallback quench both fail, `run_ssw` / `run_ls_ssw` raise
+`QuenchConvergenceError` with `.relaxation` and `.evaluation_counts`. Subsequent
+uncertified landings are excluded from the archive and productive credit;
+`result.quench_failures` retains their states and relaxation diagnostics. With
+proposal output enabled they are written as `*_uncertified.xyz`.
+
+Basin matching now uses geometry and compatible periodic cells. An energy
+mismatch alone does not create a basin or earn seed success. The first accepted
+representative remains unchanged; `archive_energy_mismatch_hits` and
+`archive_max_energy_mismatch` expose discrepancies for re-quenching or scientific
+review. This changes historical archive counts. The matcher is approximate:
+it does not resolve arbitrary atom permutations or equivalent lattice bases.
+`dedup_energy_tol` is the mismatch diagnostic threshold;
+`dedup_rmsd_tol` remains the geometric matching threshold.
+
+To relax atoms and cell **only during true quenching**, use an ASE calculator
+that provides consistent energy, forces and stress:
+
+```python
+from pamssw import LSSSWConfig, run_ls_ssw, write_state
+
+config = LSSSWConfig(
+    max_trials=50,
+    quench_cell_mode="volume_only",   # also "shape" or "slab_xy"
+    quench_optimizer="ase-lbfgs",
+    quench_fallback_optimizer="ase-fire",
+    quench_fmax=0.01,                 # eV/Angstrom, active atomic force norm
+    quench_stress_tol=0.001,          # eV/Angstrom^3, allowed stress residual
+    external_pressure_gpa=0.0,       # nonzero pressure is bulk-only
+    dedup_cell_tol=0.001,            # relative cell-matrix tolerance
+)
+# state: periodic State; calculator: pamssw.calculators.ASECalculator
+result = run_ls_ssw(state, calculator, config)
+write_state("best_cell_relaxed.extxyz", result.best_state)
+```
+
+`quench_cell_mode="fixed"` remains the default. Enabling cell quenching requires
+`ase-lbfgs` or `ase-fire` for both primary and optional fallback; the Cartesian
+`scipy-lbfgsb` backend cannot optimize the cell. ASE >=3.23 supplies
+`FrechetCellFilter`. Cell quenching is also directly available through
+`pamssw.cell_relax.CellRelaxer`; it returns a `RelaxResult`, including incomplete
+outcomes, for caller inspection.
+
+Each SSW proposal still propagates at its starter's fixed cell, then quenches on
+`E+pV`. Archive and returned `best_energy` use this enthalpy in cell mode.
+Structure metadata separately records `potential_energy`, `enthalpy`, `volume`,
+`external_pressure_gpa` and `stress_norm`; search endpoint outputs also include
+`force_max` and `quench_certified`. `RelaxResult.gradient_norm` is always the
+physical active-atom force norm, independent of ASE's generalized-coordinate
+scaling. Cell certificates additionally require the allowed residual of
+`stress + p I` to meet `quench_stress_tol`.
+
+- `volume_only`: isotropic scaling, with mean normal stress as residual.
+- `shape`: full bulk cell relaxation, with maximum absolute stress component.
+- `slab_xy`: xx, yy and xy only; XY periodicity, in-plane lattice vectors and a
+  Z-aligned vacuum vector are required. The vacuum vector stays fixed. Its
+  stress uses the full cell volume and therefore depends on vacuum thickness.
+
+Fixed atoms follow affine cell deformation (fixed fractional coordinates).
+Bulk modes require full periodicity; nonzero external pressure is rejected for
+slabs. Missing/nonfinite stress and invalid cells fail explicitly. Posterior
+campaigns reject cell mode before calculator execution until their event schema
+can carry its stress/enthalpy contract.
+
+This is an atom-only escape kernel followed by cell relaxation, **not** joint
+atomic/cell SSW or a pressure-dependent phase-search validation. CPU analytic
+and periodic LJ checks are recorded under
+`runs/20260908-certified-cell-quench-validation/`; no MACE/DFT/GPU production
+validation is claimed for this new path.
 
 ## Experimental posterior-driven exploration core
 
@@ -439,7 +511,9 @@ config = LSSSWConfig(
 
 `ASECalculator` preserves `cell` and `pbc` when it builds ASE `Atoms`. Local
 softening and pair-distance fingerprints use minimum-image distances on periodic
-axes. The search remains fixed-cell: do not expect lattice-vector optimization.
+axes. This illustrated slab configuration keeps the cell fixed; opt-in
+`quench_cell_mode="slab_xy"` additionally relaxes its in-plane lattice vectors
+during true quenching.
 
 **Slab-specific notes**: The shared softening kernel (`xi=0.3, strength=0.15`)
 works for both C60 and PdO, but the walker envelope needs system-specific

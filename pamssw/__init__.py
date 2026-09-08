@@ -14,11 +14,13 @@ from .profiles import (
     validated_profile_metadata,
 )
 from .result import RelaxOutcomeClass, RelaxResult, SearchResult
+from .relax import QuenchConvergenceError
 from .runner import relax_minimum, run_ls_ssw, run_ssw
 from .state import State
 
 __all__ = [
     "BootstrapConvergenceError",
+    "QuenchConvergenceError",
     "ExplorationController",
     "LSSSWConfig",
     "RelaxConfig",

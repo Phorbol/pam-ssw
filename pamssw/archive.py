@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from .fingerprint import descriptor_distance, structural_descriptor
-from .pbc import mic_displacement
+from .pbc import mic_displacement, wrap_positions
 from .state import State
 
 
@@ -41,12 +41,25 @@ class ArchivePrototype:
 
 
 class MinimaArchive:
-    def __init__(self, energy_tol: float, rmsd_tol: float, max_prototypes: int = 1000) -> None:
+    """Geometry-first approximate basin matching with stable representatives.
+
+    Energy differences are diagnostics, not independent evidence of a new basin.
+    Callers must certify their landings before insertion. Atom permutations and
+    equivalent lattice bases are not resolved by this matcher.
+    """
+
+    def __init__(self, energy_tol: float, rmsd_tol: float, max_prototypes: int = 1000,
+                 *, cell_tol: float = 1e-3) -> None:
         if max_prototypes <= 0:
             raise ValueError("max_prototypes must be positive")
+        if not np.isfinite(cell_tol) or cell_tol < 0:
+            raise ValueError("cell_tol must be finite and nonnegative")
         self.energy_tol = energy_tol
         self.rmsd_tol = rmsd_tol
         self.max_prototypes = max_prototypes
+        self.cell_tol = cell_tol
+        self.energy_mismatch_hits = 0
+        self.max_energy_mismatch = 0.0
         self.entries: list[MinimaEntry] = []
         self.prototypes: list[ArchivePrototype] = []
 
@@ -55,6 +68,10 @@ class MinimaArchive:
         if match is not None:
             match.visits += 1
             match.duplicate_hits += 1
+            discrepancy = abs(match.energy - energy)
+            if discrepancy > self.energy_tol:
+                self.energy_mismatch_hits += 1
+                self.max_energy_mismatch = max(self.max_energy_mismatch, discrepancy)
             return match
 
         entry = MinimaEntry(
@@ -71,12 +88,29 @@ class MinimaArchive:
         return entry
 
     def find_match(self, state: State, energy: float) -> MinimaEntry | None:
+        if not np.isfinite(energy):
+            raise ValueError("archive energy must be finite")
         for entry in self.entries:
-            if abs(entry.energy - energy) > self.energy_tol:
+            if not self._compatible_boundary(entry.state, state):
                 continue
             if self._rmsd(entry.state, state) <= self.rmsd_tol:
                 return entry
         return None
+
+    def _compatible_boundary(self, lhs: State, rhs: State) -> bool:
+        if lhs.pbc != rhs.pbc or not np.array_equal(lhs.fixed_mask, rhs.fixed_mask):
+            return False
+        if not any(lhs.pbc):
+            return True
+        if lhs.cell is None or rhs.cell is None:
+            return False
+        try:
+            # Check relative deformation in both directions for symmetry.
+            forward = np.linalg.solve(lhs.cell, rhs.cell) - np.eye(3)
+            reverse = np.linalg.solve(rhs.cell, lhs.cell) - np.eye(3)
+        except np.linalg.LinAlgError:
+            return False
+        return bool(max(np.max(np.abs(forward)), np.max(np.abs(reverse))) <= self.cell_tol)
 
     def clone(self) -> MinimaArchive:
         return copy.deepcopy(self)
@@ -260,8 +294,12 @@ class MinimaArchive:
         if not np.array_equal(lhs.numbers, rhs.numbers):
             return float("inf")
         if lhs.n_atoms <= 1 or any(lhs.pbc) or any(rhs.pbc):
-            if lhs.cell is not None and rhs.cell is not None and lhs.pbc == rhs.pbc and np.allclose(lhs.cell, rhs.cell):
-                diff = mic_displacement(lhs.positions, rhs.positions, lhs.cell, lhs.pbc)
+            if lhs.cell is not None and rhs.cell is not None and lhs.pbc == rhs.pbc:
+                # find_match has already checked the separate cell tolerance.
+                # Remove each state's own lattice images before comparison.
+                left = wrap_positions(lhs.positions, lhs.cell, lhs.pbc)
+                right = wrap_positions(rhs.positions, rhs.cell, rhs.pbc)
+                diff = mic_displacement(left, right, lhs.cell, lhs.pbc)
             else:
                 diff = lhs.positions - rhs.positions
             return float(np.sqrt(np.mean(np.sum(diff * diff, axis=1))))

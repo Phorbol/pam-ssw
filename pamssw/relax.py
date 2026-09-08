@@ -16,6 +16,7 @@ except ImportError:  # pragma: no cover - depends on the installed ASE version
     _ASE_FIRE2 = None
 
 from .pbc import mic_displacement, wrap_positions
+from .accounting import EvaluationCounts
 from .result import RelaxOutcomeClass, RelaxResult, RelaxTelemetry
 from .state import State
 
@@ -333,10 +334,41 @@ class CertificateFallbackResult:
     fallback_used: bool
 
 
+class QuenchConvergenceError(RuntimeError):
+    """A search cannot start without a certified minimum; retain its evidence."""
+
+    def __init__(self, message: str, *, relaxation: RelaxResult,
+                 evaluation_counts: EvaluationCounts) -> None:
+        super().__init__(message)
+        self.relaxation = relaxation
+        self.evaluation_counts = evaluation_counts
+
+
 def has_force_convergence_certificate(result: RelaxResult, fmax: float) -> bool:
     """Return whether the reported active-atom force norm is finite and converged."""
 
-    return bool(np.isfinite(result.gradient_norm) and result.gradient_norm <= fmax)
+    return bool(
+        np.isfinite(fmax) and fmax > 0
+        and np.isfinite(result.energy)
+        and np.isfinite(result.gradient_norm)
+        and 0 <= result.gradient_norm <= fmax
+    )
+
+
+def has_minimum_convergence_certificate(
+    result: RelaxResult, fmax: float, stress_tol: float | None = None,
+) -> bool:
+    """Check physical forces and, for a cell quench, allowed stress residual."""
+    if not has_force_convergence_certificate(result, fmax):
+        return False
+    if stress_tol is None:
+        return True
+    return bool(
+        np.isfinite(stress_tol) and stress_tol > 0
+        and result.stress_norm is not None
+        and np.isfinite(result.stress_norm)
+        and 0 <= result.stress_norm <= stress_tol
+    )
 
 
 def relax_with_certificate_fallback(
@@ -349,6 +381,7 @@ def relax_with_certificate_fallback(
     on_fallback_start: Callable[[], None] | None = None,
     trajectory_callback: Callable[[State], None] | None = None,
     trajectory_stride: int = 1,
+    stress_tol: float | None = None,
 ) -> CertificateFallbackResult:
     """Run one fallback only when the primary result lacks a force certificate."""
 
@@ -359,7 +392,7 @@ def relax_with_certificate_fallback(
         "trajectory_stride": trajectory_stride,
     }
     primary = primary_relaxer.relax(state, **relax_kwargs)
-    if fallback_relaxer is None or has_force_convergence_certificate(primary, fmax):
+    if fallback_relaxer is None or has_minimum_convergence_certificate(primary, fmax, stress_tol):
         return CertificateFallbackResult(
             primary=primary,
             fallback=None,

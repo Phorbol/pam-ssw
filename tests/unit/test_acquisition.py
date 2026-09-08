@@ -6,14 +6,15 @@ from pamssw.state import State
 
 
 def _state(offset: float) -> State:
+    # Change a bond length: pure translation is the same cluster basin.
     return State(
         numbers=np.full(4, 18),
         positions=np.array(
             [
-                [offset, 0.0, 0.0],
-                [offset + 1.0, 0.0, 0.0],
-                [offset, 1.0, 0.0],
-                [offset, 0.0, 1.0],
+                [0.0, 0.0, 0.0],
+                [1.0 + offset, 0.0, 0.0],
+                [0.0, 1.0, 0.0],
+                [0.0, 0.0, 1.0],
             ]
         ),
     )
@@ -43,18 +44,19 @@ def test_descriptor_degeneracy_counts_bins_with_multiple_distinct_minima():
     assert archive.descriptor_degeneracy_rate(bin_width=0.1) == 0.5
 
 
-def test_bandit_selector_prefers_novel_low_density_underexplored_node():
+def test_bandit_selector_prefers_underexplored_frontier_at_equal_energy():
     archive = MinimaArchive(energy_tol=1e-6, rmsd_tol=1e-3)
     crowded = archive.add(_state(0.0), -5.0, parent_id=None)
-    novel = archive.add(_state(5.0), -4.9, parent_id=None)
-    archive.add(_state(0.05), -4.8, parent_id=crowded.entry_id)
+    # Equal energies isolate density/frontier/exploration from the energy term.
+    novel = archive.add(_state(5.0), -5.0, parent_id=None)
+    archive.add(_state(0.05), -5.0, parent_id=crowded.entry_id)
 
     crowded.node_trials = 8
     crowded.node_successes = 0
-    crowded.frontier_value = 0.0
+    crowded.frontier_score = 0.0
     novel.node_trials = 0
     novel.node_successes = 0
-    novel.frontier_value = 1.0
+    novel.frontier_score = 1.0
 
     selector = BanditSelector(
         policy=AcquisitionPolicy(
@@ -66,6 +68,8 @@ def test_bandit_selector_prefers_novel_low_density_underexplored_node():
         )
     )
 
+    assert crowded is not novel
+    assert selector.score_entry(archive, novel) > selector.score_entry(archive, crowded)
     assert selector.select(archive, np.random.default_rng(4)).entry_id == novel.entry_id
 
 

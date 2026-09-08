@@ -270,3 +270,40 @@ def test_archive_clone_does_not_share_prototype_list_or_descriptor_arrays():
     assert archive.prototypes[0].representative_entry_id == source_prototype.representative_entry_id
     assert archive.prototypes[0].weight == source_prototype.weight
     assert len(cloned.prototypes) == 2
+
+
+def test_energy_difference_alone_cannot_create_a_basin():
+    archive = MinimaArchive(energy_tol=1e-3, rmsd_tol=0.05)
+    first = archive.add(_state(-1.), -10., parent_id=None)
+    duplicate = archive.add(_state(-1.), -10.002, parent_id=first.entry_id)
+    assert duplicate is first
+    assert len(archive.entries) == 1
+    assert archive.energy_mismatch_hits == 1
+    assert abs(archive.max_energy_mismatch - 0.002) < 1e-12
+    assert first.energy == -10.  # retain one stable representative
+
+
+def test_periodic_basin_identity_requires_compatible_cells():
+    archive = MinimaArchive(energy_tol=1e-3, rmsd_tol=0.05)
+    first = State(numbers=[1], positions=[[1., 1., 1.]], cell=np.eye(3)*4, pbc=(True,)*3)
+    second = State(numbers=[1], positions=first.positions, cell=np.eye(3)*5, pbc=first.pbc)
+    archive.add(first, 0., None)
+    archive.add(second, 0., None)
+    assert len(archive.entries) == 2
+
+
+def test_different_periodicity_does_not_merge():
+    archive = MinimaArchive(energy_tol=1e-3, rmsd_tol=0.05)
+    first = State(numbers=[1], positions=[[1., 1., 1.]], cell=np.eye(3)*4, pbc=(True,)*3)
+    second = State(numbers=[1], positions=first.positions, cell=first.cell, pbc=(True,True,False))
+    archive.add(first, 0., None)
+    archive.add(second, 0., None)
+    assert len(archive.entries) == 2
+
+
+def test_compatible_cell_deformation_keeps_periodic_image_invariance():
+    archive = MinimaArchive(energy_tol=1e-3, rmsd_tol=0.01, cell_tol=1e-3)
+    first = State(numbers=[1], positions=[[0., 0., 0.]], cell=np.eye(3)*4, pbc=(True,)*3)
+    second = State(numbers=[1], positions=[[4.002*30, 0., 0.]], cell=np.eye(3)*4.002, pbc=first.pbc)
+    original = archive.add(first, 0., None)
+    assert archive.add(second, 0., None) is original

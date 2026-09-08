@@ -4155,7 +4155,8 @@ def test_proposal_pool_tracks_repeated_selected_kind_once(monkeypatch):
     ("is_new", "candidate_energy", "expected_productive"),
     [
         (True, -0.5, True),
-        (False, -1.1, True),
+        (False, -1.1, False),  # energy mismatch alone is not productive
+        (False, -1.6, False),
         (False, -1.0, False),
     ],
 )
@@ -4191,6 +4192,8 @@ def test_run_records_direction_type_trial_productivity(monkeypatch, is_new, cand
 
     assert result.stats["direction_type_selected_random"] == 1
     assert result.stats["direction_type_productive_random"] == int(expected_productive)
+    if not is_new:
+        assert result.archive.entries[0].node_successes == 0
 
 
 def test_run_resets_direction_type_memory_at_start(monkeypatch):

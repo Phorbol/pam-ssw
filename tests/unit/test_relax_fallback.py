@@ -124,3 +124,22 @@ def test_certificate_fallback_returns_uncertified_fallback_without_retrying():
     assert outcome.final is fallback_result
     assert outcome.fallback_used is True
     assert len(fallback.starts) == 1
+
+
+def test_cell_fallback_requires_stress_certificate_even_if_atoms_converged():
+    from pamssw.relax import has_minimum_convergence_certificate
+    primary = _ScriptedRelaxer(RelaxResult(
+        state=_state(1.), energy=-1., gradient_norm=0., n_iter=20, stress_norm=0.1,
+    ))
+    fallback_result = RelaxResult(
+        state=_state(2.), energy=-2., gradient_norm=0., n_iter=4, stress_norm=0.0001,
+    )
+    fallback = _ScriptedRelaxer(fallback_result)
+    outcome = relax_with_certificate_fallback(
+        primary, _state(0.), fmax=0.01, maxiter=20,
+        fallback_relaxer=fallback, stress_tol=0.001,
+    )
+    assert outcome.fallback_used
+    assert outcome.final is fallback_result
+    assert has_minimum_convergence_certificate(outcome.final, 0.01, 0.001)
+    assert fallback.starts == [primary.result.state]

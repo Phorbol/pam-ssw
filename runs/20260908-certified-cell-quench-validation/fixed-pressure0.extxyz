@@ -1,0 +1,6 @@
+4
+Lattice="1.8 0.0 0.0 0.0 1.8 0.0 0.0 0.0 1.8" Properties=species:S:1:pos:R:3 potential_energy=-19.53618131866687 force_max=1.9598936232982836e-15 quench_fmax=0.005 quench_cell_mode=fixed quench_certified=T volume=5.832000000000001 pbc="T T T"
+Ar       0.00000000       0.00000000       0.00000000
+Ar       0.00000000       0.90000000       0.90000000
+Ar       0.90000000       0.00000000       0.90000000
+Ar       0.90000000       0.90000000       0.00000000

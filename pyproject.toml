@@ -11,7 +11,7 @@ dependencies = [
   "numpy>=1.26",
   "scipy>=1.11",
   "PyYAML>=6.0",
-  "ase>=3.22",
+  "ase>=3.23",
 ]
 
 [project.optional-dependencies]
