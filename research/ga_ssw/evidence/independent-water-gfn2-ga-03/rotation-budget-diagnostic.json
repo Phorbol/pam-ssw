@@ -1,0 +1,18 @@
+[
+  {
+    "accuracy": 0.01,
+    "fd_step": 0.001,
+    "residual": 0.01848887273794536,
+    "symmetry_error": 0.9892127687243389,
+    "forces": 81,
+    "converged": true
+  },
+  {
+    "accuracy": 0.001,
+    "fd_step": 0.0001,
+    "residual": 0.00881137894454682,
+    "symmetry_error": 0.016492750994276325,
+    "forces": 7,
+    "converged": true
+  }
+]

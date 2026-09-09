@@ -28,3 +28,7 @@ pamssw = "pamssw.cli:main"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+
+[tool.setuptools.packages.find]
+include = ["pamssw*"]
+namespaces = false

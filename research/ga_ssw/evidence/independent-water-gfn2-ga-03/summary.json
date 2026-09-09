@@ -1,0 +1,78 @@
+{
+  "status": "completed_with_failures",
+  "archive_rows": 3,
+  "observations": 8,
+  "failures": 6,
+  "stages": [
+    {
+      "phase": "initial_quench",
+      "status": "completed",
+      "requests": 354
+    },
+    {
+      "phase": "initial_quench",
+      "status": "completed",
+      "requests": 480
+    },
+    {
+      "phase": "initial_quench",
+      "status": "completed",
+      "requests": 303
+    },
+    {
+      "phase": "quick",
+      "status": "completed_with_failures",
+      "requests": 82
+    },
+    {
+      "phase": "quick",
+      "status": "completed_with_failures",
+      "requests": 82
+    },
+    {
+      "phase": "quick",
+      "status": "completed_with_failures",
+      "requests": 82
+    },
+    {
+      "phase": "proposal",
+      "status": "budget_exhausted",
+      "requests": 0
+    },
+    {
+      "phase": "generation_short",
+      "status": "completed_with_failures",
+      "requests": 82
+    },
+    {
+      "phase": "fine",
+      "status": "completed_with_failures",
+      "requests": 82
+    }
+  ],
+  "search_evaluation_requests": 1547,
+  "fresh_evaluation_requests": 3,
+  "checks": [
+    {
+      "id": 7,
+      "energy": -2075.9318079036807,
+      "max_force": 0.0074180736748977035,
+      "force_pass": true
+    },
+    {
+      "id": 0,
+      "energy": -2075.478355086318,
+      "max_force": 0.009931673920731217,
+      "force_pass": true
+    },
+    {
+      "id": 5,
+      "energy": -2075.236895567178,
+      "max_force": 0.009303593025405345,
+      "force_pass": true
+    }
+  ],
+  "wall_seconds": 30.368271452840418,
+  "physical_stability_certified": false,
+  "different_basins_certified": false
+}

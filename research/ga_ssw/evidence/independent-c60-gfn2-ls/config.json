@@ -1,0 +1,36 @@
+{
+  "backend": "tblite 0.7.0 GFN2-xTB",
+  "accuracy": 0.001,
+  "ssw": {
+    "width": 0.2,
+    "rotation_bias": 100.0,
+    "max_gaussians": 2,
+    "temperature_K": 300.0,
+    "fmax": 0.01,
+    "relax_steps": 400,
+    "fd_step": 0.0001,
+    "rotation_hvp": 100,
+    "rotation_tol": 0.02,
+    "forward_force": 0.1,
+    "direction_sampling": "paper"
+  },
+  "ls": {
+    "bond_energies": {
+      "(6, 6)": 3.61
+    },
+    "bond_lengths": {
+      "(6, 6)": 1.886864590515379
+    },
+    "target_per_atom": 0.02,
+    "initial_fraction": 0.03,
+    "xi": 0.2,
+    "learning_rate": 1.8
+  },
+  "seed": 20260909,
+  "first_shell_max": 1.441642207783851,
+  "second_shell_min": 2.332086973246907,
+  "cutoff_definition": "midpoint of observed shell gap",
+  "source": "LS DOI 10.1021/acs.jctc.4c01081 and SI: C-C 3.61 eV, C60 target 0.02 eV/atom",
+  "budget": "one CPU; 300-second external limit; one outer LS step",
+  "interpretation": "workflow validation, not comparison of search efficiency"
+}

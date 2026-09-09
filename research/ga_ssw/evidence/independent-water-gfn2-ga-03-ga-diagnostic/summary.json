@@ -1,0 +1,91 @@
+{
+  "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/independent-water-gfn2-ga-03",
+  "calculator_requests": 0,
+  "initial_direction_replay_max_errors": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "actual_parent_observation_ids": [
+    1,
+    0,
+    5
+  ],
+  "son_pool": 300,
+  "daughter_pool": 300,
+  "compatible_pairs": 1218,
+  "all_possible_pairs": 90000,
+  "exact_success_probability": 0.013533333333333333,
+  "expected_draws": 73.89162561576354,
+  "probability_zero_matches_in_100": 0.256000889939797,
+  "same_parent_compatible_pairs": 1002,
+  "different_parent_compatible_pairs": 216,
+  "unique_son_subsets": 134,
+  "unique_daughter_subsets": 134,
+  "first_match": {
+    "attempt": 128,
+    "son_index": 22,
+    "daughter_index": 186,
+    "son_parent": 0,
+    "daughter_parent": 0
+  },
+  "config_issue": "G=4 produces only one crossover and zero mutations per batch; max_batches=2 cannot reach four candidates",
+  "budget_trials": [
+    {
+      "max_batches": 2,
+      "max_pair_attempts": 100,
+      "status": "budget_exhausted",
+      "candidates": 0,
+      "batches": 1,
+      "rejected": 0,
+      "reason": "no complementary gametes after 100 pairs",
+      "operators": {},
+      "child_min_pair_distances": []
+    },
+    {
+      "max_batches": 2,
+      "max_pair_attempts": 10000,
+      "status": "budget_exhausted",
+      "candidates": 2,
+      "batches": 2,
+      "rejected": 0,
+      "reason": "whole-batch count did not reach min_ga",
+      "operators": {
+        "crossover": 2
+      },
+      "child_min_pair_distances": [
+        0.956820474312839,
+        0.9567062004877434
+      ]
+    },
+    {
+      "max_batches": 4,
+      "max_pair_attempts": 10000,
+      "status": "target_reached",
+      "candidates": 4,
+      "batches": 4,
+      "rejected": 0,
+      "reason": "",
+      "operators": {
+        "crossover": 4
+      },
+      "child_min_pair_distances": [
+        0.956820474312839,
+        0.9567062004877434,
+        0.956820474312839,
+        0.9567062004877442
+      ]
+    }
+  ],
+  "initial_quench_only_pool": {
+    "seed": 20260909,
+    "parent_ids": [
+      1,
+      0,
+      2
+    ],
+    "compatible_pairs": 1088,
+    "all_possible_pairs": 90000,
+    "success_probability": 0.012088888888888889
+  }
+}

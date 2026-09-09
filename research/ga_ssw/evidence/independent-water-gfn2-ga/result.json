@@ -1,0 +1,66 @@
+{
+  "archive": [],
+  "observations": [],
+  "failures": [
+    {
+      "phase": "initial_quench",
+      "generation": -1,
+      "seed_id": null,
+      "reason": "PropertyNotImplementedError: free_energy property not implemented",
+      "evaluation_requests": 1
+    },
+    {
+      "phase": "initial_quench",
+      "generation": -1,
+      "seed_id": null,
+      "reason": "PropertyNotImplementedError: free_energy property not implemented",
+      "evaluation_requests": 1
+    },
+    {
+      "phase": "initial_quench",
+      "generation": -1,
+      "seed_id": null,
+      "reason": "PropertyNotImplementedError: free_energy property not implemented",
+      "evaluation_requests": 1
+    }
+  ],
+  "stages": [
+    {
+      "phase": "initial_quench",
+      "generation": -1,
+      "seed_id": null,
+      "status": "failed",
+      "evaluation_requests": 1,
+      "observations": 0,
+      "details": {
+        "initial_index": 0
+      }
+    },
+    {
+      "phase": "initial_quench",
+      "generation": -1,
+      "seed_id": null,
+      "status": "failed",
+      "evaluation_requests": 1,
+      "observations": 0,
+      "details": {
+        "initial_index": 1
+      }
+    },
+    {
+      "phase": "initial_quench",
+      "generation": -1,
+      "seed_id": null,
+      "status": "failed",
+      "evaluation_requests": 1,
+      "observations": 0,
+      "details": {
+        "initial_index": 2
+      }
+    }
+  ],
+  "walks": [],
+  "evaluation_requests": 3,
+  "status": "no_eligible_minima",
+  "physical_validation_performed": false
+}

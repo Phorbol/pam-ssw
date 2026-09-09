@@ -1,0 +1,29 @@
+{
+  "status": "no_eligible_minima",
+  "archive_rows": 0,
+  "observations": 3,
+  "failures": 3,
+  "stages": [
+    {
+      "phase": "initial_quench",
+      "status": "failed",
+      "requests": 201
+    },
+    {
+      "phase": "initial_quench",
+      "status": "failed",
+      "requests": 201
+    },
+    {
+      "phase": "initial_quench",
+      "status": "failed",
+      "requests": 201
+    }
+  ],
+  "search_evaluation_requests": 603,
+  "fresh_evaluation_requests": 0,
+  "checks": [],
+  "wall_seconds": 12.687684588134289,
+  "physical_stability_certified": false,
+  "different_basins_certified": false
+}

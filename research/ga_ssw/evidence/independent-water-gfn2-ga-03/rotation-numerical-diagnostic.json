@@ -1,0 +1,26 @@
+[
+  {
+    "accuracy": 1.0,
+    "residual": 0.22492467705270278,
+    "symmetry_error": 5.280582062348602,
+    "curvature": -92.60808343629344,
+    "forces": 137,
+    "converged": false
+  },
+  {
+    "accuracy": 0.01,
+    "residual": 0.018580372620525344,
+    "symmetry_error": 0.9947707711434709,
+    "curvature": -92.49823085663711,
+    "forces": 137,
+    "converged": true
+  },
+  {
+    "accuracy": 0.001,
+    "residual": 0.017877279817112526,
+    "symmetry_error": 0.9903364896899782,
+    "curvature": -92.49846090502766,
+    "forces": 137,
+    "converged": true
+  }
+]

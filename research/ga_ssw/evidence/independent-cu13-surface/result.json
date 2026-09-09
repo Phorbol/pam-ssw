@@ -1,0 +1,45 @@
+{
+  "status": "component_integration_only_not_complete_ssw",
+  "backend": "ASE EMT",
+  "ase_version": "3.29.0",
+  "numpy_version": "2.5.2",
+  "external_native_programs_used": false,
+  "system": "Cu13",
+  "input_seed": 20260909,
+  "perturbation_sigma_angstrom": 0.03,
+  "direction_seed": 3,
+  "parameters_are_diagnostic_not_universal_defaults": true,
+  "force_tolerance_eV_per_angstrom": 0.001,
+  "optimizer_step_limit": 100,
+  "quench": {
+    "energy_eV": 9.36135796947757,
+    "max_force_eV_per_angstrom": 0.0007642341763712915,
+    "force_converged": true,
+    "optimizer_steps": 30,
+    "evaluation_requests": 31
+  },
+  "soft_mode": {
+    "curvature_eV_per_angstrom2": 7.105756009370939e-05,
+    "residual_eV_per_angstrom2": 0.000550698901845511,
+    "fd_step_angstrom": 0.001,
+    "hvp_budget": 25,
+    "residual_tolerance": 0.001,
+    "hvp_calls": 13,
+    "force_requests": 26,
+    "residual_converged": true,
+    "global_rigid_modes_removed": false
+  },
+  "fresh_calculator_check": {
+    "energy_eV": 9.36135796947757,
+    "max_force_eV_per_angstrom": 0.0007642341763712915,
+    "evaluation_requests": 1
+  },
+  "total_evaluation_requests": 58,
+  "wall_seconds": 0.26517923222854733,
+  "limitations": [
+    "No SSW escape, LS or GA trajectory in this probe.",
+    "No Hessian-positive or physical stability certificate.",
+    "Soft direction can contain global rigid motion.",
+    "API request counts are not native or SCF cost counts."
+  ]
+}

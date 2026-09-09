@@ -1,0 +1,28 @@
+{
+  "status": "completed",
+  "stages": [
+    "gaussian_limit"
+  ],
+  "ls_energy_response": [
+    0.002124013271130328
+  ],
+  "true_landings": 2,
+  "checks": [
+    {
+      "energy": -3495.670579062155,
+      "max_force": 0.005172680773678132,
+      "force_pass": true
+    },
+    {
+      "energy": -3495.670614969547,
+      "max_force": 0.0025827028143806277,
+      "force_pass": true
+    }
+  ],
+  "prefix_quench_requests": 7,
+  "search_requests": 137,
+  "total_requests": 146,
+  "wall_seconds": 52.54687366075814,
+  "physical_stability_certified": false,
+  "different_basins_certified": false
+}

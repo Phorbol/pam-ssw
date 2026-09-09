@@ -1,0 +1,140 @@
+{
+  "status": "completed_with_failures",
+  "archive_rows": 10,
+  "observations": 15,
+  "failures": 2,
+  "stages": [
+    {
+      "phase": "initial_quench",
+      "status": "completed",
+      "requests": 338
+    },
+    {
+      "phase": "initial_quench",
+      "status": "completed",
+      "requests": 478
+    },
+    {
+      "phase": "initial_quench",
+      "status": "completed",
+      "requests": 303
+    },
+    {
+      "phase": "quick",
+      "status": "completed",
+      "requests": 366
+    },
+    {
+      "phase": "quick",
+      "status": "completed",
+      "requests": 277
+    },
+    {
+      "phase": "quick",
+      "status": "completed_with_failures",
+      "requests": 596
+    },
+    {
+      "phase": "proposal",
+      "status": "target_reached",
+      "requests": 0
+    },
+    {
+      "phase": "offspring_quench",
+      "status": "completed",
+      "requests": 257
+    },
+    {
+      "phase": "offspring_quench",
+      "status": "completed",
+      "requests": 391
+    },
+    {
+      "phase": "offspring_quench",
+      "status": "completed",
+      "requests": 523
+    },
+    {
+      "phase": "offspring_quench",
+      "status": "completed",
+      "requests": 248
+    },
+    {
+      "phase": "generation_short",
+      "status": "completed",
+      "requests": 315
+    },
+    {
+      "phase": "fine",
+      "status": "completed_with_failures",
+      "requests": 527
+    }
+  ],
+  "search_evaluation_requests": 4619,
+  "fresh_evaluation_requests": 10,
+  "checks": [
+    {
+      "id": 13,
+      "energy": -2075.9677557423324,
+      "max_force": 0.00950442264935533,
+      "force_pass": true
+    },
+    {
+      "id": 6,
+      "energy": -2075.9666558968565,
+      "max_force": 0.009502999874783133,
+      "force_pass": true
+    },
+    {
+      "id": 1,
+      "energy": -2075.9317718905218,
+      "max_force": 0.009476764477177414,
+      "force_pass": true
+    },
+    {
+      "id": 11,
+      "energy": -2075.809399569706,
+      "max_force": 0.009935753564705312,
+      "force_pass": true
+    },
+    {
+      "id": 4,
+      "energy": -2075.712345433265,
+      "max_force": 0.00989115900099602,
+      "force_pass": true
+    },
+    {
+      "id": 9,
+      "energy": -2075.6331237553773,
+      "max_force": 0.009342731441970866,
+      "force_pass": true
+    },
+    {
+      "id": 8,
+      "energy": -2075.5617774838547,
+      "max_force": 0.00929353720077569,
+      "force_pass": true
+    },
+    {
+      "id": 10,
+      "energy": -2075.548567834326,
+      "max_force": 0.007726925947372446,
+      "force_pass": true
+    },
+    {
+      "id": 3,
+      "energy": -2075.477373675244,
+      "max_force": 0.009523253008621254,
+      "force_pass": true
+    },
+    {
+      "id": 2,
+      "energy": -2075.2368271823516,
+      "max_force": 0.009371869773191304,
+      "force_pass": true
+    }
+  ],
+  "wall_seconds": 139.72025536419824,
+  "physical_stability_certified": false,
+  "different_basins_certified": false
+}
