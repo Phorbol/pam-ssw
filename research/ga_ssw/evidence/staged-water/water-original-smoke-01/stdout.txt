@@ -1,0 +1,151 @@
+Picked up JAVA_TOOL_OPTIONS: -Xmx512m -XX:ActiveProcessorCount=1
+Load profile ...
+/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/runs/water-original-smoke-01/
+===============SSW_GA========================
+Run start time: 2026-09-09 09:22:15:071
+Component :H 30, O 15
+Charge: 0
+Spin: 1
+H : 30
+O : 15
+SearchType: combined clusters or molecules
+Create virtual baseline comparison structures ...
+Generate initial structure ...
+genePool
+joint
+采用自定义限制
+Run ssw for initial structure optimization
+java.io.IOException: No such file or directory
+	at java.base/java.io.UnixFileSystem.createFileExclusively(Native Method)
+	at java.base/java.io.File.createNewFile(File.java:1043)
+	at other.FileUtil.write(FileUtil.java:160)
+	at lasp.LaspCalculation.generateRigidBody(LaspCalculation.java:188)
+	at lasp.LaspCalculation.createFile(LaspCalculation.java:82)
+	at lasp.LaspCalculation.runLasp(LaspCalculation.java:54)
+	at app_ssw_ga.SSWGaSupport.SSWExploreInitial(SSWGaSupport.java:237)
+	at app_ssw_ga.SSW_GA.main(SSW_GA.java:33)
+java.io.FileNotFoundException: /home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/runs/water-original-smoke-01/input/ssw_gaussian/lasp.external.sh (No such file or directory)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:216)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:157)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:111)
+	at java.base/java.io.FileReader.<init>(FileReader.java:60)
+	at other.FileUtil.readFile(FileUtil.java:34)
+	at lasp.LaspCalculation.adjustSSWGaussianFile(LaspCalculation.java:197)
+	at lasp.LaspCalculation.createFile(LaspCalculation.java:84)
+	at lasp.LaspCalculation.runLasp(LaspCalculation.java:54)
+	at app_ssw_ga.SSWGaSupport.SSWExploreInitial(SSWGaSupport.java:237)
+	at app_ssw_ga.SSW_GA.main(SSW_GA.java:33)
+java.io.IOException: No such file or directory
+	at java.base/java.io.UnixFileSystem.createFileExclusively(Native Method)
+	at java.base/java.io.File.createNewFile(File.java:1043)
+	at other.FileUtil.write(FileUtil.java:160)
+	at lasp.LaspCalculation.adjustSSWGaussianFile(LaspCalculation.java:210)
+	at lasp.LaspCalculation.createFile(LaspCalculation.java:84)
+	at lasp.LaspCalculation.runLasp(LaspCalculation.java:54)
+	at app_ssw_ga.SSWGaSupport.SSWExploreInitial(SSWGaSupport.java:237)
+	at app_ssw_ga.SSW_GA.main(SSW_GA.java:33)
+java.io.FileNotFoundException: /home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/runs/water-original-smoke-01/input/ssw_gaussian/gaussian.inp.pre (No such file or directory)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:216)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:157)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:111)
+	at java.base/java.io.FileReader.<init>(FileReader.java:60)
+	at other.FileUtil.readFile(FileUtil.java:34)
+	at lasp.LaspCalculation.adjustSSWGaussianFile(LaspCalculation.java:212)
+	at lasp.LaspCalculation.createFile(LaspCalculation.java:84)
+	at lasp.LaspCalculation.runLasp(LaspCalculation.java:54)
+	at app_ssw_ga.SSWGaSupport.SSWExploreInitial(SSWGaSupport.java:237)
+	at app_ssw_ga.SSW_GA.main(SSW_GA.java:33)
+java.io.IOException: No such file or directory
+	at java.base/java.io.UnixFileSystem.createFileExclusively(Native Method)
+	at java.base/java.io.File.createNewFile(File.java:1043)
+	at other.FileUtil.write(FileUtil.java:160)
+	at lasp.LaspCalculation.adjustSSWGaussianFile(LaspCalculation.java:222)
+	at lasp.LaspCalculation.createFile(LaspCalculation.java:84)
+	at lasp.LaspCalculation.runLasp(LaspCalculation.java:54)
+	at app_ssw_ga.SSWGaSupport.SSWExploreInitial(SSWGaSupport.java:237)
+	at app_ssw_ga.SSW_GA.main(SSW_GA.java:33)
+LaspMainRunner: Starting dynamic full-load LASP computation...
+All LASP tasks have been completed!
+run nna
+Number of distinct generated initial structures: 9
+Initial minimum energy: -220.311249
+====================Iterations: 0================================
+Current Time: 2026-09-09 09:23:56
+Perform quick ssw-ga exploration
+Current Time: 2026-09-09 09:23:56
+Acquire genetic structure
+Population size1
+Total number of parent structures is:8
+采用自定义限制
+genePool
+joint
+采用自定义限制
+genePool
+joint
+采用自定义限制
+genePool
+joint
+采用自定义限制
+genePool
+joint
+Final number of returned structures: 6
+Number of offspring structures: 6
+get GA done
+Current Time: 2026-09-09 09:23:56
+Create folder and submit ssw optimization calculation
+Number of genetic structures generated: 6
+To opt...
+java.io.IOException: No such file or directory
+	at java.base/java.io.UnixFileSystem.createFileExclusively(Native Method)
+	at java.base/java.io.File.createNewFile(File.java:1043)
+	at other.FileUtil.write(FileUtil.java:160)
+	at lasp.LaspCalculation.generateRigidBody(LaspCalculation.java:188)
+	at lasp.LaspCalculation.createFile(LaspCalculation.java:82)
+	at lasp.LaspCalculation.runLasp(LaspCalculation.java:54)
+	at app_ssw_ga.SSWGaSupport.SSWOpt(SSWGaSupport.java:269)
+	at app_ssw_ga.SSW_GA.main(SSW_GA.java:98)
+java.io.FileNotFoundException: /home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/runs/water-original-smoke-01/input/ssw_gaussian/lasp.external.sh (No such file or directory)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:216)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:157)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:111)
+	at java.base/java.io.FileReader.<init>(FileReader.java:60)
+	at other.FileUtil.readFile(FileUtil.java:34)
+	at lasp.LaspCalculation.adjustSSWGaussianFile(LaspCalculation.java:197)
+	at lasp.LaspCalculation.createFile(LaspCalculation.java:84)
+	at lasp.LaspCalculation.runLasp(LaspCalculation.java:54)
+	at app_ssw_ga.SSWGaSupport.SSWOpt(SSWGaSupport.java:269)
+	at app_ssw_ga.SSW_GA.main(SSW_GA.java:98)
+java.io.IOException: No such file or directory
+	at java.base/java.io.UnixFileSystem.createFileExclusively(Native Method)
+	at java.base/java.io.File.createNewFile(File.java:1043)
+	at other.FileUtil.write(FileUtil.java:160)
+	at lasp.LaspCalculation.adjustSSWGaussianFile(LaspCalculation.java:210)
+	at lasp.LaspCalculation.createFile(LaspCalculation.java:84)
+	at lasp.LaspCalculation.runLasp(LaspCalculation.java:54)
+	at app_ssw_ga.SSWGaSupport.SSWOpt(SSWGaSupport.java:269)
+	at app_ssw_ga.SSW_GA.main(SSW_GA.java:98)
+java.io.FileNotFoundException: /home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/runs/water-original-smoke-01/input/ssw_gaussian/gaussian.inp.pre (No such file or directory)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:216)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:157)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:111)
+	at java.base/java.io.FileReader.<init>(FileReader.java:60)
+	at other.FileUtil.readFile(FileUtil.java:34)
+	at lasp.LaspCalculation.adjustSSWGaussianFile(LaspCalculation.java:212)
+	at lasp.LaspCalculation.createFile(LaspCalculation.java:84)
+	at lasp.LaspCalculation.runLasp(LaspCalculation.java:54)
+	at app_ssw_ga.SSWGaSupport.SSWOpt(SSWGaSupport.java:269)
+	at app_ssw_ga.SSW_GA.main(SSW_GA.java:98)
+java.io.IOException: No such file or directory
+	at java.base/java.io.UnixFileSystem.createFileExclusively(Native Method)
+	at java.base/java.io.File.createNewFile(File.java:1043)
+	at other.FileUtil.write(FileUtil.java:160)
+	at lasp.LaspCalculation.adjustSSWGaussianFile(LaspCalculation.java:222)
+	at lasp.LaspCalculation.createFile(LaspCalculation.java:84)
+	at lasp.LaspCalculation.runLasp(LaspCalculation.java:54)
+	at app_ssw_ga.SSWGaSupport.SSWOpt(SSWGaSupport.java:269)
+	at app_ssw_ga.SSW_GA.main(SSW_GA.java:98)
+LaspMainRunner: Starting dynamic full-load LASP computation...

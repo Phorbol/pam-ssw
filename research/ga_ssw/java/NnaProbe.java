@@ -55,7 +55,7 @@ public class NnaProbe {
             cs.add(c);Map<String,Object> frame=new LinkedHashMap<>();frame.put("label",labels.get(k));frame.put("energy",m.getEnergy());
             List<Integer> z=new ArrayList<>();List<double[]> xyz=new ArrayList<>();
             for(AtoCoo a:m.getAtoCoos()){z.add(a.getAtomic());xyz.add(a.getCoordinate());}
-            frame.put("cell_lengths",m.getPbc().getAbc());frame.put("cell_angles_degrees",m.getPbc().getAbcA());
+            frame.put("cell_lengths",m.getPbc().getAbc());frame.put("cell_angles_radians",m.getPbc().getAbcA());
             frame.put("numbers",z);frame.put("positions",xyz);frame.put("descriptor",descriptor(c));frames.add(frame);
         }
         if(args.length>7 && args[7].equals("batch")) {

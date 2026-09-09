@@ -67,3 +67,43 @@ failure of atom-order invariance. They do not validate GA-SSW efficiency, full
 archive behavior over a trajectory, periodic descriptors, crossover/mutation,
 KMeans beyond the stored k=1 oracle, native SSW/LS kernels, or variable-cell search.
 See `docs/research/2026-09-09-ga-ssw-behavior-parity.md` for findings and next steps.
+
+## Original workflow and actual runtime exchange
+
+`run_original_smoke.py` prepares a new directory with the supplied water template,
+public auxiliary files, one CPU/task, one initial candidate, six requested GA
+children, and one quick/fine iteration with two SSW steps. `OPTSSWStep=1` becomes
+three initial SSW steps inside the original main. These reduced values bound an
+interface experiment; they are not optimized search parameters.
+
+```bash
+module load intel/mpi/2021.13
+python research/ga_ssw/run_original_smoke.py \
+  --reference-root /home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909 \
+  --run-dir /tmp/new-ga-ssw-run --execute
+```
+
+The target must not already exist. Omitting `--execute` prepares only; to run the
+prepared directory later, follow its recorded command/environment rather than
+rerunning the creation command with the same target. The 120-second bound may
+interrupt the original main; timeout is recorded as timeout, not scientific failure
+or completion. `psutil` is required for MPI process-tree cleanup.
+
+Two recorded main runs timed out. `java/FinishWaterProbe.java` subsequently called
+original SGN methods on the second run's completed initial/GA outputs and retained
+virtual references to finish quick/fine search and export. It is deliberately
+limited to this water/k=1/six-completed-offspring case: no exact RNG restart and no
+claim that one uninterrupted original main completed. See staged evidence README
+for compilation/execution provenance; never rerun it over recorded outputs.
+
+To check the last real SGN/NNA exchange without any energy evaluation:
+
+```bash
+OPENBLAS_NUM_THREADS=1 python research/ga_ssw/check_runtime_projection.py \
+  --reference-root /home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909 \
+  --run-dir /home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/runs/water-original-smoke-02
+```
+
+`summary.json` distinguishes original main status, staged completion and recorded
+LASP outputs. Energy/force evaluation counts are currently unknown (`null`), not
+estimated from SSW steps or the number of exported structures.

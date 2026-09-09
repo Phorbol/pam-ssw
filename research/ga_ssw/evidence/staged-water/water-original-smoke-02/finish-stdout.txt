@@ -1,0 +1,12 @@
+Picked up JAVA_TOOL_OPTIONS: -Xmx512m -XX:ActiveProcessorCount=1
+/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/runs/water-original-smoke-02/
+Restored archive size: 9
+LaspMainRunner: Starting dynamic full-load LASP computation...
+All LASP tasks have been completed!
+A lower-energy structure has appeared; inherit this structure for termination.
+staged-quick completed; archive=11 best=-220.872772
+LaspMainRunner: Starting dynamic full-load LASP computation...
+All LASP tasks have been completed!
+A lower-energy structure has appeared; inherit this structure for termination.
+staged-fine completed; archive=14 best=-220.899429
+Staged interface workflow completed

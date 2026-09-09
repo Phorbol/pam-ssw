@@ -1,0 +1,40 @@
+{
+  "command": [
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/tools/jdk-17.0.2/bin/java",
+    "-jar",
+    "sgn.jar"
+  ],
+  "cwd": "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/runs/water-original-smoke-02/soft",
+  "config_overrides": {
+    "CPU": "1",
+    "Memory": "1",
+    "TaskNum": "1",
+    "SSWTaskNum": "1",
+    "CombineMultiUnitNum": "1",
+    "GANum": "6",
+    "OPTSSWStep": "1",
+    "QuickSSWStep": "2",
+    "SSWStep": "2",
+    "QuickSSWIterations": "1",
+    "FineSSWIterations": "1",
+    "PopClassifyNum": "1",
+    "LaspPath": "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/runs/water-original-smoke-02/bin/lasp"
+  },
+  "timeout_seconds": 120,
+  "source_sha256": {
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_program/sgn.jar": "05b9d1863fa244cabb768b169486fb8016249ee95a8bf569b64ae9dffa51d812",
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/GA-SSW/input/nna1.jar": "011d05f9e90f9e6a8a0fa74f76a686ac441f6b311186eadb2f543c440f2c0618",
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_program/lasp": "bba43b391619ae03cf7e9c455d8fe3a7c7bb7d434a56c7ef297bee38aa9b6704",
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/input-templates/TYPE3-(H2O)15/H2O_pf.pot": "e837759fdb6f0c3aae84f57f59d53f6ca59afef3e920e2692ca210bf28d9e12e",
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/input-templates/TYPE3-(H2O)15/addition/add.arc": "bdc0419ee04ef38b1f1a231355633b2968bcca3b24308bc77663fbb0b4bf0aec",
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/input-templates/TYPE3-(H2O)15/configure.non": "2f709f307d2512bda657b54c84f7d20582da54aebac4f20d3cb543263ebf9131",
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/input-templates/TYPE3-(H2O)15/lasp.in": "0d72943127d2a99cabf0acc64f567977404fa8439f91eaf06bbe60a53b4b5dc8",
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/input-templates/TYPE3-(H2O)15/segmentation.non": "faa428100f327343d27a3373c989a90ab627f46c4e56bc4fb7a4a77282f0b255",
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/GA-SSW/input/ssw_gaussian/gaussian.inp.after": "88ce881eb8590480622fb1507b4a3cd87b92f96d2fa55aed9ed181f7e9860df9",
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/GA-SSW/input/ssw_gaussian/gaussian.inp.pre": "243e60b4205cf2c1dd6d0eb3daddf06684a16958da80e7c7f04a41f24c23fed1",
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/GA-SSW/input/ssw_gaussian/lasp.external.sh": "b35f7a8f8040e01170abaad0003560f354f224d3ef2c009d7c82d5646bdfa672",
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/GA-SSW/input/ssw_gaussian/lasp.in": "a346d7e6f938a5bfa08bf136f3b98f8c641864ee40dfabc2644b291a83b83c47"
+  },
+  "random_seed": "Original unseeded Java RNG; actual references and generated structures retained",
+  "purpose": "Bounded interface smoke run. Original initial OPT steps are multiplied by 3; no performance claim."
+}

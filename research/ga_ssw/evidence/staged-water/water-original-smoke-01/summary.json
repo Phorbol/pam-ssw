@@ -1,0 +1,121 @@
+{
+  "status": {
+    "state": "timeout",
+    "returncode": -9,
+    "wall_seconds": 120.04096781276166
+  },
+  "stages": {
+    "initial_classification": true,
+    "ga_offspring": true,
+    "quick_ssw": false,
+    "quick_completed": false,
+    "fine_started": false,
+    "final_outputs": false
+  },
+  "java_exception_lines": [
+    "java.io.IOException: No such file or directory",
+    "java.io.FileNotFoundException: /home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/runs/water-original-smoke-01/input/ssw_gaussian/lasp.external.sh (No such file or directory)",
+    "java.io.IOException: No such file or directory",
+    "java.io.FileNotFoundException: /home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/runs/water-original-smoke-01/input/ssw_gaussian/gaussian.inp.pre (No such file or directory)",
+    "java.io.IOException: No such file or directory",
+    "java.io.IOException: No such file or directory",
+    "java.io.FileNotFoundException: /home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/runs/water-original-smoke-01/input/ssw_gaussian/lasp.external.sh (No such file or directory)",
+    "java.io.IOException: No such file or directory",
+    "java.io.FileNotFoundException: /home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/runs/water-original-smoke-01/input/ssw_gaussian/gaussian.inp.pre (No such file or directory)",
+    "java.io.IOException: No such file or directory"
+  ],
+  "lasp_tasks": [
+    {
+      "path": "output/initial/0",
+      "started": true,
+      "normal_end": true,
+      "configured_steps": 3,
+      "temperature": 250.0,
+      "minimum_log_events": 3,
+      "all_arc_frames": 3,
+      "lowest_recorded_energy": -220.044907
+    },
+    {
+      "path": "output/initial/1",
+      "started": true,
+      "normal_end": true,
+      "configured_steps": 3,
+      "temperature": 250.0,
+      "minimum_log_events": 3,
+      "all_arc_frames": 3,
+      "lowest_recorded_energy": -220.311249
+    },
+    {
+      "path": "output/initial/2",
+      "started": true,
+      "normal_end": true,
+      "configured_steps": 3,
+      "temperature": 250.0,
+      "minimum_log_events": 3,
+      "all_arc_frames": 3,
+      "lowest_recorded_energy": -220.201492
+    },
+    {
+      "path": "output/iterate/0/opt/0",
+      "started": true,
+      "normal_end": true,
+      "configured_steps": 1,
+      "temperature": 250.0,
+      "minimum_log_events": 1,
+      "all_arc_frames": 1,
+      "lowest_recorded_energy": -220.33934
+    },
+    {
+      "path": "output/iterate/0/opt/1",
+      "started": true,
+      "normal_end": false,
+      "configured_steps": 1,
+      "temperature": 250.0,
+      "minimum_log_events": 0,
+      "all_arc_frames": 0,
+      "lowest_recorded_energy": null
+    },
+    {
+      "path": "output/iterate/0/opt/2",
+      "started": false,
+      "normal_end": false,
+      "configured_steps": 1,
+      "temperature": 250.0,
+      "minimum_log_events": 0,
+      "all_arc_frames": 0,
+      "lowest_recorded_energy": null
+    },
+    {
+      "path": "output/iterate/0/opt/3",
+      "started": false,
+      "normal_end": false,
+      "configured_steps": 1,
+      "temperature": 250.0,
+      "minimum_log_events": 0,
+      "all_arc_frames": 0,
+      "lowest_recorded_energy": null
+    },
+    {
+      "path": "output/iterate/0/opt/4",
+      "started": false,
+      "normal_end": false,
+      "configured_steps": 1,
+      "temperature": 250.0,
+      "minimum_log_events": 0,
+      "all_arc_frames": 0,
+      "lowest_recorded_energy": null
+    },
+    {
+      "path": "output/iterate/0/opt/5",
+      "started": false,
+      "normal_end": false,
+      "configured_steps": 1,
+      "temperature": 250.0,
+      "minimum_log_events": 0,
+      "all_arc_frames": 0,
+      "lowest_recorded_energy": null
+    }
+  ],
+  "energy_force_calls": null,
+  "qualification": "Recorded energies and normal exits only; not independent force/chemical validation or efficiency evidence."
+}

@@ -1,0 +1,130 @@
+{
+  "status": {
+    "state": "timeout",
+    "returncode": -9,
+    "wall_seconds": 120.08560374658555
+  },
+  "stages": {
+    "initial_classification": true,
+    "ga_offspring": true,
+    "quick_ssw": false,
+    "quick_completed": false,
+    "fine_started": false
+  },
+  "java_exception_lines": [
+    "java.io.IOException: No such file or directory",
+    "java.io.IOException: No such file or directory",
+    "java.io.IOException: No such file or directory"
+  ],
+  "lasp_tasks": [
+    {
+      "path": "output/initial/0",
+      "started": true,
+      "normal_end": true,
+      "configured_steps": 3,
+      "temperature": 250.0,
+      "minimum_log_events": 3,
+      "all_arc_frames": 3,
+      "lowest_recorded_energy": -219.66748
+    },
+    {
+      "path": "output/iterate/0/0",
+      "started": true,
+      "normal_end": false,
+      "configured_steps": 2,
+      "temperature": 50.0,
+      "minimum_log_events": 1,
+      "all_arc_frames": 1,
+      "lowest_recorded_energy": -220.872772
+    },
+    {
+      "path": "output/iterate/0/opt/0",
+      "started": true,
+      "normal_end": true,
+      "configured_steps": 1,
+      "temperature": 250.0,
+      "minimum_log_events": 1,
+      "all_arc_frames": 1,
+      "lowest_recorded_energy": -220.239426
+    },
+    {
+      "path": "output/iterate/0/opt/1",
+      "started": true,
+      "normal_end": true,
+      "configured_steps": 1,
+      "temperature": 250.0,
+      "minimum_log_events": 1,
+      "all_arc_frames": 1,
+      "lowest_recorded_energy": -220.145966
+    },
+    {
+      "path": "output/iterate/0/opt/2",
+      "started": true,
+      "normal_end": true,
+      "configured_steps": 1,
+      "temperature": 250.0,
+      "minimum_log_events": 1,
+      "all_arc_frames": 1,
+      "lowest_recorded_energy": -219.930145
+    },
+    {
+      "path": "output/iterate/0/opt/3",
+      "started": true,
+      "normal_end": true,
+      "configured_steps": 1,
+      "temperature": 250.0,
+      "minimum_log_events": 1,
+      "all_arc_frames": 1,
+      "lowest_recorded_energy": -220.26973
+    },
+    {
+      "path": "output/iterate/0/opt/4",
+      "started": true,
+      "normal_end": true,
+      "configured_steps": 1,
+      "temperature": 250.0,
+      "minimum_log_events": 1,
+      "all_arc_frames": 1,
+      "lowest_recorded_energy": -219.942856
+    },
+    {
+      "path": "output/iterate/0/opt/5",
+      "started": true,
+      "normal_end": true,
+      "configured_steps": 1,
+      "temperature": 250.0,
+      "minimum_log_events": 1,
+      "all_arc_frames": 1,
+      "lowest_recorded_energy": -220.146545
+    },
+    {
+      "path": "output/staged-fine/0",
+      "started": true,
+      "normal_end": true,
+      "configured_steps": 2,
+      "temperature": 50.0,
+      "minimum_log_events": 2,
+      "all_arc_frames": 3,
+      "lowest_recorded_energy": -220.899429
+    },
+    {
+      "path": "output/staged-quick/0",
+      "started": true,
+      "normal_end": true,
+      "configured_steps": 2,
+      "temperature": 50.0,
+      "minimum_log_events": 2,
+      "all_arc_frames": 2,
+      "lowest_recorded_energy": -220.872772
+    }
+  ],
+  "energy_force_calls": null,
+  "qualification": "Recorded energies and normal exits only; not independent force/chemical validation or efficiency evidence.",
+  "final_arc_outputs_exist": true,
+  "staged_completion_status": {
+    "state": "completed",
+    "returncode": 0,
+    "wall_seconds": 86.36326025705785,
+    "timeout_seconds": 90
+  }
+}
