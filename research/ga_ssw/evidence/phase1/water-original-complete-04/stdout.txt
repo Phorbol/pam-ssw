@@ -1,0 +1,81 @@
+Picked up JAVA_TOOL_OPTIONS: -Xmx512m -XX:ActiveProcessorCount=1
+Load profile ...
+/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/runs/water-original-complete-04/
+===============SSW_GA========================
+Run start time: 2026-09-09 09:40:32:366
+Component :H 30, O 15
+Charge: 0
+Spin: 1
+H : 30
+O : 15
+SearchType: combined clusters or molecules
+Create virtual baseline comparison structures ...
+Generate initial structure ...
+genePool
+joint
+采用自定义限制
+Run ssw for initial structure optimization
+LaspMainRunner: Starting dynamic full-load LASP computation...
+All LASP tasks have been completed!
+run nna
+Number of distinct generated initial structures: 3
+Initial minimum energy: -219.861267
+====================Iterations: 0================================
+Current Time: 2026-09-09 09:41:07
+Perform quick ssw-ga exploration
+Current Time: 2026-09-09 09:41:07
+Acquire genetic structure
+Population size1
+Total number of parent structures is:3
+采用自定义限制
+genePool
+joint
+采用自定义限制
+genePool
+joint
+采用自定义限制
+genePool
+joint
+采用自定义限制
+genePool
+joint
+采用自定义限制
+genePool
+joint
+Final number of returned structures: 6
+Number of offspring structures: 6
+get GA done
+Current Time: 2026-09-09 09:41:07
+Create folder and submit ssw optimization calculation
+Number of genetic structures generated: 6
+To opt...
+LaspMainRunner: Starting dynamic full-load LASP computation...
+All LASP tasks have been completed!
+Minimum energy obtained by the GA:-220.28714
+Process optimized results
+run opted nna
+Select structures to SSW
+Number of new ssw alternative structures: 1
+To SSW...
+LaspMainRunner: Starting dynamic full-load LASP computation...
+All LASP tasks have been completed!
+A lower-energy structure has appeared; inherit this structure for termination.
+The lowest energy of this generation SSW: -220.287262
+run sswed nna
+The minimum energy currently obtained is: -220.287262
+Current Time: 2026-09-09 09:42:28
+End of one iteration
+Quick exploration completed, total number of distinct structures obtained:10
+Score and rank each region
+Rank 1: Region 0 | Score = -176.135882 | E_min = -220.287262
+1
+First execution of fine search
+To SSW...
+LaspMainRunner: Starting dynamic full-load LASP computation...
+All LASP tasks have been completed!
+A lower-energy structure has appeared; inherit this structure for termination.
+The lowest energy of this generation SSW: -220.287415
+run sswed nna
+The minimum energy currently obtained is: -220.287415
+Current Time: 2026-09-09 09:42:58
+End of one iteration

@@ -18,7 +18,10 @@ def main():
     p.add_argument('--reference-root',required=True,type=Path)
     p.add_argument('--run-dir',required=True,type=Path)
     p.add_argument('--execute',action='store_true')
-    args=p.parse_args(); root=args.reference_root.resolve(); run=args.run_dir.resolve()
+    p.add_argument('--timeout',type=float,default=120,help='Explicit wall-clock budget in seconds')
+    args=p.parse_args()
+    if args.timeout<=0:p.error('timeout must be positive')
+    root=args.reference_root.resolve(); run=args.run_dir.resolve()
     example=root/'GA-SSW_examples_run/global_exploration'
     template=example/'input-templates/TYPE3-(H2O)15'
     run.mkdir(parents=True,exist_ok=False)
@@ -43,7 +46,7 @@ def main():
     cmd=[str(root/'tools/jdk-17.0.2/bin/java'),'-jar','sgn.jar']
     inputs=[sgn,nna,native,*sorted(x for x in template.rglob('*') if x.is_file()),
             *sorted(x for x in (example/'GA-SSW/input/ssw_gaussian').rglob('*') if x.is_file())]
-    provenance=dict(command=cmd,cwd=str(run/'soft'),config_overrides=changes,timeout_seconds=120,
+    provenance=dict(command=cmd,cwd=str(run/'soft'),config_overrides=changes,timeout_seconds=args.timeout,
                     source_sha256={str(x):hashlib.sha256(x.read_bytes()).hexdigest() for x in inputs},
                     random_seed='Original unseeded Java RNG; actual references and generated structures retained',
                     purpose='Bounded interface smoke run. Original initial OPT steps are multiplied by 3; no performance claim.')
@@ -51,7 +54,7 @@ def main():
     if not args.execute: print('Prepared',run);return
     supervisor=Path(__file__).resolve().with_name('bounded_process.py')
     os.execve(os.sys.executable,[os.sys.executable,str(supervisor),'--cwd',str(run/'soft'),
-                    '--timeout','120','--log',str(run/'stdout.txt'),'--status',str(run/'status.json'),
+                    '--timeout',str(args.timeout),'--log',str(run/'stdout.txt'),'--status',str(run/'status.json'),
                     '--',*cmd],env)
 
 

@@ -1,0 +1,558 @@
+{
+  "structures": 14,
+  "pairs": [
+    {
+      "a": "0",
+      "b": "1",
+      "witnessed_rmsd": 0.10381213124739863,
+      "energy_difference": 0.026657000000000153
+    },
+    {
+      "a": "11",
+      "b": "12",
+      "witnessed_rmsd": 1.006378360947439,
+      "energy_difference": 0.1549530000000061
+    },
+    {
+      "a": "12",
+      "b": "13",
+      "witnessed_rmsd": 2.863653126167577,
+      "energy_difference": 0.06263699999999517
+    },
+    {
+      "a": "9",
+      "b": "10",
+      "witnessed_rmsd": 3.1283952101731307,
+      "energy_difference": 0.11015299999999684
+    },
+    {
+      "a": "0",
+      "b": "4",
+      "witnessed_rmsd": 3.502083842762576,
+      "energy_difference": 0.629698999999988
+    },
+    {
+      "a": "1",
+      "b": "5",
+      "witnessed_rmsd": 3.5386464024004867,
+      "energy_difference": 0.6333459999999889
+    },
+    {
+      "a": "1",
+      "b": "4",
+      "witnessed_rmsd": 3.6333282706919388,
+      "energy_difference": 0.6030419999999879
+    },
+    {
+      "a": "7",
+      "b": "9",
+      "witnessed_rmsd": 3.7190067697208837,
+      "energy_difference": 0.21582099999997695
+    },
+    {
+      "a": "0",
+      "b": "5",
+      "witnessed_rmsd": 3.7926747953864255,
+      "energy_difference": 0.660002999999989
+    },
+    {
+      "a": "4",
+      "b": "5",
+      "witnessed_rmsd": 3.8366438023648595,
+      "energy_difference": 0.030304000000000997
+    },
+    {
+      "a": "5",
+      "b": "12",
+      "witnessed_rmsd": 3.887776439300036,
+      "energy_difference": 0.7268990000000031
+    },
+    {
+      "a": "9",
+      "b": "11",
+      "witnessed_rmsd": 3.920320362380104,
+      "energy_difference": 0.26266499999999837
+    },
+    {
+      "a": "1",
+      "b": "6",
+      "witnessed_rmsd": 3.9265090923923065,
+      "energy_difference": 0.7262269999999944
+    },
+    {
+      "a": "2",
+      "b": "9",
+      "witnessed_rmsd": 3.9287798470959214,
+      "energy_difference": 0.5552369999999769
+    },
+    {
+      "a": "5",
+      "b": "7",
+      "witnessed_rmsd": 3.9436134138131465,
+      "energy_difference": 0.09346000000002164
+    },
+    {
+      "a": "5",
+      "b": "10",
+      "witnessed_rmsd": 3.9654471150871435,
+      "energy_difference": 0.4194339999999954
+    },
+    {
+      "a": "5",
+      "b": "9",
+      "witnessed_rmsd": 3.96989621217956,
+      "energy_difference": 0.3092809999999986
+    },
+    {
+      "a": "0",
+      "b": "6",
+      "witnessed_rmsd": 3.9798750652480472,
+      "energy_difference": 0.7528839999999946
+    },
+    {
+      "a": "5",
+      "b": "6",
+      "witnessed_rmsd": 3.9831392210793135,
+      "energy_difference": 0.09288100000000554
+    },
+    {
+      "a": "2",
+      "b": "5",
+      "witnessed_rmsd": 4.0246457053937545,
+      "energy_difference": 0.2459559999999783
+    },
+    {
+      "a": "4",
+      "b": "7",
+      "witnessed_rmsd": 4.100507491598551,
+      "energy_difference": 0.12376400000002263
+    },
+    {
+      "a": "1",
+      "b": "7",
+      "witnessed_rmsd": 4.105103758843256,
+      "energy_difference": 0.7268060000000105
+    },
+    {
+      "a": "4",
+      "b": "9",
+      "witnessed_rmsd": 4.138365244826973,
+      "energy_difference": 0.3395849999999996
+    },
+    {
+      "a": "4",
+      "b": "10",
+      "witnessed_rmsd": 4.154797109916173,
+      "energy_difference": 0.4497379999999964
+    },
+    {
+      "a": "6",
+      "b": "9",
+      "witnessed_rmsd": 4.235753981897042,
+      "energy_difference": 0.21639999999999304
+    },
+    {
+      "a": "10",
+      "b": "11",
+      "witnessed_rmsd": 4.244102017548585,
+      "energy_difference": 0.15251200000000154
+    },
+    {
+      "a": "1",
+      "b": "2",
+      "witnessed_rmsd": 4.2612493618855884,
+      "energy_difference": 0.38739000000001056
+    },
+    {
+      "a": "4",
+      "b": "6",
+      "witnessed_rmsd": 4.263946097723849,
+      "energy_difference": 0.12318500000000654
+    },
+    {
+      "a": "0",
+      "b": "2",
+      "witnessed_rmsd": 4.267644678406308,
+      "energy_difference": 0.4140470000000107
+    },
+    {
+      "a": "7",
+      "b": "10",
+      "witnessed_rmsd": 4.272013834563153,
+      "energy_difference": 0.3259739999999738
+    },
+    {
+      "a": "2",
+      "b": "7",
+      "witnessed_rmsd": 4.285108205611027,
+      "energy_difference": 0.33941599999999994
+    },
+    {
+      "a": "6",
+      "b": "10",
+      "witnessed_rmsd": 4.285366565715217,
+      "energy_difference": 0.3265529999999899
+    },
+    {
+      "a": "0",
+      "b": "3",
+      "witnessed_rmsd": 4.285637947123239,
+      "energy_difference": 0.5628199999999879
+    },
+    {
+      "a": "1",
+      "b": "3",
+      "witnessed_rmsd": 4.304735840338027,
+      "energy_difference": 0.5361629999999877
+    },
+    {
+      "a": "1",
+      "b": "9",
+      "witnessed_rmsd": 4.31579497085146,
+      "energy_difference": 0.9426269999999874
+    },
+    {
+      "a": "0",
+      "b": "9",
+      "witnessed_rmsd": 4.344548452449256,
+      "energy_difference": 0.9692839999999876
+    },
+    {
+      "a": "6",
+      "b": "8",
+      "witnessed_rmsd": 4.350952553775416,
+      "energy_difference": 0.20368899999999712
+    },
+    {
+      "a": "7",
+      "b": "11",
+      "witnessed_rmsd": 4.36130859914214,
+      "energy_difference": 0.4784859999999753
+    },
+    {
+      "a": "5",
+      "b": "11",
+      "witnessed_rmsd": 4.364053533656878,
+      "energy_difference": 0.571945999999997
+    },
+    {
+      "a": "3",
+      "b": "7",
+      "witnessed_rmsd": 4.402008065033195,
+      "energy_difference": 0.19064300000002277
+    },
+    {
+      "a": "2",
+      "b": "6",
+      "witnessed_rmsd": 4.404245991138608,
+      "energy_difference": 0.33883699999998385
+    },
+    {
+      "a": "0",
+      "b": "7",
+      "witnessed_rmsd": 4.467550834614565,
+      "energy_difference": 0.7534630000000107
+    },
+    {
+      "a": "6",
+      "b": "7",
+      "witnessed_rmsd": 4.468823946722035,
+      "energy_difference": 0.0005790000000160944
+    },
+    {
+      "a": "3",
+      "b": "9",
+      "witnessed_rmsd": 4.472551747832977,
+      "energy_difference": 0.4064639999999997
+    },
+    {
+      "a": "1",
+      "b": "10",
+      "witnessed_rmsd": 4.503872390938075,
+      "energy_difference": 1.0527799999999843
+    },
+    {
+      "a": "2",
+      "b": "10",
+      "witnessed_rmsd": 4.52691096068706,
+      "energy_difference": 0.6653899999999737
+    },
+    {
+      "a": "3",
+      "b": "5",
+      "witnessed_rmsd": 4.534132075264506,
+      "energy_difference": 0.09718300000000113
+    },
+    {
+      "a": "7",
+      "b": "13",
+      "witnessed_rmsd": 4.562887835065858,
+      "energy_difference": 0.6960759999999766
+    },
+    {
+      "a": "3",
+      "b": "6",
+      "witnessed_rmsd": 4.569971396815494,
+      "energy_difference": 0.19006400000000667
+    },
+    {
+      "a": "0",
+      "b": "8",
+      "witnessed_rmsd": 4.587667669256031,
+      "energy_difference": 0.9565729999999917
+    },
+    {
+      "a": "2",
+      "b": "3",
+      "witnessed_rmsd": 4.591229688330632,
+      "energy_difference": 0.14877299999997717
+    },
+    {
+      "a": "4",
+      "b": "11",
+      "witnessed_rmsd": 4.60746259830394,
+      "energy_difference": 0.602249999999998
+    },
+    {
+      "a": "5",
+      "b": "13",
+      "witnessed_rmsd": 4.610371723782179,
+      "energy_difference": 0.7895359999999982
+    },
+    {
+      "a": "11",
+      "b": "13",
+      "witnessed_rmsd": 4.6247485168554086,
+      "energy_difference": 0.21759000000000128
+    },
+    {
+      "a": "2",
+      "b": "4",
+      "witnessed_rmsd": 4.634311846211598,
+      "energy_difference": 0.2156519999999773
+    },
+    {
+      "a": "0",
+      "b": "10",
+      "witnessed_rmsd": 4.6859475062075,
+      "energy_difference": 1.0794369999999844
+    },
+    {
+      "a": "0",
+      "b": "13",
+      "witnessed_rmsd": 4.705461601809451,
+      "energy_difference": 1.4495389999999873
+    },
+    {
+      "a": "3",
+      "b": "11",
+      "witnessed_rmsd": 4.735534219354407,
+      "energy_difference": 0.6691289999999981
+    },
+    {
+      "a": "6",
+      "b": "13",
+      "witnessed_rmsd": 4.73671268036116,
+      "energy_difference": 0.6966549999999927
+    },
+    {
+      "a": "9",
+      "b": "13",
+      "witnessed_rmsd": 4.742909453184542,
+      "energy_difference": 0.48025499999999965
+    },
+    {
+      "a": "1",
+      "b": "12",
+      "witnessed_rmsd": 4.751926939046062,
+      "energy_difference": 1.360244999999992
+    },
+    {
+      "a": "4",
+      "b": "8",
+      "witnessed_rmsd": 4.752591235478391,
+      "energy_difference": 0.32687400000000366
+    },
+    {
+      "a": "6",
+      "b": "11",
+      "witnessed_rmsd": 4.759233778542189,
+      "energy_difference": 0.4790649999999914
+    },
+    {
+      "a": "3",
+      "b": "4",
+      "witnessed_rmsd": 4.759247312299479,
+      "energy_difference": 0.06687900000000013
+    },
+    {
+      "a": "9",
+      "b": "12",
+      "witnessed_rmsd": 4.7621767298569795,
+      "energy_difference": 0.4176180000000045
+    },
+    {
+      "a": "2",
+      "b": "11",
+      "witnessed_rmsd": 4.776994496214764,
+      "energy_difference": 0.8179019999999753
+    },
+    {
+      "a": "2",
+      "b": "13",
+      "witnessed_rmsd": 4.78956871169219,
+      "energy_difference": 1.0354919999999765
+    },
+    {
+      "a": "4",
+      "b": "13",
+      "witnessed_rmsd": 4.795019097089161,
+      "energy_difference": 0.8198399999999992
+    },
+    {
+      "a": "0",
+      "b": "11",
+      "witnessed_rmsd": 4.829764816376497,
+      "energy_difference": 1.231948999999986
+    },
+    {
+      "a": "8",
+      "b": "9",
+      "witnessed_rmsd": 4.832346575562503,
+      "energy_difference": 0.01271099999999592
+    },
+    {
+      "a": "1",
+      "b": "8",
+      "witnessed_rmsd": 4.845736795188565,
+      "energy_difference": 0.9299159999999915
+    },
+    {
+      "a": "10",
+      "b": "13",
+      "witnessed_rmsd": 4.862541149592516,
+      "energy_difference": 0.3701020000000028
+    },
+    {
+      "a": "1",
+      "b": "11",
+      "witnessed_rmsd": 4.87256330929074,
+      "energy_difference": 1.2052919999999858
+    },
+    {
+      "a": "0",
+      "b": "12",
+      "witnessed_rmsd": 4.896615677940433,
+      "energy_difference": 1.386901999999992
+    },
+    {
+      "a": "5",
+      "b": "8",
+      "witnessed_rmsd": 4.955436273397349,
+      "energy_difference": 0.29657000000000266
+    },
+    {
+      "a": "3",
+      "b": "8",
+      "witnessed_rmsd": 4.959043842069835,
+      "energy_difference": 0.3937530000000038
+    },
+    {
+      "a": "10",
+      "b": "12",
+      "witnessed_rmsd": 4.962237905988627,
+      "energy_difference": 0.30746500000000765
+    },
+    {
+      "a": "6",
+      "b": "12",
+      "witnessed_rmsd": 4.973416007219278,
+      "energy_difference": 0.6340179999999975
+    },
+    {
+      "a": "7",
+      "b": "8",
+      "witnessed_rmsd": 4.974498975379087,
+      "energy_difference": 0.20310999999998103
+    },
+    {
+      "a": "3",
+      "b": "10",
+      "witnessed_rmsd": 4.993254371815311,
+      "energy_difference": 0.5166169999999966
+    },
+    {
+      "a": "1",
+      "b": "13",
+      "witnessed_rmsd": 5.01456717882767,
+      "energy_difference": 1.422881999999987
+    },
+    {
+      "a": "4",
+      "b": "12",
+      "witnessed_rmsd": 5.023476515982317,
+      "energy_difference": 0.7572030000000041
+    },
+    {
+      "a": "8",
+      "b": "11",
+      "witnessed_rmsd": 5.071770114358545,
+      "energy_difference": 0.2753759999999943
+    },
+    {
+      "a": "8",
+      "b": "10",
+      "witnessed_rmsd": 5.129453703550674,
+      "energy_difference": 0.12286399999999276
+    },
+    {
+      "a": "8",
+      "b": "13",
+      "witnessed_rmsd": 5.136279922041493,
+      "energy_difference": 0.4929659999999956
+    },
+    {
+      "a": "2",
+      "b": "8",
+      "witnessed_rmsd": 5.159057163378489,
+      "energy_difference": 0.542525999999981
+    },
+    {
+      "a": "2",
+      "b": "12",
+      "witnessed_rmsd": 5.178364218343983,
+      "energy_difference": 0.9728549999999814
+    },
+    {
+      "a": "3",
+      "b": "13",
+      "witnessed_rmsd": 5.229154329461587,
+      "energy_difference": 0.8867189999999994
+    },
+    {
+      "a": "3",
+      "b": "12",
+      "witnessed_rmsd": 5.314447730093807,
+      "energy_difference": 0.8240820000000042
+    },
+    {
+      "a": "7",
+      "b": "12",
+      "witnessed_rmsd": 5.3190253997044925,
+      "energy_difference": 0.6334389999999814
+    },
+    {
+      "a": "8",
+      "b": "12",
+      "witnessed_rmsd": 5.458961794037042,
+      "energy_difference": 0.4303290000000004
+    }
+  ],
+  "near_pair_counts": {
+    "1e-05": 0,
+    "0.0001": 0,
+    "0.001": 0,
+    "0.01": 0
+  },
+  "method": "Species-restricted Hungarian matching of sorted distance fingerprints, then proper Kabsch rotation; witnessed upper-bound RMSD. No basin-count claim."
+}

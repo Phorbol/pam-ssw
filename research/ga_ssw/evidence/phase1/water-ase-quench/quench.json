@@ -1,0 +1,200 @@
+{
+  "input": "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/runs/water-original-smoke-02/output/final/arc/0.arc",
+  "optimizer": "ASE BFGS",
+  "step_cap": 30,
+  "target_fmax": 0.001,
+  "converged": false,
+  "steps": 30,
+  "final_energy": -220.9009857,
+  "history": [
+    {
+      "energy": -220.8993988,
+      "max_atom_force": 0.02035645518777992,
+      "max_force_component": 0.0203528949,
+      "wall_seconds": 0.8229539808817208
+    },
+    {
+      "energy": -220.8993683,
+      "max_atom_force": 0.03799966747516569,
+      "max_force_component": 0.0356771672,
+      "wall_seconds": 0.8214255911298096
+    },
+    {
+      "energy": -220.8993835,
+      "max_atom_force": 0.03813630229782272,
+      "max_force_component": 0.0350134928,
+      "wall_seconds": 0.8131565996445715
+    },
+    {
+      "energy": -220.8993835,
+      "max_atom_force": 0.0704540882962749,
+      "max_force_component": 0.0670293914,
+      "wall_seconds": 0.8266942882910371
+    },
+    {
+      "energy": -220.8995514,
+      "max_atom_force": 0.042243250892203016,
+      "max_force_component": 0.040869852,
+      "wall_seconds": 0.8184226392768323
+    },
+    {
+      "energy": -220.8995667,
+      "max_atom_force": 0.03853593795883858,
+      "max_force_component": 0.0343037843,
+      "wall_seconds": 0.8241607649251819
+    },
+    {
+      "energy": -220.899704,
+      "max_atom_force": 0.041539495657137576,
+      "max_force_component": 0.0358120854,
+      "wall_seconds": 0.8178130416199565
+    },
+    {
+      "energy": -220.899765,
+      "max_atom_force": 0.029857534735601415,
+      "max_force_component": 0.0273461338,
+      "wall_seconds": 0.8132374626584351
+    },
+    {
+      "energy": -220.8998413,
+      "max_atom_force": 0.03563128518332268,
+      "max_force_component": 0.0297872778,
+      "wall_seconds": 0.8212168202735484
+    },
+    {
+      "energy": -220.8997955,
+      "max_atom_force": 0.05426758408429172,
+      "max_force_component": 0.0396159137,
+      "wall_seconds": 0.8187704859301448
+    },
+    {
+      "energy": -220.8999023,
+      "max_atom_force": 0.02640051822162825,
+      "max_force_component": 0.0227360151,
+      "wall_seconds": 0.8183449748903513
+    },
+    {
+      "energy": -220.8998871,
+      "max_atom_force": 0.04308375578582648,
+      "max_force_component": 0.0398207569,
+      "wall_seconds": 0.8148576798848808
+    },
+    {
+      "energy": -220.8999481,
+      "max_atom_force": 0.02845830594740196,
+      "max_force_component": 0.0250375256,
+      "wall_seconds": 0.8225722243078053
+    },
+    {
+      "energy": -220.9000244,
+      "max_atom_force": 0.06073238507321659,
+      "max_force_component": 0.0605918165,
+      "wall_seconds": 0.8207894428633153
+    },
+    {
+      "energy": -220.9000854,
+      "max_atom_force": 0.02713221684065496,
+      "max_force_component": 0.0245103126,
+      "wall_seconds": 0.8708098926581442
+    },
+    {
+      "energy": -220.900116,
+      "max_atom_force": 0.03883532014985538,
+      "max_force_component": 0.0338391419,
+      "wall_seconds": 0.8235948388464749
+    },
+    {
+      "energy": -220.9001007,
+      "max_atom_force": 0.051606985645412363,
+      "max_force_component": 0.0484889342,
+      "wall_seconds": 0.835741734597832
+    },
+    {
+      "energy": -220.9001312,
+      "max_atom_force": 0.06772739765707558,
+      "max_force_component": 0.0652114743,
+      "wall_seconds": 0.8258036160841584
+    },
+    {
+      "energy": -220.9002686,
+      "max_atom_force": 0.032559940696379255,
+      "max_force_component": 0.0242685399,
+      "wall_seconds": 0.8213805840350688
+    },
+    {
+      "energy": -220.9002533,
+      "max_atom_force": 0.04785348851297201,
+      "max_force_component": 0.047809757,
+      "wall_seconds": 0.8198442040011287
+    },
+    {
+      "energy": -220.9002991,
+      "max_atom_force": 0.039008086662035174,
+      "max_force_component": 0.0286773557,
+      "wall_seconds": 0.869845334906131
+    },
+    {
+      "energy": -220.9003601,
+      "max_atom_force": 0.044998432884343194,
+      "max_force_component": 0.0302367758,
+      "wall_seconds": 0.8313213023357093
+    },
+    {
+      "energy": -220.9003601,
+      "max_atom_force": 0.05317601225567397,
+      "max_force_component": 0.0509272217,
+      "wall_seconds": 0.8785443203523755
+    },
+    {
+      "energy": -220.9004517,
+      "max_atom_force": 0.02865504040901384,
+      "max_force_component": 0.0220165682,
+      "wall_seconds": 0.8276914330199361
+    },
+    {
+      "energy": -220.9004364,
+      "max_atom_force": 0.057218663242661,
+      "max_force_component": 0.0479893645,
+      "wall_seconds": 0.8250940693542361
+    },
+    {
+      "energy": -220.9006348,
+      "max_atom_force": 0.029863382693522497,
+      "max_force_component": 0.0253409304,
+      "wall_seconds": 0.873883361928165
+    },
+    {
+      "energy": -220.9006195,
+      "max_atom_force": 0.05207535961267439,
+      "max_force_component": 0.0506358126,
+      "wall_seconds": 0.8286865679547191
+    },
+    {
+      "energy": -220.9007568,
+      "max_atom_force": 0.0387917697638783,
+      "max_force_component": 0.0371119295,
+      "wall_seconds": 0.8258426152169704
+    },
+    {
+      "energy": -220.9005432,
+      "max_atom_force": 0.11045021735646099,
+      "max_force_component": 0.1087719968,
+      "wall_seconds": 0.8772174078039825
+    },
+    {
+      "energy": -220.9008331,
+      "max_atom_force": 0.03781984856691501,
+      "max_force_component": 0.0299076524,
+      "wall_seconds": 0.8728721719235182
+    },
+    {
+      "energy": -220.9009857,
+      "max_atom_force": 0.05112586346783702,
+      "max_force_component": 0.0400990847,
+      "wall_seconds": 0.8168124100193381
+    }
+  ],
+  "max_atom_displacement": 0.04886767443725598,
+  "wall_seconds": 27.362473606597632,
+  "scope": "Force-threshold diagnostic on same uploaded NN, not independent PES or Hessian certification"
+}

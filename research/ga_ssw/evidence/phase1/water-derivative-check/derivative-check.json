@@ -1,0 +1,34 @@
+{
+  "source": "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/input-templates/TYPE3-(H2O)15/addition/add.arc",
+  "energy": -207.9273376,
+  "max_force_component": 4.6135503839,
+  "directional_checks": [
+    {
+      "h": 0.01,
+      "derivative": -13.46053999999981,
+      "negative_force_projection": -13.602599444718923,
+      "relative_difference": 0.010443551270949612
+    },
+    {
+      "h": 0.005,
+      "derivative": -13.676459999999224,
+      "negative_force_projection": -13.602599444718923,
+      "relative_difference": 0.005429885337759997
+    },
+    {
+      "h": 0.002,
+      "derivative": -14.041900000002272,
+      "negative_force_projection": -13.602599444718923,
+      "relative_difference": 0.03229533862764029
+    },
+    {
+      "h": 0.001,
+      "derivative": -12.886050000005866,
+      "negative_force_projection": -13.602599444718923,
+      "relative_difference": 0.05267739064324574
+    }
+  ],
+  "identical_repeat_energy_difference": 0.0,
+  "identical_repeat_max_force_difference": 0.0,
+  "scope": "Same original oracle, finite-difference numerical check on uploaded real input, not physical PES validation"
+}

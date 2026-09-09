@@ -107,3 +107,37 @@ OPENBLAS_NUM_THREADS=1 python research/ga_ssw/check_runtime_projection.py \
 `summary.json` distinguishes original main status, staged completion and recorded
 LASP outputs. Energy/force evaluation counts are currently unknown (`null`), not
 estimated from SSW steps or the number of exported structures.
+
+## ASE reference adapter and phase-one result
+
+The original main now has one uninterrupted water run (146.69 seconds, 12 archive
+entries). Fresh force checks pass the requested 0.001 eV/A component criterion for
+**0/12** entries. Normal original completion is therefore not a minima certificate.
+See `docs/research/2026-09-09-ga-ssw-phase1.md` and the four parallel audit reports.
+
+```python
+from research.ga_ssw.ase_lasp_reference import LaspWaterReference, read_water_atoms
+
+atoms = read_water_atoms("/path/to/water.arc")
+atoms.calc = LaspWaterReference(reference_root="/path/to/extracted-reference",
+                                output="/path/to/new-evaluation-directory",
+                                template_arc="/path/to/water.arc")
+energy = atoms.get_potential_energy()
+forces = atoms.get_forces()  # same cached evaluation
+```
+
+Load Intel MPI 2021.13 before using this reference binary. This adapter is currently
+H30O15/fixed-vacuum-cell only; it is neither an independent Python SSW kernel nor
+an independently validated potential. Low-force derivative and rigid-motion tests
+have unresolved discrepancies, recorded alongside the successful API checks.
+`run_ase_quench_probe.py` records a real ASE BFGS attempt that did not converge in
+30 steps. `validate_water_archive.py` performs fresh zero-step energy/force checks;
+`check_lasp_derivatives.py` and `check_ase_equivariance.py` preserve numerical probes.
+
+`native_weight.py` is a static finite-domain reconstruction of original Gaussian
+height control. It is not wired to PAM's walker, and native function execution
+parity remains unverified because the GDB attempt was blocked by ptrace permissions.
+
+The main launcher accepts explicit `--timeout SECONDS` (default 120). Increasing it
+changes the declared resource budget, not an algorithmic stopping rule. A completed
+process is still reported separately from force, geometry and scientific validation.
