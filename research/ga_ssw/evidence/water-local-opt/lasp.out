@@ -1,0 +1,46 @@
++--------------------------------------------------------------------------------+
+|               Welcome to Fantastic Atomic World in Neural Network              |
+|                                   ---------                                    |
+|                                    L A S P                                     |
+|                                   ---------                                    |
+|           Large-scale Atomic Simulation with neural network Potential          |
+|                Version 4.0.0  GPUNN version                                    |
+|                                 Shanghai, China                                |
+|                        More on Website: www.lasphub.com                        |
+|                                                                                |
+|   Please cite: S.D. Huang, C. Shang, P.L. Kang, X.J. Zhang and Z.P. Liu ,      |
+|                "LASP: Fast Global Potential Energy Surface Exploration" ,      |
+|                WIREs. Comp. Mole. Sci. 2019;9,e1415 (DOI:10.1002/wcms.1415)    |
+|                                                                                |
+|                  Compiled by IntelFortran version: ifort      18               |
+|                  CPU Parallel Run on    1      cores                           |
++--------------------------------------------------------------------------------+
+
++--------------------------------------------------------------------------------+
++   The PES is calculated by
++   nn
++--------------------------------------------------------------------------------+
+
+ The random seed is  2044272652
+|   --Key Parameter from input: lasp.in
+|-->System size: Number of atoms        45
+|-->Fix Cell Structure Search: Run_type=5
+|-->SSW quick_setting Level         1
+|-->Number of Gaussian for atomic move         9
+|-->Monte Carlo Temperature     50.00
+|-->Gaussian ds for each atomic move      0.60
+|-->Maximum Localmode-to-Globalmode ratio        50
+|-->Maximum SSW steps         1
+|   --Please also check allkeys.log for SSW Parameters
+|
+|               SSW cycles start now
+|********************************************************************************|
+|********************************************************************************|
+=========   LASP   job starts  on 20260909 16:23:41    ================
+Str symm and Q       0     0 longQ T         -207.927338   C1       1.1502      1.1233      1.1279
+ adding internal LJcore Repulsion
+Str symm and Q       0     0 longQ T         -218.612885   C1       1.4477      1.1109      1.0837
+Minimum found       0        0           -207.927338           -218.612885   C1      50.00   T    0.0000       0.054      0.00   0   302
+  SSW all done !
+=========   LASP   job  ends   on 20260909 16:23:46    ================
+  Elapse_time 0 D  0 h  0 m  4.886 s

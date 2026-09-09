@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/tools/jdk-17.0.2/bin/java",
+    "-Xmx512m",
+    "-XX:ActiveProcessorCount=1",
+    "-cp",
+    "/tmp/gassw-probes-gmf4bzaw/nna:/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/GA-SSW/input/nna1.jar",
+    "NnaProbe",
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/input-templates/TYPE3-(H2O)15/addition/add.arc",
+    "0",
+    "2.0",
+    "2",
+    "3.0",
+    "1",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/tests/fixtures/ga_ssw/unused.json",
+    "batch"
+  ],
+  "wall_seconds": 3.01386491721496,
+  "timeout_seconds": 3,
+  "jar_sha256": "011d05f9e90f9e6a8a0fa74f76a686ac441f6b311186eadb2f543c440f2c0618",
+  "status": "timeout",
+  "stdout": "Entering original cpu=2 batch with 3 real frames\n"
+}

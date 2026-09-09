@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/tools/jdk-17.0.2/bin/java",
+    "-Xmx256m",
+    "-XX:ActiveProcessorCount=1",
+    "-cp",
+    "/tmp/gassw-core-classes:/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_program/sgn.jar",
+    "VirtualReferenceProbe",
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/input-templates/TYPE3-(H2O)15/addition/add.arc",
+    "tests/fixtures/ga_ssw/water-coninfo.base"
+  ],
+  "wall_seconds": 4.038805883843452,
+  "seed": "original uses internal unseeded RNG; resulting reference file is frozen",
+  "sgn_jar_sha256": "05b9d1863fa244cabb768b169486fb8016249ee95a8bf569b64ae9dffa51d812",
+  "frozen_reference_sha256": "92110151a48dc4c9c902e195c6e9d999a9d40a15333879c057e9deb19ec48d18"
+}

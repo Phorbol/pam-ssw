@@ -1,0 +1,64 @@
+[
+  {
+    "case": "water",
+    "command": [
+      "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/tools/jdk-17.0.2/bin/java",
+      "-Xmx512m",
+      "-XX:ActiveProcessorCount=1",
+      "-cp",
+      "/tmp/gassw-probes-gmf4bzaw/nna:/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/GA-SSW/input/nna1.jar",
+      "NnaProbe",
+      "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/input-templates/TYPE3-(H2O)15/addition/add.arc",
+      "0",
+      "2.0",
+      "2",
+      "3.0",
+      "1",
+      "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/tests/fixtures/ga_ssw/water.json",
+      "references",
+      "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/tests/fixtures/ga_ssw/water-coninfo.base"
+    ],
+    "source_sha256": "bdc0419ee04ef38b1f1a231355633b2968bcca3b24308bc77663fbb0b4bf0aec",
+    "jar_sha256": "011d05f9e90f9e6a8a0fa74f76a686ac441f6b311186eadb2f543c440f2c0618"
+  },
+  {
+    "case": "aloh",
+    "command": [
+      "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/tools/jdk-17.0.2/bin/java",
+      "-Xmx512m",
+      "-XX:ActiveProcessorCount=1",
+      "-cp",
+      "/tmp/gassw-probes-gmf4bzaw/nna:/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/GA-SSW/input/nna1.jar",
+      "NnaProbe",
+      "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/input-templates/TYPE1-AlOH/addition/add.arc",
+      "1",
+      "1.5",
+      "1",
+      "3.0",
+      "3",
+      "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/tests/fixtures/ga_ssw/aloh.json"
+    ],
+    "source_sha256": "34164a89eb161324c35af625ddeeb54745044db036d3a209d30ddd55f736503e",
+    "jar_sha256": "011d05f9e90f9e6a8a0fa74f76a686ac441f6b311186eadb2f543c440f2c0618"
+  },
+  {
+    "case": "molecular_crystal",
+    "command": [
+      "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/tools/jdk-17.0.2/bin/java",
+      "-Xmx512m",
+      "-XX:ActiveProcessorCount=1",
+      "-cp",
+      "/tmp/gassw-probes-gmf4bzaw/nna:/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/GA-SSW/input/nna1.jar",
+      "NnaProbe",
+      "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/input-templates/TYPE2-XXXII/addition/add.arc",
+      "1",
+      "2.5",
+      "1",
+      "6.0",
+      "1",
+      "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/tests/fixtures/ga_ssw/molecular_crystal.json"
+    ],
+    "source_sha256": "25bfca53e867030bc0199e449db4f8f5f32b8297bd0ed561d6c65cc6c273b083",
+    "jar_sha256": "011d05f9e90f9e6a8a0fa74f76a686ac441f6b311186eadb2f543c440f2c0618"
+  }
+]

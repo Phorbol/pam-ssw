@@ -1,0 +1,115 @@
+{
+  "rows": [
+    {
+      "id": 0,
+      "energy": -176.944977,
+      "sims": [
+        0.9999999999999998,
+        0.8193755394436373,
+        0.7118301154754101
+      ]
+    },
+    {
+      "id": 1,
+      "energy": -176.944977,
+      "sims": [
+        0.9860577373079057,
+        0.8143126984991658,
+        0.7096366549842891
+      ]
+    },
+    {
+      "id": 2,
+      "energy": -177.024536,
+      "sims": [
+        0.8193755394436373,
+        0.9999999999999998,
+        0.6469993680540715
+      ]
+    },
+    {
+      "id": 3,
+      "energy": -177.024536,
+      "sims": [
+        0.8170621888853044,
+        0.9773881348912209,
+        0.6460143079245251
+      ]
+    },
+    {
+      "id": 4,
+      "energy": -177.212387,
+      "sims": [
+        0.7118301154754101,
+        0.6469993680540715,
+        0.9999999999999998
+      ]
+    },
+    {
+      "id": 5,
+      "energy": -177.212387,
+      "sims": [
+        0.7071087491863963,
+        0.6412815517982242,
+        0.9866188936798851
+      ]
+    },
+    {
+      "id": 6,
+      "energy": -176.944977,
+      "sims": [
+        0.9999999999999998,
+        0.8193755394436373,
+        0.7118301154754101
+      ]
+    },
+    {
+      "id": 7,
+      "energy": -177.212387,
+      "sims": [
+        0.7118301154754101,
+        0.6469993680540715,
+        0.9999999999999998
+      ]
+    },
+    {
+      "id": 8,
+      "energy": -177.212387,
+      "sims": [
+        1.0007499999999998,
+        0.8201255394436373,
+        0.7125801154754101
+      ]
+    },
+    {
+      "id": 9,
+      "energy": -177.024536,
+      "sims": [
+        1.0014999999999998,
+        0.8208755394436372,
+        0.71333011547541
+      ]
+    }
+  ],
+  "tolerance": 0.001,
+  "window": 0.1,
+  "command": [
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/tools/jdk-17.0.2/bin/java",
+    "-Xmx512m",
+    "-XX:ActiveProcessorCount=1",
+    "-cp",
+    "/tmp/gassw-probes-gmf4bzaw/sgn:/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_program/sgn.jar",
+    "CoreProbe",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/tests/fixtures/ga_ssw/core-input.tsv",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/tests/fixtures/ga_ssw/core-output.json",
+    "0.001",
+    "0.1"
+  ],
+  "sgn_jar_sha256": "05b9d1863fa244cabb768b169486fb8016249ee95a8bf569b64ae9dffa51d812",
+  "projection_source": "AlOH actual-structure anchors 0,2,4, not virtual runtime references",
+  "artificial_contract_probe_ids": [
+    8,
+    9
+  ],
+  "contract_probe_note": "Shifted projections with reassigned energies; not physical structures or scientific evidence"
+}

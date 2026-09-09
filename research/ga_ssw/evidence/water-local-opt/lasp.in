@@ -1,0 +1,23 @@
+potential NN
+explore_type ssw
+Ewaldflag    0
+%block netinfo
+  H  H2O_pf.pot
+  O  H2O_pf.pot
+%endblock netinfo
+PrintChg 0
+
+Run_type 5    #    5  for SSW with fixed cell
+
+ssw.sswsteps 1
+                    # 1 stru opt
+                    # > 1  SSW global opt
+
+#  for SSW search  start
+SSW.quick_Setting 1
+SSW.Temp   50
+SSW.ftol 1E-3
+SSW.Safe_hardcurv 10000.00
+# output
+SSW.output F
+SSW.printevery F

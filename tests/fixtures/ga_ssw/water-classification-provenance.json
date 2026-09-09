@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/tools/jdk-17.0.2/bin/java",
+    "-Xmx512m",
+    "-XX:ActiveProcessorCount=1",
+    "-cp",
+    "/tmp/gassw-probes-gmf4bzaw/sgn:/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_program/sgn.jar",
+    "ProjectionProbe",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/tests/fixtures/ga_ssw/water-projection.tsv",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/tests/fixtures/ga_ssw/water-classification.json",
+    "0.0001"
+  ],
+  "sgn_jar_sha256": "05b9d1863fa244cabb768b169486fb8016249ee95a8bf569b64ae9dffa51d812",
+  "reference_sha256": "92110151a48dc4c9c902e195c6e9d999a9d40a15333879c057e9deb19ec48d18",
+  "template": "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_examples_run/global_exploration/input-templates/TYPE3-(H2O)15/configure.non",
+  "template_sha256": "2f709f307d2512bda657b54c84f7d20582da54aebac4f20d3cb543263ebf9131",
+  "tolerance": 0.0001,
+  "scope": "Original NNA descriptors plus original SGN classifier, frozen virtual references; not a complete search trajectory"
+}

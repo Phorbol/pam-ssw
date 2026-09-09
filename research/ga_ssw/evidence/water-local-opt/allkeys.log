@@ -1,0 +1,21 @@
+explore_type   ssw
+SSW.SSWsteps             1
+Run_type             5
+MD.dt     1.00000000000000
+SSW.mdfreq             0
+potential  nn
+nn.ignore_nan   F
+Ez.intensity    0.000000000000000E+000
+Print_func_time   F
+Optz   F
+Rot_input_str   F
+print_rotF   T
+multi.maxtime            -1
+Symm_lattice   F
+Bravias_cell   T
+finish_script
+continue.input
+Bravias_cell   T
+str_input   input.arc
+SSW.printbader   F
+ranseed          -666
