@@ -1,0 +1,3 @@
+# Held-out offline audit archive
+
+Runtime is the same named evidence directory in the sibling vc-qualification-audit worktree. CPU1440580: three readout interface regressions passed, no PES. CPU1440586 is submitted with afterany dependency on GPU1440524–1440527. Output analysis-1440586.json is new, never overwrites prior output. Exit0 indicates accounting/readout integrity, not successful C60 optimization; cage and energy qualifications are separate fields. Failed and missing arms are retained. These archived scripts retain runtime absolute paths and references to locally stored original artifacts.
