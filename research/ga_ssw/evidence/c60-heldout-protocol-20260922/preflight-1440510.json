@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "checks": {
+    "pre_registered_seeds": true,
+    "inputs": true,
+    "arm_difference_only_rotation_policy": true,
+    "model_hash": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+    "source_and_harness_hashes": true
+  }
+}

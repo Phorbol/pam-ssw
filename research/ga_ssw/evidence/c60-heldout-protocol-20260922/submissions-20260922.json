@@ -1,0 +1,48 @@
+{
+  "status": "submitted",
+  "max_concurrent_gpu_jobs": 2,
+  "runs": [
+    {
+      "seed": 17095,
+      "arm": "baseline",
+      "job": "1440524",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "research/ga_ssw/evidence/c60-rotation-heldout-20260921/gpu-baseline-17095.sbatch"
+      ]
+    },
+    {
+      "seed": 17095,
+      "arm": "recovered",
+      "job": "1440525",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "research/ga_ssw/evidence/c60-rotation-heldout-20260921/gpu-recovered-17095.sbatch"
+      ]
+    },
+    {
+      "seed": 17096,
+      "arm": "baseline",
+      "job": "1440526",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--dependency=afterany:1440524:1440525",
+        "research/ga_ssw/evidence/c60-rotation-heldout-20260921/gpu-baseline-17096.sbatch"
+      ]
+    },
+    {
+      "seed": 17096,
+      "arm": "recovered",
+      "job": "1440527",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--dependency=afterany:1440524:1440525",
+        "research/ga_ssw/evidence/c60-rotation-heldout-20260921/gpu-recovered-17096.sbatch"
+      ]
+    }
+  ]
+}

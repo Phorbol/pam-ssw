@@ -1,0 +1,23 @@
+{
+  "seeds": [
+    17095,
+    17096
+  ],
+  "protocol": "c60-random-inputs-development-20260917",
+  "files": [
+    {
+      "seed": 17095,
+      "trials": 122,
+      "extxyz": "seed17095.extxyz",
+      "traj": "c60_17095.traj",
+      "json": "seed17095.json"
+    },
+    {
+      "seed": 17096,
+      "trials": 136,
+      "extxyz": "seed17096.extxyz",
+      "traj": "c60_17096.traj",
+      "json": "seed17096.json"
+    }
+  ]
+}

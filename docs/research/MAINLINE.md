@@ -1,8 +1,10 @@
 # PAM-SSW 当前研发主线
 
-## 当前决策入口（2026-09-21）
+## 当前决策入口（2026-09-22）
 
-**目标：独立Python/ASE的SSW系列，吸收原PAM与LASP中有效的设计，以等总成本的真实搜索验证收益。** 当前集中固定胞SSW及已有LS/GA；VC/RC不抢占主线。通用ASE接口保留；C60使用用户指定MH-1/omol，其他现有案例使用OMAT-small。工作在研究集成worktree，含未提交改动，不是已发布生产版本。
+**目标：独立Python/ASE的SSW系列，吸收原PAM与LASP中有效的设计，以等总成本的真实搜索验证收益。** 当前集中固定胞SSW及已有LS/GA；VC/RC不抢占主线。通用ASE接口保留；C60使用用户指定MH-1/omol，其他现有案例使用OMAT-small。研究快照 db88a63 已同步远端 research/ga-ssw-behavior-parity；后续变更仍按独立提交追踪，不是已发布生产版本。
+
+**当前最高优先级：恢复CBD的新初态验证。** 周期AlOH旋转对照已经完成：成本下降但低能结果基本不变，停止重复该系列。复用事先生成的C60 17095/17096，对单阶段Broyden与恢复CBD做每臂60000请求对照；不新增算法组件、不改旧开发种子的参数。提交前修复初态失败存档和条件成笼复核两处脚本缺口，最多2臂并行。[问题、固定协议和停止条件](2026-09-22-heldout-rotation-validation.md)。
 
 **本轮纠偏已完成：** 原PAM的previous-relax位移用于momentum候选和连续性评分；完整恢复方向用实际Gaussian阶段位移混合局部模式，再进入CBD，并保留跨外步pair/group。两者有共同路径反馈思想，但不是相同公式。此前C60长程实验仅替换旋转器，没有启用完整方向控制，不能声称充分验证所有已恢复机制。Q描述符梯度仍未独立完整移植；原版单步混合结果不证明其长期无用。
 
@@ -20,7 +22,7 @@
 
 独立推进项已完成：GPU1436296两模型MACE invariant特征探针，16次descriptor+4次E/F，共20模型forward；MH-1/OMAT全层不变量分别1024/256维，刚体/置换检查完成，每次提取仍需额外forward。只验证接口和成本，不证明搜索收益；已有去重仍为固定标签近似匹配，MACE特征不能自动修复原子置换身份。旧Beta累计发现率也不是低能收益/成本模型，不直接称最优RL。
 
-暂缓：held-out旋转GPU包未提交；Q完整库、VC/RC、新GA算子及新的局部参数扫描。已有TYPE3/4小批量guard与TYPE4+LS子代接口验证完成，保持范围，不重开支线。
+暂缓：Q完整库、VC/RC、新GA算子及新的局部参数扫描。已有TYPE3/4小批量guard与TYPE4+LS子代接口验证完成，保持范围，不重开支线。
 
 关键已有证据：[C60六万调用原版比较](2026-09-20-c60-long-budget-results.md)、[C60恢复旋转长预算](2026-09-21-c60-recovered-rotation-long-results.md)、[固定胞SSW/BH](2026-09-21-fixed-cell-ssw-bh-results.md)、[AlOH对照](2026-09-21-aloh-ssw-bh-results.md)、[TYPE4+LS](2026-09-21-type4-ls-offspring-results.md)、[原版Q对照](2026-09-21-forced-q-results.md)。这些均有限定范围，尚无通用效率优势或随机C60成笼验收成功的结论。
 
