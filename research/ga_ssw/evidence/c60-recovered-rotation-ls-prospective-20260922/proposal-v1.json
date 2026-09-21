@@ -1,0 +1,131 @@
+{
+  "status": "prepared_not_ready_not_submitted",
+  "purpose": "Prospective two-arm C60 development comparison: add NativeLS to the existing recovered-rotation long-budget protocol.",
+  "decision_gate": "Do not execute until a zero-PES preflight verifies that the frozen source, the two old 17093/17094 inputs, and every non-LS common setting match c60-recovered-rotation-long-20260921 and its no-LS long arms.",
+  "scope": {
+    "new_arms": ["c60_17093-recovered_rotation_native_ls", "c60_17094-recovered_rotation_native_ls"],
+    "single_factor": "Enable NativeLSSettings; recovered rotation, SSW config, NativeMC, model, input, seed, and budgets remain inherited.",
+    "development_only": true,
+    "do_not_use": ["c60-heldout-protocol-20260922", "17095", "17096"],
+    "no_runner_or_source_copy_created": true
+  },
+  "inputs": {
+    "c60_17093": {
+      "seed": 17093,
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-long-20260921/inputs/c60_17093.traj",
+      "origin_arc": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-random-native-development-20260917/seed17093/input.arc",
+      "sha256": "33a322f4c1c9c7daf3eb8c71b0f67929bf0b619dcd972bc021add6f382b6323b"
+    },
+    "c60_17094": {
+      "seed": 17094,
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-long-20260921/inputs/c60_17094.traj",
+      "origin_arc": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-random-native-development-20260917/seed17094/input.arc",
+      "sha256": "2e49eabd0ae1bf854aa6baf07a2b583f4d21933ce55ba295983e146172c44b6f"
+    }
+  },
+  "inherited_protocol": {
+    "recovered_rotation_source": "research/ga_ssw/evidence/c60-recovered-rotation-long-20260921/plan.json",
+    "no_ls_long_comparison": "research/ga_ssw/evidence/c60-recovered-rotation-long-20260921",
+    "model": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+    "model_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+    "head": "omol",
+    "dtype": "float64",
+    "device": "cuda",
+    "recovered_rotation": {
+      "pre_rotmax": 5,
+      "rotmax": 15,
+      "pre_ftol": 0.2,
+      "ftol": 0.02,
+      "metric": "euclidean",
+      "max_force_calls": 40
+    },
+    "ssw_config": {
+      "width": 0.6,
+      "rotation_bias": 1.0,
+      "max_gaussians": 12,
+      "temperature_K": 150.0,
+      "fmax": 0.03,
+      "relax_steps": 1000,
+      "fd_step": 0.001,
+      "rotation_hvp": 39,
+      "rotation_tol": 0.02,
+      "forward_force": 0.1,
+      "direction_sampling": "global",
+      "rotation_solver": "broyden-euclidean",
+      "cluster_frame": "direction_only",
+      "quench_optimizer": "safe-lbfgs-total",
+      "lbfgs_memory": 500,
+      "bias_stage_steps": null,
+      "bias_fmax": 0.1,
+      "pre_rotation_hvp": null,
+      "rotation_exit_policy": "force_or_budget"
+    },
+    "native_mc": {
+      "maxtrap": 99999,
+      "energy_tol_eV": 0.1
+    },
+    "runtime": {
+      "torch_manual_seed": 0,
+      "torch_deterministic_algorithms": true,
+      "torch_num_threads": 1,
+      "tf32": false,
+      "CUBLAS_WORKSPACE_CONFIG": ":4096:8"
+    }
+  },
+  "native_ls": {
+    "bond_energies": {"6,6": 3.4468400478363037},
+    "bond_lengths": {"6,6": 1.5399999618530273},
+    "scale": 5.0,
+    "amp_c": 2.0,
+    "length_tolerance": 0.1,
+    "target_mev_per_atom": 20.0,
+    "eta": 0.005,
+    "max_change": 0.01,
+    "frequency": 10,
+    "presteps": 100,
+    "cycle": 100,
+    "ratio": 1.100000023841858,
+    "lselfadapt": true,
+    "bond_geometry": "native-mic",
+    "prequench": {
+      "fmax": 0.1,
+      "steps": 50,
+      "exit_policy": "force_or_step_limit"
+    },
+    "parameter_source": "mh1-native-ls-equal-budget-20260920/plan.json; no fitting or parameter change"
+  },
+  "budget": {
+    "search_requests_per_arm": 60000,
+    "search_requests_total": 120000,
+    "program_wall_seconds_per_arm": 5400,
+    "slurm_allocation_seconds_per_arm": 6000,
+    "v100_per_arm": 1,
+    "max_concurrent_v100": 2,
+    "fresh_initial_and_best_per_arm": 2,
+    "conditional_first_cage_extra_per_case": 1,
+    "no_retries_or_extensions": true
+  },
+  "acceptance": {
+    "energy_reference_eV": -62215.39337032347,
+    "energy_target_margin_eV": 0.01,
+    "bond_cutoff_A": 1.8,
+    "sensitivity_cutoffs_A": [1.64, 1.7],
+    "graph_rule": "60 C, three-coordinate, three-connected planar graph with 12 pentagons and 20 hexagons",
+    "report_separately": ["execution state", "numerical force qualification", "connected/cage graph qualification", "reference-energy qualification", "search and fresh E/F cost", "failures and denials"],
+    "first_cage_rule": "If first cage differs from fresh initial/best, perform at most one additional independent E/F check per case after search; never extend search."
+  },
+  "readiness": {
+    "status": "NOT_READY",
+    "observed_input_sha256_at_preparation": {
+      "c60_17093": "9526a8e611ccf6a71576ddd7ad5b54ed3d473a5686b778ee0c5432dbb2451e99",
+      "c60_17094": "6f5609c7787b5c676c22078892e6517357f06e9a17d0eb7f6d1b0239f1d50d32"
+    },
+    "required_before_execution": [
+      "Freeze a source snapshot that is byte/hash comparable to c60-recovered-rotation-long-20260921.",
+      "Verify every non-LS field in ssw_config, recovered_rotation, native_mc, backend, runtime, seed, and per-arm budget against the no-LS long protocol.",
+      "Verify the LS arm changes only NativeLSSettings and that all search/fresh ledgers retain failed and budget-censored cases."
+    ],
+    "reason": "The runner validates the frozen c60_17093.traj and c60_17094.traj files, whose hashes match the long-budget plan. Source/commonconfig identity for the prospective LS arm still requires a preflight, so the proposal remains NOT_READY."
+  },
+  "decision_rule": "Mixed or no meaningful qualified low-energy/cage benefit at equal total search cost retains LS+recovered-rotation as optional and stops this comparison; no tuning, retry, or default promotion."
+}

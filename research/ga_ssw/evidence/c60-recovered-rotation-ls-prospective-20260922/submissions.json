@@ -1,0 +1,28 @@
+{
+  "jobs": {
+    "c60_17093": 1441611,
+    "c60_17094": 1441612
+  },
+  "preflight_pass": 1441604,
+  "preflight_failures": [
+    1441550,
+    1441563,
+    1441565
+  ],
+  "failed_preparation_notes": [
+    "Slurm script directory inferred from spool path",
+    "Root repair used incorrect cwd; stale script submitted and cancelled; no search",
+    "Provenance text compared unequal despite identical numerical LS settings; copied original provenance verbatim"
+  ],
+  "post_preflight_change": "GPU scripts now export CUBLAS_WORKSPACE_CONFIG=:4096:8, matching long baseline. Harness hashes refreshed; core/input/config unchanged. runner repeats integrity checks before PES.",
+  "status": "submitted_not_yet_qualified",
+  "budget": {
+    "search_total": 120000,
+    "fresh_max": 6,
+    "gpu_each": 1,
+    "allocation_minutes_each": 100,
+    "program_seconds_each": 5400,
+    "retries": 0
+  },
+  "decision": "Optional recovered CBD retained after mixed heldout results; test existing LS composition on old development inputs only; no tuning or default promotion."
+}

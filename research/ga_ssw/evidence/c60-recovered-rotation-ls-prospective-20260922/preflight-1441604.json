@@ -1,0 +1,7 @@
+{
+  "status": "passed",
+  "pes_initialized": false,
+  "python": "/home/gengjianrui/.conda/envs/mace_env/bin/python",
+  "slurm_job_id": "1441604",
+  "checks": 141
+}
