@@ -17,6 +17,10 @@ lengths: a pair is selected when its initial MIC distance <= the table value.
 No element table, covalent-radius rule, tolerance, cutoff or fallback is
 invented here. The caller owns the provenance of its bond selection rule.
 Only numeric/contract tests have been performed; scientific validity is untested.
+An optional sparse energy filter multiplies each retained pair's B by a finite
+nonnegative factor (omitted pairs default to one); geometric neighbor counting
+is unchanged. Its response redistribution is an independent paper controller,
+not native Nb-normalized response parity.
 """
 from __future__ import annotations
 
@@ -29,6 +33,7 @@ from ase import Atoms
 from ase.geometry import find_mic
 
 BondTable = Mapping[tuple[int, int], float]
+EnergyFilter = Mapping[tuple[int, int], float]
 
 
 def _positive(value: float, name: str) -> float:
@@ -49,6 +54,28 @@ def _table(table: BondTable) -> dict[tuple[int, int], float]:
             raise ValueError(f'conflicting bond table entries for {key}')
         result[key] = value
     return result
+
+
+def _energy_filter(table: EnergyFilter | None):
+    if table is None:
+        return ()
+    result = {}
+    entries = table.items() if isinstance(table, Mapping) else table
+    for pair, value in entries:
+        if len(pair) != 2 or any(isinstance(z, (bool, np.bool_)) or int(z) != z or z <= 0 for z in pair):
+            raise ValueError('energy filter keys must be two positive atomic numbers')
+        key = tuple(sorted(map(int, pair)))
+        value = float(value)
+        if not math.isfinite(value) or value < 0:
+            raise ValueError('energy filter values must be finite and nonnegative')
+        if key in result and result[key] != value:
+            raise ValueError(f'conflicting energy filter entries for {key}')
+        result[key] = value
+    return tuple((key, result[key]) for key in sorted(result))
+
+
+def _energy_factor(filters, key):
+    return dict(filters).get(tuple(sorted(key)), 1.0)
 
 
 def _geometry(atoms: Atoms):
@@ -80,6 +107,7 @@ class FrozenBondSoftening:
     reference_distances: tuple[float, ...]
     strengths: tuple[float, ...]
     xi: float = 0.2
+    energy_filter: tuple = ()
 
     def __post_init__(self):
         # A frozen dataclass alone does not own mutable ndarray/list inputs.
@@ -110,6 +138,7 @@ class FrozenBondSoftening:
             raise ValueError('duplicate unordered pairs are not allowed')
         references = tuple(_positive(r, 'reference distance') for r in self.reference_distances)
         strengths = tuple(map(float, self.strengths))
+        energy_filter = _energy_filter(self.energy_filter)
         if len(pairs) != len(references) or len(pairs) != len(strengths):
             raise ValueError('pairs, reference distances and strengths must have equal lengths')
         if any(not math.isfinite(a) or a < 0 for a in strengths):
@@ -117,13 +146,13 @@ class FrozenBondSoftening:
         for name, value in [('numbers', numbers), ('cell', tuple(tuple(map(float, row)) for row in cell)),
                             ('pbc', tuple(map(bool, pbc))), ('pairs', pairs),
                             ('reference_distances', references), ('strengths', strengths),
-                            ('xi', _positive(self.xi, 'xi'))]:
+                            ('xi', _positive(self.xi, 'xi')), ('energy_filter', energy_filter)]:
             object.__setattr__(self, name, value)
 
     @classmethod
     def from_atoms(cls, atoms: Atoms, *, bond_energies: BondTable,
                    bond_lengths: BondTable, initial_fraction: float = 0.03,
-                   xi: float = 0.2) -> FrozenBondSoftening:
+                   xi: float = 0.2, energy_filter: EnergyFilter | None = None) -> FrozenBondSoftening:
         """Freeze pairs and set A_pq = initial_fraction * bond_energy_pq.
 
         Every species pair encountered must exist in both caller-supplied
@@ -132,13 +161,14 @@ class FrozenBondSoftening:
         """
         initial_fraction = _positive(initial_fraction, 'initial_fraction')
         return cls._build(atoms, bond_energies, bond_lengths, xi,
-                          initial_fraction=initial_fraction)
+                          initial_fraction=initial_fraction, energy_filter=energy_filter)
 
     @classmethod
     def _build(cls, atoms, bond_energies, bond_lengths, xi, *,
-               initial_fraction=None, total_strength=None):
+               initial_fraction=None, total_strength=None, energy_filter=None):
         numbers, cell, pbc = _geometry(atoms)
         energies, lengths = _table(bond_energies), _table(bond_lengths)
+        energy_filter = _energy_filter(energy_filter)
         pairs, distances, weights = [], [], []
         for i in range(len(atoms)-1):
             for j in range(i+1, len(atoms)):
@@ -152,14 +182,16 @@ class FrozenBondSoftening:
                 if distance <= lengths[key]:
                     pairs.append((i, j))
                     distances.append(distance)
-                    weights.append(energies[key])
+                    weights.append(energies[key] * _energy_factor(energy_filter, key))
         if not pairs:
             raise ValueError('no bonded pairs: LS response is undefined')
+        if not math.isfinite(math.fsum(weights)) or math.fsum(weights) <= 0:
+            raise ValueError('all eligible LS energy weights are zero')
         if total_strength is None:
             strengths = tuple(initial_fraction * energy for energy in weights)
         else:
             strengths = tuple(total_strength * energy / math.fsum(weights) for energy in weights)
-        return cls(numbers, cell, pbc, tuple(pairs), tuple(distances), strengths, xi)
+        return cls(numbers, cell, pbc, tuple(pairs), tuple(distances), strengths, xi, energy_filter)
 
     def _validate_atoms(self, atoms):
         numbers, cell, pbc = _geometry(atoms)
@@ -169,6 +201,10 @@ class FrozenBondSoftening:
             raise ValueError('periodic boundary conditions differ from frozen reference')
         if cell != self.cell:
             raise ValueError('cell differs from fixed-cell frozen reference')
+
+    def pair_distances(self, atoms):
+        self._validate_atoms(atoms)
+        return np.array([float(find_mic(atoms.positions[j]-atoms.positions[i], atoms.cell, atoms.pbc)[1]) for i,j in self.pairs])
 
     def evaluate(self, atoms: Atoms) -> tuple[float, np.ndarray]:
         self._validate_atoms(atoms)
@@ -223,8 +259,9 @@ class LSResponseState:
         total = math.fsum(current.strengths) - len(current.numbers)*self.learning_rate*(response-self.target_per_atom)
         if not math.isfinite(total) or total < 0:
             raise ValueError('response update produces a negative/nonfinite strength; no clipping applied')
-        result = FrozenBondSoftening._build(next_atoms, bond_energies, bond_lengths,
-                                           current.xi, total_strength=total)
+        result = type(current)._build(next_atoms, bond_energies, bond_lengths,
+                                           current.xi, total_strength=total,
+                                           energy_filter=current.energy_filter)
         self.steps += 1
         self.last_response = float(response)
         return result

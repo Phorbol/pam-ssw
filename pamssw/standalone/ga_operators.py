@@ -7,9 +7,10 @@ These are compatibility rules, not proposed general molecular GA defaults.
 
 Implemented: original Euler-angle distribution, whole-monomer cuts and docking,
 Compete/gamete pools, all three fixed-internal-monomer mutation modes, and TYPE3
-proposal batches with explicit bond limits and budgets.
-NOT implemented: changeType=1 internal atom-level reconstruction, initialization,
-quick/fine population controller or SSW. A cut pair is not itself a finished
+proposal batches with explicit bond limits and budgets, including changeType=1
+internal atom-level reconstruction from an explicit mutable monomer library.
+Initialization and the quick/fine population controller are provided by the
+separate paper_ga module; this module does not perform SSW. A cut pair is not itself a finished
 crossover child; dock_gametes completes it. No calculator/Java process is used.
 
 Only unconstrained, nonperiodic structures and disjoint, exhaustive, zero-based
@@ -326,7 +327,7 @@ class GeneticCandidate:
     atoms: Atoms
     groups: tuple[tuple[int, ...], ...]
     operation: str
-    group_parent_indices: tuple[int, ...]
+    group_parent_indices: tuple[int | None, ...]
     details: dict
 
 
@@ -349,8 +350,6 @@ def _validate_parents(parents, energies, groups, change_types):
             raise ValueError('parents must have the same ordered element topology')
     if len(change_types) != len(groups) or any(x not in (0, 1) for x in change_types):
         raise ValueError('one binary changeType per group is required')
-    if any(change_types):
-        raise NotImplementedError('changeType=1 atom-level reconstruction is not supported; legacy interMu can create close contacts')
     energy = np.asarray(energies, dtype=float)
     if energy.shape != (len(parents),) or not np.isfinite(energy).all():
         raise ValueError('one finite energy per parent is required')
@@ -383,15 +382,106 @@ def _combine_monomers(fragments, radii, rng):
     return atoms, groups, tuple(order)
 
 
+def mutable_monomer_library(parents, energies, rng, *, count, max_attempts,
+                            quota_policy='complete_library',cuts_per_parent_slot=None):
+    """MutateMonomer internal Cross+Doping library, with explicit quota repair.
+
+    Atom-level parent energies are inherited WHOLE-parent metadata, exactly
+    as native; they are not independently evaluated monomer energies.
+    """
+    from .atomic_ga import (build_atomic_pool,cross_atomic_pool,disturb_atoms,
+                            exchange_atoms,reinsert_undercoordinated_atoms)
+    if isinstance(count,bool) or not isinstance(count,(int,np.integer)) or count<0:raise ValueError('nonnegative mutable library count required')
+    if isinstance(max_attempts,bool) or not isinstance(max_attempts,(int,np.integer)) or max_attempts<1:raise ValueError('positive internal sampling budget required')
+    if quota_policy not in ('complete_library','native_quota'):raise ValueError('unknown mutable quota policy')
+    if count==0:return (),dict(requested=0,source_request=0,generated=0,discarded=0)
+    def size(n):
+        cross=2*n//3;m=n-cross
+        return cross+3*(m//4)+5*(m//8)
+    request=int(count)
+    if quota_policy=='native_quota' and size(request)<count:
+        raise ValueError(f'native mutable library underflow: requested {count}, generated {size(request)}')
+    # Monotone deterministic cardinality calculation, no RNG/adaptive heuristic.
+    while size(request)<count:request+=1
+    cross_n=2*request//3;mutation_n=request-cross_n
+    if mutation_n//8 and len(parents[0])<=5:
+        raise ValueError('native mutable reinsertion needs >5 atoms when its quota is nonzero')
+    private=[a.copy() for a in parents]
+    pool=build_atomic_pool(private,energies,rng,max_cut_attempts=max_attempts,cuts_per_parent_slot=cuts_per_parent_slot)
+    for index in pool.parent_slots:
+        for _ in range(pool.cuts_per_parent_slot):private[index].positions-=private[index].positions.mean(axis=0)
+    items=[]
+    for _ in range(cross_n):
+        child=cross_atomic_pool(pool,rng,max_pair_attempts=max_attempts)
+        items.append((child.atoms,child.parent_indices,child.source_atom_indices,dict(operation='internal_crossover',pair_attempts=child.pair_attempts)))
+    ranked=np.argsort(energies,kind='stable');n=len(private[0])
+    def append(a,index,origins,details):items.append((a,(index,)*n,tuple(origins),details))
+    def select():return int(ranked[int(rng.random()*len(ranked))])
+    # Always ForDoping, even for a pure-element mutable unit, as source requires.
+    for _ in range((mutation_n//4)*3):
+        index=select();a,origins=exchange_atoms(private[index],rng)
+        append(a,index,origins,dict(operation='internal_exchange'))
+    for moves,width,random_parent in ((n//10,.3,False),(n//2,.5,False),(n//2,.7,True),(n//10,.7,True)):
+        for _ in range(mutation_n//8):
+            index=select() if random_parent else int(ranked[0]);a,moved=disturb_atoms(private[index],moves,width,rng)
+            append(a,index,range(n),dict(operation='internal_disturbance',moved_indices=moved,width_A=width))
+    for _ in range(mutation_n//8):
+        index=select();a,info=reinsert_undercoordinated_atoms(private[index],5,rng,max_insertion_attempts=max_attempts)
+        append(a,index,info['source_atom_indices'],dict(operation='internal_reinsertion_corrected',**info))
+    ledger=dict(requested=count,source_request=request,quota_policy=quota_policy,crossovers=cross_n,
+                mutation_request=mutation_n,generated=len(items),discarded=len(items)-count,
+                pool_cuts=len(pool.sons),pool_cut_attempts=pool.cut_attempts,
+                candidates=tuple(dict(parent_indices=p,source_indices=s,**details) for _,p,s,details in items))
+    return tuple(items[:count]),ledger
+
+
+def _mutable_reconstruction(parents,energy,groups,change_types,n,rng,*,max_attempts,
+                            quota_policy,cuts_per_parent_slot):
+    libraries={};ledgers={}
+    for group_index,change in enumerate(change_types):
+        if change:
+            fragments=[a[list(groups[group_index])] for a in parents]
+            libraries[group_index],ledgers[group_index]=mutable_monomer_library(fragments,energy,rng,count=n,
+                max_attempts=max_attempts,quota_policy=quota_policy,cuts_per_parent_slot=cuts_per_parent_slot)
+    results=[]
+    for index in range(n):
+        fragments=[];atom_parents=[];atom_sources=[];group_sets=[]
+        for group_index,group in enumerate(groups):
+            if group_index in libraries:
+                fragment,p,s,_=libraries[group_index][index];fragment=fragment.copy()
+                # Stable within-species reordering preserves the controller's
+                # ordered-element topology without changing geometry/species.
+                available={z:list(np.flatnonzero(fragment.numbers==z)) for z in set(fragment.numbers)}
+                order=[available[z].pop(0) for z in parents[0].numbers[list(group)]]
+                fragment=fragment[order];p=tuple(p[i] for i in order);s=tuple(s[i] for i in order)
+            else:fragment=parents[0][list(group)];p=(0,)*len(group);s=tuple(range(len(group)))
+            fragments.append(fragment);atom_parents.extend(p);atom_sources.extend(group[i] for i in s);group_sets.append(tuple(sorted(set(p))))
+        radii=[_monomer_radius(f.positions) for f in fragments]
+        for fragment in fragments:fragment.positions-=fragment.positions.mean(axis=0)
+        atoms,new_groups,order=_combine_monomers(fragments,radii,rng)
+        results.append(GeneticCandidate(atoms,new_groups,'monomer_reconstruction',
+            tuple(p[0] if len(p)==1 else None for p in group_sets),
+            dict(docking_order=order,atom_parent_indices=tuple(atom_parents),source_atom_indices=tuple(atom_sources),
+                 group_parent_sets=tuple(group_sets),mutable_library_index=index,
+                 mutable_library_ledgers=ledgers,
+                 mutable_library_cost_scope='shared once per mutation call and group; repeated references are not additional work',
+                 topology_correction='stable within-species reordering to original group element order')))
+    return results
+
+
 def mutate_type3(parents: Sequence[Atoms], energies: Sequence[float], groups,
                  change_types, counts: tuple[int, int, int],
-                 rng: np.random.Generator, *, max_selection_attempts: int) -> list[GeneticCandidate]:
-    """Actual three MutateMonomer modes for fixed internal monomers (type=0).
+                 rng: np.random.Generator, *, max_selection_attempts: int,
+                 mutable_quota_policy: str = 'complete_library',
+                 mutable_cuts_per_parent_slot: int | None = None) -> list[GeneticCandidate]:
+    """Actual three MutateMonomer modes for fixed or atomically mutable units.
 
     counts correspond to rotation/recombination, monomer reconstruction, and
     single-monomer rotation. Reconstruction with all changeTypes zero really
     recombines the first parent's original monomers; it is not a no-op.
-    Mutable internal monomers (changeType=1) explicitly remain unsupported.
+    Mutable internal units build source Cross+Doping libraries. Small native
+    underfilled quotas are repaired by the smallest sufficient source request;
+    native_quota instead fails explicitly. Full library cost is retained.
     """
     groups, energy = _validate_parents(parents, energies, groups, change_types)
     if len(counts) != 3 or any(not isinstance(n, (int, np.integer)) or n < 0 for n in counts):
@@ -409,15 +499,20 @@ def mutate_type3(parents: Sequence[Atoms], energies: Sequence[float], groups,
         atoms, new_groups, order = _combine_monomers(fragments, radii, rng)
         candidates.append(GeneticCandidate(atoms, new_groups, 'rotation_recombination',
                                           (parent_index,) * len(groups), {'docking_order': order}))
-    for _ in range(counts[1]):
-        # Source changeType=0 unconditionally takes monomers from parent[0].
-        fragments = [parents[0][list(group)] for group in groups]
-        radii = [_monomer_radius(fragment.positions) for fragment in fragments]
-        for fragment in fragments:
-            fragment.positions -= fragment.positions.mean(axis=0)
-        atoms, new_groups, order = _combine_monomers(fragments, radii, rng)
-        candidates.append(GeneticCandidate(atoms, new_groups, 'monomer_reconstruction',
-                                          (0,) * len(groups), {'docking_order': order}))
+    if any(change_types):
+        candidates.extend(_mutable_reconstruction(parents,energy,groups,change_types,counts[1],rng,
+            max_attempts=max_selection_attempts,quota_policy=mutable_quota_policy,
+            cuts_per_parent_slot=mutable_cuts_per_parent_slot))
+    else:
+        for _ in range(counts[1]):
+            # Source changeType=0 unconditionally takes monomers from parent[0].
+            fragments = [parents[0][list(group)] for group in groups]
+            radii = [_monomer_radius(fragment.positions) for fragment in fragments]
+            for fragment in fragments:
+                fragment.positions -= fragment.positions.mean(axis=0)
+            atoms, new_groups, order = _combine_monomers(fragments, radii, rng)
+            candidates.append(GeneticCandidate(atoms, new_groups, 'monomer_reconstruction',
+                                              (0,) * len(groups), {'docking_order': order}))
     for _ in range(counts[2]):
         result = mutate_single_monomer(parents, energy, groups, rng, max_attempts=max_selection_attempts)
         candidates.append(GeneticCandidate(result.atoms, result.groups, 'single_monomer_rotation',
@@ -495,7 +590,9 @@ def _passes_bond_limit(atoms, limits):
 def propose_type3(parents: Sequence[Atoms], energies: Sequence[float], groups,
                   change_types, rng: np.random.Generator, *, min_ga: int,
                   bond_limits: dict[tuple[int, int], float], max_batches: int,
-                  max_cut_attempts: int, max_pair_attempts: int) -> ProposalResult:
+                  max_cut_attempts: int, max_pair_attempts: int,
+                  mutable_quota_policy: str = 'complete_library',
+                  mutable_cuts_per_parent_slot: int | None = None) -> ProposalResult:
     """TYPE3 whole-batch proposal loop, independently executable for water.
 
     Caller flattens selected regions in their original order. No partition,
@@ -513,6 +610,8 @@ def propose_type3(parents: Sequence[Atoms], energies: Sequence[float], groups,
     if any(not isinstance(n, (int, np.integer)) or n < 1
            for n in (min_ga, max_batches, max_cut_attempts, max_pair_attempts)):
         raise ValueError('min_ga and all execution budgets must be positive integers')
+    if min_ga < 4:
+        raise ValueError('min_ga must be >=4 for native TYPE3 operator allocation')
     for key, value in bond_limits.items():
         if len(key) != 2 or not np.isfinite(value) or value < 0:
             raise ValueError('bond_limits require element-pair keys and finite nonnegative Angstrom cutoffs')
@@ -526,7 +625,9 @@ def propose_type3(parents: Sequence[Atoms], energies: Sequence[float], groups,
                      for _ in range(min_ga // 4)]
             n_mutation = (min_ga - min_ga // 4) // 4
             batch.extend(mutate_type3(working, energy, groups, change_types,
-                                     (n_mutation,) * 3, rng, max_selection_attempts=max_pair_attempts))
+                                     (n_mutation,) * 3, rng, max_selection_attempts=max_pair_attempts,
+                                     mutable_quota_policy=mutable_quota_policy,
+                                     mutable_cuts_per_parent_slot=mutable_cuts_per_parent_slot))
         except SamplingExhausted as error:
             return ProposalResult(tuple(selected), 'budget_exhausted', batch_number, rejected, str(error))
         valid = [candidate for candidate in batch if _passes_bond_limit(candidate.atoms, bond_limits)]

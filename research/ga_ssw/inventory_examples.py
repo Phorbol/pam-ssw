@@ -1,0 +1,115 @@
+"""Read-only file/ASE geometry inventory; never evaluates a PES or runs LASP."""
+from collections import Counter
+from io import StringIO
+import hashlib
+import json
+from pathlib import Path
+import numpy as np
+from ase.io import read
+from ase.io.dmol import read_dmol_arc
+
+BASE=Path('/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909')
+ROOTS=[BASE/'GA-SSW_examples_run',BASE/'example-preview']
+
+
+def describe(a):
+    return dict(formula=a.get_chemical_formula(),n_atoms=len(a),symbols=sorted(set(a.get_chemical_symbols())),
+                parsed_pbc=a.pbc.tolist(),cellpar=a.cell.cellpar().tolist(),cell=a.cell.array.tolist())
+
+
+def arc_chunks(p):
+    with p.open() as f:
+        header=f.readline()+f.readline();chunk=[];ends=0
+        for line in f:
+            chunk.append(line)
+            ends=ends+1 if line.strip().lower()=='end' else 0
+            if ends==2:
+                yield header+''.join(chunk);chunk=[];ends=0
+        if any(x.strip() for x in chunk):yield header+''.join(chunk)
+
+
+def config(p):
+    if not p.exists():return {}
+    return {line.split('=',1)[0].strip():line.split('=',1)[1].strip()
+            for line in p.read_text().splitlines() if '=' in line and not line.lstrip().startswith('#')}
+
+
+def lasp(p):
+    if not p.exists():return {}
+    result={};block=None
+    for raw in p.read_text().splitlines():
+        line=raw.split('#',1)[0].strip()
+        if not line:continue
+        if line.lower().startswith('%block'):
+            block=line.split()[1].lower();result['block:'+block]=[];continue
+        if line.lower().startswith('%endblock'):block=None;continue
+        if block:result['block:'+block].append(line)
+        else:
+            key,*value=line.split(maxsplit=1);result[key.lower()]=value[0] if value else ''
+    return result
+
+
+def main():
+    files=sorted(p for root in ROOTS for p in root.rglob('*') if p.is_file())
+    candidates=[p for p in files if p.suffix.lower() in ('.arc','.xyz','.cif','.gjf','.vasp') or p.name.lower() in ('poscar','contcar','lmp.data')]
+    geometries=[];cache={}
+    for p in candidates:
+        digest=hashlib.file_digest(p.open('rb'),'sha256').hexdigest()
+        if digest in cache:
+            row=dict(cache[digest]);row.update(path=str(p),duplicate_of=cache[digest]['path']);geometries.append(row);continue
+        row=dict(path=str(p),bytes=p.stat().st_size,sha256=digest,failures=[])
+        if p.suffix=='.arc':
+            formulas=Counter();counts=Counter();n=0;mins=None;maxs=None;representatives=[]
+            for i,chunk in enumerate(arc_chunks(p)):
+                try:
+                    a=read_dmol_arc(StringIO(chunk),index=-1);d=describe(a);n+=1
+                    key=d['formula'];formulas[key]+=1;counts[len(a)]+=1
+                    cell=a.cell.cellpar();mins=cell if mins is None else np.minimum(mins,cell);maxs=cell if maxs is None else np.maximum(maxs,cell)
+                    if len(representatives)<1 or formulas[key]==1:representatives.append(dict(frame=i,**d))
+                except Exception as exc:row['failures'].append(dict(frame=i,error=repr(exc)))
+            row.update(format='dmol-arc',frames_parsed=n,formula_counts=dict(formulas),atom_count_counts=dict(counts),representatives=representatives,
+                       cellpar_min=None if mins is None else mins.tolist(),cellpar_max=None if maxs is None else maxs.tolist(),pbc_interpretation='ARC parser flag only; see case IfPer/SearchType and input')
+        else:
+            fmt='lammps-data' if p.name=='lmp.data' else 'gaussian-in'
+            try:
+                kwargs={'atom_style':'full','units':'real'} if fmt=='lammps-data' else {}
+                a=read(p,format=fmt,**kwargs);row.update(format=fmt,frames_parsed=1,representatives=[describe(a)])
+            except Exception as exc:row.update(format=fmt,frames_parsed=0);row['failures'].append(dict(error=repr(exc)))
+        geometries.append(row);cache[digest]=row
+        print(p.name,row.get('frames_parsed'),len(row['failures']),flush=True)
+    cases=[]
+    for p in [f for f in files if f.name=='configure.non']:
+        folder=p.parent;c=config(p);lp=lasp(folder/'lasp.in')
+        case=dict(path=str(folder),configure=c,lasp=lp,geometries=[g['path'] for g in geometries if Path(g['path']).is_relative_to(folder)],
+            potentials=[dict(path=str(q),bytes=q.stat().st_size) for q in folder.glob('*.pot')],
+            type=c.get('SearchType'),declared_periodic=c.get('IfPer'),component=c.get('Component'),
+            original_ase_backend_ready=False)
+        refs=[]
+        for line in lp.get('block:netinfo',[]):
+            for word in line.split():
+                if word.endswith('.pot') and word not in refs:refs.append(word)
+        case['referenced_potentials']=[dict(name=x,exists=(folder/x).exists(),bytes=(folder/x).stat().st_size if (folder/x).exists() else None) for x in refs]
+        if c.get('SearchType')=='0':case['boundary_interpretation']='isolated atomic cluster per SearchType0/IfPer0; absent structures are generated by original GA'
+        elif c.get('SearchType')=='3':case['boundary_interpretation']='isolated molecular cluster per SearchType3/IfPer0; ARC PBC ON is a serialization box'
+        elif c.get('SearchType')=='1':case['boundary_interpretation']='atomic crystal per TYPE1/IfPer1; Run_type15 plus NG_cell/ds_cell supports joint-cell intent'
+        elif c.get('SearchType')=='2':case['boundary_interpretation']='molecular crystal per TYPE2/IfPer1; rigid.movecell T and LAMMPS p p p supports variable-cell intent'
+        elif c.get('SearchType')=='4':case['boundary_interpretation']='periodic supported/slab system per TYPE4/IfPer1; Run_type5 fixed cell, substrate constraints; ARC alone does not fix vacuum PBC interpretation'
+        cases.append(case)
+    pathroot=ROOTS[0]/'Path-LJ38'
+    cases.append(dict(path=str(pathroot),type='path dataset',component='38 LJ sites stored as Au',
+        declared_periodic=False,boundary_interpretation='README says isolated LJ38 type2 in DCCD; not GA SearchType2',
+        geometries=[g['path'] for g in geometries if Path(g['path']).is_relative_to(pathroot)],
+        potentials=[],lasp={},original_ase_backend_ready=False,
+        limitation='LJ sigma/epsilon/cutoff conventions not specified in this dataset; do not assume ASE defaults or use EMT on Au labels'))
+    for p in [f for f in files if f.name=='lasp.in' and f.parent.name=='ssw_gaussian']:
+        cases.append(dict(path=str(p.parent),type='external calculator template',lasp=lasp(p),geometries=[],potentials=[],
+            original_ase_backend_ready=False,limitation='Gaussian input pre/after templates and external script; no populated geometry/charge-spin input'))
+    report=dict(roots=[str(x) for x in ROOTS],files_scanned=len(files),files=[dict(path=str(p),bytes=p.stat().st_size) for p in files],
+        structures=geometries,cases=cases,absent_named_targets=['C60','PdO','CuO','Cu13 or other actual EMT-metal geometry'],
+        notes=['No PES executed. All ARC frames parsed via ASE; byte-identical duplicates reuse parse result.',
+               'Path-LJ38 ARC Au labels are LJ placeholders, not gold/EMT benchmark evidence.',
+               'Native .pot presence is not an ASE calculator adapter; no NN conversion assumed.',
+               'Preview contains configuration text only, no actual coordinates/potential files.'])
+    Path('research/ga_ssw/benchmark_inventory.json').write_text(json.dumps(report,indent=2)+'\n')
+
+if __name__=='__main__':main()

@@ -1,0 +1,156 @@
+{
+  "elf_path": "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_program/lasp",
+  "elf_sha256": "bba43b391619ae03cf7e9c455d8fe3a7c7bb7d434a56c7ef297bee38aa9b6704",
+  "scope": {
+    "entry": "bond_info_init_ 0x6c6a30",
+    "stop_boundary": "0x6c7530",
+    "elements": {
+      "Ti": 22,
+      "O": 8
+    },
+    "custom_file": "not used; no-custom initialization branch",
+    "pseudopotential_or_pes": false,
+    "main_program": false,
+    "adaptive_controller": false
+  },
+  "raw_lookup": {
+    "energy_eV": {
+      "Ti-Ti": 3.6298000812530518,
+      "Ti-O": 3.6298000812530518,
+      "O-O": 1.515779972076416
+    },
+    "length_A": {
+      "Ti-Ti": 1.899999976158142,
+      "Ti-O": 1.9429999589920044,
+      "O-O": 1.4800000190734863
+    },
+    "source": "existing probe_native_ls_pair_table_hco.py leaf execution"
+  },
+  "input": {
+    "numbers": [
+      22,
+      8,
+      8
+    ],
+    "positions_A": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        1.943,
+        0.0,
+        0.0
+      ],
+      [
+        -1.943,
+        0.0,
+        0.0
+      ]
+    ],
+    "cell_A": [
+      [
+        50.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        50.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        50.0
+      ]
+    ],
+    "pbc": [
+      false,
+      false,
+      false
+    ]
+  },
+  "native": {
+    "bond_count": 2,
+    "bond_ener_scale": 5.0,
+    "energy_filter": [
+      [
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0
+      ]
+    ],
+    "length_filter": [
+      [
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0
+      ]
+    ],
+    "len_toller_A": 0.1,
+    "energy_matrix_B": [
+      [
+        0.15796207322120637,
+        0.15796207322120637
+      ],
+      [
+        0.15796207322120637,
+        0.06596389376180652
+      ]
+    ],
+    "length_matrix_L_A": [
+      [
+        1.899999976158142,
+        1.9429999589920044
+      ],
+      [
+        1.9429999589920044,
+        1.4800000190734863
+      ]
+    ],
+    "runtime_stubs": {
+      "0x495aa30": 1,
+      "0x498a070": 3
+    }
+  },
+  "python": {
+    "bond_count": 2,
+    "energy_matrix_B": [
+      [
+        0.15796207322120637,
+        0.15796207322120637
+      ],
+      [
+        0.15796207322120637,
+        0.06596389376180652
+      ]
+    ],
+    "length_matrix_L_A": [
+      [
+        1.899999976158142,
+        1.9429999589920044
+      ],
+      [
+        1.9429999589920044,
+        1.4800000190734863
+      ]
+    ]
+  },
+  "formula": {
+    "scale": 5.0,
+    "f32_N_times_0_02": 0.05999999865889549,
+    "reference_CC_energy": 3.4468400478363037,
+    "TiO_expected_B": 0.15796207322120637,
+    "native_python_max_abs_energy_error": 0.0,
+    "native_python_max_abs_length_error": 0.0
+  },
+  "interpretation": "raw lookup values are recovered release reference parameters, not physical optima or a production default table"
+}

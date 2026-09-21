@@ -7,11 +7,12 @@ analysis/selected-dwarf.txt:177704-177815 of the external research archive;
 and 0x6e257b-0x6e258a checks maxw before repeating. See external
 analysis/ssw-kernel-comparison.md and kernel-static-probes.txt.
 
-This is NOT executable-oracle-verified parity. A bounded GDB probe on
-2026-09-09 failed before main: ``ptrace: Operation not permitted``. No
-native helper or PES evaluation ran. NumPy reduction order may differ
-from the native vectorized loops; threshold-adjacent bitwise parity is
-not asserted. This helper is experimental; native execution parity remains unverified.
+The original function instructions have now been executed under Unicorn for
+54 cases (only external acos replaced by host math.acos); frozen outputs agree
+within 1e-10. See research/ga_ssw/evidence/native-weight-emulated/result.json.
+This supersedes the earlier ptrace-blocked probe for this function only. Full
+native process execution, original libm bitstream and caller-state lifetime are
+still unverified; this helper remains experimental.
 """
 from dataclasses import dataclass
 import math

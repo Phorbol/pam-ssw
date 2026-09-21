@@ -13,7 +13,9 @@ from ase import Atoms
 from ase.geometry import find_mic
 from ase.optimize import BFGS
 
+from .ls_prequench import validate_prequench, validate_prequench_exit_policy
 from .softening import FrozenBondSoftening
+from .periodic_softening import FrozenPeriodicBondSoftening
 from .surface import ASESurface, QuenchResult, quench
 
 
@@ -42,6 +44,7 @@ class PreparedLSStep:
     start_max_force: float
     soft_quench: QuenchResult
     evaluation_requests: int
+    qualification: str = 'force'
 
 
 def _validate_budget(fmax, steps):
@@ -53,14 +56,16 @@ def _validate_budget(fmax, steps):
 
 def prepare_ls_step(atoms: Atoms, surface: ASESurface, *,
                     softening: FrozenBondSoftening, fmax: float, steps: int,
-                    optimizer=BFGS) -> PreparedLSStep:
+                    optimizer=BFGS, lbfgs_memory=None, prequench=None) -> PreparedLSStep:
     """Check a true stationary start, then quench only E+V_LS at fixed cell.
 
     Build `softening` from this step's true starting atoms using explicit bond
     tables, or obtain it from LSResponseState.update for this same geometry.
     Stale reference distances are rejected. A nonstationary start is rejected,
     not silently repaired. The explicit fmax (eV/Angstrom) applies to both the
-    start's true force and the pre-quench's modified force. The optimizer has
+    start's true force and, by default, the pre-quench's modified force.
+    An explicit prequench overrides only the softened force/iteration limits;
+    strict convergence and the true-start threshold remain unchanged. The optimizer has
     an explicit iteration budget, which is not a bound on backend SCF work.
 
     This function accepts no Gaussian terms; any calculator attached to atoms
@@ -68,8 +73,11 @@ def prepare_ls_step(atoms: Atoms, surface: ASESurface, *,
     All constraints are currently rejected by ASESurface. Small forces do not
     prove a positive Hessian, chemical stability or calculator applicability.
     """
+    from pamssw.relax import _validate_lbfgs_memory
+    _validate_lbfgs_memory(lbfgs_memory, optimizer)
     _validate_budget(fmax, steps)
-    if not isinstance(softening, FrozenBondSoftening):
+    validate_prequench_exit_policy(prequench, optimizer=optimizer)
+    if not isinstance(softening, (FrozenBondSoftening, FrozenPeriodicBondSoftening)):
         raise TypeError('softening must be a FrozenBondSoftening')
     softening._validate_atoms(atoms)
     before = surface.requests
@@ -80,23 +88,34 @@ def prepare_ls_step(atoms: Atoms, surface: ASESurface, *,
                            f'maximum true force {start_max_force} exceeds fmax={fmax}')
     # Numerical equality allowance only (32 floating-point ulps of the scale),
     # not a chemical bond threshold or a configurable search heuristic.
-    for (i, j), reference in zip(softening.pairs, softening.reference_distances):
-        _, distance = find_mic(atoms.positions[j]-atoms.positions[i], atoms.cell, atoms.pbc)
+    for distance, reference in zip(softening.pair_distances(atoms), softening.reference_distances):
         allowance = 32*np.finfo(float).eps*max(1., reference)
         if abs(float(distance)-reference) > allowance:
             raise ValueError('frozen reference distances do not describe this starting geometry')
-    result = quench(atoms, surface, fmax=fmax, steps=steps,
-                    terms=(softening,), optimizer=optimizer)
+    result = quench(atoms, surface,
+                    fmax=fmax if prequench is None else prequench.fmax,
+                    steps=steps if prequench is None else prequench.steps,
+                    terms=(softening,), optimizer=optimizer, lbfgs_memory=lbfgs_memory)
+    qualification = 'force'
     if not result.converged:
-        raise LSCycleError('soft_quench', 'modified-surface force criterion not reached', result=result)
+        telemetry = result.optimizer_telemetry
+        if (prequench is None or prequench.exit_policy != 'force_or_step_limit' or
+                optimizer != 'safe-lbfgs-total' or telemetry is None or
+                telemetry.backend != 'safe-lbfgs-total' or
+                telemetry.termination_reason != 'maxiter' or
+                result.optimizer_steps < int(prequench.steps) or
+                not np.isfinite(result.energy) or not np.isfinite(result.max_force)):
+            raise LSCycleError('soft_quench', 'modified-surface force criterion not reached', result=result)
+        qualification = 'step_limit'
     energy_after, _ = surface.evaluate(result.atoms)
     response = (energy_after-energy_before)/len(atoms)
     return PreparedLSStep(result.atoms.copy(), softening, energy_before, energy_after,
-                          response, start_max_force, result, surface.requests-before)
+                          response, start_max_force, result, surface.requests-before,
+                          qualification)
 
 
 def finish_ls_step(atoms: Atoms, surface: ASESurface, *, fmax: float, steps: int,
-                   optimizer=BFGS) -> QuenchResult:
+                   optimizer=BFGS, lbfgs_memory=None) -> QuenchResult:
     """Remove every additive term and quench on the supplied original surface.
 
     `atoms.calc` is ignored. Passing terms is deliberately unsupported: LS and
@@ -105,7 +124,7 @@ def finish_ls_step(atoms: Atoms, surface: ASESurface, *, fmax: float, steps: int
     There is no fallback and no MC/archive decision here. The returned force
     certificate is stationarity only, not a proof of physical minimum identity.
     """
-    result = quench(atoms, surface, fmax=fmax, steps=steps, terms=(), optimizer=optimizer)
+    result = quench(atoms, surface, fmax=fmax, steps=steps, terms=(), optimizer=optimizer, lbfgs_memory=lbfgs_memory)
     if not result.converged:
         raise LSCycleError('true_finish', 'true-surface force criterion not reached', result=result)
     return result

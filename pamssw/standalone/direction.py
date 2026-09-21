@@ -22,6 +22,7 @@ class SoftModeResult:
     force_calls: int
     converged: bool
     projected_symmetry_error: float
+    stop_reason: str = 'unspecified'
 
 
 def reference_soft_mode(atoms, initial_direction, *, fd_step, max_hvp,
@@ -106,7 +107,15 @@ def reference_soft_mode(atoms, initial_direction, *, fd_step, max_hvp,
         return (-(forces[0]-other)/denominator*mask).ravel()
 
     basis=[];images=[];vector=initial.copy();symmetry_error=0.
-    for _ in range(min(int(max_hvp)-1,int(mask.sum()))):
+    last_certified_direction = None
+    last_certified_curvature = None
+    last_certified_residual = None
+    max_basis = min(int(max_hvp)-1, int(mask.sum()))
+    stop_reason = 'subspace_exhausted'
+    for _ in range(max_basis):
+        if hvp_calls >= int(max_hvp)-1:
+            stop_reason = 'budget_exhausted'
+            break
         basis.append(vector.copy());images.append(hvp(vector))
         q=np.column_stack(basis);hq=np.column_stack(images)
         projected=q.T@hq
@@ -115,7 +124,27 @@ def reference_soft_mode(atoms, initial_direction, *, fd_step, max_hvp,
         direction=q@coefficients[:,0]
         surrogate_residual=hq@coefficients[:,0]-values[0]*direction
         if np.linalg.norm(surrogate_residual)<=residual_tol:
-            break
+            # A subspace Ritz residual still requires direct finite-difference
+            # certification. If it fails, continue with a new existing
+            # Krylov vector while preserving the final HVP budget.
+            direction/=np.linalg.norm(direction)
+            if np.dot(direction,initial)<0:
+                direction=-direction
+            if hvp_calls < int(max_hvp):
+                hd=hvp(direction)
+                curvature=float(direction@hd)
+                residual=float(np.linalg.norm(hd-curvature*direction))
+                last_certified_direction=direction.copy()
+                last_certified_curvature=curvature
+                last_certified_residual=residual
+                if residual<=residual_tol:
+                    return SoftModeResult(direction.reshape(shape),curvature,residual,hvp_calls,
+                                          force_calls,True,symmetry_error,
+                                          'residual_converged')
+                if hvp_calls >= int(max_hvp)-1:
+                    return SoftModeResult(direction.reshape(shape),curvature,residual,hvp_calls,
+                                          force_calls,False,symmetry_error,
+                                          'budget_exhausted')
         # Twice modified Gram-Schmidt controls loss of orthogonality.
         vector=images[-1].copy()
         for _ in range(2):
@@ -128,11 +157,23 @@ def reference_soft_mode(atoms, initial_direction, *, fd_step, max_hvp,
     direction/=np.linalg.norm(direction)
     if np.dot(direction,initial)<0:
         direction=-direction
+    if (last_certified_direction is not None and
+            np.array_equal(direction,last_certified_direction)):
+        return SoftModeResult(direction.reshape(shape),last_certified_curvature,
+                              last_certified_residual,hvp_calls,force_calls,
+                              last_certified_residual<=residual_tol,symmetry_error,
+                              ('residual_converged' if last_certified_residual <= residual_tol
+                               else ('budget_exhausted' if hvp_calls >= int(max_hvp)
+                                     else stop_reason)))
     hd=hvp(direction)
     curvature=float(direction@hd)
     residual=float(np.linalg.norm(hd-curvature*direction))
+    if residual <= residual_tol:
+        stop_reason = 'residual_converged'
+    elif hvp_calls >= int(max_hvp):
+        stop_reason = 'budget_exhausted'
     return SoftModeResult(direction.reshape(shape),curvature,residual,hvp_calls,
-                          force_calls,residual<=residual_tol,symmetry_error)
+                          force_calls,residual<=residual_tol,symmetry_error,stop_reason)
 
 
 def paper_biased_direction(atoms, anchor, *, rotation_bias, fd_step, max_hvp,

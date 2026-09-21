@@ -119,11 +119,11 @@ def test_three_water_mutation_modes_are_actual_geometries(water):
     assert result[-1].details['rotated_group'] in range(3)
 
 
-def test_type3_rejects_known_bad_mutable_monomer_branch(water):
+def test_type3_strict_native_mutable_quota_rejects_underflow(water):
     from pamssw.standalone.ga_operators import mutate_type3
     atoms, groups = water
-    with pytest.raises(NotImplementedError, match='changeType=1'):
-        mutate_type3([atoms], [0.], groups, (1,) + (0,) * 14, (0, 1, 0), np.random.default_rng(1), max_selection_attempts=1000)
+    with pytest.raises(ValueError, match='native mutable library underflow'):
+        mutate_type3([atoms], [0.], groups, (1,) + (0,) * 14, (0, 1, 0), np.random.default_rng(1), max_selection_attempts=1000, mutable_quota_policy='native_quota')
 
 
 def test_propose_type3_returns_budget_status_with_real_children(water):
@@ -197,3 +197,50 @@ def test_singleton_rejection_sampling_has_explicit_budget():
             return 0.
     with pytest.raises(SamplingExhausted, match='non-singleton'):
         mutate_single_monomer([atoms], [0.], ((0,), (1, 2)), AlwaysFirst(), max_attempts=2)
+
+
+def test_mutable_water_library_one_output_restores_topology_and_lineage(water):
+    from pamssw.standalone.ga_operators import mutate_type3
+    a,groups=water;parents=[a.copy() for _ in range(3)]
+    parents[1].positions[0]+=[.1,0,0];parents[2].positions[1]+=[0,.1,0]
+    result=mutate_type3(parents,[0.,.1,.2],groups,(1,)+(0,)*14,(0,1,0),
+        np.random.default_rng(0),max_selection_attempts=1000,mutable_cuts_per_parent_slot=2)
+    assert len(result)==1;c=result[0];ledger=c.details['mutable_library_ledgers'][0]
+    assert ledger['requested']==1 and ledger['source_request']==2 and ledger['generated']==1
+    np.testing.assert_array_equal(c.atoms.numbers,a.numbers)
+    for group in groups[1:]:
+        np.testing.assert_allclose(c.atoms[list(group)].get_all_distances(),a[list(group)].get_all_distances(),atol=1e-11)
+    for i,(p,source) in enumerate(zip(c.details['atom_parent_indices'],c.details['source_atom_indices'])):
+        assert c.atoms.numbers[i]==parents[p].numbers[source]
+    group_parents=c.details['group_parent_sets'][0]
+    assert len(group_parents)==2 and c.group_parent_indices[0] is None
+    assert c.group_parent_indices[0]==(group_parents[0] if len(group_parents)==1 else None)
+    assert all(x==0 for x in c.group_parent_indices[1:])
+
+
+def test_mutable_complete_source_library_retains_unused_work():
+    from ase.io import read
+    from pamssw.standalone.ga_operators import mutable_monomer_library
+    a=read(Path(__file__).parent/'fixtures/type4_tio2_au24o4.extxyz')
+    a=Atoms(numbers=a.numbers[486:],positions=a.positions[486:])
+    library,ledger=mutable_monomer_library([a,a,a],[0.,.1,.2],np.random.default_rng(51),
+        count=22,max_attempts=1000,cuts_per_parent_slot=2)
+    assert len(library)==22 and ledger['generated']==25 and ledger['discarded']==3
+    assert ledger['crossovers']==14 and ledger['mutation_request']==8
+    assert any(item['operation']=='internal_reinsertion_corrected' for item in ledger['candidates'])
+    for child,parents,sources,_ in library:
+        assert sorted(child.numbers)==sorted(a.numbers)
+        for i,source in enumerate(sources):assert child.numbers[i]==a.numbers[source]
+
+
+def test_type3_small_native_batch_rejected_before_operator_work():
+    from ase import Atoms
+    from pamssw.standalone.ga_operators import propose_type3
+    atoms = Atoms('OHHOHH', positions=np.array([
+        [0., 0., 0.], [1., 0., 0.], [0., 1., 0.],
+        [3., 0., 0.], [4., 0., 0.], [3., 1., 0.]]))
+    with pytest.raises(ValueError, match='min_ga.*4'):
+        propose_type3([atoms, atoms.copy(), atoms.copy()], [0., 1., 2.],
+                      ((0, 1, 2), (3, 4, 5)), (0, 0), np.random.default_rng(1),
+                      min_ga=1, bond_limits={}, max_batches=1,
+                      max_cut_attempts=10, max_pair_attempts=10)

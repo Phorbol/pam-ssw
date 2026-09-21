@@ -1,0 +1,13 @@
+{
+  "provenance": "Independent fixtures from archived static predicates, not executed native cycle outputs. bond_info_init addresses 0x6c764f-0x6c768b,0x6c7b85-0x6c7ebc,0x6c85dc-0x6c8603.",
+  "adaptive": [
+    {"step": 0, "response": 99.0, "new_count": 9, "actions": [], "B": 0.1, "old_count": 8, "stored_response": 0.0},
+    {"step": 6, "response": 19.9, "new_count": 9, "actions": ["save_zero", "normal_update"], "B": 0.0, "old_count": 9, "stored_response": 19.9},
+    {"step": 7, "response": 0.0, "new_count": 10, "actions": [], "B": 0.0, "old_count": 9, "stored_response": 0.0},
+    {"step": 12, "response": 100.0, "new_count": 10, "actions": ["restore", "normal_update"], "B": 0.0805, "old_count": 10, "stored_response": 19.0}
+  ],
+  "nonadaptive": [
+    {"step": 4, "response": 19.9, "new_count": 9, "actions": ["save_zero"], "B": 0.0, "old_count": 8},
+    {"step": 10, "response": 100.0, "new_count": 10, "actions": ["restore"], "B": 0.1, "old_count": 8}
+  ]
+}

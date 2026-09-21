@@ -260,6 +260,16 @@ RelaxOptimizer = Literal[
 ]
 
 
+def _validate_lbfgs_memory(memory, optimizer):
+    """Explicit positive history size for Safe-total; None preserves legacy10."""
+    if memory is None:
+        return
+    if isinstance(memory, (bool, np.bool_)) or not isinstance(memory, (int, np.integer)) or memory <= 0:
+        raise ValueError("lbfgs_memory must be None or a positive integer")
+    if optimizer != "safe-lbfgs-total":
+        raise ValueError("lbfgs_memory requires optimizer='safe-lbfgs-total'")
+
+
 def _resolve_safe_lbfgs_history_limit(
     history_limit: int | None,
     optimizer: RelaxOptimizer,
@@ -415,6 +425,10 @@ class Relaxer:
     evaluator: FlatEvaluator
     optimizer: RelaxOptimizer = "scipy-lbfgsb"
     component_evaluator: ComponentEvaluator | None = None
+    lbfgs_memory: int | None = None
+
+    def __post_init__(self):
+        _validate_lbfgs_memory(self.lbfgs_memory, self.optimizer)
 
     def relax(
         self,
@@ -428,6 +442,11 @@ class Relaxer:
         _safe_lbfgs_history_limit: int | None = None,
         _safe_lbfgs_adaptive_scale_without_history: bool = False,
     ) -> RelaxResult:
+        _validate_lbfgs_memory(self.lbfgs_memory, self.optimizer)
+        if self.lbfgs_memory is not None and (
+            _safe_lbfgs_history_limit is not None or _safe_lbfgs_adaptive_scale_without_history
+        ):
+            raise ValueError("lbfgs_memory conflicts with internal Safe history/scale ablations")
         adaptive_scale_without_history = (
             _resolve_safe_lbfgs_adaptive_scale_without_history(
                 _safe_lbfgs_adaptive_scale_without_history,
@@ -439,6 +458,8 @@ class Relaxer:
             _safe_lbfgs_history_limit,
             self.optimizer,
         )
+        if self.lbfgs_memory is not None:
+            history_limit = int(self.lbfgs_memory)
         trace = _EvaluationTrace(self.evaluator, state.flatten_positions())
         if trajectory_stride <= 0:
             raise ValueError("trajectory_stride must be positive")

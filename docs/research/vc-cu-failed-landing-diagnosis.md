@@ -1,0 +1,15 @@
+# Cu4 VC failed-landing diagnosis
+
+2026-09-10. Only the last `true_quench_failed` landing in `evidence/joint-vc-cu4-l36/result.json` was examined; the three-step walk was not rerun or reclassified.
+
+Fresh EMT reproduces the stored energy exactly. Physical max force is **0.020190617 eV/Å**, failing the original 0.01 criterion; max absolute stress is **0.000271971 eV/Å³**, passing 0.001. Volume is 46.25985 Å³. Cell condition number is **91.05**, with singular values [27.3571, 5.62770, 0.300472] Å. These are unreduced-cell conditioning measurements, not proof of physical collapse; lattice reduction/equivalence was not assessed.
+
+Reconstructing the exact original fixed chart at strain_length=3.6 gives generalized max-block gradient **0.004661983**, below original gradient_tol=0.005. Its atomic component is only 0.002497150 despite the physical force exceeding 0.02. The numerical stopping criterion and physical force criterion therefore diverge at this deformed chart. The old record omitted optimizer status, so its exact termination path cannot be restored from the archive alone. Nonetheless, simply increasing the iteration budget with unchanged generalized tolerance would still allow this point to stop as numerically converged; it is not enough to address the demonstrated physical-certificate mismatch.
+
+A single diagnostic continuation used the same standard Safe-total algorithm on the true EMT surface, a new unbiased chart referenced at this saved landing, gtol=0.001, maxstep=0.2, 300 steps and 301 evaluation cap. No stored Gaussian/history was transformed or reused. It converged after **6 steps, 8 optimization E/F/stress requests**. Independent final evaluation gives force **0.000784716 eV/Å**, stress **3.99521e-5 eV/Å³**, energy -0.0281456633 eV. Cell conditioning remains about 90.98; this continuation is a stationarity diagnosis, not a cell-shape repair or search improvement.
+
+Total diagnostic cost was **11 requests**: initial fresh E/F/stress, original-chart E/F/stress reconstruction, eight continuation calls and one final certificate. Evidence and frozen script are in `research/ga_ssw/evidence/joint-vc-cu4-failed-landing-diagnosis/`; driver is `research/ga_ssw/diagnose_vc_cu_failed_landing.py`.
+
+The algorithmic implication is to base true-quench termination on physical force/stress as well as generalized optimization quantities, with transformations evaluated at the current accepted q. This diagnostic does not authorize adopting arbitrary tighter universal tolerances or recharts inside a biased escape: either would require a separately consistent coordinate/bias treatment.
+
+The revised walker initial-failure contract was also independently tested: a real ASE Calculator raising on its first request returns `initial_quench_failed`, empty minima, initial/current/best=None, and exactly one accounted request. `tests/standalone/test_vc_reference.py`: **4 passed** including real Cu EMT joint-escape, finite-pressure certificates and failed-rotation state retention.

@@ -1,0 +1,299 @@
+FF...................F.................................................. [ 37%]
+........................................................................ [ 75%]
+.......FFFFF...........FF..FFFF..FFFFFF....FFF                           [100%]
+=================================== FAILURES ===================================
+_________ test_existing_cu_climb_geometry_events_and_exact_cost[dimer] _________
+tests/test_atomic_climb.py:28: in test_existing_cu_climb_geometry_events_and_exact_cost
+    assert actual == {k: v for k, v in expected.items()
+E   AssertionError: assert {'index': 0, ...173644]], ...} == {'index': 0, ...173644]], ...}
+E     
+E     Omitting 16 identical items, use -vv to show
+E     Right contains 5 more items:
+E     {'actual_anchor': [[0.20249414535353114,
+E                         -0.0667015964677429,
+E                         0.042396206269915596],
+E                        [-0.29410160376052497,...
+E     
+E     ...Full output truncated (13 lines hidden), use '-vv' to show
+_________ test_existing_cu_climb_geometry_events_and_exact_cost[ritz] __________
+tests/test_atomic_climb.py:28: in test_existing_cu_climb_geometry_events_and_exact_cost
+    assert actual == {k: v for k, v in expected.items()
+E   AssertionError: assert {'index': 0, ...173644]], ...} == {'index': 0, ...173644]], ...}
+E     
+E     Omitting 16 identical items, use -vv to show
+E     Right contains 5 more items:
+E     {'actual_anchor': [[0.20249414535353114,
+E                         -0.0667015964677429,
+E                         0.042396206269915596],
+E                        [-0.29410160376052497,...
+E     
+E     ...Full output truncated (13 lines hidden), use '-vv' to show
+___________________ test_existing_54_reference_inputs_match ____________________
+tests/test_cluster_reconnection.py:53: in test_existing_54_reference_inputs_match
+    rows = json.loads(Path('research/ga_ssw/evidence/native-vapor-reference/comparison.json').read_text())
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: 'research/ga_ssw/evidence/native-vapor-reference/comparison.json'
+______ test_preflight_rejects_every_pinned_hash_before_calculator[pamssw] ______
+tests/unit/test_safe_lbfgs_history_depth.py:290: in test_preflight_rejects_every_pinned_hash_before_calculator
+    runner.preflight(
+runs/20260727-safe-lbfgs-history-depth-ablation/run_gpu_ablation.py:305: in preflight
+    tasks_by_system, source_summary_sha256 = _load_fixed_tasks(
+runs/20260727-safe-lbfgs-history-depth-ablation/run_gpu_ablation.py:144: in _load_fixed_tasks
+    raise FileNotFoundError(path)
+E   FileNotFoundError: /tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json
+______ test_preflight_rejects_every_pinned_hash_before_calculator[helper] ______
+tests/unit/test_safe_lbfgs_history_depth.py:290: in test_preflight_rejects_every_pinned_hash_before_calculator
+    runner.preflight(
+runs/20260727-safe-lbfgs-history-depth-ablation/run_gpu_ablation.py:305: in preflight
+    tasks_by_system, source_summary_sha256 = _load_fixed_tasks(
+runs/20260727-safe-lbfgs-history-depth-ablation/run_gpu_ablation.py:144: in _load_fixed_tasks
+    raise FileNotFoundError(path)
+E   FileNotFoundError: /tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json
+______ test_preflight_rejects_every_pinned_hash_before_calculator[model] _______
+tests/unit/test_safe_lbfgs_history_depth.py:290: in test_preflight_rejects_every_pinned_hash_before_calculator
+    runner.preflight(
+runs/20260727-safe-lbfgs-history-depth-ablation/run_gpu_ablation.py:305: in preflight
+    tasks_by_system, source_summary_sha256 = _load_fixed_tasks(
+runs/20260727-safe-lbfgs-history-depth-ablation/run_gpu_ablation.py:144: in _load_fixed_tasks
+    raise FileNotFoundError(path)
+E   FileNotFoundError: /tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json
+______ test_preflight_rejects_every_pinned_hash_before_calculator[input] _______
+tests/unit/test_safe_lbfgs_history_depth.py:290: in test_preflight_rejects_every_pinned_hash_before_calculator
+    runner.preflight(
+runs/20260727-safe-lbfgs-history-depth-ablation/run_gpu_ablation.py:305: in preflight
+    tasks_by_system, source_summary_sha256 = _load_fixed_tasks(
+runs/20260727-safe-lbfgs-history-depth-ablation/run_gpu_ablation.py:144: in _load_fixed_tasks
+    raise FileNotFoundError(path)
+E   FileNotFoundError: /tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json
+____________ test_preflight_only_returns_metadata_before_calculator ____________
+tests/unit/test_safe_lbfgs_history_depth.py:316: in test_preflight_only_returns_metadata_before_calculator
+    checked = runner.preflight(
+runs/20260727-safe-lbfgs-history-depth-ablation/run_gpu_ablation.py:305: in preflight
+    tasks_by_system, source_summary_sha256 = _load_fixed_tasks(
+runs/20260727-safe-lbfgs-history-depth-ablation/run_gpu_ablation.py:144: in _load_fixed_tasks
+    raise FileNotFoundError(path)
+E   FileNotFoundError: /tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json
+_____ test_pinned_source_sha_and_exact_16_task_ids_and_seeds_are_verified ______
+tests/unit/test_safe_lbfgs_scale_decomposition.py:158: in test_pinned_source_sha_and_exact_16_task_ids_and_seeds_are_verified
+    assert _sha256(runner.SOURCE_SUMMARY_PATH) == runner.EXPECTED_SOURCE_SUMMARY_SHA256
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_safe_lbfgs_scale_decomposition.py:79: in _sha256
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^
+/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json'
+_________ test_canonical_task_sha_changes_when_task_payload_is_mutated _________
+tests/unit/test_safe_lbfgs_scale_decomposition.py:173: in test_canonical_task_sha_changes_when_task_payload_is_mutated
+    source = json.loads(runner.SOURCE_SUMMARY_PATH.read_text(encoding="utf-8"))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json'
+__ test_repo_or_pamssw_preflight_failures_precede_calculator_factory[commit] ___
+tests/unit/test_safe_lbfgs_scale_decomposition.py:301: in test_repo_or_pamssw_preflight_failures_precede_calculator_factory
+    runner.preflight(
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:566: in preflight
+    tasks_by_system, source_summary_sha256 = load_fixed_tasks(source_summary_path)
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:222: in load_fixed_tasks
+    summary, summary_sha256 = _validated_source_summary(path)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:209: in _validated_source_summary
+    raise FileNotFoundError(path)
+E   FileNotFoundError: /tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json
+___ test_repo_or_pamssw_preflight_failures_precede_calculator_factory[dirty] ___
+tests/unit/test_safe_lbfgs_scale_decomposition.py:301: in test_repo_or_pamssw_preflight_failures_precede_calculator_factory
+    runner.preflight(
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:566: in preflight
+    tasks_by_system, source_summary_sha256 = load_fixed_tasks(source_summary_path)
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:222: in load_fixed_tasks
+    summary, summary_sha256 = _validated_source_summary(path)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:209: in _validated_source_summary
+    raise FileNotFoundError(path)
+E   FileNotFoundError: /tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json
+_ test_repo_or_pamssw_preflight_failures_precede_calculator_factory[import_path] _
+tests/unit/test_safe_lbfgs_scale_decomposition.py:301: in test_repo_or_pamssw_preflight_failures_precede_calculator_factory
+    runner.preflight(
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:566: in preflight
+    tasks_by_system, source_summary_sha256 = load_fixed_tasks(source_summary_path)
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:222: in load_fixed_tasks
+    summary, summary_sha256 = _validated_source_summary(path)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:209: in _validated_source_summary
+    raise FileNotFoundError(path)
+E   FileNotFoundError: /tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json
+__ test_repo_or_pamssw_preflight_failures_precede_calculator_factory[bundle] ___
+tests/unit/test_safe_lbfgs_scale_decomposition.py:301: in test_repo_or_pamssw_preflight_failures_precede_calculator_factory
+    runner.preflight(
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:566: in preflight
+    tasks_by_system, source_summary_sha256 = load_fixed_tasks(source_summary_path)
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:222: in load_fixed_tasks
+    summary, summary_sha256 = _validated_source_summary(path)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:209: in _validated_source_summary
+    raise FileNotFoundError(path)
+E   FileNotFoundError: /tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json
+_____ test_kernel_constant_drift_fails_preflight_before_calculator_factory _____
+tests/unit/test_safe_lbfgs_scale_decomposition.py:369: in test_kernel_constant_drift_fails_preflight_before_calculator_factory
+    runner.preflight(
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:566: in preflight
+    tasks_by_system, source_summary_sha256 = load_fixed_tasks(source_summary_path)
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:222: in load_fixed_tasks
+    summary, summary_sha256 = _validated_source_summary(path)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:209: in _validated_source_summary
+    raise FileNotFoundError(path)
+E   FileNotFoundError: /tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json
+__ test_helper_file_provenance_is_pinned_and_fails_before_calculator_factory ___
+tests/unit/test_safe_lbfgs_scale_decomposition.py:395: in test_helper_file_provenance_is_pinned_and_fails_before_calculator_factory
+    assert _sha256(runner.FIXED_REPLAY_DRIVER) == runner.EXPECTED_FIXED_REPLAY_DRIVER_SHA256
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_safe_lbfgs_scale_decomposition.py:79: in _sha256
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^
+/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/run_fixed_replay.py'
+________ test_tampered_preflight_fails_before_any_calculator_call[task] ________
+tests/unit/test_safe_lbfgs_scale_decomposition.py:448: in test_tampered_preflight_fails_before_any_calculator_call
+    payload = json.loads(runner.SOURCE_SUMMARY_PATH.read_text(encoding="utf-8"))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json'
+_______ test_tampered_preflight_fails_before_any_calculator_call[model] ________
+tests/unit/test_safe_lbfgs_scale_decomposition.py:462: in test_tampered_preflight_fails_before_any_calculator_call
+    runner.preflight(
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:566: in preflight
+    tasks_by_system, source_summary_sha256 = load_fixed_tasks(source_summary_path)
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:222: in load_fixed_tasks
+    summary, summary_sha256 = _validated_source_summary(path)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:209: in _validated_source_summary
+    raise FileNotFoundError(path)
+E   FileNotFoundError: /tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json
+_______ test_tampered_preflight_fails_before_any_calculator_call[input] ________
+tests/unit/test_safe_lbfgs_scale_decomposition.py:462: in test_tampered_preflight_fails_before_any_calculator_call
+    runner.preflight(
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:566: in preflight
+    tasks_by_system, source_summary_sha256 = load_fixed_tasks(source_summary_path)
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:222: in load_fixed_tasks
+    summary, summary_sha256 = _validated_source_summary(path)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:209: in _validated_source_summary
+    raise FileNotFoundError(path)
+E   FileNotFoundError: /tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json
+________ test_tampered_preflight_fails_before_any_calculator_call[cuda] ________
+tests/unit/test_safe_lbfgs_scale_decomposition.py:462: in test_tampered_preflight_fails_before_any_calculator_call
+    runner.preflight(
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:566: in preflight
+    tasks_by_system, source_summary_sha256 = load_fixed_tasks(source_summary_path)
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:222: in load_fixed_tasks
+    summary, summary_sha256 = _validated_source_summary(path)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:209: in _validated_source_summary
+    raise FileNotFoundError(path)
+E   FileNotFoundError: /tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json
+_____ test_finite_certificate_failure_is_published_as_a_scientific_result ______
+tests/unit/test_safe_lbfgs_scale_decomposition.py:624: in test_finite_certificate_failure_is_published_as_a_scientific_result
+    checked = _fake_preflight_for_full_run(runner)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_safe_lbfgs_scale_decomposition.py:587: in _fake_preflight_for_full_run
+    tasks_by_system, source_sha256 = runner.load_fixed_tasks(runner.SOURCE_SUMMARY_PATH)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:222: in load_fixed_tasks
+    summary, summary_sha256 = _validated_source_summary(path)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:209: in _validated_source_summary
+    raise FileNotFoundError(path)
+E   FileNotFoundError: /tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json
+____________ test_nonfinite_or_open_ledger_remains_fatal[nonfinite] ____________
+tests/unit/test_safe_lbfgs_scale_decomposition.py:708: in test_nonfinite_or_open_ledger_remains_fatal
+    runner.run(output_dir=output_dir, expected_git_commit="f" * 40)
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:843: in run
+    checked = preflight(
+tests/unit/test_safe_lbfgs_scale_decomposition.py:680: in <lambda>
+    monkeypatch.setattr(runner, "preflight", lambda **_: _fake_preflight_for_full_run(runner))
+                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_safe_lbfgs_scale_decomposition.py:587: in _fake_preflight_for_full_run
+    tasks_by_system, source_sha256 = runner.load_fixed_tasks(runner.SOURCE_SUMMARY_PATH)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:222: in load_fixed_tasks
+    summary, summary_sha256 = _validated_source_summary(path)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:209: in _validated_source_summary
+    raise FileNotFoundError(path)
+E   FileNotFoundError: /tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json
+_____________ test_nonfinite_or_open_ledger_remains_fatal[ledger] ______________
+tests/unit/test_safe_lbfgs_scale_decomposition.py:708: in test_nonfinite_or_open_ledger_remains_fatal
+    runner.run(output_dir=output_dir, expected_git_commit="f" * 40)
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:843: in run
+    checked = preflight(
+tests/unit/test_safe_lbfgs_scale_decomposition.py:680: in <lambda>
+    monkeypatch.setattr(runner, "preflight", lambda **_: _fake_preflight_for_full_run(runner))
+                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_safe_lbfgs_scale_decomposition.py:587: in _fake_preflight_for_full_run
+    tasks_by_system, source_sha256 = runner.load_fixed_tasks(runner.SOURCE_SUMMARY_PATH)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:222: in load_fixed_tasks
+    summary, summary_sha256 = _validated_source_summary(path)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runs/20260727-safe-lbfgs-scale-decomposition/run_gpu_ablation.py:209: in _validated_source_summary
+    raise FileNotFoundError(path)
+E   FileNotFoundError: /tmp/SSW-worktrees/fixed-proposal-replay/runs/20260727-023234-fixed-proposal-replay-gpu/output/summary.json
+=========================== short test summary info ============================
+FAILED tests/test_atomic_climb.py::test_existing_cu_climb_geometry_events_and_exact_cost[dimer]
+FAILED tests/test_atomic_climb.py::test_existing_cu_climb_geometry_events_and_exact_cost[ritz]
+FAILED tests/test_cluster_reconnection.py::test_existing_54_reference_inputs_match
+FAILED tests/unit/test_safe_lbfgs_history_depth.py::test_preflight_rejects_every_pinned_hash_before_calculator[pamssw]
+FAILED tests/unit/test_safe_lbfgs_history_depth.py::test_preflight_rejects_every_pinned_hash_before_calculator[helper]
+FAILED tests/unit/test_safe_lbfgs_history_depth.py::test_preflight_rejects_every_pinned_hash_before_calculator[model]
+FAILED tests/unit/test_safe_lbfgs_history_depth.py::test_preflight_rejects_every_pinned_hash_before_calculator[input]
+FAILED tests/unit/test_safe_lbfgs_history_depth.py::test_preflight_only_returns_metadata_before_calculator
+FAILED tests/unit/test_safe_lbfgs_scale_decomposition.py::test_pinned_source_sha_and_exact_16_task_ids_and_seeds_are_verified
+FAILED tests/unit/test_safe_lbfgs_scale_decomposition.py::test_canonical_task_sha_changes_when_task_payload_is_mutated
+FAILED tests/unit/test_safe_lbfgs_scale_decomposition.py::test_repo_or_pamssw_preflight_failures_precede_calculator_factory[commit]
+FAILED tests/unit/test_safe_lbfgs_scale_decomposition.py::test_repo_or_pamssw_preflight_failures_precede_calculator_factory[dirty]
+FAILED tests/unit/test_safe_lbfgs_scale_decomposition.py::test_repo_or_pamssw_preflight_failures_precede_calculator_factory[import_path]
+FAILED tests/unit/test_safe_lbfgs_scale_decomposition.py::test_repo_or_pamssw_preflight_failures_precede_calculator_factory[bundle]
+FAILED tests/unit/test_safe_lbfgs_scale_decomposition.py::test_kernel_constant_drift_fails_preflight_before_calculator_factory
+FAILED tests/unit/test_safe_lbfgs_scale_decomposition.py::test_helper_file_provenance_is_pinned_and_fails_before_calculator_factory
+FAILED tests/unit/test_safe_lbfgs_scale_decomposition.py::test_tampered_preflight_fails_before_any_calculator_call[task]
+FAILED tests/unit/test_safe_lbfgs_scale_decomposition.py::test_tampered_preflight_fails_before_any_calculator_call[model]
+FAILED tests/unit/test_safe_lbfgs_scale_decomposition.py::test_tampered_preflight_fails_before_any_calculator_call[input]
+FAILED tests/unit/test_safe_lbfgs_scale_decomposition.py::test_tampered_preflight_fails_before_any_calculator_call[cuda]
+FAILED tests/unit/test_safe_lbfgs_scale_decomposition.py::test_finite_certificate_failure_is_published_as_a_scientific_result
+FAILED tests/unit/test_safe_lbfgs_scale_decomposition.py::test_nonfinite_or_open_ledger_remains_fatal[nonfinite]
+FAILED tests/unit/test_safe_lbfgs_scale_decomposition.py::test_nonfinite_or_open_ledger_remains_fatal[ledger]
+23 failed, 167 passed in 3.12s

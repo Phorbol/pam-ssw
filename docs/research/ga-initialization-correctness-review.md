@@ -1,0 +1,28 @@
+# GA geometry and initial-population correctness review
+
+Scope: mutable TYPE3 monomer libraries, periodic/surface provenance, partial packing, and molecular auxiliary objective. No physical PES was evaluated in this review. Numerical and geometry regression evidence is not a scientific search-efficiency claim.
+
+## Fixed: paid TYPE4 auxiliary work vanished on numerical failure
+
+`surface_ga.cubic_cluster` previously incremented its auxiliary count only after a successful E/G evaluation and only attached the ledger on a normal/Budget return. A ValueError/RuntimeError during a later start therefore discarded earlier successful starts and the failed attempted call. `rebuild_surface` only handled SamplingExhausted, so a later cubic family's numerical exception also lost earlier families' costs. `propose_type4` saw an exception with no total and recorded zero work.
+
+Now attempted calls increment before evaluation; numerical exceptions carry the completed and failed start records plus cumulative auxiliary count. The rebuild layer adds completed-family costs, preserving any failed-family count already attached. The proposal layer handles FloatingPointError along with existing failure types. Partial **complete surface candidates** remain explicitly preserved where reload has already succeeded. No incomplete atom packing becomes a surface candidate. Successful coordinates, source ordering, auxiliary energy, and normal return counts are unchanged.
+
+Regression tests failed before repair: third auxiliary callback had no count; second family failure reported 3 instead of 10+3 calls. They now require 3 and 13 respectively. These are accounting fault injections, not physical failures inferred from a PES.
+
+## Fixed: TYPE3 initializer could mix incompatible atom ordering
+
+`ga_operators._partition` intentionally accepts arbitrary exhaustive groups; geometry helpers return each generated candidate's new contiguous groups after flattening fragments. However `initialize_type3` combined original seeds and flattened offspring, then always passed the **original** groups to optional molecular LJ optimization. For interleaved input groups this can constrain unrelated atoms as one molecule. The production TYPE3 controller already explicitly requires contiguous monomer order; TYPE2's lift requires the same contract.
+
+The initializer now applies that same contiguous-order preflight before generation or auxiliary calls. It does not silently reorder atoms or invent new lineage. A real S22 water dimer with interleaved atom ordering tests rejection before auxiliary setup. Existing contiguous uploaded examples are unaffected. Supporting arbitrary seed order in a complete population would require a separate explicit normalization/provenance contract.
+
+## Other checked contracts and remaining boundaries
+
+- Mutable library internal crossover has per-atom parents and source indices. Stable within-species reordering applies the same permutation to coordinates, species, parent indices and source indices. Mixed-parent molecular groups correctly have `group_parent_indices=None`, while `paper_ga` consumes `details.atom_parent_indices` first; it does not index a parent with None for this path.
+- TYPE2 requires contiguous complete molecular groups and uses whole-group parent identities; its current operations do not produce mutable mixed-parent groups. TYPE1 and surface candidates expose atom-level parent/source mappings. The surface controller propagates both mapped parent archive indices and source atom indices into walk/observation records. The periodic controller propagates parent identities but source atom indices remain only in the nested proposal result; standalone walk rows are not a complete atom-origin record. This is an evidence-navigation limitation rather than demonstrated species corruption. Archive indices refer to mutable archive slots, so exact historical ancestry should be reconstructed together with saved proposal and walk inputs, not inferred from an archive slot's final contents alone.
+- Packing failures explicitly return a partial structure, non-completed status and source mapping of exactly its present atoms. `pack_type0` is currently a standalone primitive, not silently inserted into an initializer/controller. Callers must check status and target composition before using it as a seed. Existing tests preserve actual Au24O4 density/insertion failures instead of silently filling missing atoms.
+- `MolecularLJChart` forms per-group Euler products and differentiates each product with the corresponding generator at its own position. Cartesian pair gradients are accumulated with opposite signs and separately contracted with each group's three rotation derivatives. Existing all-coordinate finite differences on actual uploaded water geometry pass. The auxiliary potential is nonperiodic intermolecular LJ, not a physical water force field; no physical minimum certificate is attached. Molecular auxiliary optimizer failures already count the attempted call and retain the last successfully paired geometry/energy.
+
+No unrelated formatting, defaults, heuristic thresholds, or search operators were changed.
+
+Validation: after the auxiliary accounting repair, 47 tests passed across surface geometry, molecular LJ, TYPE2 geometry, packing, initializers and TYPE3 operators. After the additional initializer preflight, the 34 affected tests across surface/controller, molecular LJ, initializer, paper GA and periodic controller passed. These runs overlap and must not be summed as independent tests. All warnings were the existing ASE/NumPy shape deprecation. New tests: `test_surface_auxiliary_failure_cost.py` (2) and the added interleaved-S22 case in `test_initializers.py` (1).

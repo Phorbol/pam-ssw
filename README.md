@@ -1,12 +1,25 @@
 # pamssw
 
-`pamssw` implements SSW and LS-SSW with fixed-cell atomistic propagation and
-an experimental option for cell-relaxed true quenching. It is designed for practical basin discovery: start from one
-structure, walk on a biased potential surface, quench on the true potential, and
-keep a deduplicated archive of minima.
+`pamssw` contains the original PAM search API and an experimental independent
+ASE SSW family in `pamssw.standalone`. The latter implements fixed-cell SSW,
+LS, joint and block variable-cell search, rigid-chain search, and atomic,
+periodic, molecular and supported-cluster GA workflows without a LASP/Java
+runtime. See the [current capability and evidence inventory](docs/research/ssw-family-current-status.md)
+and [research mainline](docs/research/MAINLINE.md).
 
-The recommended user-facing route is `LS-SSW` with automatic local softening and
-ASE-style relaxation. Use plain `SSW` mainly as a baseline or ablation.
+The following original-API sections describe `pamssw.run_ssw` /
+`pamssw.run_ls_ssw`; their cell-relax option is a posterior quench. Joint cell
+escape is a separate `pamssw.standalone.run_vc_ssw` entry point. Algorithmic
+variants remain experimental; current real-system comparisons do not justify
+recommending LS as a universally better default.
+
+For joint VC with LS, `run_vc_ssw(..., ls=ls_settings, ls_prequench="joint")`
+also relaxes the cell during preparation on the frozen softened potential.
+The default `ls_prequench="fixed_cell"` preserves the original preparation
+protocol. Joint preparation uses physical enthalpy for the LS response and
+checks softened atomic forces, stress and the joint gradient; this is an
+experimental option whose convergence does not establish better exploration.
+See [the derivation and comparison protocol](docs/research/joint-ls-preparation-design.md).
 
 ## What It Does
 
@@ -18,7 +31,7 @@ ASE-style relaxation. Use plain `SSW` mainly as a baseline or ablation.
 - Can write accepted minima, all proposal minima, and relaxation trajectories as
   `.xyz` files.
 
-## Current Scope
+## Original PAM API scope
 
 Included:
 

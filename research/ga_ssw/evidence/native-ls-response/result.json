@@ -1,0 +1,118 @@
+{
+  "elf_sha256": "bba43b391619ae03cf7e9c455d8fe3a7c7bb7d434a56c7ef297bee38aa9b6704",
+  "static_defaults": {
+    "bond_ener_scale": 5.0,
+    "steplenselfadapt": 0.005,
+    "steplenselfadaptmax": 0.01,
+    "softratio": 1.100000023841858,
+    "biasperatomaim": 20.0,
+    "freqselfadapt": 10,
+    "npreselfadapt": 100,
+    "softmodecycle": 100
+  },
+  "constants": {
+    "0x5520450": 2.0,
+    "0x4a49c60": 1.0,
+    "0x4a498d0": 20.0,
+    "0x4a4c170": "-Infinity",
+    "0x4a4c178": -1.7976931348623157e+308,
+    "0x4a4c198": 1.0,
+    "0x4a45e00": 1000.0
+  },
+  "input_names": {
+    "0x4a49cc0": "SSW.LS",
+    "0x4a49cc8": "SSW.LS_biasAtom",
+    "0x4a49cd8": "SSW.LS_bondFilter"
+  },
+  "rows": [
+    {
+      "block": "effective_amplitude",
+      "B": 0.06666666269302368,
+      "amp_c": 2.0,
+      "filter_i": 1.0,
+      "filter_j": 1.0,
+      "actual": 0.13333332538604736,
+      "expected": 0.13333332538604736
+    },
+    {
+      "block": "effective_amplitude",
+      "B": 0.1111111044883728,
+      "amp_c": 2.0,
+      "filter_i": 1.0,
+      "filter_j": 0.0,
+      "actual": 0.0,
+      "expected": 0.0
+    },
+    {
+      "block": "effective_amplitude",
+      "B": 0.1385542756031437,
+      "amp_c": 2.0,
+      "filter_i": 0.5,
+      "filter_j": 0.7,
+      "actual": 0.09698799292220059,
+      "expected": 0.09698799292220059
+    },
+    {
+      "block": "matrix_update",
+      "B": 0.06666666269302368,
+      "N": 60,
+      "nb_old": 90,
+      "nb_new": 90,
+      "response": 0.0,
+      "target": 20.0,
+      "step": 0.005,
+      "Q_supplied": 1.0,
+      "actual": 0.07111110687255859,
+      "expected": 0.07111110687255859
+    },
+    {
+      "block": "matrix_update",
+      "B": 0.06666666269302368,
+      "N": 60,
+      "nb_old": 90,
+      "nb_new": 90,
+      "response": 20.0,
+      "target": 20.0,
+      "step": 0.005,
+      "Q_supplied": 1.0,
+      "actual": 0.06666666269302368,
+      "expected": 0.06666666269302368
+    },
+    {
+      "block": "matrix_update",
+      "B": 0.06666666269302368,
+      "N": 60,
+      "nb_old": 90,
+      "nb_new": 90,
+      "response": 40.0,
+      "target": 20.0,
+      "step": 0.005,
+      "Q_supplied": 1.0,
+      "actual": 0.06222221851348877,
+      "expected": 0.06222221851348877
+    },
+    {
+      "block": "matrix_update",
+      "B": 0.06666666269302368,
+      "N": 60,
+      "nb_old": 90,
+      "nb_new": 80,
+      "response": 10000.0,
+      "target": 20.0,
+      "step": 0.005,
+      "Q_supplied": 249.4999851286411,
+      "actual": 0.06499999552965165,
+      "expected": 0.06499999552965165
+    },
+    {
+      "block": "saved_response",
+      "energy_before": -100.0,
+      "energy_after": -99.8,
+      "N": 10,
+      "scale": 1000.0,
+      "actual": 20.000000000000284,
+      "expected": 20.000000000000284
+    }
+  ],
+  "limit": "isolated arithmetic only; Q is statically derived and supplied, no scheduler/input execution"
+}
