@@ -131,7 +131,12 @@ def resume_atomic_climb(checkpoint,surface,config=None,*,max_completed_gaussians
             mode=solver(work,rotation_anchor,rotation_bias=config.rotation_bias,fd_step=config.fd_step,
                         max_hvp=config.rotation_hvp,tol=config.rotation_tol,evaluate=rotation_surface)
             if not mode.converged:
-                status='rotation_failed';events.append(dict(index=index,rotation_solver=config.rotation_solver,residual=mode.residual_norm,force_requests=mode.force_calls));break
+                status='rotation_failed'
+                events.append(dict(index=index,rotation_solver=config.rotation_solver,
+                    residual=mode.residual_norm,force_requests=mode.force_calls,
+                    rotation_stop_reason=getattr(mode, 'stop_reason', 'unspecified'),
+                    rotation_converged=False,rotation_budget_released=False))
+                break
             center=work.positions.copy()
             pending.update(stage="height",center=center.tolist(),direction=mode.direction.tolist(),width=config.width)
             force_parallel=None
@@ -158,6 +163,11 @@ def resume_atomic_climb(checkpoint,surface,config=None,*,max_completed_gaussians
             relaxed=quench(displaced,surface,fmax=bias_fmax,steps=stage_steps,terms=terms,
                            optimizer=config.quench_optimizer,lbfgs_memory=config.lbfgs_memory)
             event=dict(index=index,rotation_solver=config.rotation_solver,cluster_frame=config.cluster_frame,center=center.tolist(),direction=mode.direction.tolist(),weight=weight,width=width,biased_energy=relaxed.energy,force_certificate=relaxed.surface,max_force=relaxed.max_force,rotation_residual=mode.residual_norm,rotation_force_requests=mode.force_calls,quench_requests=relaxed.evaluation_requests)
+            event.update(rotation_stop_reason=getattr(mode, 'stop_reason', 'unspecified'),
+                         rotation_converged=bool(mode.converged),
+                         rotation_budget_released=False,
+                         actual_anchor=rotation_anchor.tolist(),
+                         actual_rotation_bias=float(config.rotation_bias))
             if policy_data is not None: event['gaussian_policy']=policy_data
             if config.bias_fmax is not None: event['bias_fmax']=config.bias_fmax
             event['optimizer_telemetry'] = relaxed.optimizer_telemetry

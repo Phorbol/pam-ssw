@@ -1,0 +1,16 @@
+F...............                                                         [100%]
+=================================== FAILURES ===================================
+_________ test_existing_cu_climb_geometry_events_and_exact_cost[dimer] _________
+tests/test_atomic_climb.py:28: in test_existing_cu_climb_geometry_events_and_exact_cost
+    assert actual == {k: v for k, v in expected.items()
+E   AssertionError: assert {'index': 1, ...requests': 42} == {'index': 1, ...sts': 42, ...}
+E     
+E     Omitting 4 identical items, use -vv to show
+E     Right contains 3 more items:
+E     {'rotation_budget_released': False,
+E      'rotation_converged': False,
+E      'rotation_stop_reason': 'budget_exhausted'}
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED tests/test_atomic_climb.py::test_existing_cu_climb_geometry_events_and_exact_cost[dimer]
+1 failed, 15 passed in 2.07s
