@@ -1,0 +1,41 @@
+.F                                                                       [100%]
+=================================== FAILURES ===================================
+__ test_recovered_rotation_native_ls_checkpoint_resume_preserves_combination ___
+
+tmp_path = PosixPath('/tmp/pytest-of-gengjianrui/pytest-0/test_recovered_rotation_native0')
+
+    def test_recovered_rotation_native_ls_checkpoint_resume_preserves_combination(tmp_path):
+        atoms = Icosahedron("Cu", 2)
+        config = _config()
+        rotation = _rotation()
+        ls = _ls()
+        continuous = run_ssw(
+            atoms, ASESurface(EMT()), steps=2, config=config,
+            rng=np.random.default_rng(19), recovered_rotation=rotation, ls=ls,
+        )
+        path = tmp_path / "recovered-rotation-native-ls.pkl"
+        first = run_ssw(
+            atoms, ASESurface(EMT()), steps=1, config=config,
+            rng=np.random.default_rng(19), recovered_rotation=rotation, ls=ls,
+            checkpoint_path=path,
+        )
+        checkpoint = load_ssw_checkpoint(path)
+        resumed = run_ssw(
+            atoms, ASESurface(EMT()), steps=1, config=config,
+            rng=np.random.default_rng(777), ls=ls, checkpoint=checkpoint,
+        )
+    
+        assert first.status == continuous.status == resumed.status == "completed"
+        assert checkpoint.recovered_rotation == rotation
+        assert checkpoint.ls == ls
+        assert resumed.evaluation_requests == continuous.evaluation_requests
+        assert resumed.records[1].ls_update == continuous.records[1].ls_update
+        assert resumed.checkpoint.response.steps == 2
+>       assert resumed.checkpoint.response.state.table == continuous.checkpoint.response.state.table
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'response'
+
+tests/standalone/test_recovered_rotation_ls.py:99: AttributeError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_recovered_rotation_ls.py::test_recovered_rotation_native_ls_checkpoint_resume_preserves_combination
+1 failed, 1 passed in 0.65s
