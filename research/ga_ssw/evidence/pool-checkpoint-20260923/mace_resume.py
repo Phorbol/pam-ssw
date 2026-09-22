@@ -116,8 +116,9 @@ def make_case(plan, name):
     if sha256(input_path) != item['input_sha256'] or sha256(config_path) != item['config_sha256']:
         raise ValueError(f'prepared input/config changed: {name}')
     payload = json.loads(config_path.read_text())
+    from ase.io import read
     atoms = (prior.atoms_from_json(json.loads(input_path.read_text())['atoms'])
-             if input_path.suffix == '.json' else __import__('ase.io', fromlist=['read']).read(input_path))
+             if input_path.suffix == '.json' else read(input_path))
     from pamssw.standalone import SSWConfig
     return item, atoms, payload, SSWConfig(**payload['config'])
 
@@ -133,13 +134,16 @@ def make_calculator(item):
                           default_dtype='float64', enable_cueq=False, enable_oeq=False)
 
 
-def record_result(folder, result, adapter, selector_rng):
+def record_result(folder, result, adapter, selector_rng, kernel_rng, surface):
     with (folder / 'result.pkl').open('wb') as stream: pickle.dump(result, stream, protocol=4)
     with (folder / 'pool-export.pkl').open('wb') as stream: pickle.dump(adapter.export_state(), stream, protocol=4)
     with (folder / 'selector-rng-state.pkl').open('wb') as stream: pickle.dump(
         copy.deepcopy(selector_rng.bit_generator.state), stream, protocol=4)
+    with (folder / 'main-rng-state.pkl').open('wb') as stream: pickle.dump(
+        copy.deepcopy(kernel_rng.bit_generator.state), stream, protocol=4)
     return {
         'status': result.status, 'evaluation_requests': result.evaluation_requests,
+        'surface_requests': surface.requests, 'surface_denials': surface.denials,
         'records': [{'index': r.index, 'status': r.status,
                      'evaluation_requests': r.evaluation_requests,
                      'starter_selection': r.starter_selection,
@@ -150,16 +154,25 @@ def record_result(folder, result, adapter, selector_rng):
     }
 
 
-def fresh_terminal(folder, result, atoms, item, budget, label):
+def fresh_terminal(folder, result, atoms, item, config, budget, label):
     calc = make_calculator(item)
     surface = SharedSurface(calc, folder / 'fresh.jsonl', budget, label, kind='fresh')
+    energies = [float(minimum.energy) for minimum in result.minima]
+    expected = {'current': getattr(result.checkpoint, 'current_energy', None),
+                'best': min(energies) if energies else None}
     checks = []
     for candidate_label, candidate in (('current', result.current), ('best', result.best)):
         try:
             energy, forces = surface.evaluate(candidate)
+            error = (None if expected[candidate_label] is None else
+                     energy - float(expected[candidate_label]))
+            fmax = float(np.linalg.norm(forces, axis=1).max())
             checks.append({'label': candidate_label, 'energy_eV': energy,
-                           'energy_error_eV': energy - getattr(result.best, 'energy', energy),
-                           'fmax_eV_A': float(np.linalg.norm(forces, axis=1).max()),
+                           'expected_energy_eV': expected[candidate_label],
+                           'energy_error_eV': error,
+                           'force_threshold_eV_A': float(config.fmax),
+                           'force_qualified': bool(fmax <= config.fmax),
+                           'fmax_eV_A': fmax,
                            'composition_unchanged': bool(np.array_equal(candidate.numbers, atoms.numbers)),
                            'cell_unchanged': bool(np.array_equal(candidate.cell.array, atoms.cell.array)),
                            'pbc_unchanged': bool(np.array_equal(candidate.pbc, atoms.pbc))})
@@ -170,64 +183,70 @@ def fresh_terminal(folder, result, atoms, item, budget, label):
 
 def run_case(out, plan, name):
     item, atoms, payload, config = make_case(plan, name)
-    budget = SharedBudget(plan['budgets']['search_requests_per_case'],
-                          plan['budgets']['fresh_terminal_checks_per_case'],
+    budget = SharedBudget(plan['budgets']['search_requests_per_case_all_legs'],
+                          plan['budgets']['fresh_terminal_checks_per_case_all_legs'],
                           plan['budgets']['wall_seconds_per_case'])
     case_out = out / name; case_out.mkdir()
     ledger = case_out / 'requests.jsonl'
-    ls = prior.make_ls(item, payload)
     rows = []
-    adapter = __import__('research.ga_ssw.pool_starter_adapter', fromlist=['PoolStarterAdapter']).PoolStarterAdapter(
-        mode='pam', energy_tol=plan['pool']['energy_tol'], rmsd_tol=plan['pool']['rmsd_tol'])
-    selector = prior.PoolSelector('deterministic_other_index')
+    from pamssw.standalone import NativeMCSettings, load_ssw_checkpoint, run_ssw
+    from research.ga_ssw.pool_starter_adapter import PoolStarterAdapter
+    def make_mc():
+        return (NativeMCSettings(energy_tol=float(payload['native_mc']['energy_tol_eV']),
+                                 maxtrap=int(payload['native_mc']['maxtrap']))
+                if 'native_mc' in payload else None)
+    adapter = PoolStarterAdapter(mode='pam', energy_tol=plan['pool']['energy_tol'],
+                                 rmsd_tol=plan['pool']['rmsd_tol'])
     selector_rng = np.random.default_rng(item['seed'] + 1000003)
+    continuous_kernel_rng = np.random.default_rng(item['seed'])
     continuous_result = None
     resumed_result = None
     try:
         (case_out / 'continuous2').mkdir()
-        result = __import__('pamssw.standalone', fromlist=['run_ssw']).run_ssw(
-            atoms.copy(), SharedSurface(make_calculator(item), ledger, budget, 'continuous2'),
-            steps=2, config=config, rng=np.random.default_rng(item['seed']), ls=ls,
-            mc=__import__('pamssw.standalone', fromlist=['NativeMCSettings']).NativeMCSettings(**payload['native_mc'])
-            if 'native_mc' in payload else None,
+        continuous_surface = SharedSurface(make_calculator(item), ledger, budget, 'continuous2')
+        result = run_ssw(atoms.copy(), continuous_surface, steps=2, config=config,
+            rng=continuous_kernel_rng, ls=prior.make_ls(item, payload), mc=make_mc(),
             starter_selector=adapter, selector_rng=selector_rng,
             checkpoint_path=case_out / 'continuous-checkpoint.pkl')
         continuous_result = result
-        rows.append({'leg': 'continuous2', **record_result(case_out / 'continuous2', result, adapter, selector_rng),
-                     'fresh_checks': fresh_terminal(case_out / 'continuous2', result, atoms, item, budget, 'continuous2')})
+        rows.append({'leg': 'continuous2', **record_result(case_out / 'continuous2', result,
+                     adapter, selector_rng, continuous_kernel_rng, continuous_surface),
+                     'fresh_checks': fresh_terminal(case_out / 'continuous2', result, atoms,
+                                                    item, config, budget, 'continuous2')})
     except Exception as error:
         rows.append({'leg': 'continuous2', 'status': 'exception', 'error': repr(error)})
     # Split arm uses fresh adapter/calculator on resume; no finalize occurs on any leg.
     first_dir, resume_dir = case_out / 'first1', case_out / 'resume1'
     first_dir.mkdir(); resume_dir.mkdir()
-    first_adapter = __import__('research.ga_ssw.pool_starter_adapter', fromlist=['PoolStarterAdapter']).PoolStarterAdapter(
-        mode='pam', energy_tol=plan['pool']['energy_tol'], rmsd_tol=plan['pool']['rmsd_tol'])
-    first_selector = prior.PoolSelector('deterministic_other_index')
+    first_adapter = PoolStarterAdapter(mode='pam', energy_tol=plan['pool']['energy_tol'],
+                                       rmsd_tol=plan['pool']['rmsd_tol'])
     first_rng = np.random.default_rng(item['seed'] + 1000003)
+    first_kernel_rng = np.random.default_rng(item['seed'])
     checkpoint_path = first_dir / 'checkpoint.pkl'
     try:
-        run_ssw = __import__('pamssw.standalone', fromlist=['run_ssw']).run_ssw
-        first = run_ssw(atoms.copy(), SharedSurface(make_calculator(item), ledger, budget, 'first1'),
-                        steps=1, config=config, rng=np.random.default_rng(item['seed']), ls=ls,
-                        mc=__import__('pamssw.standalone', fromlist=['NativeMCSettings']).NativeMCSettings(**payload['native_mc'])
-                        if 'native_mc' in payload else None,
+        first_surface = SharedSurface(make_calculator(item), ledger, budget, 'first1')
+        first = run_ssw(atoms.copy(), first_surface, steps=1, config=config,
+                        rng=first_kernel_rng, ls=prior.make_ls(item, payload), mc=make_mc(),
                         starter_selector=first_adapter, selector_rng=first_rng,
                         checkpoint_path=checkpoint_path)
-        first_summary = record_result(first_dir, first, first_adapter, first_rng)
-        checkpoint = __import__('pamssw.standalone', fromlist=['load_ssw_checkpoint']).load_ssw_checkpoint(checkpoint_path)
-        resumed_adapter = __import__('research.ga_ssw.pool_starter_adapter', fromlist=['PoolStarterAdapter']).PoolStarterAdapter(
-            mode='pam', energy_tol=plan['pool']['energy_tol'], rmsd_tol=plan['pool']['rmsd_tol'])
+        first_summary = record_result(first_dir, first, first_adapter, first_rng,
+                                      first_kernel_rng, first_surface)
+        rows.append({'leg': 'first1', **first_summary})
+        checkpoint = load_ssw_checkpoint(checkpoint_path)
+        resumed_adapter = PoolStarterAdapter(mode='pam', energy_tol=plan['pool']['energy_tol'],
+                                             rmsd_tol=plan['pool']['rmsd_tol'])
         resumed_rng = np.random.default_rng(item['seed'] + 1000003)
-        resumed = run_ssw(checkpoint.current, SharedSurface(make_calculator(item), ledger, budget, 'resume1'),
-                          steps=1, config=config, rng=np.random.default_rng(item['seed']), ls=ls,
-                          mc=__import__('pamssw.standalone', fromlist=['NativeMCSettings']).NativeMCSettings(**payload['native_mc'])
-                          if 'native_mc' in payload else None,
+        resumed_kernel_rng = np.random.default_rng(item['seed'])
+        resume_surface = SharedSurface(make_calculator(item), ledger, budget, 'resume1')
+        resumed = run_ssw(checkpoint.current, resume_surface, steps=1, config=config,
+                          rng=resumed_kernel_rng, ls=prior.make_ls(item, payload), mc=make_mc(),
                           starter_selector=resumed_adapter, selector_rng=resumed_rng,
                           checkpoint=checkpoint, checkpoint_path=resume_dir / 'checkpoint.pkl')
         resumed_result = resumed
-        rows.append({'leg': 'first1', **first_summary})
-        rows.append({'leg': 'resume1', **record_result(resume_dir, resumed, resumed_adapter, resumed_rng),
-                     'fresh_checks': fresh_terminal(resume_dir, resumed, atoms, item, budget, 'resume1')})
+        rows.append({'leg': 'resume1', **record_result(resume_dir, resumed, resumed_adapter,
+                     resumed_rng, resumed_kernel_rng, resume_surface),
+                     'fresh_checks': fresh_terminal(resume_dir, resumed, atoms, item, config,
+                                                    budget, 'resume1')})
         rows[-1]['first_pool_export'] = first_adapter.export_state()
         if continuous_result is not None:
             rows[-1]['position_max_abs_diff_vs_continuous'] = float(
@@ -239,23 +258,71 @@ def run_case(out, plan, name):
             rows[-1]['composition_equal_vs_continuous'] = bool(
                 np.array_equal(continuous_result.current.numbers, resumed.current.numbers))
     except Exception as error:
-        rows.append({'leg': 'split_first_resume', 'status': 'exception', 'error': repr(error)})
+        rows.append({'leg': 'resume1' if rows and rows[-1].get('leg') == 'first1'
+                     else 'first1', 'status': 'exception', 'error': repr(error)})
     dump(case_out / 'summary.json', {'case': name, 'rows': rows,
         'search_requests': budget.search_requests, 'fresh_requests': budget.fresh_requests,
         'total_ef': budget.search_requests + budget.fresh_requests,
-        'within_budget': budget.search_requests <= plan['budgets']['search_requests_per_case'] and
-                         budget.fresh_requests <= plan['budgets']['fresh_terminal_checks_per_case']})
+        'wall_seconds': time.monotonic() - budget.started,
+        'within_budget': budget.search_requests <= plan['budgets']['search_requests_per_case_all_legs'] and
+                         budget.fresh_requests <= plan['budgets']['fresh_terminal_checks_per_case_all_legs']})
+
+
+def validate_only(plan):
+    """Parse every prepared input/configuration without importing MACE or evaluating a PES."""
+    budgets = plan['budgets']
+    required = ('search_requests_per_case_all_legs',
+                'fresh_terminal_checks_per_case_all_legs',
+                'total_ef_all_cases', 'wall_seconds_per_case')
+    missing = [key for key in required if key not in budgets]
+    if missing:
+        raise ValueError(f'missing budget keys: {missing}')
+    if len(plan['cases']) * (budgets['search_requests_per_case_all_legs'] +
+                             budgets['fresh_terminal_checks_per_case_all_legs']) != budgets['total_ef_all_cases']:
+        raise ValueError('total_ef_all_cases does not match per-case caps')
+    from pamssw.standalone import NativeMCSettings
+    checked = []
+    for name in plan['cases']:
+        item, atoms, payload, config = make_case(plan, name)
+        ls = prior.make_ls(item, payload)
+        mc = None
+        if 'native_mc' in payload:
+            native = payload['native_mc']
+            mc = NativeMCSettings(energy_tol=float(native['energy_tol_eV']),
+                                  maxtrap=int(native['maxtrap']))
+        checked.append({'case': name, 'atoms': len(atoms), 'seed': item['seed'],
+                        'model': item['model'], 'ls': jsonable(ls),
+                        'native_mc': None if mc is None else jsonable(mc),
+                        'fmax_eV_A': float(config.fmax)})
+    print(json.dumps({'status': 'VALIDATED_ONLY', 'cases': checked,
+                      'budgets': budgets}, indent=2, allow_nan=False))
 
 
 def main():
-    parser = argparse.ArgumentParser(); parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--execute', action='store_true'); args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--output', type=Path)
+    modes = parser.add_mutually_exclusive_group(required=True)
+    modes.add_argument('--execute', action='store_true')
+    modes.add_argument('--validate-only', action='store_true')
+    args = parser.parse_args()
+    plan = json.loads((HERE / 'protocol.json').read_text())
+    if args.validate_only:
+        validate_only(plan)
+        return
+    if args.output is None:
+        parser.error('--output is required with --execute')
     out = args.output.resolve(); out.mkdir(parents=True, exist_ok=False)
-    plan = json.loads((HERE / 'protocol.json').read_text()); dump(out / 'protocol.json', plan)
+    dump(out / 'protocol.json', plan)
     launch_provenance(out)
-    if not args.execute: return
     for name in plan['cases']:
-        run_case(out, plan, name)
+        try:
+            run_case(out, plan, name)
+        except Exception as error:
+            # Preserve one case's protocol/runtime failure and still qualify the other.
+            case_dir = out / name
+            case_dir.mkdir(parents=True, exist_ok=True)
+            dump(case_dir / 'summary.json', {'case': name, 'status': 'exception',
+                                             'error': repr(error)})
 
 
 if __name__ == '__main__': main()

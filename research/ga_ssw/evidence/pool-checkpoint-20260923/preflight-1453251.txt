@@ -1,0 +1,91 @@
+{
+  "status": "VALIDATED_ONLY",
+  "cases": [
+    {
+      "case": "c60_17093",
+      "atoms": 60,
+      "seed": 17093,
+      "model": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+      "ls": {
+        "bond_energies": {
+          "(6, 6)": 3.4468400478363037
+        },
+        "bond_lengths": {
+          "(6, 6)": 1.5399999618530273
+        },
+        "scale": 5.0,
+        "energy_filter": null,
+        "length_filter": null,
+        "atom_filter": null,
+        "amp_c": 2.0,
+        "length_tolerance": 0.1,
+        "target_mev_per_atom": 20.0,
+        "eta": 0.005,
+        "max_change": 0.01,
+        "frequency": 10,
+        "presteps": 100,
+        "cycle": 100,
+        "ratio": 1.100000023841858,
+        "lselfadapt": true,
+        "bond_geometry": "native-mic",
+        "prequench": {
+          "fmax": 0.1,
+          "steps": 50,
+          "exit_policy": "force_or_step_limit"
+        }
+      },
+      "native_mc": {
+        "energy_tol": 0.1,
+        "maxtrap": 99999
+      },
+      "fmax_eV_A": 0.03
+    },
+    {
+      "case": "tio2_anatase",
+      "atoms": 12,
+      "seed": 11,
+      "model": "/home/gengjianrui/.cache/mace/mace-omat-0-small.model",
+      "ls": {
+        "bond_energies": {
+          "(22, 22)": 3.6298000812530518,
+          "(22, 8)": 3.6298000812530518,
+          "(8, 8)": 1.515779972076416
+        },
+        "bond_lengths": {
+          "(22, 22)": 1.899999976158142,
+          "(22, 8)": 1.9429999589920044,
+          "(8, 8)": 1.4800000190734863
+        },
+        "scale": 5.0,
+        "energy_filter": null,
+        "length_filter": null,
+        "atom_filter": null,
+        "amp_c": 2.0,
+        "length_tolerance": 0.1,
+        "target_mev_per_atom": 20.0,
+        "eta": 0.005,
+        "max_change": 0.01,
+        "frequency": 10,
+        "presteps": 100,
+        "cycle": 100,
+        "ratio": 1.100000023841858,
+        "lselfadapt": true,
+        "bond_geometry": "native-mic",
+        "prequench": {
+          "fmax": 0.1,
+          "steps": 50,
+          "exit_policy": "force_or_step_limit"
+        }
+      },
+      "native_mc": null,
+      "fmax_eV_A": 0.03
+    }
+  ],
+  "budgets": {
+    "search_requests_per_case_all_legs": 5990,
+    "fresh_terminal_checks_per_case_all_legs": 4,
+    "total_ef_all_cases": 11988,
+    "wall_seconds_per_case": 800,
+    "fresh_checks": "two terminal checks for continuous2 and two for resumed split; none on first leg"
+  }
+}
