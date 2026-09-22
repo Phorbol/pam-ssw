@@ -1,0 +1,548 @@
+[
+  {
+    "case": "c60_17093",
+    "initial_position_delta": 0.0,
+    "initial_energy_delta": 0.0,
+    "first_outer_requests": [
+      644,
+      562
+    ],
+    "first_landing_position_delta": 2.20792499400304,
+    "first_landing_energy_delta": -0.09216478963207919,
+    "first_ledger_difference": {
+      "request": 1,
+      "energy_a": -62150.683820783015,
+      "energy_b": -62150.683820783015,
+      "fmax_a": 0.025712803020809073,
+      "fmax_b": 0.025712803020808424
+    },
+    "stages": [
+      {
+        "index": 0,
+        "coordinate_deltas": {
+          "center": 2.4868995751603507e-14,
+          "direction": 1.1508526009978981e-05,
+          "actual_anchor": 1.3877787807814457e-16
+        },
+        "requests": [
+          103,
+          104
+        ],
+        "true_energy": [
+          -62150.10598406591,
+          -62150.1060372105
+        ]
+      },
+      {
+        "index": 1,
+        "coordinate_deltas": {
+          "center": 0.024612425536687965,
+          "direction": 0.08366159193528955,
+          "actual_anchor": 0.000106920362476004
+        },
+        "requests": [
+          104,
+          101
+        ],
+        "true_energy": [
+          -62149.80112466991,
+          -62149.91322795401
+        ]
+      },
+      {
+        "index": 2,
+        "coordinate_deltas": {
+          "center": 0.3662295689698425,
+          "direction": 0.1477367392874084,
+          "actual_anchor": 0.0014036446517432244
+        },
+        "requests": [
+          97,
+          70
+        ],
+        "true_energy": [
+          -62149.33404006707,
+          -62148.71319041705
+        ]
+      },
+      {
+        "index": 3,
+        "coordinate_deltas": {
+          "center": 1.5132171031156467,
+          "direction": 0.10290565544263769,
+          "actual_anchor": 0.006488245523895118
+        },
+        "requests": [
+          208,
+          217
+        ],
+        "true_energy": [
+          -62156.51590691759,
+          -62156.348233111086
+        ]
+      }
+    ],
+    "first_selection": [
+      {
+        "mc_current_index": 1,
+        "chosen_index": null,
+        "last_landing_index": 1,
+        "step": 0,
+        "cost": 645,
+        "restarted": false,
+        "restart_failed": false,
+        "ls_reinitialized": false,
+        "direction_reinitialized": false
+      },
+      {
+        "mc_current_index": 1,
+        "chosen_index": null,
+        "last_landing_index": 1,
+        "step": 0,
+        "cost": 563,
+        "restarted": false,
+        "restart_failed": false,
+        "ls_reinitialized": false,
+        "direction_reinitialized": false
+      }
+    ]
+  },
+  {
+    "case": "tio2_anatase",
+    "initial_position_delta": 0.0,
+    "initial_energy_delta": 0.0,
+    "first_outer_requests": [
+      557,
+      557
+    ],
+    "first_landing_position_delta": 0.0,
+    "first_landing_energy_delta": 0.0,
+    "first_ledger_difference": null,
+    "stages": [
+      {
+        "index": 0,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          16,
+          16
+        ],
+        "true_energy": [
+          -106.93239048700465,
+          -106.93239048700465
+        ]
+      },
+      {
+        "index": 1,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          15,
+          15
+        ],
+        "true_energy": [
+          -106.75997089661013,
+          -106.75997089661013
+        ]
+      },
+      {
+        "index": 2,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          15,
+          15
+        ],
+        "true_energy": [
+          -106.50113540682499,
+          -106.50113540682499
+        ]
+      },
+      {
+        "index": 3,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          15,
+          15
+        ],
+        "true_energy": [
+          -106.1592748177505,
+          -106.1592748177505
+        ]
+      },
+      {
+        "index": 4,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          15,
+          15
+        ],
+        "true_energy": [
+          -105.73844967842204,
+          -105.73844967842204
+        ]
+      },
+      {
+        "index": 5,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          16,
+          16
+        ],
+        "true_energy": [
+          -105.24582694943096,
+          -105.24582694943096
+        ]
+      },
+      {
+        "index": 6,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          16,
+          16
+        ],
+        "true_energy": [
+          -104.69372342494634,
+          -104.69372342494634
+        ]
+      },
+      {
+        "index": 7,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          15,
+          15
+        ],
+        "true_energy": [
+          -104.0926152873512,
+          -104.0926152873512
+        ]
+      },
+      {
+        "index": 8,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          42,
+          42
+        ],
+        "true_energy": [
+          -105.20040245552002,
+          -105.20040245552002
+        ]
+      },
+      {
+        "index": 9,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          18,
+          18
+        ],
+        "true_energy": [
+          -105.06806304712512,
+          -105.06806304712512
+        ]
+      },
+      {
+        "index": 10,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          18,
+          18
+        ],
+        "true_energy": [
+          -104.78507147665526,
+          -104.78507147665526
+        ]
+      },
+      {
+        "index": 11,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          54,
+          54
+        ],
+        "true_energy": [
+          -104.9504433020572,
+          -104.9504433020572
+        ]
+      },
+      {
+        "index": 12,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          19,
+          19
+        ],
+        "true_energy": [
+          -104.68675167144156,
+          -104.68675167144156
+        ]
+      },
+      {
+        "index": 13,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          42,
+          42
+        ],
+        "true_energy": [
+          -104.69265802803774,
+          -104.69265802803774
+        ]
+      },
+      {
+        "index": 14,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          15,
+          15
+        ],
+        "true_energy": [
+          -104.31145878246149,
+          -104.31145878246149
+        ]
+      },
+      {
+        "index": 15,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          25,
+          25
+        ],
+        "true_energy": [
+          -103.84805410274735,
+          -103.84805410274735
+        ]
+      },
+      {
+        "index": 16,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          18,
+          18
+        ],
+        "true_energy": [
+          -103.3123588251047,
+          -103.3123588251047
+        ]
+      },
+      {
+        "index": 17,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          18,
+          18
+        ],
+        "true_energy": [
+          -102.70009074793603,
+          -102.70009074793603
+        ]
+      },
+      {
+        "index": 18,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          46,
+          46
+        ],
+        "true_energy": [
+          -106.94099303469154,
+          -106.94099303469154
+        ]
+      },
+      {
+        "index": 19,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          14,
+          14
+        ],
+        "true_energy": [
+          -106.83637415791456,
+          -106.83637415791456
+        ]
+      },
+      {
+        "index": 20,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          18,
+          18
+        ],
+        "true_energy": [
+          -106.60431373604897,
+          -106.60431373604897
+        ]
+      },
+      {
+        "index": 21,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          14,
+          14
+        ],
+        "true_energy": [
+          -106.2771762605485,
+          -106.2771762605485
+        ]
+      },
+      {
+        "index": 22,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          15,
+          15
+        ],
+        "true_energy": [
+          -105.84106128621951,
+          -105.84106128621951
+        ]
+      },
+      {
+        "index": 23,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          17,
+          17
+        ],
+        "true_energy": [
+          -105.37185418326277,
+          -105.37185418326277
+        ]
+      },
+      {
+        "index": 24,
+        "coordinate_deltas": {
+          "center": 0.0,
+          "direction": 0.0,
+          "actual_anchor": 0.0
+        },
+        "requests": [
+          17,
+          17
+        ],
+        "true_energy": [
+          -104.87474011997139,
+          -104.87474011997139
+        ]
+      }
+    ],
+    "first_selection": [
+      {
+        "mc_current_index": 0,
+        "chosen_index": null,
+        "last_landing_index": 1,
+        "step": 0,
+        "cost": 558,
+        "restarted": false,
+        "restart_failed": false,
+        "ls_reinitialized": false,
+        "direction_reinitialized": false
+      },
+      {
+        "mc_current_index": 0,
+        "chosen_index": null,
+        "last_landing_index": 1,
+        "step": 0,
+        "cost": 558,
+        "restarted": false,
+        "restart_failed": false,
+        "ls_reinitialized": false,
+        "direction_reinitialized": false
+      }
+    ]
+  }
+]

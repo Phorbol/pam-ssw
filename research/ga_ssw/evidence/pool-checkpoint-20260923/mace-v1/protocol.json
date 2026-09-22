@@ -1,0 +1,62 @@
+{
+  "status": "PREPARED_NOT_SUBMITTED",
+  "purpose": "Qualify schema-5 pool checkpoint continuation with NativeLS and PAM PoolStarterAdapter; no search-efficiency claim.",
+  "cases": {
+    "c60_17093": {
+      "prepared_root": "research/ga_ssw/evidence/ls-pool-restart-20260922/prepared-v1",
+      "input": "inputs/c60_17093.traj",
+      "input_sha256": "45d2d67f3e6776864b0a662dc445952bb5cbde1e2443164eb8120936dce577f6",
+      "config": "config-sources/c60_17093.json",
+      "config_sha256": "6d7e3da8e406647ba899691a319ec24d41043b12e373ec2c57f22b610269a3cd",
+      "seed": 17093,
+      "model": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+      "model_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+      "head": "omol",
+      "native_mc": {
+        "energy_tol_eV": 0.1,
+        "maxtrap": 99999
+      }
+    },
+    "tio2_anatase": {
+      "prepared_root": "research/ga_ssw/evidence/ls-pool-restart-20260922/prepared-v2",
+      "input": "inputs/tio2_anatase.json",
+      "input_sha256": "277a26241d1515cc07f9d9462810035d3d67003c8fe14d69f2373081e54ce66d",
+      "config": "config-sources/tio2_anatase.json",
+      "config_sha256": "44c3d5215d16aab0a3b851e77f9673053fd06e8f704a4dec96e0acfc7405fac4",
+      "seed": 11,
+      "model": "/home/gengjianrui/.cache/mace/mace-omat-0-small.model",
+      "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+      "head": "omat_pbe"
+    }
+  },
+  "arms": [
+    "continuous2",
+    "split_first1_resume1"
+  ],
+  "pool": {
+    "mode": "pam",
+    "energy_tol": 0.001,
+    "rmsd_tol": 0.1
+  },
+  "split": {
+    "first_steps": 1,
+    "resume_steps": 1,
+    "checkpoint_schema": 5,
+    "no_finalize_pause": true
+  },
+  "budgets": {
+    "search_requests_per_case_all_legs": 5990,
+    "fresh_terminal_checks_per_case_all_legs": 4,
+    "total_ef_all_cases": 11988,
+    "wall_seconds_per_case": 800,
+    "fresh_checks": "two terminal checks for continuous2 and two for resumed split; none on first leg"
+  },
+  "runtime": {
+    "device": "cuda",
+    "dtype": "float64",
+    "torch_num_threads": 1,
+    "torch_deterministic_algorithms": true,
+    "tf32": false
+  },
+  "comparison": "Compare choices, committed starter_selection, LS preparation/update telemetry, accumulated search ledger, final pool export/RNG, and max position/cell/PBC/composition differences. Do not assert GPU bitwise equality or infer efficiency. Exceptions and request denials remain recorded; no retries."
+}

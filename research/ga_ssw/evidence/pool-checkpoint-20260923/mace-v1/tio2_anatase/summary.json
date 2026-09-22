@@ -1,0 +1,894 @@
+{
+  "case": "tio2_anatase",
+  "rows": [
+    {
+      "leg": "continuous2",
+      "status": "completed",
+      "evaluation_requests": 1177,
+      "surface_requests": 1177,
+      "surface_denials": 0,
+      "records": [
+        {
+          "index": 0,
+          "status": "gaussian_limit",
+          "evaluation_requests": 557,
+          "starter_selection": {
+            "mc_current_index": 0,
+            "chosen_index": null,
+            "last_landing_index": 1,
+            "step": 0,
+            "cost": 558,
+            "restarted": false,
+            "restart_failed": false,
+            "ls_reinitialized": false,
+            "direction_reinitialized": false
+          },
+          "ls_preparation": {
+            "exit_policy": "force_or_step_limit",
+            "qualification": "force",
+            "true_energy_before": -107.00100854422963,
+            "true_energy_after": -106.99529660735354,
+            "evaluation_requests": 5
+          },
+          "ls_update": {
+            "step": 1,
+            "phase": null,
+            "nsoftstep": 110,
+            "actions": [
+              "normal_update"
+            ],
+            "table": {
+              "(22, 22)": 0.055224068030821055,
+              "(8, 22)": 0.055224068030821055,
+              "(8, 8)": 0.02306119742793304
+            },
+            "old_bond_count": 24,
+            "response": 0.47599473967470846,
+            "q": 1.0,
+            "caller_convention": "completed_outer_attempts_selected_current",
+            "prequench_exit_policy": "force_or_step_limit",
+            "prequench_qualification": "force",
+            "prequench_telemetry": {
+              "backend": "safe-lbfgs-total",
+              "evaluator_calls": 3,
+              "backend_evaluations": 3,
+              "reporting_cache_hits": 1,
+              "reporting_evaluator_calls": 0,
+              "finalization_requests": 1,
+              "explicit_finalization_calls": 0,
+              "gradient_measure": "raw_active_max_force",
+              "converged": true,
+              "termination_reason": "converged",
+              "optimizer_success": true,
+              "accepted_steps": 2,
+              "rejected_steps": 0,
+              "accepted_secants": 2,
+              "rejected_secants": 0,
+              "line_search_evaluations": 2,
+              "mic_branch_resets": 0,
+              "bias_secant_curvature_sum": 0.0
+            },
+            "observed_response_mev_per_atom": 0.47599473967470846,
+            "bond_count": 24
+          }
+        },
+        {
+          "index": 1,
+          "status": "gaussian_limit",
+          "evaluation_requests": 619,
+          "starter_selection": {
+            "mc_current_index": 0,
+            "chosen_index": 1,
+            "last_landing_index": 2,
+            "step": 1,
+            "cost": 1177,
+            "restarted": true,
+            "restart_failed": false,
+            "ls_reinitialized": true,
+            "direction_reinitialized": false
+          },
+          "ls_preparation": {
+            "exit_policy": "force_or_step_limit",
+            "qualification": "force",
+            "true_energy_before": -107.00100854422963,
+            "true_energy_after": -106.99474775829196,
+            "evaluation_requests": 5
+          },
+          "ls_update": {
+            "step": 2,
+            "phase": null,
+            "nsoftstep": 110,
+            "actions": [
+              "normal_update"
+            ],
+            "table": {
+              "(22, 22)": 0.057913241001414546,
+              "(8, 22)": 0.057913241001414546,
+              "(8, 8)": 0.024184177878379145
+            },
+            "old_bond_count": 24,
+            "response": 0.5217321614724805,
+            "q": 1.0,
+            "caller_convention": "completed_outer_attempts_selected_current",
+            "prequench_exit_policy": "force_or_step_limit",
+            "prequench_qualification": "force",
+            "prequench_telemetry": {
+              "backend": "safe-lbfgs-total",
+              "evaluator_calls": 3,
+              "backend_evaluations": 3,
+              "reporting_cache_hits": 1,
+              "reporting_evaluator_calls": 0,
+              "finalization_requests": 1,
+              "explicit_finalization_calls": 0,
+              "gradient_measure": "raw_active_max_force",
+              "converged": true,
+              "termination_reason": "converged",
+              "optimizer_success": true,
+              "accepted_steps": 2,
+              "rejected_steps": 0,
+              "accepted_secants": 2,
+              "rejected_secants": 0,
+              "line_search_evaluations": 2,
+              "mic_branch_resets": 0,
+              "bias_secant_curvature_sum": 0.0
+            },
+            "observed_response_mev_per_atom": 0.5217321614724805,
+            "bond_count": 24
+          }
+        }
+      ],
+      "pool_decisions": [
+        {
+          "step": 0,
+          "source_entry": 0,
+          "selected_entry": 0,
+          "chosen_index": null,
+          "actual_index": 0,
+          "cumulative_requests": 558
+        },
+        {
+          "step": 1,
+          "source_entry": 0,
+          "selected_entry": 1,
+          "chosen_index": 1,
+          "actual_index": 1,
+          "cumulative_requests": 1177
+        }
+      ],
+      "fresh_checks": [
+        {
+          "label": "current",
+          "energy_eV": -106.96053935875119,
+          "expected_energy_eV": -106.96053935875119,
+          "energy_error_eV": 0.0,
+          "force_threshold_eV_A": 0.03,
+          "force_qualified": true,
+          "fmax_eV_A": 0.027268103526558566,
+          "composition_unchanged": true,
+          "cell_unchanged": true,
+          "pbc_unchanged": true
+        },
+        {
+          "label": "best",
+          "energy_eV": -107.00100854422963,
+          "expected_energy_eV": -107.00100854422963,
+          "energy_error_eV": 0.0,
+          "force_threshold_eV_A": 0.03,
+          "force_qualified": true,
+          "fmax_eV_A": 0.0022674677180422884,
+          "composition_unchanged": true,
+          "cell_unchanged": true,
+          "pbc_unchanged": true
+        }
+      ]
+    },
+    {
+      "leg": "first1",
+      "status": "completed",
+      "evaluation_requests": 558,
+      "surface_requests": 558,
+      "surface_denials": 0,
+      "records": [
+        {
+          "index": 0,
+          "status": "gaussian_limit",
+          "evaluation_requests": 557,
+          "starter_selection": {
+            "mc_current_index": 0,
+            "chosen_index": null,
+            "last_landing_index": 1,
+            "step": 0,
+            "cost": 558,
+            "restarted": false,
+            "restart_failed": false,
+            "ls_reinitialized": false,
+            "direction_reinitialized": false
+          },
+          "ls_preparation": {
+            "exit_policy": "force_or_step_limit",
+            "qualification": "force",
+            "true_energy_before": -107.00100854422963,
+            "true_energy_after": -106.99529660735354,
+            "evaluation_requests": 5
+          },
+          "ls_update": {
+            "step": 1,
+            "phase": null,
+            "nsoftstep": 110,
+            "actions": [
+              "normal_update"
+            ],
+            "table": {
+              "(22, 22)": 0.055224068030821055,
+              "(8, 22)": 0.055224068030821055,
+              "(8, 8)": 0.02306119742793304
+            },
+            "old_bond_count": 24,
+            "response": 0.47599473967470846,
+            "q": 1.0,
+            "caller_convention": "completed_outer_attempts_selected_current",
+            "prequench_exit_policy": "force_or_step_limit",
+            "prequench_qualification": "force",
+            "prequench_telemetry": {
+              "backend": "safe-lbfgs-total",
+              "evaluator_calls": 3,
+              "backend_evaluations": 3,
+              "reporting_cache_hits": 1,
+              "reporting_evaluator_calls": 0,
+              "finalization_requests": 1,
+              "explicit_finalization_calls": 0,
+              "gradient_measure": "raw_active_max_force",
+              "converged": true,
+              "termination_reason": "converged",
+              "optimizer_success": true,
+              "accepted_steps": 2,
+              "rejected_steps": 0,
+              "accepted_secants": 2,
+              "rejected_secants": 0,
+              "line_search_evaluations": 2,
+              "mic_branch_resets": 0,
+              "bias_secant_curvature_sum": 0.0
+            },
+            "observed_response_mev_per_atom": 0.47599473967470846,
+            "bond_count": 24
+          }
+        }
+      ],
+      "pool_decisions": [
+        {
+          "step": 0,
+          "source_entry": 0,
+          "selected_entry": 0,
+          "chosen_index": null,
+          "actual_index": 0,
+          "cumulative_requests": 558
+        }
+      ]
+    },
+    {
+      "leg": "resume1",
+      "status": "completed",
+      "evaluation_requests": 1177,
+      "surface_requests": 619,
+      "surface_denials": 0,
+      "records": [
+        {
+          "index": 0,
+          "status": "gaussian_limit",
+          "evaluation_requests": 557,
+          "starter_selection": {
+            "mc_current_index": 0,
+            "chosen_index": null,
+            "last_landing_index": 1,
+            "step": 0,
+            "cost": 558,
+            "restarted": false,
+            "restart_failed": false,
+            "ls_reinitialized": false,
+            "direction_reinitialized": false
+          },
+          "ls_preparation": {
+            "exit_policy": "force_or_step_limit",
+            "qualification": "force",
+            "true_energy_before": -107.00100854422963,
+            "true_energy_after": -106.99529660735354,
+            "evaluation_requests": 5
+          },
+          "ls_update": {
+            "step": 1,
+            "phase": null,
+            "nsoftstep": 110,
+            "actions": [
+              "normal_update"
+            ],
+            "table": {
+              "(22, 22)": 0.055224068030821055,
+              "(8, 22)": 0.055224068030821055,
+              "(8, 8)": 0.02306119742793304
+            },
+            "old_bond_count": 24,
+            "response": 0.47599473967470846,
+            "q": 1.0,
+            "caller_convention": "completed_outer_attempts_selected_current",
+            "prequench_exit_policy": "force_or_step_limit",
+            "prequench_qualification": "force",
+            "prequench_telemetry": {
+              "backend": "safe-lbfgs-total",
+              "evaluator_calls": 3,
+              "backend_evaluations": 3,
+              "reporting_cache_hits": 1,
+              "reporting_evaluator_calls": 0,
+              "finalization_requests": 1,
+              "explicit_finalization_calls": 0,
+              "gradient_measure": "raw_active_max_force",
+              "converged": true,
+              "termination_reason": "converged",
+              "optimizer_success": true,
+              "accepted_steps": 2,
+              "rejected_steps": 0,
+              "accepted_secants": 2,
+              "rejected_secants": 0,
+              "line_search_evaluations": 2,
+              "mic_branch_resets": 0,
+              "bias_secant_curvature_sum": 0.0
+            },
+            "observed_response_mev_per_atom": 0.47599473967470846,
+            "bond_count": 24
+          }
+        },
+        {
+          "index": 1,
+          "status": "gaussian_limit",
+          "evaluation_requests": 619,
+          "starter_selection": {
+            "mc_current_index": 0,
+            "chosen_index": 1,
+            "last_landing_index": 2,
+            "step": 1,
+            "cost": 1177,
+            "restarted": true,
+            "restart_failed": false,
+            "ls_reinitialized": true,
+            "direction_reinitialized": false
+          },
+          "ls_preparation": {
+            "exit_policy": "force_or_step_limit",
+            "qualification": "force",
+            "true_energy_before": -107.00100854422963,
+            "true_energy_after": -106.99474775829196,
+            "evaluation_requests": 5
+          },
+          "ls_update": {
+            "step": 2,
+            "phase": null,
+            "nsoftstep": 110,
+            "actions": [
+              "normal_update"
+            ],
+            "table": {
+              "(22, 22)": 0.057913241001414546,
+              "(8, 22)": 0.057913241001414546,
+              "(8, 8)": 0.024184177878379145
+            },
+            "old_bond_count": 24,
+            "response": 0.5217321614724805,
+            "q": 1.0,
+            "caller_convention": "completed_outer_attempts_selected_current",
+            "prequench_exit_policy": "force_or_step_limit",
+            "prequench_qualification": "force",
+            "prequench_telemetry": {
+              "backend": "safe-lbfgs-total",
+              "evaluator_calls": 3,
+              "backend_evaluations": 3,
+              "reporting_cache_hits": 1,
+              "reporting_evaluator_calls": 0,
+              "finalization_requests": 1,
+              "explicit_finalization_calls": 0,
+              "gradient_measure": "raw_active_max_force",
+              "converged": true,
+              "termination_reason": "converged",
+              "optimizer_success": true,
+              "accepted_steps": 2,
+              "rejected_steps": 0,
+              "accepted_secants": 2,
+              "rejected_secants": 0,
+              "line_search_evaluations": 2,
+              "mic_branch_resets": 0,
+              "bias_secant_curvature_sum": 0.0
+            },
+            "observed_response_mev_per_atom": 0.5217321614724805,
+            "bond_count": 24
+          }
+        }
+      ],
+      "pool_decisions": [
+        {
+          "step": 0,
+          "source_entry": 0,
+          "selected_entry": 0,
+          "chosen_index": null,
+          "actual_index": 0,
+          "cumulative_requests": 558
+        },
+        {
+          "step": 1,
+          "source_entry": 0,
+          "selected_entry": 1,
+          "chosen_index": 1,
+          "actual_index": 1,
+          "cumulative_requests": 1177
+        }
+      ],
+      "fresh_checks": [
+        {
+          "label": "current",
+          "energy_eV": -106.96053935875119,
+          "expected_energy_eV": -106.96053935875119,
+          "energy_error_eV": 0.0,
+          "force_threshold_eV_A": 0.03,
+          "force_qualified": true,
+          "fmax_eV_A": 0.027268103526558566,
+          "composition_unchanged": true,
+          "cell_unchanged": true,
+          "pbc_unchanged": true
+        },
+        {
+          "label": "best",
+          "energy_eV": -107.00100854422963,
+          "expected_energy_eV": -107.00100854422963,
+          "energy_error_eV": 0.0,
+          "force_threshold_eV_A": 0.03,
+          "force_qualified": true,
+          "fmax_eV_A": 0.0022674677180422884,
+          "composition_unchanged": true,
+          "cell_unchanged": true,
+          "pbc_unchanged": true
+        }
+      ],
+      "first_pool_export": {
+        "version": 1,
+        "contract": {
+          "version": 1,
+          "identity": "research.ga_ssw.pool_starter_adapter.PoolStarterAdapter",
+          "mode": "pam",
+          "archive": {
+            "energy_tol": 0.001,
+            "rmsd_tol": 0.1,
+            "max_prototypes": 1000,
+            "cell_tol": 0.001
+          },
+          "scorer": {
+            "mode": "global_minimum",
+            "near_energy_window": 0.5
+          },
+          "selector": {
+            "policy": {
+              "archive_density_weight": 0.5,
+              "novelty_weight": 1.0,
+              "frontier_weight": 0.5,
+              "exploration_weight": 0.75,
+              "baseline_probability": 0.15,
+              "beta_energy": 1.0
+            }
+          }
+        },
+        "archive": {
+          "entries": [
+            {
+              "entry_id": 0,
+              "state": {
+                "numbers": [
+                  8,
+                  8,
+                  8,
+                  8,
+                  8,
+                  8,
+                  8,
+                  8,
+                  22,
+                  22,
+                  22,
+                  22
+                ],
+                "positions": [
+                  [
+                    4.194313250062598,
+                    0.8561344349127964,
+                    2.585401718261493
+                  ],
+                  [
+                    0.15868549719756722,
+                    4.892158759356297,
+                    0.15530914452938271
+                  ],
+                  [
+                    1.5037004636293518,
+                    3.5467793312515945,
+                    2.5853785539570113
+                  ],
+                  [
+                    4.194562157869737,
+                    3.5469175214705544,
+                    1.7276726853391648
+                  ],
+                  [
+                    2.8493258925735536,
+                    2.201545574176038,
+                    0.15530728448846978
+                  ],
+                  [
+                    2.8505916351041316,
+                    2.202996002715993,
+                    4.157792592602691
+                  ],
+                  [
+                    1.5037577003418179,
+                    0.856257410896056,
+                    1.7276846394523975
+                  ],
+                  [
+                    0.15975551857084933,
+                    -0.4876155031085148,
+                    4.157790723075944
+                  ],
+                  [
+                    2.84899377374203,
+                    2.20144421878582,
+                    2.1564842374604485
+                  ],
+                  [
+                    4.19598002005455,
+                    0.8576290925711174,
+                    4.586667797298308
+                  ],
+                  [
+                    0.1582114079584042,
+                    -0.4891742835260618,
+                    2.1565201607354503
+                  ],
+                  [
+                    1.505195892895402,
+                    -1.832952609501689,
+                    4.5866922427992405
+                  ]
+                ],
+                "cell": [
+                  [
+                    5.3814,
+                    0.0,
+                    0.0
+                  ],
+                  [
+                    0.00020662708663191242,
+                    5.381299996033045,
+                    0.0
+                  ],
+                  [
+                    0.0009985443985244236,
+                    -2.6892513408801983,
+                    4.8601962294215175
+                  ]
+                ],
+                "pbc": [
+                  true,
+                  true,
+                  true
+                ],
+                "fixed_mask": [
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false
+                ],
+                "metadata": {}
+              },
+              "energy": -107.00100854422963,
+              "parent_id": null,
+              "visits": 2,
+              "descriptor": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.779483762953957,
+                0.0,
+                0.25982792098465235,
+                0.25982792098465235,
+                0.3897418814769785,
+                0.0,
+                0.0,
+                0.19487094073848926,
+                0.25982792098465235,
+                1.95011255428454,
+                2.7849399328138036,
+                0.8027357421977245,
+                0.0
+              ],
+              "node_trials": 1,
+              "node_successes": 1,
+              "frontier_value": 0.6867376574047425,
+              "duplicate_hits": 0,
+              "node_duplicate_failures": 0,
+              "frontier_score": 0.6867376574047425,
+              "is_frontier": true,
+              "is_dead": false
+            },
+            {
+              "entry_id": 1,
+              "state": {
+                "numbers": [
+                  8,
+                  8,
+                  8,
+                  8,
+                  8,
+                  8,
+                  8,
+                  8,
+                  22,
+                  22,
+                  22,
+                  22
+                ],
+                "positions": [
+                  [
+                    4.175422889314131,
+                    0.08139118776668913,
+                    3.976395770904487
+                  ],
+                  [
+                    -1.2135247844448642,
+                    4.774303783212444,
+                    1.1537062615334948
+                  ],
+                  [
+                    2.876464698911453,
+                    2.0845808264987165,
+                    1.1534988418980545
+                  ],
+                  [
+                    1.4783808752294025,
+                    4.113644212950521,
+                    1.541546822945656
+                  ],
+                  [
+                    5.560444945192582,
+                    0.7349680427380453,
+                    -1.2823024049749794
+                  ],
+                  [
+                    2.8709041912567557,
+                    2.7714264131207136,
+                    3.9759709193555874
+                  ],
+                  [
+                    0.18647368995067973,
+                    1.42126046865895,
+                    1.5367378172691988
+                  ],
+                  [
+                    1.4808372797738159,
+                    0.7371746311139452,
+                    3.579265540387442
+                  ],
+                  [
+                    1.548809410740862,
+                    2.42221866654673,
+                    2.5607733215794632
+                  ],
+                  [
+                    2.8046208185960713,
+                    1.0848139442504867,
+                    4.992492199080917
+                  ],
+                  [
+                    0.11356812078123003,
+                    -0.2686379847026013,
+                    2.558323069125522
+                  ],
+                  [
+                    4.2406710746964,
+                    -1.6050242421589067,
+                    4.992293620897656
+                  ]
+                ],
+                "cell": [
+                  [
+                    5.3814,
+                    0.0,
+                    0.0
+                  ],
+                  [
+                    0.00020662708663191242,
+                    5.381299996033045,
+                    0.0
+                  ],
+                  [
+                    0.0009985443985244236,
+                    -2.6892513408801983,
+                    4.8601962294215175
+                  ]
+                ],
+                "pbc": [
+                  true,
+                  true,
+                  true
+                ],
+                "fixed_mask": [
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false
+                ],
+                "metadata": {}
+              },
+              "energy": -106.96053935875119,
+              "parent_id": 0,
+              "visits": 1,
+              "descriptor": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.7371541402007414,
+                0.0,
+                0.12285902336679023,
+                0.12285902336679023,
+                0.24571804673358047,
+                0.24571804673358047,
+                0.0,
+                0.0,
+                0.552865605150556,
+                1.961927296100126,
+                2.793337250737501,
+                0.7562349976710225,
+                0.0
+              ],
+              "node_trials": 0,
+              "node_successes": 0,
+              "frontier_value": 0.32778259290383543,
+              "duplicate_hits": 0,
+              "node_duplicate_failures": 0,
+              "frontier_score": 0.32778259290383543,
+              "is_frontier": false,
+              "is_dead": false
+            }
+          ],
+          "prototypes": [
+            {
+              "descriptor": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.779483762953957,
+                0.0,
+                0.25982792098465235,
+                0.25982792098465235,
+                0.3897418814769785,
+                0.0,
+                0.0,
+                0.19487094073848926,
+                0.25982792098465235,
+                1.95011255428454,
+                2.7849399328138036,
+                0.8027357421977245,
+                0.0
+              ],
+              "representative_entry_id": 0,
+              "weight": 1
+            },
+            {
+              "descriptor": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.7371541402007414,
+                0.0,
+                0.12285902336679023,
+                0.12285902336679023,
+                0.24571804673358047,
+                0.24571804673358047,
+                0.0,
+                0.0,
+                0.552865605150556,
+                1.961927296100126,
+                2.793337250737501,
+                0.7562349976710225,
+                0.0
+              ],
+              "representative_entry_id": 1,
+              "weight": 1
+            }
+          ],
+          "energy_mismatch_hits": 0,
+          "max_energy_mismatch": 0.0
+        },
+        "mapping": [
+          0,
+          1
+        ],
+        "representatives": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "outcomes": [
+          {
+            "energy": -107.00100854422963,
+            "previous_best_energy": -107.00100854422963,
+            "is_new_minimum": true,
+            "is_duplicate": false,
+            "descriptor_coverage_gain": 1.0,
+            "is_new_edge": false
+          },
+          {
+            "energy": -106.96053935875119,
+            "previous_best_energy": -107.00100854422963,
+            "is_new_minimum": true,
+            "is_duplicate": false,
+            "descriptor_coverage_gain": 0.6224588580158082,
+            "is_new_edge": false
+          }
+        ],
+        "decisions": [
+          {
+            "step": 0,
+            "source_entry": 0,
+            "selected_entry": 0,
+            "chosen_index": null,
+            "actual_index": 0,
+            "cumulative_requests": 558
+          }
+        ],
+        "source": 0,
+        "executed": 1,
+        "finalized": false
+      },
+      "position_max_abs_diff_vs_continuous": 0.0,
+      "cell_max_abs_diff_vs_continuous": 0.0,
+      "pbc_equal_vs_continuous": true,
+      "composition_equal_vs_continuous": true
+    }
+  ],
+  "search_requests": 2354,
+  "fresh_requests": 4,
+  "total_ef": 2358,
+  "wall_seconds": 34.05156789405737,
+  "within_budget": true
+}

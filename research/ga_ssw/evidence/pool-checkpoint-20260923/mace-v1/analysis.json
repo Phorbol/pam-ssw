@@ -1,0 +1,493 @@
+{
+  "purpose": "checkpoint interface qualification, not search efficiency",
+  "cases": [
+    {
+      "case": "c60_17093",
+      "search_ledger": {
+        "present": true,
+        "attempted": 3351,
+        "successful": 3351,
+        "errors": 0,
+        "denied": 0,
+        "by_leg": {
+          "continuous2": 1742,
+          "first1": 563,
+          "resume1": 1046
+        }
+      },
+      "fresh_ledger": {
+        "continuous2": {
+          "present": true,
+          "attempted": 2,
+          "successful": 2,
+          "errors": 0,
+          "denied": 0,
+          "by_leg": {
+            "continuous2": 2,
+            "first1": 0,
+            "resume1": 0
+          }
+        },
+        "resume1": {
+          "present": true,
+          "attempted": 2,
+          "successful": 2,
+          "errors": 0,
+          "denied": 0,
+          "by_leg": {
+            "continuous2": 0,
+            "first1": 0,
+            "resume1": 2
+          }
+        }
+      },
+      "fresh_checks": [
+        {
+          "leg": "continuous2",
+          "label": "current",
+          "energy_eV": -62161.86579807849,
+          "expected_energy_eV": -62161.86579807849,
+          "energy_error_eV": 0.0,
+          "force_threshold_eV_A": 0.03,
+          "force_qualified": true,
+          "fmax_eV_A": 0.02905460643229018,
+          "composition_unchanged": true,
+          "cell_unchanged": true,
+          "pbc_unchanged": true
+        },
+        {
+          "leg": "continuous2",
+          "label": "best",
+          "energy_eV": -62161.86579807849,
+          "expected_energy_eV": -62161.86579807849,
+          "energy_error_eV": 0.0,
+          "force_threshold_eV_A": 0.03,
+          "force_qualified": true,
+          "fmax_eV_A": 0.02905460643229018,
+          "composition_unchanged": true,
+          "cell_unchanged": true,
+          "pbc_unchanged": true
+        },
+        {
+          "leg": "resume1",
+          "label": "current",
+          "energy_eV": -62161.51989252011,
+          "expected_energy_eV": -62161.51989252011,
+          "energy_error_eV": 0.0,
+          "force_threshold_eV_A": 0.03,
+          "force_qualified": true,
+          "fmax_eV_A": 0.02567206955259046,
+          "composition_unchanged": true,
+          "cell_unchanged": true,
+          "pbc_unchanged": true
+        },
+        {
+          "leg": "resume1",
+          "label": "best",
+          "energy_eV": -62161.51989252011,
+          "expected_energy_eV": -62161.51989252011,
+          "energy_error_eV": 0.0,
+          "force_threshold_eV_A": 0.03,
+          "force_qualified": true,
+          "fmax_eV_A": 0.02567206955259046,
+          "composition_unchanged": true,
+          "cell_unchanged": true,
+          "pbc_unchanged": true
+        }
+      ],
+      "search_requests": 3351,
+      "fresh_requests": 4,
+      "total_ef": 3355,
+      "runner_status": null,
+      "runner_error": null,
+      "budget_satisfied": true,
+      "summary_ledger_match": true,
+      "fresh_qualified": true,
+      "legs": {
+        "continuous2": {
+          "status": "completed",
+          "records": 2,
+          "statuses": [
+            "lower_true_energy",
+            "gaussian_limit"
+          ],
+          "qualified_landings": 2,
+          "cumulative_requests": 1742,
+          "actual_requests": 1742,
+          "cost_record_consistent": true,
+          "selections": [
+            {
+              "mc_current_index": 1,
+              "chosen_index": null,
+              "last_landing_index": 1,
+              "step": 0,
+              "cost": 645,
+              "restarted": false,
+              "restart_failed": false,
+              "ls_reinitialized": false,
+              "direction_reinitialized": false
+            },
+            {
+              "mc_current_index": 2,
+              "chosen_index": null,
+              "last_landing_index": 2,
+              "step": 1,
+              "cost": 1742,
+              "restarted": false,
+              "restart_failed": false,
+              "ls_reinitialized": false,
+              "direction_reinitialized": false
+            }
+          ],
+          "ls_steps": [
+            1,
+            2
+          ]
+        },
+        "first1": {
+          "status": "completed",
+          "records": 1,
+          "statuses": [
+            "lower_true_energy"
+          ],
+          "qualified_landings": 1,
+          "cumulative_requests": 563,
+          "actual_requests": 563,
+          "cost_record_consistent": true,
+          "selections": [
+            {
+              "mc_current_index": 1,
+              "chosen_index": null,
+              "last_landing_index": 1,
+              "step": 0,
+              "cost": 563,
+              "restarted": false,
+              "restart_failed": false,
+              "ls_reinitialized": false,
+              "direction_reinitialized": false
+            }
+          ],
+          "ls_steps": [
+            1
+          ]
+        },
+        "resume1": {
+          "status": "completed",
+          "records": 2,
+          "statuses": [
+            "lower_true_energy",
+            "lower_true_energy"
+          ],
+          "qualified_landings": 2,
+          "cumulative_requests": 1609,
+          "actual_requests": 1046,
+          "cost_record_consistent": true,
+          "selections": [
+            {
+              "mc_current_index": 1,
+              "chosen_index": null,
+              "last_landing_index": 1,
+              "step": 0,
+              "cost": 563,
+              "restarted": false,
+              "restart_failed": false,
+              "ls_reinitialized": false,
+              "direction_reinitialized": false
+            },
+            {
+              "mc_current_index": 2,
+              "chosen_index": null,
+              "last_landing_index": 2,
+              "step": 1,
+              "cost": 1609,
+              "restarted": false,
+              "restart_failed": false,
+              "ls_reinitialized": false,
+              "direction_reinitialized": false
+            }
+          ],
+          "ls_steps": [
+            1,
+            2
+          ]
+        }
+      },
+      "execution_status": "completed",
+      "expected_record_counts": true,
+      "request_accounting": {
+        "continuous_matches_ledger": true,
+        "first_matches_ledger": true,
+        "resumed_matches_ledger": true,
+        "continuous_equals_resumed": false
+      },
+      "comparisons": {
+        "current_position_max_abs_difference_A": 2.133729722288191,
+        "cell_equal": true,
+        "pbc_equal": true,
+        "composition_equal": true,
+        "full_selection_telemetry_equal": false,
+        "ls_steps_equal": true,
+        "ls_updates_equal": false,
+        "native_mc_state_equal": true,
+        "choices_equal": true,
+        "main_rng_present": true,
+        "main_rng_equal": true,
+        "selector_rng_present": true,
+        "selector_rng_equal": true,
+        "pool_export_present": true,
+        "pool_export_equal": false,
+        "pool_mapping_equal": true,
+        "pool_entry_counts": [
+          3,
+          3
+        ],
+        "pool_energy_max_abs_difference_eV": 0.345905558380764
+      }
+    },
+    {
+      "case": "tio2_anatase",
+      "search_ledger": {
+        "present": true,
+        "attempted": 2354,
+        "successful": 2354,
+        "errors": 0,
+        "denied": 0,
+        "by_leg": {
+          "continuous2": 1177,
+          "first1": 558,
+          "resume1": 619
+        }
+      },
+      "fresh_ledger": {
+        "continuous2": {
+          "present": true,
+          "attempted": 2,
+          "successful": 2,
+          "errors": 0,
+          "denied": 0,
+          "by_leg": {
+            "continuous2": 2,
+            "first1": 0,
+            "resume1": 0
+          }
+        },
+        "resume1": {
+          "present": true,
+          "attempted": 2,
+          "successful": 2,
+          "errors": 0,
+          "denied": 0,
+          "by_leg": {
+            "continuous2": 0,
+            "first1": 0,
+            "resume1": 2
+          }
+        }
+      },
+      "fresh_checks": [
+        {
+          "leg": "continuous2",
+          "label": "current",
+          "energy_eV": -106.96053935875119,
+          "expected_energy_eV": -106.96053935875119,
+          "energy_error_eV": 0.0,
+          "force_threshold_eV_A": 0.03,
+          "force_qualified": true,
+          "fmax_eV_A": 0.027268103526558566,
+          "composition_unchanged": true,
+          "cell_unchanged": true,
+          "pbc_unchanged": true
+        },
+        {
+          "leg": "continuous2",
+          "label": "best",
+          "energy_eV": -107.00100854422963,
+          "expected_energy_eV": -107.00100854422963,
+          "energy_error_eV": 0.0,
+          "force_threshold_eV_A": 0.03,
+          "force_qualified": true,
+          "fmax_eV_A": 0.0022674677180422884,
+          "composition_unchanged": true,
+          "cell_unchanged": true,
+          "pbc_unchanged": true
+        },
+        {
+          "leg": "resume1",
+          "label": "current",
+          "energy_eV": -106.96053935875119,
+          "expected_energy_eV": -106.96053935875119,
+          "energy_error_eV": 0.0,
+          "force_threshold_eV_A": 0.03,
+          "force_qualified": true,
+          "fmax_eV_A": 0.027268103526558566,
+          "composition_unchanged": true,
+          "cell_unchanged": true,
+          "pbc_unchanged": true
+        },
+        {
+          "leg": "resume1",
+          "label": "best",
+          "energy_eV": -107.00100854422963,
+          "expected_energy_eV": -107.00100854422963,
+          "energy_error_eV": 0.0,
+          "force_threshold_eV_A": 0.03,
+          "force_qualified": true,
+          "fmax_eV_A": 0.0022674677180422884,
+          "composition_unchanged": true,
+          "cell_unchanged": true,
+          "pbc_unchanged": true
+        }
+      ],
+      "search_requests": 2354,
+      "fresh_requests": 4,
+      "total_ef": 2358,
+      "runner_status": null,
+      "runner_error": null,
+      "budget_satisfied": true,
+      "summary_ledger_match": true,
+      "fresh_qualified": true,
+      "legs": {
+        "continuous2": {
+          "status": "completed",
+          "records": 2,
+          "statuses": [
+            "gaussian_limit",
+            "gaussian_limit"
+          ],
+          "qualified_landings": 2,
+          "cumulative_requests": 1177,
+          "actual_requests": 1177,
+          "cost_record_consistent": true,
+          "selections": [
+            {
+              "mc_current_index": 0,
+              "chosen_index": null,
+              "last_landing_index": 1,
+              "step": 0,
+              "cost": 558,
+              "restarted": false,
+              "restart_failed": false,
+              "ls_reinitialized": false,
+              "direction_reinitialized": false
+            },
+            {
+              "mc_current_index": 0,
+              "chosen_index": 1,
+              "last_landing_index": 2,
+              "step": 1,
+              "cost": 1177,
+              "restarted": true,
+              "restart_failed": false,
+              "ls_reinitialized": true,
+              "direction_reinitialized": false
+            }
+          ],
+          "ls_steps": [
+            1,
+            2
+          ]
+        },
+        "first1": {
+          "status": "completed",
+          "records": 1,
+          "statuses": [
+            "gaussian_limit"
+          ],
+          "qualified_landings": 1,
+          "cumulative_requests": 558,
+          "actual_requests": 558,
+          "cost_record_consistent": true,
+          "selections": [
+            {
+              "mc_current_index": 0,
+              "chosen_index": null,
+              "last_landing_index": 1,
+              "step": 0,
+              "cost": 558,
+              "restarted": false,
+              "restart_failed": false,
+              "ls_reinitialized": false,
+              "direction_reinitialized": false
+            }
+          ],
+          "ls_steps": [
+            1
+          ]
+        },
+        "resume1": {
+          "status": "completed",
+          "records": 2,
+          "statuses": [
+            "gaussian_limit",
+            "gaussian_limit"
+          ],
+          "qualified_landings": 2,
+          "cumulative_requests": 1177,
+          "actual_requests": 619,
+          "cost_record_consistent": true,
+          "selections": [
+            {
+              "mc_current_index": 0,
+              "chosen_index": null,
+              "last_landing_index": 1,
+              "step": 0,
+              "cost": 558,
+              "restarted": false,
+              "restart_failed": false,
+              "ls_reinitialized": false,
+              "direction_reinitialized": false
+            },
+            {
+              "mc_current_index": 0,
+              "chosen_index": 1,
+              "last_landing_index": 2,
+              "step": 1,
+              "cost": 1177,
+              "restarted": true,
+              "restart_failed": false,
+              "ls_reinitialized": true,
+              "direction_reinitialized": false
+            }
+          ],
+          "ls_steps": [
+            1,
+            2
+          ]
+        }
+      },
+      "execution_status": "completed",
+      "expected_record_counts": true,
+      "request_accounting": {
+        "continuous_matches_ledger": true,
+        "first_matches_ledger": true,
+        "resumed_matches_ledger": true,
+        "continuous_equals_resumed": true
+      },
+      "comparisons": {
+        "current_position_max_abs_difference_A": 0.0,
+        "cell_equal": true,
+        "pbc_equal": true,
+        "composition_equal": true,
+        "full_selection_telemetry_equal": true,
+        "ls_steps_equal": true,
+        "ls_updates_equal": true,
+        "native_mc_state_equal": true,
+        "choices_equal": true,
+        "main_rng_present": true,
+        "main_rng_equal": true,
+        "selector_rng_present": true,
+        "selector_rng_equal": true,
+        "pool_export_present": true,
+        "pool_export_equal": true,
+        "pool_mapping_equal": true,
+        "pool_entry_counts": [
+          3,
+          3
+        ],
+        "pool_energy_max_abs_difference_eV": 0.0
+      }
+    }
+  ],
+  "total_ef": 5713,
+  "total_budget": 11988
+}

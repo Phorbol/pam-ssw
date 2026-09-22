@@ -1,0 +1,15 @@
+{
+  "cases": [
+    {
+      "case": "c60_17093",
+      "execution_status": "completed",
+      "ef": 3355
+    },
+    {
+      "case": "tio2_anatase",
+      "execution_status": "completed",
+      "ef": 2358
+    }
+  ],
+  "total_ef": 5713
+}
