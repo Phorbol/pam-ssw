@@ -1,0 +1,30 @@
+..........F.....................................................         [100%]
+=================================== FAILURES ===================================
+___ test_schema5_direction_native_mc_split_restores_pool_and_direction_state ___
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xeb6ffaf0890>
+tmp_path = PosixPath('/tmp/pytest-of-gengjianrui/pytest-0/test_schema5_direction_native_0')
+
+    def test_schema5_direction_native_mc_split_restores_pool_and_direction_state(monkeypatch, tmp_path):
+        full_selector = Selector()
+        full = _run(tmp_path / 'full.pkl', full_selector, np.random.default_rng(23),
+                    steps=2, monkeypatch=monkeypatch)
+        split_path = tmp_path / 'split.pkl'
+        _run(split_path, Selector(), np.random.default_rng(23), steps=1,
+             monkeypatch=monkeypatch)
+        checkpoint = load_ssw_checkpoint(split_path)
+        assert checkpoint.schema_version == 5
+        resumed_selector = Selector()
+        resumed = _run(split_path, resumed_selector, np.random.default_rng(999),
+                        steps=1, checkpoint=checkpoint, monkeypatch=monkeypatch)
+    
+>       assert full.status == resumed.status == 'completed'
+E       AssertionError: assert 'evaluation_failed' == 'completed'
+E         
+E         - completed
+E         + evaluation_failed
+
+tests/standalone/test_pool_direction_checkpoint.py:86: AssertionError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_pool_direction_checkpoint.py::test_schema5_direction_native_mc_split_restores_pool_and_direction_state
+1 failed, 63 passed in 2.66s

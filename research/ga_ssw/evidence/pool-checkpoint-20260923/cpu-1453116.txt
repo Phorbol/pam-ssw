@@ -1,0 +1,383 @@
+FFF...............................................                       [100%]
+=================================== FAILURES ===================================
+___________ test_real_ls_pool_resume_matches_uninterrupted[uniform] ____________
+
+mode = 'uniform'
+tmp_path = PosixPath('/tmp/pytest-of-gengjianrui/pytest-0/test_real_ls_pool_resume_match0')
+
+    @pytest.mark.parametrize('mode', ['uniform', 'pam'])
+    def test_real_ls_pool_resume_matches_uninterrupted(mode, tmp_path):
+        atoms, config, ls = _case()
+        def adapter():
+            return PoolStarterAdapter(mode=mode, energy_tol=1e-5, rmsd_tol=1e-3)
+        continuous_policy, partial_policy = adapter(), adapter()
+        main_rng, pool_rng = np.random.default_rng(19), np.random.default_rng(23)
+        full = run_ssw(atoms, ASESurface(EMT()), steps=4, config=config, ls=ls,
+            rng=main_rng, starter_selector=continuous_policy, selector_rng=pool_rng)
+        path = tmp_path / 'pool.pkl'
+>       first = run_ssw(atoms, ASESurface(EMT()), steps=2, config=config, ls=ls,
+            rng=np.random.default_rng(19), starter_selector=partial_policy,
+            selector_rng=np.random.default_rng(23), checkpoint_path=path)
+
+tests/standalone/test_pool_checkpoint_real.py:22: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+atoms = Atoms(symbols='Cu2', pbc=False)
+surface = <pamssw.standalone.surface.ASESurface object at 0x14c8f81639e0>
+steps = 2
+config = SSWConfig(width=0.1, rotation_bias=2.0, max_gaussians=1, temperature_K=300.0, fmax=1e-05, relax_steps=100, fd_step=0.0...-lbfgs', lbfgs_memory=None, bias_stage_steps=None, bias_fmax=None, pre_rotation_hvp=None, rotation_exit_policy='force')
+rng = Generator(PCG64) at 0x14C8F8127BC0
+ls = LSSettings(bond_energies={(29, 29): 1.0}, bond_lengths={(29, 29): 3.0}, target_per_atom=0.001, initial_fraction=0.03, xi=0.2, learning_rate=1.8, energy_filter=(), prequench=None)
+height_policy = None, gaussian_policy = None, height_update_budget = 1000
+reconnect_distance = None, checkpoint = None
+checkpoint_path = PosixPath('/tmp/pytest-of-gengjianrui/pytest-0/test_real_ls_pool_resume_match0/pool.pkl')
+structure_matcher = None, bias_quench_adapter = None, recovered_direction = None
+recovered_rotation = None, mc = None
+starter_selector = <research.ga_ssw.pool_starter_adapter.PoolStarterAdapter object at 0x14c8f9e54ec0>
+selector_rng = Generator(PCG64) at 0x14C8F8125B60
+
+    def run_ssw(atoms, surface, *, steps, config, rng, ls=None, height_policy=None, gaussian_policy=None,
+                height_update_budget=1000, reconnect_distance=None, checkpoint=None,
+                checkpoint_path=None, structure_matcher=None, bias_quench_adapter=None,
+                recovered_direction=None, recovered_rotation=None, mc=None,
+                starter_selector=None, selector_rng=None):
+        """Run independent fixed-cell SSW; optional LS uses frozen image bonds for full PBC.
+    
+    ``steps`` counts additional outer attempts. To resume, explicitly pass a
+        loaded ``checkpoint`` and the same settings and RNG bit-generator type;
+        positions come from the checkpoint. ``checkpoint_path`` is an output file,
+        atomically replaced after each completed attempt (never an implicit input).
+        The surface must use the same potential/settings; its counter is not reset.
+        Failed terminal states are diagnostic snapshots, not resumable boundaries.
+    
+    ``bias_quench_adapter`` is an explicit experimental hook replacing only the
+    biased quench. It receives the original quench arguments plus a ``context``
+    dict with fixed keys and must return ``BiasStageQuenchOutcome``. It cannot be
+    combined with checkpointing; the default path remains the direct ``quench``
+    call. ``gaussian_index`` is zero-based and ``steps`` remains the number of
+    additional outer attempts.
+    
+    ``recovered_direction`` explicitly selects experimental Run5/Q-off local
+    generation, stage displacement updates and recovered CBD. It requires a free
+    nonperiodic cluster with ``cluster_frame='direction_only'``. Outer-boundary
+    checkpointing uses schema 4 and restores pair/group/marker and main RNG. Its settings replace SSWConfig's rotation_solver, rotation_bias,
+    rotation_hvp and rotation_tol; fd_step and rotation_exit_policy still apply.
+    Startup selection is a stated Python contract, not full native trajectory
+    parity. Gaussian/quench/MC rules remain those of this shared driver.
+    
+    ``recovered_rotation`` selects the stateless recovered-CBD rotation stages
+    while retaining the ordinary global/paper direction proposal and outer
+    Gaussian/landing lifecycle. It requires explicit ``RecoveredRotationSettings``
+    and is checkpointed as schema 3; it cannot be combined with
+    ``recovered_direction`` or ``pre_rotation_hvp``.
+    
+    ``starter_selector(snapshot, selector_rng)`` optionally chooses an index from
+    all force-certified observations, including MC-rejected landings. It runs only
+    after a successful true landing and completed state updates. Return None to
+    retain the MC-selected current observation. A different index explicitly
+    restarts direction selection from that stored geometry without another quench.
+    The controller persists across other outer steps. The snapshot owns copies;
+    its cost includes initialization and failed work. A different selected
+    observation reinitializes LS and recovered-direction state transactionally;
+    failed restart preparation leaves the prior current/LS state in place and is
+    recorded as a terminal selection failure. Selection errors otherwise propagate.
+    ``selector_rng`` must be an independent Generator. This experimental hook is
+    incompatible with checkpointing. ``accepted`` remains the MC decision;
+    ``starter_selection`` separately records the actual next-starter decision.
+    
+    No native program is called. Atoms/its calculator are not changed. The
+    returned minima include rejected MC landings, all force-converged on the
+    true surface; they are NOT deduplicated or positive-Hessian certified.
+        Optional height_policy selects the explicitly conservative native-derived
+        stage-height/history policy; its weights freeze throughout each quench.
+        height_update_budget is a numerical loop ceiling, not an accepted fallback.
+    Failed rotations/quenches consume an outer step and stay in records,
+        never enter minima. A failed LS strength update retains any already valid
+        landing. Calculator exceptions propagate; there is no alternate potential.
+        Explicit rotation_exit_policy="force_or_budget" allows a finite evaluated
+        direction at its numerical request limit to enter Gaussian climbing. It
+        remains marked unconverged; subspace exhaustion and numerical errors are
+        not budget exits. True landing force qualification is unchanged.
+    Random velocity directions use normal components divided by sqrt(mass),
+    then normalize; the Maxwell temperature factor cancels. Global rigid modes
+    are not projected out by default (external ASE potentials may break these
+    symmetries). Explicit cluster_frame="eckart" restricts each escape to a fixed
+    linear section, including full modified-energy quenching. This requires an
+    isolated free cluster; it is an experimental formulation, not native parity.
+    Initial and final true quenches remain unrestricted and use full atomic forces.
+    With cluster_frame="direction_only", the direction/HVP projector is rebuilt at
+    each Gaussian center, while biased quenching stays unrestricted Cartesian. This
+    follows the recovered native rigid tangent span, not exact CBD execution parity.
+    Three-dimensional PBC uses explicit translation_only/global sampling: continuous
+    unwrapped Cartesian positions and fixed cell throughout each escape, projecting
+    only global translations in direction refinement. No rotation removal, MIC bias,
+    or cell optimization is performed. Physical E/F retain ASE PBC; the path bias
+    lives on the continuous coordinate lift and must not be evaluated after wrapping.
+    """
+        if starter_selector is None and selector_rng is not None:
+            raise ValueError('selector_rng requires starter_selector')
+        if starter_selector is not None:
+            if not callable(starter_selector):
+                raise TypeError('starter_selector must be callable or None')
+            if not isinstance(selector_rng, np.random.Generator):
+                raise ValueError('starter_selector requires an independent selector_rng Generator')
+            if selector_rng is rng or selector_rng.bit_generator is rng.bit_generator:
+                raise ValueError('selector_rng must be independent and must not share the main rng or bit_generator')
+            if checkpoint is not None or checkpoint_path is not None:
+>               raise ValueError('starter_selector cannot combine with checkpointing')
+E               ValueError: starter_selector cannot combine with checkpointing
+
+pamssw/standalone/paper_reference.py:504: ValueError
+_____________ test_real_ls_pool_resume_matches_uninterrupted[pam] ______________
+
+mode = 'pam'
+tmp_path = PosixPath('/tmp/pytest-of-gengjianrui/pytest-0/test_real_ls_pool_resume_match1')
+
+    @pytest.mark.parametrize('mode', ['uniform', 'pam'])
+    def test_real_ls_pool_resume_matches_uninterrupted(mode, tmp_path):
+        atoms, config, ls = _case()
+        def adapter():
+            return PoolStarterAdapter(mode=mode, energy_tol=1e-5, rmsd_tol=1e-3)
+        continuous_policy, partial_policy = adapter(), adapter()
+        main_rng, pool_rng = np.random.default_rng(19), np.random.default_rng(23)
+        full = run_ssw(atoms, ASESurface(EMT()), steps=4, config=config, ls=ls,
+            rng=main_rng, starter_selector=continuous_policy, selector_rng=pool_rng)
+        path = tmp_path / 'pool.pkl'
+>       first = run_ssw(atoms, ASESurface(EMT()), steps=2, config=config, ls=ls,
+            rng=np.random.default_rng(19), starter_selector=partial_policy,
+            selector_rng=np.random.default_rng(23), checkpoint_path=path)
+
+tests/standalone/test_pool_checkpoint_real.py:22: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+atoms = Atoms(symbols='Cu2', pbc=False)
+surface = <pamssw.standalone.surface.ASESurface object at 0x14c8f8189d30>
+steps = 2
+config = SSWConfig(width=0.1, rotation_bias=2.0, max_gaussians=1, temperature_K=300.0, fmax=1e-05, relax_steps=100, fd_step=0.0...-lbfgs', lbfgs_memory=None, bias_stage_steps=None, bias_fmax=None, pre_rotation_hvp=None, rotation_exit_policy='force')
+rng = Generator(PCG64) at 0x14C8F1FFC200
+ls = LSSettings(bond_energies={(29, 29): 1.0}, bond_lengths={(29, 29): 3.0}, target_per_atom=0.001, initial_fraction=0.03, xi=0.2, learning_rate=1.8, energy_filter=(), prequench=None)
+height_policy = None, gaussian_policy = None, height_update_budget = 1000
+reconnect_distance = None, checkpoint = None
+checkpoint_path = PosixPath('/tmp/pytest-of-gengjianrui/pytest-0/test_real_ls_pool_resume_match1/pool.pkl')
+structure_matcher = None, bias_quench_adapter = None, recovered_direction = None
+recovered_rotation = None, mc = None
+starter_selector = <research.ga_ssw.pool_starter_adapter.PoolStarterAdapter object at 0x14c8f818bf50>
+selector_rng = Generator(PCG64) at 0x14C8F1FFC580
+
+    def run_ssw(atoms, surface, *, steps, config, rng, ls=None, height_policy=None, gaussian_policy=None,
+                height_update_budget=1000, reconnect_distance=None, checkpoint=None,
+                checkpoint_path=None, structure_matcher=None, bias_quench_adapter=None,
+                recovered_direction=None, recovered_rotation=None, mc=None,
+                starter_selector=None, selector_rng=None):
+        """Run independent fixed-cell SSW; optional LS uses frozen image bonds for full PBC.
+    
+    ``steps`` counts additional outer attempts. To resume, explicitly pass a
+        loaded ``checkpoint`` and the same settings and RNG bit-generator type;
+        positions come from the checkpoint. ``checkpoint_path`` is an output file,
+        atomically replaced after each completed attempt (never an implicit input).
+        The surface must use the same potential/settings; its counter is not reset.
+        Failed terminal states are diagnostic snapshots, not resumable boundaries.
+    
+    ``bias_quench_adapter`` is an explicit experimental hook replacing only the
+    biased quench. It receives the original quench arguments plus a ``context``
+    dict with fixed keys and must return ``BiasStageQuenchOutcome``. It cannot be
+    combined with checkpointing; the default path remains the direct ``quench``
+    call. ``gaussian_index`` is zero-based and ``steps`` remains the number of
+    additional outer attempts.
+    
+    ``recovered_direction`` explicitly selects experimental Run5/Q-off local
+    generation, stage displacement updates and recovered CBD. It requires a free
+    nonperiodic cluster with ``cluster_frame='direction_only'``. Outer-boundary
+    checkpointing uses schema 4 and restores pair/group/marker and main RNG. Its settings replace SSWConfig's rotation_solver, rotation_bias,
+    rotation_hvp and rotation_tol; fd_step and rotation_exit_policy still apply.
+    Startup selection is a stated Python contract, not full native trajectory
+    parity. Gaussian/quench/MC rules remain those of this shared driver.
+    
+    ``recovered_rotation`` selects the stateless recovered-CBD rotation stages
+    while retaining the ordinary global/paper direction proposal and outer
+    Gaussian/landing lifecycle. It requires explicit ``RecoveredRotationSettings``
+    and is checkpointed as schema 3; it cannot be combined with
+    ``recovered_direction`` or ``pre_rotation_hvp``.
+    
+    ``starter_selector(snapshot, selector_rng)`` optionally chooses an index from
+    all force-certified observations, including MC-rejected landings. It runs only
+    after a successful true landing and completed state updates. Return None to
+    retain the MC-selected current observation. A different index explicitly
+    restarts direction selection from that stored geometry without another quench.
+    The controller persists across other outer steps. The snapshot owns copies;
+    its cost includes initialization and failed work. A different selected
+    observation reinitializes LS and recovered-direction state transactionally;
+    failed restart preparation leaves the prior current/LS state in place and is
+    recorded as a terminal selection failure. Selection errors otherwise propagate.
+    ``selector_rng`` must be an independent Generator. This experimental hook is
+    incompatible with checkpointing. ``accepted`` remains the MC decision;
+    ``starter_selection`` separately records the actual next-starter decision.
+    
+    No native program is called. Atoms/its calculator are not changed. The
+    returned minima include rejected MC landings, all force-converged on the
+    true surface; they are NOT deduplicated or positive-Hessian certified.
+        Optional height_policy selects the explicitly conservative native-derived
+        stage-height/history policy; its weights freeze throughout each quench.
+        height_update_budget is a numerical loop ceiling, not an accepted fallback.
+    Failed rotations/quenches consume an outer step and stay in records,
+        never enter minima. A failed LS strength update retains any already valid
+        landing. Calculator exceptions propagate; there is no alternate potential.
+        Explicit rotation_exit_policy="force_or_budget" allows a finite evaluated
+        direction at its numerical request limit to enter Gaussian climbing. It
+        remains marked unconverged; subspace exhaustion and numerical errors are
+        not budget exits. True landing force qualification is unchanged.
+    Random velocity directions use normal components divided by sqrt(mass),
+    then normalize; the Maxwell temperature factor cancels. Global rigid modes
+    are not projected out by default (external ASE potentials may break these
+    symmetries). Explicit cluster_frame="eckart" restricts each escape to a fixed
+    linear section, including full modified-energy quenching. This requires an
+    isolated free cluster; it is an experimental formulation, not native parity.
+    Initial and final true quenches remain unrestricted and use full atomic forces.
+    With cluster_frame="direction_only", the direction/HVP projector is rebuilt at
+    each Gaussian center, while biased quenching stays unrestricted Cartesian. This
+    follows the recovered native rigid tangent span, not exact CBD execution parity.
+    Three-dimensional PBC uses explicit translation_only/global sampling: continuous
+    unwrapped Cartesian positions and fixed cell throughout each escape, projecting
+    only global translations in direction refinement. No rotation removal, MIC bias,
+    or cell optimization is performed. Physical E/F retain ASE PBC; the path bias
+    lives on the continuous coordinate lift and must not be evaluated after wrapping.
+    """
+        if starter_selector is None and selector_rng is not None:
+            raise ValueError('selector_rng requires starter_selector')
+        if starter_selector is not None:
+            if not callable(starter_selector):
+                raise TypeError('starter_selector must be callable or None')
+            if not isinstance(selector_rng, np.random.Generator):
+                raise ValueError('starter_selector requires an independent selector_rng Generator')
+            if selector_rng is rng or selector_rng.bit_generator is rng.bit_generator:
+                raise ValueError('selector_rng must be independent and must not share the main rng or bit_generator')
+            if checkpoint is not None or checkpoint_path is not None:
+>               raise ValueError('starter_selector cannot combine with checkpointing')
+E               ValueError: starter_selector cannot combine with checkpointing
+
+pamssw/standalone/paper_reference.py:504: ValueError
+_____________ test_changed_pool_configuration_rejected_without_pes _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-gengjianrui/pytest-0/test_changed_pool_configuratio0')
+
+    def test_changed_pool_configuration_rejected_without_pes(tmp_path):
+        atoms, config, ls = _case()
+        path = tmp_path/'pool.pkl'
+>       run_ssw(atoms, ASESurface(EMT()), steps=0, config=config, ls=ls,
+            rng=np.random.default_rng(19), starter_selector=PoolStarterAdapter(mode='pam', energy_tol=1e-5, rmsd_tol=1e-3),
+            selector_rng=np.random.default_rng(23), checkpoint_path=path)
+
+tests/standalone/test_pool_checkpoint_real.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+atoms = Atoms(symbols='Cu2', pbc=False)
+surface = <pamssw.standalone.surface.ASESurface object at 0x14c8f8163d10>
+steps = 0
+config = SSWConfig(width=0.1, rotation_bias=2.0, max_gaussians=1, temperature_K=300.0, fmax=1e-05, relax_steps=100, fd_step=0.0...-lbfgs', lbfgs_memory=None, bias_stage_steps=None, bias_fmax=None, pre_rotation_hvp=None, rotation_exit_policy='force')
+rng = Generator(PCG64) at 0x14C8F81243C0
+ls = LSSettings(bond_energies={(29, 29): 1.0}, bond_lengths={(29, 29): 3.0}, target_per_atom=0.001, initial_fraction=0.03, xi=0.2, learning_rate=1.8, energy_filter=(), prequench=None)
+height_policy = None, gaussian_policy = None, height_update_budget = 1000
+reconnect_distance = None, checkpoint = None
+checkpoint_path = PosixPath('/tmp/pytest-of-gengjianrui/pytest-0/test_changed_pool_configuratio0/pool.pkl')
+structure_matcher = None, bias_quench_adapter = None, recovered_direction = None
+recovered_rotation = None, mc = None
+starter_selector = <research.ga_ssw.pool_starter_adapter.PoolStarterAdapter object at 0x14c8f8163c80>
+selector_rng = Generator(PCG64) at 0x14C8F8127760
+
+    def run_ssw(atoms, surface, *, steps, config, rng, ls=None, height_policy=None, gaussian_policy=None,
+                height_update_budget=1000, reconnect_distance=None, checkpoint=None,
+                checkpoint_path=None, structure_matcher=None, bias_quench_adapter=None,
+                recovered_direction=None, recovered_rotation=None, mc=None,
+                starter_selector=None, selector_rng=None):
+        """Run independent fixed-cell SSW; optional LS uses frozen image bonds for full PBC.
+    
+    ``steps`` counts additional outer attempts. To resume, explicitly pass a
+        loaded ``checkpoint`` and the same settings and RNG bit-generator type;
+        positions come from the checkpoint. ``checkpoint_path`` is an output file,
+        atomically replaced after each completed attempt (never an implicit input).
+        The surface must use the same potential/settings; its counter is not reset.
+        Failed terminal states are diagnostic snapshots, not resumable boundaries.
+    
+    ``bias_quench_adapter`` is an explicit experimental hook replacing only the
+    biased quench. It receives the original quench arguments plus a ``context``
+    dict with fixed keys and must return ``BiasStageQuenchOutcome``. It cannot be
+    combined with checkpointing; the default path remains the direct ``quench``
+    call. ``gaussian_index`` is zero-based and ``steps`` remains the number of
+    additional outer attempts.
+    
+    ``recovered_direction`` explicitly selects experimental Run5/Q-off local
+    generation, stage displacement updates and recovered CBD. It requires a free
+    nonperiodic cluster with ``cluster_frame='direction_only'``. Outer-boundary
+    checkpointing uses schema 4 and restores pair/group/marker and main RNG. Its settings replace SSWConfig's rotation_solver, rotation_bias,
+    rotation_hvp and rotation_tol; fd_step and rotation_exit_policy still apply.
+    Startup selection is a stated Python contract, not full native trajectory
+    parity. Gaussian/quench/MC rules remain those of this shared driver.
+    
+    ``recovered_rotation`` selects the stateless recovered-CBD rotation stages
+    while retaining the ordinary global/paper direction proposal and outer
+    Gaussian/landing lifecycle. It requires explicit ``RecoveredRotationSettings``
+    and is checkpointed as schema 3; it cannot be combined with
+    ``recovered_direction`` or ``pre_rotation_hvp``.
+    
+    ``starter_selector(snapshot, selector_rng)`` optionally chooses an index from
+    all force-certified observations, including MC-rejected landings. It runs only
+    after a successful true landing and completed state updates. Return None to
+    retain the MC-selected current observation. A different index explicitly
+    restarts direction selection from that stored geometry without another quench.
+    The controller persists across other outer steps. The snapshot owns copies;
+    its cost includes initialization and failed work. A different selected
+    observation reinitializes LS and recovered-direction state transactionally;
+    failed restart preparation leaves the prior current/LS state in place and is
+    recorded as a terminal selection failure. Selection errors otherwise propagate.
+    ``selector_rng`` must be an independent Generator. This experimental hook is
+    incompatible with checkpointing. ``accepted`` remains the MC decision;
+    ``starter_selection`` separately records the actual next-starter decision.
+    
+    No native program is called. Atoms/its calculator are not changed. The
+    returned minima include rejected MC landings, all force-converged on the
+    true surface; they are NOT deduplicated or positive-Hessian certified.
+        Optional height_policy selects the explicitly conservative native-derived
+        stage-height/history policy; its weights freeze throughout each quench.
+        height_update_budget is a numerical loop ceiling, not an accepted fallback.
+    Failed rotations/quenches consume an outer step and stay in records,
+        never enter minima. A failed LS strength update retains any already valid
+        landing. Calculator exceptions propagate; there is no alternate potential.
+        Explicit rotation_exit_policy="force_or_budget" allows a finite evaluated
+        direction at its numerical request limit to enter Gaussian climbing. It
+        remains marked unconverged; subspace exhaustion and numerical errors are
+        not budget exits. True landing force qualification is unchanged.
+    Random velocity directions use normal components divided by sqrt(mass),
+    then normalize; the Maxwell temperature factor cancels. Global rigid modes
+    are not projected out by default (external ASE potentials may break these
+    symmetries). Explicit cluster_frame="eckart" restricts each escape to a fixed
+    linear section, including full modified-energy quenching. This requires an
+    isolated free cluster; it is an experimental formulation, not native parity.
+    Initial and final true quenches remain unrestricted and use full atomic forces.
+    With cluster_frame="direction_only", the direction/HVP projector is rebuilt at
+    each Gaussian center, while biased quenching stays unrestricted Cartesian. This
+    follows the recovered native rigid tangent span, not exact CBD execution parity.
+    Three-dimensional PBC uses explicit translation_only/global sampling: continuous
+    unwrapped Cartesian positions and fixed cell throughout each escape, projecting
+    only global translations in direction refinement. No rotation removal, MIC bias,
+    or cell optimization is performed. Physical E/F retain ASE PBC; the path bias
+    lives on the continuous coordinate lift and must not be evaluated after wrapping.
+    """
+        if starter_selector is None and selector_rng is not None:
+            raise ValueError('selector_rng requires starter_selector')
+        if starter_selector is not None:
+            if not callable(starter_selector):
+                raise TypeError('starter_selector must be callable or None')
+            if not isinstance(selector_rng, np.random.Generator):
+                raise ValueError('starter_selector requires an independent selector_rng Generator')
+            if selector_rng is rng or selector_rng.bit_generator is rng.bit_generator:
+                raise ValueError('selector_rng must be independent and must not share the main rng or bit_generator')
+            if checkpoint is not None or checkpoint_path is not None:
+>               raise ValueError('starter_selector cannot combine with checkpointing')
+E               ValueError: starter_selector cannot combine with checkpointing
+
+pamssw/standalone/paper_reference.py:504: ValueError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_pool_checkpoint_real.py::test_real_ls_pool_resume_matches_uninterrupted[uniform]
+FAILED tests/standalone/test_pool_checkpoint_real.py::test_real_ls_pool_resume_matches_uninterrupted[pam]
+FAILED tests/standalone/test_pool_checkpoint_real.py::test_changed_pool_configuration_rejected_without_pes
+3 failed, 47 passed in 3.44s

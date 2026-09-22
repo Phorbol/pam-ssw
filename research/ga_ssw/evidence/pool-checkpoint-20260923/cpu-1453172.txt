@@ -1,0 +1,35 @@
+................................................F............            [100%]
+=================================== FAILURES ===================================
+________ test_selector_requires_independent_rng_and_rejects_checkpoint _________
+
+tmp_path = PosixPath('/tmp/pytest-of-gengjianrui/pytest-0/test_selector_requires_indepen0')
+
+    def test_selector_requires_independent_rng_and_rejects_checkpoint(tmp_path):
+        from pamssw.standalone.paper_reference import run_ssw
+        main_rng = np.random.default_rng(7)
+        with pytest.raises(ValueError, match='independent'):
+            run_ssw(Atoms('H', positions=[[.1, .2, .3]]), _surface(), steps=0,
+                    config=_config(), rng=main_rng,
+                    starter_selector=lambda snapshot, selector_rng: None,
+                    selector_rng=main_rng)
+        shared = np.random.default_rng(11)
+        shared_wrapper = np.random.Generator(shared.bit_generator)
+        with pytest.raises(ValueError, match='share'):
+            run_ssw(Atoms('H', positions=[[.1, .2, .3]]), _surface(), steps=0,
+                    config=_config(), rng=shared,
+                    starter_selector=lambda snapshot, selector_rng: None,
+                    selector_rng=shared_wrapper)
+        with pytest.raises(ValueError, match='requires an independent'):
+            run_ssw(Atoms('H', positions=[[.1, .2, .3]]), _surface(), steps=0,
+                    config=_config(), rng=np.random.default_rng(8),
+                    starter_selector=lambda snapshot, selector_rng: None)
+>       with pytest.raises(ValueError, match='checkpointing'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'checkpointing'
+E         Actual message: 'checkpointed starter selector requires checkpoint_contract()'
+
+tests/standalone/test_starter_selection.py:96: AssertionError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_starter_selection.py::test_selector_requires_independent_rng_and_rejects_checkpoint
+1 failed, 60 passed in 2.65s

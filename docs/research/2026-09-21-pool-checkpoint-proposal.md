@@ -1,6 +1,6 @@
-# 待讨论：池策略断点的责任边界
+# 已批准：池策略断点的责任边界（2026-09-23）
 
-完整方向schema4已验收。此提案尚未实现，不改变默认MC，也不意味着PAM池策略已显示搜索收益。此前用户明确将池持久化留待单独讨论。
+完整方向schema4已验收。用户已批准本文最小方案，正在实现；不改变默认MC，也不意味着PAM池策略已显示搜索收益。此前用户明确将池持久化留待单独讨论。
 
 ## 不能直接解除禁用的原因
 
@@ -15,7 +15,7 @@
 - 在现有checkpoint原子写入中把核心和策略状态一起保存，避免两个文件的边界不一致。core不导入research模块；由调用者提供实现显式状态契约的同类策略，恢复前核对标识、版本及配置。第一版只验证现有adapter，其余callback继续拒绝checkpoint。
 - finalize仅在整个实验结束后调用，不能在暂停边界先重算统计并终结adapter。
 
-新增策略导出/恢复契约属于公开接口设计，超出已批准的方向状态扩展。持久化职责是否留在caller侧、是否让core保存策略数据，需要用户确认后实施。
+新增策略导出/恢复契约属于公开接口设计；用户已于2026-09-23批准由core统一保存、adapter负责显式状态解释的方案。
 
 ## 备选与取舍
 
@@ -24,3 +24,32 @@
 3. 调用者自行维护两个文件：改动较少，但不能保证策略和SSW保存于同一边界，不推荐作为完整恢复能力交付。
 
 若决定实施2，验收为连续与分段回放逐项比较chosen/actual index、selector RNG、archive统计/映射、方向重启和成本；覆盖MC拒绝、池重启、失败外步及finalize；错误配置在PES之前拒绝。保留非池schema1–4兼容，不将恢复能力称为算法效果提升。
+
+
+2026-09-23实现约定：池快照使用schema5，非池schema1–4保持兼容。策略通过checkpoint_contract()/export_state()/restore_state(payload)提供显式纯数据状态；核心保存当前观察索引、最近落点索引、策略契约/状态与selector RNG。复用核心已有LS、方向、MC、主RNG和成本字段。第一版不支持Gaussian/内层优化中间恢复；错误终止快照仅诊断，不恢复执行。暂停不调用finalize。
+
+## 调用方式与边界
+
+调用者仍创建相同配置的 `SSWConfig`、LS设置和Calculator；恢复不会从磁盘反序列化可执行的Calculator或策略对象。示意：
+
+```python
+from numpy.random import default_rng
+from pamssw.standalone import run_ssw, load_ssw_checkpoint
+from research.ga_ssw.pool_starter_adapter import PoolStarterAdapter
+
+policy = PoolStarterAdapter(mode="pam", energy_tol=0.001, rmsd_tol=0.1)
+first = run_ssw(atoms, surface, steps=8, config=config, ls=ls,
+    rng=default_rng(19), starter_selector=policy, selector_rng=default_rng(23),
+    checkpoint_path="search.pkl")
+# 暂停时不调用 policy.finalize(first)。
+checkpoint = load_ssw_checkpoint("search.pkl")
+restored_policy = PoolStarterAdapter(mode="pam", energy_tol=0.001, rmsd_tol=0.1)
+result = run_ssw(atoms, fresh_surface, steps=12, config=config, ls=ls,
+    rng=default_rng(0), starter_selector=restored_policy, selector_rng=default_rng(1),
+    checkpoint=checkpoint, checkpoint_path="search.pkl")
+report = restored_policy.finalize(result)  # 整个实验结束后才结算。
+```
+
+此处8+12仅说明 `steps` 是本次新增外步数，不代表已完成20步模型验收；参数为已有研究适配器设置，非推荐通用最优值。若启用native MC、恢复方向或其他策略，两段须传相同设置。恢复RNG的种子可不同，但bit-generator类型必须相同；两套Generator仍须独立。
+
+`PoolStarterAdapter`目前是研究模块：仍不支持约束输入，其近似结构身份与描述符限制未因持久化而消除。schema5没有引入GA三阶段恢复、VC或RC状态的新契约。旧无池checkpoint按原接口继续使用。
