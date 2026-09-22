@@ -1,7 +1,8 @@
 """Research-only bridge from continuous standalone SSW to existing PAM scoring.
 
 No new acquisition weights. Ordered geometry matching is approximate; this
-adapter is limited to unconstrained inputs and is not a checkpoint/session API.
+adapter is limited to unconstrained inputs. Its explicit checkpoint payload is
+a caller-owned research state contract, not a core checkpoint/session API.
 """
 from __future__ import annotations
 
@@ -68,6 +69,7 @@ class PoolStarterAdapter:
         policy = self.selector.policy
         return {
             'version': self.CHECKPOINT_VERSION,
+            'identity': 'research.ga_ssw.pool_starter_adapter.PoolStarterAdapter',
             'mode': self.mode,
             'archive': {
                 'energy_tol': self.archive.energy_tol,
@@ -113,7 +115,8 @@ class PoolStarterAdapter:
                 'max_energy_mismatch': self.archive.max_energy_mismatch,
             },
             'mapping': list(self.mapping),
-            'representatives': dict(self.representatives),
+            'representatives': [[int(entry_id), int(observation_index)]
+                                for entry_id, observation_index in self.representatives.items()],
             'outcomes': outcomes,
             'decisions': copy.deepcopy(self.decisions),
             'source': self._source,
@@ -132,13 +135,22 @@ class PoolStarterAdapter:
         if self._finalized:
             raise ValueError('cannot restore finalized pool adapter')
         payload = self._require_mapping(payload, 'payload')
-        if payload.get('version') != self.CHECKPOINT_VERSION:
+        required_payload = ('version', 'contract', 'archive', 'mapping',
+                            'representatives', 'outcomes', 'decisions',
+                            'source', 'executed', 'finalized')
+        if any(key not in payload for key in required_payload):
+            raise ValueError('checkpoint payload is incomplete')
+        if payload['version'] != self.CHECKPOINT_VERSION:
             raise ValueError('checkpoint version does not match')
-        if payload.get('finalized', False):
+        if payload['finalized']:
             raise ValueError('cannot restore finalized pool adapter')
-        if payload.get('contract') != self.checkpoint_contract():
+        if payload['contract'] != self.checkpoint_contract():
             raise ValueError('checkpoint contract does not match adapter')
         archive_payload = self._require_mapping(payload.get('archive'), 'archive')
+        required_archive = ('entries', 'prototypes', 'energy_mismatch_hits',
+                            'max_energy_mismatch')
+        if any(key not in archive_payload for key in required_archive):
+            raise ValueError('checkpoint archive is incomplete')
         archive = MinimaArchive(**self.checkpoint_contract()['archive'])
         entries = []
         for index, item in enumerate(archive_payload.get('entries', ())):
@@ -163,27 +175,46 @@ class PoolStarterAdapter:
                 descriptor=np.asarray(item['descriptor'], dtype=float).copy(),
                 representative_entry_id=int(item['representative_entry_id']),
                 weight=int(item['weight'])))
-        if any(prototype.representative_entry_id >= len(entries) for prototype in prototypes):
+        if any(prototype.representative_entry_id < 0 or
+               prototype.representative_entry_id >= len(entries) for prototype in prototypes):
             raise ValueError('checkpoint prototype references an unknown entry')
         archive.entries = entries
         archive.prototypes = prototypes
         archive.energy_mismatch_hits = int(archive_payload.get('energy_mismatch_hits', 0))
         archive.max_energy_mismatch = float(archive_payload.get('max_energy_mismatch', 0.0))
         outcomes = [ProposalOutcome(**self._require_mapping(item, 'outcome'))
-                    for item in payload.get('outcomes', ())]
-        mapping = list(payload.get('mapping', ()))
+                    for item in payload['outcomes']]
+        mapping = list(payload['mapping'])
+        if len(outcomes) != len(mapping):
+            raise ValueError('checkpoint outcomes and mapping lengths differ')
         if any(int(entry_id) < 0 or int(entry_id) >= len(entries) for entry_id in mapping):
             raise ValueError('checkpoint mapping references an unknown entry')
-        representatives = dict(payload.get('representatives', {}))
-        if any(int(entry_id) not in mapping for entry_id in representatives):
-            raise ValueError('checkpoint representative references an unknown entry')
-        decisions = copy.deepcopy(list(payload.get('decisions', ())))
-        source = payload.get('source')
+        representatives = {}
+        for pair in payload['representatives']:
+            if not isinstance(pair, (list, tuple)) or len(pair) != 2:
+                raise ValueError('checkpoint representative pairs are invalid')
+            entry_id, observation_index = int(pair[0]), int(pair[1])
+            if (entry_id not in mapping or observation_index < 0 or
+                    observation_index >= len(mapping) or mapping[observation_index] != entry_id):
+                raise ValueError('checkpoint representative references an invalid observation')
+            if entry_id in representatives:
+                raise ValueError('checkpoint representative ids are duplicated')
+            representatives[entry_id] = observation_index
+        decisions = copy.deepcopy(list(payload['decisions']))
+        source = payload['source']
         if source is not None and (int(source) < 0 or int(source) >= len(entries)):
             raise ValueError('checkpoint source references an unknown entry')
-        executed = int(payload.get('executed', 0))
-        if executed < 0 or executed > len(decisions) + 1:
+        executed = int(payload['executed'])
+        if executed < 0:
             raise ValueError('checkpoint executed count is invalid')
+        if decisions:
+            if any(not isinstance(decision, Mapping) or 'step' not in decision
+                   for decision in decisions):
+                raise ValueError('checkpoint decisions are missing step indices')
+            if executed != max(int(decision['step']) for decision in decisions) + 1:
+                raise ValueError('checkpoint executed count disagrees with decision steps')
+        elif executed != 0:
+            raise ValueError('checkpoint executed count has no decision steps')
         # All parsing and validation above is complete before changing self.
         self.archive = archive
         self.mapping = mapping

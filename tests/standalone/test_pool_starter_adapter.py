@@ -185,3 +185,14 @@ def test_checkpoint_contract_mismatch_does_not_mutate_adapter():
     with pytest.raises(ValueError, match='contract'):
         target.restore_state(payload)
     assert_payload_equal(target.export_state(), before)
+
+
+def test_checkpoint_accepts_skipped_failed_outer_steps():
+    a = adapter('uniform')
+    items = tuple(observation(i, i, -i) for i in range(2))
+    assert a(StarterPoolSnapshot(items[:1], 0, None, 0, 1), Choose(0)) is None
+    # A failed outer step can leave a gap in callback step indices.
+    assert a(StarterPoolSnapshot(items, 0, 1, 4, 5), Choose(0)) is None
+    restored = adapter('uniform')
+    restored.restore_state(a.export_state())
+    assert restored._executed == 5
