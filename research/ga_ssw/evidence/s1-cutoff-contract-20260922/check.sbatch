@@ -10,6 +10,7 @@
 set -euo pipefail
 cd /home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity
 export PYTHONNOUSERSITE=1
+export PYTHONPATH=/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/tools/unicorn-2.1.4:.
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 /home/gengjianrui/.conda/envs/mace_env/bin/python -m research.ga_ssw.probe_native_s1_cutoff \
  --elf /home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_program/lasp \

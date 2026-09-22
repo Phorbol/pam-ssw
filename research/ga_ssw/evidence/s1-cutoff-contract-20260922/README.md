@@ -1,5 +1,16 @@
 # S1 cutoff arithmetic verification: prepared, execution blocked
 
+## 2026-09-22 16:48 follow-up
+
+The same five-minute CPU shape now passes `sbatch --test-only` under
+`sjtu-caoxiaoming`; `private-gengjianrui` still returns `AssocGrpBilling`.
+Actual group-account submission 1447817 executed and failed at import with
+`ModuleNotFoundError: No module named 'unicorn'`. Its Slurm log is retained.
+Earlier probes used a temporary Unicorn 2.1.4 installation which is no longer
+present. Restore that pinned dependency in the research tools directory and
+set the probe's PYTHONPATH explicitly; do not change the production package
+dependencies. A subsequent run remains necessary for numerical validation.
+
 Purpose: discriminate the recovered `tanh(1-r/c)^3` cutoff and its radial
 derivative from a mistaken reading of adjacent ELF constants. This is an
 implementation check, not evidence for Q-mode search efficacy.
