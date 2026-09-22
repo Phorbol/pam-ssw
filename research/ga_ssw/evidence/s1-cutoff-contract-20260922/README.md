@@ -2,6 +2,12 @@
 
 ## 2026-09-22 16:48 follow-up
 
+After restoring the isolated pinned dependency, CPU job 1447836 exited zero.
+`result-1447836.json` contains ten passing original-instruction arithmetic
+cases and zero PES calls. The checks confirm the constants 1 and -3 and the
+cutoff guard `9.999999747378752e-06`. This closes this arithmetic probe only;
+the supplied-tanh and full-Q limitations below still apply.
+
 The same five-minute CPU shape now passes `sbatch --test-only` under
 `sjtu-caoxiaoming`; `private-gengjianrui` still returns `AssocGrpBilling`.
 Actual group-account submission 1447817 executed and failed at import with
