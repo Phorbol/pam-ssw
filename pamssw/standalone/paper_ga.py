@@ -182,6 +182,12 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
     NNA bond-length table; proposal_bond_limits is a separate explicit cutoff
     table in Angstrom. No structures, reference minima or radii are invented.
 
+    ``descriptor_row_order="legacy_counts"`` preserves the reconstructed Java
+    count-only row ordering and old checkpoint contracts. Opt-in
+    ``"full_fingerprint"`` sorts candidates and copies of frozen references by
+    all existing descriptor components. It corrects tied-row label dependence,
+    not the descriptor radial formulas. Checkpoints cannot cross these modes.
+
     A failed stage records its spent surface.requests. Degenerate GA parents or
     exhausted sampling stop further GA generations; independent final fine walks
     can still use the existing archive. No fallback parents/candidates are made.

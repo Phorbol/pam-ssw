@@ -1,0 +1,802 @@
+{
+  "mode": "legacy_counts",
+  "status": "completed",
+  "requests": 2396,
+  "fresh_requests": 26,
+  "seconds": 2.91078201700293,
+  "observations": [
+    {
+      "id": 0,
+      "phase": "initial_quench",
+      "eligible": true,
+      "energy": 9.361357881570044,
+      "max_force": 9.943277435933532e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        1.0,
+        0.8358327835964705,
+        0.8065202342954129
+      ],
+      "parent_ids": [],
+      "operator": null
+    },
+    {
+      "id": 1,
+      "phase": "initial_quench",
+      "eligible": true,
+      "energy": 10.480674461618378,
+      "max_force": 8.233264905306374e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.8358327835964705,
+        1.0,
+        0.9332092016190854
+      ],
+      "parent_ids": [],
+      "operator": null
+    },
+    {
+      "id": 2,
+      "phase": "initial_quench",
+      "eligible": true,
+      "energy": 10.362232792239872,
+      "max_force": 9.326065341415313e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.8065202342954129,
+        0.9332092016190854,
+        1.0
+      ],
+      "parent_ids": [],
+      "operator": null
+    },
+    {
+      "id": 3,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 9.361357881570044,
+      "max_force": 9.943277435933532e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        1.0,
+        0.8358327835964705,
+        0.8065202342954129
+      ],
+      "parent_ids": [],
+      "operator": null
+    },
+    {
+      "id": 4,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 10.46298819677553,
+      "max_force": 0.009567953077162083,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.8167629558927296,
+        0.9513445878769897,
+        0.9360665499815122
+      ],
+      "parent_ids": [],
+      "operator": null
+    },
+    {
+      "id": 5,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 10.480674461618378,
+      "max_force": 8.233264905306374e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.8358327835964705,
+        1.0,
+        0.9332092016190854
+      ],
+      "parent_ids": [],
+      "operator": null
+    },
+    {
+      "id": 6,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 10.219205863676441,
+      "max_force": 0.006031099552784463,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.8396932637572433,
+        0.9700573878429978,
+        0.9315690986307299
+      ],
+      "parent_ids": [],
+      "operator": null
+    },
+    {
+      "id": 7,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 10.362232792239872,
+      "max_force": 9.326065341415313e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.8065202342954129,
+        0.9332092016190854,
+        1.0
+      ],
+      "parent_ids": [],
+      "operator": null
+    },
+    {
+      "id": 8,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 9.36140746533688,
+      "max_force": 0.008749298158057753,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.9999599129361757,
+        0.8358509680381849,
+        0.8065245702285143
+      ],
+      "parent_ids": [],
+      "operator": null
+    },
+    {
+      "id": 9,
+      "phase": "offspring_quench",
+      "eligible": true,
+      "energy": 10.511785554343032,
+      "max_force": 0.009528292348008206,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.7774927978099179,
+        0.903963940577337,
+        0.9346075982493086
+      ],
+      "parent_ids": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "operator": "atomic_crossover"
+    },
+    {
+      "id": 10,
+      "phase": "offspring_quench",
+      "eligible": true,
+      "energy": 9.361360353218263,
+      "max_force": 0.0019705962426202523,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.9999891359623205,
+        0.8358344232947632,
+        0.806519400958518
+      ],
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "operator": "atomic_crossover"
+    },
+    {
+      "id": 11,
+      "phase": "offspring_quench",
+      "eligible": true,
+      "energy": 9.361450531710325,
+      "max_force": 0.009762506127027523,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.9999375242020743,
+        0.835822420583209,
+        0.8065077976204098
+      ],
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "operator": "atomic_disturbance"
+    },
+    {
+      "id": 12,
+      "phase": "offspring_quench",
+      "eligible": true,
+      "energy": 9.361358143885534,
+      "max_force": 0.0018432752818978494,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.9999986281082717,
+        0.8358325210201025,
+        0.8065203228001024
+      ],
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "operator": "atomic_disturbance"
+    },
+    {
+      "id": 13,
+      "phase": "offspring_quench",
+      "eligible": true,
+      "energy": 9.361386909631227,
+      "max_force": 0.0075327775794885084,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.999962516088227,
+        0.8358272860515862,
+        0.8065195835469166
+      ],
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "operator": "atomic_disturbance"
+    },
+    {
+      "id": 14,
+      "phase": "offspring_quench",
+      "eligible": true,
+      "energy": 9.361369418637235,
+      "max_force": 0.005860843079935973,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.9999817730872542,
+        0.8358298385090508,
+        0.8065206874970591
+      ],
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "operator": "atomic_disturbance"
+    },
+    {
+      "id": 15,
+      "phase": "offspring_quench",
+      "eligible": true,
+      "energy": 10.463129103866445,
+      "max_force": 0.009420485475954076,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.8167202940522711,
+        0.9514020812669574,
+        0.9360541363258698
+      ],
+      "parent_ids": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "operator": "atomic_disturbance"
+    },
+    {
+      "id": 16,
+      "phase": "offspring_quench",
+      "eligible": true,
+      "energy": 10.362491266585629,
+      "max_force": 0.007917122812069341,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.806547064052621,
+        0.9332273202714476,
+        0.9997697378163231
+      ],
+      "parent_ids": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "operator": "atomic_disturbance"
+    },
+    {
+      "id": 17,
+      "phase": "offspring_quench",
+      "eligible": true,
+      "energy": 9.361371391775906,
+      "max_force": 0.006314012484419686,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.9999859345783322,
+        0.8358355423780557,
+        0.8065200985247989
+      ],
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "operator": "atomic_disturbance"
+    },
+    {
+      "id": 18,
+      "phase": "offspring_quench",
+      "eligible": true,
+      "energy": 10.219215520383408,
+      "max_force": 0.004417359955395726,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.8396898374222,
+        0.9700662351629942,
+        0.9315427799381405
+      ],
+      "parent_ids": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "operator": "atomic_disturbance"
+    },
+    {
+      "id": 19,
+      "phase": "offspring_quench",
+      "eligible": true,
+      "energy": 9.361374718021729,
+      "max_force": 0.0074913945627345215,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.9999773130938068,
+        0.8358378062067063,
+        0.8065183285199762
+      ],
+      "parent_ids": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "operator": "atomic_reinsertion_corrected"
+    },
+    {
+      "id": 20,
+      "phase": "offspring_quench",
+      "eligible": true,
+      "energy": 10.250613629598579,
+      "max_force": 0.007522256756406849,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.845988080325242,
+        0.9579361218981737,
+        0.9322807740861708
+      ],
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "operator": "atomic_reinsertion_corrected"
+    },
+    {
+      "id": 21,
+      "phase": "offspring_quench",
+      "eligible": true,
+      "energy": 10.269602435388183,
+      "max_force": 0.007077029520477172,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.8805810634117969,
+        0.9203951228952015,
+        0.8846923043950523
+      ],
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "operator": "atomic_reinsertion_corrected"
+    },
+    {
+      "id": 22,
+      "phase": "generation_short",
+      "eligible": true,
+      "energy": 9.361357881570044,
+      "max_force": 9.943277435933532e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        1.0,
+        0.8358327835964705,
+        0.8065202342954129
+      ],
+      "parent_ids": [],
+      "operator": null
+    },
+    {
+      "id": 23,
+      "phase": "generation_short",
+      "eligible": true,
+      "energy": 10.078349987926824,
+      "max_force": 0.00805361383649272,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.9160941658931826,
+        0.8912733424044704,
+        0.8494773249175891
+      ],
+      "parent_ids": [],
+      "operator": null
+    },
+    {
+      "id": 24,
+      "phase": "fine",
+      "eligible": true,
+      "energy": 9.361357881570044,
+      "max_force": 9.943277435933532e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        1.0,
+        0.8358327835964705,
+        0.8065202342954129
+      ],
+      "parent_ids": [],
+      "operator": null
+    },
+    {
+      "id": 25,
+      "phase": "fine",
+      "eligible": true,
+      "energy": 9.36140113500039,
+      "max_force": 0.007769312667193929,
+      "force_pass": true,
+      "composition_pass": true,
+      "projection": [
+        0.9999254452130591,
+        0.835859019968199,
+        0.8065262933869266
+      ],
+      "parent_ids": [],
+      "operator": null
+    }
+  ],
+  "stages": [
+    {
+      "phase": "initial_quench",
+      "status": "completed",
+      "requests": 1
+    },
+    {
+      "phase": "initial_quench",
+      "status": "completed",
+      "requests": 1
+    },
+    {
+      "phase": "initial_quench",
+      "status": "completed",
+      "requests": 1
+    },
+    {
+      "phase": "quick",
+      "status": "completed",
+      "requests": 647
+    },
+    {
+      "phase": "quick",
+      "status": "completed",
+      "requests": 44
+    },
+    {
+      "phase": "quick",
+      "status": "completed",
+      "requests": 165
+    },
+    {
+      "phase": "proposal",
+      "status": "target_reached",
+      "requests": 0
+    },
+    {
+      "phase": "offspring_quench",
+      "status": "completed",
+      "requests": 45
+    },
+    {
+      "phase": "offspring_quench",
+      "status": "completed",
+      "requests": 31
+    },
+    {
+      "phase": "offspring_quench",
+      "status": "completed",
+      "requests": 7
+    },
+    {
+      "phase": "offspring_quench",
+      "status": "completed",
+      "requests": 6
+    },
+    {
+      "phase": "offspring_quench",
+      "status": "completed",
+      "requests": 14
+    },
+    {
+      "phase": "offspring_quench",
+      "status": "completed",
+      "requests": 15
+    },
+    {
+      "phase": "offspring_quench",
+      "status": "completed",
+      "requests": 17
+    },
+    {
+      "phase": "offspring_quench",
+      "status": "completed",
+      "requests": 13
+    },
+    {
+      "phase": "offspring_quench",
+      "status": "completed",
+      "requests": 12
+    },
+    {
+      "phase": "offspring_quench",
+      "status": "completed",
+      "requests": 17
+    },
+    {
+      "phase": "offspring_quench",
+      "status": "completed",
+      "requests": 44
+    },
+    {
+      "phase": "offspring_quench",
+      "status": "completed",
+      "requests": 51
+    },
+    {
+      "phase": "offspring_quench",
+      "status": "completed",
+      "requests": 42
+    },
+    {
+      "phase": "generation_short",
+      "status": "completed",
+      "requests": 649
+    },
+    {
+      "phase": "fine",
+      "status": "completed",
+      "requests": 574
+    }
+  ],
+  "failures": [],
+  "archive": [
+    {
+      "energy": 9.361357881570044,
+      "sims": [
+        1.0,
+        0.8358327835964705,
+        0.8065202342954129
+      ]
+    },
+    {
+      "energy": 10.078349987926824,
+      "sims": [
+        0.9160941658931826,
+        0.8912733424044704,
+        0.8494773249175891
+      ]
+    },
+    {
+      "energy": 10.219205863676441,
+      "sims": [
+        0.8396932637572433,
+        0.9700573878429978,
+        0.9315690986307299
+      ]
+    },
+    {
+      "energy": 10.250613629598579,
+      "sims": [
+        0.845988080325242,
+        0.9579361218981737,
+        0.9322807740861708
+      ]
+    },
+    {
+      "energy": 10.269602435388183,
+      "sims": [
+        0.8805810634117969,
+        0.9203951228952015,
+        0.8846923043950523
+      ]
+    },
+    {
+      "energy": 10.362232792239872,
+      "sims": [
+        0.8065202342954129,
+        0.9332092016190854,
+        1.0
+      ]
+    },
+    {
+      "energy": 10.362491266585629,
+      "sims": [
+        0.806547064052621,
+        0.9332273202714476,
+        0.9997697378163231
+      ]
+    },
+    {
+      "energy": 10.46298819677553,
+      "sims": [
+        0.8167629558927296,
+        0.9513445878769897,
+        0.9360665499815122
+      ]
+    },
+    {
+      "energy": 10.480674461618378,
+      "sims": [
+        0.8358327835964705,
+        1.0,
+        0.9332092016190854
+      ]
+    },
+    {
+      "energy": 10.511785554343032,
+      "sims": [
+        0.7774927978099179,
+        0.903963940577337,
+        0.9346075982493086
+      ]
+    }
+  ]
+}

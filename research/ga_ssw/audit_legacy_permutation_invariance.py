@@ -9,10 +9,10 @@ by the manifest when the archived runner kept it in a shared fixture.
 
 For each saved frame the script compares the legacy descriptor/projection of
 the original atom order with a deterministic permutation of exactly the same
-geometry.  It also reports an experiment-only comparator that reorders rows
+geometry.  It also checks the production opt-in helper that reorders rows
 by the complete legacy n/d fingerprint rather than count-only keys.  The
 comparator applies to candidate and frozen reference rows, is not paper DCCD,
-and is never sent to the controller.
+and is opt-in through descriptor_row_order="full_fingerprint" in the controller.
 
 Example (must use paths from the approved saved-artifact manifest):
 
@@ -36,6 +36,7 @@ import numpy as np
 from ase.io import read
 
 from pamssw.standalone.legacy_descriptor import (
+    _full_fingerprint_order as _full_sort,
     cluster_descriptor,
     descriptor_similarity,
 )
@@ -53,23 +54,6 @@ def _pair_table(raw):
         result[tuple(sorted(pair))] = float(value)
     return result
 
-
-def _full_sort(descriptor):
-    """Return a descriptor with an experiment-only complete row ordering."""
-    n = len(descriptor["n1"])
-    rows = []
-    for i in range(n):
-        key = tuple(
-            value
-            for name in ("n1", "n2", "n3", "d1", "d2", "d3")
-            for value in np.asarray(descriptor[name][i]).reshape(-1).tolist()
-        )
-        rows.append((key, i))
-    order = [i for _, i in sorted(rows, key=lambda item: item[0])]
-    return {
-        name: [descriptor[name][i] for i in order]
-        for name in descriptor
-    }
 
 
 def _projection(descriptor, references, weights):
@@ -164,7 +148,7 @@ def main():
         "cases": [audit_case(case) for case in manifest["cases"]],
         "interpretation": {
             "raw": "legacy count-only row order; ties may drift under atom permutation",
-            "full": "experimental complete n/d row sort; not paper DCCD or Java parity",
+            "full": "production opt-in complete n/d row sort; not paper DCCD or Java parity",
             "success_signal": "full_projection_max_abs_delta is zero within floating precision",
         },
     }

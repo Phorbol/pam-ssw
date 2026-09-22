@@ -1,0 +1,47 @@
+{
+  "parent_protocol": "research/ga_ssw/evidence/atomic-cu13-ga/plan.json",
+  "input": "research/ga_ssw/evidence/atomic-cu13-ga/initial.extxyz",
+  "seed": 3,
+  "max_evaluations_per_mode": 4000,
+  "modes": [
+    "legacy_counts",
+    "full_fingerprint"
+  ],
+  "ga": {
+    "quick_steps": 1,
+    "generations": 1,
+    "generation_steps": 1,
+    "fine_steps": 1,
+    "ga_candidates": 8,
+    "regions": 1,
+    "fine_regions": 1,
+    "quench_fmax": 0.01,
+    "quench_steps": 200,
+    "proposal_max_batches": 2,
+    "proposal_max_cut_attempts": 1000,
+    "proposal_max_pair_attempts": 10000,
+    "partition_max_draws": 10000,
+    "projection_tolerance": 0.0001,
+    "energy_window": 10.0,
+    "proposal_type": 0,
+    "proposal_max_insertion_attempts": 10000
+  },
+  "ssw": {
+    "width": 0.2,
+    "rotation_bias": 100.0,
+    "max_gaussians": 14,
+    "temperature_K": 300.0,
+    "fmax": 0.01,
+    "relax_steps": 200,
+    "fd_step": 0.0001,
+    "rotation_hvp": 100,
+    "rotation_tol": 0.02,
+    "forward_force": 0.1,
+    "direction_sampling": "paper",
+    "rotation_solver": "dimer",
+    "cluster_frame": "direction_only",
+    "quench_optimizer": "safe-lbfgs-total"
+  },
+  "stop": "4000 E/F per arm or five-minute CPU job; no retries or tuning",
+  "purpose": "GA offspring integration and independent force validation, not efficiency ranking"
+}

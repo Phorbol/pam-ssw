@@ -51,7 +51,7 @@ chemical minima, recover paper DCCD, or prove faster GA search. Numerical
 roundoff in underlying sums is not the research target. Keep the existing
 structural matcher option and distinguish approximate projection identity.
 
-## Recommended minimal design (awaiting user agreement)
+## Approved minimal design (user agreement 2026-09-22)
 
 1. Add explicit `descriptor_row_order="legacy_counts"` keyword to
    `run_ga_ssw`, accepting only `legacy_counts` and `full_fingerprint`.
@@ -87,6 +87,7 @@ structural matcher option and distinguish approximate projection identity.
 
 This affects public search configuration and persisted scientific identity.
 Project AGENTS.md §8 requires discussion of important API/persistence designs.
-Only the research comparator is implemented; the controller change above is
-not yet implemented. Q gradient and LS contract checks already completed do
+User approved the minimal fix with the legacy default retained. Implementation and targeted CPU validation are complete. See
+[execution and evidence](../../research/ga_ssw/evidence/ga-row-order-20260922/README.md).
+The new mode remains optional; this does not establish search efficiency. Q gradient and LS contract checks already completed do
 not depend on this decision.

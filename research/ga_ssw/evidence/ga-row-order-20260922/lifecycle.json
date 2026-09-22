@@ -1,0 +1,538 @@
+[
+  {
+    "name": "Cu13-legacy_counts",
+    "status": "completed_with_failures",
+    "requests": 29,
+    "stages": [
+      {
+        "phase": "initial_quench",
+        "requests": 13
+      },
+      {
+        "phase": "initial_quench",
+        "requests": 4
+      },
+      {
+        "phase": "quick",
+        "requests": 4
+      },
+      {
+        "phase": "quick",
+        "requests": 4
+      },
+      {
+        "phase": "proposal",
+        "requests": 0
+      },
+      {
+        "phase": "fine",
+        "requests": 4
+      }
+    ],
+    "failures": [
+      {
+        "phase": "quick",
+        "reason": "rotation_failed: step did not produce a qualified landing"
+      },
+      {
+        "phase": "quick",
+        "reason": "rotation_failed: step did not produce a qualified landing"
+      },
+      {
+        "phase": "proposal",
+        "reason": "ValueError: legacy Compete requires >2 parents with positive energy span"
+      },
+      {
+        "phase": "fine",
+        "reason": "rotation_failed: step did not produce a qualified landing"
+      }
+    ],
+    "observations": [
+      {
+        "phase": "initial_quench",
+        "eligible": true,
+        "energy": 9.361946062334853,
+        "max_force": 0.029050868888113764,
+        "projection": [
+          0.9965378863757522,
+          0.9710270070258955,
+          0.9488272695365211
+        ],
+        "parent_ids": [],
+        "operator": null
+      },
+      {
+        "phase": "initial_quench",
+        "eligible": true,
+        "energy": 10.157388561978447,
+        "max_force": 0.025614048815499207,
+        "projection": [
+          0.9386742632391876,
+          0.9149368251689078,
+          0.8934148973793359
+        ],
+        "parent_ids": [],
+        "operator": null
+      },
+      {
+        "phase": "quick",
+        "eligible": true,
+        "energy": 9.361946062334853,
+        "max_force": 0.029050868888113764,
+        "projection": [
+          0.9965378863757522,
+          0.9710270070258955,
+          0.9488272695365211
+        ],
+        "parent_ids": [],
+        "operator": null
+      },
+      {
+        "phase": "quick",
+        "eligible": true,
+        "energy": 10.157388561978447,
+        "max_force": 0.025614048815499207,
+        "projection": [
+          0.9386742632391876,
+          0.9149368251689078,
+          0.8934148973793359
+        ],
+        "parent_ids": [],
+        "operator": null
+      },
+      {
+        "phase": "fine",
+        "eligible": true,
+        "energy": 9.361946062334853,
+        "max_force": 0.029050868888113764,
+        "projection": [
+          0.9965378863757522,
+          0.9710270070258955,
+          0.9488272695365211
+        ],
+        "parent_ids": [],
+        "operator": null
+      }
+    ],
+    "archive": [
+      {
+        "energy": 9.361946062334853,
+        "sims": [
+          0.9965378863757522,
+          0.9710270070258955,
+          0.9488272695365211
+        ]
+      },
+      {
+        "energy": 10.157388561978447,
+        "sims": [
+          0.9386742632391876,
+          0.9149368251689078,
+          0.8934148973793359
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Cu13-full_fingerprint",
+    "status": "completed_with_failures",
+    "requests": 29,
+    "stages": [
+      {
+        "phase": "initial_quench",
+        "requests": 13
+      },
+      {
+        "phase": "initial_quench",
+        "requests": 4
+      },
+      {
+        "phase": "quick",
+        "requests": 4
+      },
+      {
+        "phase": "quick",
+        "requests": 4
+      },
+      {
+        "phase": "proposal",
+        "requests": 0
+      },
+      {
+        "phase": "fine",
+        "requests": 4
+      }
+    ],
+    "failures": [
+      {
+        "phase": "quick",
+        "reason": "rotation_failed: step did not produce a qualified landing"
+      },
+      {
+        "phase": "quick",
+        "reason": "rotation_failed: step did not produce a qualified landing"
+      },
+      {
+        "phase": "proposal",
+        "reason": "ValueError: legacy Compete requires >2 parents with positive energy span"
+      },
+      {
+        "phase": "fine",
+        "reason": "rotation_failed: step did not produce a qualified landing"
+      }
+    ],
+    "observations": [
+      {
+        "phase": "initial_quench",
+        "eligible": true,
+        "energy": 9.361946062334853,
+        "max_force": 0.029050868888113764,
+        "projection": [
+          0.996537054611063,
+          0.9710262915479361,
+          0.9488266271487507
+        ],
+        "parent_ids": [],
+        "operator": null
+      },
+      {
+        "phase": "initial_quench",
+        "eligible": true,
+        "energy": 10.157388561978447,
+        "max_force": 0.025614048815499207,
+        "projection": [
+          0.9386742632391876,
+          0.9149368251689078,
+          0.8934148973793359
+        ],
+        "parent_ids": [],
+        "operator": null
+      },
+      {
+        "phase": "quick",
+        "eligible": true,
+        "energy": 9.361946062334853,
+        "max_force": 0.029050868888113764,
+        "projection": [
+          0.996537054611063,
+          0.9710262915479361,
+          0.9488266271487507
+        ],
+        "parent_ids": [],
+        "operator": null
+      },
+      {
+        "phase": "quick",
+        "eligible": true,
+        "energy": 10.157388561978447,
+        "max_force": 0.025614048815499207,
+        "projection": [
+          0.9386742632391876,
+          0.9149368251689078,
+          0.8934148973793359
+        ],
+        "parent_ids": [],
+        "operator": null
+      },
+      {
+        "phase": "fine",
+        "eligible": true,
+        "energy": 9.361946062334853,
+        "max_force": 0.029050868888113764,
+        "projection": [
+          0.996537054611063,
+          0.9710262915479361,
+          0.9488266271487507
+        ],
+        "parent_ids": [],
+        "operator": null
+      }
+    ],
+    "archive": [
+      {
+        "energy": 9.361946062334853,
+        "sims": [
+          0.996537054611063,
+          0.9710262915479361,
+          0.9488266271487507
+        ]
+      },
+      {
+        "energy": 10.157388561978447,
+        "sims": [
+          0.9386742632391876,
+          0.9149368251689078,
+          0.8934148973793359
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Al13-legacy_counts",
+    "status": "completed_with_failures",
+    "requests": 28,
+    "stages": [
+      {
+        "phase": "initial_quench",
+        "requests": 12
+      },
+      {
+        "phase": "initial_quench",
+        "requests": 4
+      },
+      {
+        "phase": "quick",
+        "requests": 4
+      },
+      {
+        "phase": "quick",
+        "requests": 4
+      },
+      {
+        "phase": "proposal",
+        "requests": 0
+      },
+      {
+        "phase": "fine",
+        "requests": 4
+      }
+    ],
+    "failures": [
+      {
+        "phase": "quick",
+        "reason": "rotation_failed: step did not produce a qualified landing"
+      },
+      {
+        "phase": "quick",
+        "reason": "rotation_failed: step did not produce a qualified landing"
+      },
+      {
+        "phase": "proposal",
+        "reason": "ValueError: legacy Compete requires >2 parents with positive energy span"
+      },
+      {
+        "phase": "fine",
+        "reason": "rotation_failed: step did not produce a qualified landing"
+      }
+    ],
+    "observations": [
+      {
+        "phase": "initial_quench",
+        "eligible": true,
+        "energy": 7.4485313431200435,
+        "max_force": 0.02452507793335595,
+        "projection": [
+          0.9981950557104078,
+          0.9741338429502291,
+          0.9506041761847198
+        ],
+        "parent_ids": [],
+        "operator": null
+      },
+      {
+        "phase": "initial_quench",
+        "eligible": true,
+        "energy": 7.95796727164177,
+        "max_force": 0.0032782373543733426,
+        "projection": [
+          0.9407708940003012,
+          0.9165397320996118,
+          0.8938059314979172
+        ],
+        "parent_ids": [],
+        "operator": null
+      },
+      {
+        "phase": "quick",
+        "eligible": true,
+        "energy": 7.4485313431200435,
+        "max_force": 0.02452507793335595,
+        "projection": [
+          0.9981950557104078,
+          0.9741338429502291,
+          0.9506041761847198
+        ],
+        "parent_ids": [],
+        "operator": null
+      },
+      {
+        "phase": "quick",
+        "eligible": true,
+        "energy": 7.95796727164177,
+        "max_force": 0.0032782373543733426,
+        "projection": [
+          0.9407708940003012,
+          0.9165397320996118,
+          0.8938059314979172
+        ],
+        "parent_ids": [],
+        "operator": null
+      },
+      {
+        "phase": "fine",
+        "eligible": true,
+        "energy": 7.4485313431200435,
+        "max_force": 0.02452507793335595,
+        "projection": [
+          0.9981950557104078,
+          0.9741338429502291,
+          0.9506041761847198
+        ],
+        "parent_ids": [],
+        "operator": null
+      }
+    ],
+    "archive": [
+      {
+        "energy": 7.4485313431200435,
+        "sims": [
+          0.9981950557104078,
+          0.9741338429502291,
+          0.9506041761847198
+        ]
+      },
+      {
+        "energy": 7.95796727164177,
+        "sims": [
+          0.9407708940003012,
+          0.9165397320996118,
+          0.8938059314979172
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Al13-full_fingerprint",
+    "status": "completed_with_failures",
+    "requests": 28,
+    "stages": [
+      {
+        "phase": "initial_quench",
+        "requests": 12
+      },
+      {
+        "phase": "initial_quench",
+        "requests": 4
+      },
+      {
+        "phase": "quick",
+        "requests": 4
+      },
+      {
+        "phase": "quick",
+        "requests": 4
+      },
+      {
+        "phase": "proposal",
+        "requests": 0
+      },
+      {
+        "phase": "fine",
+        "requests": 4
+      }
+    ],
+    "failures": [
+      {
+        "phase": "quick",
+        "reason": "rotation_failed: step did not produce a qualified landing"
+      },
+      {
+        "phase": "quick",
+        "reason": "rotation_failed: step did not produce a qualified landing"
+      },
+      {
+        "phase": "proposal",
+        "reason": "ValueError: legacy Compete requires >2 parents with positive energy span"
+      },
+      {
+        "phase": "fine",
+        "reason": "rotation_failed: step did not produce a qualified landing"
+      }
+    ],
+    "observations": [
+      {
+        "phase": "initial_quench",
+        "eligible": true,
+        "energy": 7.4485313431200435,
+        "max_force": 0.02452507793335595,
+        "projection": [
+          0.9981731014249791,
+          0.9741332066179695,
+          0.9506036958202062
+        ],
+        "parent_ids": [],
+        "operator": null
+      },
+      {
+        "phase": "initial_quench",
+        "eligible": true,
+        "energy": 7.95796727164177,
+        "max_force": 0.0032782373543733426,
+        "projection": [
+          0.9407708940003012,
+          0.9165397320996117,
+          0.8938059314979172
+        ],
+        "parent_ids": [],
+        "operator": null
+      },
+      {
+        "phase": "quick",
+        "eligible": true,
+        "energy": 7.4485313431200435,
+        "max_force": 0.02452507793335595,
+        "projection": [
+          0.9981731014249791,
+          0.9741332066179695,
+          0.9506036958202062
+        ],
+        "parent_ids": [],
+        "operator": null
+      },
+      {
+        "phase": "quick",
+        "eligible": true,
+        "energy": 7.95796727164177,
+        "max_force": 0.0032782373543733426,
+        "projection": [
+          0.9407708940003012,
+          0.9165397320996117,
+          0.8938059314979172
+        ],
+        "parent_ids": [],
+        "operator": null
+      },
+      {
+        "phase": "fine",
+        "eligible": true,
+        "energy": 7.4485313431200435,
+        "max_force": 0.02452507793335595,
+        "projection": [
+          0.9981731014249791,
+          0.9741332066179695,
+          0.9506036958202062
+        ],
+        "parent_ids": [],
+        "operator": null
+      }
+    ],
+    "archive": [
+      {
+        "energy": 7.4485313431200435,
+        "sims": [
+          0.9981731014249791,
+          0.9741332066179695,
+          0.9506036958202062
+        ]
+      },
+      {
+        "energy": 7.95796727164177,
+        "sims": [
+          0.9407708940003012,
+          0.9165397320996117,
+          0.8938059314979172
+        ]
+      }
+    ]
+  }
+]

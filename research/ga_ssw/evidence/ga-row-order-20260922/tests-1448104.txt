@@ -1,0 +1,75 @@
+FFF........................................                              [100%]
+=================================== FAILURES ===================================
+______ test_full_mode_real_lifecycle_resume_and_cross_mode_rejection[Cu] _______
+
+element = 'Cu'
+tmp_path = PosixPath('/tmp/pytest-of-gengjianrui/pytest-0/test_full_mode_real_lifecycle_0')
+
+    @pytest.mark.parametrize('element', ['Cu', 'Al'])
+    def test_full_mode_real_lifecycle_resume_and_cross_mode_rejection(element, tmp_path):
+        kwargs = inputs(element)
+        references_before = deepcopy(kwargs['references'])
+>       full = run(kwargs, descriptor_row_order='full_fingerprint')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/standalone/test_ga_row_order.py:44: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+kwargs = {'initial': [Atoms(symbols='Cu13', pbc=False, tags=...)], 'groups': ((0, 1, 2, 3, 4, 5, ...),), 'references': [{'n1': ... [1.396179553991357], [1.396179553991357], [1.4124942699783323], ...], ...}], 'descriptor_bonds': {(29, 29): 2.8}, ...}
+surface = None, extra = {'descriptor_row_order': 'full_fingerprint'}
+
+    def run(kwargs, surface=None, **extra):
+>       return paper_ga.run_ga_ssw(**kwargs, surface=surface or ASESurface(EMT()),
+                                  rng=np.random.default_rng(317), **extra)
+E       TypeError: run_ga_ssw() got an unexpected keyword argument 'descriptor_row_order'
+
+tests/standalone/test_ga_row_order.py:36: TypeError
+______ test_full_mode_real_lifecycle_resume_and_cross_mode_rejection[Al] _______
+
+element = 'Al'
+tmp_path = PosixPath('/tmp/pytest-of-gengjianrui/pytest-0/test_full_mode_real_lifecycle_1')
+
+    @pytest.mark.parametrize('element', ['Cu', 'Al'])
+    def test_full_mode_real_lifecycle_resume_and_cross_mode_rejection(element, tmp_path):
+        kwargs = inputs(element)
+        references_before = deepcopy(kwargs['references'])
+>       full = run(kwargs, descriptor_row_order='full_fingerprint')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/standalone/test_ga_row_order.py:44: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+kwargs = {'initial': [Atoms(symbols='Al13', pbc=False, tags=...)], 'groups': ((0, 1, 2, 3, 4, 5, ...),), 'references': [{'n1': ...1.7368838094271457], [1.7368838094271457], [1.7530419199354133], ...], ...}], 'descriptor_bonds': {(13, 13): 2.8}, ...}
+surface = None, extra = {'descriptor_row_order': 'full_fingerprint'}
+
+    def run(kwargs, surface=None, **extra):
+>       return paper_ga.run_ga_ssw(**kwargs, surface=surface or ASESurface(EMT()),
+                                  rng=np.random.default_rng(317), **extra)
+E       TypeError: run_ga_ssw() got an unexpected keyword argument 'descriptor_row_order'
+
+tests/standalone/test_ga_row_order.py:36: TypeError
+_____________ test_invalid_order_rejected_without_calculator_calls _____________
+
+    def test_invalid_order_rejected_without_calculator_calls():
+        surface = ASESurface(EMT())
+        with pytest.raises(ValueError, match='descriptor_row_order'):
+>           run(inputs(), surface, descriptor_row_order='unknown')
+
+tests/standalone/test_ga_row_order.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+kwargs = {'initial': [Atoms(symbols='Cu13', pbc=False, tags=...)], 'groups': ((0, 1, 2, 3, 4, 5, ...),), 'references': [{'n1': ... [1.396179553991357], [1.396179553991357], [1.4124942699783323], ...], ...}], 'descriptor_bonds': {(29, 29): 2.8}, ...}
+surface = <pamssw.standalone.surface.ASESurface object at 0xfbea66bb560>
+extra = {'descriptor_row_order': 'unknown'}
+
+    def run(kwargs, surface=None, **extra):
+>       return paper_ga.run_ga_ssw(**kwargs, surface=surface or ASESurface(EMT()),
+                                  rng=np.random.default_rng(317), **extra)
+E       TypeError: run_ga_ssw() got an unexpected keyword argument 'descriptor_row_order'
+
+tests/standalone/test_ga_row_order.py:36: TypeError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_ga_row_order.py::test_full_mode_real_lifecycle_resume_and_cross_mode_rejection[Cu]
+FAILED tests/standalone/test_ga_row_order.py::test_full_mode_real_lifecycle_resume_and_cross_mode_rejection[Al]
+FAILED tests/standalone/test_ga_row_order.py::test_invalid_order_rejected_without_calculator_calls
+3 failed, 40 passed in 0.98s
