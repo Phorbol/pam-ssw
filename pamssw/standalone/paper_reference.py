@@ -385,6 +385,34 @@ Paper constants: lambda uniform [0.1,1.5], pair separation >3 Angstrom.
     return direction / np.linalg.norm(direction)
 
 
+def _initialize_ls_state(current, ls):
+    """Build the LS frozen potential and response controller for ``current``."""
+    from .ls_native_reference import NativeLSSettings, NativeLSRuntime
+    if isinstance(ls, NativeLSSettings):
+        response = NativeLSRuntime(current, ls)
+        return response.frozen, response
+    from .periodic_softening import FrozenPeriodicBondSoftening
+    softening_type = FrozenPeriodicBondSoftening if current.pbc.all() else FrozenBondSoftening
+    frozen = softening_type.from_atoms(
+        current, bond_energies=ls.bond_energies, bond_lengths=ls.bond_lengths,
+        initial_fraction=ls.initial_fraction, xi=ls.xi,
+        energy_filter=ls.energy_filter)
+    return frozen, LSResponseState(ls.target_per_atom, learning_rate=ls.learning_rate)
+
+
+def _prepare_pool_restart(selected, *, ls, recovered_direction, rng):
+    """Prepare all state for an explicit pool jump before committing it."""
+    frozen = response = None
+    if ls is not None:
+        frozen, response = _initialize_ls_state(selected, ls)
+    controller = None
+    if recovered_direction is not None:
+        from .recovered_direction import RecoveredDirectionController
+        controller = RecoveredDirectionController(recovered_direction)
+        controller.initialize(selected, selected, rng)
+    return frozen, response, controller
+
+
 def run_ssw(atoms, surface, *, steps, config, rng, ls=None, height_policy=None, gaussian_policy=None,
             height_update_budget=1000, reconnect_distance=None, checkpoint=None,
             checkpoint_path=None, structure_matcher=None, bias_quench_adapter=None,
@@ -426,9 +454,12 @@ after a successful true landing and completed state updates. Return None to
 retain the MC-selected current observation. A different index explicitly
 restarts direction selection from that stored geometry without another quench.
 The controller persists across other outer steps. The snapshot owns copies;
-its cost includes initialization and failed work. Selection errors propagate.
+its cost includes initialization and failed work. A different selected
+observation reinitializes LS and recovered-direction state transactionally;
+failed restart preparation leaves the prior current/LS state in place and is
+recorded as a terminal selection failure. Selection errors otherwise propagate.
 ``selector_rng`` must be an independent Generator. This experimental hook is
-incompatible with LS and checkpointing. ``accepted`` remains the MC decision;
+incompatible with checkpointing. ``accepted`` remains the MC decision;
 ``starter_selection`` separately records the actual next-starter decision.
 
 No native program is called. Atoms/its calculator are not changed. The
@@ -469,8 +500,6 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
             raise ValueError('starter_selector requires an independent selector_rng Generator')
         if selector_rng is rng or selector_rng.bit_generator is rng.bit_generator:
             raise ValueError('selector_rng must be independent and must not share the main rng or bit_generator')
-        if ls is not None:
-            raise NotImplementedError('starter_selector is fixed-cell only and cannot combine with LS')
         if checkpoint is not None or checkpoint_path is not None:
             raise ValueError('starter_selector cannot combine with checkpointing')
     if mc is not None and not isinstance(mc, NativeMCSettings):
@@ -571,7 +600,7 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
     begin = surface.requests
     quench_optimizer = {'ase-lbfgs': LBFGS, 'ase-lbfgs-linesearch': LBFGSLineSearch}.get(
         config.quench_optimizer, config.quench_optimizer)
-    from .ls_native_reference import NativeLSSettings, NativeLSRuntime
+    from .ls_native_reference import NativeLSRuntime
     if ls is not None:
         from .ls_prequench import validate_prequench_exit_policy
         validate_prequench_exit_policy(getattr(ls, 'prequench', None),
@@ -642,17 +671,7 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
         update_identity_view(identity_view, minima, structure_matcher)
     if checkpoint is None and ls is not None:
         try:
-            if isinstance(ls, NativeLSSettings):
-                response = NativeLSRuntime(current, ls)
-                frozen = response.frozen
-            else:
-                from .periodic_softening import FrozenPeriodicBondSoftening
-                softening_type = FrozenPeriodicBondSoftening if current.pbc.all() else FrozenBondSoftening
-                frozen = softening_type.from_atoms(current,
-                    bond_energies=ls.bond_energies, bond_lengths=ls.bond_lengths,
-                    initial_fraction=ls.initial_fraction, xi=ls.xi,
-                    energy_filter=ls.energy_filter)
-                response = LSResponseState(ls.target_per_atom, learning_rate=ls.learning_rate)
+            frozen, response = _initialize_ls_state(current, ls)
         except (ValueError, RuntimeError, FloatingPointError, np.linalg.LinAlgError) as error:
             # Initialization has already paid for and certified a true minimum.
             # Preserve it and its requests when the explicit LS domain is absent.
@@ -1168,16 +1187,38 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
                 'step': index,
                 'cost': snapshot.cost,
                 'restarted': bool(chosen is not None and chosen != current_observation_index),
+                'restart_failed': False,
+                'ls_reinitialized': False,
+                'direction_reinitialized': False,
             }
             if chosen is not None and chosen != current_observation_index:
                 selected = minima[chosen]
-                current = selected.atoms.copy()
-                current_energy = float(selected.energy)
-                current_observation_index = chosen
-                if direction_controller is not None:
-                    from .recovered_direction import RecoveredDirectionController
-                    direction_controller = RecoveredDirectionController(recovered_direction)
-                    direction_controller.initialize(current, current, rng)
+                try:
+                    restart_frozen, restart_response, restart_controller = _prepare_pool_restart(
+                        selected.atoms, ls=ls, recovered_direction=recovered_direction,
+                        rng=rng)
+                except (ValueError, RuntimeError, FloatingPointError,
+                        np.linalg.LinAlgError, StopIteration) as error:
+                    if ls is None:
+                        raise
+                    status = run_status = 'starter_selection_failed'
+                    error_message = f'pool_restart: {type(error).__name__}: {error}'
+                    starter_selection.update(
+                        restarted=False, restart_failed=True,
+                        ls_reinitialized=False, direction_reinitialized=False,
+                        error=error_message)
+                else:
+                    current = selected.atoms.copy()
+                    current_energy = float(selected.energy)
+                    current_observation_index = chosen
+                    if ls is not None:
+                        frozen, response = restart_frozen, restart_response
+                    if direction_controller is not None:
+                        direction_controller = restart_controller
+                    starter_selection.update(
+                        restarted=True, restart_failed=False,
+                        ls_reinitialized=ls is not None,
+                        direction_reinitialized=direction_controller is not None)
         records.append(SSWStep(index, status, bool(accepted), tuple(climb), landing,
                               energy_response, surface.requests - before,
                               error_message, work.copy(), initial_anchor, update_record,

@@ -74,7 +74,7 @@ def test_selector_index_is_strict(choice, error):
                 selector_rng=np.random.default_rng(6))
 
 
-def test_selector_requires_independent_rng_and_rejects_ls_or_checkpoint(tmp_path):
+def test_selector_requires_independent_rng_and_rejects_checkpoint(tmp_path):
     from pamssw.standalone.paper_reference import run_ssw
     main_rng = np.random.default_rng(7)
     with pytest.raises(ValueError, match='independent'):
@@ -99,13 +99,6 @@ def test_selector_requires_independent_rng_and_rejects_ls_or_checkpoint(tmp_path
                 checkpoint_path=tmp_path / 'cp.pkl',
                 starter_selector=lambda snapshot, selector_rng: None,
                 selector_rng=np.random.default_rng(10))
-    with pytest.raises(NotImplementedError, match='LS'):
-        run_ssw(Atoms('H', positions=[[.1, .2, .3]]), _surface(), steps=0,
-                config=_config(), rng=np.random.default_rng(12), ls=object(),
-                starter_selector=lambda snapshot, selector_rng: None,
-                selector_rng=np.random.default_rng(13))
-
-
 def test_transparent_selector_preserves_rng_and_trajectory():
     from pamssw.standalone.paper_reference import run_ssw
     atoms = Atoms('H', positions=[[.1, .2, .3]])
