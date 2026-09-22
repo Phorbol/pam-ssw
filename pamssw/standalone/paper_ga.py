@@ -153,7 +153,7 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
                max_evaluations: int | None = None, height_policy=None, gaussian_policy=None,
                height_update_budget: int = 1000,
                offspring_ssw_config: SSWConfig | None = None,
-               mc=None, recovered_rotation=None,
+               mc=None, recovered_direction=None, recovered_rotation=None,
                checkpoint: GACheckpoint | None = None,
                checkpoint_callback: Callable[[GACheckpoint], bool | None] | None = None) -> PaperGAResult:
     """Execute all three stages with explicit budgets and complete landing records.
@@ -192,9 +192,9 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
     exhausted sampling stop further GA generations; independent final fine walks
     can still use the existing archive. No fallback parents/candidates are made.
 
-    ``mc`` and ``recovered_rotation`` are optional controls forwarded to every
+    ``mc``, ``recovered_direction`` and ``recovered_rotation`` are optional controls forwarded to every
     new SSW walk (quick, offspring, generation, and fine). Each walk starts its
-    own SSW MC state; no MC counter is shared across GA walks. When a GA
+    own SSW state; no direction or MC state is shared across GA walks. When a GA
     checkpoint is resumed, the same non-None options must be supplied so the
     explicit checkpoint contract matches; the default None contract remains
     compatible with older checkpoints.
@@ -225,6 +225,21 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
         for candidate in (ssw_config, offspring_ssw_config):
             if candidate is not None and candidate.temperature_K <= 0:
                 raise ValueError('native MC requires positive temperature_K')
+    if recovered_direction is not None:
+        from .recovered_direction import RecoveredDirectionSettings
+        if not isinstance(recovered_direction, RecoveredDirectionSettings):
+            raise TypeError('recovered_direction must be RecoveredDirectionSettings or None')
+        if any(atoms.pbc.any() or atoms.constraints or len(atoms) < 2 or
+               np.asarray(atoms.positions).shape != (len(atoms), 3) or
+               not np.isfinite(atoms.positions).all() for atoms in initial):
+            raise ValueError('recovered direction requires a free nonperiodic cluster with finite positions')
+        for candidate in (ssw_config, offspring_ssw_config):
+            if candidate is not None and candidate.cluster_frame != 'direction_only':
+                raise ValueError('recovered direction requires cluster_frame=direction_only')
+            if candidate is not None and candidate.pre_rotation_hvp is not None:
+                raise ValueError('recovered direction owns its PreRot stages; do not combine pre_rotation_hvp')
+        if recovered_rotation is not None:
+            raise ValueError('recovered_rotation and recovered_direction are mutually exclusive')
     if recovered_rotation is not None:
         from .recovered_rotation import RecoveredRotationSettings
         if not isinstance(recovered_rotation, RecoveredRotationSettings):
@@ -350,6 +365,8 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
             contract['mc'] = encoded(mc)
         if recovered_rotation is not None:
             contract['recovered_rotation'] = encoded(recovered_rotation)
+        if recovered_direction is not None:
+            contract['recovered_direction'] = encoded(recovered_direction)
         if descriptor_row_order == 'full_fingerprint':
             contract['descriptor_row_order'] = descriptor_row_order
         return contract
@@ -514,6 +531,8 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
                 height_update_budget=height_update_budget)
             if mc is not None:
                 walker_options['mc'] = mc
+            if recovered_direction is not None:
+                walker_options['recovered_direction'] = recovered_direction
             if recovered_rotation is not None:
                 walker_options['recovered_rotation'] = recovered_rotation
             result = run_ssw(row['atoms'].copy(), active_surface, steps=steps,
