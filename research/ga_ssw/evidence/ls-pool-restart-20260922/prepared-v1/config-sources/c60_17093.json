@@ -1,0 +1,117 @@
+{
+  "scope": "Two MH1 C60 first-state inputs; native-derived LS versus the completed equal-budget baseline; development evidence only, not an independent success-rate study.",
+  "parent": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/mh1-equal-budget-rotation-20260920",
+  "baseline_reference": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/mh1-equal-budget-rotation-20260920",
+  "backend": {
+    "model": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+    "model_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+    "head": "omol",
+    "device": "cuda",
+    "dtype": "float64"
+  },
+  "runtime": {
+    "torch_manual_seed": 0,
+    "torch_deterministic_algorithms": true,
+    "torch_num_threads": 1,
+    "tf32": false,
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8"
+  },
+  "config": {
+    "width": 0.6,
+    "rotation_bias": 1.0,
+    "max_gaussians": 12,
+    "temperature_K": 150.0,
+    "fmax": 0.03,
+    "relax_steps": 1000,
+    "fd_step": 0.001,
+    "rotation_hvp": 39,
+    "rotation_tol": 0.02,
+    "forward_force": 0.1,
+    "direction_sampling": "global",
+    "rotation_solver": "broyden-euclidean",
+    "cluster_frame": "direction_only",
+    "quench_optimizer": "safe-lbfgs-total",
+    "lbfgs_memory": 500,
+    "bias_stage_steps": null,
+    "bias_fmax": 0.1,
+    "pre_rotation_hvp": null,
+    "rotation_exit_policy": "force_or_budget"
+  },
+  "native_mc": {
+    "energy_tol_eV": 0.1,
+    "maxtrap": 99999
+  },
+  "inputs": {
+    "c60_17093-first": {
+      "path": "inputs/c60_17093-first.traj",
+      "sha256": "45d2d67f3e6776864b0a662dc445952bb5cbde1e2443164eb8120936dce577f6",
+      "seed": 17093,
+      "source_energy_eV": -62150.683820783015,
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/mh1-equal-budget-rotation-20260920/inputs/c60_17093-first.traj"
+    },
+    "c60_17094-first": {
+      "path": "inputs/c60_17094-first.traj",
+      "sha256": "2021dced41cb1cfef54332baf2c0bc0367c32a56c99a6d5b0a1020d7d98d1ecc",
+      "seed": 17094,
+      "source_energy_eV": -62153.3532225811,
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/mh1-equal-budget-rotation-20260920/inputs/c60_17094-first.traj"
+    }
+  },
+  "arms": [
+    "native_ls"
+  ],
+  "steps": 100,
+  "search_cap_per_arm": 12000,
+  "fresh_cap_per_arm": 101,
+  "total_cap_per_arm": 12101,
+  "wall_seconds_per_arm": 900,
+  "budget_slices": [
+    3000,
+    6000,
+    12000
+  ],
+  "native_ls": {
+    "bond_energies": {
+      "6,6": 3.4468400478363037
+    },
+    "bond_lengths": {
+      "6,6": 1.5399999618530273
+    },
+    "scale": 5.0,
+    "amp_c": 2.0,
+    "length_tolerance": 0.1,
+    "target_mev_per_atom": 20.0,
+    "eta": 0.005,
+    "max_change": 0.01,
+    "frequency": 10,
+    "presteps": 100,
+    "cycle": 100,
+    "ratio": 1.100000023841858,
+    "lselfadapt": true,
+    "bond_geometry": "native-mic",
+    "prequench": {
+      "fmax": 0.1,
+      "steps": 50,
+      "exit_policy": "force_or_step_limit"
+    },
+    "parameter_source": "run_c60_fixed_budget.py native-ls variant; C-C release lookup and recovered-materials .1/50 prequench protocol; not C60 fitting or exact native LASP LS/stage-exit parity"
+  },
+  "parameter_source": "Single factor is enabling NativeLSSettings. Baseline, rotation, native MC, inputs, seeds, frozen source, and budgets are inherited from mh1-equal-budget-rotation-20260920.",
+  "success_rule": "Report fresh force qualification, MH1 reference energy, cage graph criteria, labelled graph counts, costs, denials, and failures separately; do not infer basin identity or native-force parity.",
+  "total_search_cap": 24000,
+  "total_fresh_cap": 202,
+  "provenance": {
+    "frozen_source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/mh1-equal-budget-rotation-20260920/source",
+    "frozen_runner": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/mh1-equal-budget-rotation-20260920/runner.py",
+    "frozen_ledger_helper": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/mh1-equal-budget-rotation-20260920/ledger_helpers.py",
+    "no_current_core_copy": true,
+    "baseline_result": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/mh1-equal-budget-rotation-20260920"
+  },
+  "budget_status": "principal_agent_approved_routine_mainline_validation",
+  "decision_to_execute": "Existing LS complete-path capability requires its own MH1 C60 test regardless of height ranking. Baseline kept fixed; no height/CBD combination. Sequential after height refinement to bound GPU concurrency.",
+  "hypotheses": [
+    "Local softening enables lower-energy rearrangements within the same full E/F budget",
+    "Soft-surface prequench and extra real quenching consume budget without improving qualified low-energy discovery"
+  ],
+  "decision_rule": "Do not tune the two development inputs; report preprocessing/update activity, failures, costs, and qualified minima separately. No universal default or independent success-rate claim."
+}

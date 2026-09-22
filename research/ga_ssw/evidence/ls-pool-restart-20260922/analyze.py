@@ -4,7 +4,8 @@ import sys
 from pathlib import Path
 
 root = Path(sys.argv[1])
-rows = json.loads((root / 'summary.json').read_text())
+sources = [root, *(Path(path) for path in sys.argv[2:])]
+rows = [row for source in sources for row in json.loads((source / 'summary.json').read_text())]
 summary = []
 for row in rows:
     selections = row.get('committed_selections', [])
@@ -27,7 +28,7 @@ for row in rows:
         search_requests=row.get('search_requests'),fresh_requests=row.get('fresh_requests',0),
         total_ef=row['total_ef'],restarts=restarts,fresh_count=len(fresh),
         fresh_qualified=qualified,boundary=row.get('boundary'),error=row.get('error')))
-output=dict(expected_arms=4,observed_arms=len(summary),complete=len(summary)==4,runs=summary,total_ef=sum(r['total_ef'] for r in summary),
+output=dict(input_summaries=[str(source / "summary.json") for source in sources],expected_arms=4,observed_arms=len(summary),complete=len(summary)==4,runs=summary,total_ef=sum(r['total_ef'] for r in summary),
     budget=12000,within_budget=sum(r['total_ef'] for r in summary)<=12000,
     interpretation='Interface and numerical qualification only. No global-search efficiency claim.')
 (root/'analysis.json').write_text(json.dumps(output,indent=2)+'\n')

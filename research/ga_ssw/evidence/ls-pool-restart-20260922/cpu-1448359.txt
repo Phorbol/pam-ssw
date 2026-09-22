@@ -1,0 +1,46 @@
+FF..................................................                     [100%]
+=================================== FAILURES ===================================
+________________ test_pool_restart_prepares_ls_before_direction ________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x59ee787ce90>
+
+    def test_pool_restart_prepares_ls_before_direction(monkeypatch):
+        import pamssw.standalone.paper_reference as paper
+    
+        calls = []
+        frozen = object()
+        response = object()
+    
+        def initialize_ls(atoms, settings):
+            calls.append(('ls', atoms.copy()))
+            return frozen, response
+    
+        class Controller:
+            def __init__(self, settings):
+                self.settings = settings
+    
+            def initialize(self, source, minimum, rng):
+                calls.append(('direction', source.copy(), minimum.copy()))
+    
+>       monkeypatch.setattr(paper, '_initialize_ls_state', initialize_ls)
+E       AttributeError: <module 'pamssw.standalone.paper_reference' from '/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/pamssw/standalone/paper_reference.py'> has no attribute '_initialize_ls_state'
+
+tests/standalone/test_ls_pool_restart.py:24: AttributeError
+_____________ test_pool_restart_does_not_hide_initializer_failure ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x59ee787d280>
+
+    def test_pool_restart_does_not_hide_initializer_failure(monkeypatch):
+        import pamssw.standalone.paper_reference as paper
+    
+        def fail(atoms, settings):
+            raise ValueError('new LS domain is invalid')
+    
+>       monkeypatch.setattr(paper, '_initialize_ls_state', fail)
+E       AttributeError: <module 'pamssw.standalone.paper_reference' from '/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/pamssw/standalone/paper_reference.py'> has no attribute '_initialize_ls_state'
+
+tests/standalone/test_ls_pool_restart.py:48: AttributeError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_ls_pool_restart.py::test_pool_restart_prepares_ls_before_direction
+FAILED tests/standalone/test_ls_pool_restart.py::test_pool_restart_does_not_hide_initializer_failure
+2 failed, 50 passed in 14.46s

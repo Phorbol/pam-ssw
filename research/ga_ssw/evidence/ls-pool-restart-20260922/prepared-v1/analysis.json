@@ -1,0 +1,66 @@
+{
+  "expected_arms": 4,
+  "observed_arms": 2,
+  "complete": false,
+  "runs": [
+    {
+      "case": "c60_17093",
+      "arm": "transparent_none",
+      "status": "evaluation_failed",
+      "search_requests": 2990,
+      "fresh_requests": 4,
+      "total_ef": 2994,
+      "restarts": [],
+      "fresh_count": 4,
+      "fresh_qualified": 4,
+      "boundary": "request_cap",
+      "error": null
+    },
+    {
+      "case": "c60_17093",
+      "arm": "deterministic_other_index",
+      "status": "completed",
+      "search_requests": 1768,
+      "fresh_requests": 4,
+      "total_ef": 1772,
+      "restarts": [
+        {
+          "step": 0,
+          "chosen": 0,
+          "ls_reinitialized": true,
+          "next_update_step": 1,
+          "next_local_step_one": true
+        },
+        {
+          "step": 1,
+          "chosen": 0,
+          "ls_reinitialized": true,
+          "next_update_step": 1,
+          "next_local_step_one": true
+        },
+        {
+          "step": 2,
+          "chosen": 0,
+          "ls_reinitialized": true,
+          "next_update_step": 1,
+          "next_local_step_one": true
+        },
+        {
+          "step": 3,
+          "chosen": 0,
+          "ls_reinitialized": true,
+          "next_update_step": null,
+          "next_local_step_one": false
+        }
+      ],
+      "fresh_count": 4,
+      "fresh_qualified": 4,
+      "boundary": null,
+      "error": null
+    }
+  ],
+  "total_ef": 4766,
+  "budget": 12000,
+  "within_budget": true,
+  "interpretation": "Interface and numerical qualification only. No global-search efficiency claim."
+}

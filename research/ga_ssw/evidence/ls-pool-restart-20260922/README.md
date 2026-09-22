@@ -57,5 +57,38 @@ config field. GPU1448487 completes ONLY the unrun TiO2 arms using the already
 archived execution.json; no C60 rerun. prepared-v2 explicitly records its parent
 run, previous cost and6000 remaining cap (combined maximum10766). A preparation
 check now rejects missing config/LS before GPU submission. Original script,
-error and results remain in prepared-v1. Final combined GPU analysis is pending. Do not infer search benefits,
+error and results remain in prepared-v1. Final combined analysis has all4 arms, total9146 E/F, within12000. Do not infer search benefits,
 long-budget stability or production qualification from the short protocol.
+
+
+## Final real-system result
+
+| Case / selector | Search E/F | Independent E/F | Status | Committed LS restarts | Next local update1 |
+|---|---:|---:|---|---:|---:|
+| C60 / transparent |2990|4|request-cap truncation|0|not applicable|
+| C60 / other index |1768|4|completed|4|3/3 observable continuations|
+| anatase / transparent |2431|4|completed|0|not applicable|
+| anatase / other index |1941|4|completed|4|3/3 observable continuations|
+
+Total9130 search+16 independent=9146. Every independent check passes finite
+energy/force, fmax<=0.03eV/Angstrom, exact composition/cell/PBC preservation.
+Only the first4 observations per arm were independently force-checked, per
+frozen protocol. Last-step restarts have no next step and are not counted as
+continued-use evidence. Observation indices are not certified distinct basins.
+The transparent C60 arm did not complete4 outer attempts within its cap;
+therefore these totals cannot support an efficiency ranking. The other-index
+selector is a diagnostic, not a new PAM scoring rule or a default recommendation.
+
+Combined readout command (JSON metadata only):
+`python analyze.py prepared-v2 prepared-v1` from this directory.
+`prepared-v2/analysis.json` names both source summaries. `export_results.py`,
+run by `export.sbatch` on CPU, exports every saved observation and current
+structure without PES calls and checks the complete search ledger and topology.
+Pickles and full frozen source remain local; Git carries results, trajectories,
+configuration sources, source manifests and executable runners.
+
+Decision: retain the approved optional LS+pool interface and corrected actual
+restart reporting. Keep default MC and all physical/search parameters unchanged.
+No general LS/pool search benefit or production-scale validation is claimed.
+Next public-design boundary is the separately proposed pool checkpoint state
+contract; its current guard remains until user approval.

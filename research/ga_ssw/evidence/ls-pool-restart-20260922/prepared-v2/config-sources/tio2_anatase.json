@@ -1,0 +1,62 @@
+{
+  "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/mh1-native-ls-equal-budget-20260920/source",
+  "model": "/home/gengjianrui/.cache/mace/mace-omat-0-small.model",
+  "head": "omat_pbe",
+  "config": {
+    "width": 0.1,
+    "rotation_bias": 100.0,
+    "max_gaussians": 25,
+    "temperature_K": 150.0,
+    "fmax": 0.03,
+    "relax_steps": 400,
+    "fd_step": 0.0001,
+    "rotation_hvp": 100,
+    "rotation_tol": 0.02,
+    "forward_force": 0.1,
+    "direction_sampling": "global",
+    "rotation_solver": "ritz",
+    "cluster_frame": "translation_only",
+    "quench_optimizer": "safe-lbfgs-total",
+    "lbfgs_memory": null,
+    "bias_stage_steps": null,
+    "bias_fmax": 0.1,
+    "pre_rotation_hvp": null,
+    "rotation_exit_policy": "force"
+  },
+  "ls": {
+    "bond_energies": {
+      "(22, 22)": 3.6298000812530518,
+      "(22, 8)": 3.6298000812530518,
+      "(8, 8)": 1.515779972076416
+    },
+    "bond_lengths": {
+      "(22, 22)": 1.899999976158142,
+      "(22, 8)": 1.9429999589920044,
+      "(8, 8)": 1.4800000190734863
+    },
+    "scale": 5.0,
+    "energy_filter": null,
+    "length_filter": null,
+    "atom_filter": null,
+    "amp_c": 2.0,
+    "length_tolerance": 0.1,
+    "target_mev_per_atom": 20.0,
+    "eta": 0.005,
+    "max_change": 0.01,
+    "frequency": 10,
+    "presteps": 100,
+    "cycle": 100,
+    "ratio": 1.100000023841858,
+    "lselfadapt": true,
+    "bond_geometry": "native-mic",
+    "prequench": {
+      "fmax": 0.1,
+      "steps": 50,
+      "exit_policy": "force_or_step_limit"
+    }
+  },
+  "steps": 3,
+  "seed": 11,
+  "search_cap_per_case": 3000,
+  "fresh_cap_per_case": 4
+}

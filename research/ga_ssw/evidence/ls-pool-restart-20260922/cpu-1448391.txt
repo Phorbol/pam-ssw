@@ -1,0 +1,20 @@
+..F.....................................................                 [100%]
+=================================== FAILURES ===================================
+_______ test_pool_selector_none_and_current_index_preserve_ls_trajectory _______
+
+    def test_pool_selector_none_and_current_index_preserve_ls_trajectory():
+        baseline = _run_selector('none')
+        explicit_none = _run_selector(None)
+        current_index = _run_selector(0)
+    
+        for result in (explicit_none, current_index):
+            assert result.status == baseline.status == 'completed'
+>           assert result.evaluation_requests == baseline.evaluation_requests
+E           AssertionError: assert 64 == 67
+E            +  where 64 = SSWResult(initial=QuenchResult(atoms=Atoms(symbols='Cu13', pbc=False, tags=...), energy=9.3613579583515, max_force=0.0..., 'direction_reinitialized': False})), evaluation_requests=64, status='completed', checkpoint=None, identity_view=None).evaluation_requests
+E            +  and   67 = SSWResult(initial=QuenchResult(atoms=Atoms(symbols='Cu13', pbc=False, tags=...), energy=9.3613579583515, max_force=0.0...9496833237), starter_selection=None)), evaluation_requests=67, status='completed', checkpoint=None, identity_view=None).evaluation_requests
+
+tests/standalone/test_ls_pool_restart.py:98: AssertionError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_ls_pool_restart.py::test_pool_selector_none_and_current_index_preserve_ls_trajectory
+1 failed, 55 passed in 5.37s
