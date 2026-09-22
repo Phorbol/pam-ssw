@@ -20,6 +20,21 @@ def adapter(mode='uniform'):
     return PoolStarterAdapter(mode=mode, energy_tol=.001, rmsd_tol=.1)
 
 
+def assert_payload_equal(lhs, rhs):
+    if isinstance(lhs, np.ndarray):
+        assert isinstance(rhs, np.ndarray) and np.array_equal(lhs, rhs)
+    elif isinstance(lhs, dict):
+        assert lhs.keys() == rhs.keys()
+        for key in lhs:
+            assert_payload_equal(lhs[key], rhs[key])
+    elif isinstance(lhs, (tuple, list)):
+        assert len(lhs) == len(rhs)
+        for left, right in zip(lhs, rhs):
+            assert_payload_equal(left, right)
+    else:
+        assert lhs == rhs
+
+
 class Choose:
     def __init__(self, value): self.value=value; self.sizes=[]
     def integers(self, size): self.sizes.append(size); return self.value
@@ -126,3 +141,47 @@ def test_finalize_does_not_credit_uncommitted_ls_restart_request():
     assert report['attempts'][0]['status']=='starter_selection_failed'
     assert report['decisions'][0]['chosen_index'] == 1
     assert report['decisions'][0]['actual_index'] == 0
+
+
+def test_checkpoint_payload_is_explicit_and_restores_continuation():
+    a = adapter('uniform')
+    items = tuple(observation(i, i, -i) for i in range(3))
+    assert a(StarterPoolSnapshot(items[:2], 0, 1, 0, 3), Choose(1)) == 1
+    payload = a.export_state()
+    contract = a.checkpoint_contract()
+    assert payload['version'] == 1
+    assert payload['contract'] == contract
+    assert isinstance(payload['archive']['entries'][0]['state']['numbers'], np.ndarray)
+    assert payload['archive']['entries'][0]['state']['pbc'] == (False, False, False)
+    assert 'calculator' not in repr(payload)
+
+    restored = adapter('uniform')
+    restored.restore_state(payload)
+    assert_payload_equal(restored.export_state(), payload)
+    expected = a(StarterPoolSnapshot(items, 1, 2, 1, 5), Choose(1))
+    actual = restored(StarterPoolSnapshot(items, 1, 2, 1, 5), Choose(1))
+    assert actual == expected
+    assert_payload_equal(restored.export_state(), a.export_state())
+
+
+def test_checkpoint_rejects_finalized_adapter():
+    a = adapter()
+    o = observation(0, 0)
+    result = NS(initial=minimum(o), minima=(minimum(o),), records=(), evaluation_requests=1)
+    a.finalize(result)
+    with pytest.raises(ValueError, match='finalized'):
+        a.export_state()
+    with pytest.raises(ValueError, match='finalized'):
+        a.restore_state({'version': 1})
+
+
+def test_checkpoint_contract_mismatch_does_not_mutate_adapter():
+    source = adapter('uniform')
+    o = observation(0, 0)
+    source(StarterPoolSnapshot((o,), 0, None, 0, 1), Choose(0))
+    payload = source.export_state()
+    target = adapter('pam')
+    before = target.export_state()
+    with pytest.raises(ValueError, match='contract'):
+        target.restore_state(payload)
+    assert_payload_equal(target.export_state(), before)

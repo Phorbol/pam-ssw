@@ -5,13 +5,20 @@ adapter is limited to unconstrained inputs and is not a checkpoint/session API.
 """
 from __future__ import annotations
 
+import copy
+from collections.abc import Mapping
+
+import numpy as np
+
 from pamssw.acquisition import BanditSelector, ProposalOutcome, ProposalScorer
-from pamssw.archive import MinimaArchive
+from pamssw.archive import ArchivePrototype, MinimaArchive, MinimaEntry
 from pamssw.fingerprint import structural_descriptor
 from pamssw.state import State
 
 
 class PoolStarterAdapter:
+    CHECKPOINT_VERSION = 1
+
     def __init__(self, *, mode, energy_tol, rmsd_tol):
         if mode not in ('uniform', 'pam'):
             raise ValueError('mode must be uniform or pam')
@@ -26,6 +33,167 @@ class PoolStarterAdapter:
         self._source = None
         self._executed = 0
         self._finalized = False
+
+    @staticmethod
+    def _state_payload(state):
+        return {
+            'numbers': state.numbers.copy(), 'positions': state.positions.copy(),
+            'cell': None if state.cell is None else state.cell.copy(),
+            'pbc': tuple(state.pbc), 'fixed_mask': state.fixed_mask.copy(),
+            'metadata': copy.deepcopy(state.metadata),
+        }
+
+    @staticmethod
+    def _state_from_payload(payload):
+        if not isinstance(payload, Mapping):
+            raise ValueError('checkpoint state must be a mapping')
+        required = ('numbers', 'positions', 'cell', 'pbc', 'fixed_mask', 'metadata')
+        if any(key not in payload for key in required):
+            raise ValueError('checkpoint state is incomplete')
+        return State(numbers=np.asarray(payload['numbers'], dtype=int).copy(),
+                     positions=np.asarray(payload['positions'], dtype=float).copy(),
+                     cell=None if payload['cell'] is None else np.asarray(payload['cell'], dtype=float).copy(),
+                     pbc=tuple(payload['pbc']),
+                     fixed_mask=np.asarray(payload['fixed_mask'], dtype=bool).copy(),
+                     metadata=copy.deepcopy(payload['metadata']))
+
+    @staticmethod
+    def _policy_payload(policy):
+        return {key: getattr(policy, key) for key in (
+            'archive_density_weight', 'novelty_weight', 'frontier_weight',
+            'exploration_weight', 'baseline_probability', 'beta_energy')}
+
+    def checkpoint_contract(self):
+        """Return the pure configuration identity required for restoration."""
+        policy = self.selector.policy
+        return {
+            'version': self.CHECKPOINT_VERSION,
+            'mode': self.mode,
+            'archive': {
+                'energy_tol': self.archive.energy_tol,
+                'rmsd_tol': self.archive.rmsd_tol,
+                'max_prototypes': self.archive.max_prototypes,
+                'cell_tol': self.archive.cell_tol,
+            },
+            'scorer': {
+                'mode': self.scorer.mode.value,
+                'near_energy_window': self.scorer.near_energy_window,
+            },
+            'selector': {'policy': self._policy_payload(policy)},
+        }
+
+    def export_state(self):
+        """Export adapter state as explicit data, without strategy instances."""
+        if self._finalized:
+            raise ValueError('cannot export finalized pool adapter')
+        entries = []
+        for entry in self.archive.entries:
+            entries.append({
+                'entry_id': entry.entry_id, 'state': self._state_payload(entry.state),
+                'energy': entry.energy, 'parent_id': entry.parent_id, 'visits': entry.visits,
+                'descriptor': None if entry.descriptor is None else entry.descriptor.copy(),
+                'node_trials': entry.node_trials, 'node_successes': entry.node_successes,
+                'frontier_value': entry.frontier_value, 'duplicate_hits': entry.duplicate_hits,
+                'node_duplicate_failures': entry.node_duplicate_failures,
+                'frontier_score': entry.frontier_score, 'is_frontier': entry.is_frontier,
+                'is_dead': entry.is_dead,
+            })
+        prototypes = [{
+            'descriptor': prototype.descriptor.copy(),
+            'representative_entry_id': prototype.representative_entry_id,
+            'weight': prototype.weight,
+        } for prototype in self.archive.prototypes]
+        outcomes = [dict(vars(outcome)) for outcome in self.outcomes]
+        return {
+            'version': self.CHECKPOINT_VERSION,
+            'contract': self.checkpoint_contract(),
+            'archive': {
+                'entries': entries, 'prototypes': prototypes,
+                'energy_mismatch_hits': self.archive.energy_mismatch_hits,
+                'max_energy_mismatch': self.archive.max_energy_mismatch,
+            },
+            'mapping': list(self.mapping),
+            'representatives': dict(self.representatives),
+            'outcomes': outcomes,
+            'decisions': copy.deepcopy(self.decisions),
+            'source': self._source,
+            'executed': self._executed,
+            'finalized': self._finalized,
+        }
+
+    @staticmethod
+    def _require_mapping(value, label):
+        if not isinstance(value, Mapping):
+            raise ValueError(f'checkpoint {label} must be a mapping')
+        return value
+
+    def restore_state(self, payload):
+        """Validate and restore a prior adapter state atomically."""
+        if self._finalized:
+            raise ValueError('cannot restore finalized pool adapter')
+        payload = self._require_mapping(payload, 'payload')
+        if payload.get('version') != self.CHECKPOINT_VERSION:
+            raise ValueError('checkpoint version does not match')
+        if payload.get('finalized', False):
+            raise ValueError('cannot restore finalized pool adapter')
+        if payload.get('contract') != self.checkpoint_contract():
+            raise ValueError('checkpoint contract does not match adapter')
+        archive_payload = self._require_mapping(payload.get('archive'), 'archive')
+        archive = MinimaArchive(**self.checkpoint_contract()['archive'])
+        entries = []
+        for index, item in enumerate(archive_payload.get('entries', ())):
+            item = self._require_mapping(item, 'entry')
+            if item.get('entry_id') != index:
+                raise ValueError('checkpoint entry ids are not contiguous')
+            descriptor = item.get('descriptor')
+            entries.append(MinimaEntry(
+                entry_id=index, state=self._state_from_payload(item['state']),
+                energy=float(item['energy']), parent_id=item.get('parent_id'),
+                visits=int(item['visits']),
+                descriptor=None if descriptor is None else np.asarray(descriptor, dtype=float).copy(),
+                node_trials=int(item['node_trials']), node_successes=int(item['node_successes']),
+                frontier_value=float(item['frontier_value']), duplicate_hits=int(item['duplicate_hits']),
+                node_duplicate_failures=int(item['node_duplicate_failures']),
+                frontier_score=float(item['frontier_score']), is_frontier=bool(item['is_frontier']),
+                is_dead=bool(item['is_dead'])))
+        prototypes = []
+        for item in archive_payload.get('prototypes', ()):
+            item = self._require_mapping(item, 'prototype')
+            prototypes.append(ArchivePrototype(
+                descriptor=np.asarray(item['descriptor'], dtype=float).copy(),
+                representative_entry_id=int(item['representative_entry_id']),
+                weight=int(item['weight'])))
+        if any(prototype.representative_entry_id >= len(entries) for prototype in prototypes):
+            raise ValueError('checkpoint prototype references an unknown entry')
+        archive.entries = entries
+        archive.prototypes = prototypes
+        archive.energy_mismatch_hits = int(archive_payload.get('energy_mismatch_hits', 0))
+        archive.max_energy_mismatch = float(archive_payload.get('max_energy_mismatch', 0.0))
+        outcomes = [ProposalOutcome(**self._require_mapping(item, 'outcome'))
+                    for item in payload.get('outcomes', ())]
+        mapping = list(payload.get('mapping', ()))
+        if any(int(entry_id) < 0 or int(entry_id) >= len(entries) for entry_id in mapping):
+            raise ValueError('checkpoint mapping references an unknown entry')
+        representatives = dict(payload.get('representatives', {}))
+        if any(int(entry_id) not in mapping for entry_id in representatives):
+            raise ValueError('checkpoint representative references an unknown entry')
+        decisions = copy.deepcopy(list(payload.get('decisions', ())))
+        source = payload.get('source')
+        if source is not None and (int(source) < 0 or int(source) >= len(entries)):
+            raise ValueError('checkpoint source references an unknown entry')
+        executed = int(payload.get('executed', 0))
+        if executed < 0 or executed > len(decisions) + 1:
+            raise ValueError('checkpoint executed count is invalid')
+        # All parsing and validation above is complete before changing self.
+        self.archive = archive
+        self.mapping = mapping
+        self.representatives = representatives
+        self.outcomes = outcomes
+        self.decisions = decisions
+        self._source = source
+        self._executed = executed
+        self._finalized = False
+        return self
 
     def _insert(self, atoms, energy, parent):
         if atoms.constraints:
