@@ -20,6 +20,7 @@ from ase import Atoms
 
 from .ga_operators import _partition, propose_type3
 from .legacy_descriptor import (cluster_descriptor, descriptor_similarity,
+                                _full_fingerprint_order,
                                 energy_window, merge_archive, remove_duplicates)
 from .population import partition, rank_regions
 from .surface import QuenchResult, quench
@@ -144,6 +145,7 @@ class PaperGAResult:
 
 def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
                descriptor_bonds, descriptor_weights, neighbor_range,
+               descriptor_row_order='legacy_counts',
                proposal_bond_limits, config: PaperGAConfig, ssw_config,
                rng: np.random.Generator, ls=None, change_types=None,
                structure_validator: Callable[[Atoms], bool] | None = None,
@@ -193,6 +195,8 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
     """
     if not isinstance(config, PaperGAConfig):
         raise TypeError('config must be PaperGAConfig')
+    if descriptor_row_order not in ('legacy_counts', 'full_fingerprint'):
+        raise ValueError("descriptor_row_order must be 'legacy_counts' or 'full_fingerprint'")
     if checkpoint is not None and not isinstance(checkpoint, GACheckpoint):
         raise TypeError('checkpoint must be GACheckpoint or None')
     if checkpoint_callback is not None and not callable(checkpoint_callback):
@@ -281,7 +285,11 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
         raise ValueError('at least three frozen references required by the current partition implementation')
     # Verify descriptor configuration before spending any calculator requests.
     sample = cluster_descriptor(initial[0].numbers, initial[0].positions, descriptor_bonds, neighbor_range)
-    for reference in references:
+    ordered_references = references
+    if descriptor_row_order == 'full_fingerprint':
+        sample = _full_fingerprint_order(sample)
+        ordered_references = tuple(_full_fingerprint_order(reference) for reference in references)
+    for reference in ordered_references:
         descriptor_similarity(sample, reference, descriptor_weights)
 
     started = surface.requests
@@ -336,6 +344,8 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
             contract['mc'] = encoded(mc)
         if recovered_rotation is not None:
             contract['recovered_rotation'] = encoded(recovered_rotation)
+        if descriptor_row_order == 'full_fingerprint':
+            contract['descriptor_row_order'] = descriptor_row_order
         return contract
     if checkpoint is not None:
         if checkpoint.phase == 'quick_complete' and (checkpoint.cycle != 0 or checkpoint.generation != 0):
@@ -384,7 +394,10 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
             try:
                 descriptor = cluster_descriptor(result.atoms.numbers, result.atoms.positions,
                                                 descriptor_bonds, neighbor_range)
-                projection = tuple(descriptor_similarity(descriptor, ref, descriptor_weights) for ref in references)
+                if descriptor_row_order == 'full_fingerprint':
+                    descriptor = _full_fingerprint_order(descriptor)
+                projection = tuple(descriptor_similarity(descriptor, ref, descriptor_weights)
+                                   for ref in ordered_references)
                 if not np.isfinite(projection).all():
                     raise ValueError('projection is not finite')
                 if result.surface != 'true':

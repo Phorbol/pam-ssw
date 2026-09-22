@@ -6,9 +6,34 @@ Geometry support is currently the nonperiodic NNA branch only. Callers supply
 the original element-pair bond-length table; no physical defaults are invented.
 """
 from __future__ import annotations
+import copy
 import math
 from typing import Mapping, Sequence
 import numpy as np
+
+
+def _full_fingerprint_order(descriptor):
+    """Return an untouched descriptor copy ordered by every row component."""
+    fields = ('n1', 'n2', 'n3', 'd1', 'd2', 'd3')
+    if not isinstance(descriptor, Mapping) or any(field not in descriptor for field in fields):
+        raise TypeError('full_fingerprint ordering requires a complete descriptor mapping')
+    length = len(descriptor['n1'])
+    if any(len(descriptor[field]) != length for field in fields):
+        raise ValueError('descriptor fields have inconsistent row counts')
+
+    def fingerprint(index):
+        key = []
+        for field in fields:
+            value = descriptor[field][index]
+            if field in ('n1', 'n2', 'n3', 'd1'):
+                key.extend(value)
+            else:
+                key.append(value)
+        return tuple(key)
+
+    order = sorted(range(length), key=fingerprint)
+    return {field: [copy.deepcopy(descriptor[field][index]) for index in order]
+            for field in fields}
 
 
 def cluster_descriptor(numbers, positions, bond_lengths: Mapping, neighbor_range: float):
