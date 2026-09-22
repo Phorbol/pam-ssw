@@ -107,3 +107,19 @@ def test_failed_step_between_callbacks_still_charges_actual_source():
     assert [e['node_trials'] for e in report['entries']]==[1,2,0]
     assert report['qualified_discoveries']==2 and report['duplicates']==0
     assert [e['source_entry'] for e in report['attempts']]==[0,1,1]
+
+
+def test_finalize_does_not_credit_uncommitted_ls_restart_request():
+    a=adapter(); initial=observation(0,0); landing=observation(1,1,-1)
+    records=(NS(landing=minimum(landing), accepted=False,
+                status='starter_selection_failed', evaluation_requests=2,
+                starter_selection={'chosen_index':1, 'mc_current_index':0,
+                                   'restarted':False, 'ls_reinitialized':False}),
+             NS(landing=None, accepted=False, status='evaluation_failed',
+                evaluation_requests=3, starter_selection=None))
+    report=a.finalize(NS(initial=minimum(initial),
+                         minima=(minimum(initial), minimum(landing)),
+                         records=records, evaluation_requests=6))
+    assert [attempt['source_entry'] for attempt in report['attempts']]==[0,0]
+    assert [entry['node_trials'] for entry in report['entries']]==[2,0]
+    assert report['attempts'][0]['status']=='starter_selection_failed'

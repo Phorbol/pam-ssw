@@ -108,7 +108,12 @@ class PoolStarterAdapter:
             if qualified and record.accepted:
                 current = landing_index
             selection = getattr(record, 'starter_selection', None)
-            if selection is not None and selection['chosen_index'] is not None:
+            # ``chosen_index`` is the selector request.  The standalone SSW
+            # record is authoritative about whether that request committed;
+            # older records predate ``restarted`` and retain the historical
+            # successful-selection behavior.
+            if (selection is not None and selection['chosen_index'] is not None
+                    and selection.get('restarted', True)):
                 current = selection['chosen_index']
             attempts.append(dict(source_entry=source, status=record.status,
                                  qualified=qualified, landing_index=observed,
