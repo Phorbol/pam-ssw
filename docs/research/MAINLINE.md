@@ -8,7 +8,7 @@
 
 **已实现并验证用户批准的GA排序最小修复。** `run_ga_ssw(descriptor_row_order="full_fingerprint")`统一排序候选与参考副本，旧默认与旧checkpoint契约保留，跨模式恢复零PES拒绝。CPU1448187针对性44项通过，正式helper的六例water15合法重编号投影漂移均为零。CPU1448190复用三个既有Cu13/EMT极小值，两模式各完成完整GA流程及13次子代淬火，各2396搜索+26独立检查，52/52满足力与组分条件；未显示性能差异，不提升默认。此前短协议的父数不足/旋转失败和一次结果序列化失败均保留，未计入成功。详见[完整证据与限制](../../research/ga_ssw/evidence/ga-row-order-20260922/README.md)。
 
-**下一项待用户决定：** 接通LS与已批准的池选点时，是否采用“连续路径保留LS，显式池跳转重新初始化LS”的状态语义，见[既有最小方案](2026-09-22-ls-pool-state-proposal.md)。这是状态归属选择，不预设性能收益；已通过异步问题请求决定。GA论文公式疑点不猜测补齐，MACE特征、VC/RC不抢占主线。
+**当前已批准并在实施：** 接通LS与已批准的池选点时，采用“连续路径保留LS，显式池跳转重新初始化LS”的状态语义，见[既有最小方案](2026-09-22-ls-pool-state-proposal.md)。这是状态归属选择，不预设性能收益；用户已批准；并行开展最小实现及既有C60/MH-1、TiO2/OMAT-small有界验证准备。GA论文公式疑点不猜测补齐，MACE特征、VC/RC不抢占主线。
 
 三个独立开发worktree的首轮实现/证据已由主agent复核并收拢；子agent初稿中误读的Q常量和DCCD公式已纠正，未经审查的自报结果不计验收。当前证据入口：[S1与执行历史](../../research/ga_ssw/evidence/s1-cutoff-contract-20260922/README.md)、[LS调用语义](2026-09-22-native-ls-caller-semantics-audit.md)、[GA公式/路由审计](2026-09-22-ga-dccd-contract-audit.md)。
 

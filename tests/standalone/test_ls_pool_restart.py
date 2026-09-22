@@ -30,16 +30,16 @@ def _native_ls():
     return NativeLSSettings({(29, 29): 3.}, {(29, 29): 2.8}, scale=.1)
 
 
-def _run_selector(choice):
+def _run_selector(choice, rng):
     import pamssw.standalone.paper_reference as paper
     from pamssw.standalone.native_mc import NativeMCSettings
 
     return paper.run_ssw(
         Icosahedron('Cu', 2), _BoundedEMT(), steps=2,
-        config=_native_config(), rng=np.random.default_rng(7), ls=_native_ls(),
+        config=_native_config(), rng=rng, ls=_native_ls(),
         mc=NativeMCSettings(.1, 2),
         starter_selector=(None if choice == 'none' else
-                          (lambda snapshot, selector_rng: choice)),
+                          (lambda snapshot, selector_rng: snapshot.current_index if choice == "current" else choice)),
         selector_rng=(None if choice == 'none' else np.random.default_rng(8)))
 
 
@@ -89,9 +89,11 @@ def test_pool_restart_failure_keeps_previous_ls_state_and_records_failure(monkey
 
 
 def test_pool_selector_none_and_current_index_preserve_ls_trajectory():
-    baseline = _run_selector('none')
-    explicit_none = _run_selector(None)
-    current_index = _run_selector(0)
+    rngs = [np.random.default_rng(7) for _ in range(3)]
+    baseline = _run_selector('none', rngs[0])
+    explicit_none = _run_selector(None, rngs[1])
+    current_index = _run_selector('current', rngs[2])
+    assert rngs[0].bit_generator.state == rngs[1].bit_generator.state == rngs[2].bit_generator.state
 
     for result in (explicit_none, current_index):
         assert result.status == baseline.status == 'completed'
@@ -163,3 +165,33 @@ def test_pool_restart_does_not_hide_initializer_failure(monkeypatch):
         paper._prepare_pool_restart(
             Atoms('H', positions=[[1., 2., 3.]]), ls=object(),
             recovered_direction=object(), rng=np.random.default_rng(2))
+
+
+def test_paper_ls_pool_jump_uses_fresh_history_on_next_step(monkeypatch):
+    """Reuse existing Cu2 EMT LS fixture; coefficients are interface-test inputs."""
+    import pamssw.standalone.paper_reference as paper
+    from pamssw.standalone.softening import LSResponseState
+    from pamssw.standalone.surface import quench
+    from pamssw.standalone.native_mc import NativeMCSettings
+    from ase.optimize import BFGS
+
+    atoms = quench(Atoms('Cu2', positions=[[0, 0, 0], [2.7, 0, 0]]),
+                   _BoundedEMT(), fmax=1e-6, steps=100, optimizer=BFGS).atoms
+    config = paper.SSWConfig(width=.1, rotation_bias=2., max_gaussians=1,
+        temperature_K=300., fmax=1e-5, relax_steps=100, fd_step=1e-4,
+        rotation_hvp=8, rotation_tol=1e-3, direction_sampling='global')
+    settings = paper.LSSettings({(29, 29): 1.}, {(29, 29): 3.}, target_per_atom=.001)
+    seen = []
+    original = LSResponseState.update
+    def capture(self, frozen, next_atoms, **kwargs):
+        seen.append(self.steps)
+        return original(self, frozen, next_atoms, **kwargs)
+    monkeypatch.setattr(LSResponseState, 'update', capture)
+    monkeypatch.setattr(paper, 'native_metropolis',
+        lambda *args, **kwargs: type('Decision', (), {'state': kwargs['state'], 'accepted': False})())
+    result = paper.run_ssw(atoms, _BoundedEMT(), steps=2, config=config,
+        rng=np.random.default_rng(19), ls=settings, mc=NativeMCSettings(.1, 2),
+        starter_selector=lambda snapshot, rng: 1, selector_rng=np.random.default_rng(8))
+    assert result.status == 'completed'
+    assert seen == [0, 0]
+    assert [r.starter_selection['ls_reinitialized'] for r in result.records] == [True, False]

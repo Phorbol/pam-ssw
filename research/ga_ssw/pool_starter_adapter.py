@@ -97,7 +97,8 @@ class PoolStarterAdapter:
         current = 0
         landing_index = 0
         attempts = []
-        for record in result.records:
+        decisions_by_step = {decision['step']: decision for decision in self.decisions}
+        for step, record in enumerate(result.records):
             source = self.mapping[current]
             qualified = record.landing is not None and record.landing.converged
             observed = None
@@ -115,6 +116,10 @@ class PoolStarterAdapter:
             if (selection is not None and selection['chosen_index'] is not None
                     and selection.get('restarted', True)):
                 current = selection['chosen_index']
+            if step in decisions_by_step:
+                # The callback can only propose; finalized reporting uses the
+                # committed core state, including a failed LS initialization.
+                decisions_by_step[step]['actual_index'] = current
             attempts.append(dict(source_entry=source, status=record.status,
                                  qualified=qualified, landing_index=observed,
                                  evaluation_requests=record.evaluation_requests))

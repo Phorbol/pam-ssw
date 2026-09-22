@@ -122,6 +122,9 @@ def prepare(out):
         config_source = REPO / spec['config_source']
         if not config_source.exists():
             raise FileNotFoundError(config_source)
+        payload = json.loads(config_source.read_text())
+        if 'config' not in payload or not ('ls' in payload or 'native_ls' in payload):
+            raise ValueError(f'archived effective config/LS missing: {config_source}')
         config_target = out / 'config-sources' / (name + '.json')
         config_target.parent.mkdir(exist_ok=True)
         shutil.copy2(config_source, config_target)
@@ -144,8 +147,10 @@ def make_ls(spec, payload):
     values['bond_lengths'] = pairs(values['bond_lengths'])
     if values.get('prequench'):
         values['prequench'] = LSPrequenchSettings(**values['prequench'])
-    for key in ('energy_filter', 'length_filter', 'atom_filter', 'parameter_source'):
-        values.pop(key, None)
+    values.pop('parameter_source', None)
+    for key in ('energy_filter', 'length_filter'):
+        if values.get(key) is not None:
+            values[key] = pairs(values[key])
     return NativeLSSettings(**values)
 
 
@@ -183,7 +188,8 @@ def run_one(out, plan, name, arm):
                       starter_selector=selector,
                       selector_rng=np.random.default_rng(spec['seed'] + 1000003))
         if name.startswith('c60'):
-            kwargs['mc'] = NativeMCSettings(energy_tol_eV=.1, maxtrap=99999)
+            kwargs['mc'] = NativeMCSettings(energy_tol=config_payload['native_mc']['energy_tol_eV'],
+                                              maxtrap=config_payload['native_mc']['maxtrap'])
         result = run_ssw(**kwargs)
         with (folder / 'result.pkl').open('wb') as stream:
             pickle.dump(result, stream, protocol=4)
@@ -203,6 +209,8 @@ def run_one(out, plan, name, arm):
                 fresh.append({'index': index, 'energy_eV': energy,
                               'energy_error_eV': energy - minimum.energy,
                               'fmax_eV_A': float(np.linalg.norm(forces, axis=1).max()),
+                              'force_threshold_eV_A': config.fmax,
+                              'force_qualified': bool(np.linalg.norm(forces, axis=1).max() <= config.fmax),
                               'finite_energy': True, 'finite_forces': True,
                               'composition_unchanged': bool(np.array_equal(minimum.atoms.numbers, atoms.numbers)),
                               'cell_unchanged': bool(np.array_equal(minimum.atoms.cell.array, atoms.cell.array)),
@@ -213,7 +221,9 @@ def run_one(out, plan, name, arm):
                    minima=len(result.minima), restart_reached=bool(restarts),
                    restart_count=len(restarts), requested_selections=selector.decisions,
                    committed_selections=committed,
-                   ls_preparation=[getattr(r, 'ls_preparation', None) for r in result.records],
+                   ls_preparation=[None if r.ls_preparation is None else
+                       {k: v for k, v in r.ls_preparation.items() if k != 'soft_quench'}
+                       for r in result.records],
                    ls_updates=[getattr(r, 'ls_update', None) for r in result.records],
                    record_statuses=[r.status for r in result.records], fresh=fresh,
                    fresh_requests=fresh_surface.requests, total_ef=surface.requests + fresh_surface.requests)

@@ -111,6 +111,7 @@ def test_failed_step_between_callbacks_still_charges_actual_source():
 
 def test_finalize_does_not_credit_uncommitted_ls_restart_request():
     a=adapter(); initial=observation(0,0); landing=observation(1,1,-1)
+    assert a(StarterPoolSnapshot((initial, landing), 0, 1, 0, 3), Choose(1)) == 1
     records=(NS(landing=minimum(landing), accepted=False,
                 status='starter_selection_failed', evaluation_requests=2,
                 starter_selection={'chosen_index':1, 'mc_current_index':0,
@@ -123,3 +124,5 @@ def test_finalize_does_not_credit_uncommitted_ls_restart_request():
     assert [attempt['source_entry'] for attempt in report['attempts']]==[0,0]
     assert [entry['node_trials'] for entry in report['entries']]==[2,0]
     assert report['attempts'][0]['status']=='starter_selection_failed'
+    assert report['decisions'][0]['chosen_index'] == 1
+    assert report['decisions'][0]['actual_index'] == 0
