@@ -220,6 +220,7 @@ class SSWCheckpoint:
     native_mc_state: object = None
     recovered_rotation: object = None
     recovered_direction_state: object = None
+    pool_state: object = None
 
 
 def _checkpoint_copy(value):
@@ -238,7 +239,8 @@ def _checkpoint_copy(value):
             _checkpoint_copy(getattr(value, 'mc_settings', None)),
             _checkpoint_copy(getattr(value, 'native_mc_state', None)),
             _checkpoint_copy(getattr(value, 'recovered_rotation', None)),
-            _checkpoint_copy(getattr(value, 'recovered_direction_state', None)))
+            _checkpoint_copy(getattr(value, 'recovered_direction_state', None)),
+            _checkpoint_copy(getattr(value, 'pool_state', None)))
     if isinstance(value, Atoms):
         result = value.copy()
         result.calc = None
@@ -294,8 +296,16 @@ def save_ssw_checkpoint(path, checkpoint):
 def _validate_ssw_checkpoint(checkpoint):
     if not isinstance(checkpoint, SSWCheckpoint):
         raise TypeError('checkpoint must be SSWCheckpoint')
-    if checkpoint.schema_version not in (1, 2, 3, 4):
+    if checkpoint.schema_version not in (1, 2, 3, 4, 5):
         raise ValueError(f'unsupported SSW checkpoint schema {checkpoint.schema_version!r}')
+    pool_state = getattr(checkpoint, 'pool_state', None)
+    if checkpoint.schema_version == 5 and pool_state is None:
+        raise ValueError('schema 5 checkpoint requires pool state')
+    if checkpoint.schema_version < 5 and pool_state is not None:
+        raise ValueError('pool state requires checkpoint schema 5')
+    if pool_state is not None:
+        from .pool_checkpoint import _validate_pure
+        _validate_pure(pool_state)
     saved_mc = getattr(checkpoint, 'mc_settings', None)
     saved_mc_state = getattr(checkpoint, 'native_mc_state', None)
     if (saved_mc is None) != (saved_mc_state is None):
@@ -305,7 +315,7 @@ def _validate_ssw_checkpoint(checkpoint):
             raise ValueError('schema 2 checkpoint requires native MC settings')
         if not isinstance(getattr(checkpoint, 'native_mc_state', None), NativeMCState):
             raise ValueError('schema 2 checkpoint requires native MC state')
-    if checkpoint.schema_version in (3, 4) and saved_mc is not None:
+    if checkpoint.schema_version in (3, 4, 5) and saved_mc is not None:
         if not isinstance(checkpoint.mc_settings, NativeMCSettings):
             raise ValueError('schema 3 checkpoint has invalid native MC settings')
         if not isinstance(getattr(checkpoint, 'native_mc_state', None), NativeMCState):
@@ -313,19 +323,19 @@ def _validate_ssw_checkpoint(checkpoint):
     saved_rotation = getattr(checkpoint, 'recovered_rotation', None)
     if checkpoint.schema_version < 3 and saved_rotation is not None:
         raise ValueError('recovered rotation requires checkpoint schema 3')
-    if checkpoint.schema_version == 3:
+    if checkpoint.schema_version >= 3 and saved_rotation is not None:
         from .recovered_rotation import RecoveredRotationSettings
         if not isinstance(saved_rotation, RecoveredRotationSettings):
             raise ValueError('schema 3 checkpoint requires typed recovered rotation settings')
     saved_direction = getattr(checkpoint, 'recovered_direction_state', None)
     if checkpoint.schema_version < 4 and saved_direction is not None:
         raise ValueError('recovered direction requires checkpoint schema 4')
-    if checkpoint.schema_version == 4:
+    if checkpoint.schema_version >= 4 and saved_direction is not None:
         from .recovered_direction import RecoveredDirectionCheckpointState
         if not isinstance(saved_direction, RecoveredDirectionCheckpointState):
             raise ValueError('schema 4 checkpoint requires typed recovered direction state')
-        if saved_rotation is not None:
-            raise ValueError('schema 4 checkpoint cannot contain recovered rotation state')
+    if checkpoint.schema_version >= 4 and saved_direction is not None and saved_rotation is not None:
+        raise ValueError('checkpoint cannot contain both recovered rotation and direction state')
     initial_failure = checkpoint.status == 'ls_initialization_failed'
     indices = tuple(r.index for r in checkpoint.records)
     expected = (-1,) if initial_failure else tuple(range(checkpoint.next_index))
@@ -458,8 +468,8 @@ its cost includes initialization and failed work. A different selected
 observation reinitializes LS and recovered-direction state transactionally;
 failed restart preparation leaves the prior current/LS state in place and is
 recorded as a terminal selection failure. Selection errors otherwise propagate.
-``selector_rng`` must be an independent Generator. This experimental hook is
-incompatible with checkpointing. ``accepted`` remains the MC decision;
+``selector_rng`` must be an independent Generator. With checkpointing, the
+selector must expose the pure-data checkpoint contract methods. ``accepted`` remains the MC decision;
 ``starter_selection`` separately records the actual next-starter decision.
 
 No native program is called. Atoms/its calculator are not changed. The
@@ -500,8 +510,17 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
             raise ValueError('starter_selector requires an independent selector_rng Generator')
         if selector_rng is rng or selector_rng.bit_generator is rng.bit_generator:
             raise ValueError('selector_rng must be independent and must not share the main rng or bit_generator')
-        if checkpoint is not None or checkpoint_path is not None:
-            raise ValueError('starter_selector cannot combine with checkpointing')
+    pool_resume = checkpoint is not None and getattr(checkpoint, 'pool_state', None) is not None
+    pool_checkpoint = starter_selector is not None and (checkpoint_path is not None or pool_resume)
+    if pool_resume and starter_selector is None:
+        raise ValueError('pool checkpoint resume requires starter_selector')
+    if pool_checkpoint or pool_resume:
+        from .pool_checkpoint import _require_contract, _require_restore, _require_state
+        _require_contract(starter_selector)
+        _require_state(starter_selector)
+        _require_restore(starter_selector)
+    if checkpoint is not None and getattr(checkpoint, 'pool_state', None) is None and starter_selector is not None:
+        raise ValueError('checkpoint lacks pool selector state')
     if mc is not None and not isinstance(mc, NativeMCSettings):
         raise TypeError('mc must be NativeMCSettings or None')
     if mc is not None and config.temperature_K <= 0:
@@ -589,7 +608,7 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
         if mc is None and saved_mc:
             raise ValueError('native MC checkpoint requires native MC settings')
         if mc is not None:
-            if checkpoint.schema_version not in (2, 3, 4) or getattr(checkpoint, 'native_mc_state', None) is None:
+            if checkpoint.schema_version not in (2, 3, 4, 5) or getattr(checkpoint, 'native_mc_state', None) is None:
                 raise ValueError('checkpoint lacks native MC state')
             if getattr(checkpoint, 'mc_settings', None) != mc:
                 raise ValueError('checkpoint native MC settings do not match requested settings')
@@ -657,8 +676,15 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
         frozen = response = None
         start_index = 0
         prior_requests = 0
-    current_observation_index = 0
-    last_landing_index = None
+    pool_last_landing_index = None
+    if pool_resume:
+        from .pool_checkpoint import restore_pool_state
+        current_observation_index, pool_last_landing_index = restore_pool_state(
+            starter_selector, selector_rng, checkpoint.pool_state,
+            observation_count=len(minima))
+    else:
+        current_observation_index = 0
+    last_landing_index = pool_last_landing_index
     if direction_controller is not None:
         if checkpoint is None:
             direction_controller.initialize(atoms, current, rng)
@@ -669,6 +695,17 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
         from .minimum_identity import MinimumIdentityView, update_identity_view
         identity_view = MinimumIdentityView([], [], [], 0, 0)
         update_identity_view(identity_view, minima, structure_matcher)
+    pool_checkpoint_enabled = pool_checkpoint or pool_resume
+
+    def checkpoint_pool_state():
+        if not pool_checkpoint_enabled:
+            return None
+        from .pool_checkpoint import build_pool_state
+        return build_pool_state(
+            starter_selector, selector_rng,
+            current_index=current_observation_index,
+            last_landing_index=last_landing_index)
+
     if checkpoint is None and ls is not None:
         try:
             frozen, response = _initialize_ls_state(current, ls)
@@ -686,11 +723,12 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
                     _checkpoint_copy(gaussian_policy), height_update_budget, reconnect_distance,
                     deepcopy(rng.bit_generator.state), surface.requests - begin, 0, terminal,
                     identity_view=_checkpoint_copy(identity_view),
-                    schema_version=(4 if recovered_direction is not None else (3 if recovered_rotation is not None else (2 if mc is not None else 1))),
+                    schema_version=(5 if pool_checkpoint_enabled else (4 if recovered_direction is not None else (3 if recovered_rotation is not None else (2 if mc is not None else 1)))),
                     mc_settings=_checkpoint_copy(mc),
                     native_mc_state=_checkpoint_copy(native_mc_state),
                     recovered_rotation=_checkpoint_copy(recovered_rotation),
-                    recovered_direction_state=(None if direction_controller is None else _checkpoint_copy(direction_controller.checkpoint_state())))
+                    recovered_direction_state=(None if direction_controller is None else _checkpoint_copy(direction_controller.checkpoint_state())),
+                    pool_state=_checkpoint_copy(checkpoint_pool_state()))
                 save_ssw_checkpoint(checkpoint_path, cp)
             return SSWResult(initial, current.copy(), best.atoms.copy(), tuple(minima),
                              (record,), surface.requests-begin, terminal, cp, identity_view)
@@ -728,11 +766,12 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
                         _checkpoint_copy(gaussian_policy), height_update_budget, reconnect_distance,
                         deepcopy(rng.bit_generator.state), prior_requests + surface.requests - begin,
                         index + 1, run_status, identity_view=_checkpoint_copy(identity_view),
-                        schema_version=(4 if direction_controller is not None else (3 if recovered_rotation is not None else (2 if mc is not None else 1))),
+                        schema_version=(5 if pool_checkpoint_enabled else (4 if direction_controller is not None else (3 if recovered_rotation is not None else (2 if mc is not None else 1)))),
                         mc_settings=_checkpoint_copy(mc),
                         native_mc_state=_checkpoint_copy(native_mc_state),
                         recovered_rotation=_checkpoint_copy(recovered_rotation),
-                        recovered_direction_state=(None if direction_controller is None else _checkpoint_copy(direction_controller.checkpoint_state())))
+                        recovered_direction_state=(None if direction_controller is None else _checkpoint_copy(direction_controller.checkpoint_state())),
+                        pool_state=_checkpoint_copy(checkpoint_pool_state()))
                     if checkpoint_path is not None:
                         save_ssw_checkpoint(checkpoint_path, checkpoint_result)
                 break
@@ -1237,11 +1276,12 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
             height_update_budget, reconnect_distance, deepcopy(rng.bit_generator.state),
                 prior_requests + surface.requests - begin, index + 1, run_status,
                 identity_view=_checkpoint_copy(identity_view),
-                schema_version=(4 if direction_controller is not None else (3 if recovered_rotation is not None else (2 if mc is not None else 1))),
+                schema_version=(5 if pool_checkpoint_enabled else (4 if direction_controller is not None else (3 if recovered_rotation is not None else (2 if mc is not None else 1)))),
                 mc_settings=_checkpoint_copy(mc),
                 native_mc_state=_checkpoint_copy(native_mc_state),
                 recovered_rotation=_checkpoint_copy(recovered_rotation),
-                recovered_direction_state=(None if direction_controller is None else _checkpoint_copy(direction_controller.checkpoint_state())))
+                recovered_direction_state=(None if direction_controller is None else _checkpoint_copy(direction_controller.checkpoint_state())),
+                pool_state=_checkpoint_copy(checkpoint_pool_state()))
             if checkpoint_path is not None:
                 save_ssw_checkpoint(checkpoint_path, checkpoint_result)
         if run_status != 'completed':
@@ -1253,11 +1293,12 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
             _checkpoint_copy(gaussian_policy), height_update_budget, reconnect_distance,
             deepcopy(rng.bit_generator.state), prior_requests + surface.requests - begin, 0, run_status,
             identity_view=_checkpoint_copy(identity_view),
-            schema_version=(4 if direction_controller is not None else (3 if recovered_rotation is not None else (2 if mc is not None else 1))),
+            schema_version=(5 if pool_checkpoint_enabled else (4 if direction_controller is not None else (3 if recovered_rotation is not None else (2 if mc is not None else 1)))),
             mc_settings=_checkpoint_copy(mc),
             native_mc_state=_checkpoint_copy(native_mc_state),
             recovered_rotation=_checkpoint_copy(recovered_rotation),
-            recovered_direction_state=(None if direction_controller is None else _checkpoint_copy(direction_controller.checkpoint_state())))
+            recovered_direction_state=(None if direction_controller is None else _checkpoint_copy(direction_controller.checkpoint_state())),
+            pool_state=_checkpoint_copy(checkpoint_pool_state()))
         if checkpoint_path is not None:
             save_ssw_checkpoint(checkpoint_path, checkpoint_result)
     if checkpoint_path is not None and steps == 0 and checkpoint is not None:
