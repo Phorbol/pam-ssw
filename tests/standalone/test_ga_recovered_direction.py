@@ -45,12 +45,14 @@ def _config():
 
 
 def _call_kwargs(surface, atoms=None, **extra):
-    return dict(
+    options = dict(
         initial=[_atoms() if atoms is None else atoms], surface=surface,
         groups=((0, 1, 2), (3, 4, 5)), references=(0., 1., 2.),
         descriptor_bonds={(1, 1): 1.}, descriptor_weights=(1.,) * 6,
         neighbor_range=1.2, proposal_bond_limits={}, config=_config(),
-        ssw_config=_ssw(), rng=np.random.default_rng(3), **extra)
+        ssw_config=_ssw(), rng=np.random.default_rng(3))
+    options.update(extra)
+    return options
 
 
 def _run(monkeypatch, *, direction=None, checkpoint=None,
@@ -221,5 +223,6 @@ def test_real_walker_constructs_and_initializes_a_fresh_controller_per_walk(monk
         ssw_config=_ssw(), recovered_direction=_direction(),
         rng=np.random.default_rng(3))
     assert result.status in {'completed', 'completed_with_failures', 'no_eligible_minima'}
-    assert len(created) == len(initialized) == 2
-    assert created[0] is not created[1]
+    assert [stage.phase for stage in result.stages if stage.phase in {"quick", "fine"}] == ["quick", "quick", "fine"]
+    assert len(created) == len(initialized) == 3
+    assert len({id(controller) for controller in created}) == 3
