@@ -10,7 +10,11 @@
 
 **已接通并验证LS与池选点。** 用户批准的“连续保留LS、显式池跳转重新初始化LS”已实现；新LS/方向状态准备成功后才切换，失败保留旧状态。CPU1448441针对性66项通过，包含论文LS/原生LS、透明/当前索引、失败恢复、PAM适配器实际起点记账及旧checkpoint。GPU1448395+1448487共9146 E/F；C60/MH-1与anatase/OMAT-small各4次成功重启，全部6次可观察后续更新从局部step1开始，16/16独立力/组分/胞/PBC检查通过。C60透明臂预算截断；不以短诊断选点或费用差异宣称搜索更好。TiO2配置读取错误在零PES时修正，仅补未运行的两臂。详见[完整记录](../../research/ga_ssw/evidence/ls-pool-restart-20260922/README.md)。
 
-**已实现并完成池checkpoint阶段验收。** schema5统一保存核心LS/方向/MC、池状态及两套RNG，普通无契约回调仍拒绝恢复；旧schema1–4保留。独立审查及CPU1453209的64项通过。GPU1453252共5705搜索+8复核请求（含重复端点）：Cu2/Cu13 EMT和anatase/OMAT-small连续/分段严格一致；C60/MH-1与anatase各连续2步、首段1步、恢复1步均完成，但第一步在保存前已分叉，不能将终态差异归因于恢复，也不称C60逐轨迹一致。CPU1453291/1453299确认账本闭合和分叉时点，不追加精度调参。见[实现、结果和使用边界](../../research/ga_ssw/evidence/pool-checkpoint-20260923/README.md)。LS所选几何的有界静态核查补充了vtable/字段地址，仍未证明接受/拒绝后的指针生产者；无算法改动依据，停止该支线。下一步先核对已有GA及官方C60案例能否直接形成不新增参数的完整对照方案；Q完整库、MACE特征、VC/RC仍不抢占主线。
+**已实现并完成池checkpoint阶段验收。** schema5统一保存核心LS/方向/MC、池状态及两套RNG，普通无契约回调仍拒绝恢复；旧schema1–4保留。独立审查及CPU1453209的64项通过。GPU1453252共5705搜索+8复核请求（含重复端点）：Cu2/Cu13 EMT和anatase/OMAT-small连续/分段严格一致；C60/MH-1与anatase各连续2步、首段1步、恢复1步均完成，但第一步在保存前已分叉，不能将终态差异归因于恢复，也不称C60逐轨迹一致。CPU1453291/1453299确认账本闭合和分叉时点，不追加精度调参。见[实现、结果和使用边界](../../research/ga_ssw/evidence/pool-checkpoint-20260923/README.md)。LS所选几何的有界静态核查补充了vtable/字段地址，仍未证明接受/拒绝后的指针生产者；无算法改动依据，停止该支线。GA入口核对发现下述完整方向衔接缺口；Q完整库、MACE特征、VC/RC仍不抢占主线。
+
+**下一项待讨论：GA中完整方向记忆的归属。** `paper_ga.py`现有公开入口及统一walk helper只传`mc/recovered_rotation`，未传`recovered_direction`。建议最小接通完整方向设置到quick、offspring、generation_short、fine：每段walk内部保留pair/group/位移反馈；每次GA启动新walk重新初始化，沿用现有LS/MC每walk独立的契约，即使重新选到同一结构也不跨walk继承。备选是每个种群成员保存独立LS/方向状态并定义亲子继承，会扩大公共状态和checkpoint范围，当前不推荐。默认None和旧GA checkpoint保持原样；启用后的设置纳入已有contract比较，跨设置恢复在PES前拒绝。只保存GA阶段边界，不新增内层中断恢复。验收为四类walk转发/重启语义、旧checkpoint兼容与Cu13/EMT完整GA流程；不以短试验声称性能收益。本项状态归属先按用户AGENTS第8节讨论，尚未实现。
+
+C60官方包核对未找到可直接复用的完整GA初始种群/冻结参考/描述符参数组合；这不是独立ASE实现的永久阻塞，也不据此要求用户提供原版文件。后续需要把有来源的既有参数与独立参考生成协议明确分开，不能将单条C60 SSW配置冒充完整GA对照。
 
 三个独立开发worktree的首轮实现/证据已由主agent复核并收拢；子agent初稿中误读的Q常量和DCCD公式已纠正，未经审查的自报结果不计验收。当前证据入口：[S1与执行历史](../../research/ga_ssw/evidence/s1-cutoff-contract-20260922/README.md)、[LS调用语义](2026-09-22-native-ls-caller-semantics-audit.md)、[GA公式/路由审计](2026-09-22-ga-dccd-contract-audit.md)。
 
