@@ -79,10 +79,14 @@ def _projection(descriptor, references, weights):
     ]
 
 
-def _permuted(atoms):
-    # Reverse order is deterministic and exercises atom-label permutation.
+def _permuted(atoms, indices=None):
+    # An explicit permutation can preserve the molecular OHH ordering.
+    if indices is None:
+        indices = list(range(len(atoms) - 1, -1, -1))
+    if sorted(indices) != list(range(len(atoms))):
+        raise ValueError('indices must be a permutation of all atom indices')
     result = atoms.copy()
-    result = result[list(range(len(result) - 1, -1, -1))]
+    result = result[indices]
     result.calc = None
     return result
 
@@ -113,7 +117,9 @@ def audit_case(case):
         atoms = read(frame_path, index=frame_index)
         if bool(np.any(atoms.pbc)):
             raise ValueError(f"{frame_path}: periodic input is unsupported by cluster_descriptor")
-        permuted = _permuted(atoms)
+        permuted = _permuted(atoms, case.get('permutation'))
+        if case.get('preserve_ordered_species', False) and not np.array_equal(atoms.numbers, permuted.numbers):
+            raise ValueError('permutation violates the declared ordered species contract')
         original = cluster_descriptor(atoms.numbers, atoms.positions, bonds, neighbor_range)
         shuffled = cluster_descriptor(permuted.numbers, permuted.positions, bonds, neighbor_range)
         original_full = _full_sort(original)
@@ -137,6 +143,8 @@ def audit_case(case):
     return {
         "name": case["name"],
         "config": str(case["config"]),
+        "permutation": case.get('permutation', 'reverse_all'),
+        "preserve_ordered_species": case.get('preserve_ordered_species', False),
         "bond_lengths": config["bond_lengths"],
         "neighbor_range": neighbor_range,
         "weights": list(weights),

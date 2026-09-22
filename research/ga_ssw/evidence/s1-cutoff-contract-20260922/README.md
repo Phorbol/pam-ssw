@@ -1,4 +1,28 @@
-# S1 cutoff arithmetic verification: prepared, execution blocked
+# S1 and related contract checks: execution history and results
+
+## Completed follow-up checks
+
+CPU1447868 exited zero: `tests-1447868.txt` records four passing checks
+(three S1 radial/gradient/guard tests and the strengthened Cu13/EMT LS
+rejection regression). The explicit LS surface caps evaluation requests at
+500; the test output does not report an actual total, so none is inferred.
+The water15 permutation audit in the same job made zero PES calls.
+
+The arbitrary atom reversal changes ordered OHH topology. CPU1447885 then
+tested six legal TYPE3 permutations using `legal-permutation-manifest.json`:
+three saved geometries with whole molecules reversed, then the equivalent
+hydrogens exchanged within every OHH group. All preserve ordered species and
+the same contiguous group layout. All six raw projection drifts exceed the
+unchanged 0.0001 threshold; all six full-fingerprint-order drifts are zero.
+This is representation consistency, not six independent GA search successes.
+See [minimal design and results](../../../../docs/research/2026-09-22-ga-row-order-proposal.md).
+
+Both jobs used one CPU task, `CPU-MISC`, `rush-cpu`, `sjtu-caoxiaoming`, with
+a five-minute ceiling. Job1447868 is reproduced by `validate.sbatch`;
+job1447885 ran the same analysis module with the legal manifest and its own
+output path. Source base was `1ec2fe3`, plus the archived validation script
+and explicit-permutation extension included in the subsequent result commit.
+The earlier rejected submissions and import failure below remain recorded.
 
 ## 2026-09-22 16:48 follow-up
 

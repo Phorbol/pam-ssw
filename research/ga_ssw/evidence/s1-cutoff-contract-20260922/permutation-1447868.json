@@ -1,0 +1,67 @@
+{
+  "scope": "offline descriptor permutation audit; zero PES calls",
+  "manifest": "research/ga_ssw/legacy_permutation_manifest.json",
+  "cases": [
+    {
+      "name": "water15",
+      "config": "research/ga_ssw/evidence/independent-water-gfn2-ga-02/config.json",
+      "bond_lengths": {
+        "(1, 1)": 1.45548,
+        "(1, 8)": 1.362529,
+        "(8, 8)": 1.269578
+      },
+      "neighbor_range": 1.2,
+      "weights": [
+        0.3,
+        0.2,
+        0.2,
+        0.1,
+        0.1,
+        0.1
+      ],
+      "frames": [
+        {
+          "frame": "research/ga_ssw/evidence/independent-water-gfn2-ga-02/initial.extxyz",
+          "frame_index": 0,
+          "atoms": 45,
+          "raw_descriptor_equal": false,
+          "raw_projection_max_abs_delta": 0.0006052636945633461,
+          "raw_identity_same_at_tolerance": false,
+          "full_descriptor_equal": false,
+          "full_projection_max_abs_delta": 0.0,
+          "full_identity_same_at_tolerance": true,
+          "identity_tolerance": 0.0001
+        },
+        {
+          "frame": "research/ga_ssw/evidence/independent-water-gfn2-ga-02/initial.extxyz",
+          "frame_index": 1,
+          "atoms": 45,
+          "raw_descriptor_equal": false,
+          "raw_projection_max_abs_delta": 0.0007648792253917847,
+          "raw_identity_same_at_tolerance": false,
+          "full_descriptor_equal": true,
+          "full_projection_max_abs_delta": 0.0,
+          "full_identity_same_at_tolerance": true,
+          "identity_tolerance": 0.0001
+        },
+        {
+          "frame": "research/ga_ssw/evidence/independent-water-gfn2-ga-02/initial.extxyz",
+          "frame_index": 2,
+          "atoms": 45,
+          "raw_descriptor_equal": false,
+          "raw_projection_max_abs_delta": 0.0002901767315755255,
+          "raw_identity_same_at_tolerance": false,
+          "full_descriptor_equal": true,
+          "full_projection_max_abs_delta": 0.0,
+          "full_identity_same_at_tolerance": true,
+          "identity_tolerance": 0.0001
+        }
+      ]
+    }
+  ],
+  "interpretation": {
+    "raw": "legacy count-only row order; ties may drift under atom permutation",
+    "full": "experimental complete n/d row sort; not paper DCCD or Java parity",
+    "success_signal": "full_projection_max_abs_delta is zero within floating precision"
+  }
+}
