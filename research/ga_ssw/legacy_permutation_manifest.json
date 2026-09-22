@@ -1,0 +1,41 @@
+{
+  "purpose": "Bounded offline permutation audit; no calculator or PES calls",
+  "cases": [
+    {
+      "name": "water15",
+      "frames": [
+        {
+          "path": "research/ga_ssw/evidence/independent-water-gfn2-ga-02/initial.extxyz",
+          "index": 0
+        },
+        {
+          "path": "research/ga_ssw/evidence/independent-water-gfn2-ga-02/initial.extxyz",
+          "index": 1
+        },
+        {
+          "path": "research/ga_ssw/evidence/independent-water-gfn2-ga-02/initial.extxyz",
+          "index": 2
+        }
+      ],
+      "config": "research/ga_ssw/evidence/independent-water-gfn2-ga-02/config.json",
+      "neighbor_range": 1.2,
+      "neighbor_range_source": "tests/fixtures/ga_ssw/water.json:1",
+      "weights": [
+        0.3,
+        0.2,
+        0.2,
+        0.1,
+        0.1,
+        0.1
+      ],
+      "weights_source": "research/ga_ssw/evidence/independent-water-gfn2-ga-02/run_script.py:101",
+      "identity_tolerance": 0.0001,
+      "identity_tolerance_source": "config.json ga.projection_tolerance",
+      "frame_source": "Existing nonperiodic representations written by archived run_script.py:67-94; original ARC files set PBC=ON and are not passed directly."
+    }
+  ],
+  "unavailable_cases": {
+    "c60": "No saved GA config with legacy bond table, frozen references, weights, and neighbor range was found in this checkout.",
+    "cu55": "No saved GA config with legacy bond table, frozen references, weights, and neighbor range was found in this checkout."
+  }
+}

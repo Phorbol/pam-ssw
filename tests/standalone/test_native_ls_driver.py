@@ -72,6 +72,45 @@ def test_native_periodic_mic_prequench_failure_is_not_updated():
     assert r.evaluation_requests==s.requests==r.initial.evaluation_requests+r.records[0].evaluation_requests
 
 
+def test_native_ls_update_uses_selected_current_after_mc_rejection(monkeypatch):
+    """The paper-level caller updates LS against the MC-selected seed.
+
+    This pins the existing caller contract: a rejected qualified landing is
+    retained for diagnostics, but the next frozen LS potential is built from
+    the unchanged current minimum.
+    """
+    from dataclasses import replace
+    from ase.cluster.icosahedron import Icosahedron
+    import pamssw.standalone.paper_reference as paper
+    from pamssw.standalone.native_mc import NativeMCSettings
+    from pamssw.standalone.ls_native_reference import NativeLSRuntime, NativeLSSettings
+
+    seen = []
+    original = NativeLSRuntime.update
+
+    def capture(self, current, next_atoms, **kwargs):
+        seen.append(next_atoms.copy())
+        return original(self, current, next_atoms, **kwargs)
+
+    monkeypatch.setattr(NativeLSRuntime, 'update', capture)
+    monkeypatch.setattr(paper, 'native_metropolis',
+                        lambda *args, **kwargs: type('Decision', (), {
+                            'state': kwargs['state'], 'accepted': False})())
+    c = replace(config(), cluster_frame='direction_only', rotation_solver='ritz', temperature_K=300.)
+    ls = NativeLSSettings({(29,29): 3.}, {(29,29): 2.8}, scale=.1)
+    r = run_native_ls_ssw(Icosahedron('Cu', 2), Bounded(EMT()), steps=1,
+                          config=c, rng=np.random.default_rng(7), ls=ls,
+                          mc=NativeMCSettings(.1, 2))
+    assert len(seen) == 1 and not r.records[0].accepted
+    np.testing.assert_allclose(seen[0].positions, r.current.positions)
+    np.testing.assert_allclose(seen[0].positions, r.initial.atoms.positions)
+    assert r.records[0].landing is not None
+    assert not np.array_equal(seen[0].positions, r.records[0].landing.atoms.positions)
+    assert len(r.minima) == 2
+    np.testing.assert_allclose(r.minima[-1].atoms.positions,
+                               r.records[0].landing.atoms.positions)
+
+
 def test_true_quench_oracle_failure_keeps_completed_work_and_paid_cost(monkeypatch):
     from pamssw.standalone import paper_reference as module
     from dataclasses import replace
