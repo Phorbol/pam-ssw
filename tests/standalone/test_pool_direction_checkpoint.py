@@ -70,7 +70,7 @@ def _run(path, selector, selector_rng, *, steps, checkpoint=None,
         selector_rng=selector_rng, checkpoint_path=path, checkpoint=checkpoint)
 
 
-def test_schema5_direction_native_mc_split_restores_pool_and_direction_state(monkeypatch, tmp_path):
+def test_schema5_direction_native_mc_split_replays_success_and_terminal_failure(monkeypatch, tmp_path):
     full_selector = Selector()
     full = _run(tmp_path / 'full.pkl', full_selector, np.random.default_rng(23),
                 steps=2, monkeypatch=monkeypatch)
@@ -83,6 +83,17 @@ def test_schema5_direction_native_mc_split_restores_pool_and_direction_state(mon
     resumed = _run(split_path, resumed_selector, np.random.default_rng(999),
                     steps=1, checkpoint=checkpoint, monkeypatch=monkeypatch)
 
+    # This degenerate flat fixture reaches the existing native acos guard on
+    # its second outer step. Replay must preserve the failure, not hide it.
+    assert full.status == resumed.status == 'evaluation_failed'
+    assert full.records[0].error is None
+    assert full.records[1].error == resumed.records[1].error
+    assert 'native acos outside numerical domain' in full.records[1].error
+    assert full_selector.calls > 0
+    assert resumed.evaluation_requests == full.evaluation_requests
+    assert resumed.checkpoint.rng_state == full.checkpoint.rng_state
+    assert [r.starter_selection for r in resumed.records] == [r.starter_selection for r in full.records]
+    np.testing.assert_array_equal(resumed.current.positions, full.current.positions)
     assert resumed.checkpoint.pool_state['state'] == full.checkpoint.pool_state['state']
     assert resumed.checkpoint.pool_state['selector_rng_state'] == full.checkpoint.pool_state['selector_rng_state']
     assert resumed.checkpoint.recovered_direction_state.pair == full.checkpoint.recovered_direction_state.pair

@@ -323,14 +323,14 @@ def _validate_ssw_checkpoint(checkpoint):
     saved_rotation = getattr(checkpoint, 'recovered_rotation', None)
     if checkpoint.schema_version < 3 and saved_rotation is not None:
         raise ValueError('recovered rotation requires checkpoint schema 3')
-    if checkpoint.schema_version >= 3 and saved_rotation is not None:
+    if checkpoint.schema_version == 3 or saved_rotation is not None:
         from .recovered_rotation import RecoveredRotationSettings
         if not isinstance(saved_rotation, RecoveredRotationSettings):
             raise ValueError('schema 3 checkpoint requires typed recovered rotation settings')
     saved_direction = getattr(checkpoint, 'recovered_direction_state', None)
     if checkpoint.schema_version < 4 and saved_direction is not None:
         raise ValueError('recovered direction requires checkpoint schema 4')
-    if checkpoint.schema_version >= 4 and saved_direction is not None:
+    if checkpoint.schema_version == 4 or saved_direction is not None:
         from .recovered_direction import RecoveredDirectionCheckpointState
         if not isinstance(saved_direction, RecoveredDirectionCheckpointState):
             raise ValueError('schema 4 checkpoint requires typed recovered direction state')

@@ -93,7 +93,7 @@ def test_selector_requires_independent_rng_and_rejects_checkpoint(tmp_path):
         run_ssw(Atoms('H', positions=[[.1, .2, .3]]), _surface(), steps=0,
                 config=_config(), rng=np.random.default_rng(8),
                 starter_selector=lambda snapshot, selector_rng: None)
-    with pytest.raises(ValueError, match='checkpointing'):
+    with pytest.raises(ValueError, match='checkpoint_contract'):
         run_ssw(Atoms('H', positions=[[.1, .2, .3]]), _surface(), steps=0,
                 config=_config(), rng=np.random.default_rng(9),
                 checkpoint_path=tmp_path / 'cp.pkl',
