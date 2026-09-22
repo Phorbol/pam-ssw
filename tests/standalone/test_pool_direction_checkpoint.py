@@ -113,11 +113,15 @@ def test_schema5_terminal_checkpoint_is_not_resumable(monkeypatch, tmp_path):
                    monkeypatch=monkeypatch)
     checkpoint = load_ssw_checkpoint(path)
     assert result.status == 'mc_failed' and checkpoint.schema_version == 5
+    class UntouchedSelector(Selector):
+        def export_state(self):
+            raise AssertionError('terminal resume must not call selector export')
+
     surface = FlatSurface()
     with pytest.raises(ValueError, match='terminal checkpoint'):
         run_ssw(Icosahedron('Cu', 2), surface, steps=1, config=_config(),
                 rng=np.random.default_rng(19), recovered_direction=_direction_settings(),
-                mc=NativeMCSettings(.1, 99999), starter_selector=Selector(),
+                mc=NativeMCSettings(.1, 99999), starter_selector=UntouchedSelector(),
                 selector_rng=np.random.default_rng(23), checkpoint=checkpoint)
     assert surface.requests == 0
 

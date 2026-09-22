@@ -501,6 +501,10 @@ only global translations in direction refinement. No rotation removal, MIC bias,
 or cell optimization is performed. Physical E/F retain ASE PBC; the path bias
 lives on the continuous coordinate lift and must not be evaluated after wrapping.
 """
+    if checkpoint is not None:
+        _validate_ssw_checkpoint(checkpoint)
+        if checkpoint.status != 'completed':
+            raise ValueError(f'cannot resume terminal checkpoint with status {checkpoint.status!r}')
     if starter_selector is None and selector_rng is not None:
         raise ValueError('selector_rng requires starter_selector')
     if starter_selector is not None:
@@ -603,7 +607,6 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
     if not len(atoms) or not np.isfinite(masses).all() or np.any(masses <= 0):
         raise ValueError('finite positive masses required')
     if checkpoint is not None:
-        _validate_ssw_checkpoint(checkpoint)
         saved_mc = getattr(checkpoint, 'mc_settings', None) is not None
         if mc is None and saved_mc:
             raise ValueError('native MC checkpoint requires native MC settings')
@@ -625,8 +628,6 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
         validate_prequench_exit_policy(getattr(ls, 'prequench', None),
                                        optimizer=quench_optimizer)
     if checkpoint is not None:
-        if checkpoint.status != 'completed':
-            raise ValueError(f'cannot resume terminal checkpoint with status {checkpoint.status!r}')
         if checkpoint.config != config:
             raise ValueError('checkpoint SSWConfig does not match requested config')
         if getattr(checkpoint, 'recovered_rotation', None) != recovered_rotation:
