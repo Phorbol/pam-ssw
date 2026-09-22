@@ -1,0 +1,48 @@
+{
+  "status": "PREPARED_NOT_SUBMITTED",
+  "purpose": "Bounded interface qualification of LS with a persistent qualified-observation pool and explicit starter restart; no search-efficiency claim.",
+  "source_contract": "Approved 2026-09-22 LS-pool proposal: None keeps the current LS/controller state; a different qualified observation reinitializes LS on that geometry, resets local LS history, and records the restart.",
+  "arms": ["transparent_none", "deterministic_other_index"],
+  "cases": {
+    "c60_17093": {
+      "input_source": "research/ga_ssw/evidence/mh1-equal-budget-rotation-20260920/inputs/c60_17093-first.traj",
+      "input_sha256": "45d2d67f3e6776864b0a662dc445952bb5cbde1e2443164eb8120936dce577f6",
+      "seed": 17093,
+      "model": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+      "model_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+      "head": "omol",
+      "pbc_mode": "nonperiodic",
+      "config_source": "research/ga_ssw/evidence/mh1-native-ls-equal-budget-20260920/plan.json"
+    },
+    "tio2_anatase": {
+      "input_source": "research/ga_ssw/evidence/native-ls-tio2-lifecycle-20260920/anatase/input.json",
+      "input_sha256": "277a26241d1515cc07f9d9462810035d3d67003c8fe14d69f2373081e54ce66d",
+      "seed": 11,
+      "model": "/home/gengjianrui/.cache/mace/mace-omat-0-small.model",
+      "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+      "head": "omat_pbe",
+      "pbc_mode": "periodic_translation_only",
+      "config_source": "research/ga_ssw/evidence/native-ls-tio2-lifecycle-20260920/plan.json"
+    }
+  },
+  "outer_steps": 4,
+  "search_cap_per_arm": 2990,
+  "fresh_cap_per_arm": 10,
+  "total_ef_cap_per_arm": 3000,
+  "wall_seconds_per_arm": 180,
+  "gpu_limit": "1 V100; at most 30 minutes",
+  "runtime": {
+    "torch_manual_seed": 0,
+    "torch_deterministic_algorithms": true,
+    "torch_num_threads": 1,
+    "tf32": false,
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+    "dtype": "float64"
+  },
+  "fresh_checks": {
+    "per_arm_maxima": 4,
+    "required": ["finite_energy", "finite_forces", "composition_unchanged", "cell_unchanged", "pbc_unchanged"],
+    "force_threshold": "case SSWConfig.fmax; report value and result separately"
+  },
+  "interpretation": "Report actual starter_selection.restarted events, selected/current observation indices, LS preparation/update telemetry, status and costs. If no restart is reached, state that explicitly. Do not infer search efficiency or basin quality."
+}
