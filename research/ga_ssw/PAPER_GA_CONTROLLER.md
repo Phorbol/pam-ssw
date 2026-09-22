@@ -1,22 +1,22 @@
 # Independent three-stage Python/ASE GA-SSW controller
 
-`pamssw/standalone/paper_ga.py` connects the independent `paper_reference.run_ssw`, true-surface ASE quench, TYPE3 proposal implementation, projection archive, partition and region ranking. It calls no Java, LASP, subprocess, input-file generator or alternative potential.
+`pamssw/standalone/paper_ga.py` connects the independent `paper_reference.run_ssw`, true-surface ASE quench, TYPE0/TYPE3 proposal implementation, projection archive, partition and region ranking. It calls no Java, LASP, subprocess, input-file generator or alternative potential.
 
 ## Executed method and scope
 
 1. Every explicitly supplied initial Atoms is quenched on the true surface. Each eligible result seeds an explicitly budgeted quick walk.
-2. For each requested GA generation, partition the current archive, flatten selected parents in region order, generate real TYPE3 candidates, quench every returned offspring on the true surface, update the archive, then launch the explicitly budgeted short walks from region minima.
+2. For each requested GA generation, partition the current archive, flatten selected parents in region order, generate TYPE0 or TYPE3 candidates according to `proposal_type`, quench every returned offspring on the true surface, update the archive, then launch the explicitly budgeted short walks from region minima.
 3. Rank current regions and start at most the explicitly requested number of fine walks with the explicitly requested fine step count.
 
-The supplied SSWConfig is unchanged across these stages. There are no hidden temperature or step multipliers, no forced extra fine iteration, no division by nine and no inherited terminal appended to a sorted minimum list. This is a paper-level three-stage reference architecture, **not execution parity with the uploaded Java schedule**. SSW numerical differences are documented in `paper_reference.py`.
+The supplied SSWConfig is used across these stages; explicit `offspring_ssw_config` can override it for optional offspring walks. There are no hidden temperature or step multipliers, no forced extra fine iteration, no division by nine and no inherited terminal appended to a sorted minimum list. This is a paper-level three-stage reference architecture, **not execution parity with the uploaded Java schedule**. SSW numerical differences are documented in `paper_reference.py`.
 
 The available descriptors, KMeans and TYPE3 operations still follow separately recovered release semantics: this controller does not imply that the legacy descriptor is exactly the paper's permutation-invariant DCCD, or that KMeans equals the paper's grid-based partition. The configured energy window is applied globally after archive merging. Full observation history is retained separately, including observations outside that window.
 
-Supported structures: nonperiodic, unconstrained, complete explicit monomer partitions with fixed internal reconstruction flags (all changeType0). Controller inputs must already have contiguous monomer-group atom order matching the frozen references; this avoids silently reordering atoms behind the legacy descriptor. General TYPE0, periodic crystals, overlapping rigid-chain groups and changeType1 internal atom GA are outside scope. This is an executable controller for this supported subset, not universal validated GA-SSW.
+Supported structures: nonperiodic, unconstrained atomic clusters (`proposal_type=0`, `groups=None`) or complete explicit monomer partitions (`proposal_type=3`, fixed internal reconstruction flags, all changeType0). TYPE3 inputs must have contiguous monomer-group atom order matching the references. Periodic crystals, overlapping rigid-chain groups and changeType1 internal atom GA are outside this entry point's scope. This is not universal validated GA-SSW.
 
 ## Required configuration and API
 
-`run_ga_ssw(initial, surface, *, groups, references, descriptor_bonds, descriptor_weights, neighbor_range, proposal_bond_limits, config, ssw_config, rng, ls=None, structure_validator=None)`
+`run_ga_ssw` takes explicit structures, descriptor/reference data, `PaperGAConfig`, `SSWConfig`, a surface and RNG. See its signature for optional validation, policies and checkpoint controls.
 
 `PaperGAConfig` requires all these fields:
 
@@ -28,6 +28,14 @@ Supported structures: nonperiodic, unconstrained, complete explicit monomer part
 At least three frozen reference descriptors are currently required because the partition implementation uses the first three projection coordinates. The NNA bond-length table is separate from the proposal BLLimit table; neither receives invented physical defaults. `initial` geometries are supplied by the caller; the controller never constructs an unsolicited initial atomic model.
 
 Initial/offspring explicit quenching and the walker's own initial quenching are both executed and counted. This repeats a small stationarity check at walk entry, rather than pretending it was free. The walker may use a different configured tolerance, but archive admission additionally requires `max_force <= PaperGAConfig.quench_fmax` for every landing, so a loose walk certificate cannot silently relax the archive requirement.
+
+## Direction state and checkpoints
+
+`recovered_direction=RecoveredDirectionSettings(...)` enables the existing full pair/group/displacement direction controller in quick, offspring, generation-short and fine walks. It requires free nonperiodic clusters and `cluster_frame="direction_only"` in both main and offspring SSW configurations. It cannot be combined with `recovered_rotation` or `pre_rotation_hvp`.
+
+Each new walk creates fresh direction, LS and MC state, including when GA selects the same structure again. The direction memory persists across outer steps **within** that walk. The optional controls are configurations, not parent-carried mutable search histories. `recovered_direction=None` preserves existing behavior.
+
+GA checkpoints remain at phase boundaries, not within an interrupted SSW walk. Non-None direction settings are recorded in the existing checkpoint contract and must be supplied unchanged on resume. Old default contracts omit the new key and remain compatible; changing the enabled settings or switching enabled/default modes is rejected before a potential call. This does not require a GA checkpoint version change.
 
 ## Returned evidence and failure semantics
 

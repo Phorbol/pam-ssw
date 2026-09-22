@@ -1,0 +1,86 @@
+.......F..F..................                                            [100%]
+=================================== FAILURES ===================================
+_ test_recovered_direction_rejects_offspring_frame_and_prerotation_before_surface _
+
+    def test_recovered_direction_rejects_offspring_frame_and_prerotation_before_surface():
+        surface = SimpleNamespace(requests=0)
+        with pytest.raises(ValueError, match='direction_only'):
+            paper_ga.run_ga_ssw(**_call_kwargs(
+                surface, recovered_direction=_direction(),
+                offspring_ssw_config=_ssw(cluster_frame='eckart')))
+        assert surface.requests == 0
+        with pytest.raises(ValueError, match='PreRot'):
+>           paper_ga.run_ga_ssw(**_call_kwargs(
+                surface, recovered_direction=_direction(),
+                ssw_config=_ssw(pre_rotation_hvp=1, rotation_bias=None, rotation_hvp=4)))
+
+tests/standalone/test_ga_recovered_direction.py:163: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+surface = namespace(requests=0), atoms = None
+extra = {'recovered_direction': RecoveredDirectionSettings(ratio_local=50, local_probability=0.5, group_threshold=0.5, pre_rot...se-lbfgs', lbfgs_memory=None, bias_stage_steps=None, bias_fmax=None, pre_rotation_hvp=1, rotation_exit_policy='force')}
+
+    def _call_kwargs(surface, atoms=None, **extra):
+>       return dict(
+            initial=[_atoms() if atoms is None else atoms], surface=surface,
+            groups=((0, 1, 2), (3, 4, 5)), references=(0., 1., 2.),
+            descriptor_bonds={(1, 1): 1.}, descriptor_weights=(1.,) * 6,
+            neighbor_range=1.2, proposal_bond_limits={}, config=_config(),
+            ssw_config=_ssw(), rng=np.random.default_rng(3), **extra)
+E       TypeError: dict() got multiple values for keyword argument 'ssw_config'
+
+tests/standalone/test_ga_recovered_direction.py:48: TypeError
+___ test_real_walker_constructs_and_initializes_a_fresh_controller_per_walk ____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xa04abd5c320>
+
+    def test_real_walker_constructs_and_initializes_a_fresh_controller_per_walk(monkeypatch):
+        """The production driver, with only its expensive quench replaced, owns each controller."""
+        from pamssw.standalone import paper_reference, recovered_direction
+    
+        created = []
+        initialized = []
+        base = recovered_direction.RecoveredDirectionController
+    
+        class SpyController(base):
+            def __init__(self, settings):
+                created.append(self)
+                super().__init__(settings)
+    
+            def initialize(self, input_atoms, initial_quenched, rng):
+                initialized.append(self)
+                return super().initialize(input_atoms, initial_quenched, rng)
+    
+        class FlatSurface:
+            requests = 0
+    
+            def evaluate(self, atoms):
+                self.requests += 1
+                return 0., np.zeros_like(atoms.positions)
+    
+        monkeypatch.setattr(recovered_direction, 'RecoveredDirectionController', SpyController)
+        monkeypatch.setattr(paper_reference, 'quench',
+                            lambda a, surface, **unused:
+                            QuenchResult(a.copy(), 0., 0., True, 0, 0, 'true'))
+        monkeypatch.setattr(paper_ga, 'cluster_descriptor', lambda *args: 0.)
+        monkeypatch.setattr(paper_ga, 'descriptor_similarity', lambda *args: 0.)
+        config = replace(_config(), quick_steps=0, generations=0,
+                         generation_steps=0, fine_steps=0, offspring_steps=0)
+        atoms = _atoms()
+        result = paper_ga.run_ga_ssw(
+            [atoms, atoms.copy()], surface=FlatSurface(),
+            groups=((0, 1, 2), (3, 4, 5)), references=(0., 1., 2.),
+            descriptor_bonds={(1, 1): 1.}, descriptor_weights=(1.,) * 6,
+            neighbor_range=1.2, proposal_bond_limits={}, config=config,
+            ssw_config=_ssw(), recovered_direction=_direction(),
+            rng=np.random.default_rng(3))
+        assert result.status in {'completed', 'completed_with_failures', 'no_eligible_minima'}
+>       assert len(created) == len(initialized) == 2
+E       assert 3 == 2
+E        +  where 3 = len([<test_ga_recovered_direction.test_real_walker_constructs_and_initializes_a_fresh_controller_per_walk.<locals>.SpyCont...est_real_walker_constructs_and_initializes_a_fresh_controller_per_walk.<locals>.SpyController object at 0xa04aa079fa0>])
+
+tests/standalone/test_ga_recovered_direction.py:224: AssertionError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_ga_recovered_direction.py::test_recovered_direction_rejects_offspring_frame_and_prerotation_before_surface
+FAILED tests/standalone/test_ga_recovered_direction.py::test_real_walker_constructs_and_initializes_a_fresh_controller_per_walk
+2 failed, 27 passed in 1.79s

@@ -1,0 +1,42 @@
+{
+  "errors": [],
+  "continuous_resume_equal": true,
+  "search_requests": 18292,
+  "fresh_requests": 126,
+  "arms": {
+    "baseline": {
+      "status": "completed",
+      "search_requests": 7296,
+      "fresh_requests": 39,
+      "initialized_controllers": 0,
+      "escape_attempts": 0,
+      "failures": 0
+    },
+    "full": {
+      "status": "completed",
+      "search_requests": 5498,
+      "fresh_requests": 39,
+      "initialized_controllers": 18,
+      "escape_attempts": 18,
+      "failures": 0
+    },
+    "first": {
+      "status": "checkpoint_boundary",
+      "search_requests": 903,
+      "fresh_requests": 9,
+      "initialized_controllers": 3,
+      "escape_attempts": 3,
+      "failures": 0
+    },
+    "resumed": {
+      "status": "completed",
+      "search_requests": 4595,
+      "fresh_requests": 39,
+      "initialized_controllers": 15,
+      "escape_attempts": 15,
+      "failures": 0
+    }
+  },
+  "rng_boundary": "Terminal RNG not captured in completed results; no strict RNG-state equality claim",
+  "scope": "Interface/numerical qualification; duplicated endpoints retained in fresh denominator; no global-optimum or general efficiency claim"
+}

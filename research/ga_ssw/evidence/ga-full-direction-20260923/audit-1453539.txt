@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/ga-full-direction-20260923/analyze.py", line 53, in <module>
+    analyze(Path(__file__).parent)
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/ga-full-direction-20260923/analyze.py", line 22, in analyze
+    equal = signature(full) == signature(resumed)
+            ^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/ga-full-direction-20260923/analyze.py", line 14, in signature
+    final_walk_rng=last.rng_state)
+                   ^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'rng_state'

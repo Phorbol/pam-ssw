@@ -1,0 +1,1049 @@
+{
+  "name": "full",
+  "status": "completed",
+  "cumulative_requests": 5498,
+  "segment_requests": 5498,
+  "fresh_requests": 39,
+  "seconds": 6.846874951996142,
+  "checks": [
+    {
+      "id": 0,
+      "phase": "initial_quench",
+      "eligible": true,
+      "energy": 9.361357881570044,
+      "fmax": 9.943277435933532e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 1,
+      "phase": "initial_quench",
+      "eligible": true,
+      "energy": 10.480674461618378,
+      "fmax": 8.233264905306374e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 2,
+      "phase": "initial_quench",
+      "eligible": true,
+      "energy": 10.362232792239872,
+      "fmax": 9.326065341415313e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 3,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 9.361357881570044,
+      "fmax": 9.943277435933532e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 4,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 10.078315044046573,
+      "fmax": 0.0019396206654029434,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 5,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 10.480674461618378,
+      "fmax": 8.233264905306374e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 6,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 10.329909930910572,
+      "fmax": 0.007458122419593961,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 7,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 10.362232792239872,
+      "fmax": 9.326065341415313e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 8,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 10.244647545124,
+      "fmax": 0.007880655270551016,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 9,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 9.361427924710828,
+      "fmax": 0.0065905189988304655,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "id": 10,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 9.361384653953282,
+      "fmax": 0.009717512285259553,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "id": 11,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 9.361364258185981,
+      "fmax": 0.0023074005852622404,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 12,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 10.078359785933275,
+      "fmax": 0.0080848189297936,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 13,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 9.361373432989454,
+      "fmax": 0.008436312293436703,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 14,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 9.361390079225977,
+      "fmax": 0.009644266945881573,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 15,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 9.361433162601447,
+      "fmax": 0.008512224803994328,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 16,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 9.361362730787162,
+      "fmax": 0.0027794984554579626,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 17,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 9.361391655905546,
+      "fmax": 0.007198209836403061,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 18,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 9.361375539069243,
+      "fmax": 0.004265575156818607,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 19,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 9.361368407621868,
+      "fmax": 0.007385059080555429,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 20,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 9.361380439265911,
+      "fmax": 0.008894002540575837,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 21,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 10.362262132427098,
+      "fmax": 0.004830163960380823,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "id": 22,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 10.174488864333497,
+      "fmax": 0.009019049482335208,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "id": 23,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 10.329597790594178,
+      "fmax": 0.008169126085674959,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ]
+    },
+    {
+      "id": 24,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 10.196228460138936,
+      "fmax": 0.008764228863877918,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ]
+    },
+    {
+      "id": 25,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 10.07832826128758,
+      "fmax": 0.005840459088311486,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    {
+      "id": 26,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 9.361387056417774,
+      "fmax": 0.0047222017589180374,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    {
+      "id": 27,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 10.244662012666984,
+      "fmax": 0.0069910248069284635,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ]
+    },
+    {
+      "id": 28,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 9.361409970465836,
+      "fmax": 0.00823013884478892,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ]
+    },
+    {
+      "id": 29,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 10.236026011650726,
+      "fmax": 0.00432642314423397,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ]
+    },
+    {
+      "id": 30,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 10.078329344962954,
+      "fmax": 0.005300530499874765,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ]
+    },
+    {
+      "id": 31,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 10.625029434417067,
+      "fmax": 0.004353136112788262,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 32,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 10.62256240421523,
+      "fmax": 0.009852488822740745,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 33,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 9.361397903148774,
+      "fmax": 0.005485511215103284,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 34,
+      "phase": "offspring_ssw",
+      "eligible": true,
+      "energy": 9.36137107123141,
+      "fmax": 0.007620570324121277,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 35,
+      "phase": "generation_short",
+      "eligible": true,
+      "energy": 9.361357881570044,
+      "fmax": 9.943277435933532e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 36,
+      "phase": "generation_short",
+      "eligible": true,
+      "energy": 9.361370351234129,
+      "fmax": 0.0038161542310694535,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 37,
+      "phase": "fine",
+      "eligible": true,
+      "energy": 9.361357881570044,
+      "fmax": 9.943277435933532e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 38,
+      "phase": "fine",
+      "eligible": true,
+      "energy": 9.36138750411505,
+      "fmax": 0.007586744857965221,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    }
+  ],
+  "starts": [
+    {
+      "controller": 0,
+      "fresh": true
+    },
+    {
+      "controller": 1,
+      "fresh": true
+    },
+    {
+      "controller": 2,
+      "fresh": true
+    },
+    {
+      "controller": 3,
+      "fresh": true
+    },
+    {
+      "controller": 4,
+      "fresh": true
+    },
+    {
+      "controller": 5,
+      "fresh": true
+    },
+    {
+      "controller": 6,
+      "fresh": true
+    },
+    {
+      "controller": 7,
+      "fresh": true
+    },
+    {
+      "controller": 8,
+      "fresh": true
+    },
+    {
+      "controller": 9,
+      "fresh": true
+    },
+    {
+      "controller": 10,
+      "fresh": true
+    },
+    {
+      "controller": 11,
+      "fresh": true
+    },
+    {
+      "controller": 12,
+      "fresh": true
+    },
+    {
+      "controller": 13,
+      "fresh": true
+    },
+    {
+      "controller": 14,
+      "fresh": true
+    },
+    {
+      "controller": 15,
+      "fresh": true
+    },
+    {
+      "controller": 16,
+      "fresh": true
+    },
+    {
+      "controller": 17,
+      "fresh": true
+    }
+  ],
+  "escapes": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "stages": [
+    {
+      "phase": "initial_quench",
+      "status": "completed",
+      "requests": 1
+    },
+    {
+      "phase": "initial_quench",
+      "status": "completed",
+      "requests": 1
+    },
+    {
+      "phase": "initial_quench",
+      "status": "completed",
+      "requests": 1
+    },
+    {
+      "phase": "quick",
+      "status": "completed",
+      "requests": 829
+    },
+    {
+      "phase": "quick",
+      "status": "completed",
+      "requests": 36
+    },
+    {
+      "phase": "quick",
+      "status": "completed",
+      "requests": 35
+    },
+    {
+      "phase": "proposal",
+      "status": "target_reached",
+      "requests": 0
+    },
+    {
+      "phase": "offspring_ssw",
+      "status": "completed",
+      "requests": 114
+    },
+    {
+      "phase": "offspring_ssw",
+      "status": "completed",
+      "requests": 452
+    },
+    {
+      "phase": "offspring_ssw",
+      "status": "completed",
+      "requests": 916
+    },
+    {
+      "phase": "offspring_ssw",
+      "status": "completed",
+      "requests": 307
+    },
+    {
+      "phase": "offspring_ssw",
+      "status": "completed",
+      "requests": 268
+    },
+    {
+      "phase": "offspring_ssw",
+      "status": "completed",
+      "requests": 574
+    },
+    {
+      "phase": "offspring_ssw",
+      "status": "completed",
+      "requests": 90
+    },
+    {
+      "phase": "offspring_ssw",
+      "status": "completed",
+      "requests": 69
+    },
+    {
+      "phase": "offspring_ssw",
+      "status": "completed",
+      "requests": 190
+    },
+    {
+      "phase": "offspring_ssw",
+      "status": "completed",
+      "requests": 92
+    },
+    {
+      "phase": "offspring_ssw",
+      "status": "completed",
+      "requests": 96
+    },
+    {
+      "phase": "offspring_ssw",
+      "status": "completed",
+      "requests": 132
+    },
+    {
+      "phase": "offspring_ssw",
+      "status": "completed",
+      "requests": 140
+    },
+    {
+      "phase": "generation_short",
+      "status": "completed",
+      "requests": 470
+    },
+    {
+      "phase": "fine",
+      "status": "completed",
+      "requests": 685
+    }
+  ],
+  "failures": []
+}

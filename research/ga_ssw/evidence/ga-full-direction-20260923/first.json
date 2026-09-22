@@ -1,0 +1,170 @@
+{
+  "name": "first",
+  "status": "checkpoint_boundary",
+  "cumulative_requests": 903,
+  "segment_requests": 903,
+  "fresh_requests": 9,
+  "seconds": 1.0952078889968107,
+  "checks": [
+    {
+      "id": 0,
+      "phase": "initial_quench",
+      "eligible": true,
+      "energy": 9.361357881570044,
+      "fmax": 9.943277435933532e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 1,
+      "phase": "initial_quench",
+      "eligible": true,
+      "energy": 10.480674461618378,
+      "fmax": 8.233264905306374e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 2,
+      "phase": "initial_quench",
+      "eligible": true,
+      "energy": 10.362232792239872,
+      "fmax": 9.326065341415313e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 3,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 9.361357881570044,
+      "fmax": 9.943277435933532e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 4,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 10.078315044046573,
+      "fmax": 0.0019396206654029434,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 5,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 10.480674461618378,
+      "fmax": 8.233264905306374e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 6,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 10.329909930910572,
+      "fmax": 0.007458122419593961,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 7,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 10.362232792239872,
+      "fmax": 9.326065341415313e-06,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    },
+    {
+      "id": 8,
+      "phase": "quick",
+      "eligible": true,
+      "energy": 10.244647545124,
+      "fmax": 0.007880655270551016,
+      "force_pass": true,
+      "composition_pass": true,
+      "boundary_pass": true,
+      "energy_agreement": 0.0,
+      "parent_ids": []
+    }
+  ],
+  "starts": [
+    {
+      "controller": 0,
+      "fresh": true
+    },
+    {
+      "controller": 1,
+      "fresh": true
+    },
+    {
+      "controller": 2,
+      "fresh": true
+    }
+  ],
+  "escapes": [
+    0,
+    1,
+    2
+  ],
+  "stages": [
+    {
+      "phase": "initial_quench",
+      "status": "completed",
+      "requests": 1
+    },
+    {
+      "phase": "initial_quench",
+      "status": "completed",
+      "requests": 1
+    },
+    {
+      "phase": "initial_quench",
+      "status": "completed",
+      "requests": 1
+    },
+    {
+      "phase": "quick",
+      "status": "completed",
+      "requests": 829
+    },
+    {
+      "phase": "quick",
+      "status": "completed",
+      "requests": 36
+    },
+    {
+      "phase": "quick",
+      "status": "completed",
+      "requests": 35
+    }
+  ],
+  "failures": []
+}

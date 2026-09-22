@@ -1,0 +1,14 @@
+.............................                                            [100%]
+29 passed in 0.54s
+baseline completed 7296 requests 39 checks
+full completed 5498 requests 39 checks
+first checkpoint_boundary 903 requests 9 checks
+resumed completed 4595 requests 39 checks
+Traceback (most recent call last):
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/ga-full-direction-20260923/run.py", line 85, in <module>
+    equal=signature(full)==signature(resumed),
+          ^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/ga-full-direction-20260923/run.py", line 83, in signature
+    rng=result.checkpoint.rng_state)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'rng_state'

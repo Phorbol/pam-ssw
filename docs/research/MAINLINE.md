@@ -12,7 +12,7 @@
 
 **已实现并完成池checkpoint阶段验收。** schema5统一保存核心LS/方向/MC、池状态及两套RNG，普通无契约回调仍拒绝恢复；旧schema1–4保留。独立审查及CPU1453209的64项通过。GPU1453252共5705搜索+8复核请求（含重复端点）：Cu2/Cu13 EMT和anatase/OMAT-small连续/分段严格一致；C60/MH-1与anatase各连续2步、首段1步、恢复1步均完成，但第一步在保存前已分叉，不能将终态差异归因于恢复，也不称C60逐轨迹一致。CPU1453291/1453299确认账本闭合和分叉时点，不追加精度调参。见[实现、结果和使用边界](../../research/ga_ssw/evidence/pool-checkpoint-20260923/README.md)。LS所选几何的有界静态核查补充了vtable/字段地址，仍未证明接受/拒绝后的指针生产者；无算法改动依据，停止该支线。GA入口核对发现下述完整方向衔接缺口；Q完整库、MACE特征、VC/RC仍不抢占主线。
 
-**下一项待讨论：GA中完整方向记忆的归属。** `paper_ga.py`现有公开入口及统一walk helper只传`mc/recovered_rotation`，未传`recovered_direction`。建议最小接通完整方向设置到quick、offspring、generation_short、fine：每段walk内部保留pair/group/位移反馈；每次GA启动新walk重新初始化，沿用现有LS/MC每walk独立的契约，即使重新选到同一结构也不跨walk继承。备选是每个种群成员保存独立LS/方向状态并定义亲子继承，会扩大公共状态和checkpoint范围，当前不推荐。默认None和旧GA checkpoint保持原样；启用后的设置纳入已有contract比较，跨设置恢复在PES前拒绝。只保存GA阶段边界，不新增内层中断恢复。验收为四类walk转发/重启语义、旧checkpoint兼容与Cu13/EMT完整GA流程；不以短试验声称性能收益。本项状态归属先按用户AGENTS第8节讨论，尚未实现。
+**已完成：GA接通完整方向控制。** 用户批准的每walk独立状态已实现：quick、offspring、generation_short、fine均传入`recovered_direction`；walk内部保留记忆，新walk重建。默认None与旧contract保留，启用设置不匹配在PES前拒绝，不扩展checkpoint版本或内层恢复。独立代码审查完成；CPU1453528针对性29项通过。既有Cu13/EMT三个种群输入，两臂四类阶段均完成，完整方向18次walk均新建控制器；连续5498请求与分段903+4595一致，落点/阶段/成本完全相同。总18292搜索+126独立单点复核（含重复观察）全部数值资格通过；未导出终止RNG，不宣称全部内部状态严格一致。两次只读汇总错误保留，CPU1453545离线审计errors=[]，未重跑PES。单个短开发案例不作性能排名、不改默认。见[实现与证据](../../research/ga_ssw/evidence/ga-full-direction-20260923/README.md)。
 
 C60官方包核对未找到可直接复用的完整GA初始种群/冻结参考/描述符参数组合；这不是独立ASE实现的永久阻塞，也不据此要求用户提供原版文件。后续需要把有来源的既有参数与独立参考生成协议明确分开，不能将单条C60 SSW配置冒充完整GA对照。
 

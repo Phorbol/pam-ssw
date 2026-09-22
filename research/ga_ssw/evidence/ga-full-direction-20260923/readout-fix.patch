@@ -1,0 +1,19 @@
+--- run.py.at-execution
++++ run.py
+@@ -74,13 +74,6 @@
+ full = run('full', direction=settings)
+ first = run('first', direction=settings, pause=True)
+ resumed = run('resumed', direction=settings, checkpoint=first.checkpoint)
+-# Structural/state equality is an interface check on this deterministic EMT backend.
+-def signature(result):
+-    return dict(status=result.status, requests=result.evaluation_requests,
+-        stages=[(s.phase, s.status, s.evaluation_requests) for s in result.stages],
+-        observations=[(o.id, o.phase, o.eligible_for_archive, o.result.energy,
+-            o.result.atoms.positions.tolist()) for o in result.observations],
+-        rng=result.checkpoint.rng_state)
+-(out / 'resume-comparison.json').write_text(json.dumps(dict(
+-    equal=signature(full)==signature(resumed),
+-    scope='Cu13 EMT phase-boundary checkpoint qualification only'), indent=2))
++# Analysis is separate so a readout defect never requires rerunning the PES.
++from analyze import analyze
++analyze(out)
