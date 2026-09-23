@@ -1,0 +1,93 @@
+{
+  "config": {
+    "width": 0.1,
+    "rotation_bias": 100.0,
+    "max_gaussians": 25,
+    "temperature_K": 150.0,
+    "fmax": 0.03,
+    "relax_steps": 400,
+    "fd_step": 0.001,
+    "rotation_hvp": 100,
+    "rotation_tol": 0.02,
+    "forward_force": 0.1,
+    "direction_sampling": "global",
+    "rotation_solver": "ritz",
+    "cluster_frame": "direction_only",
+    "quench_optimizer": "safe-lbfgs-total",
+    "lbfgs_memory": 500,
+    "bias_stage_steps": null,
+    "bias_fmax": 0.1,
+    "pre_rotation_hvp": null,
+    "rotation_exit_policy": "force_or_budget"
+  },
+  "rotation_settings": {
+    "pre_rotmax": 5,
+    "rotmax": 15,
+    "pre_ftol": 0.2,
+    "ftol": 0.02,
+    "metric": "euclidean",
+    "max_force_calls": 40
+  },
+  "ls_settings": {
+    "ssw": null,
+    "paper_ls": {
+      "bond_energies": {
+        "(1, 1)": 4.526579856872559,
+        "(1, 6)": 4.29817008972168,
+        "(6, 6)": 3.4468400478363037
+      },
+      "bond_lengths": {
+        "(1, 1)": 0.8400000095367431,
+        "(1, 6)": 1.1900000333786012,
+        "(6, 6)": 1.6399999618530274
+      },
+      "target_per_atom": 0.7,
+      "initial_fraction": 0.03,
+      "xi": 0.2,
+      "learning_rate": 1.8,
+      "energy_filter": [],
+      "prequench": {
+        "fmax": 0.1,
+        "steps": 50,
+        "exit_policy": "force_or_step_limit"
+      }
+    },
+    "native_ls": {
+      "bond_energies": {
+        "(1, 1)": 4.526579856872559,
+        "(1, 6)": 4.29817008972168,
+        "(6, 6)": 3.4468400478363037
+      },
+      "bond_lengths": {
+        "(1, 1)": 0.7400000095367432,
+        "(1, 6)": 1.090000033378601,
+        "(6, 6)": 1.5399999618530273
+      },
+      "scale": 5.0,
+      "energy_filter": null,
+      "length_filter": null,
+      "atom_filter": null,
+      "amp_c": 2.0,
+      "length_tolerance": 0.1,
+      "target_mev_per_atom": 700,
+      "eta": 0.005,
+      "max_change": 0.01,
+      "frequency": 10,
+      "presteps": 100,
+      "cycle": 100,
+      "ratio": 1.100000023841858,
+      "lselfadapt": true,
+      "bond_geometry": "native-mic",
+      "prequench": {
+        "fmax": 0.1,
+        "steps": 50,
+        "exit_policy": "force_or_step_limit"
+      }
+    }
+  },
+  "seed": 59,
+  "outer_attempts": 12,
+  "request_cap_per_arm": 12000,
+  "fresh_cap_per_arm": 13,
+  "wall_seconds_per_arm": 840
+}

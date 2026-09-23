@@ -1,0 +1,73 @@
+{
+  "status": "ready_for_controlled_comparison",
+  "authorization": "Mainline bounded computations authorized; C4H6 MH-1/omol qualification explicitly approved and passed. Pilot tests execution/cost, not reactive accuracy.",
+  "purpose": "Frozen SSW/paper-LS/native-LS reaction-coverage comparison on MH-1; not PBE reproduction",
+  "protocol": "plan.md",
+  "source_commit": "57e5097c2a8546ccb6cf60a4396af662f19c58a1",
+  "source_core_tree": "46f0049ed02c773621ac614093386220227e3d3a",
+  "shared_ledger": "../periodic-rotation-priority-20260923/ledger.py",
+  "shared_ledger_sha256": "729355f7f85defc9faebb3b128ec09fb70d6359e3fb5e89bb8c6949b91c19e45",
+  "model": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+  "model_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+  "head": "omol",
+  "device": "cuda",
+  "dtype": "float64",
+  "input_source": "ASE G2, not paper-optimized coordinates or old xTB search endpoints",
+  "config": {
+    "width": 0.1,
+    "rotation_bias": 100.0,
+    "max_gaussians": 25,
+    "temperature_K": 150.0,
+    "fmax": 0.03,
+    "bias_fmax": 0.1,
+    "relax_steps": 400,
+    "fd_step": 0.001,
+    "rotation_hvp": 100,
+    "rotation_tol": 0.02,
+    "direction_sampling": "global",
+    "rotation_solver": "ritz",
+    "cluster_frame": "direction_only",
+    "quench_optimizer": "safe-lbfgs-total",
+    "lbfgs_memory": 500,
+    "pre_rotation_hvp": null,
+    "rotation_exit_policy": "force_or_budget"
+  },
+  "acceptance": "Report force-qualified graph/torsion coverage and cost; retain failures and censoring. No Hessian, DFT, radical-state or kinetic claim.",
+  "qualification": "../c4h6-model-qualification-20260924-r2/qualification.json",
+  "input": "../c4h6-model-qualification-20260924-r2/butadiene/input.extxyz",
+  "input_sha256": "aa1f59e77d0931acba51e531493deb7257c5716ddc08470ad9fe0a113d53bc45",
+  "arms": [
+    "ssw",
+    "paper_ls",
+    "native_ls"
+  ],
+  "steps": 400,
+  "request_cap_per_arm": 320000,
+  "wall_seconds_per_arm": 6600,
+  "fresh_cap_per_arm": 401,
+  "total_search_cap": 1920000,
+  "total_fresh_cap": 2406,
+  "recovered_rotation": {
+    "pre_rotmax": 5,
+    "rotmax": 15,
+    "pre_ftol": 0.2,
+    "ftol": 0.02,
+    "metric": "euclidean",
+    "max_force_calls": 40
+  },
+  "prequench": {
+    "fmax": 0.1,
+    "steps": 50,
+    "exit_policy": "force_or_step_limit"
+  },
+  "paper_target_eV_per_atom": 0.7,
+  "native_target_meV_per_atom": 700,
+  "seeds": [
+    61,
+    67
+  ],
+  "pilot": "../c4h6-mh1-lifecycle-20260924",
+  "common_request_prefix": 200000,
+  "max_concurrent_gpus": 2,
+  "slurm_wall_seconds_per_arm": 7200
+}

@@ -1,0 +1,613 @@
+[
+  {
+    "index": 0,
+    "reported_energy_eV": -4243.921327009705,
+    "reported_fmax_eV_A": 0.025287701582607628,
+    "reported_converged": true,
+    "energy_eV": -4243.921327009705,
+    "energy_error_eV": 0.0,
+    "fmax_eV_A": 0.02528770158260753,
+    "same_numbers": true,
+    "same_cell": true,
+    "same_pbc": true,
+    "numbers": [
+      6,
+      6,
+      6,
+      6,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "cell_A": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "pbc": [
+      false,
+      false,
+      false
+    ],
+    "numerical_qualified": true
+  },
+  {
+    "index": 1,
+    "reported_energy_eV": -4243.836626034933,
+    "reported_fmax_eV_A": 0.015253604901869184,
+    "reported_converged": true,
+    "energy_eV": -4243.836626034933,
+    "energy_error_eV": 0.0,
+    "fmax_eV_A": 0.015253604901869552,
+    "same_numbers": true,
+    "same_cell": true,
+    "same_pbc": true,
+    "numbers": [
+      6,
+      6,
+      6,
+      6,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "cell_A": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "pbc": [
+      false,
+      false,
+      false
+    ],
+    "numerical_qualified": true
+  },
+  {
+    "index": 2,
+    "reported_energy_eV": -4243.837474471128,
+    "reported_fmax_eV_A": 0.024422614391183987,
+    "reported_converged": true,
+    "energy_eV": -4243.837474471128,
+    "energy_error_eV": 0.0,
+    "fmax_eV_A": 0.024422614391183622,
+    "same_numbers": true,
+    "same_cell": true,
+    "same_pbc": true,
+    "numbers": [
+      6,
+      6,
+      6,
+      6,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "cell_A": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "pbc": [
+      false,
+      false,
+      false
+    ],
+    "numerical_qualified": true
+  },
+  {
+    "index": 3,
+    "reported_energy_eV": -4243.688051509608,
+    "reported_fmax_eV_A": 0.021801889526744028,
+    "reported_converged": true,
+    "energy_eV": -4243.688051509608,
+    "energy_error_eV": 0.0,
+    "fmax_eV_A": 0.02180188952674357,
+    "same_numbers": true,
+    "same_cell": true,
+    "same_pbc": true,
+    "numbers": [
+      6,
+      6,
+      6,
+      6,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "cell_A": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "pbc": [
+      false,
+      false,
+      false
+    ],
+    "numerical_qualified": true
+  },
+  {
+    "index": 4,
+    "reported_energy_eV": -4243.921567066227,
+    "reported_fmax_eV_A": 0.029471781497987938,
+    "reported_converged": true,
+    "energy_eV": -4243.921567066227,
+    "energy_error_eV": 0.0,
+    "fmax_eV_A": 0.029471781497988014,
+    "same_numbers": true,
+    "same_cell": true,
+    "same_pbc": true,
+    "numbers": [
+      6,
+      6,
+      6,
+      6,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "cell_A": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "pbc": [
+      false,
+      false,
+      false
+    ],
+    "numerical_qualified": true
+  },
+  {
+    "index": 5,
+    "reported_energy_eV": -4243.687625565294,
+    "reported_fmax_eV_A": 0.015429457224962296,
+    "reported_converged": true,
+    "energy_eV": -4243.687625565294,
+    "energy_error_eV": 0.0,
+    "fmax_eV_A": 0.015429457224962025,
+    "same_numbers": true,
+    "same_cell": true,
+    "same_pbc": true,
+    "numbers": [
+      6,
+      6,
+      6,
+      6,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "cell_A": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "pbc": [
+      false,
+      false,
+      false
+    ],
+    "numerical_qualified": true
+  },
+  {
+    "index": 6,
+    "reported_energy_eV": -4243.837584941563,
+    "reported_fmax_eV_A": 0.020584903035136756,
+    "reported_converged": true,
+    "energy_eV": -4243.837584941563,
+    "energy_error_eV": 0.0,
+    "fmax_eV_A": 0.0205849030351365,
+    "same_numbers": true,
+    "same_cell": true,
+    "same_pbc": true,
+    "numbers": [
+      6,
+      6,
+      6,
+      6,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "cell_A": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "pbc": [
+      false,
+      false,
+      false
+    ],
+    "numerical_qualified": true
+  },
+  {
+    "index": 7,
+    "reported_energy_eV": -4243.9215994313,
+    "reported_fmax_eV_A": 0.02343585341616018,
+    "reported_converged": true,
+    "energy_eV": -4243.9215994313,
+    "energy_error_eV": 0.0,
+    "fmax_eV_A": 0.023435853416161303,
+    "same_numbers": true,
+    "same_cell": true,
+    "same_pbc": true,
+    "numbers": [
+      6,
+      6,
+      6,
+      6,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "cell_A": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "pbc": [
+      false,
+      false,
+      false
+    ],
+    "numerical_qualified": true
+  },
+  {
+    "index": 8,
+    "reported_energy_eV": -4243.837424496488,
+    "reported_fmax_eV_A": 0.02541047067123533,
+    "reported_converged": true,
+    "energy_eV": -4243.837424496488,
+    "energy_error_eV": 0.0,
+    "fmax_eV_A": 0.02541047067123588,
+    "same_numbers": true,
+    "same_cell": true,
+    "same_pbc": true,
+    "numbers": [
+      6,
+      6,
+      6,
+      6,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "cell_A": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "pbc": [
+      false,
+      false,
+      false
+    ],
+    "numerical_qualified": true
+  },
+  {
+    "index": 9,
+    "reported_energy_eV": -4243.921296436569,
+    "reported_fmax_eV_A": 0.026361308717596368,
+    "reported_converged": true,
+    "energy_eV": -4243.921296436569,
+    "energy_error_eV": 0.0,
+    "fmax_eV_A": 0.02636130871759652,
+    "same_numbers": true,
+    "same_cell": true,
+    "same_pbc": true,
+    "numbers": [
+      6,
+      6,
+      6,
+      6,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "cell_A": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "pbc": [
+      false,
+      false,
+      false
+    ],
+    "numerical_qualified": true
+  },
+  {
+    "index": 10,
+    "reported_energy_eV": -4243.921656537218,
+    "reported_fmax_eV_A": 0.021439748281327074,
+    "reported_converged": true,
+    "energy_eV": -4243.921656537218,
+    "energy_error_eV": 0.0,
+    "fmax_eV_A": 0.021439748281327685,
+    "same_numbers": true,
+    "same_cell": true,
+    "same_pbc": true,
+    "numbers": [
+      6,
+      6,
+      6,
+      6,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "cell_A": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "pbc": [
+      false,
+      false,
+      false
+    ],
+    "numerical_qualified": true
+  },
+  {
+    "index": 11,
+    "reported_energy_eV": -4243.921038304698,
+    "reported_fmax_eV_A": 0.02567937280128445,
+    "reported_converged": true,
+    "energy_eV": -4243.921038304698,
+    "energy_error_eV": 0.0,
+    "fmax_eV_A": 0.025679372801284482,
+    "same_numbers": true,
+    "same_cell": true,
+    "same_pbc": true,
+    "numbers": [
+      6,
+      6,
+      6,
+      6,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "cell_A": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "pbc": [
+      false,
+      false,
+      false
+    ],
+    "numerical_qualified": true
+  },
+  {
+    "index": 12,
+    "reported_energy_eV": -4243.837596249936,
+    "reported_fmax_eV_A": 0.016759119397710916,
+    "reported_converged": true,
+    "energy_eV": -4243.837596249936,
+    "energy_error_eV": 0.0,
+    "fmax_eV_A": 0.016759119397711367,
+    "same_numbers": true,
+    "same_cell": true,
+    "same_pbc": true,
+    "numbers": [
+      6,
+      6,
+      6,
+      6,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "cell_A": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "pbc": [
+      false,
+      false,
+      false
+    ],
+    "numerical_qualified": true
+  }
+]
