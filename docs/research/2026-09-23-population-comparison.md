@@ -189,3 +189,11 @@ GA advantage for this seed only. Neither meets the target cage or reference
 energy criterion. Both force/composition/PBC checks pass; GA's nonperiodic
 bookkeeping cell differs as anticipated. Second seed remains running; no
 parameter, budget, model or input change follows this interim result.
+
+CPU1464486 zero-PES prefix audit adds an execution-level control: seed3's first
+input, first10 outer steps in GA quick and independent SSW match exactly in
+initial state, directions, landing coordinates/energies, acceptance/status and
+per-step requests. Thus this prefix really shares the local kernel, not just
+config labels. Later starts consume different RNG streams and scheduling;
+this does not isolate crossover from archive/budget allocation. See
+prefix-audit-interim.json; seed17 pending at that audit.
