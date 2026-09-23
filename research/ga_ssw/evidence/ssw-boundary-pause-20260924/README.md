@@ -32,7 +32,9 @@ env PYTHONNOUSERSITE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=
 
 Workdir was `/home/gengjianrui/bin/pam-ssw-worktrees/ssw-boundary-pause`.
 CPU1473367 reran only `tests/standalone/test_ssw_boundary_pause.py` after adding
-the budget-refusal regression:8passed. This is not40 distinct tests. All jobs
+the budget-refusal regression:8passed. The retained1473363 log also has8passes
+for that same file; this repeat is not independent evidence. This is not40
+distinct tests. All jobs
 ran on dpn01/CPU-MISC; failed logs remain alongside successful logs. Existing
 Cu/EMT tests check actual continuous/split structures, landing order, RNG,
 request cost, LS state, pool state, snapshot isolation and failure semantics.
