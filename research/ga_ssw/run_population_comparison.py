@@ -367,7 +367,9 @@ def run(plan_path, arm, out_path):
             checkpoint_path = out / "ga-stage.pkl"
             def save_boundary(state):
                 state.save(checkpoint_path)
-                return False
+                # Stop at the next existing GA boundary; refuse all PES calls
+                # after the wall guard without inventing unspent request costs.
+                return surface.deadline_reason == "wall_seconds"
             try:
                 search_result = run_ga(initial, surface, groups=None, references=refs,
                 descriptor_bonds=bonds, descriptor_weights=plan["descriptor"]["weights"],
@@ -406,8 +408,6 @@ def run(plan_path, arm, out_path):
                         "energy": obs.result.energy, "max_force": obs.result.max_force,
                         "converged": obs.result.converged,
                         "geometry_index": atoms.info["geometry_index"]})
-                summary["fresh_checks"] = fresh_validation(out, initial, geometries,
-                    surface, ga_cfg.quench_fmax, write)
                 summary["calculator_calculate_calls"] = surface.calculator_calls
                 summary["search_calculator_calculate_calls"] = surface.calculator_calls
                 summary["fresh_checks"] = fresh_validation(out, initial, geometries,
@@ -566,6 +566,9 @@ def run(plan_path, arm, out_path):
                 summary["status"] = "request_cap_censored"
             search_result = {"arm": arm, "initial_quenches": initial_rows, "walks": walk_rows,
                              "phases": phases, "search_requests": surface.requests}
+        if surface.deadline_reason == "wall_seconds":
+            summary["algorithm_status"] = summary["status"]
+            summary["status"] = "wall_censored"
         summary["failed_search_requests"] = sum(r["kind"] == "failed_request" for r in surface.records)
         summary["refused_search_calls"] = sum(r["kind"] == "refused" for r in surface.records)
         summary["calculator_calculate_calls"] = surface.calculator_calls
