@@ -412,7 +412,7 @@ def main():
         "errors": bad, "arms": arms}
     (HERE / "analysis.json").write_text(json.dumps(payload, indent=2, allow_nan=False) + "\n")
     lines = ["# C4H6 MH-1 fixed-protocol coverage audit", "",
-        "No method ranking is computed. The common prefix is fixed at 200000 charged E/F requests; arms below it are censored. One element-labeled graph mapping is shared across all six arms. Connected and fragmented structures are summarized separately; all per-minimum geometry and per-attempt history is in analysis.json.", "",
+        "No method ranking is computed. The common prefix is fixed at 200000 charged E/F requests; arms below it are censored. One element-labeled graph mapping is shared across all six arms. Class counts include the initial structure; repeated observations do not add classes. Connected and fragmented structures are summarized separately; all per-minimum geometry and per-attempt history is in analysis.json.", "",
         "| Seed | Arm | Prefix reached | Minima in prefix | Connected classes | Fragmented classes | Fragmented frames | Accepted prefix landings | Outer records | Returned minima | Requests | Calculator calls | Search wall (s) | Protocol complete | Budget censored |",
         "|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|"]
     for arm in arms:

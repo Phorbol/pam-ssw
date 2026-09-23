@@ -22,7 +22,8 @@ GPU1469300零E/F因错误周期选项拒绝；只修正为direction_only后14693
 见[固定协议](../../research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/plan.md)。
 CPU1469991使用已保存pilot完成读出程序验证（零PES），包括失败外步后的结构映射和缺失fresh拒绝；
 正式读出CPU1470001依赖整个数组结束后自动执行。论文LS的checkpoint更新计数/末响应在
-dataclass复制时丢失，已隔离到fix/paper-ls-checkpoint-metadata分支验证；它们不进入强度公式，
+dataclass复制时丢失，隔离修复分支fix/paper-ls-checkpoint-metadata已通过21项针对性检查并推送；
+源码修复c047cd9，旧checkpoint仍可读，当前实验结束后再合入。它们不进入强度公式，
 当前搜索core不改、不因该元数据缺口重跑。真实响应逐外步日志仍完整保留。
 方案见[有界资格协议](2026-09-24-c4h6-model-qualification.md)。
 不把同材料两相或不同随机种子称作独立体系类别，不逐例调参；本轮不改算法默认。
