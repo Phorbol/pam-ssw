@@ -1,0 +1,1495 @@
+{
+  "protocol": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/periodic-return-mechanism-20260924/plan.md",
+  "source_evidence": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/periodic-rotation-priority-20260923",
+  "created_utc": "2026-09-23T17:15:40.895873+00:00",
+  "calculator_or_PES_calls": 0,
+  "maximum_structure_match_fits": 72,
+  "tolerances": {
+    "tight": [
+      0.05,
+      0.1,
+      2.0
+    ],
+    "broad": [
+      0.2,
+      0.3,
+      5.0
+    ]
+  },
+  "arms": [
+    {
+      "case": "aloh3",
+      "method": "ritz",
+      "run_status": "evaluation_failed",
+      "accounting": {
+        "initial_requests": 14,
+        "sum_all_record_requests_including_censored": 11986,
+        "initial_plus_records": 12000,
+        "result_requests": 12000,
+        "summary_requests": 12000,
+        "complete_record_count": 13,
+        "terminal_censored_record_count": 1,
+        "record_status_counts": {
+          "lower_true_energy": 1,
+          "gaussian_limit": 12,
+          "evaluation_failed": 1
+        },
+        "ledger_success_rows": 12000,
+        "ledger_failure_rows": 0,
+        "ledger_denial_rows_not_counted": 1,
+        "ledger_request_ids_continuous_1_to_n": true,
+        "ledger_counted_requests_match_result": true,
+        "request_totals_consistent": true
+      },
+      "selected_first_three_gaussian_limit": [
+        {
+          "record_index": 1,
+          "outer_status": "gaussian_limit",
+          "record_requests": 868,
+          "cumulative_requests": 945,
+          "current_before_energy_eV": -177.56717351223392,
+          "last_event": {
+            "index": 24,
+            "true_energy_eV": -175.27740312302774,
+            "biased_energy_total_eV": -175.19726064576912,
+            "event_status": "converged",
+            "requests": 36
+          },
+          "landing_energy_eV": -177.56743385376285,
+          "landing_converged": true,
+          "geometry": {
+            "current_vs_last_atoms": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.6375709971328825,
+              "ordered_atom_mic_max_A": 1.5639709202679313,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "current_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": true,
+                "broad": true
+              },
+              "ordered_atom_mic_rms_A": 0.007785418639385881,
+              "ordered_atom_mic_max_A": 0.019043501070427224,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "last_atoms_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.634604747384307,
+              "ordered_atom_mic_max_A": 1.5642842691276249,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            }
+          },
+          "cost_to_record_including_initial": 945
+        },
+        {
+          "record_index": 2,
+          "outer_status": "gaussian_limit",
+          "record_requests": 965,
+          "cumulative_requests": 1910,
+          "current_before_energy_eV": -177.56743385376285,
+          "last_event": {
+            "index": 24,
+            "true_energy_eV": -176.36127336870283,
+            "biased_energy_total_eV": -176.2935828586351,
+            "event_status": "converged",
+            "requests": 38
+          },
+          "landing_energy_eV": -177.3300634451495,
+          "landing_converged": true,
+          "geometry": {
+            "current_vs_last_atoms": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.603712703084478,
+              "ordered_atom_mic_max_A": 1.6528362257691271,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "current_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.49131461487082606,
+              "ordered_atom_mic_max_A": 1.5962422061155084,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "last_atoms_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.3276442381926889,
+              "ordered_atom_mic_max_A": 1.0682370568978605,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            }
+          },
+          "cost_to_record_including_initial": 1910
+        },
+        {
+          "record_index": 3,
+          "outer_status": "gaussian_limit",
+          "record_requests": 1069,
+          "cumulative_requests": 2979,
+          "current_before_energy_eV": -177.56743385376285,
+          "last_event": {
+            "index": 24,
+            "true_energy_eV": -175.50456815552053,
+            "biased_energy_total_eV": -175.46388277309967,
+            "event_status": "converged",
+            "requests": 50
+          },
+          "landing_energy_eV": -177.56735622614008,
+          "landing_converged": true,
+          "geometry": {
+            "current_vs_last_atoms": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.7021969654572472,
+              "ordered_atom_mic_max_A": 1.2538490272860816,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "current_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": true,
+                "broad": true
+              },
+              "ordered_atom_mic_rms_A": 0.008390211392102916,
+              "ordered_atom_mic_max_A": 0.01734340829953441,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "last_atoms_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.7003260563550693,
+              "ordered_atom_mic_max_A": 1.2587905872058804,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            }
+          },
+          "cost_to_record_including_initial": 2979
+        }
+      ],
+      "stop_sign_checks": [
+        {
+          "record_index": 0,
+          "status": "lower_true_energy",
+          "current_energy_before_eV": -177.3293050620191,
+          "last_successful_true_energy_eV": -177.5660510693122,
+          "true_energy_delta_eV": -0.23674600729310669,
+          "last_successful_biased_energy_eV": -177.56605106927964,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 1,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56717351223392,
+          "last_successful_true_energy_eV": -175.27740312302774,
+          "true_energy_delta_eV": 2.2897703892061827,
+          "last_successful_biased_energy_eV": -175.19726064576912,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 2,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56743385376285,
+          "last_successful_true_energy_eV": -176.36127336870283,
+          "true_energy_delta_eV": 1.2061604850600247,
+          "last_successful_biased_energy_eV": -176.2935828586351,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 3,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56743385376285,
+          "last_successful_true_energy_eV": -175.50456815552053,
+          "true_energy_delta_eV": 2.0628656982423195,
+          "last_successful_biased_energy_eV": -175.46388277309967,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 4,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56735622614008,
+          "last_successful_true_energy_eV": -176.0792572656444,
+          "true_energy_delta_eV": 1.4880989604956767,
+          "last_successful_biased_energy_eV": -176.0017307382935,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 5,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56735622614008,
+          "last_successful_true_energy_eV": -177.37153638686323,
+          "true_energy_delta_eV": 0.19581983927685087,
+          "last_successful_biased_energy_eV": -177.35290681053849,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 6,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56735622614008,
+          "last_successful_true_energy_eV": -177.41445881384402,
+          "true_energy_delta_eV": 0.15289741229605625,
+          "last_successful_biased_energy_eV": -177.40747768436285,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 7,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56735622614008,
+          "last_successful_true_energy_eV": -176.41426322137823,
+          "true_energy_delta_eV": 1.1530930047618426,
+          "last_successful_biased_energy_eV": -176.3748669274735,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 8,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56735622614008,
+          "last_successful_true_energy_eV": -177.2013030673681,
+          "true_energy_delta_eV": 0.3660531587719902,
+          "last_successful_biased_energy_eV": -177.15223534881403,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 9,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56735622614008,
+          "last_successful_true_energy_eV": -176.68218687190188,
+          "true_energy_delta_eV": 0.8851693542382009,
+          "last_successful_biased_energy_eV": -176.63957210370708,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 10,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56742241094122,
+          "last_successful_true_energy_eV": -177.42290049960127,
+          "true_energy_delta_eV": 0.1445219113399503,
+          "last_successful_biased_energy_eV": -177.39897876358958,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 11,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56727584285238,
+          "last_successful_true_energy_eV": -176.49847293420828,
+          "true_energy_delta_eV": 1.068802908644102,
+          "last_successful_biased_energy_eV": -176.3678198728314,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 12,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56727584285238,
+          "last_successful_true_energy_eV": -175.00027112720727,
+          "true_energy_delta_eV": 2.567004715645112,
+          "last_successful_biased_energy_eV": -174.9470345984825,
+          "sign_consistent": true
+        }
+      ],
+      "stop_sign_consistent_count": 13,
+      "stop_sign_inconsistent_count": 0,
+      "stop_sign_uncheckable_count": 0
+    },
+    {
+      "case": "aloh3",
+      "method": "recovered",
+      "run_status": "evaluation_failed",
+      "accounting": {
+        "initial_requests": 14,
+        "sum_all_record_requests_including_censored": 11986,
+        "initial_plus_records": 12000,
+        "result_requests": 12000,
+        "summary_requests": 12000,
+        "complete_record_count": 22,
+        "terminal_censored_record_count": 1,
+        "record_status_counts": {
+          "lower_true_energy": 1,
+          "gaussian_limit": 21,
+          "evaluation_failed": 1
+        },
+        "ledger_success_rows": 12000,
+        "ledger_failure_rows": 0,
+        "ledger_denial_rows_not_counted": 1,
+        "ledger_request_ids_continuous_1_to_n": true,
+        "ledger_counted_requests_match_result": true,
+        "request_totals_consistent": true
+      },
+      "selected_first_three_gaussian_limit": [
+        {
+          "record_index": 1,
+          "outer_status": "gaussian_limit",
+          "record_requests": 512,
+          "cumulative_requests": 583,
+          "current_before_energy_eV": -177.566952554733,
+          "last_event": {
+            "index": 24,
+            "true_energy_eV": -176.53831871634264,
+            "biased_energy_total_eV": -176.47243308449117,
+            "event_status": "converged",
+            "requests": 68
+          },
+          "landing_energy_eV": -177.56695612909118,
+          "landing_converged": true,
+          "geometry": {
+            "current_vs_last_atoms": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.4073502916852499,
+              "ordered_atom_mic_max_A": 0.9663739275365999,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "current_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": true,
+                "broad": true
+              },
+              "ordered_atom_mic_rms_A": 0.23028196862070816,
+              "ordered_atom_mic_max_A": 0.24477551363062625,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "last_atoms_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.33765744602630154,
+              "ordered_atom_mic_max_A": 1.180329968458643,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            }
+          },
+          "cost_to_record_including_initial": 583
+        },
+        {
+          "record_index": 2,
+          "outer_status": "gaussian_limit",
+          "record_requests": 539,
+          "cumulative_requests": 1122,
+          "current_before_energy_eV": -177.56695612909118,
+          "last_event": {
+            "index": 24,
+            "true_energy_eV": -175.39172364434273,
+            "biased_energy_total_eV": -175.28662618818115,
+            "event_status": "converged",
+            "requests": 18
+          },
+          "landing_energy_eV": -177.32899770721883,
+          "landing_converged": true,
+          "geometry": {
+            "current_vs_last_atoms": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.6814747395888563,
+              "ordered_atom_mic_max_A": 1.9680143381292605,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "current_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.4929352181377779,
+              "ordered_atom_mic_max_A": 1.5863815706521633,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "last_atoms_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.47418898705842377,
+              "ordered_atom_mic_max_A": 1.3498645731670744,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            }
+          },
+          "cost_to_record_including_initial": 1122
+        },
+        {
+          "record_index": 3,
+          "outer_status": "gaussian_limit",
+          "record_requests": 637,
+          "cumulative_requests": 1759,
+          "current_before_energy_eV": -177.56695612909118,
+          "last_event": {
+            "index": 24,
+            "true_energy_eV": -175.98483001592098,
+            "biased_energy_total_eV": -175.93498206379815,
+            "event_status": "converged",
+            "requests": 22
+          },
+          "landing_energy_eV": -177.22432694383724,
+          "landing_converged": true,
+          "geometry": {
+            "current_vs_last_atoms": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.8632507687260353,
+              "ordered_atom_mic_max_A": 3.548227483402985,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "current_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.7472427327013298,
+              "ordered_atom_mic_max_A": 2.9142711018637986,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "last_atoms_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.5037135324495202,
+              "ordered_atom_mic_max_A": 1.317381969358198,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            }
+          },
+          "cost_to_record_including_initial": 1759
+        }
+      ],
+      "stop_sign_checks": [
+        {
+          "record_index": 0,
+          "status": "lower_true_energy",
+          "current_energy_before_eV": -177.32930506201916,
+          "last_successful_true_energy_eV": -177.56483090397103,
+          "true_energy_delta_eV": -0.2355258419518691,
+          "last_successful_biased_energy_eV": -177.56319333464523,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 1,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.566952554733,
+          "last_successful_true_energy_eV": -176.53831871634264,
+          "true_energy_delta_eV": 1.0286338383903626,
+          "last_successful_biased_energy_eV": -176.47243308449117,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 2,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56695612909118,
+          "last_successful_true_energy_eV": -175.39172364434273,
+          "true_energy_delta_eV": 2.1752324847484488,
+          "last_successful_biased_energy_eV": -175.28662618818115,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 3,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56695612909118,
+          "last_successful_true_energy_eV": -175.98483001592098,
+          "true_energy_delta_eV": 1.5821261131702045,
+          "last_successful_biased_energy_eV": -175.93498206379815,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 4,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56695612909118,
+          "last_successful_true_energy_eV": -176.07265454305008,
+          "true_energy_delta_eV": 1.4943015860411037,
+          "last_successful_biased_energy_eV": -176.04471574980434,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 5,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56695612909118,
+          "last_successful_true_energy_eV": -176.70839242385296,
+          "true_energy_delta_eV": 0.8585637052382253,
+          "last_successful_biased_energy_eV": -176.65119287770366,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 6,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56695612909118,
+          "last_successful_true_energy_eV": -177.13909384383538,
+          "true_energy_delta_eV": 0.4278622852557987,
+          "last_successful_biased_energy_eV": -177.0856531258121,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 7,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56738689710477,
+          "last_successful_true_energy_eV": -175.54417304908566,
+          "true_energy_delta_eV": 2.023213848019111,
+          "last_successful_biased_energy_eV": -175.46919074467863,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 8,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56738689710477,
+          "last_successful_true_energy_eV": -175.44059206623348,
+          "true_energy_delta_eV": 2.1267948308712903,
+          "last_successful_biased_energy_eV": -175.36174141136613,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 9,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56738689710477,
+          "last_successful_true_energy_eV": -175.3157434559904,
+          "true_energy_delta_eV": 2.2516434411143678,
+          "last_successful_biased_energy_eV": -175.23452656285897,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 10,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56738689710477,
+          "last_successful_true_energy_eV": -176.8395941970266,
+          "true_energy_delta_eV": 0.7277927000781688,
+          "last_successful_biased_energy_eV": -176.78712339266133,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 11,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56738689710477,
+          "last_successful_true_energy_eV": -176.54429739300184,
+          "true_energy_delta_eV": 1.023089504102927,
+          "last_successful_biased_energy_eV": -176.50299539298265,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 12,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56738689710477,
+          "last_successful_true_energy_eV": -174.9546452904844,
+          "true_energy_delta_eV": 2.612741606620375,
+          "last_successful_biased_energy_eV": -174.925349008617,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 13,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56738689710477,
+          "last_successful_true_energy_eV": -175.00905408259877,
+          "true_energy_delta_eV": 2.5583328145060023,
+          "last_successful_biased_energy_eV": -174.95927800569214,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 14,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56738689710477,
+          "last_successful_true_energy_eV": -175.39401411363258,
+          "true_energy_delta_eV": 2.173372783472189,
+          "last_successful_biased_energy_eV": -175.28001776828123,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 15,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56738689710477,
+          "last_successful_true_energy_eV": -174.51461857557422,
+          "true_energy_delta_eV": 3.05276832153055,
+          "last_successful_biased_energy_eV": -174.35679206433645,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 16,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56738689710477,
+          "last_successful_true_energy_eV": -175.56639729790209,
+          "true_energy_delta_eV": 2.0009895992026827,
+          "last_successful_biased_energy_eV": -175.47375205350778,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 17,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56738689710477,
+          "last_successful_true_energy_eV": -176.59743779350708,
+          "true_energy_delta_eV": 0.9699491035976848,
+          "last_successful_biased_energy_eV": -176.5939002305678,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 18,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56738689710477,
+          "last_successful_true_energy_eV": -177.0623236899504,
+          "true_energy_delta_eV": 0.5050632071543646,
+          "last_successful_biased_energy_eV": -176.981747382491,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 19,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56738689710477,
+          "last_successful_true_energy_eV": -175.67739657526096,
+          "true_energy_delta_eV": 1.8899903218438112,
+          "last_successful_biased_energy_eV": -175.56121538085014,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 20,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56738689710477,
+          "last_successful_true_energy_eV": -177.04617722132082,
+          "true_energy_delta_eV": 0.5212096757839504,
+          "last_successful_biased_energy_eV": -177.00816264453317,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 21,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -177.56738689710477,
+          "last_successful_true_energy_eV": -175.69760924885662,
+          "true_energy_delta_eV": 1.8697776482481459,
+          "last_successful_biased_energy_eV": -175.59017035311302,
+          "sign_consistent": true
+        }
+      ],
+      "stop_sign_consistent_count": 22,
+      "stop_sign_inconsistent_count": 0,
+      "stop_sign_uncheckable_count": 0
+    },
+    {
+      "case": "brookite48",
+      "method": "ritz",
+      "run_status": "evaluation_failed",
+      "accounting": {
+        "initial_requests": 4,
+        "sum_all_record_requests_including_censored": 11996,
+        "initial_plus_records": 12000,
+        "result_requests": 12000,
+        "summary_requests": 12000,
+        "complete_record_count": 16,
+        "terminal_censored_record_count": 1,
+        "record_status_counts": {
+          "gaussian_limit": 16,
+          "evaluation_failed": 1
+        },
+        "ledger_success_rows": 12000,
+        "ledger_failure_rows": 0,
+        "ledger_denial_rows_not_counted": 1,
+        "ledger_request_ids_continuous_1_to_n": true,
+        "ledger_counted_requests_match_result": true,
+        "request_totals_consistent": true
+      },
+      "selected_first_three_gaussian_limit": [
+        {
+          "record_index": 0,
+          "outer_status": "gaussian_limit",
+          "record_requests": 715,
+          "cumulative_requests": 719,
+          "current_before_energy_eV": -427.59036474751946,
+          "last_event": {
+            "index": 24,
+            "true_energy_eV": -422.1271342874134,
+            "biased_energy_total_eV": -421.95585118151837,
+            "event_status": "converged",
+            "requests": 31
+          },
+          "landing_energy_eV": -427.59023942851314,
+          "landing_converged": true,
+          "geometry": {
+            "current_vs_last_atoms": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.4532689201361538,
+              "ordered_atom_mic_max_A": 1.0319316381668264,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "current_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": true,
+                "broad": true
+              },
+              "ordered_atom_mic_rms_A": 0.006855348992650844,
+              "ordered_atom_mic_max_A": 0.011251121287866914,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "last_atoms_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.4534839922882696,
+              "ordered_atom_mic_max_A": 1.0328467245218864,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            }
+          },
+          "cost_to_record_including_initial": 719
+        },
+        {
+          "record_index": 1,
+          "outer_status": "gaussian_limit",
+          "record_requests": 695,
+          "cumulative_requests": 1414,
+          "current_before_energy_eV": -427.59023942851314,
+          "last_event": {
+            "index": 24,
+            "true_energy_eV": -422.6416949897583,
+            "biased_energy_total_eV": -422.4502968322169,
+            "event_status": "converged",
+            "requests": 27
+          },
+          "landing_energy_eV": -427.5912905410551,
+          "landing_converged": true,
+          "geometry": {
+            "current_vs_last_atoms": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.432618512899757,
+              "ordered_atom_mic_max_A": 1.2521727516511965,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "current_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": true,
+                "broad": true
+              },
+              "ordered_atom_mic_rms_A": 0.0056238825550469764,
+              "ordered_atom_mic_max_A": 0.012854690393598822,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "last_atoms_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.4313087552200703,
+              "ordered_atom_mic_max_A": 1.249412244898844,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            }
+          },
+          "cost_to_record_including_initial": 1414
+        },
+        {
+          "record_index": 2,
+          "outer_status": "gaussian_limit",
+          "record_requests": 727,
+          "cumulative_requests": 2141,
+          "current_before_energy_eV": -427.5912905410551,
+          "last_event": {
+            "index": 24,
+            "true_energy_eV": -422.6631625233005,
+            "biased_energy_total_eV": -422.4731546495148,
+            "event_status": "converged",
+            "requests": 31
+          },
+          "landing_energy_eV": -427.59091016229337,
+          "landing_converged": true,
+          "geometry": {
+            "current_vs_last_atoms": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.3982963400554521,
+              "ordered_atom_mic_max_A": 1.4035132157211199,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "current_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": true,
+                "broad": true
+              },
+              "ordered_atom_mic_rms_A": 0.0031517414980600277,
+              "ordered_atom_mic_max_A": 0.0059599011269379784,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "last_atoms_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.39834538790436225,
+              "ordered_atom_mic_max_A": 1.4030069876913358,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            }
+          },
+          "cost_to_record_including_initial": 2141
+        }
+      ],
+      "stop_sign_checks": [
+        {
+          "record_index": 0,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59036474751946,
+          "last_successful_true_energy_eV": -422.1271342874134,
+          "true_energy_delta_eV": 5.463230460106047,
+          "last_successful_biased_energy_eV": -421.95585118151837,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 1,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59023942851314,
+          "last_successful_true_energy_eV": -422.6416949897583,
+          "true_energy_delta_eV": 4.948544438754823,
+          "last_successful_biased_energy_eV": -422.4502968322169,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 2,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.5912905410551,
+          "last_successful_true_energy_eV": -422.6631625233005,
+          "true_energy_delta_eV": 4.928128017754602,
+          "last_successful_biased_energy_eV": -422.4731546495148,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 3,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59091016229337,
+          "last_successful_true_energy_eV": -422.5075211508128,
+          "true_energy_delta_eV": 5.083389011480563,
+          "last_successful_biased_energy_eV": -422.34959784242403,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 4,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59040335870725,
+          "last_successful_true_energy_eV": -423.7857844666636,
+          "true_energy_delta_eV": 3.8046188920436634,
+          "last_successful_biased_energy_eV": -423.74623379666576,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 5,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59116725357126,
+          "last_successful_true_energy_eV": -424.9276111886318,
+          "true_energy_delta_eV": 2.6635560649394847,
+          "last_successful_biased_energy_eV": -424.7147714654904,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 6,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.5906719179116,
+          "last_successful_true_energy_eV": -422.3496460986616,
+          "true_energy_delta_eV": 5.241025819250012,
+          "last_successful_biased_energy_eV": -422.15574302824047,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 7,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59077491547635,
+          "last_successful_true_energy_eV": -421.72938611371495,
+          "true_energy_delta_eV": 5.861388801761393,
+          "last_successful_biased_energy_eV": -421.478354348109,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 8,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59096090784647,
+          "last_successful_true_energy_eV": -422.08378034552766,
+          "true_energy_delta_eV": 5.507180562318808,
+          "last_successful_biased_energy_eV": -421.90243237686275,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 9,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59061575453194,
+          "last_successful_true_energy_eV": -422.2038666552179,
+          "true_energy_delta_eV": 5.386749099314045,
+          "last_successful_biased_energy_eV": -422.0239239557402,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 10,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.5912137290767,
+          "last_successful_true_energy_eV": -422.5363505320861,
+          "true_energy_delta_eV": 5.0548631969905955,
+          "last_successful_biased_energy_eV": -422.34011399099893,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 11,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59081669596674,
+          "last_successful_true_energy_eV": -421.9883312600774,
+          "true_energy_delta_eV": 5.602485435889321,
+          "last_successful_biased_energy_eV": -421.8000032903226,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 12,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59081669596674,
+          "last_successful_true_energy_eV": -422.71257649716205,
+          "true_energy_delta_eV": 4.87824019880469,
+          "last_successful_biased_energy_eV": -422.6353072105584,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 13,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.5913107894915,
+          "last_successful_true_energy_eV": -421.70651958539156,
+          "true_energy_delta_eV": 5.88479120409994,
+          "last_successful_biased_energy_eV": -421.552925693696,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 14,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59016096451774,
+          "last_successful_true_energy_eV": -422.06725606114634,
+          "true_energy_delta_eV": 5.522904903371398,
+          "last_successful_biased_energy_eV": -421.94486683318564,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 15,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.5912944729282,
+          "last_successful_true_energy_eV": -422.81987752429126,
+          "true_energy_delta_eV": 4.771416948636954,
+          "last_successful_biased_energy_eV": -422.63661084493253,
+          "sign_consistent": true
+        }
+      ],
+      "stop_sign_consistent_count": 16,
+      "stop_sign_inconsistent_count": 0,
+      "stop_sign_uncheckable_count": 0
+    },
+    {
+      "case": "brookite48",
+      "method": "recovered",
+      "run_status": "evaluation_failed",
+      "accounting": {
+        "initial_requests": 4,
+        "sum_all_record_requests_including_censored": 11996,
+        "initial_plus_records": 12000,
+        "result_requests": 12000,
+        "summary_requests": 12000,
+        "complete_record_count": 29,
+        "terminal_censored_record_count": 1,
+        "record_status_counts": {
+          "gaussian_limit": 29,
+          "evaluation_failed": 1
+        },
+        "ledger_success_rows": 12000,
+        "ledger_failure_rows": 0,
+        "ledger_denial_rows_not_counted": 1,
+        "ledger_request_ids_continuous_1_to_n": true,
+        "ledger_counted_requests_match_result": true,
+        "request_totals_consistent": true
+      },
+      "selected_first_three_gaussian_limit": [
+        {
+          "record_index": 0,
+          "outer_status": "gaussian_limit",
+          "record_requests": 408,
+          "cumulative_requests": 412,
+          "current_before_energy_eV": -427.59036474751946,
+          "last_event": {
+            "index": 24,
+            "true_energy_eV": -418.5167843247728,
+            "biased_energy_total_eV": -418.3709775594562,
+            "event_status": "converged",
+            "requests": 13
+          },
+          "landing_energy_eV": -427.590820305591,
+          "landing_converged": true,
+          "geometry": {
+            "current_vs_last_atoms": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.707784660387264,
+              "ordered_atom_mic_max_A": 1.6754948739172986,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "current_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": true,
+                "broad": true
+              },
+              "ordered_atom_mic_rms_A": 0.004458288006210703,
+              "ordered_atom_mic_max_A": 0.008830551127409035,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "last_atoms_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.7085432593872523,
+              "ordered_atom_mic_max_A": 1.6806151003014518,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            }
+          },
+          "cost_to_record_including_initial": 412
+        },
+        {
+          "record_index": 1,
+          "outer_status": "gaussian_limit",
+          "record_requests": 372,
+          "cumulative_requests": 784,
+          "current_before_energy_eV": -427.590820305591,
+          "last_event": {
+            "index": 24,
+            "true_energy_eV": -419.19616437029,
+            "biased_energy_total_eV": -418.8116646789335,
+            "event_status": "converged",
+            "requests": 13
+          },
+          "landing_energy_eV": -425.6262458908399,
+          "landing_converged": true,
+          "geometry": {
+            "current_vs_last_atoms": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.7000308196015516,
+              "ordered_atom_mic_max_A": 2.575444020892478,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "current_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.4741279420247147,
+              "ordered_atom_mic_max_A": 2.1303166390873374,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "last_atoms_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.397253674731656,
+              "ordered_atom_mic_max_A": 0.8338121030962883,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            }
+          },
+          "cost_to_record_including_initial": 784
+        },
+        {
+          "record_index": 2,
+          "outer_status": "gaussian_limit",
+          "record_requests": 360,
+          "cumulative_requests": 1144,
+          "current_before_energy_eV": -427.590820305591,
+          "last_event": {
+            "index": 24,
+            "true_energy_eV": -418.6311446668515,
+            "biased_energy_total_eV": -418.3497383347633,
+            "event_status": "converged",
+            "requests": 15
+          },
+          "landing_energy_eV": -427.5911092754902,
+          "landing_converged": true,
+          "geometry": {
+            "current_vs_last_atoms": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.5698731802124944,
+              "ordered_atom_mic_max_A": 1.5275766189363496,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "current_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": true,
+                "broad": true
+              },
+              "ordered_atom_mic_rms_A": 0.0028116599158435375,
+              "ordered_atom_mic_max_A": 0.005789161792902431,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            },
+            "last_atoms_vs_landing": {
+              "status": "compared",
+              "structure_match": {
+                "tight": false,
+                "broad": false
+              },
+              "ordered_atom_mic_rms_A": 0.5695307272984257,
+              "ordered_atom_mic_max_A": 1.5284711441176908,
+              "cell_equal": true,
+              "displacement_interpretation": "atom order fixed; MIC Cartesian displacement, not permutation invariant"
+            }
+          },
+          "cost_to_record_including_initial": 1144
+        }
+      ],
+      "stop_sign_checks": [
+        {
+          "record_index": 0,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59036474751946,
+          "last_successful_true_energy_eV": -418.5167843247728,
+          "true_energy_delta_eV": 9.073580422746659,
+          "last_successful_biased_energy_eV": -418.3709775594562,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 1,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.590820305591,
+          "last_successful_true_energy_eV": -419.19616437029,
+          "true_energy_delta_eV": 8.394655935301046,
+          "last_successful_biased_energy_eV": -418.8116646789335,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 2,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.590820305591,
+          "last_successful_true_energy_eV": -418.6311446668515,
+          "true_energy_delta_eV": 8.959675638739498,
+          "last_successful_biased_energy_eV": -418.3497383347633,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 3,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.5911092754902,
+          "last_successful_true_energy_eV": -425.11384976594286,
+          "true_energy_delta_eV": 2.477259509547366,
+          "last_successful_biased_energy_eV": -424.7893977788693,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 4,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.5904236418049,
+          "last_successful_true_energy_eV": -421.7734640126836,
+          "true_energy_delta_eV": 5.8169596291213,
+          "last_successful_biased_energy_eV": -421.5704820110385,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 5,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.5904236418049,
+          "last_successful_true_energy_eV": -420.41014200658674,
+          "true_energy_delta_eV": 7.180281635218137,
+          "last_successful_biased_energy_eV": -420.25863476510955,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 6,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59077681874396,
+          "last_successful_true_energy_eV": -421.97226067468597,
+          "true_energy_delta_eV": 5.618516144057992,
+          "last_successful_biased_energy_eV": -421.6631340505536,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 7,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.5910524639673,
+          "last_successful_true_energy_eV": -419.85220277713097,
+          "true_energy_delta_eV": 7.738849686836318,
+          "last_successful_biased_energy_eV": -419.68014901270874,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 8,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.5909712813114,
+          "last_successful_true_energy_eV": -427.5885298391056,
+          "true_energy_delta_eV": 0.0024414422057930096,
+          "last_successful_biased_energy_eV": -427.58850911889016,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 9,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59120794151613,
+          "last_successful_true_energy_eV": -423.4010513388188,
+          "true_energy_delta_eV": 4.190156602697357,
+          "last_successful_biased_energy_eV": -423.0778513314995,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 10,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59115321128206,
+          "last_successful_true_energy_eV": -419.7246527148132,
+          "true_energy_delta_eV": 7.866500496468859,
+          "last_successful_biased_energy_eV": -419.5389915696026,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 11,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59115321128206,
+          "last_successful_true_energy_eV": -419.44284185886187,
+          "true_energy_delta_eV": 8.148311352420194,
+          "last_successful_biased_energy_eV": -419.23723153824614,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 12,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.5911126218878,
+          "last_successful_true_energy_eV": -418.85777431842945,
+          "true_energy_delta_eV": 8.733338303458368,
+          "last_successful_biased_energy_eV": -418.63097655704564,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 13,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.5912475280529,
+          "last_successful_true_energy_eV": -420.5992239799147,
+          "true_energy_delta_eV": 6.9920235481382065,
+          "last_successful_biased_energy_eV": -420.54212389624075,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 14,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59084274401556,
+          "last_successful_true_energy_eV": -420.1789033125104,
+          "true_energy_delta_eV": 7.411939431505175,
+          "last_successful_biased_energy_eV": -419.8704086781788,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 15,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59084274401556,
+          "last_successful_true_energy_eV": -419.28379268609393,
+          "true_energy_delta_eV": 8.307050057921629,
+          "last_successful_biased_energy_eV": -419.07356527990436,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 16,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59063130254646,
+          "last_successful_true_energy_eV": -422.49428748561587,
+          "true_energy_delta_eV": 5.096343816930585,
+          "last_successful_biased_energy_eV": -422.0844303534246,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 17,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59097430260914,
+          "last_successful_true_energy_eV": -421.39154873669935,
+          "true_energy_delta_eV": 6.199425565909792,
+          "last_successful_biased_energy_eV": -421.1695101153409,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 18,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59058625713004,
+          "last_successful_true_energy_eV": -419.99418733036254,
+          "true_energy_delta_eV": 7.596398926767506,
+          "last_successful_biased_energy_eV": -419.87957622825917,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 19,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59058625713004,
+          "last_successful_true_energy_eV": -421.4670243918222,
+          "true_energy_delta_eV": 6.123561865307863,
+          "last_successful_biased_energy_eV": -421.2858884009982,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 20,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59058625713004,
+          "last_successful_true_energy_eV": -419.8955688473251,
+          "true_energy_delta_eV": 7.6950174098049615,
+          "last_successful_biased_energy_eV": -419.710046514273,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 21,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59084615080144,
+          "last_successful_true_energy_eV": -424.5700480978295,
+          "true_energy_delta_eV": 3.0207980529719407,
+          "last_successful_biased_energy_eV": -424.2570695561503,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 22,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.59042760098464,
+          "last_successful_true_energy_eV": -419.88453546141403,
+          "true_energy_delta_eV": 7.705892139570608,
+          "last_successful_biased_energy_eV": -419.79109177098246,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 23,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.5912955267992,
+          "last_successful_true_energy_eV": -418.6601747120398,
+          "true_energy_delta_eV": 8.931120814759367,
+          "last_successful_biased_energy_eV": -418.6092880117822,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 24,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.590677735351,
+          "last_successful_true_energy_eV": -420.25246433267705,
+          "true_energy_delta_eV": 7.338213402673944,
+          "last_successful_biased_energy_eV": -420.16380769696883,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 25,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.590677735351,
+          "last_successful_true_energy_eV": -420.5954603567116,
+          "true_energy_delta_eV": 6.995217378639381,
+          "last_successful_biased_energy_eV": -420.36375473147575,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 26,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.5905812567347,
+          "last_successful_true_energy_eV": -419.8075442116007,
+          "true_energy_delta_eV": 7.7830370451339945,
+          "last_successful_biased_energy_eV": -419.62119339767344,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 27,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.5910084940101,
+          "last_successful_true_energy_eV": -424.6104887578535,
+          "true_energy_delta_eV": 2.980519736156623,
+          "last_successful_biased_energy_eV": -424.34221873095765,
+          "sign_consistent": true
+        },
+        {
+          "record_index": 28,
+          "status": "gaussian_limit",
+          "current_energy_before_eV": -427.5911857386731,
+          "last_successful_true_energy_eV": -421.3468115156176,
+          "true_energy_delta_eV": 6.244374223055502,
+          "last_successful_biased_energy_eV": -421.0801450858924,
+          "sign_consistent": true
+        }
+      ],
+      "stop_sign_consistent_count": 29,
+      "stop_sign_inconsistent_count": 0,
+      "stop_sign_uncheckable_count": 0
+    }
+  ],
+  "state": "complete",
+  "updated_utc": "2026-09-23T17:15:48.933141+00:00",
+  "completed_utc": "2026-09-23T17:15:48.935687+00:00",
+  "audit_errors": []
+}

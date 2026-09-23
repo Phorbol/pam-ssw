@@ -1,0 +1,54 @@
+{
+  "phase87": {
+    "initial_converged": true,
+    "fresh_qualified": true,
+    "energy_eV": -426.1149230607233,
+    "energy_error_eV": 0.0,
+    "fmax_eV_A": 0.015867969398579644,
+    "LS_geometry": {
+      "native-mic": {
+        "pairs": 64,
+        "penalty_eV": 10.109572686157207,
+        "penalty_fmax_eV_A": 0.49399784502190164,
+        "finite": true
+      },
+      "periodic-images": {
+        "pairs": 80,
+        "penalty_eV": 10.109572686157207,
+        "penalty_fmax_eV_A": 0.18697311328827546,
+        "finite": true
+      }
+    },
+    "minimum_distinct_atom_MIC_distance_A": 1.7817420893346856,
+    "physical_qualification": "force-qualified; geometry requires interpretation; no Hessian or DFT certification",
+    "search_requests": 7,
+    "calculate_calls": 7,
+    "boundary": null
+  },
+  "phase139": {
+    "initial_converged": true,
+    "fresh_qualified": true,
+    "energy_eV": -425.7779612844892,
+    "energy_error_eV": 0.0,
+    "fmax_eV_A": 0.025460937433091434,
+    "LS_geometry": {
+      "native-mic": {
+        "pairs": 80,
+        "penalty_eV": 10.109572686157207,
+        "penalty_fmax_eV_A": 0.24049670244725402,
+        "finite": true
+      },
+      "periodic-images": {
+        "pairs": 80,
+        "penalty_eV": 10.109572686157207,
+        "penalty_fmax_eV_A": 0.24049670244725388,
+        "finite": true
+      }
+    },
+    "minimum_distinct_atom_MIC_distance_A": 1.8236396985512469,
+    "physical_qualification": "force-qualified; geometry requires interpretation; no Hessian or DFT certification",
+    "search_requests": 4,
+    "calculate_calls": 4,
+    "boundary": null
+  }
+}
