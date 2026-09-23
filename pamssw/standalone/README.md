@@ -200,13 +200,30 @@ bit-generator class. The checkpoint restores the current minimum, archive,
 frozen paper/native LS response state, policies, RNG state, and accumulated
 request count. An existing path is never an implicit input.
 
+These three fixed-cell entry points also accept an optional
+`checkpoint_callback(checkpoint)`. It receives a detached `SSWCheckpoint`
+after each completed, resumable outer attempt, following MC, LS response,
+starter selection, and record updates. A true return pauses at that boundary:
+`result.status == "paused"`, while `result.checkpoint.status == "completed"`
+remains eligible for explicit resume. A false return continues. With
+`checkpoint_path`, the file is saved before the callback. The callback can
+save its snapshot with `save_ssw_checkpoint`; it is not called for zero steps
+or terminal failures. Ordinary failed proposals that complete an outer attempt
+remain eligible if the driver can continue. With neither callback nor path,
+the driver does not make a per-step checkpoint copy. Building and delivering
+the snapshot itself adds no surface requests or random draws; user callback
+code is responsible for its own side effects. A hard
+kill inside an attempt still requires the previous saved boundary and an
+external ledger for work already paid since then.
+
 Full `recovered_direction` uses schema 4 to retain the selected atom pair,
 group mask, group marker, selection diagnostics and existing RNG/MC state.
 On resume its settings may be omitted (inferred from the checkpoint), or
 provided identically. No initial quench or direction initialization is repeated.
 Schemas 1–3 remain supported; an old checkpoint without full direction state
 cannot be converted to that mode by supplying new settings. Pool selection
-(`starter_selector`) remains incompatible with checkpointing. Full directions
+(`starter_selector`) requires its pure-data save/restore contract when
+checkpointing. Full directions
 retain their free, nonperiodic cluster restriction.
 
 
@@ -802,6 +819,7 @@ Observation indices are **not deduplicated basin IDs**. Uniform selection here
 weights repeated observations repeatedly; it is an interface example, not a
 validated search policy. Snapshot mutation cannot modify stored geometries.
 Selectors cannot inject unqualified coordinates, and invalid selections raise
-rather than silently falling back. The hook currently excludes LS and
-checkpoint recovery. Omitting both new arguments preserves the existing API,
+rather than silently falling back. The hook can share the LS and outer
+checkpoint lifecycle when its pure-data state contract is implemented.
+Omitting both new arguments preserves the existing API,
 MC behavior and kernel random stream. MACE descriptors are not required.

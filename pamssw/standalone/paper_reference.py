@@ -427,7 +427,7 @@ def _prepare_pool_restart(selected, *, ls, recovered_direction, rng):
 
 def run_ssw(atoms, surface, *, steps, config, rng, ls=None, height_policy=None, gaussian_policy=None,
             height_update_budget=1000, reconnect_distance=None, checkpoint=None,
-            checkpoint_path=None, structure_matcher=None, bias_quench_adapter=None,
+            checkpoint_path=None, checkpoint_callback=None, structure_matcher=None, bias_quench_adapter=None,
             recovered_direction=None, recovered_rotation=None, mc=None,
             starter_selector=None, selector_rng=None):
     """Run independent fixed-cell SSW; optional LS uses frozen image bonds for full PBC.
@@ -436,6 +436,10 @@ def run_ssw(atoms, surface, *, steps, config, rng, ls=None, height_policy=None, 
     loaded ``checkpoint`` and the same settings and RNG bit-generator type;
     positions come from the checkpoint. ``checkpoint_path`` is an output file,
     atomically replaced after each completed attempt (never an implicit input).
+    ``checkpoint_callback`` receives a detached checkpoint after each resumable
+    completed attempt. A true return pauses the run at that boundary: the result
+    status is ``paused``, while its checkpoint status remains ``completed`` for
+    explicit resume. It is not called on zero steps or terminal failures.
     The surface must use the same potential/settings; its counter is not reset.
     Failed terminal states are diagnostic snapshots, not resumable boundaries.
 
@@ -507,6 +511,8 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
         _validate_ssw_checkpoint(checkpoint)
         if checkpoint.status != 'completed':
             raise ValueError(f'cannot resume terminal checkpoint with status {checkpoint.status!r}')
+    if checkpoint_callback is not None and not callable(checkpoint_callback):
+        raise TypeError('checkpoint_callback must be callable or None')
     if starter_selector is None and selector_rng is not None:
         raise ValueError('selector_rng requires starter_selector')
     if starter_selector is not None:
@@ -517,7 +523,8 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
         if selector_rng is rng or selector_rng.bit_generator is rng.bit_generator:
             raise ValueError('selector_rng must be independent and must not share the main rng or bit_generator')
     pool_resume = checkpoint is not None and getattr(checkpoint, 'pool_state', None) is not None
-    pool_checkpoint = starter_selector is not None and (checkpoint_path is not None or pool_resume)
+    pool_checkpoint = starter_selector is not None and (
+        checkpoint_path is not None or checkpoint_callback is not None or pool_resume)
     if pool_resume and starter_selector is None:
         raise ValueError('pool checkpoint resume requires starter_selector')
     if pool_checkpoint or pool_resume:
@@ -591,8 +598,9 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
         raise ValueError('steps must be a nonnegative integer')
     if bias_quench_adapter is not None and not callable(bias_quench_adapter):
         raise TypeError('bias_quench_adapter must be callable or None')
-    if bias_quench_adapter is not None and (checkpoint is not None or checkpoint_path is not None):
-        raise ValueError('bias_quench_adapter cannot be combined with checkpoint or checkpoint_path')
+    if bias_quench_adapter is not None and (
+            checkpoint is not None or checkpoint_path is not None or checkpoint_callback is not None):
+        raise ValueError('bias_quench_adapter cannot be combined with checkpointing')
     if atoms.constraints:
         raise NotImplementedError('standalone SSW currently requires unconstrained atoms')
     if atoms.pbc.any():
@@ -737,7 +745,7 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
                              (record,), surface.requests-begin, terminal, cp, identity_view)
     run_status = 'completed'
     checkpoint_result = checkpoint if checkpoint is not None else None
-    checkpoint_enabled = checkpoint is not None or checkpoint_path is not None
+    checkpoint_enabled = checkpoint is not None or checkpoint_path is not None or checkpoint_callback is not None
     for index in range(start_index, start_index + steps):
         before = surface.requests
         work = current.copy()
@@ -1289,6 +1297,9 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
                 save_ssw_checkpoint(checkpoint_path, checkpoint_result)
         if run_status != 'completed':
             break
+        if checkpoint_callback is not None and checkpoint_callback(_checkpoint_copy(checkpoint_result)):
+            run_status = 'paused'
+            break
     if checkpoint_enabled and not records and checkpoint is None:
         checkpoint_result = SSWCheckpoint(_checkpoint_copy(initial), _checkpoint_copy(current), current_energy,
             _checkpoint_copy(best), tuple(_checkpoint_copy(minima)), tuple(), _checkpoint_copy(frozen),
@@ -1315,6 +1326,7 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
 def run_ls_ssw(atoms, surface, *, steps, config, rng, ls,
                reconnect_distance=None, height_policy=None, gaussian_policy=None,
                height_update_budget=1000, checkpoint=None, checkpoint_path=None,
+               checkpoint_callback=None,
                structure_matcher=None, bias_quench_adapter=None, mc=None):
     """Explicit LS entry point, sharing the independent paper SSW lifecycle."""
     if not isinstance(ls, LSSettings):
@@ -1324,6 +1336,7 @@ def run_ls_ssw(atoms, surface, *, steps, config, rng, ls,
                   gaussian_policy=gaussian_policy,
                   height_update_budget=height_update_budget,
                   checkpoint=checkpoint, checkpoint_path=checkpoint_path,
+                  checkpoint_callback=checkpoint_callback,
                   structure_matcher=structure_matcher, mc=mc)
     if bias_quench_adapter is not None:
         kwargs['bias_quench_adapter'] = bias_quench_adapter

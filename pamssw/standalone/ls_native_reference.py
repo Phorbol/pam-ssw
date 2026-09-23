@@ -77,7 +77,8 @@ class NativeLSRuntime:
 
 def run_native_ls_ssw(atoms,surface,*,steps,config,rng,ls,
                       height_policy=None,gaussian_policy=None,height_update_budget=1000,
-                      checkpoint=None, checkpoint_path=None, structure_matcher=None, mc=None):
+                      checkpoint=None, checkpoint_path=None, checkpoint_callback=None,
+                      structure_matcher=None, mc=None):
     """Complete LS prequench→SSW climb→bare quench→MC→native-derived update.
 
     This entry supports all-mobile atoms. Frozen bonds use the selected
@@ -93,4 +94,5 @@ def run_native_ls_ssw(atoms,surface,*,steps,config,rng,ls,
                    gaussian_policy=gaussian_policy,
                    height_update_budget=height_update_budget,
                    checkpoint=checkpoint, checkpoint_path=checkpoint_path,
+                   checkpoint_callback=checkpoint_callback,
                    structure_matcher=structure_matcher, mc=mc)
