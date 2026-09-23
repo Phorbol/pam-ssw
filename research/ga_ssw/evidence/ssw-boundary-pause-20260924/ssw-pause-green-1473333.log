@@ -1,0 +1,53 @@
+F...............................                                         [100%]
+=================================== FAILURES ===================================
+________ test_paper_ls_callback_pauses_after_complete_step_and_resumes _________
+
+tmp_path = PosixPath('/tmp/pytest-of-gengjianrui/pytest-0/test_paper_ls_callback_pauses_0')
+
+    def test_paper_ls_callback_pauses_after_complete_step_and_resumes(tmp_path):
+        atoms, config, ls = _case()
+        full_rng = np.random.default_rng(19)
+        full = run_ssw(atoms, ASESurface(EMT()), steps=2, config=config, rng=full_rng, ls=ls)
+        path = tmp_path / 'pause.pkl'
+        seen = []
+        first_rng = np.random.default_rng(19)
+        first_surface = ASESurface(EMT())
+    
+        def pause(checkpoint):
+            seen.append((checkpoint.next_index, checkpoint.status,
+                         checkpoint.response.steps, checkpoint.evaluation_requests))
+            save_ssw_checkpoint(path, checkpoint)
+            checkpoint.current.positions[:] = 1000.0
+            checkpoint.response.steps = 1000
+            checkpoint.records[0].last_atoms.positions[:] = 1000.0
+            return True
+    
+        first = run_ls_ssw(atoms, first_surface, steps=2, config=config,
+                           rng=first_rng, ls=ls, checkpoint_callback=pause)
+        stored = load_ssw_checkpoint(path)
+        assert first.status == 'paused'
+        assert first.checkpoint.status == stored.status == 'completed'
+        assert seen == [(1, 'completed', 1, first.evaluation_requests)]
+        assert len(first.records) == 1
+        assert first.evaluation_requests == first_surface.requests
+        assert first.checkpoint.response.steps == 1
+        np.testing.assert_array_equal(first.current.positions, stored.current.positions)
+        np.testing.assert_array_equal(first.records[0].last_atoms.positions,
+                                      stored.records[0].last_atoms.positions)
+        resumed_rng = np.random.default_rng(999)
+        resumed_surface = ASESurface(EMT())
+        resumed = run_ssw(atoms, resumed_surface, steps=1, config=config,
+                          rng=resumed_rng, ls=ls, checkpoint=stored)
+        assert resumed.status == full.status == 'completed'
+        assert resumed.evaluation_requests == full.evaluation_requests
+        assert first.evaluation_requests + resumed_surface.requests == full.evaluation_requests
+        assert [record.index for record in resumed.records] == [0, 1]
+        assert [record.ls_update for record in resumed.records] == [record.ls_update for record in full.records]
+>       assert resumed.checkpoint.response.steps == full.checkpoint.response.steps
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'response'
+
+tests/standalone/test_ssw_boundary_pause.py:53: AttributeError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_ssw_boundary_pause.py::test_paper_ls_callback_pauses_after_complete_step_and_resumes
+1 failed, 31 passed in 3.28s

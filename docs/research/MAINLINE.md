@@ -10,7 +10,7 @@ brookite最佳仍匹配初态。不能将吞吐提升称搜索质量提升；暂
 输入核查进一步确认Fe₇C₃论文hcp为C2/c且采用变胞搜索，现有六方Fe14C6不能代用作
 论文固定胞初态。零PES CPU1469175确认旧C₄H₆成键图合并顺/反构象区域：78帧中38/40，
 含重复访问，不构成方法排名。六臂完整读取，几何控制检查通过。
-下一项是三个C₄H₆闭壳层结构的模型资格检查；用户已批准使用MH-1/omol，
+C₄H₆阶段先完成三个闭壳层结构的模型资格检查；用户已批准使用MH-1/omol，
 GPU1469300零E/F因错误周期选项拒绝；只修正为direction_only后1469348完成。
 三结构均力/连接图合格，26+3调用，未证明Hessian或反应准确性。
 三策略各12外步的费用/执行链检查GPU1469509完成，CPU1469713独立读出通过：
@@ -32,8 +32,11 @@ dataclass复制时丢失，隔离修复分支fix/paper-ls-checkpoint-metadata已
 六组实验保留原冻结core，不因该元数据缺口重跑。真实响应逐外步日志仍完整保留。另两项已有LS池恢复测试CPU1470285通过。
 三个pilot落点的解析曲率检查CPU1470561完成：104°丁二烯在fmax0.0218eV/Å时仍有
 −0.191eV/Å²内部负曲率；平面trans与25°落点内部谱为正。不能由力合格/扭转跨度
-宣称稳定构象覆盖，不改变正在运行的协议或默认fmax。见[曲率证据与判定范围](../../research/ga_ssw/evidence/c4h6-mh1-curvature-20260924/README.md)。
-下一项为此前已批准方案中的固定胞外步暂停回调，隔离分支feature/ssw-boundary-pause实现中；
+宣称稳定构象覆盖，当时未改变运行中的协议，也未改变默认fmax。见[曲率证据与判定范围](../../research/ga_ssw/evidence/c4h6-mh1-curvature-20260924/README.md)。
+此前已批准方案中的固定胞外步暂停回调已合入3a8313a：32项针对性检查通过，
+新增预算拒绝测试后该文件8项通过（与前32项有重叠，不相加）。SSW/paper-LS/native-LS均可
+保存完整外步后暂停并恢复，默认/旧schema保留。
+[实现、命令与失败记录](../../research/ga_ssw/evidence/ssw-boundary-pause-20260924/README.md)。
 GA active-walk仍暂缓。C60百万请求验收提出最多176V100 GPU小时的新预算，尚未获批/提交；
 [具体资源与路线方案](2026-09-24-c60-long-budget-decision.md)，当前不据此启动GPU任务。
 方案见[有界资格协议](2026-09-24-c4h6-model-qualification.md)。

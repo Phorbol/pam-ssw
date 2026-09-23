@@ -27,6 +27,8 @@
 
 ## 续跑与分段边界
 
+更新：此前已获批准的SSW外步checkpoint回调现已实现并合入3a8313a，见[接口与验证](../../research/ga_ssw/evidence/ssw-boundary-pause-20260924/README.md)。长程runner推荐使用该回调在完成外步后合作式暂停；下文单步循环是既有API备选，不再是必须路径。GA active-walk/v2仍未实现，且不属于本次两臂C60协议。
+
 既有固定胞API原则上可用于安全边界分段：`run_ssw`、`run_ls_ssw` / `run_native_ls_ssw`提供`checkpoint_path`，每个完成的外步原子替换保存checkpoint；续跑时用`load_ssw_checkpoint`显式加载，传入新的ASE surface、相同设置和相同bit-generator类别，checkpoint恢复当前结构、archive、LS响应、策略状态、RNG状态与累计请求。`steps`表示额外外步；以`steps=1`反复调用，可将每次调用限制为一个外步并在返回后安全保存/检查预算，不依赖新的公共`on_step`回调。**这一调用方式在长程协议上的状态连续性和请求账本仍须通过小规模预检验证**，不能仅由API文档推断数值等价。
 
 风险边界：checkpoint不保存calculator；硬终止若发生在一个外步内部，该外步已支付的请求只能由外部账本保留，恢复会从最后完成外步重新开始，可能重复成本。预检需将checkpoint累计请求、fresh/search分类与追加上限统一核对，账本要求唯一请求ID并保留重跑/失败。每段以`steps=1`边界调用并核对12小时段长；若单外步本身可能超过段长，须调整段落策略或停止长跑，不新增公共API。最小预检至少验证：中断前后累计预算不回退、RNG/LS状态恢复、restart后续外步结构/事件与连续运行接口一致、fresh不计入search cap且总额封顶正确。
