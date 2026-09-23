@@ -20,8 +20,10 @@ GPU1469300零E/F因错误周期选项拒绝；只修正为direction_only后14693
 三策略×两种子各400外步的冻结对照数组1469796现已全部完成，无预算截断；
 1549156搜索请求+2405复核，CPU1470001读出errors=[]。共同200000请求前缀的连通图类别
 SSW为5/5、论文LS为6/8、native启发LS为10/8（均含初态）；碎片另计，尚非稳定异构体结论。
-每臂320000请求/2h、最多两张V100并行的上限未改变。下一项仅资格检查各臂连通类别代表，
-不追加搜索、不调参。
+每臂320000请求/2h、最多两张V100并行的上限未改变。CPU1473239现已完成42个类别代表的fresh+解析曲率检查：42/42数值合格，
+正内部谱代表类别SSW5/5、论文LS5/8、native启发LS10/7。支持后者在该模型任务的覆盖收益，
+不称通用优势/DFT反应复现，结束C4H6本系列、不调参。
+[代表资格与决定](../../research/ga_ssw/evidence/c4h6-mh1-class-qualification-20260924/README.md)。
 见[固定协议](../../research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/plan.md)。
 CPU1469991使用已保存pilot完成读出程序验证（零PES），包括失败外步后的结构映射和缺失fresh拒绝；
 正式读出CPU1470001已完成。论文LS的checkpoint更新计数/末响应在
@@ -31,6 +33,9 @@ dataclass复制时丢失，隔离修复分支fix/paper-ls-checkpoint-metadata已
 三个pilot落点的解析曲率检查CPU1470561完成：104°丁二烯在fmax0.0218eV/Å时仍有
 −0.191eV/Å²内部负曲率；平面trans与25°落点内部谱为正。不能由力合格/扭转跨度
 宣称稳定构象覆盖，不改变正在运行的协议或默认fmax。见[曲率证据与判定范围](../../research/ga_ssw/evidence/c4h6-mh1-curvature-20260924/README.md)。
+下一项为此前已批准方案中的固定胞外步暂停回调，隔离分支feature/ssw-boundary-pause实现中；
+GA active-walk仍暂缓。C60百万请求验收提出最多176V100 GPU小时的新预算，尚未获批/提交；
+[具体资源与路线方案](2026-09-24-c60-long-budget-decision.md)，当前不据此启动GPU任务。
 方案见[有界资格协议](2026-09-24-c4h6-model-qualification.md)。
 不把同材料两相或不同随机种子称作独立体系类别，不逐例调参；本轮不改算法默认。
 见[案例选择与停止规则](2026-09-24-benchmark-selection.md)。GA active-walk仍为已批准但暂缓；

@@ -1,0 +1,66 @@
+{
+  "status": "completed",
+  "completed_frames": 42,
+  "failed_frames": 0,
+  "requests": {
+    "fresh_energy_force_pairs": 42,
+    "analytic_hessians": 42
+  },
+  "class_curvature_counts_by_arm_seed": {
+    "ssw-seed61": {
+      "selected_connected_classes": 5,
+      "strictly_positive_spectrum_representatives": 5,
+      "negative_curvature_representatives": 0,
+      "exact_zero_sign_ambiguous_representatives": 0,
+      "fresh_numerically_unqualified_evaluations": 0,
+      "completed_hessian_numerically_unqualified": 0,
+      "incomplete_classes": 0
+    },
+    "paper_ls-seed61": {
+      "selected_connected_classes": 6,
+      "strictly_positive_spectrum_representatives": 5,
+      "negative_curvature_representatives": 1,
+      "exact_zero_sign_ambiguous_representatives": 0,
+      "fresh_numerically_unqualified_evaluations": 0,
+      "completed_hessian_numerically_unqualified": 0,
+      "incomplete_classes": 0
+    },
+    "native_ls-seed61": {
+      "selected_connected_classes": 10,
+      "strictly_positive_spectrum_representatives": 10,
+      "negative_curvature_representatives": 0,
+      "exact_zero_sign_ambiguous_representatives": 0,
+      "fresh_numerically_unqualified_evaluations": 0,
+      "completed_hessian_numerically_unqualified": 0,
+      "incomplete_classes": 0
+    },
+    "ssw-seed67": {
+      "selected_connected_classes": 5,
+      "strictly_positive_spectrum_representatives": 5,
+      "negative_curvature_representatives": 0,
+      "exact_zero_sign_ambiguous_representatives": 0,
+      "fresh_numerically_unqualified_evaluations": 0,
+      "completed_hessian_numerically_unqualified": 0,
+      "incomplete_classes": 0
+    },
+    "paper_ls-seed67": {
+      "selected_connected_classes": 8,
+      "strictly_positive_spectrum_representatives": 8,
+      "negative_curvature_representatives": 0,
+      "exact_zero_sign_ambiguous_representatives": 0,
+      "fresh_numerically_unqualified_evaluations": 0,
+      "completed_hessian_numerically_unqualified": 0,
+      "incomplete_classes": 0
+    },
+    "native_ls-seed67": {
+      "selected_connected_classes": 8,
+      "strictly_positive_spectrum_representatives": 7,
+      "negative_curvature_representatives": 1,
+      "exact_zero_sign_ambiguous_representatives": 0,
+      "fresh_numerically_unqualified_evaluations": 0,
+      "completed_hessian_numerically_unqualified": 0,
+      "incomplete_classes": 0
+    }
+  },
+  "elapsed_wall_seconds": 280.78334626500146
+}

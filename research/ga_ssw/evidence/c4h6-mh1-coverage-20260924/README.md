@@ -13,8 +13,10 @@ initial graph) are SSW5/5, paper-LS6/8, native-inspired-LS10/8 across seeds61/67
 Fragmented classes are separately2/4,7/7,3/6. This supports further qualification
 of connected coverage; graph counts alone do not certify stable isomers or
 chemical accuracy. The three-frame pilot curvature screen already found one
-force-qualified but negative-curvature butadiene geometry. A separate, bounded
-representative check is being prepared, without new search or retuning.
+force-qualified but negative-curvature butadiene geometry. The separate bounded
+[representative qualification](../c4h6-mh1-class-qualification-20260924/README.md)
+is now complete: positive-spectrum representatives are SSW5/5, paperLS5/8,
+nativeLS10/7. No new search or retuning occurred.
 
 Native LS made130 normal strength updates in each400-step trajectory, matching
 the recovered cadence. Its last response was0.4704/0.4698 eV/atom, versus
