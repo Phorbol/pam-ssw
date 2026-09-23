@@ -1,0 +1,30 @@
+[
+  {
+    "folder": "research/ga_ssw/evidence/population-comparison-20260923/runs/cu13-seed17-ga",
+    "status": "budget_exhausted",
+    "requests": 20000,
+    "errors": [],
+    "best_energy": null
+  },
+  {
+    "folder": "research/ga_ssw/evidence/population-comparison-20260923/runs/cu13-seed17-ssw",
+    "status": "request_cap_censored",
+    "requests": 20000,
+    "errors": [],
+    "best_energy": null
+  },
+  {
+    "folder": "research/ga_ssw/evidence/population-comparison-20260923/runs/cu13-seed3-ga",
+    "status": "budget_exhausted",
+    "requests": 20000,
+    "errors": [],
+    "best_energy": null
+  },
+  {
+    "folder": "research/ga_ssw/evidence/population-comparison-20260923/runs/cu13-seed3-ssw",
+    "status": "request_cap_censored",
+    "requests": 20000,
+    "errors": [],
+    "best_energy": null
+  }
+]

@@ -123,3 +123,30 @@ until result files, per-request ledgers and independent endpoints are checked.
 TYPE0 nonperiodic crossover may replace50Angstrom bookkeeping cell with zero
 cell; PBC remainsfalse. The output records this distinction; an exact cell flag
 is not by itself an isolated-cluster physical boundary failure.
+
+## Cu13 result and C60 release
+
+CPU audit1463551 verifies four consecutive request ledgers, each exactly20000;
+all stage sums close and no paid PES request failed. Baseline uses all3 starts
+with6666/6666/6665 requests after3 initialization calls. All four best endpoints
+remain the same initial minimum9.361357881570044eV, independently reproduced
+with max force9.9433e-6eV/Angstrom. This study shows no best-energy gain on these
+inputs; it does not demonstrate absence of a GA benefit on harder starts.
+
+GA seed3 spends13314 on quick exploration,412 on13 offspring quenches,6036
+on generation-short,235 on fine, plus3 initial calls. Seed17 spends16557 on
+quick,368 on13 offspring quenches,3072 on generation-short, plus3 initial;
+it never reaches fine. This is a frozen-schedule/budget limitation, not a
+software failure or reason to retune the completed study. Search requests
+are distinct from calculator cache misses; both counts remain in summaries.
+
+First offline readout incorrectly rejected surface=true because ASE extxyz
+parses that literal as boolean True. Corrected only the analyzer, reran the
+same raw artifacts on CPU1463551; the original diagnostic log1463533 remains.
+No search was rerun or changed. Readout: analysis-cu13.json under the evidence
+root; raw run directories retain all inputs, ledgers, checkpoints and structures.
+
+C60 runs released with frozen sourceec01115:1463566/1463568 (seed3 SSW/GA),
+1463567/1463569 (seed17 SSW/GA, each dependent on the corresponding first arm).
+At most2 V100 concurrently,60000 requests and90min software wall per arm,
+100min scheduler ceiling; no result yet. See gpu-submission.json.

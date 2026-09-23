@@ -33,7 +33,10 @@ def analyze_run(folder):
         # extxyz exposes the stored energy through its SinglePointCalculator.
         energy = float(atoms.get_potential_energy())
         info = atoms.info
-        numerical = (bool(info.get('converged', False)) and info.get('surface') == 'true'
+        # ASE extxyz parses the literal surface=true as boolean True.
+        stored_surface = info.get('surface')
+        true_surface = stored_surface == 'true' or stored_surface is True or isinstance(stored_surface, np.bool_) and bool(stored_surface)
+        numerical = (bool(info.get('converged', False)) and true_surface
                      and np.isfinite(energy) and float(info.get('max_force', float('inf'))) <= plan['ga']['quench_fmax'])
         row = dict(index=index, energy=energy, numerical=numerical,
                    phase=info.get('phase'), archive_eligible=info.get('eligible_for_archive'))
