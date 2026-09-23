@@ -251,16 +251,17 @@ def _prepare(plan, out):
             raise ValueError("this TYPE0 comparison requires unconstrained nonperiodic clusters")
     if any(not np.array_equal(initial[0].numbers, item.numbers) for item in initial[1:]):
         raise ValueError("all explicit population members must have identical ordered composition")
+    ssw_cfg = SSWConfig(**plan["ssw"])
+    ga_options = dict(plan["ga"])
+    ga_options["proposal_type"] = 0
+    ga_cfg = PaperGAConfig(**ga_options)
+    walk_options = walker_options(plan)
     backend = build_backend(plan["backend"])
     from ase.io import write as ase_write
     ase_write(out / "inputs.extxyz", initial)
     surface = CountedSurface(ASESurface(backend), cap=plan["search_cap"],
                              wall_seconds=plan["wall_seconds"], started=time.monotonic(),
                              ledger_path=out / "evaluations.jsonl")
-    ssw_cfg = SSWConfig(**plan["ssw"])
-    ga_options = dict(plan["ga"])
-    ga_options["proposal_type"] = 0
-    ga_cfg = PaperGAConfig(**ga_options)
     descriptor = plan["descriptor"]
     bonds = {tuple(sorted(map(int, pair[:2]))): float(pair[2])
              for pair in descriptor["bond_lengths"]}
@@ -268,7 +269,8 @@ def _prepare(plan, out):
                                     descriptor["neighbor_range"]) for a in initial[:3])
     if len(refs) < 3:
         raise ValueError("GA requires at least three raw initial structures for frozen descriptors")
-    return initial, surface, ssw_cfg, ga_cfg, bonds, refs, run_ga_ssw, run_ssw, quench, write
+    return (initial, surface, ssw_cfg, ga_cfg, bonds, refs, run_ga_ssw, run_ssw,
+            quench, write, walk_options)
 
 
 def _provenance(out):
@@ -356,7 +358,7 @@ def run(plan_path, arm, out_path):
     started = time.monotonic()
     try:
         (initial, surface, ssw_cfg, ga_cfg, bonds, refs, run_ga, run_ssw, quench,
-         write) = _prepare(plan, out)
+         write, walk_options) = _prepare(plan, out)
         # _prepare's clock must include setup as well as search; reset wall origin.
         surface.started = started
         search_result = None
@@ -378,7 +380,7 @@ def run(plan_path, arm, out_path):
                 proposal_bond_limits={}, config=ga_cfg, ssw_config=ssw_cfg,
                 rng=np.random.default_rng(plan["seed"]), max_evaluations=plan["search_cap"],
                 checkpoint_callback=save_boundary,
-                **walker_options(plan))
+                **walk_options)
             except SearchStopped:
                 if checkpoint_path.exists():
                     with checkpoint_path.open("rb") as stream:
@@ -498,7 +500,7 @@ def run(plan_path, arm, out_path):
                                      steps=int(plan["outer_steps"]), config=ssw_cfg,
                                      rng=np.random.default_rng(plan["seed"] + index),
                                      checkpoint_path=out / f"ssw-{index}-checkpoint.pkl",
-                                     **walker_options(plan))
+                                     **walk_options)
                     status = result.status
                 except Exception as error:
                     result = getattr(error, "result", None)

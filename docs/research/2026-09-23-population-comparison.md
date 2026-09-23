@@ -172,3 +172,12 @@ Independent read-only review found no further constructor mismatch. GA uses
 one sequential RNG stream whereas baseline walks each use seed+input-index;
 matching seed labels does not couple per-move randomness. This is a comparison
 of complete search strategies, not an isolated causal estimate for crossover.
+
+Follow-up harness fix (not used to change this running study): validate SSW,
+GA and walker option objects before loading the calculator or doing initial
+quenches; reuse the immutable option objects. CPU1464039 passes all7 runner
+checks, including the original invalid MC field producing an archived zero-PES
+failure without creating a calculator. No core search algorithm changes. Current
+C60 jobs still execute the frozen ec01115 runner with corrected v2 plans.
+Combined offline audit1463669 depends on all four corrected C60 jobs and requires
+all8 planned Cu13/C60 result summaries; missing arms cannot silently pass.

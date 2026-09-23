@@ -132,3 +132,40 @@ def test_ga_wall_guard_stops_at_existing_boundary_without_pes(tmp_path):
     assert summary['search_requests'] == 0
     assert not any(s['phase'] in ('offspring_quench','fine','ga_proposal') for s in summary['stages'])
     assert summary['fresh_checks'] == []
+
+
+def test_invalid_native_mc_option_fails_before_backend_creation(tmp_path, monkeypatch):
+    from ase.io import write
+    import research.ga_ssw.run_population_comparison as runner
+
+    inputs = []
+    for index in range(3):
+        path = tmp_path / f'input{index}.extxyz'
+        write(path, Atoms('Cu13', positions=[[i * (2.5 + .1 * index), 0, 0] for i in range(13)]))
+        inputs.append(str(path))
+    plan = dict(inputs=inputs, backend={'kind': 'emt'}, seed=3, search_cap=100,
+        wall_seconds=60, outer_steps=10,
+        ssw=dict(width=.2, rotation_bias=1., max_gaussians=1, temperature_K=300.,
+                 fmax=.03, relax_steps=20, fd_step=.001, rotation_hvp=4,
+                 rotation_tol=.02, cluster_frame='direction_only'),
+        ga=dict(quick_steps=1, generations=1, generation_steps=1, fine_steps=1,
+                ga_candidates=8, regions=1, fine_regions=1, quench_fmax=.03,
+                quench_steps=20, proposal_max_batches=1, proposal_max_cut_attempts=20,
+                proposal_max_pair_attempts=20, partition_max_draws=20,
+                projection_tolerance=.001, energy_window=10., proposal_type=0),
+        native_mc={'energy_tol_eV': .001, 'maxtrap': 10},
+        descriptor=dict(bond_lengths=[[29,29,2.26]], neighbor_range=2.,
+                        weights=[.3,.2,.2,.1,.1,.1]))
+    plan_path = tmp_path / 'plan.json'
+    plan_path.write_text(json.dumps(plan))
+    backend_calls = []
+    monkeypatch.setattr(runner, 'build_backend', lambda settings: backend_calls.append(settings))
+
+    with pytest.raises(TypeError, match='energy_tol_eV'):
+        runner.run(plan_path, 'ssw', tmp_path / 'run')
+
+    assert backend_calls == []
+    failure = json.loads((tmp_path / 'run' / 'failure.json').read_text())
+    assert failure['search_requests'] == 0
+    assert 'energy_tol_eV' in failure['error']
+    assert not (tmp_path / 'run' / 'evaluations.jsonl').exists()
