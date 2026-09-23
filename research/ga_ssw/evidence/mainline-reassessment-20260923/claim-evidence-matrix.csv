@@ -1,0 +1,6 @@
+claim_id,section,claim,source_ids,evidence_location,status,notes
+C1,scope,LS targets hard local reaction modes rather than only lowest-energy discovery,LS2024,sections2.2 and3.1,reported,Reaction coverage and global optimization need separate endpoints
+C2,mechanism,LS repulsive pair Hessian is not negative semidefinite,LS2024,Eq11 plus analytic radial Hessian,derived,Positive radial and negative tangential contributions; softened stationary geometry also changes
+C3,budget,Approximately100 steps may be required for reported LS response adaptation,LS2024,section2.3 and SI FigureS2,reported,Not a universal lower budget or proof our native-rule implementation has not adapted
+C4,scope,2014 VC block schedule differs from joint log-strain walker,VC2014,sections2.2-2.3 and current block_ssw.py,reported,Do not generalize failure of one implementation to allVC
+C5,effectiveness,Existing mixed small-seed results do not locate the bottleneck in GA,SSW2013;LS2024,local experimental reports20260921-23,inferred,Use actual costs and distinct geometry reanalysis before new search
