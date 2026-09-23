@@ -43,3 +43,36 @@
 来源：Tong Guan, Cheng Shang, Zhi-Pan Liu, JCTC, DOI10.1021/acs.jctc.4c01081，
 本地215.pdf/215.txt及ct4c01081_si_001.pdf。CSV来源和审查范围见
 ../../research/ga_ssw/evidence/mainline-reassessment-20260923/。
+
+## C4H6资格通过后的更新尺度核查（2026-09-24）
+
+已完成pilot中，论文式LS在第12次响应达到0.699347 eV/atom，native启发式仅
+0.035925 eV/atom；不是把700 meV误当0.7 meV，记录的core与native单位已核对。
+这两者都含预淬火和Gaussian行走，但强度控制器不是同一条自适应公式。
+
+源码 `softening.py:LSResponseState.update` 的无序对总幅度更新为
+
+    S_next = S - N * 1.8 * (P - target),
+
+其中S为所有无序对幅度的和，P为预淬火的真实能量升高/N，以eV/atom计。
+`native_ls.py:update_native_table` 则对元素对表B更新：
+
+    delta = P_meV - target_meV
+    Q = max(1, max_ab |B_ab * eta * N * delta / Nb_new| / cap)
+    B_ab_next = B_ab * Nb_old/Nb_new - B_ab * eta * N * delta/(Nb_new * Q).
+
+现有恢复值eta=.005，cap=.01 eV。Q限制的是响应项的单次表变化，并不限制独立的
+旧/新邻居数重标度。因此即使目标很高，固定邻居数时单次表增量仍有上限；不能仅用
+相同target断言激活强度或适应速度公平。上述比较是已实现控制律的分析，不是新设计。
+
+另外，当前native默认前100外步每步更新，其后每10步更新一次；cycle=100、ratio≈1.1
+使nsoftstep=110，save/zero/restore周期分支不激活。若400次准备均完成，将有130次
+normal_update，而论文式实现有400次更新。这是预先可检验的调度预期；失败、中断或
+未完成400步时须按实际事件计数，不补算。不能把较慢适应直接叫LS无效，也不为追齐
+目标在此轮调整eta、cap、frequency或学习率。
+
+本轮三臂隔离LS实现，均用全局随机方向+恢复CBD旋转，以及普通Metropolis选择。
+未启用完整恢复的pair/group方向控制器或native MC；SI中的Ratio_local=100不能映射成
+本轮的global方向设置。结合势、真力阈值、局部步数差异，本轮是本项目既有SSW内核上
+的机制比较，不是LASP原程序或论文完整输入的等价复现。SI§7.1/7.2的400 SSWsteps与
+正文“400 minima visited”也必须和实际外步/合格落点分别报告。
