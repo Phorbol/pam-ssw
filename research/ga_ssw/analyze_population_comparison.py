@@ -60,6 +60,11 @@ def analyze_run(folder):
         errors.append('phase costs do not close to paid ledger')
     eligible = [r for r in observations if r['numerical']]
     best = min(eligible, key=lambda r:r['energy']) if eligible else None
+    phase_best = {}
+    for row in eligible:
+        phase = row['phase']
+        if phase not in phase_best or row['energy'] < phase_best[phase]['energy']:
+            phase_best[phase] = {'index': row['index'], 'energy': row['energy']}
     fresh_path=folder/'fresh-checks.json'
     fresh = json.loads(fresh_path.read_text()) if fresh_path.exists() else None
     checked_indices = {row['geometry_index'] for row in (fresh or {}).get('checks', [])
@@ -74,7 +79,7 @@ def analyze_run(folder):
     result=dict(folder=str(folder),arm=summary['arm'],seed=plan['seed'],status=summary['status'],
         requests=paid,refused=refused,wall_seconds=summary['wall_seconds'],
         errors=errors,observations=observations,best=best,fresh=fresh,
-        phase_requests=phase_costs,
+        phase_requests=phase_costs, phase_best=phase_best,
         calculator_calls=summary.get('search_calculator_calculate_calls'),
         confirmed_cage=confirmed_cage if 'reference_energy' in plan else None,
         confirmed_reference_energy=confirmed_energy,

@@ -181,3 +181,11 @@ failure without creating a calculator. No core search algorithm changes. Current
 C60 jobs still execute the frozen ec01115 runner with corrected v2 plans.
 Combined offline audit1463669 depends on all four corrected C60 jobs and requires
 all8 planned Cu13/C60 result summaries; missing arms cannot silently pass.
+
+Interim seed3 audit1464340: both corrected C60 arms close at60000 requests,
+with1281 shared initialization requests. Fresh best energies are
+-62189.39215324536eV (GA) and-62185.74784164229eV (independent SSW), a3.6443eV
+GA advantage for this seed only. Neither meets the target cage or reference
+energy criterion. Both force/composition/PBC checks pass; GA's nonperiodic
+bookkeeping cell differs as anticipated. Second seed remains running; no
+parameter, budget, model or input change follows this interim result.
