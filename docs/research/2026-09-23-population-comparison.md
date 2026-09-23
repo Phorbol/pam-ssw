@@ -37,7 +37,9 @@ Four arms per system: total maximum 240000 C60 +80000 EMT search requests;
 at most4 post-search fresh checks per arm. Raw request counts and wall time
 are reported; they are not asserted equal to internal model-forward counts.
 
-Both arms explicitly quench all raw starts by the same GA initial BFGS path
+Both arms explicitly quench all raw starts by the same current GA initial-quench path
+(Safe-total for the chosen configs, with identical history setting; BFGS only
+for the fallback branch used by other optimizer selections)
 with common force/step limits. The baseline then divides its remaining budget
 equally over the qualified starts in original order, carrying unused allocation
 forward. Each start runs an independent SSW trajectory, with no best-seed restart.
@@ -95,3 +97,29 @@ Before expensive runs: CPU runner/counter tests and input/descriptor preflight;
 then bounded GPU execution on at most2 V100 jobs concurrently, each100min.
 CPU measurements run on CPU nodes. No automatic resubmission or budget expansion.
 Inputs/plans: `research/ga_ssw/evidence/population-comparison-20260923/`.
+
+## Pre-execution review correction
+
+The initial preparation note called the GA initial optimizer BFGS based on an
+older audit. Live `paper_ga.py:495-502` already selects configured Safe-total,
+SciPy or ASE line search, forwarding history, and uses BFGS only otherwise.
+The study baseline mirrors that current branch before any scientific execution.
+CPU1463275 zero-PES input/descriptor preflight passed:4/4 C60 and3/3 Cu13 raw
+projections distinguishable; MH1 reference passes the cage graph. This does
+not certify post-quench parent diversity or predictor accuracy.
+
+## Driver verification and launch
+
+Runner is frozen in the separate clean `research/ga-matched-search` worktree at
+`ec01115`; actual run provenance records the full SHA. Independent review found
+and fixed per-start quota termination, initial optimizer routing, duplicate
+fresh checks and wall-censor reporting before formal execution. CPU1463423
+passed16 focused checks; after the final wall-boundary regression CPU1463485
+passed17. No core algorithm was changed. Wall guard refuses new PES requests
+and GA stops at its next existing phase boundary; scheduler ceiling is100min.
+
+CPU1463493–1463496 are the four prospective Cu13 arms. No result is claimed
+until result files, per-request ledgers and independent endpoints are checked.
+TYPE0 nonperiodic crossover may replace50Angstrom bookkeeping cell with zero
+cell; PBC remainsfalse. The output records this distinction; an exact cell flag
+is not by itself an isolated-cluster physical boundary failure.

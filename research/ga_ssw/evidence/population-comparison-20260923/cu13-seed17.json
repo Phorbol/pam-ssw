@@ -3,7 +3,7 @@
   "wall_seconds": 1200,
   "outer_steps": 10000,
   "scope": "Development controlled study on reused inputs; no independent success-rate estimate; no target-cage launch seed",
-  "allocation": "SSW first quenches every initial with same GA BFGS; then split remaining global budget across qualified starts in fixed order, carrying only unused allocation. GA uses same total cap.",
+  "allocation": "SSW first quenches every initial with same current GA optimizer selection and history (Safe-total here); then split remaining global budget across qualified starts in fixed order, carrying only unused allocation. GA uses same total cap.",
   "code_head": "bd9a8fdc89e13915ed1e1218f627851f0f557c9a",
   "inputs": [
     "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/population-comparison-20260923/inputs/cu13-0.extxyz",
