@@ -1,0 +1,43 @@
+{
+  "case": "aloh3",
+  "seed": 41,
+  "method": "ritz",
+  "status": "evaluation_failed",
+  "steps_completed": 14,
+  "accepted": 6,
+  "search_seconds": 235.7783851614222,
+  "search_requests": 12000,
+  "search_calculator_calls": 11068,
+  "denials": 1,
+  "boundary": "request_cap",
+  "minima": 14,
+  "fresh_requests": 2,
+  "fresh_calculator_calls": 2,
+  "fresh": [
+    {
+      "label": "initial",
+      "status": "completed",
+      "energy": -177.3293050620191,
+      "fmax": 0.023520100501586923,
+      "energy_error": 0.0,
+      "cell_unchanged": true,
+      "pbc_unchanged": true,
+      "numbers_unchanged": true,
+      "numerical_qualified": true,
+      "physical_qualification": "requires_structural_audit"
+    },
+    {
+      "label": "best",
+      "status": "completed",
+      "energy": -177.56743385376285,
+      "fmax": 0.026853595403314764,
+      "energy_error": 0.0,
+      "cell_unchanged": true,
+      "pbc_unchanged": true,
+      "numbers_unchanged": true,
+      "numerical_qualified": true,
+      "physical_qualification": "requires_structural_audit"
+    }
+  ],
+  "execution_class": "budget_censored"
+}

@@ -12,3 +12,9 @@
 Do not reinterpret submitted/running as completed or physically qualified. Final result and costs pending. Source/harness/input hashes checked by runner before model creation. No automatic retries or extensions.
 
 Offline analysis job1468136 submitted with `--dependency=afterany:1467906`, CPU-MISC/rush-cpu, 5min, zeroPES; scheduler dependency prevents reading active GPU outputs. Partial output is saved after each arm. This replaces manual completion polling, not an additional search.
+
+Final execution: GPU1467906 COMPLETED 0:0 in19m37; search48000 requests and8 fresh requests. CPU1468136 exited1 after17s after writing all4 arms, because two final request-censored Ritz events lack a rotation breakdown. All total request invariants pass; raw warnings preserved. This is expected censored attribution, not an oracle failure or a successful all-fields audit.
+
+Large raw `*-seed41/{result.json,requests.jsonl,checkpoint*,minima*}` and frozen source remain in this study directory on the shared filesystem; they are not published to Git. Git retains protocol, harness, derived analysis, summaries, fresh checks and initial/best structures. Regenerate frozen core using `git archive e41cc251a87f3774b42ae8d81dc22f2fbcdc0d37 pamssw` as recorded in plan. No raw data overwritten.
+
+Follow-up CPU1468369 (3min cap) completed exit0: zeroPES,4 cross-policy best-structure matches and archived cost/path readout. See followup.json/md; tiny energy differences are not ranked.

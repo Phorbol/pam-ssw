@@ -1,0 +1,842 @@
+{
+  "analysis": "read-only request accounting, fresh-qualification, and initial-vs-best geometry audit",
+  "created_utc": "2026-09-23T16:23:42.893615+00:00",
+  "plan_path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/periodic-rotation-priority-20260923/plan.json",
+  "plan_status": "prepared",
+  "python": "3.12.11 | packaged by Anaconda, Inc. | (main, Jun  5 2025, 13:09:17) [GCC 11.2.0]",
+  "platform": "Linux-6.8.0-71-generic-x86_64-with-glibc2.39",
+  "pymatgen_version": "2026.5.4",
+  "calculator_or_PES_calls": 0,
+  "expected_arm_count": 4,
+  "expected_arms": [
+    {
+      "case": "aloh3",
+      "method": "ritz",
+      "seed": 41,
+      "directory": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/periodic-rotation-priority-20260923/aloh3-ritz-seed41"
+    },
+    {
+      "case": "aloh3",
+      "method": "recovered",
+      "seed": 41,
+      "directory": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/periodic-rotation-priority-20260923/aloh3-recovered-seed41"
+    },
+    {
+      "case": "brookite48",
+      "method": "ritz",
+      "seed": 41,
+      "directory": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/periodic-rotation-priority-20260923/brookite48-ritz-seed41"
+    },
+    {
+      "case": "brookite48",
+      "method": "recovered",
+      "seed": 41,
+      "directory": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/periodic-rotation-priority-20260923/brookite48-recovered-seed41"
+    }
+  ],
+  "aggregate_summary_row_count": 4,
+  "aggregate_summary_path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/periodic-rotation-priority-20260923/summary.json",
+  "geometry_matcher": {
+    "class": "pymatgen.core.structure_matcher.StructureMatcher",
+    "comparator": "ElementComparator",
+    "primitive_cell": false,
+    "scale": false,
+    "attempt_supercell": false,
+    "tolerances": {
+      "tight": {
+        "ltol": 0.05,
+        "stol": 0.1,
+        "angle_tol": 2.0
+      },
+      "broad": {
+        "ltol": 0.2,
+        "stol": 0.3,
+        "angle_tol": 5.0
+      }
+    },
+    "maximum_pairwise_calls": 8,
+    "interpretation": "initial.extxyz vs best.extxyz only; a match/nonmatch is not a strict basin/phase classification"
+  },
+  "arms": [
+    {
+      "case": "aloh3",
+      "method": "ritz",
+      "seed": 41,
+      "directory": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/periodic-rotation-priority-20260923/aloh3-ritz-seed41",
+      "artifact_status": "complete",
+      "errors": [],
+      "artifacts_present": {
+        "summary": true,
+        "result": true,
+        "requests": true,
+        "fresh": true
+      },
+      "archived_status": "evaluation_failed",
+      "execution_class": "budget_censored",
+      "boundary": "request_cap",
+      "ledger": {
+        "ledger_rows": 12001,
+        "successful_search_rows": 12000,
+        "failed_search_rows": 0,
+        "denial_rows_not_counted_as_requests": 1,
+        "counted_search_requests": 12000,
+        "request_ids_continuous": true,
+        "first_request_id": 1,
+        "last_request_id": 12000,
+        "unknown_kinds": [],
+        "errors": []
+      },
+      "summary_search_requests": 12000,
+      "summary_search_calculator_calls": 11068,
+      "summary_denials": 1,
+      "result_status": "evaluation_failed",
+      "result_evaluation_requests": 12000,
+      "request_accounting": {
+        "initial_requests": 14,
+        "outer_record_count": 14,
+        "outer_record_request_sum": 11986,
+        "initial_plus_records": 12000,
+        "result_evaluation_requests": 12000,
+        "summary_search_requests": 12000,
+        "ledger_counted_requests": 12000,
+        "matches_result": true,
+        "matches_summary": true,
+        "matches_ledger": true
+      },
+      "outer_records": 14,
+      "landings": 13,
+      "result_minima": 14,
+      "accepted_records": 6,
+      "rejected_records": 8,
+      "rotation_and_quench_costs": {
+        "request_totals": {
+          "rotation_requests": 8451,
+          "bias_quench_requests": 2478,
+          "true_quench_requests": 433,
+          "outer_record_requests": 11986,
+          "climb_event_requests": 11553,
+          "event_unallocated_requests": 612,
+          "outer_unallocated_requests": 0
+        },
+        "records_with_known_cost": {
+          "rotation_requests": 306,
+          "bias_quench_requests": 306,
+          "true_quench_requests": 13,
+          "outer_record_requests": 14,
+          "climb_event_requests": 14,
+          "event_unallocated_requests": 306,
+          "outer_unallocated_requests": 13
+        },
+        "missing_cost_classification_counts": {
+          "rotation_cost_events": 1,
+          "bias_quench_cost_events": 1,
+          "true_quench_cost_records": 0,
+          "event_total_costs": 0,
+          "outer_record_costs": 1
+        },
+        "rotation_requests_by_serialized_stage": {
+          "pre_rotation": 1836,
+          "main_rotation": 6615
+        },
+        "anomalies": [
+          "record[13].climb[5].rotation_force_requests: expected nonnegative integer, got None"
+        ],
+        "audit_status": "review_anomalies"
+      },
+      "energetics": {
+        "initial_energy_eV": -177.3293050620191,
+        "best_energy_eV_from_result_minima": -177.56743385376285,
+        "best_delta_eV_vs_initial": -0.23812879174374757,
+        "best_energy_minimum_converged": true,
+        "best_delta_definition": "min(result.minima[*].energy) - result.initial.energy; stored best.extxyz is geometrically checked separately"
+      },
+      "fresh_checks": {
+        "initial": {
+          "status": "completed",
+          "energy_eV": -177.3293050620191,
+          "fmax_eV_A": 0.023520100501586923,
+          "energy_error_eV": 0.0,
+          "cell_unchanged": true,
+          "pbc_unchanged": true,
+          "numbers_unchanged": true,
+          "minimum_converged": true,
+          "saved_numerical_qualified": true,
+          "recomputed_numerical_qualified": true,
+          "errors": []
+        },
+        "best": {
+          "status": "completed",
+          "energy_eV": -177.56743385376285,
+          "fmax_eV_A": 0.026853595403314764,
+          "energy_error_eV": 0.0,
+          "cell_unchanged": true,
+          "pbc_unchanged": true,
+          "numbers_unchanged": true,
+          "minimum_converged": true,
+          "saved_numerical_qualified": true,
+          "recomputed_numerical_qualified": true,
+          "errors": []
+        }
+      },
+      "initial_vs_best_geometry": {
+        "status": "compared",
+        "initial_vs_best_matches": {
+          "tight": false,
+          "broad": false
+        },
+        "pymatgen_comparisons": 2,
+        "interpretation": "pairwise geometric match only; not strict basin or phase identity"
+      },
+      "summary_aggregate_rows": [
+        {
+          "case": "aloh3",
+          "seed": 41,
+          "method": "ritz",
+          "status": "evaluation_failed",
+          "steps_completed": 14,
+          "accepted": 6,
+          "search_seconds": 235.7783851614222,
+          "search_requests": 12000,
+          "search_calculator_calls": 11068,
+          "denials": 1,
+          "boundary": "request_cap",
+          "minima": 14,
+          "fresh_requests": 2,
+          "fresh_calculator_calls": 2,
+          "fresh": [
+            {
+              "label": "initial",
+              "status": "completed",
+              "energy": -177.3293050620191,
+              "fmax": 0.023520100501586923,
+              "energy_error": 0.0,
+              "cell_unchanged": true,
+              "pbc_unchanged": true,
+              "numbers_unchanged": true,
+              "numerical_qualified": true,
+              "physical_qualification": "requires_structural_audit"
+            },
+            {
+              "label": "best",
+              "status": "completed",
+              "energy": -177.56743385376285,
+              "fmax": 0.026853595403314764,
+              "energy_error": 0.0,
+              "cell_unchanged": true,
+              "pbc_unchanged": true,
+              "numbers_unchanged": true,
+              "numerical_qualified": true,
+              "physical_qualification": "requires_structural_audit"
+            }
+          ],
+          "execution_class": "budget_censored"
+        }
+      ],
+      "audit_status": "consistent"
+    },
+    {
+      "case": "aloh3",
+      "method": "recovered",
+      "seed": 41,
+      "directory": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/periodic-rotation-priority-20260923/aloh3-recovered-seed41",
+      "artifact_status": "complete",
+      "errors": [],
+      "artifacts_present": {
+        "summary": true,
+        "result": true,
+        "requests": true,
+        "fresh": true
+      },
+      "archived_status": "evaluation_failed",
+      "execution_class": "budget_censored",
+      "boundary": "request_cap",
+      "ledger": {
+        "ledger_rows": 12001,
+        "successful_search_rows": 12000,
+        "failed_search_rows": 0,
+        "denial_rows_not_counted_as_requests": 1,
+        "counted_search_requests": 12000,
+        "request_ids_continuous": true,
+        "first_request_id": 1,
+        "last_request_id": 12000,
+        "unknown_kinds": [],
+        "errors": []
+      },
+      "summary_search_requests": 12000,
+      "summary_search_calculator_calls": 10364,
+      "summary_denials": 1,
+      "result_status": "evaluation_failed",
+      "result_evaluation_requests": 12000,
+      "request_accounting": {
+        "initial_requests": 14,
+        "outer_record_count": 23,
+        "outer_record_request_sum": 11986,
+        "initial_plus_records": 12000,
+        "result_evaluation_requests": 12000,
+        "summary_search_requests": 12000,
+        "ledger_counted_requests": 12000,
+        "matches_result": true,
+        "matches_summary": true,
+        "matches_ledger": true
+      },
+      "outer_records": 23,
+      "landings": 22,
+      "result_minima": 23,
+      "accepted_records": 3,
+      "rejected_records": 20,
+      "rotation_and_quench_costs": {
+        "request_totals": {
+          "rotation_requests": 3593,
+          "bias_quench_requests": 6405,
+          "true_quench_requests": 899,
+          "outer_record_requests": 11986,
+          "climb_event_requests": 11087,
+          "event_unallocated_requests": 1088,
+          "outer_unallocated_requests": 0
+        },
+        "records_with_known_cost": {
+          "rotation_requests": 544,
+          "bias_quench_requests": 544,
+          "true_quench_requests": 22,
+          "outer_record_requests": 23,
+          "climb_event_requests": 23,
+          "event_unallocated_requests": 544,
+          "outer_unallocated_requests": 22
+        },
+        "missing_cost_classification_counts": {
+          "rotation_cost_events": 1,
+          "bias_quench_cost_events": 1,
+          "true_quench_cost_records": 0,
+          "event_total_costs": 0,
+          "outer_record_costs": 1
+        },
+        "rotation_requests_by_serialized_stage": {
+          "CBD_PreRot": 1679,
+          "CBD_biasedRot": 1914
+        },
+        "anomalies": [],
+        "audit_status": "consistent"
+      },
+      "energetics": {
+        "initial_energy_eV": -177.32930506201916,
+        "best_energy_eV_from_result_minima": -177.56738689710477,
+        "best_delta_eV_vs_initial": -0.23808183508560887,
+        "best_energy_minimum_converged": true,
+        "best_delta_definition": "min(result.minima[*].energy) - result.initial.energy; stored best.extxyz is geometrically checked separately"
+      },
+      "fresh_checks": {
+        "initial": {
+          "status": "completed",
+          "energy_eV": -177.32930506201916,
+          "fmax_eV_A": 0.0235201005015988,
+          "energy_error_eV": 0.0,
+          "cell_unchanged": true,
+          "pbc_unchanged": true,
+          "numbers_unchanged": true,
+          "minimum_converged": true,
+          "saved_numerical_qualified": true,
+          "recomputed_numerical_qualified": true,
+          "errors": []
+        },
+        "best": {
+          "status": "completed",
+          "energy_eV": -177.56738689710477,
+          "fmax_eV_A": 0.01765657052922789,
+          "energy_error_eV": 0.0,
+          "cell_unchanged": true,
+          "pbc_unchanged": true,
+          "numbers_unchanged": true,
+          "minimum_converged": true,
+          "saved_numerical_qualified": true,
+          "recomputed_numerical_qualified": true,
+          "errors": []
+        }
+      },
+      "initial_vs_best_geometry": {
+        "status": "compared",
+        "initial_vs_best_matches": {
+          "tight": false,
+          "broad": false
+        },
+        "pymatgen_comparisons": 2,
+        "interpretation": "pairwise geometric match only; not strict basin or phase identity"
+      },
+      "summary_aggregate_rows": [
+        {
+          "case": "aloh3",
+          "seed": 41,
+          "method": "recovered",
+          "status": "evaluation_failed",
+          "steps_completed": 23,
+          "accepted": 3,
+          "search_seconds": 227.5811221394688,
+          "search_requests": 12000,
+          "search_calculator_calls": 10364,
+          "denials": 1,
+          "boundary": "request_cap",
+          "minima": 23,
+          "fresh_requests": 2,
+          "fresh_calculator_calls": 2,
+          "fresh": [
+            {
+              "label": "initial",
+              "status": "completed",
+              "energy": -177.32930506201916,
+              "fmax": 0.0235201005015988,
+              "energy_error": 0.0,
+              "cell_unchanged": true,
+              "pbc_unchanged": true,
+              "numbers_unchanged": true,
+              "numerical_qualified": true,
+              "physical_qualification": "requires_structural_audit"
+            },
+            {
+              "label": "best",
+              "status": "completed",
+              "energy": -177.56738689710477,
+              "fmax": 0.01765657052922789,
+              "energy_error": 0.0,
+              "cell_unchanged": true,
+              "pbc_unchanged": true,
+              "numbers_unchanged": true,
+              "numerical_qualified": true,
+              "physical_qualification": "requires_structural_audit"
+            }
+          ],
+          "execution_class": "budget_censored"
+        }
+      ],
+      "audit_status": "consistent"
+    },
+    {
+      "case": "brookite48",
+      "method": "ritz",
+      "seed": 41,
+      "directory": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/periodic-rotation-priority-20260923/brookite48-ritz-seed41",
+      "artifact_status": "complete",
+      "errors": [],
+      "artifacts_present": {
+        "summary": true,
+        "result": true,
+        "requests": true,
+        "fresh": true
+      },
+      "archived_status": "evaluation_failed",
+      "execution_class": "budget_censored",
+      "boundary": "request_cap",
+      "ledger": {
+        "ledger_rows": 12001,
+        "successful_search_rows": 12000,
+        "failed_search_rows": 0,
+        "denial_rows_not_counted_as_requests": 1,
+        "counted_search_requests": 12000,
+        "request_ids_continuous": true,
+        "first_request_id": 1,
+        "last_request_id": 12000,
+        "unknown_kinds": [],
+        "errors": []
+      },
+      "summary_search_requests": 12000,
+      "summary_search_calculator_calls": 10727,
+      "summary_denials": 1,
+      "result_status": "evaluation_failed",
+      "result_evaluation_requests": 12000,
+      "request_accounting": {
+        "initial_requests": 4,
+        "outer_record_count": 17,
+        "outer_record_request_sum": 11996,
+        "initial_plus_records": 12000,
+        "result_evaluation_requests": 12000,
+        "summary_search_requests": 12000,
+        "ledger_counted_requests": 12000,
+        "matches_result": true,
+        "matches_summary": true,
+        "matches_ledger": true
+      },
+      "outer_records": 17,
+      "landings": 16,
+      "result_minima": 17,
+      "accepted_records": 15,
+      "rejected_records": 2,
+      "rotation_and_quench_costs": {
+        "request_totals": {
+          "rotation_requests": 8943,
+          "bias_quench_requests": 1855,
+          "true_quench_requests": 338,
+          "outer_record_requests": 11996,
+          "climb_event_requests": 11658,
+          "event_unallocated_requests": 838,
+          "outer_unallocated_requests": 0
+        },
+        "records_with_known_cost": {
+          "rotation_requests": 419,
+          "bias_quench_requests": 419,
+          "true_quench_requests": 16,
+          "outer_record_requests": 17,
+          "climb_event_requests": 17,
+          "event_unallocated_requests": 419,
+          "outer_unallocated_requests": 16
+        },
+        "missing_cost_classification_counts": {
+          "rotation_cost_events": 1,
+          "bias_quench_cost_events": 1,
+          "true_quench_cost_records": 0,
+          "event_total_costs": 0,
+          "outer_record_costs": 1
+        },
+        "rotation_requests_by_serialized_stage": {
+          "pre_rotation": 2514,
+          "main_rotation": 6429
+        },
+        "anomalies": [
+          "record[16].climb[19].rotation_force_requests: expected nonnegative integer, got None"
+        ],
+        "audit_status": "review_anomalies"
+      },
+      "energetics": {
+        "initial_energy_eV": -427.59036474751946,
+        "best_energy_eV_from_result_minima": -427.59133148575665,
+        "best_delta_eV_vs_initial": -0.0009667382371958411,
+        "best_energy_minimum_converged": true,
+        "best_delta_definition": "min(result.minima[*].energy) - result.initial.energy; stored best.extxyz is geometrically checked separately"
+      },
+      "fresh_checks": {
+        "initial": {
+          "status": "completed",
+          "energy_eV": -427.59036474751946,
+          "fmax_eV_A": 0.022642222268941966,
+          "energy_error_eV": 0.0,
+          "cell_unchanged": true,
+          "pbc_unchanged": true,
+          "numbers_unchanged": true,
+          "minimum_converged": true,
+          "saved_numerical_qualified": true,
+          "recomputed_numerical_qualified": true,
+          "errors": []
+        },
+        "best": {
+          "status": "completed",
+          "energy_eV": -427.59133148575665,
+          "fmax_eV_A": 0.010615800763030316,
+          "energy_error_eV": 0.0,
+          "cell_unchanged": true,
+          "pbc_unchanged": true,
+          "numbers_unchanged": true,
+          "minimum_converged": true,
+          "saved_numerical_qualified": true,
+          "recomputed_numerical_qualified": true,
+          "errors": []
+        }
+      },
+      "initial_vs_best_geometry": {
+        "status": "compared",
+        "initial_vs_best_matches": {
+          "tight": true,
+          "broad": true
+        },
+        "pymatgen_comparisons": 2,
+        "interpretation": "pairwise geometric match only; not strict basin or phase identity"
+      },
+      "summary_aggregate_rows": [
+        {
+          "case": "brookite48",
+          "seed": 41,
+          "method": "ritz",
+          "status": "evaluation_failed",
+          "steps_completed": 17,
+          "accepted": 15,
+          "search_seconds": 326.02887563593686,
+          "search_requests": 12000,
+          "search_calculator_calls": 10727,
+          "denials": 1,
+          "boundary": "request_cap",
+          "minima": 17,
+          "fresh_requests": 2,
+          "fresh_calculator_calls": 2,
+          "fresh": [
+            {
+              "label": "initial",
+              "status": "completed",
+              "energy": -427.59036474751946,
+              "fmax": 0.022642222268941966,
+              "energy_error": 0.0,
+              "cell_unchanged": true,
+              "pbc_unchanged": true,
+              "numbers_unchanged": true,
+              "numerical_qualified": true,
+              "physical_qualification": "requires_structural_audit"
+            },
+            {
+              "label": "best",
+              "status": "completed",
+              "energy": -427.59133148575665,
+              "fmax": 0.010615800763030316,
+              "energy_error": 0.0,
+              "cell_unchanged": true,
+              "pbc_unchanged": true,
+              "numbers_unchanged": true,
+              "numerical_qualified": true,
+              "physical_qualification": "requires_structural_audit"
+            }
+          ],
+          "execution_class": "budget_censored"
+        }
+      ],
+      "audit_status": "consistent"
+    },
+    {
+      "case": "brookite48",
+      "method": "recovered",
+      "seed": 41,
+      "directory": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/periodic-rotation-priority-20260923/brookite48-recovered-seed41",
+      "artifact_status": "complete",
+      "errors": [],
+      "artifacts_present": {
+        "summary": true,
+        "result": true,
+        "requests": true,
+        "fresh": true
+      },
+      "archived_status": "evaluation_failed",
+      "execution_class": "budget_censored",
+      "boundary": "request_cap",
+      "ledger": {
+        "ledger_rows": 12001,
+        "successful_search_rows": 12000,
+        "failed_search_rows": 0,
+        "denial_rows_not_counted_as_requests": 1,
+        "counted_search_requests": 12000,
+        "request_ids_continuous": true,
+        "first_request_id": 1,
+        "last_request_id": 12000,
+        "unknown_kinds": [],
+        "errors": []
+      },
+      "summary_search_requests": 12000,
+      "summary_search_calculator_calls": 9798,
+      "summary_denials": 1,
+      "result_status": "evaluation_failed",
+      "result_evaluation_requests": 12000,
+      "request_accounting": {
+        "initial_requests": 4,
+        "outer_record_count": 30,
+        "outer_record_request_sum": 11996,
+        "initial_plus_records": 12000,
+        "result_evaluation_requests": 12000,
+        "summary_search_requests": 12000,
+        "ledger_counted_requests": 12000,
+        "matches_result": true,
+        "matches_summary": true,
+        "matches_ledger": true
+      },
+      "outer_records": 30,
+      "landings": 29,
+      "result_minima": 30,
+      "accepted_records": 22,
+      "rejected_records": 8,
+      "rotation_and_quench_costs": {
+        "request_totals": {
+          "rotation_requests": 3914,
+          "bias_quench_requests": 5551,
+          "true_quench_requests": 1077,
+          "outer_record_requests": 11996,
+          "climb_event_requests": 10919,
+          "event_unallocated_requests": 1452,
+          "outer_unallocated_requests": 0
+        },
+        "records_with_known_cost": {
+          "rotation_requests": 727,
+          "bias_quench_requests": 726,
+          "true_quench_requests": 29,
+          "outer_record_requests": 30,
+          "climb_event_requests": 30,
+          "event_unallocated_requests": 726,
+          "outer_unallocated_requests": 29
+        },
+        "missing_cost_classification_counts": {
+          "rotation_cost_events": 0,
+          "bias_quench_cost_events": 1,
+          "true_quench_cost_records": 0,
+          "event_total_costs": 0,
+          "outer_record_costs": 1
+        },
+        "rotation_requests_by_serialized_stage": {
+          "CBD_PreRot": 1454,
+          "CBD_biasedRot": 2460
+        },
+        "anomalies": [],
+        "audit_status": "consistent"
+      },
+      "energetics": {
+        "initial_energy_eV": -427.59036474751946,
+        "best_energy_eV_from_result_minima": -427.5912955267992,
+        "best_delta_eV_vs_initial": -0.0009307792797130787,
+        "best_energy_minimum_converged": true,
+        "best_delta_definition": "min(result.minima[*].energy) - result.initial.energy; stored best.extxyz is geometrically checked separately"
+      },
+      "fresh_checks": {
+        "initial": {
+          "status": "completed",
+          "energy_eV": -427.59036474751946,
+          "fmax_eV_A": 0.022642222268941966,
+          "energy_error_eV": 0.0,
+          "cell_unchanged": true,
+          "pbc_unchanged": true,
+          "numbers_unchanged": true,
+          "minimum_converged": true,
+          "saved_numerical_qualified": true,
+          "recomputed_numerical_qualified": true,
+          "errors": []
+        },
+        "best": {
+          "status": "completed",
+          "energy_eV": -427.5912955267992,
+          "fmax_eV_A": 0.017446854924819063,
+          "energy_error_eV": 0.0,
+          "cell_unchanged": true,
+          "pbc_unchanged": true,
+          "numbers_unchanged": true,
+          "minimum_converged": true,
+          "saved_numerical_qualified": true,
+          "recomputed_numerical_qualified": true,
+          "errors": []
+        }
+      },
+      "initial_vs_best_geometry": {
+        "status": "compared",
+        "initial_vs_best_matches": {
+          "tight": true,
+          "broad": true
+        },
+        "pymatgen_comparisons": 2,
+        "interpretation": "pairwise geometric match only; not strict basin or phase identity"
+      },
+      "summary_aggregate_rows": [
+        {
+          "case": "brookite48",
+          "seed": 41,
+          "method": "recovered",
+          "status": "evaluation_failed",
+          "steps_completed": 30,
+          "accepted": 22,
+          "search_seconds": 310.3843073733151,
+          "search_requests": 12000,
+          "search_calculator_calls": 9798,
+          "denials": 1,
+          "boundary": "request_cap",
+          "minima": 30,
+          "fresh_requests": 2,
+          "fresh_calculator_calls": 2,
+          "fresh": [
+            {
+              "label": "initial",
+              "status": "completed",
+              "energy": -427.59036474751946,
+              "fmax": 0.022642222268941966,
+              "energy_error": 0.0,
+              "cell_unchanged": true,
+              "pbc_unchanged": true,
+              "numbers_unchanged": true,
+              "numerical_qualified": true,
+              "physical_qualification": "requires_structural_audit"
+            },
+            {
+              "label": "best",
+              "status": "completed",
+              "energy": -427.5912955267992,
+              "fmax": 0.017446854924819063,
+              "energy_error": 0.0,
+              "cell_unchanged": true,
+              "pbc_unchanged": true,
+              "numbers_unchanged": true,
+              "numerical_qualified": true,
+              "physical_qualification": "requires_structural_audit"
+            }
+          ],
+          "execution_class": "budget_censored"
+        }
+      ],
+      "audit_status": "consistent"
+    }
+  ],
+  "analysis_state": "complete",
+  "pairwise_cost_prefixes": [
+    {
+      "case": "aloh3",
+      "status": "compared",
+      "common_budget_requests": 12000,
+      "policies": {
+        "ritz": {
+          "status": "complete_prefix",
+          "common_budget_requests": 12000,
+          "actual_prefix_requests_including_initial": 12000,
+          "initial_included": true,
+          "initial_energy_eV": -177.3293050620191,
+          "completed_records_inside_prefix": 14,
+          "failed_records_inside_prefix": 1,
+          "converged_landings_inside_prefix": 13,
+          "unqualified_landing_records_inside_prefix": 0,
+          "best_qualified_energy_eV": -177.56743385376285,
+          "excluded_straddling_record": null,
+          "record_cost_errors": [],
+          "interpretation": "full-record common request prefix; includes finite converged true landings and a fresh-qualified converged initial state only"
+        },
+        "recovered": {
+          "status": "complete_prefix",
+          "common_budget_requests": 12000,
+          "actual_prefix_requests_including_initial": 12000,
+          "initial_included": true,
+          "initial_energy_eV": -177.32930506201916,
+          "completed_records_inside_prefix": 23,
+          "failed_records_inside_prefix": 1,
+          "converged_landings_inside_prefix": 22,
+          "unqualified_landing_records_inside_prefix": 0,
+          "best_qualified_energy_eV": -177.56738689710477,
+          "excluded_straddling_record": null,
+          "record_cost_errors": [],
+          "interpretation": "full-record common request prefix; includes finite converged true landings and a fresh-qualified converged initial state only"
+        }
+      }
+    },
+    {
+      "case": "brookite48",
+      "status": "compared",
+      "common_budget_requests": 12000,
+      "policies": {
+        "ritz": {
+          "status": "complete_prefix",
+          "common_budget_requests": 12000,
+          "actual_prefix_requests_including_initial": 12000,
+          "initial_included": true,
+          "initial_energy_eV": -427.59036474751946,
+          "completed_records_inside_prefix": 17,
+          "failed_records_inside_prefix": 1,
+          "converged_landings_inside_prefix": 16,
+          "unqualified_landing_records_inside_prefix": 0,
+          "best_qualified_energy_eV": -427.59133148575665,
+          "excluded_straddling_record": null,
+          "record_cost_errors": [],
+          "interpretation": "full-record common request prefix; includes finite converged true landings and a fresh-qualified converged initial state only"
+        },
+        "recovered": {
+          "status": "complete_prefix",
+          "common_budget_requests": 12000,
+          "actual_prefix_requests_including_initial": 12000,
+          "initial_included": true,
+          "initial_energy_eV": -427.59036474751946,
+          "completed_records_inside_prefix": 30,
+          "failed_records_inside_prefix": 1,
+          "converged_landings_inside_prefix": 29,
+          "unqualified_landing_records_inside_prefix": 0,
+          "best_qualified_energy_eV": -427.5912955267992,
+          "excluded_straddling_record": null,
+          "record_cost_errors": [],
+          "interpretation": "full-record common request prefix; includes finite converged true landings and a fresh-qualified converged initial state only"
+        }
+      }
+    }
+  ],
+  "elapsed_seconds": 10.79807834100211,
+  "updated_utc": "2026-09-23T16:23:53.689232+00:00",
+  "completed_utc": "2026-09-23T16:23:52.839976+00:00"
+}

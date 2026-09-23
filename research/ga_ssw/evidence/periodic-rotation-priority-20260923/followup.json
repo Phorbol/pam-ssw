@@ -1,0 +1,1721 @@
+{
+  "created_utc": "2026-09-23T16:28:15.718752+00:00",
+  "calculator_or_PES_calls": 0,
+  "geometry_matcher": {
+    "tolerances": {
+      "tight": {
+        "ltol": 0.05,
+        "stol": 0.1,
+        "angle_tol": 2.0
+      },
+      "broad": {
+        "ltol": 0.2,
+        "stol": 0.3,
+        "angle_tol": 5.0
+      }
+    },
+    "primitive_cell": false,
+    "scale": false,
+    "attempt_supercell": false,
+    "maximum_fits": 4
+  },
+  "cases": {
+    "aloh3": {
+      "best_geometry": {
+        "status": "compared",
+        "ritz_vs_recovered_matches": {
+          "tight": true,
+          "broad": true
+        },
+        "interpretation": "pairwise final-best geometry only; not strict basin or phase identity"
+      },
+      "arms": {
+        "ritz": {
+          "method": "ritz",
+          "status": "evaluation_failed",
+          "initial_energy_eV": -177.3293050620191,
+          "final_best_energy_eV": -177.56743385376285,
+          "earliest_completed_record_attaining_final_best": 1,
+          "record_energy_tolerance_eV_for_index_lookup_only": 1e-08,
+          "best_so_far_curve": [
+            {
+              "record_index": null,
+              "cost_requests": 14,
+              "best_so_far_energy_eV": -177.3293050620191,
+              "event": "initial",
+              "qualified": true
+            },
+            {
+              "record_index": 0,
+              "cost_requests": 77,
+              "best_so_far_energy_eV": -177.56717351223392,
+              "event": "lower_true_energy",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 1,
+              "cost_requests": 945,
+              "best_so_far_energy_eV": -177.56743385376285,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 2,
+              "cost_requests": 1910,
+              "best_so_far_energy_eV": -177.56743385376285,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 3,
+              "cost_requests": 2979,
+              "best_so_far_energy_eV": -177.56743385376285,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 4,
+              "cost_requests": 4096,
+              "best_so_far_energy_eV": -177.56743385376285,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 5,
+              "cost_requests": 5018,
+              "best_so_far_energy_eV": -177.56743385376285,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 6,
+              "cost_requests": 5967,
+              "best_so_far_energy_eV": -177.56743385376285,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 7,
+              "cost_requests": 6916,
+              "best_so_far_energy_eV": -177.56743385376285,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 8,
+              "cost_requests": 7929,
+              "best_so_far_energy_eV": -177.56743385376285,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 9,
+              "cost_requests": 8829,
+              "best_so_far_energy_eV": -177.56743385376285,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 10,
+              "cost_requests": 9755,
+              "best_so_far_energy_eV": -177.56743385376285,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 11,
+              "cost_requests": 10913,
+              "best_so_far_energy_eV": -177.56743385376285,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 12,
+              "cost_requests": 11830,
+              "best_so_far_energy_eV": -177.56743385376285,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 13,
+              "cost_requests": 12000,
+              "best_so_far_energy_eV": -177.56743385376285,
+              "event": "evaluation_failed",
+              "qualified_landing": false,
+              "record_error": "climb: RuntimeError: request_cap"
+            }
+          ],
+          "gaussian_attempt_paths": [
+            {
+              "record_index": 0,
+              "record_status": "lower_true_energy",
+              "record_requests": 63,
+              "cumulative_requests": 77,
+              "gaussian_center_count": 1,
+              "path_length_A_cartesian": 0,
+              "first_to_last_center_A_cartesian": 0.0,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 1,
+              "record_status": "gaussian_limit",
+              "record_requests": 868,
+              "cumulative_requests": 945,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 5.398454129191895,
+              "first_to_last_center_A_cartesian": 3.0983899689847534,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 2,
+              "record_status": "gaussian_limit",
+              "record_requests": 965,
+              "cumulative_requests": 1910,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 8.68543008684705,
+              "first_to_last_center_A_cartesian": 3.139823747903482,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 3,
+              "record_status": "gaussian_limit",
+              "record_requests": 1069,
+              "cumulative_requests": 2979,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 7.897876679292686,
+              "first_to_last_center_A_cartesian": 3.4341956466177237,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 4,
+              "record_status": "gaussian_limit",
+              "record_requests": 1117,
+              "cumulative_requests": 4096,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 6.63394790770287,
+              "first_to_last_center_A_cartesian": 2.5375844085199057,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 5,
+              "record_status": "gaussian_limit",
+              "record_requests": 922,
+              "cumulative_requests": 5018,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 8.049787279503503,
+              "first_to_last_center_A_cartesian": 4.61303503909765,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 6,
+              "record_status": "gaussian_limit",
+              "record_requests": 949,
+              "cumulative_requests": 5967,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 8.47114841875179,
+              "first_to_last_center_A_cartesian": 4.4084442513651805,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 7,
+              "record_status": "gaussian_limit",
+              "record_requests": 949,
+              "cumulative_requests": 6916,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 6.152589279915931,
+              "first_to_last_center_A_cartesian": 3.1167689991982686,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 8,
+              "record_status": "gaussian_limit",
+              "record_requests": 1013,
+              "cumulative_requests": 7929,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 7.866166220794478,
+              "first_to_last_center_A_cartesian": 4.849679295414762,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 9,
+              "record_status": "gaussian_limit",
+              "record_requests": 900,
+              "cumulative_requests": 8829,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 4.302195407210419,
+              "first_to_last_center_A_cartesian": 3.4375564634794697,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 10,
+              "record_status": "gaussian_limit",
+              "record_requests": 926,
+              "cumulative_requests": 9755,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 7.781666762435422,
+              "first_to_last_center_A_cartesian": 3.1639078480211356,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 11,
+              "record_status": "gaussian_limit",
+              "record_requests": 1158,
+              "cumulative_requests": 10913,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 8.643786981112742,
+              "first_to_last_center_A_cartesian": 3.0243976589156616,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 12,
+              "record_status": "gaussian_limit",
+              "record_requests": 917,
+              "cumulative_requests": 11830,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 6.882260655236182,
+              "first_to_last_center_A_cartesian": 3.166564745556084,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 13,
+              "record_status": "evaluation_failed",
+              "record_requests": 170,
+              "cumulative_requests": 12000,
+              "gaussian_center_count": 5,
+              "path_length_A_cartesian": 0.589962025214784,
+              "first_to_last_center_A_cartesian": 0.5580227422375159,
+              "first_last_endpoint_complete": false,
+              "missing_final_endpoint_not_inferred": true
+            }
+          ]
+        },
+        "recovered": {
+          "method": "recovered",
+          "status": "evaluation_failed",
+          "initial_energy_eV": -177.32930506201916,
+          "final_best_energy_eV": -177.56738689710477,
+          "earliest_completed_record_attaining_final_best": 6,
+          "record_energy_tolerance_eV_for_index_lookup_only": 1e-08,
+          "best_so_far_curve": [
+            {
+              "record_index": null,
+              "cost_requests": 14,
+              "best_so_far_energy_eV": -177.32930506201916,
+              "event": "initial",
+              "qualified": true
+            },
+            {
+              "record_index": 0,
+              "cost_requests": 71,
+              "best_so_far_energy_eV": -177.566952554733,
+              "event": "lower_true_energy",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 1,
+              "cost_requests": 583,
+              "best_so_far_energy_eV": -177.56695612909118,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 2,
+              "cost_requests": 1122,
+              "best_so_far_energy_eV": -177.56695612909118,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 3,
+              "cost_requests": 1759,
+              "best_so_far_energy_eV": -177.56695612909118,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 4,
+              "cost_requests": 2397,
+              "best_so_far_energy_eV": -177.56695612909118,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 5,
+              "cost_requests": 2883,
+              "best_so_far_energy_eV": -177.56695612909118,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 6,
+              "cost_requests": 3382,
+              "best_so_far_energy_eV": -177.56738689710477,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 7,
+              "cost_requests": 3922,
+              "best_so_far_energy_eV": -177.56738689710477,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 8,
+              "cost_requests": 4404,
+              "best_so_far_energy_eV": -177.56738689710477,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 9,
+              "cost_requests": 4935,
+              "best_so_far_energy_eV": -177.56738689710477,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 10,
+              "cost_requests": 5430,
+              "best_so_far_energy_eV": -177.56738689710477,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 11,
+              "cost_requests": 6115,
+              "best_so_far_energy_eV": -177.56738689710477,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 12,
+              "cost_requests": 6660,
+              "best_so_far_energy_eV": -177.56738689710477,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 13,
+              "cost_requests": 7211,
+              "best_so_far_energy_eV": -177.56738689710477,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 14,
+              "cost_requests": 7736,
+              "best_so_far_energy_eV": -177.56738689710477,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 15,
+              "cost_requests": 8240,
+              "best_so_far_energy_eV": -177.56738689710477,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 16,
+              "cost_requests": 8801,
+              "best_so_far_energy_eV": -177.56738689710477,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 17,
+              "cost_requests": 9387,
+              "best_so_far_energy_eV": -177.56738689710477,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 18,
+              "cost_requests": 9942,
+              "best_so_far_energy_eV": -177.56738689710477,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 19,
+              "cost_requests": 10478,
+              "best_so_far_energy_eV": -177.56738689710477,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 20,
+              "cost_requests": 11022,
+              "best_so_far_energy_eV": -177.56738689710477,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 21,
+              "cost_requests": 11657,
+              "best_so_far_energy_eV": -177.56738689710477,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 22,
+              "cost_requests": 12000,
+              "best_so_far_energy_eV": -177.56738689710477,
+              "event": "evaluation_failed",
+              "qualified_landing": false,
+              "record_error": "climb: RuntimeError: request_cap"
+            }
+          ],
+          "gaussian_attempt_paths": [
+            {
+              "record_index": 0,
+              "record_status": "lower_true_energy",
+              "record_requests": 57,
+              "cumulative_requests": 71,
+              "gaussian_center_count": 2,
+              "path_length_A_cartesian": 0.2136062469311828,
+              "first_to_last_center_A_cartesian": 0.2136062469311828,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 1,
+              "record_status": "gaussian_limit",
+              "record_requests": 512,
+              "cumulative_requests": 583,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 6.308446418800644,
+              "first_to_last_center_A_cartesian": 4.122090967508418,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 2,
+              "record_status": "gaussian_limit",
+              "record_requests": 539,
+              "cumulative_requests": 1122,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 8.965105344262213,
+              "first_to_last_center_A_cartesian": 3.3847575457096966,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 3,
+              "record_status": "gaussian_limit",
+              "record_requests": 637,
+              "cumulative_requests": 1759,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 12.306278283090782,
+              "first_to_last_center_A_cartesian": 4.2486807647430735,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 4,
+              "record_status": "gaussian_limit",
+              "record_requests": 638,
+              "cumulative_requests": 2397,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 10.09619700656739,
+              "first_to_last_center_A_cartesian": 3.4115565075687964,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 5,
+              "record_status": "gaussian_limit",
+              "record_requests": 486,
+              "cumulative_requests": 2883,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 9.868521565871605,
+              "first_to_last_center_A_cartesian": 5.348710004936933,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 6,
+              "record_status": "gaussian_limit",
+              "record_requests": 499,
+              "cumulative_requests": 3382,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 8.493077980310336,
+              "first_to_last_center_A_cartesian": 5.5392455861820915,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 7,
+              "record_status": "gaussian_limit",
+              "record_requests": 540,
+              "cumulative_requests": 3922,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 9.093337672040159,
+              "first_to_last_center_A_cartesian": 4.7847312016131855,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 8,
+              "record_status": "gaussian_limit",
+              "record_requests": 482,
+              "cumulative_requests": 4404,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 7.0865368862968,
+              "first_to_last_center_A_cartesian": 3.9168839688788957,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 9,
+              "record_status": "gaussian_limit",
+              "record_requests": 531,
+              "cumulative_requests": 4935,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 9.103720153518298,
+              "first_to_last_center_A_cartesian": 5.195931625562653,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 10,
+              "record_status": "gaussian_limit",
+              "record_requests": 495,
+              "cumulative_requests": 5430,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 8.379484505744754,
+              "first_to_last_center_A_cartesian": 3.804206398342185,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 11,
+              "record_status": "gaussian_limit",
+              "record_requests": 685,
+              "cumulative_requests": 6115,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 13.849541810997202,
+              "first_to_last_center_A_cartesian": 5.818633209954825,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 12,
+              "record_status": "gaussian_limit",
+              "record_requests": 545,
+              "cumulative_requests": 6660,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 8.582918006223423,
+              "first_to_last_center_A_cartesian": 4.514204750896838,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 13,
+              "record_status": "gaussian_limit",
+              "record_requests": 551,
+              "cumulative_requests": 7211,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 8.446658456539966,
+              "first_to_last_center_A_cartesian": 3.99733144503474,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 14,
+              "record_status": "gaussian_limit",
+              "record_requests": 525,
+              "cumulative_requests": 7736,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 11.058180343604613,
+              "first_to_last_center_A_cartesian": 4.734767922924974,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 15,
+              "record_status": "gaussian_limit",
+              "record_requests": 504,
+              "cumulative_requests": 8240,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 6.692295665626063,
+              "first_to_last_center_A_cartesian": 4.625304973810847,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 16,
+              "record_status": "gaussian_limit",
+              "record_requests": 561,
+              "cumulative_requests": 8801,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 10.462604854104494,
+              "first_to_last_center_A_cartesian": 5.710674856713046,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 17,
+              "record_status": "gaussian_limit",
+              "record_requests": 586,
+              "cumulative_requests": 9387,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 11.242878752097333,
+              "first_to_last_center_A_cartesian": 5.014174618672124,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 18,
+              "record_status": "gaussian_limit",
+              "record_requests": 555,
+              "cumulative_requests": 9942,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 9.959250113351413,
+              "first_to_last_center_A_cartesian": 5.323919328178887,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 19,
+              "record_status": "gaussian_limit",
+              "record_requests": 536,
+              "cumulative_requests": 10478,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 10.39761103414339,
+              "first_to_last_center_A_cartesian": 5.764612306781807,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 20,
+              "record_status": "gaussian_limit",
+              "record_requests": 544,
+              "cumulative_requests": 11022,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 13.252408222776063,
+              "first_to_last_center_A_cartesian": 7.887270377778077,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 21,
+              "record_status": "gaussian_limit",
+              "record_requests": 635,
+              "cumulative_requests": 11657,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 13.054048614762653,
+              "first_to_last_center_A_cartesian": 4.940442127507301,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 22,
+              "record_status": "evaluation_failed",
+              "record_requests": 343,
+              "cumulative_requests": 12000,
+              "gaussian_center_count": 17,
+              "path_length_A_cartesian": 5.742605293998424,
+              "first_to_last_center_A_cartesian": 2.6120466769774655,
+              "first_last_endpoint_complete": false,
+              "missing_final_endpoint_not_inferred": true
+            }
+          ]
+        }
+      }
+    },
+    "brookite48": {
+      "best_geometry": {
+        "status": "compared",
+        "ritz_vs_recovered_matches": {
+          "tight": true,
+          "broad": true
+        },
+        "interpretation": "pairwise final-best geometry only; not strict basin or phase identity"
+      },
+      "arms": {
+        "ritz": {
+          "method": "ritz",
+          "status": "evaluation_failed",
+          "initial_energy_eV": -427.59036474751946,
+          "final_best_energy_eV": -427.59133148575665,
+          "earliest_completed_record_attaining_final_best": 15,
+          "record_energy_tolerance_eV_for_index_lookup_only": 1e-08,
+          "best_so_far_curve": [
+            {
+              "record_index": null,
+              "cost_requests": 4,
+              "best_so_far_energy_eV": -427.59036474751946,
+              "event": "initial",
+              "qualified": true
+            },
+            {
+              "record_index": 0,
+              "cost_requests": 719,
+              "best_so_far_energy_eV": -427.59036474751946,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 1,
+              "cost_requests": 1414,
+              "best_so_far_energy_eV": -427.5912905410551,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 2,
+              "cost_requests": 2141,
+              "best_so_far_energy_eV": -427.5912905410551,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 3,
+              "cost_requests": 2829,
+              "best_so_far_energy_eV": -427.5912905410551,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 4,
+              "cost_requests": 3555,
+              "best_so_far_energy_eV": -427.5912905410551,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 5,
+              "cost_requests": 4314,
+              "best_so_far_energy_eV": -427.5912905410551,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 6,
+              "cost_requests": 5052,
+              "best_so_far_energy_eV": -427.5912905410551,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 7,
+              "cost_requests": 5741,
+              "best_so_far_energy_eV": -427.5912905410551,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 8,
+              "cost_requests": 6456,
+              "best_so_far_energy_eV": -427.5912905410551,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 9,
+              "cost_requests": 7168,
+              "best_so_far_energy_eV": -427.5912905410551,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 10,
+              "cost_requests": 7880,
+              "best_so_far_energy_eV": -427.5912905410551,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 11,
+              "cost_requests": 8592,
+              "best_so_far_energy_eV": -427.5912905410551,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 12,
+              "cost_requests": 9344,
+              "best_so_far_energy_eV": -427.5913107894915,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 13,
+              "cost_requests": 10070,
+              "best_so_far_energy_eV": -427.5913107894915,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 14,
+              "cost_requests": 10771,
+              "best_so_far_energy_eV": -427.5913107894915,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 15,
+              "cost_requests": 11479,
+              "best_so_far_energy_eV": -427.59133148575665,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 16,
+              "cost_requests": 12000,
+              "best_so_far_energy_eV": -427.59133148575665,
+              "event": "evaluation_failed",
+              "qualified_landing": false,
+              "record_error": "climb: RuntimeError: request_cap"
+            }
+          ],
+          "gaussian_attempt_paths": [
+            {
+              "record_index": 0,
+              "record_status": "gaussian_limit",
+              "record_requests": 715,
+              "cumulative_requests": 719,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 4.122664027165039,
+              "first_to_last_center_A_cartesian": 2.9786658571697364,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 1,
+              "record_status": "gaussian_limit",
+              "record_requests": 695,
+              "cumulative_requests": 1414,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 4.757218478086352,
+              "first_to_last_center_A_cartesian": 2.9059287033331898,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 2,
+              "record_status": "gaussian_limit",
+              "record_requests": 727,
+              "cumulative_requests": 2141,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 4.943721361366577,
+              "first_to_last_center_A_cartesian": 2.6461361103064798,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 3,
+              "record_status": "gaussian_limit",
+              "record_requests": 688,
+              "cumulative_requests": 2829,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 4.017248781925736,
+              "first_to_last_center_A_cartesian": 2.81522284219417,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 4,
+              "record_status": "gaussian_limit",
+              "record_requests": 726,
+              "cumulative_requests": 3555,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 6.035025749855395,
+              "first_to_last_center_A_cartesian": 3.2322704279819887,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 5,
+              "record_status": "gaussian_limit",
+              "record_requests": 759,
+              "cumulative_requests": 4314,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 8.117152978503317,
+              "first_to_last_center_A_cartesian": 4.231756262600676,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 6,
+              "record_status": "gaussian_limit",
+              "record_requests": 738,
+              "cumulative_requests": 5052,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 4.7351121908794,
+              "first_to_last_center_A_cartesian": 2.824003541225072,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 7,
+              "record_status": "gaussian_limit",
+              "record_requests": 689,
+              "cumulative_requests": 5741,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 4.209438206202337,
+              "first_to_last_center_A_cartesian": 2.9127795197767985,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 8,
+              "record_status": "gaussian_limit",
+              "record_requests": 715,
+              "cumulative_requests": 6456,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 4.339705550689394,
+              "first_to_last_center_A_cartesian": 3.0008980373545886,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 9,
+              "record_status": "gaussian_limit",
+              "record_requests": 712,
+              "cumulative_requests": 7168,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 4.205736526612448,
+              "first_to_last_center_A_cartesian": 2.9559735414056916,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 10,
+              "record_status": "gaussian_limit",
+              "record_requests": 712,
+              "cumulative_requests": 7880,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 4.595782653627106,
+              "first_to_last_center_A_cartesian": 3.0104869513175854,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 11,
+              "record_status": "gaussian_limit",
+              "record_requests": 712,
+              "cumulative_requests": 8592,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 3.9338532992565196,
+              "first_to_last_center_A_cartesian": 2.9925014369619687,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 12,
+              "record_status": "gaussian_limit",
+              "record_requests": 752,
+              "cumulative_requests": 9344,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 5.503989419931197,
+              "first_to_last_center_A_cartesian": 3.024477367360355,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 13,
+              "record_status": "gaussian_limit",
+              "record_requests": 726,
+              "cumulative_requests": 10070,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 5.427954485528174,
+              "first_to_last_center_A_cartesian": 3.1449953611683488,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 14,
+              "record_status": "gaussian_limit",
+              "record_requests": 701,
+              "cumulative_requests": 10771,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 3.7535604698542646,
+              "first_to_last_center_A_cartesian": 2.7404362030254528,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 15,
+              "record_status": "gaussian_limit",
+              "record_requests": 708,
+              "cumulative_requests": 11479,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 4.084667070764657,
+              "first_to_last_center_A_cartesian": 2.840161801527636,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 16,
+              "record_status": "evaluation_failed",
+              "record_requests": 521,
+              "cumulative_requests": 12000,
+              "gaussian_center_count": 19,
+              "path_length_A_cartesian": 2.562483910617113,
+              "first_to_last_center_A_cartesian": 2.072510416886636,
+              "first_last_endpoint_complete": false,
+              "missing_final_endpoint_not_inferred": true
+            }
+          ]
+        },
+        "recovered": {
+          "method": "recovered",
+          "status": "evaluation_failed",
+          "initial_energy_eV": -427.59036474751946,
+          "final_best_energy_eV": -427.5912955267992,
+          "earliest_completed_record_attaining_final_best": 22,
+          "record_energy_tolerance_eV_for_index_lookup_only": 1e-08,
+          "best_so_far_curve": [
+            {
+              "record_index": null,
+              "cost_requests": 4,
+              "best_so_far_energy_eV": -427.59036474751946,
+              "event": "initial",
+              "qualified": true
+            },
+            {
+              "record_index": 0,
+              "cost_requests": 412,
+              "best_so_far_energy_eV": -427.590820305591,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 1,
+              "cost_requests": 784,
+              "best_so_far_energy_eV": -427.590820305591,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 2,
+              "cost_requests": 1144,
+              "best_so_far_energy_eV": -427.5911092754902,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 3,
+              "cost_requests": 1564,
+              "best_so_far_energy_eV": -427.5911092754902,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 4,
+              "cost_requests": 2008,
+              "best_so_far_energy_eV": -427.5911092754902,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 5,
+              "cost_requests": 2483,
+              "best_so_far_energy_eV": -427.5911092754902,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 6,
+              "cost_requests": 2895,
+              "best_so_far_energy_eV": -427.5911092754902,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 7,
+              "cost_requests": 3359,
+              "best_so_far_energy_eV": -427.5911092754902,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 8,
+              "cost_requests": 3791,
+              "best_so_far_energy_eV": -427.59120794151613,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 9,
+              "cost_requests": 4148,
+              "best_so_far_energy_eV": -427.59120794151613,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 10,
+              "cost_requests": 4546,
+              "best_so_far_energy_eV": -427.59120794151613,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 11,
+              "cost_requests": 4935,
+              "best_so_far_energy_eV": -427.59120794151613,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 12,
+              "cost_requests": 5318,
+              "best_so_far_energy_eV": -427.5912475280529,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 13,
+              "cost_requests": 5804,
+              "best_so_far_energy_eV": -427.5912475280529,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 14,
+              "cost_requests": 6174,
+              "best_so_far_energy_eV": -427.5912475280529,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 15,
+              "cost_requests": 6510,
+              "best_so_far_energy_eV": -427.5912475280529,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 16,
+              "cost_requests": 6876,
+              "best_so_far_energy_eV": -427.5912475280529,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 17,
+              "cost_requests": 7321,
+              "best_so_far_energy_eV": -427.5912475280529,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 18,
+              "cost_requests": 7714,
+              "best_so_far_energy_eV": -427.5912475280529,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 19,
+              "cost_requests": 8129,
+              "best_so_far_energy_eV": -427.5912475280529,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 20,
+              "cost_requests": 8624,
+              "best_so_far_energy_eV": -427.5912475280529,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 21,
+              "cost_requests": 9017,
+              "best_so_far_energy_eV": -427.5912475280529,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 22,
+              "cost_requests": 9396,
+              "best_so_far_energy_eV": -427.5912955267992,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 23,
+              "cost_requests": 9825,
+              "best_so_far_energy_eV": -427.5912955267992,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 24,
+              "cost_requests": 10284,
+              "best_so_far_energy_eV": -427.5912955267992,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 25,
+              "cost_requests": 10720,
+              "best_so_far_energy_eV": -427.5912955267992,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 26,
+              "cost_requests": 11139,
+              "best_so_far_energy_eV": -427.5912955267992,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 27,
+              "cost_requests": 11528,
+              "best_so_far_energy_eV": -427.5912955267992,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 28,
+              "cost_requests": 11983,
+              "best_so_far_energy_eV": -427.5912955267992,
+              "event": "gaussian_limit",
+              "qualified_landing": true,
+              "record_error": null
+            },
+            {
+              "record_index": 29,
+              "cost_requests": 12000,
+              "best_so_far_energy_eV": -427.5912955267992,
+              "event": "evaluation_failed",
+              "qualified_landing": false,
+              "record_error": "climb: RuntimeError: request_cap"
+            }
+          ],
+          "gaussian_attempt_paths": [
+            {
+              "record_index": 0,
+              "record_status": "gaussian_limit",
+              "record_requests": 408,
+              "cumulative_requests": 412,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 7.694526820675175,
+              "first_to_last_center_A_cartesian": 4.7715491588083365,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 1,
+              "record_status": "gaussian_limit",
+              "record_requests": 372,
+              "cumulative_requests": 784,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 7.569876372713627,
+              "first_to_last_center_A_cartesian": 4.728986736103095,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 2,
+              "record_status": "gaussian_limit",
+              "record_requests": 360,
+              "cumulative_requests": 1144,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 5.2158324438363834,
+              "first_to_last_center_A_cartesian": 3.7685885104933265,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 3,
+              "record_status": "gaussian_limit",
+              "record_requests": 420,
+              "cumulative_requests": 1564,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 10.833339761100984,
+              "first_to_last_center_A_cartesian": 5.770460479856126,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 4,
+              "record_status": "gaussian_limit",
+              "record_requests": 444,
+              "cumulative_requests": 2008,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 12.903610013625727,
+              "first_to_last_center_A_cartesian": 6.295119132058282,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 5,
+              "record_status": "gaussian_limit",
+              "record_requests": 475,
+              "cumulative_requests": 2483,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 10.187762748363731,
+              "first_to_last_center_A_cartesian": 5.366135059625955,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 6,
+              "record_status": "gaussian_limit",
+              "record_requests": 412,
+              "cumulative_requests": 2895,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 8.474084216875617,
+              "first_to_last_center_A_cartesian": 4.912705325791597,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 7,
+              "record_status": "gaussian_limit",
+              "record_requests": 464,
+              "cumulative_requests": 3359,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 10.558151699233688,
+              "first_to_last_center_A_cartesian": 5.406968568383565,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 8,
+              "record_status": "gaussian_limit",
+              "record_requests": 432,
+              "cumulative_requests": 3791,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 9.121563683402075,
+              "first_to_last_center_A_cartesian": 5.086054743005677,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 9,
+              "record_status": "gaussian_limit",
+              "record_requests": 357,
+              "cumulative_requests": 4148,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 7.466110375131159,
+              "first_to_last_center_A_cartesian": 4.79008457736236,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 10,
+              "record_status": "gaussian_limit",
+              "record_requests": 398,
+              "cumulative_requests": 4546,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 7.649245728445985,
+              "first_to_last_center_A_cartesian": 4.831442002721692,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 11,
+              "record_status": "gaussian_limit",
+              "record_requests": 389,
+              "cumulative_requests": 4935,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 7.393305546152009,
+              "first_to_last_center_A_cartesian": 4.467431418462497,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 12,
+              "record_status": "gaussian_limit",
+              "record_requests": 383,
+              "cumulative_requests": 5318,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 6.398293797640354,
+              "first_to_last_center_A_cartesian": 4.700458281873664,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 13,
+              "record_status": "gaussian_limit",
+              "record_requests": 486,
+              "cumulative_requests": 5804,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 10.200835257464407,
+              "first_to_last_center_A_cartesian": 5.987042771308807,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 14,
+              "record_status": "gaussian_limit",
+              "record_requests": 370,
+              "cumulative_requests": 6174,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 6.812113078922104,
+              "first_to_last_center_A_cartesian": 4.308824089244688,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 15,
+              "record_status": "gaussian_limit",
+              "record_requests": 336,
+              "cumulative_requests": 6510,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 4.274471697070623,
+              "first_to_last_center_A_cartesian": 3.6721846241148905,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 16,
+              "record_status": "gaussian_limit",
+              "record_requests": 366,
+              "cumulative_requests": 6876,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 7.939816129158104,
+              "first_to_last_center_A_cartesian": 5.011980452937459,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 17,
+              "record_status": "gaussian_limit",
+              "record_requests": 445,
+              "cumulative_requests": 7321,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 9.883836006230837,
+              "first_to_last_center_A_cartesian": 5.328590771724512,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 18,
+              "record_status": "gaussian_limit",
+              "record_requests": 393,
+              "cumulative_requests": 7714,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 8.658142218137867,
+              "first_to_last_center_A_cartesian": 5.329251039695477,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 19,
+              "record_status": "gaussian_limit",
+              "record_requests": 415,
+              "cumulative_requests": 8129,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 5.461076911469678,
+              "first_to_last_center_A_cartesian": 4.215843697583127,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 20,
+              "record_status": "gaussian_limit",
+              "record_requests": 495,
+              "cumulative_requests": 8624,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 10.821323221112536,
+              "first_to_last_center_A_cartesian": 4.9747548745773145,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 21,
+              "record_status": "gaussian_limit",
+              "record_requests": 393,
+              "cumulative_requests": 9017,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 9.20702156952489,
+              "first_to_last_center_A_cartesian": 5.936266792904995,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 22,
+              "record_status": "gaussian_limit",
+              "record_requests": 379,
+              "cumulative_requests": 9396,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 7.246616472079804,
+              "first_to_last_center_A_cartesian": 4.555463476395718,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 23,
+              "record_status": "gaussian_limit",
+              "record_requests": 429,
+              "cumulative_requests": 9825,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 5.801227786437709,
+              "first_to_last_center_A_cartesian": 4.2570110973219375,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 24,
+              "record_status": "gaussian_limit",
+              "record_requests": 459,
+              "cumulative_requests": 10284,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 5.624979763855462,
+              "first_to_last_center_A_cartesian": 4.468906892246002,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 25,
+              "record_status": "gaussian_limit",
+              "record_requests": 436,
+              "cumulative_requests": 10720,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 9.602817640249267,
+              "first_to_last_center_A_cartesian": 5.241936723227228,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 26,
+              "record_status": "gaussian_limit",
+              "record_requests": 419,
+              "cumulative_requests": 11139,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 8.813997591468908,
+              "first_to_last_center_A_cartesian": 5.096633929506963,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 27,
+              "record_status": "gaussian_limit",
+              "record_requests": 389,
+              "cumulative_requests": 11528,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 8.840141027523053,
+              "first_to_last_center_A_cartesian": 6.0969139632032245,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 28,
+              "record_status": "gaussian_limit",
+              "record_requests": 455,
+              "cumulative_requests": 11983,
+              "gaussian_center_count": 25,
+              "path_length_A_cartesian": 9.091272474411584,
+              "first_to_last_center_A_cartesian": 5.286267416662313,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            },
+            {
+              "record_index": 29,
+              "record_status": "evaluation_failed",
+              "record_requests": 17,
+              "cumulative_requests": 12000,
+              "gaussian_center_count": 2,
+              "path_length_A_cartesian": 0.12195140449208157,
+              "first_to_last_center_A_cartesian": 0.12195140449208157,
+              "first_last_endpoint_complete": true,
+              "missing_final_endpoint_not_inferred": false
+            }
+          ]
+        }
+      }
+    }
+  },
+  "updated_utc": "2026-09-23T16:28:16.725960+00:00"
+}

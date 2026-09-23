@@ -1,0 +1,43 @@
+{
+  "case": "brookite48",
+  "seed": 41,
+  "method": "recovered",
+  "status": "evaluation_failed",
+  "steps_completed": 30,
+  "accepted": 22,
+  "search_seconds": 310.3843073733151,
+  "search_requests": 12000,
+  "search_calculator_calls": 9798,
+  "denials": 1,
+  "boundary": "request_cap",
+  "minima": 30,
+  "fresh_requests": 2,
+  "fresh_calculator_calls": 2,
+  "fresh": [
+    {
+      "label": "initial",
+      "status": "completed",
+      "energy": -427.59036474751946,
+      "fmax": 0.022642222268941966,
+      "energy_error": 0.0,
+      "cell_unchanged": true,
+      "pbc_unchanged": true,
+      "numbers_unchanged": true,
+      "numerical_qualified": true,
+      "physical_qualification": "requires_structural_audit"
+    },
+    {
+      "label": "best",
+      "status": "completed",
+      "energy": -427.5912955267992,
+      "fmax": 0.017446854924819063,
+      "energy_error": 0.0,
+      "cell_unchanged": true,
+      "pbc_unchanged": true,
+      "numbers_unchanged": true,
+      "numerical_qualified": true,
+      "physical_qualification": "requires_structural_audit"
+    }
+  ],
+  "execution_class": "budget_censored"
+}

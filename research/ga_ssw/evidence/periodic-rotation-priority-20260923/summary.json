@@ -1,0 +1,174 @@
+[
+  {
+    "case": "aloh3",
+    "seed": 41,
+    "method": "ritz",
+    "status": "evaluation_failed",
+    "steps_completed": 14,
+    "accepted": 6,
+    "search_seconds": 235.7783851614222,
+    "search_requests": 12000,
+    "search_calculator_calls": 11068,
+    "denials": 1,
+    "boundary": "request_cap",
+    "minima": 14,
+    "fresh_requests": 2,
+    "fresh_calculator_calls": 2,
+    "fresh": [
+      {
+        "label": "initial",
+        "status": "completed",
+        "energy": -177.3293050620191,
+        "fmax": 0.023520100501586923,
+        "energy_error": 0.0,
+        "cell_unchanged": true,
+        "pbc_unchanged": true,
+        "numbers_unchanged": true,
+        "numerical_qualified": true,
+        "physical_qualification": "requires_structural_audit"
+      },
+      {
+        "label": "best",
+        "status": "completed",
+        "energy": -177.56743385376285,
+        "fmax": 0.026853595403314764,
+        "energy_error": 0.0,
+        "cell_unchanged": true,
+        "pbc_unchanged": true,
+        "numbers_unchanged": true,
+        "numerical_qualified": true,
+        "physical_qualification": "requires_structural_audit"
+      }
+    ],
+    "execution_class": "budget_censored"
+  },
+  {
+    "case": "aloh3",
+    "seed": 41,
+    "method": "recovered",
+    "status": "evaluation_failed",
+    "steps_completed": 23,
+    "accepted": 3,
+    "search_seconds": 227.5811221394688,
+    "search_requests": 12000,
+    "search_calculator_calls": 10364,
+    "denials": 1,
+    "boundary": "request_cap",
+    "minima": 23,
+    "fresh_requests": 2,
+    "fresh_calculator_calls": 2,
+    "fresh": [
+      {
+        "label": "initial",
+        "status": "completed",
+        "energy": -177.32930506201916,
+        "fmax": 0.0235201005015988,
+        "energy_error": 0.0,
+        "cell_unchanged": true,
+        "pbc_unchanged": true,
+        "numbers_unchanged": true,
+        "numerical_qualified": true,
+        "physical_qualification": "requires_structural_audit"
+      },
+      {
+        "label": "best",
+        "status": "completed",
+        "energy": -177.56738689710477,
+        "fmax": 0.01765657052922789,
+        "energy_error": 0.0,
+        "cell_unchanged": true,
+        "pbc_unchanged": true,
+        "numbers_unchanged": true,
+        "numerical_qualified": true,
+        "physical_qualification": "requires_structural_audit"
+      }
+    ],
+    "execution_class": "budget_censored"
+  },
+  {
+    "case": "brookite48",
+    "seed": 41,
+    "method": "ritz",
+    "status": "evaluation_failed",
+    "steps_completed": 17,
+    "accepted": 15,
+    "search_seconds": 326.02887563593686,
+    "search_requests": 12000,
+    "search_calculator_calls": 10727,
+    "denials": 1,
+    "boundary": "request_cap",
+    "minima": 17,
+    "fresh_requests": 2,
+    "fresh_calculator_calls": 2,
+    "fresh": [
+      {
+        "label": "initial",
+        "status": "completed",
+        "energy": -427.59036474751946,
+        "fmax": 0.022642222268941966,
+        "energy_error": 0.0,
+        "cell_unchanged": true,
+        "pbc_unchanged": true,
+        "numbers_unchanged": true,
+        "numerical_qualified": true,
+        "physical_qualification": "requires_structural_audit"
+      },
+      {
+        "label": "best",
+        "status": "completed",
+        "energy": -427.59133148575665,
+        "fmax": 0.010615800763030316,
+        "energy_error": 0.0,
+        "cell_unchanged": true,
+        "pbc_unchanged": true,
+        "numbers_unchanged": true,
+        "numerical_qualified": true,
+        "physical_qualification": "requires_structural_audit"
+      }
+    ],
+    "execution_class": "budget_censored"
+  },
+  {
+    "case": "brookite48",
+    "seed": 41,
+    "method": "recovered",
+    "status": "evaluation_failed",
+    "steps_completed": 30,
+    "accepted": 22,
+    "search_seconds": 310.3843073733151,
+    "search_requests": 12000,
+    "search_calculator_calls": 9798,
+    "denials": 1,
+    "boundary": "request_cap",
+    "minima": 30,
+    "fresh_requests": 2,
+    "fresh_calculator_calls": 2,
+    "fresh": [
+      {
+        "label": "initial",
+        "status": "completed",
+        "energy": -427.59036474751946,
+        "fmax": 0.022642222268941966,
+        "energy_error": 0.0,
+        "cell_unchanged": true,
+        "pbc_unchanged": true,
+        "numbers_unchanged": true,
+        "numerical_qualified": true,
+        "physical_qualification": "requires_structural_audit"
+      },
+      {
+        "label": "best",
+        "status": "completed",
+        "energy": -427.5912955267992,
+        "fmax": 0.017446854924819063,
+        "energy_error": 0.0,
+        "cell_unchanged": true,
+        "pbc_unchanged": true,
+        "numbers_unchanged": true,
+        "numerical_qualified": true,
+        "physical_qualification": "requires_structural_audit"
+      }
+    ],
+    "execution_class": "budget_censored"
+  }
+]

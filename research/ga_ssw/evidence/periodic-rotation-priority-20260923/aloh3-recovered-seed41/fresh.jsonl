@@ -1,0 +1,4 @@
+{"label": "initial", "status": "started"}
+{"label": "initial", "status": "completed", "energy": -177.32930506201916, "fmax": 0.0235201005015988, "energy_error": 0.0, "cell_unchanged": true, "pbc_unchanged": true, "numbers_unchanged": true, "numerical_qualified": true, "physical_qualification": "requires_structural_audit"}
+{"label": "best", "status": "started"}
+{"label": "best", "status": "completed", "energy": -177.56738689710477, "fmax": 0.01765657052922789, "energy_error": 0.0, "cell_unchanged": true, "pbc_unchanged": true, "numbers_unchanged": true, "numerical_qualified": true, "physical_qualification": "requires_structural_audit"}
