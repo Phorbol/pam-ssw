@@ -1,0 +1,262 @@
+[
+  {
+    "seed": 3,
+    "status": "analyzed",
+    "initial_energy_difference": 0.0,
+    "initial_position_max_difference": 0.0,
+    "baseline_records": 16,
+    "ga_quick_records": 10,
+    "steps": [
+      {
+        "index": 0,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          947,
+          947
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 1,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          163,
+          163
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 2,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          158,
+          158
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 3,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          251,
+          251
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 4,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          1205,
+          1205
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 5,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          707,
+          707
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 6,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          1207,
+          1207
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 7,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          1046,
+          1046
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 8,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          1492,
+          1492
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 9,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          1152,
+          1152
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      }
+    ]
+  },
+  {
+    "seed": 17,
+    "status": "analyzed",
+    "initial_energy_difference": 0.0,
+    "initial_position_max_difference": 0.0,
+    "baseline_records": 19,
+    "ga_quick_records": 10,
+    "steps": [
+      {
+        "index": 0,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          281,
+          281
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 1,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          664,
+          664
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 2,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          959,
+          959
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 3,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          192,
+          192
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 4,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          356,
+          356
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 5,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          1203,
+          1203
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 6,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          1214,
+          1214
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 7,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          1350,
+          1350
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 8,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          1014,
+          1014
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      },
+      {
+        "index": 9,
+        "status_equal": true,
+        "accepted_equal": true,
+        "requests": [
+          1170,
+          1170
+        ],
+        "direction_max_difference": 0.0,
+        "landing_energy_difference": 0.0,
+        "landing_position_max_difference": 0.0
+      }
+    ]
+  }
+]

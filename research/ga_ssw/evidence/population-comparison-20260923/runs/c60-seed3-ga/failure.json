@@ -1,0 +1,7 @@
+{
+  "status": "exception",
+  "error": "TypeError: NativeMCSettings.__init__() got an unexpected keyword argument 'energy_tol_eV'",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/gengjianrui/bin/pam-ssw-worktrees/ga-matched-search/research/ga_ssw/run_population_comparison.py\", line 381, in run\n    **walker_options(plan))\n      ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/gengjianrui/bin/pam-ssw-worktrees/ga-matched-search/research/ga_ssw/run_population_comparison.py\", line 213, in walker_options\n    options[\"mc\"] = NativeMCSettings(**plan[\"native_mc\"])\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: NativeMCSettings.__init__() got an unexpected keyword argument 'energy_tol_eV'\n",
+  "search_requests": 0,
+  "wall_seconds": 42.51808870024979
+}

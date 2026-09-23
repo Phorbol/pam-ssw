@@ -1,0 +1,19 @@
+{
+  "search_requests": 60000,
+  "search_calculator_calculate_calls": 58481,
+  "checks": [
+    {
+      "label": "best_true_force_converged",
+      "geometry_index": 78,
+      "stored_energy": -62189.39215324536,
+      "fresh_energy": -62189.39215324536,
+      "energy_difference": 0.0,
+      "max_force": 0.025540512330865996,
+      "fmax_threshold": 0.03,
+      "force_qualified": true,
+      "composition_match": true,
+      "pbc_match": true,
+      "cell_match": false
+    }
+  ]
+}

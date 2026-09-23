@@ -1,0 +1,78 @@
+{
+  "runs": [
+    {
+      "run": "c60-seed17-ga-v2",
+      "requests": 60000,
+      "calculator_calls": 58346,
+      "outer_attempts": 68,
+      "force_qualified_landings": 67,
+      "outer_status_counts": {
+        "lower_true_energy": 37,
+        "gaussian_limit": 30,
+        "evaluation_failed": 1
+      },
+      "qualified_move_mean_requests": 848.1194029850747,
+      "recorded_move_requests": 57802,
+      "search_wall_seconds": 3063.629628271796,
+      "seconds_per_search_request": 0.05106049380452993
+    },
+    {
+      "run": "c60-seed17-ssw-v2",
+      "requests": 60000,
+      "calculator_calls": 58313,
+      "outer_attempts": 69,
+      "force_qualified_landings": 65,
+      "outer_status_counts": {
+        "lower_true_energy": 36,
+        "gaussian_limit": 29,
+        "evaluation_failed": 4
+      },
+      "qualified_move_mean_requests": 869.876923076923,
+      "recorded_move_requests": 58715,
+      "search_wall_seconds": 3029.656322380528,
+      "seconds_per_search_request": 0.050494272039675464
+    },
+    {
+      "run": "c60-seed3-ga-v2",
+      "requests": 60000,
+      "calculator_calls": 58481,
+      "outer_attempts": 61,
+      "force_qualified_landings": 60,
+      "outer_status_counts": {
+        "lower_true_energy": 34,
+        "gaussian_limit": 26,
+        "evaluation_failed": 1
+      },
+      "qualified_move_mean_requests": 953.35,
+      "recorded_move_requests": 57503,
+      "search_wall_seconds": 3045.185611523688,
+      "seconds_per_search_request": 0.050753093525394796
+    },
+    {
+      "run": "c60-seed3-ssw-v2",
+      "requests": 60000,
+      "calculator_calls": 58292,
+      "outer_attempts": 70,
+      "force_qualified_landings": 66,
+      "outer_status_counts": {
+        "lower_true_energy": 36,
+        "gaussian_limit": 30,
+        "evaluation_failed": 4
+      },
+      "qualified_move_mean_requests": 860.3787878787879,
+      "recorded_move_requests": 58715,
+      "search_wall_seconds": 3090.902906684205,
+      "seconds_per_search_request": 0.05151504844473675
+    }
+  ],
+  "paper": {
+    "source": "Uploaded GA-SSW-user.pdf Table1 and rendered author244-SI.pdf S14",
+    "c60_ssw_mean_steps": 10807,
+    "c60_ga_mean_normalized_steps": 6908,
+    "c60_mean_energy_evaluations_per_ssw_step": 509.9,
+    "approximate_ga_evaluations": 3522389.1999999997,
+    "approximate_ssw_evaluations": 5510489.3,
+    "caveat": "Order-of-magnitude conversion only: paper charges offspring quench0.5 step; its C60-specific NN differs from MH1. These numbers do not predict MH1 success or exact GA calls."
+  },
+  "interpretation": "Outer attempts, qualified landings, requests, actual calculator calls and successful target discovery are different quantities."
+}

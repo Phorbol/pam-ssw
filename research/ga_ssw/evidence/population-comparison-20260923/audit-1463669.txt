@@ -1,0 +1,58 @@
+[
+  {
+    "folder": "research/ga_ssw/evidence/population-comparison-20260923/runs/c60-seed17-ga-v2",
+    "status": "budget_exhausted",
+    "requests": 60000,
+    "errors": [],
+    "best_energy": -62190.157827037656
+  },
+  {
+    "folder": "research/ga_ssw/evidence/population-comparison-20260923/runs/c60-seed17-ssw-v2",
+    "status": "request_cap_censored",
+    "requests": 60000,
+    "errors": [],
+    "best_energy": -62200.06201658136
+  },
+  {
+    "folder": "research/ga_ssw/evidence/population-comparison-20260923/runs/c60-seed3-ga-v2",
+    "status": "budget_exhausted",
+    "requests": 60000,
+    "errors": [],
+    "best_energy": -62189.39215324536
+  },
+  {
+    "folder": "research/ga_ssw/evidence/population-comparison-20260923/runs/c60-seed3-ssw-v2",
+    "status": "request_cap_censored",
+    "requests": 60000,
+    "errors": [],
+    "best_energy": -62185.74784164229
+  },
+  {
+    "folder": "research/ga_ssw/evidence/population-comparison-20260923/runs/cu13-seed17-ga",
+    "status": "budget_exhausted",
+    "requests": 20000,
+    "errors": [],
+    "best_energy": 9.361357881570044
+  },
+  {
+    "folder": "research/ga_ssw/evidence/population-comparison-20260923/runs/cu13-seed17-ssw",
+    "status": "request_cap_censored",
+    "requests": 20000,
+    "errors": [],
+    "best_energy": 9.361357881570044
+  },
+  {
+    "folder": "research/ga_ssw/evidence/population-comparison-20260923/runs/cu13-seed3-ga",
+    "status": "budget_exhausted",
+    "requests": 20000,
+    "errors": [],
+    "best_energy": 9.361357881570044
+  },
+  {
+    "folder": "research/ga_ssw/evidence/population-comparison-20260923/runs/cu13-seed3-ssw",
+    "status": "request_cap_censored",
+    "requests": 20000,
+    "errors": [],
+    "best_energy": 9.361357881570044
+  }
+]

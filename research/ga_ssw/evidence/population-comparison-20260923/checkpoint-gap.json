@@ -1,0 +1,24 @@
+[
+  {
+    "seed": 3,
+    "result_requests": 60000,
+    "saved_phase": "generation_complete",
+    "saved_requests": 49360,
+    "requests_after_saved_boundary": 10640,
+    "last_walk_requests": 10640,
+    "last_walk_has_checkpoint": false,
+    "result_has_checkpoint": false,
+    "last_walk_records": 11
+  },
+  {
+    "seed": 17,
+    "result_requests": 60000,
+    "saved_phase": "generation_complete",
+    "saved_requests": 44168,
+    "requests_after_saved_boundary": 15832,
+    "last_walk_requests": 15832,
+    "last_walk_has_checkpoint": false,
+    "result_has_checkpoint": false,
+    "last_walk_records": 18
+  }
+]

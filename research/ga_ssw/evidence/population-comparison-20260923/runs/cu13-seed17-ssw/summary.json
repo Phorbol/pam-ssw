@@ -1,0 +1,118 @@
+{
+  "arm": "ssw",
+  "status": "request_cap_censored",
+  "search_requests": 20000,
+  "search_cap": 20000,
+  "wall_seconds": 47.25809335298254,
+  "boundary_reason": "search_cap",
+  "phases": [
+    {
+      "phase": "initial_quenches",
+      "count": 3,
+      "request_start": 1,
+      "request_end": 3
+    },
+    {
+      "phase": "ssw:0",
+      "start_request": 4,
+      "end_request": 6669,
+      "allocation": 6666,
+      "used": 6666,
+      "unused_carried": 0,
+      "phase_stop_reason": "allocation_exhausted",
+      "status": "evaluation_failed"
+    },
+    {
+      "phase": "ssw:1",
+      "start_request": 6670,
+      "end_request": 13335,
+      "allocation": 6666,
+      "used": 6666,
+      "unused_carried": 0,
+      "phase_stop_reason": "allocation_exhausted",
+      "status": "evaluation_failed"
+    },
+    {
+      "phase": "ssw:2",
+      "start_request": 13336,
+      "end_request": 20000,
+      "allocation": 6665,
+      "used": 6665,
+      "unused_carried": 0,
+      "phase_stop_reason": null,
+      "status": "evaluation_failed"
+    }
+  ],
+  "allocation_rule": "At each start, floor(remaining requests / remaining qualified starts), extras to earlier input indices; unused requests are returned then remaining starts are reallocated in original order.",
+  "initial_quenches": [
+    {
+      "index": 0,
+      "status": "qualified",
+      "request_start": 1,
+      "request_end": 1
+    },
+    {
+      "index": 1,
+      "status": "qualified",
+      "request_start": 2,
+      "request_end": 2
+    },
+    {
+      "index": 2,
+      "status": "qualified",
+      "request_start": 3,
+      "request_end": 3
+    }
+  ],
+  "walks": [
+    {
+      "input_index": 0,
+      "status": "evaluation_failed",
+      "allocation": 6666,
+      "used": 6666,
+      "unused_carried": 0,
+      "request_start": 4,
+      "request_end": 6669,
+      "phase_stop_reason": "allocation_exhausted"
+    },
+    {
+      "input_index": 1,
+      "status": "evaluation_failed",
+      "allocation": 6666,
+      "used": 6666,
+      "unused_carried": 0,
+      "request_start": 6670,
+      "request_end": 13335,
+      "phase_stop_reason": "allocation_exhausted"
+    },
+    {
+      "input_index": 2,
+      "status": "evaluation_failed",
+      "allocation": 6665,
+      "used": 6665,
+      "unused_carried": 0,
+      "request_start": 13336,
+      "request_end": 20000,
+      "phase_stop_reason": null
+    }
+  ],
+  "failed_search_requests": 0,
+  "refused_search_calls": 3,
+  "calculator_calculate_calls": 18668,
+  "fresh_checks": [
+    {
+      "label": "best_true_force_converged",
+      "geometry_index": 0,
+      "stored_energy": 9.361357881570044,
+      "fresh_energy": 9.361357881570044,
+      "energy_difference": 0.0,
+      "max_force": 9.943277435933532e-06,
+      "fmax_threshold": 0.01,
+      "force_qualified": true,
+      "composition_match": true,
+      "pbc_match": true,
+      "cell_match": true
+    }
+  ],
+  "search_calculator_calculate_calls": 18668
+}
