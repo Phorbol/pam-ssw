@@ -121,4 +121,3 @@ The 1e-8 eV equality is used only to map the final stored best back to its earli
 | 27 | 11528 | -427.5912955267992 | gaussian_limit | True |
 | 28 | 11983 | -427.5912955267992 | gaussian_limit | True |
 | 29 | 12000 | -427.5912955267992 | evaluation_failed | False |
-

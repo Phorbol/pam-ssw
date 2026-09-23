@@ -123,7 +123,7 @@ def write_report(data):
             for point in arm.get("best_so_far_curve", []):
                 lines.append(f"| {point.get('record_index', 'initial')} | {point['cost_requests']} | {point.get('best_so_far_energy_eV')} | {point.get('event')} | {point.get('qualified_landing', point.get('qualified'))} |")
             lines.append("")
-    (HERE / "followup.md").write_text("\n".join(lines) + "\n")
+    (HERE / "followup.md").write_text("\n".join(lines).rstrip() + "\n")
 
 
 def main():
