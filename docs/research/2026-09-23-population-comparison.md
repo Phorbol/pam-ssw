@@ -150,3 +150,25 @@ C60 runs released with frozen sourceec01115:1463566/1463568 (seed3 SSW/GA),
 1463567/1463569 (seed17 SSW/GA, each dependent on the corresponding first arm).
 At most2 V100 concurrently,60000 requests and90min software wall per arm,
 100min scheduler ceiling; no result yet. See gpu-submission.json.
+
+## C60 configuration correction before search comparison
+
+First launch failed due to a research-plan field typo: NativeMCSettings accepts
+energy_tol, not energy_tol_eV. GA1463568 failed before any PES request; cancelled
+SSW1463566 had261 paid initialization records (an in-flight request may be
+unlogged),1463567 never ran,1463569 was cancelled during setup. Preserve the
+original folders, logs and failed-launch-accounting.json outside scientific
+comparison. This setup failure is not evidence about SSW or GA performance.
+
+Only the field spelling changes in c60-seed3-v2.json/c60-seed17-v2.json, still
+0.1eV. CPU1463615 validates both revised C60 and both Cu13 complete config
+objects, walker options and raw descriptors, zero PES with backend loading
+excluded. Numerical source remains ec01115, no algorithm/default changes.
+Replacement runs1463630/1463632 (seed3),1463631/1463633 (seed17 dependent)
+use new v2 output folders. Scientific budget remains60000 per arm; failed
+launch cost is additional development overhead, explicitly retained.
+
+Independent read-only review found no further constructor mismatch. GA uses
+one sequential RNG stream whereas baseline walks each use seed+input-index;
+matching seed labels does not couple per-move randomness. This is a comparison
+of complete search strategies, not an isolated causal estimate for crossover.

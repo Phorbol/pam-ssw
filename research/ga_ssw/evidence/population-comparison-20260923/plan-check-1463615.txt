@@ -1,0 +1,4 @@
+c60-seed3-v2.json PASS: config objects, raw descriptors, walker options; zero PES, model loading excluded
+c60-seed17-v2.json PASS: config objects, raw descriptors, walker options; zero PES, model loading excluded
+cu13-seed3.json PASS: config objects, raw descriptors, walker options; zero PES, model loading excluded
+cu13-seed17.json PASS: config objects, raw descriptors, walker options; zero PES, model loading excluded

@@ -1,0 +1,17 @@
+[
+  {
+    "folder": "research/ga_ssw/evidence/population-comparison-20260923/runs/c60-seed17-ga",
+    "recorded_paid_requests": 0,
+    "partial_last_call_may_be_unlogged": true
+  },
+  {
+    "folder": "research/ga_ssw/evidence/population-comparison-20260923/runs/c60-seed3-ga",
+    "recorded_paid_requests": 0,
+    "partial_last_call_may_be_unlogged": false
+  },
+  {
+    "folder": "research/ga_ssw/evidence/population-comparison-20260923/runs/c60-seed3-ssw",
+    "recorded_paid_requests": 261,
+    "partial_last_call_may_be_unlogged": true
+  }
+]
