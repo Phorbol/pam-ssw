@@ -1,0 +1,3173 @@
+{
+  "source": "research/ga_ssw/evidence/c4h6-ls-reaction-coverage-20260912",
+  "selection": "element-labeled full graph isomorphic to ASE G2 butadiene",
+  "torsion_sign": "cosphi sign is geometric cis-like/trans-like only; no angle threshold or stable-isomer claim",
+  "counts_are": "selected frames, not unique states or discovery rates",
+  "reference_diagnostic": {
+    "path_indices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "trans_raw_deg": 180.0,
+    "trans_cosphi": -1.0,
+    "constructed_cis_raw_deg": 7.016709298534876e-15,
+    "constructed_cis_cosphi": 1.0,
+    "old_graph_isomorphic": true,
+    "reverse_order_cosphi": -1.0,
+    "checks": {
+      "trans_reference_graph_matches_cis_constructed": true,
+      "cis_trans_cos_signs_opposite": true,
+      "reverse_order_cos_invariant_1e-10": true
+    },
+    "interpretation": "constructed geometry diagnostic only; not a physical minimum"
+  },
+  "boundary_anomalies": [],
+  "arms": [
+    {
+      "arm": "butadiene-ssw-seed11",
+      "result_status": "evaluation_failed",
+      "minima_count": 20,
+      "selected_frame_count": 14,
+      "raw_angles_deg": [
+        179.99999999999994,
+        336.4659881337807,
+        179.7971905471026,
+        179.89175885315615,
+        180.02012539146224,
+        341.9714949083584,
+        340.4156301042396,
+        179.76770186396794,
+        179.81301549866936,
+        338.37552216980254,
+        179.8960626774531,
+        180.01360896156788,
+        180.06977756617687,
+        180.4696609518994
+      ],
+      "selected_frames": [
+        {
+          "index": 0,
+          "raw_deg": 179.99999999999994,
+          "cosphi": -1.0,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 1,
+          "raw_deg": 336.4659881337807,
+          "cosphi": 0.9168232077769826,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 2,
+          "raw_deg": 179.7971905471026,
+          "cosphi": -0.9999937352943103,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 3,
+          "raw_deg": 179.89175885315615,
+          "cosphi": -0.9999982155294683,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 4,
+          "raw_deg": 180.02012539146224,
+          "cosphi": -0.9999999383101934,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 5,
+          "raw_deg": 341.9714949083584,
+          "cosphi": 0.950902660266662,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 6,
+          "raw_deg": 340.4156301042396,
+          "cosphi": 0.9421489278416538,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 7,
+          "raw_deg": 179.76770186396794,
+          "cosphi": -0.9999917810640757,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 8,
+          "raw_deg": 179.81301549866936,
+          "cosphi": -0.9999946748042713,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 9,
+          "raw_deg": 338.37552216980254,
+          "cosphi": 0.9296191313394332,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 10,
+          "raw_deg": 179.8960626774531,
+          "cosphi": -0.9999983546144816,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 11,
+          "raw_deg": 180.01360896156788,
+          "cosphi": -0.999999971791843,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 13,
+          "raw_deg": 180.06977756617687,
+          "cosphi": -0.9999992584228826,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 17,
+          "raw_deg": 180.4696609518994,
+          "cosphi": -0.9999664037181762,
+          "converged": true,
+          "fresh_force_qualified": true
+        }
+      ],
+      "cis_like_count": 4,
+      "trans_like_count": 10,
+      "zero_cosphi_count": 0,
+      "frames": [
+        {
+          "index": 0,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 0,
+            "energy": -314.36503806308946,
+            "energy_error": 1.1368683772161603e-13,
+            "fmax": 0.002238343242773667,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.99999999999994,
+          "cosphi": -1.0
+        },
+        {
+          "index": 1,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 1,
+            "energy": -314.27213883186215,
+            "energy_error": 5.684341886080802e-14,
+            "fmax": 0.008517820186280686,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 336.4659881337807,
+          "cosphi": 0.9168232077769826
+        },
+        {
+          "index": 2,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 2,
+            "energy": -314.3649950610278,
+            "energy_error": 2.2737367544323206e-13,
+            "fmax": 0.009608034935620704,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.7971905471026,
+          "cosphi": -0.9999937352943103
+        },
+        {
+          "index": 3,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 3,
+            "energy": -314.36502561718373,
+            "energy_error": 2.2737367544323206e-13,
+            "fmax": 0.008576209723690211,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.89175885315615,
+          "cosphi": -0.9999982155294683
+        },
+        {
+          "index": 4,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 4,
+            "energy": -314.3650365789126,
+            "energy_error": -1.1368683772161603e-13,
+            "fmax": 0.007006982675503489,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 180.02012539146224,
+          "cosphi": -0.9999999383101934
+        },
+        {
+          "index": 5,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 5,
+            "energy": -314.27278469070023,
+            "energy_error": 3.410605131648481e-13,
+            "fmax": 0.006531911444625784,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 341.9714949083584,
+          "cosphi": 0.950902660266662
+        },
+        {
+          "index": 6,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 6,
+            "energy": -314.2727251708028,
+            "energy_error": -1.7053025658242404e-13,
+            "fmax": 0.00823165148940928,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 340.4156301042396,
+          "cosphi": 0.9421489278416538
+        },
+        {
+          "index": 7,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 7,
+            "energy": -314.36498349111355,
+            "energy_error": 2.2737367544323206e-13,
+            "fmax": 0.008790787783712716,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.76770186396794,
+          "cosphi": -0.9999917810640757
+        },
+        {
+          "index": 8,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 8,
+            "energy": -314.36501598590553,
+            "energy_error": 2.8421709430404007e-13,
+            "fmax": 0.008273831249479023,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.81301549866936,
+          "cosphi": -0.9999946748042713
+        },
+        {
+          "index": 9,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 9,
+            "energy": -314.2725113932741,
+            "energy_error": 1.1368683772161603e-13,
+            "fmax": 0.007990046179074846,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 338.37552216980254,
+          "cosphi": 0.9296191313394332
+        },
+        {
+          "index": 10,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 10,
+            "energy": -314.3649951692002,
+            "energy_error": 0.0,
+            "fmax": 0.009164925774567725,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.8960626774531,
+          "cosphi": -0.9999983546144816
+        },
+        {
+          "index": 11,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 11,
+            "energy": -314.3650039645416,
+            "energy_error": 1.7053025658242404e-13,
+            "fmax": 0.0056139303408448546,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 180.01360896156788,
+          "cosphi": -0.999999971791843
+        },
+        {
+          "index": 12,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 12,
+            "energy": -314.50837021719667,
+            "energy_error": 0.0,
+            "fmax": 0.004954927504770316,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 13,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 13,
+            "energy": -314.3649967656973,
+            "energy_error": 1.1368683772161603e-13,
+            "fmax": 0.009160392371274001,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 180.06977756617687,
+          "cosphi": -0.9999992584228826
+        },
+        {
+          "index": 14,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 14,
+            "energy": -312.383398011339,
+            "energy_error": -1.7053025658242404e-13,
+            "fmax": 0.006890508399159026,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 15,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 15,
+            "energy": -311.56260112307814,
+            "energy_error": 1.7053025658242404e-13,
+            "fmax": 0.00947294695244508,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 16,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 16,
+            "energy": -314.5083717016593,
+            "energy_error": -1.7053025658242404e-13,
+            "fmax": 0.0046228332075119805,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 17,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 17,
+            "energy": -314.36497655527916,
+            "energy_error": -6.252776074688882e-13,
+            "fmax": 0.008983490493013996,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            2,
+            1,
+            3
+          ],
+          "raw_deg": 180.4696609518994,
+          "cosphi": -0.9999664037181762
+        },
+        {
+          "index": 18,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 18,
+            "energy": -314.50837234516047,
+            "energy_error": 1.1368683772161603e-13,
+            "fmax": 0.004297983262258968,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 19,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 19,
+            "energy": -314.5083569656896,
+            "energy_error": 1.1368683772161603e-13,
+            "fmax": 0.008307251400968569,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        }
+      ]
+    },
+    {
+      "arm": "butadiene-ssw-seed29",
+      "result_status": "evaluation_failed",
+      "minima_count": 22,
+      "selected_frame_count": 11,
+      "raw_angles_deg": [
+        179.99999999999994,
+        17.484020283374186,
+        19.123153785225306,
+        179.97459515186495,
+        11.890927638730616,
+        179.8000111131632,
+        341.51673457834784,
+        180.09544221957873,
+        179.8983624157323,
+        179.98344514148846,
+        179.80737789681058
+      ],
+      "selected_frames": [
+        {
+          "index": 0,
+          "raw_deg": 179.99999999999994,
+          "cosphi": -1.0,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 1,
+          "raw_deg": 17.484020283374186,
+          "cosphi": 0.9538007801020963,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 2,
+          "raw_deg": 19.123153785225306,
+          "cosphi": 0.9448166030485331,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 3,
+          "raw_deg": 179.97459515186495,
+          "cosphi": -0.9999999016989993,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 4,
+          "raw_deg": 11.890927638730616,
+          "cosphi": 0.97854162373658,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 5,
+          "raw_deg": 179.8000111131632,
+          "cosphi": -0.9999939083348228,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 6,
+          "raw_deg": 341.51673457834784,
+          "cosphi": 0.9484162910343341,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 7,
+          "raw_deg": 180.09544221957873,
+          "cosphi": -0.999998612587189,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 8,
+          "raw_deg": 179.8983624157323,
+          "cosphi": -0.9999984266212006,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 9,
+          "raw_deg": 179.98344514148846,
+          "cosphi": -0.9999999582577664,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 10,
+          "raw_deg": 179.80737789681058,
+          "cosphi": -0.9999943488534297,
+          "converged": true,
+          "fresh_force_qualified": true
+        }
+      ],
+      "cis_like_count": 4,
+      "trans_like_count": 7,
+      "zero_cosphi_count": 0,
+      "frames": [
+        {
+          "index": 0,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 0,
+            "energy": -314.36503806308946,
+            "energy_error": 1.1368683772161603e-13,
+            "fmax": 0.002238343242773667,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.99999999999994,
+          "cosphi": -1.0
+        },
+        {
+          "index": 1,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 1,
+            "energy": -314.2727825393421,
+            "energy_error": -5.684341886080801e-13,
+            "fmax": 0.005454547501520784,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 17.484020283374186,
+          "cosphi": 0.9538007801020963
+        },
+        {
+          "index": 2,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 2,
+            "energy": -314.2727463048069,
+            "energy_error": 2.8421709430404007e-13,
+            "fmax": 0.007840593546968417,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 19.123153785225306,
+          "cosphi": 0.9448166030485331
+        },
+        {
+          "index": 3,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 3,
+            "energy": -314.3649739702462,
+            "energy_error": 5.684341886080802e-14,
+            "fmax": 0.009616272163273386,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.97459515186495,
+          "cosphi": -0.9999999016989993
+        },
+        {
+          "index": 4,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 4,
+            "energy": -314.27229898597284,
+            "energy_error": -3.410605131648481e-13,
+            "fmax": 0.005102721821262592,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 11.890927638730616,
+          "cosphi": 0.97854162373658
+        },
+        {
+          "index": 5,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 5,
+            "energy": -314.36498062064646,
+            "energy_error": 0.0,
+            "fmax": 0.009821247404308465,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.8000111131632,
+          "cosphi": -0.9999939083348228
+        },
+        {
+          "index": 6,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 6,
+            "energy": -314.27279707191815,
+            "energy_error": 1.7053025658242404e-13,
+            "fmax": 0.004145138327756115,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 341.51673457834784,
+          "cosphi": 0.9484162910343341
+        },
+        {
+          "index": 7,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 7,
+            "energy": -314.3650263197893,
+            "energy_error": -2.8421709430404007e-13,
+            "fmax": 0.0072502276328339655,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 180.09544221957873,
+          "cosphi": -0.999998612587189
+        },
+        {
+          "index": 8,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 8,
+            "energy": -314.3650282232965,
+            "energy_error": 1.1368683772161603e-13,
+            "fmax": 0.005361861539599105,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.8983624157323,
+          "cosphi": -0.9999984266212006
+        },
+        {
+          "index": 9,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 9,
+            "energy": -314.36501082840323,
+            "energy_error": 5.684341886080802e-14,
+            "fmax": 0.007645805781145806,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.98344514148846,
+          "cosphi": -0.9999999582577664
+        },
+        {
+          "index": 10,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 10,
+            "energy": -314.3650198252678,
+            "energy_error": -1.7053025658242404e-13,
+            "fmax": 0.008520898113484932,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.80737789681058,
+          "cosphi": -0.9999943488534297
+        },
+        {
+          "index": 11,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 11,
+            "energy": -314.5083571394765,
+            "energy_error": -1.1368683772161603e-13,
+            "fmax": 0.00313421696220597,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 12,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 12,
+            "energy": -313.94226785467225,
+            "energy_error": -1.7053025658242404e-13,
+            "fmax": 0.005146333189830321,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 13,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 13,
+            "energy": -313.94227530656946,
+            "energy_error": 2.2737367544323206e-13,
+            "fmax": 0.008480127873592183,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 14,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 14,
+            "energy": -314.508361893688,
+            "energy_error": 5.684341886080802e-14,
+            "fmax": 0.006347455485864391,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 15,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 15,
+            "energy": -312.38919776318943,
+            "energy_error": -1.1368683772161603e-13,
+            "fmax": 0.008159332696936358,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 16,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 16,
+            "energy": -312.3507928915926,
+            "energy_error": -1.7053025658242404e-13,
+            "fmax": 0.00897547497212567,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 17,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 17,
+            "energy": -314.5083712298516,
+            "energy_error": -3.979039320256561e-13,
+            "fmax": 0.009485494218142593,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 18,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 18,
+            "energy": -313.9422752104818,
+            "energy_error": 7.389644451905042e-13,
+            "fmax": 0.006679814487030029,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 19,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 19,
+            "energy": -314.5083734754445,
+            "energy_error": -1.7053025658242404e-13,
+            "fmax": 0.004009197492414867,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 20,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 20,
+            "energy": -314.5083491776549,
+            "energy_error": -1.1368683772161603e-13,
+            "fmax": 0.009484148456868645,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 21,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 21,
+            "energy": -314.50836199265615,
+            "energy_error": -2.2737367544323206e-13,
+            "fmax": 0.006699139670272797,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        }
+      ]
+    },
+    {
+      "arm": "butadiene-paper_ls-seed11",
+      "result_status": "evaluation_failed",
+      "minima_count": 22,
+      "selected_frame_count": 17,
+      "raw_angles_deg": [
+        179.99999999999994,
+        179.93807485432532,
+        180.2800588276438,
+        18.17314780852921,
+        18.968279138115427,
+        180.09921451140215,
+        341.4247813853872,
+        179.90492376581955,
+        18.646159208260826,
+        341.7709902489397,
+        341.25304007361785,
+        180.03025220893664,
+        341.1756863498894,
+        339.9745915004492,
+        341.3001449971732,
+        18.681123083607435,
+        180.01137879229012
+      ],
+      "selected_frames": [
+        {
+          "index": 0,
+          "raw_deg": 179.99999999999994,
+          "cosphi": -1.0,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 1,
+          "raw_deg": 179.93807485432532,
+          "cosphi": -0.9999994159382424,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 2,
+          "raw_deg": 180.2800588276438,
+          "cosphi": -0.9999880540028228,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 3,
+          "raw_deg": 18.17314780852921,
+          "cosphi": 0.9501183258109186,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 5,
+          "raw_deg": 18.968279138115427,
+          "cosphi": 0.9456986761154518,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 6,
+          "raw_deg": 180.09921451140215,
+          "cosphi": -0.9999985007466534,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 7,
+          "raw_deg": 341.4247813853872,
+          "cosphi": 0.9479062766050586,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 8,
+          "raw_deg": 179.90492376581955,
+          "cosphi": -0.9999986232072093,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 9,
+          "raw_deg": 18.646159208260826,
+          "cosphi": 0.947511139226869,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 11,
+          "raw_deg": 341.7709902489397,
+          "cosphi": 0.9498137897022024,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 12,
+          "raw_deg": 341.25304007361785,
+          "cosphi": 0.9469471835132927,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 13,
+          "raw_deg": 180.03025220893664,
+          "cosphi": -0.999999860607659,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 14,
+          "raw_deg": 341.1756863498894,
+          "cosphi": 0.9465124203911842,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 15,
+          "raw_deg": 339.9745915004492,
+          "cosphi": 0.9395408554632984,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 16,
+          "raw_deg": 341.3001449971732,
+          "cosphi": 0.9472110891112626,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 17,
+          "raw_deg": 18.681123083607435,
+          "cosphi": 0.9473158568843346,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 19,
+          "raw_deg": 180.01137879229012,
+          "cosphi": -0.9999999802795383,
+          "converged": true,
+          "fresh_force_qualified": true
+        }
+      ],
+      "cis_like_count": 10,
+      "trans_like_count": 7,
+      "zero_cosphi_count": 0,
+      "frames": [
+        {
+          "index": 0,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 0,
+            "energy": -314.36503806308946,
+            "energy_error": 1.1368683772161603e-13,
+            "fmax": 0.002238343242773667,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.99999999999994,
+          "cosphi": -1.0
+        },
+        {
+          "index": 1,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 1,
+            "energy": -314.36503341466175,
+            "energy_error": -5.684341886080802e-14,
+            "fmax": 0.005736854070851446,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.93807485432532,
+          "cosphi": -0.9999994159382424
+        },
+        {
+          "index": 2,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 2,
+            "energy": -314.3650133818379,
+            "energy_error": -5.684341886080802e-14,
+            "fmax": 0.009303889523913901,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 180.2800588276438,
+          "cosphi": -0.9999880540028228
+        },
+        {
+          "index": 3,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 3,
+            "energy": -314.2727940524033,
+            "energy_error": 4.547473508864641e-13,
+            "fmax": 0.004082155463974868,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 18.17314780852921,
+          "cosphi": 0.9501183258109186
+        },
+        {
+          "index": 4,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 4,
+            "energy": -314.2479620248692,
+            "energy_error": 2.8421709430404007e-13,
+            "fmax": 0.007263460987238003,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 5,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 5,
+            "energy": -314.27277374520713,
+            "energy_error": 4.547473508864641e-13,
+            "fmax": 0.007679564936723881,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 18.968279138115427,
+          "cosphi": 0.9456986761154518
+        },
+        {
+          "index": 6,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 6,
+            "energy": -314.3650335620377,
+            "energy_error": -5.115907697472721e-13,
+            "fmax": 0.0044682904715967805,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 180.09921451140215,
+          "cosphi": -0.9999985007466534
+        },
+        {
+          "index": 7,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 7,
+            "energy": -314.27279493160387,
+            "energy_error": 1.1368683772161603e-13,
+            "fmax": 0.005786916869827961,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 341.4247813853872,
+          "cosphi": 0.9479062766050586
+        },
+        {
+          "index": 8,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 8,
+            "energy": -314.3650213541187,
+            "energy_error": 5.115907697472721e-13,
+            "fmax": 0.007230441269221454,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.90492376581955,
+          "cosphi": -0.9999986232072093
+        },
+        {
+          "index": 9,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 9,
+            "energy": -314.2727724816329,
+            "energy_error": -1.7053025658242404e-13,
+            "fmax": 0.007826101355996115,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 18.646159208260826,
+          "cosphi": 0.947511139226869
+        },
+        {
+          "index": 10,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 10,
+            "energy": -311.81186193992454,
+            "energy_error": 5.684341886080802e-14,
+            "fmax": 0.009558718063226477,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 11,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 11,
+            "energy": -314.2727945505817,
+            "energy_error": 2.2737367544323206e-13,
+            "fmax": 0.0065255033298767685,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 341.7709902489397,
+          "cosphi": 0.9498137897022024
+        },
+        {
+          "index": 12,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 12,
+            "energy": -314.27277390004764,
+            "energy_error": 5.684341886080802e-14,
+            "fmax": 0.005562270778838651,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 341.25304007361785,
+          "cosphi": 0.9469471835132927
+        },
+        {
+          "index": 13,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 13,
+            "energy": -314.36502582485457,
+            "energy_error": 1.1368683772161603e-13,
+            "fmax": 0.00701578947000155,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 180.03025220893664,
+          "cosphi": -0.999999860607659
+        },
+        {
+          "index": 14,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 14,
+            "energy": -314.27276847641633,
+            "energy_error": -1.1368683772161603e-13,
+            "fmax": 0.009348473977301375,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 341.1756863498894,
+          "cosphi": 0.9465124203911842
+        },
+        {
+          "index": 15,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 15,
+            "energy": -314.2727100263303,
+            "energy_error": 2.2737367544323206e-13,
+            "fmax": 0.008268892958590854,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 339.9745915004492,
+          "cosphi": 0.9395408554632984
+        },
+        {
+          "index": 16,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 16,
+            "energy": -314.2727907014213,
+            "energy_error": 0.0,
+            "fmax": 0.007931770419669783,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 341.3001449971732,
+          "cosphi": 0.9472110891112626
+        },
+        {
+          "index": 17,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 17,
+            "energy": -314.27277800136284,
+            "energy_error": 4.547473508864641e-13,
+            "fmax": 0.00951677393083869,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 18.681123083607435,
+          "cosphi": 0.9473158568843346
+        },
+        {
+          "index": 18,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 18,
+            "energy": -314.5083610184067,
+            "energy_error": -1.7053025658242404e-13,
+            "fmax": 0.007662329528165461,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 19,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 19,
+            "energy": -314.3650206730544,
+            "energy_error": 5.684341886080802e-14,
+            "fmax": 0.008500928660337017,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 180.01137879229012,
+          "cosphi": -0.9999999802795383
+        },
+        {
+          "index": 20,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 20,
+            "energy": -311.95299662229235,
+            "energy_error": -1.7053025658242404e-13,
+            "fmax": 0.005714984655731805,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 21,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 21,
+            "energy": -314.5083535569474,
+            "energy_error": -5.115907697472721e-13,
+            "fmax": 0.009564921609808439,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        }
+      ]
+    },
+    {
+      "arm": "butadiene-paper_ls-seed29",
+      "result_status": "evaluation_failed",
+      "minima_count": 21,
+      "selected_frame_count": 16,
+      "raw_angles_deg": [
+        179.99999999999994,
+        16.483687036204035,
+        19.105693404757726,
+        180.4522455979017,
+        337.51074296598455,
+        341.3210978732292,
+        341.4558489018681,
+        340.85975201049195,
+        179.98947336211077,
+        179.85590777704337,
+        18.213297107265774,
+        17.803311544246462,
+        179.86933872494393,
+        179.87034296530737,
+        18.329955069177103,
+        179.8807388284736
+      ],
+      "selected_frames": [
+        {
+          "index": 0,
+          "raw_deg": 179.99999999999994,
+          "cosphi": -1.0,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 1,
+          "raw_deg": 16.483687036204035,
+          "cosphi": 0.9589005594135966,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 2,
+          "raw_deg": 19.105693404757726,
+          "cosphi": 0.9449163922885953,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 3,
+          "raw_deg": 180.4522455979017,
+          "cosphi": -0.999968849058222,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 4,
+          "raw_deg": 337.51074296598455,
+          "cosphi": 0.9239512694632726,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 5,
+          "raw_deg": 341.3210978732292,
+          "cosphi": 0.947328271999452,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 6,
+          "raw_deg": 341.4558489018681,
+          "cosphi": 0.9480788644081923,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 7,
+          "raw_deg": 340.85975201049195,
+          "cosphi": 0.9447188215701496,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 8,
+          "raw_deg": 179.98947336211077,
+          "cosphi": -0.9999999831226559,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 9,
+          "raw_deg": 179.85590777704337,
+          "cosphi": -0.9999968376816114,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 12,
+          "raw_deg": 18.213297107265774,
+          "cosphi": 0.9498995397846083,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 13,
+          "raw_deg": 17.803311544246462,
+          "cosphi": 0.9521117227731738,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 14,
+          "raw_deg": 179.86933872494393,
+          "cosphi": -0.9999973997306603,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 18,
+          "raw_deg": 179.87034296530737,
+          "cosphi": -0.999997439547497,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 19,
+          "raw_deg": 18.329955069177103,
+          "cosphi": 0.9492611880582381,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 20,
+          "raw_deg": 179.8807388284736,
+          "cosphi": -0.9999978336794221,
+          "converged": true,
+          "fresh_force_qualified": true
+        }
+      ],
+      "cis_like_count": 9,
+      "trans_like_count": 7,
+      "zero_cosphi_count": 0,
+      "frames": [
+        {
+          "index": 0,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 0,
+            "energy": -314.36503806308946,
+            "energy_error": 1.1368683772161603e-13,
+            "fmax": 0.002238343242773667,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.99999999999994,
+          "cosphi": -1.0
+        },
+        {
+          "index": 1,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 1,
+            "energy": -314.27271935673997,
+            "energy_error": 1.7053025658242404e-13,
+            "fmax": 0.009109184352803197,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 16.483687036204035,
+          "cosphi": 0.9589005594135966
+        },
+        {
+          "index": 2,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 2,
+            "energy": -314.27277190235174,
+            "energy_error": -2.2737367544323206e-13,
+            "fmax": 0.005777234623353655,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 19.105693404757726,
+          "cosphi": 0.9449163922885953
+        },
+        {
+          "index": 3,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 3,
+            "energy": -314.3649545145835,
+            "energy_error": 0.0,
+            "fmax": 0.008706554142270714,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 180.4522455979017,
+          "cosphi": -0.999968849058222
+        },
+        {
+          "index": 4,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 4,
+            "energy": -314.27241081201186,
+            "energy_error": 3.410605131648481e-13,
+            "fmax": 0.009220606215072544,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 337.51074296598455,
+          "cosphi": 0.9239512694632726
+        },
+        {
+          "index": 5,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 5,
+            "energy": -314.2727860725255,
+            "energy_error": 4.547473508864641e-13,
+            "fmax": 0.009712533249173799,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 341.3210978732292,
+          "cosphi": 0.947328271999452
+        },
+        {
+          "index": 6,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 6,
+            "energy": -314.2727796658232,
+            "energy_error": 0.0,
+            "fmax": 0.005674729075310959,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 341.4558489018681,
+          "cosphi": 0.9480788644081923
+        },
+        {
+          "index": 7,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 7,
+            "energy": -314.27274860043997,
+            "energy_error": -1.7053025658242404e-13,
+            "fmax": 0.007133668587937546,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 340.85975201049195,
+          "cosphi": 0.9447188215701496
+        },
+        {
+          "index": 8,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 8,
+            "energy": -314.36497932253513,
+            "energy_error": -3.979039320256561e-13,
+            "fmax": 0.008643076408578122,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.98947336211077,
+          "cosphi": -0.9999999831226559
+        },
+        {
+          "index": 9,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 9,
+            "energy": -314.36502759030685,
+            "energy_error": 0.0,
+            "fmax": 0.009275387253950296,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.85590777704337,
+          "cosphi": -0.9999968376816114
+        },
+        {
+          "index": 10,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 10,
+            "energy": -314.50836647534356,
+            "energy_error": 1.7053025658242404e-13,
+            "fmax": 0.007190062898887298,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 11,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 11,
+            "energy": -314.5083555844605,
+            "energy_error": 1.1368683772161603e-13,
+            "fmax": 0.007866331461714768,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 12,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 12,
+            "energy": -314.27278898555255,
+            "energy_error": -1.7053025658242404e-13,
+            "fmax": 0.008916110240641484,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 18.213297107265774,
+          "cosphi": 0.9498995397846083
+        },
+        {
+          "index": 13,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 13,
+            "energy": -314.2727834068319,
+            "energy_error": -1.1368683772161603e-13,
+            "fmax": 0.00559627512294975,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 17.803311544246462,
+          "cosphi": 0.9521117227731738
+        },
+        {
+          "index": 14,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 14,
+            "energy": -314.36503139456534,
+            "energy_error": 1.1368683772161603e-13,
+            "fmax": 0.005216115459889847,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            1,
+            2,
+            0,
+            3
+          ],
+          "raw_deg": 179.86933872494393,
+          "cosphi": -0.9999973997306603
+        },
+        {
+          "index": 15,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 15,
+            "energy": -313.9422558540637,
+            "energy_error": -3.979039320256561e-13,
+            "fmax": 0.009924387269970969,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 16,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 16,
+            "energy": -314.5083635082131,
+            "energy_error": -1.7053025658242404e-13,
+            "fmax": 0.006895277701707986,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 17,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 17,
+            "energy": -311.73552852885854,
+            "energy_error": 3.410605131648481e-13,
+            "fmax": 0.007682124339255825,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 18,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 18,
+            "energy": -314.36502707775225,
+            "energy_error": 1.1368683772161603e-13,
+            "fmax": 0.005750930057630856,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            1,
+            0,
+            2,
+            3
+          ],
+          "raw_deg": 179.87034296530737,
+          "cosphi": -0.999997439547497
+        },
+        {
+          "index": 19,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 19,
+            "energy": -314.27279088194086,
+            "energy_error": -2.2737367544323206e-13,
+            "fmax": 0.00993765295411722,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            2,
+            1,
+            0,
+            3
+          ],
+          "raw_deg": 18.329955069177103,
+          "cosphi": 0.9492611880582381
+        },
+        {
+          "index": 20,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 20,
+            "energy": -314.3650270707554,
+            "energy_error": 0.0,
+            "fmax": 0.005204912903164626,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            2,
+            0,
+            1,
+            3
+          ],
+          "raw_deg": 179.8807388284736,
+          "cosphi": -0.9999978336794221
+        }
+      ]
+    },
+    {
+      "arm": "butadiene-native_ls-seed11",
+      "result_status": "evaluation_failed",
+      "minima_count": 22,
+      "selected_frame_count": 8,
+      "raw_angles_deg": [
+        179.99999999999994,
+        336.03127422551165,
+        180.43779449282007,
+        179.80850333097345,
+        180.24822465080646,
+        18.340426642157638,
+        341.789427610798,
+        9.835587177219475
+      ],
+      "selected_frames": [
+        {
+          "index": 0,
+          "raw_deg": 179.99999999999994,
+          "cosphi": -1.0,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 1,
+          "raw_deg": 336.03127422551165,
+          "cosphi": 0.9137673339406593,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 2,
+          "raw_deg": 180.43779449282007,
+          "cosphi": -0.9999708080427235,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 3,
+          "raw_deg": 179.80850333097345,
+          "cosphi": -0.999994414696421,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 4,
+          "raw_deg": 180.24822465080646,
+          "cosphi": -0.9999906154408262,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 14,
+          "raw_deg": 18.340426642157638,
+          "cosphi": 0.9492036951565438,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 19,
+          "raw_deg": 341.789427610798,
+          "cosphi": 0.949914402375706,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 21,
+          "raw_deg": 9.835587177219475,
+          "cosphi": 0.985301989010924,
+          "converged": true,
+          "fresh_force_qualified": true
+        }
+      ],
+      "cis_like_count": 4,
+      "trans_like_count": 4,
+      "zero_cosphi_count": 0,
+      "frames": [
+        {
+          "index": 0,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 0,
+            "energy": -314.36503806308946,
+            "energy_error": 1.1368683772161603e-13,
+            "fmax": 0.002238343242773667,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.99999999999994,
+          "cosphi": -1.0
+        },
+        {
+          "index": 1,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 1,
+            "energy": -314.27204402076205,
+            "energy_error": 2.8421709430404007e-13,
+            "fmax": 0.009736280997440002,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 336.03127422551165,
+          "cosphi": 0.9137673339406593
+        },
+        {
+          "index": 2,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 2,
+            "energy": -314.3649891900555,
+            "energy_error": 1.1368683772161603e-13,
+            "fmax": 0.00899075079951768,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 180.43779449282007,
+          "cosphi": -0.9999708080427235
+        },
+        {
+          "index": 3,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 3,
+            "energy": -314.365021137053,
+            "energy_error": 5.684341886080802e-14,
+            "fmax": 0.006780910771788851,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.80850333097345,
+          "cosphi": -0.999994414696421
+        },
+        {
+          "index": 4,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 4,
+            "energy": -314.3649925330248,
+            "energy_error": -3.979039320256561e-13,
+            "fmax": 0.007826534837544105,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 180.24822465080646,
+          "cosphi": -0.9999906154408262
+        },
+        {
+          "index": 5,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 5,
+            "energy": -314.5083631616977,
+            "energy_error": 3.410605131648481e-13,
+            "fmax": 0.008673766566550244,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 6,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 6,
+            "energy": -314.5083719725588,
+            "energy_error": -2.8421709430404007e-13,
+            "fmax": 0.006790969443162948,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 7,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 7,
+            "energy": -314.50836221250034,
+            "energy_error": 2.8421709430404007e-13,
+            "fmax": 0.009970120563268148,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 8,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 8,
+            "energy": -314.5083679867001,
+            "energy_error": 0.0,
+            "fmax": 0.0053777765568588775,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 9,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 9,
+            "energy": -314.5083377254845,
+            "energy_error": -1.1368683772161603e-13,
+            "fmax": 0.00940772964510973,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 10,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 10,
+            "energy": -314.5083512805593,
+            "energy_error": 1.7053025658242404e-13,
+            "fmax": 0.006464255373773291,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 11,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 11,
+            "energy": -313.9422604935384,
+            "energy_error": -5.684341886080802e-14,
+            "fmax": 0.007638363082693391,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 12,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 12,
+            "energy": -311.5626127504067,
+            "energy_error": -3.979039320256561e-13,
+            "fmax": 0.009734131114310637,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 13,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 13,
+            "energy": -312.38327413570954,
+            "energy_error": -1.1368683772161603e-13,
+            "fmax": 0.0073672851921411,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 14,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 14,
+            "energy": -314.27279250905974,
+            "energy_error": -2.2737367544323206e-13,
+            "fmax": 0.0055404360607921935,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 18.340426642157638,
+          "cosphi": 0.9492036951565438
+        },
+        {
+          "index": 15,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 15,
+            "energy": -311.73549294833333,
+            "energy_error": 0.0,
+            "fmax": 0.0093913483942753,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 16,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 16,
+            "energy": -314.5083685111437,
+            "energy_error": -3.410605131648481e-13,
+            "fmax": 0.004796380188400151,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 17,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 17,
+            "energy": -312.3819828972384,
+            "energy_error": -2.8421709430404007e-13,
+            "fmax": 0.00925797529658095,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 18,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 18,
+            "energy": -314.5083363817155,
+            "energy_error": 5.684341886080802e-14,
+            "fmax": 0.009399293695460201,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 19,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 19,
+            "energy": -314.2728013419993,
+            "energy_error": 3.979039320256561e-13,
+            "fmax": 0.004944540244957934,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            2,
+            1,
+            3
+          ],
+          "raw_deg": 341.789427610798,
+          "cosphi": 0.949914402375706
+        },
+        {
+          "index": 20,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 20,
+            "energy": -314.50836920132764,
+            "energy_error": 1.7053025658242404e-13,
+            "fmax": 0.004066588471037466,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 21,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 21,
+            "energy": -314.2720559338004,
+            "energy_error": 1.7053025658242404e-13,
+            "fmax": 0.003256966848087095,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            2,
+            1,
+            3
+          ],
+          "raw_deg": 9.835587177219475,
+          "cosphi": 0.985301989010924
+        }
+      ]
+    },
+    {
+      "arm": "butadiene-native_ls-seed29",
+      "result_status": "evaluation_failed",
+      "minima_count": 22,
+      "selected_frame_count": 12,
+      "raw_angles_deg": [
+        179.99999999999994,
+        18.379114558442105,
+        19.101083450157944,
+        179.91088790066811,
+        357.36932365679854,
+        18.208375321576177,
+        20.006267064052757,
+        343.6869894135449,
+        180.5481018929049,
+        180.02146128649332,
+        18.48184907065492,
+        180.9616579558666
+      ],
+      "selected_frames": [
+        {
+          "index": 0,
+          "raw_deg": 179.99999999999994,
+          "cosphi": -1.0,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 1,
+          "raw_deg": 18.379114558442105,
+          "cosphi": 0.9489910089000322,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 2,
+          "raw_deg": 19.101083450157944,
+          "cosphi": 0.9449427243725442,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 3,
+          "raw_deg": 179.91088790066811,
+          "cosphi": -0.9999987905219194,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 4,
+          "raw_deg": 357.36932365679854,
+          "cosphi": 0.9989461391225233,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 5,
+          "raw_deg": 18.208375321576177,
+          "cosphi": 0.9499263852136209,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 6,
+          "raw_deg": 20.006267064052757,
+          "cosphi": 0.9396552046928245,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 7,
+          "raw_deg": 343.6869894135449,
+          "cosphi": 0.959741534115333,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 8,
+          "raw_deg": 180.5481018929049,
+          "cosphi": -0.9999542444235181,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 9,
+          "raw_deg": 180.02146128649332,
+          "cosphi": -0.9999999298486167,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 10,
+          "raw_deg": 18.48184907065492,
+          "cosphi": 0.9484241276646567,
+          "converged": true,
+          "fresh_force_qualified": true
+        },
+        {
+          "index": 16,
+          "raw_deg": 180.9616579558666,
+          "cosphi": -0.9998591503403067,
+          "converged": true,
+          "fresh_force_qualified": true
+        }
+      ],
+      "cis_like_count": 7,
+      "trans_like_count": 5,
+      "zero_cosphi_count": 0,
+      "frames": [
+        {
+          "index": 0,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 0,
+            "energy": -314.36503806308946,
+            "energy_error": 1.1368683772161603e-13,
+            "fmax": 0.002238343242773667,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.99999999999994,
+          "cosphi": -1.0
+        },
+        {
+          "index": 1,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 1,
+            "energy": -314.2727968473064,
+            "energy_error": 1.7053025658242404e-13,
+            "fmax": 0.008350325268152776,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 18.379114558442105,
+          "cosphi": 0.9489910089000322
+        },
+        {
+          "index": 2,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 2,
+            "energy": -314.27275612948785,
+            "energy_error": 5.684341886080802e-14,
+            "fmax": 0.007861343831355542,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 19.101083450157944,
+          "cosphi": 0.9449427243725442
+        },
+        {
+          "index": 3,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 3,
+            "energy": -314.36500979390115,
+            "energy_error": 5.684341886080802e-14,
+            "fmax": 0.00692209583904434,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 179.91088790066811,
+          "cosphi": -0.9999987905219194
+        },
+        {
+          "index": 4,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 4,
+            "energy": -314.27131275339315,
+            "energy_error": 5.684341886080801e-13,
+            "fmax": 0.008564968351662074,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 357.36932365679854,
+          "cosphi": 0.9989461391225233
+        },
+        {
+          "index": 5,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 5,
+            "energy": -314.2727739098089,
+            "energy_error": 5.115907697472721e-13,
+            "fmax": 0.008235319297473233,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 18.208375321576177,
+          "cosphi": 0.9499263852136209
+        },
+        {
+          "index": 6,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 6,
+            "energy": -314.272693375005,
+            "energy_error": -3.979039320256561e-13,
+            "fmax": 0.008441597750157558,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 20.006267064052757,
+          "cosphi": 0.9396552046928245
+        },
+        {
+          "index": 7,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 7,
+            "energy": -314.27273131447697,
+            "energy_error": -5.684341886080802e-14,
+            "fmax": 0.006877703530238295,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 343.6869894135449,
+          "cosphi": 0.959741534115333
+        },
+        {
+          "index": 8,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 8,
+            "energy": -314.36500237061006,
+            "energy_error": 5.684341886080802e-14,
+            "fmax": 0.008673869458103934,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 180.5481018929049,
+          "cosphi": -0.9999542444235181
+        },
+        {
+          "index": 9,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 9,
+            "energy": -314.3650223961339,
+            "energy_error": -1.7053025658242404e-13,
+            "fmax": 0.006368358240756985,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 180.02146128649332,
+          "cosphi": -0.9999999298486167
+        },
+        {
+          "index": 10,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 10,
+            "energy": -314.2727866879151,
+            "energy_error": -5.684341886080802e-14,
+            "fmax": 0.0066552524675882055,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 18.48184907065492,
+          "cosphi": 0.9484241276646567
+        },
+        {
+          "index": 11,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 11,
+            "energy": -314.50836214055295,
+            "energy_error": -1.1368683772161603e-13,
+            "fmax": 0.008905763425421244,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 12,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 12,
+            "energy": -312.3561354856965,
+            "energy_error": 0.0,
+            "fmax": 0.009139185718420529,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 13,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 13,
+            "energy": -314.5083604969451,
+            "energy_error": 5.684341886080802e-14,
+            "fmax": 0.005757219279756085,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 14,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 14,
+            "energy": -311.56264095899496,
+            "energy_error": -1.1368683772161603e-13,
+            "fmax": 0.005984117606197548,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 15,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 15,
+            "energy": -312.381244715958,
+            "energy_error": 1.7053025658242404e-13,
+            "fmax": 0.008905974258498626,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 16,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 16,
+            "energy": -314.3649394873214,
+            "energy_error": 2.8421709430404007e-13,
+            "fmax": 0.008600475786320906,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": true,
+          "carbon_path_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_deg": 180.9616579558666,
+          "cosphi": -0.9998591503403067
+        },
+        {
+          "index": 17,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 17,
+            "energy": -311.5626399522832,
+            "energy_error": 1.7053025658242404e-13,
+            "fmax": 0.006200534703173803,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 18,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 18,
+            "energy": -314.5083666896972,
+            "energy_error": 1.7053025658242404e-13,
+            "fmax": 0.006363985260465684,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 19,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 19,
+            "energy": -314.50835465187487,
+            "energy_error": -5.684341886080802e-14,
+            "fmax": 0.007225818084379528,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 20,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 20,
+            "energy": -311.5626480294518,
+            "energy_error": -2.2737367544323206e-13,
+            "fmax": 0.007723329910389623,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        },
+        {
+          "index": 21,
+          "converged": true,
+          "fresh_present": true,
+          "fresh_force_qualified": true,
+          "fresh_record": {
+            "index": 21,
+            "energy": -314.50833437876094,
+            "energy_error": -1.1368683772161603e-13,
+            "fmax": 0.009687165093525954,
+            "force_qualified": true
+          },
+          "matches_butadiene_element_graph": false
+        }
+      ]
+    }
+  ]
+}
