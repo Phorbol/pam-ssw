@@ -1,0 +1,4 @@
+mode=green host=login-01.mr-sai.ai branch=fix/paper-ls-checkpoint-metadata head=2e86ef9965a2ede7eca6b71128cca67c68c5e386
+.....................                                                    [100%]
+21 passed in 1.85s
+{'legacy_checkpoint': '/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-lifecycle-20260924/paper_ls/checkpoint.pkl', 'status': 'completed', 'next_index': 12, 'response_steps': 0, 'response_last': None}

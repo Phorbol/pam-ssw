@@ -1,0 +1,22 @@
+mode=red host=login-01.mr-sai.ai branch=fix/paper-ls-checkpoint-metadata head=2e86ef9965a2ede7eca6b71128cca67c68c5e386
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___________ test_fixed_cell_ls_checkpoint_resume_matches_continuous ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-gengjianrui/pytest-0/test_fixed_cell_ls_checkpoint_0')
+
+    def test_fixed_cell_ls_checkpoint_resume_matches_continuous(tmp_path):
+        atoms, config, ls = _case()
+        continuous = run_ssw(atoms, ASESurface(EMT()), steps=2, config=config,
+                             rng=np.random.default_rng(19), ls=ls,
+                             checkpoint_path=tmp_path / 'continuous.pkl')
+>       assert continuous.checkpoint.response.steps == 2
+E       AssertionError: assert 0 == 2
+E        +  where 0 = LSResponseState(target_per_atom=0.001, learning_rate=1.8, steps=0, last_response=None).steps
+E        +    where LSResponseState(target_per_atom=0.001, learning_rate=1.8, steps=0, last_response=None) = SSWCheckpoint(initial=QuenchResult(atoms=Atoms(symbols='Cu2', pbc=False), energy=3.1813742938417917, max_force=6.66950...None, mc_settings=None, native_mc_state=None, recovered_rotation=None, recovered_direction_state=None, pool_state=None).response
+E        +      where SSWCheckpoint(initial=QuenchResult(atoms=Atoms(symbols='Cu2', pbc=False), energy=3.1813742938417917, max_force=6.66950...None, mc_settings=None, native_mc_state=None, recovered_rotation=None, recovered_direction_state=None, pool_state=None) = SSWResult(initial=QuenchResult(atoms=Atoms(symbols='Cu2', pbc=False), energy=3.1813742938417917, max_force=6.669509389...e, native_mc_state=None, recovered_rotation=None, recovered_direction_state=None, pool_state=None), identity_view=None).checkpoint
+
+tests/standalone/test_ssw_checkpoint.py:29: AssertionError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_ssw_checkpoint.py::test_fixed_cell_ls_checkpoint_resume_matches_continuous
+1 failed in 0.97s

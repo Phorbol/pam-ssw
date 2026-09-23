@@ -24,17 +24,26 @@ def _case():
 def test_fixed_cell_ls_checkpoint_resume_matches_continuous(tmp_path):
     atoms, config, ls = _case()
     continuous = run_ssw(atoms, ASESurface(EMT()), steps=2, config=config,
-                         rng=np.random.default_rng(19), ls=ls)
+                         rng=np.random.default_rng(19), ls=ls,
+                         checkpoint_path=tmp_path / 'continuous.pkl')
+    assert continuous.checkpoint.response.steps == 2
+    assert continuous.checkpoint.response.last_response == pytest.approx(
+        continuous.records[-1].energy_response)
     path = tmp_path / 'ssw.pkl'
     first = run_ssw(atoms, ASESurface(EMT()), steps=1, config=config,
                     rng=np.random.default_rng(19), ls=ls, checkpoint_path=path)
     checkpoint = load_ssw_checkpoint(path)
     assert checkpoint.next_index == 1
+    assert checkpoint.response.steps == 1
+    assert checkpoint.response.last_response == pytest.approx(first.records[0].energy_response)
     resumed = run_ssw(atoms, ASESurface(EMT()), steps=1, config=config,
                        rng=np.random.default_rng(999), ls=ls, checkpoint=checkpoint)
     assert resumed.status == continuous.status == 'completed'
     assert [r.index for r in resumed.records] == [0, 1]
     assert resumed.evaluation_requests == continuous.evaluation_requests
+    assert resumed.checkpoint.response.steps == 2
+    assert resumed.checkpoint.response.last_response == pytest.approx(
+        resumed.records[-1].energy_response)
     np.testing.assert_allclose(resumed.current.positions, continuous.current.positions)
     for got, expected in zip(resumed.records, continuous.records):
         assert got.index == expected.index
