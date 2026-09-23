@@ -259,6 +259,8 @@ def _checkpoint_copy(value):
                        _checkpoint_copy(getattr(value, 'ls_preparation', None)),
                        _checkpoint_copy(getattr(value, 'mc_telemetry', None)),
                        _checkpoint_copy(getattr(value, 'starter_selection', None)))
+    if isinstance(value, LSResponseState):
+        return deepcopy(value)
     if isinstance(value, dict):
         return {key: _checkpoint_copy(item) for key, item in value.items()}
     if isinstance(value, list):
