@@ -1,0 +1,15 @@
+{
+  "kind": "zero_PES_parser_verification",
+  "checks": {
+    "archived_pilot_full_readout": {
+      "graph_class_counts": {
+        "ssw": 3,
+        "paper_ls": 4,
+        "native_ls": 1
+      },
+      "fresh": 39
+    },
+    "failed_attempt_does_not_shift_minimum_identity": true,
+    "missing_fresh_is_not_success": true
+  }
+}
