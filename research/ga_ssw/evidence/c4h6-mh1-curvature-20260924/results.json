@@ -1,0 +1,662 @@
+{
+  "status": "completed",
+  "model": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+  "model_sha256_expected": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+  "model_sha256_actual": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+  "model_hash_seconds": 0.29136282901163213,
+  "head": "omol",
+  "device": "cpu",
+  "dtype": "float64",
+  "pilot_core_tree_reference": "46f0049ed02c773621ac614093386220227e3d3a",
+  "cases": [
+    {
+      "case": "ssw-min00",
+      "arm": "ssw",
+      "minimum_index": 0,
+      "status": "completed",
+      "pilot_core_tree_reference": "46f0049ed02c773621ac614093386220227e3d3a",
+      "project_core_imports": [],
+      "provenance": {
+        "pilot_result": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-lifecycle-20260924/ssw/result.json",
+        "pilot_fresh_request": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-lifecycle-20260924/ssw/fresh-requests.jsonl",
+        "pilot_minimum_index": 0,
+        "pilot_fresh_request_index_1based": 1,
+        "fresh_minimum_frame_fields_verified_equal": [
+          "numbers",
+          "positions",
+          "cell",
+          "pbc"
+        ],
+        "pilot_result_sha256": "faf5c883440d5acdfe9cb66bd3bdc582f9efe28e7dfb8c10acf4d0c0b45b7ecd",
+        "pilot_fresh_requests_sha256": "016108d990094f0d659a3b07f56dc132c62f323a0020ca0ec6085a62ced73ed4"
+      },
+      "reference": {
+        "energy_eV": -4243.921327009705,
+        "max_force_eV_per_A": 0.02528770158278401,
+        "fresh_check_energy_eV": -4243.921327009705,
+        "fresh_check_max_force_eV_per_A": 0.025287701582783918
+      },
+      "calculator_requested_config": {
+        "model_paths": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+        "head": "omol",
+        "device": "cpu",
+        "default_dtype": "float64",
+        "enable_cueq": false,
+        "enable_oeq": false
+      },
+      "calculator_setup_seconds": 0.20040046898066066,
+      "calculator": {
+        "model_paths": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+        "head": "omol",
+        "device": "cpu",
+        "default_dtype": "float64",
+        "enable_cueq": false,
+        "enable_oeq": false,
+        "model_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+        "energy_units_to_eV": 1.0,
+        "length_units_to_A": 1.0,
+        "hessian_units": "eV/Angstrom^2 (raw model output; conversion factors are 1)",
+        "mace_torch_version": "0.3.16",
+        "torch_version": "2.8.0+cu128",
+        "ase_version": "3.26.0",
+        "model_count": 1,
+        "model_type": "MACE",
+        "active_head": "omol",
+        "available_heads": [
+          "matpes_r2scan",
+          "mp_pbe_refit_add",
+          "spice_wB97M",
+          "oc20_usemppbe",
+          "omol",
+          "omat_pbe"
+        ],
+        "hessian_api_kwargs": {
+          "compute_hessian": true,
+          "compute_stress": false,
+          "training": false
+        },
+        "torch_intraop_threads": 1,
+        "torch_interop_threads": 1,
+        "omp_num_threads": "1",
+        "mkl_num_threads": "1",
+        "openblas_num_threads": "1"
+      },
+      "fresh_energy_force_requests": 1,
+      "fresh_energy_force_seconds": 0.7934809419966768,
+      "fresh_energy_eV": -4243.921327009705,
+      "fresh_max_force_eV_per_A": 0.025287701582789413,
+      "energy_delta_from_pilot_eV": 0.0,
+      "max_force_delta_from_pilot_eV_per_A": 5.401928904191777e-15,
+      "fresh_hessian_requests": 1,
+      "fresh_hessian_seconds": 6.851649769989308,
+      "raw_hessian_shape": [
+        30,
+        10,
+        3
+      ],
+      "hessian_matrix_shape": [
+        30,
+        30
+      ],
+      "hessian_all_finite": true,
+      "hessian_max_abs_antisymmetric_eV_per_A2": 2.842170943040401e-14,
+      "hessian_antisymmetric_frobenius_eV_per_A2": 3.2929500523855554e-14,
+      "cartesian_eigenvalues_eV_per_A2": [
+        -0.0008533689506484239,
+        -1.495171118400877e-14,
+        -3.2872345396089567e-16,
+        6.276959329313724e-15,
+        0.0016340351338609625,
+        0.009837940556495825,
+        0.23111157159657922,
+        0.6783545871043507,
+        1.3927396809789208,
+        2.2622959531279476,
+        3.176402148666888,
+        5.1656429681429135,
+        6.351124992661807,
+        7.7956410914615075,
+        7.949349291850958,
+        10.407218174146161,
+        10.63652265749567,
+        15.991455101521408,
+        16.53751541591614,
+        16.98990897738949,
+        24.347297896615334,
+        24.77966912791382,
+        40.497576400716284,
+        57.57039037483411,
+        68.61899306911515,
+        86.53985839670091,
+        93.36115482789282,
+        102.20604958918655,
+        142.17935414191675,
+        146.3555346095215
+      ],
+      "internal_eigenvalues_eV_per_A2": [
+        0.23111157159658208,
+        0.6783545871043568,
+        1.3927396809789312,
+        2.262295466079927,
+        3.176372562479726,
+        5.165642968142921,
+        6.351123824460063,
+        7.795641091461496,
+        7.949349213155908,
+        10.40721817414616,
+        10.63652139218653,
+        15.991451094016156,
+        16.53751541591613,
+        16.989908977389454,
+        24.347296735826905,
+        24.779669088573932,
+        40.497576400716255,
+        57.57039016132192,
+        68.61899306911513,
+        86.53985829412711,
+        93.36115482789278,
+        102.20604958680894,
+        142.17935414191663,
+        146.3555346082907
+      ],
+      "negative_internal_eigenvalues_eV_per_A2": [],
+      "lowest_internal_eigenvalue_eV_per_A2": 0.23111157159658208,
+      "lowest_internal_mode_cartesian": [
+        [
+          9.71445146547012e-17,
+          -2.706168622523819e-16,
+          0.12110931402220003
+        ],
+        [
+          1.3704315460216776e-16,
+          -1.942890293094024e-16,
+          -0.22277689361550337
+        ],
+        [
+          -2.2781798149351662e-17,
+          1.7780915628762273e-16,
+          -0.2227768936155547
+        ],
+        [
+          -6.548581121812447e-17,
+          1.7954387976359953e-16,
+          0.12110931402228688
+        ],
+        [
+          -1.48318857196017e-16,
+          -5.377642775528102e-17,
+          0.15386145892695302
+        ],
+        [
+          -1.5005358067199381e-16,
+          -7.320533068622126e-16,
+          0.42704075500502
+        ],
+        [
+          1.9168694409543718e-16,
+          2.0816681711721685e-16,
+          -0.4792346343386521
+        ],
+        [
+          -5.312590645178972e-17,
+          2.8102520310824275e-16,
+          -0.47923463433867003
+        ],
+        [
+          -7.37257477290143e-18,
+          3.8077180297690916e-16,
+          0.4270407550049711
+        ],
+        [
+          1.951563910473908e-17,
+          6.505213034913027e-17,
+          0.1538614589269492
+        ]
+      ],
+      "rigid_basis_shape": [
+        30,
+        6
+      ],
+      "internal_basis_shape": [
+        30,
+        24
+      ],
+      "interpretation": "Curvature at the saved geometry only. At nonzero force, a negative mode does not establish a first-order saddle or exclude a nearby minimum. No near-zero cutoff or minimum certification is applied.",
+      "total_case_seconds": 8.046038073982345
+    },
+    {
+      "case": "paper_ls-min01",
+      "arm": "paper_ls",
+      "minimum_index": 1,
+      "status": "completed",
+      "pilot_core_tree_reference": "46f0049ed02c773621ac614093386220227e3d3a",
+      "project_core_imports": [],
+      "provenance": {
+        "pilot_result": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-lifecycle-20260924/paper_ls/result.json",
+        "pilot_fresh_request": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-lifecycle-20260924/paper_ls/fresh-requests.jsonl",
+        "pilot_minimum_index": 1,
+        "pilot_fresh_request_index_1based": 2,
+        "fresh_minimum_frame_fields_verified_equal": [
+          "numbers",
+          "positions",
+          "cell",
+          "pbc"
+        ],
+        "pilot_result_sha256": "7a5385b4efab34aa8a038c2af54c896fcefcb402bd4436e105e86000a9c28f91",
+        "pilot_fresh_requests_sha256": "5cf1b020bbf93900b14f4f5b6dda1a40836888cab09417aa03e5bd26d1749fca"
+      },
+      "reference": {
+        "energy_eV": -4243.837460970483,
+        "max_force_eV_per_A": 0.01422859803484499,
+        "fresh_check_energy_eV": -4243.837460970483,
+        "fresh_check_max_force_eV_per_A": 0.014228598034844877
+      },
+      "calculator_requested_config": {
+        "model_paths": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+        "head": "omol",
+        "device": "cpu",
+        "default_dtype": "float64",
+        "enable_cueq": false,
+        "enable_oeq": false
+      },
+      "calculator_setup_seconds": 0.09751210900139995,
+      "calculator": {
+        "model_paths": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+        "head": "omol",
+        "device": "cpu",
+        "default_dtype": "float64",
+        "enable_cueq": false,
+        "enable_oeq": false,
+        "model_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+        "energy_units_to_eV": 1.0,
+        "length_units_to_A": 1.0,
+        "hessian_units": "eV/Angstrom^2 (raw model output; conversion factors are 1)",
+        "mace_torch_version": "0.3.16",
+        "torch_version": "2.8.0+cu128",
+        "ase_version": "3.26.0",
+        "model_count": 1,
+        "model_type": "MACE",
+        "active_head": "omol",
+        "available_heads": [
+          "matpes_r2scan",
+          "mp_pbe_refit_add",
+          "spice_wB97M",
+          "oc20_usemppbe",
+          "omol",
+          "omat_pbe"
+        ],
+        "hessian_api_kwargs": {
+          "compute_hessian": true,
+          "compute_stress": false,
+          "training": false
+        },
+        "torch_intraop_threads": 1,
+        "torch_interop_threads": 1,
+        "omp_num_threads": "1",
+        "mkl_num_threads": "1",
+        "openblas_num_threads": "1"
+      },
+      "fresh_energy_force_requests": 1,
+      "fresh_energy_force_seconds": 0.25676278700120747,
+      "fresh_energy_eV": -4243.837460970483,
+      "fresh_max_force_eV_per_A": 0.014228598034844981,
+      "energy_delta_from_pilot_eV": 0.0,
+      "max_force_delta_from_pilot_eV_per_A": -8.673617379884035e-18,
+      "fresh_hessian_requests": 1,
+      "fresh_hessian_seconds": 6.679309903003741,
+      "raw_hessian_shape": [
+        30,
+        10,
+        3
+      ],
+      "hessian_matrix_shape": [
+        30,
+        30
+      ],
+      "hessian_all_finite": true,
+      "hessian_max_abs_antisymmetric_eV_per_A2": 1.4210854715202004e-14,
+      "hessian_antisymmetric_frobenius_eV_per_A2": 3.6590303087375143e-14,
+      "cartesian_eigenvalues_eV_per_A2": [
+        -0.0010911120205728186,
+        -1.4094634362486753e-14,
+        -7.476451125354895e-15,
+        -2.284242079578628e-16,
+        0.00027342174243262263,
+        0.0009499736903321238,
+        0.08192936482241388,
+        0.7867358437244141,
+        1.3251489102730845,
+        2.8077501493890455,
+        3.257895155041603,
+        4.999021409209743,
+        6.095880625697,
+        7.294574310671989,
+        7.714479717703556,
+        9.877097467841333,
+        11.209237676617121,
+        14.396193568844033,
+        16.701260915319942,
+        17.81363115031669,
+        23.735153213579004,
+        24.371053033242518,
+        41.444173425875434,
+        53.559706135781965,
+        72.98634326795337,
+        85.50112247177455,
+        94.4228564796884,
+        96.14533742029037,
+        141.00919279359005,
+        145.94419867590346
+      ],
+      "internal_eigenvalues_eV_per_A2": [
+        0.08191910621353707,
+        0.7867345529414479,
+        1.3251418641410535,
+        2.8077492940711886,
+        3.2578941291053742,
+        4.9990213529121315,
+        6.095880402767314,
+        7.294574267709421,
+        7.714479550392452,
+        9.877097094855728,
+        11.209237375395361,
+        14.396193339867612,
+        16.701260539740847,
+        17.81363095825895,
+        23.735153114356372,
+        24.37105298188652,
+        41.44417339280016,
+        53.55970608122945,
+        72.98634322935621,
+        85.5011224360687,
+        94.42285645865309,
+        96.14533740844763,
+        141.0091927854399,
+        145.9441986600509
+      ],
+      "negative_internal_eigenvalues_eV_per_A2": [],
+      "lowest_internal_eigenvalue_eV_per_A2": 0.08191910621353707,
+      "lowest_internal_mode_cartesian": [
+        [
+          0.08626134436764618,
+          0.016674573721935496,
+          0.08887532459805247
+        ],
+        [
+          -0.06356843725667823,
+          -0.02557542261460835,
+          -0.07362695982527749
+        ],
+        [
+          0.03817539479878965,
+          0.0034232948603780213,
+          0.09355759064081334
+        ],
+        [
+          -0.05766867840922983,
+          0.008033309969484615,
+          -0.11064097021293728
+        ],
+        [
+          -0.049229156955340296,
+          -0.04314513874548962,
+          -0.023425812915691208
+        ],
+        [
+          0.3702228263211969,
+          0.10091787003170881,
+          0.3444927847726248
+        ],
+        [
+          -0.28327714300657264,
+          -0.11453942201015249,
+          -0.3322322359817871
+        ],
+        [
+          0.17104653129805422,
+          0.017501424845406833,
+          0.41738505303715556
+        ],
+        [
+          -0.20152455737920122,
+          0.04470553993718204,
+          -0.471997743511485
+        ],
+        [
+          -0.01043812377866473,
+          -0.007996029995845384,
+          0.06761296939853195
+        ]
+      ],
+      "rigid_basis_shape": [
+        30,
+        6
+      ],
+      "internal_basis_shape": [
+        30,
+        24
+      ],
+      "interpretation": "Curvature at the saved geometry only. At nonzero force, a negative mode does not establish a first-order saddle or exclude a nearby minimum. No near-zero cutoff or minimum certification is applied.",
+      "total_case_seconds": 7.274208585004089
+    },
+    {
+      "case": "native_ls-min03",
+      "arm": "native_ls",
+      "minimum_index": 3,
+      "status": "completed",
+      "pilot_core_tree_reference": "46f0049ed02c773621ac614093386220227e3d3a",
+      "project_core_imports": [],
+      "provenance": {
+        "pilot_result": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-lifecycle-20260924/native_ls/result.json",
+        "pilot_fresh_request": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-lifecycle-20260924/native_ls/fresh-requests.jsonl",
+        "pilot_minimum_index": 3,
+        "pilot_fresh_request_index_1based": 4,
+        "fresh_minimum_frame_fields_verified_equal": [
+          "numbers",
+          "positions",
+          "cell",
+          "pbc"
+        ],
+        "pilot_result_sha256": "62b350ba9355d8574af90e563b8b8022fe13cb0c80f3409186749fc94627a8ea",
+        "pilot_fresh_requests_sha256": "4ca567b209feb3b2e4f817c88e949857eb776256b49642f15197e281696dd2c0"
+      },
+      "reference": {
+        "energy_eV": -4243.688051509608,
+        "max_force_eV_per_A": 0.021801889526744028,
+        "fresh_check_energy_eV": -4243.688051509608,
+        "fresh_check_max_force_eV_per_A": 0.02180188952674357
+      },
+      "calculator_requested_config": {
+        "model_paths": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+        "head": "omol",
+        "device": "cpu",
+        "default_dtype": "float64",
+        "enable_cueq": false,
+        "enable_oeq": false
+      },
+      "calculator_setup_seconds": 0.09636610801680945,
+      "calculator": {
+        "model_paths": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+        "head": "omol",
+        "device": "cpu",
+        "default_dtype": "float64",
+        "enable_cueq": false,
+        "enable_oeq": false,
+        "model_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+        "energy_units_to_eV": 1.0,
+        "length_units_to_A": 1.0,
+        "hessian_units": "eV/Angstrom^2 (raw model output; conversion factors are 1)",
+        "mace_torch_version": "0.3.16",
+        "torch_version": "2.8.0+cu128",
+        "ase_version": "3.26.0",
+        "model_count": 1,
+        "model_type": "MACE",
+        "active_head": "omol",
+        "available_heads": [
+          "matpes_r2scan",
+          "mp_pbe_refit_add",
+          "spice_wB97M",
+          "oc20_usemppbe",
+          "omol",
+          "omat_pbe"
+        ],
+        "hessian_api_kwargs": {
+          "compute_hessian": true,
+          "compute_stress": false,
+          "training": false
+        },
+        "torch_intraop_threads": 1,
+        "torch_interop_threads": 1,
+        "omp_num_threads": "1",
+        "mkl_num_threads": "1",
+        "openblas_num_threads": "1"
+      },
+      "fresh_energy_force_requests": 1,
+      "fresh_energy_force_seconds": 0.23876850798842497,
+      "fresh_energy_eV": -4243.688051509608,
+      "fresh_max_force_eV_per_A": 0.021801889526743064,
+      "energy_delta_from_pilot_eV": 0.0,
+      "max_force_delta_from_pilot_eV_per_A": -9.645062526431047e-16,
+      "fresh_hessian_requests": 1,
+      "fresh_hessian_seconds": 6.634055117989192,
+      "raw_hessian_shape": [
+        30,
+        10,
+        3
+      ],
+      "hessian_matrix_shape": [
+        30,
+        30
+      ],
+      "hessian_all_finite": true,
+      "hessian_max_abs_antisymmetric_eV_per_A2": 1.7763568394002505e-14,
+      "hessian_antisymmetric_frobenius_eV_per_A2": 3.4997979682768025e-14,
+      "cartesian_eigenvalues_eV_per_A2": [
+        -0.1915473125663326,
+        -0.002309640414613778,
+        -0.0008315160063613339,
+        -1.0071942869188572e-14,
+        -1.2464591294460563e-15,
+        7.193975957550132e-15,
+        0.0009222135519101883,
+        0.8154154511644247,
+        0.893855135662811,
+        2.756911436844236,
+        3.3204977672427627,
+        5.073652616242659,
+        5.131212119184832,
+        7.181911076509103,
+        9.019054810790974,
+        9.263629523155545,
+        12.135990593296015,
+        12.896430507115065,
+        16.843037302906854,
+        20.816150772511946,
+        22.200695460161164,
+        24.14348714310854,
+        40.896458625341644,
+        55.0096656151466,
+        69.16843211746327,
+        84.09437428328873,
+        93.39418870227888,
+        96.50810656882942,
+        142.9938951676375,
+        146.95810875635215
+      ],
+      "internal_eigenvalues_eV_per_A2": [
+        -0.19145800311630845,
+        0.8154094978250847,
+        0.8938422201051551,
+        2.7569092095270675,
+        3.320496943276314,
+        5.0736427695689095,
+        5.131209981953227,
+        7.181908929507175,
+        9.019052334044376,
+        9.26362855405866,
+        12.135990441835675,
+        12.896430156755436,
+        16.843036531533418,
+        20.816149553602823,
+        22.20069524892681,
+        24.143486911396757,
+        40.8964583990182,
+        55.009665583749445,
+        69.16843209441542,
+        84.09437421743237,
+        93.39418866972079,
+        96.50810656185064,
+        142.99389512178558,
+        146.95810870876105
+      ],
+      "negative_internal_eigenvalues_eV_per_A2": [
+        -0.19145800311630845
+      ],
+      "lowest_internal_eigenvalue_eV_per_A2": -0.19145800311630845,
+      "lowest_internal_mode_cartesian": [
+        [
+          -0.0352504801711829,
+          0.03414440602523722,
+          0.15900432811766854
+        ],
+        [
+          0.07738218072772822,
+          -0.06665067754344012,
+          -0.10306984689875856
+        ],
+        [
+          0.13368054693852552,
+          -0.04854528448097406,
+          -0.023611513050579874
+        ],
+        [
+          -0.14501898533994362,
+          0.0634469653870277,
+          -0.05265133162527394
+        ],
+        [
+          -0.04945377347172132,
+          0.00845197292460383,
+          0.08558385294571175
+        ],
+        [
+          -0.10069241414775189,
+          0.1348433927736275,
+          0.4240850883341067
+        ],
+        [
+          0.1551230160981392,
+          -0.18315513280428622,
+          -0.41824460805530067
+        ],
+        [
+          0.45710549605789935,
+          -0.14847457155221314,
+          0.05676492329514992
+        ],
+        [
+          -0.4159782115495462,
+          0.14472234771090345,
+          -0.1189934936123112
+        ],
+        [
+          -0.0768973751421464,
+          0.06121658155951373,
+          -0.008867399450412726
+        ]
+      ],
+      "rigid_basis_shape": [
+        30,
+        6
+      ],
+      "internal_basis_shape": [
+        30,
+        24
+      ],
+      "interpretation": "Curvature at the saved geometry only. At nonzero force, a negative mode does not establish a first-order saddle or exclude a nearby minimum. No near-zero cutoff or minimum certification is applied.",
+      "total_case_seconds": 7.138712688989472
+    }
+  ],
+  "elapsed_seconds": 22.763303651998285,
+  "scope": "three saved pilot frames; no relaxation, tuning, xTB, or automatic expansion"
+}

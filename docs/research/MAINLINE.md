@@ -24,7 +24,10 @@ CPU1469991使用已保存pilot完成读出程序验证（零PES），包括失�
 正式读出CPU1470001依赖整个数组结束后自动执行。论文LS的checkpoint更新计数/末响应在
 dataclass复制时丢失，隔离修复分支fix/paper-ls-checkpoint-metadata已通过21项针对性检查并推送；
 源码修复c047cd9，旧checkpoint仍可读，当前实验结束后再合入。它们不进入强度公式，
-当前搜索core不改、不因该元数据缺口重跑。真实响应逐外步日志仍完整保留。
+当前搜索core不改、不因该元数据缺口重跑。真实响应逐外步日志仍完整保留。另两项已有LS池恢复测试CPU1470285通过。
+三个pilot落点的解析曲率检查CPU1470561完成：104°丁二烯在fmax0.0218eV/Å时仍有
+−0.191eV/Å²内部负曲率；平面trans与25°落点内部谱为正。不能由力合格/扭转跨度
+宣称稳定构象覆盖，不改变正在运行的协议或默认fmax。见[曲率证据与判定范围](../../research/ga_ssw/evidence/c4h6-mh1-curvature-20260924/README.md)。
 方案见[有界资格协议](2026-09-24-c4h6-model-qualification.md)。
 不把同材料两相或不同随机种子称作独立体系类别，不逐例调参；本轮不改算法默认。
 见[案例选择与停止规则](2026-09-24-benchmark-selection.md)。GA active-walk仍为已批准但暂缓；

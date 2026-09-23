@@ -1,0 +1,29 @@
+{
+  "status": "completed",
+  "cases": [
+    {
+      "case": "ssw-min00",
+      "status": "completed",
+      "fresh_energy_force_seconds": 0.7934809419966768,
+      "fresh_hessian_seconds": 6.851649769989308,
+      "negative_internal_eigenvalues_eV_per_A2": []
+    },
+    {
+      "case": "paper_ls-min01",
+      "status": "completed",
+      "fresh_energy_force_seconds": 0.25676278700120747,
+      "fresh_hessian_seconds": 6.679309903003741,
+      "negative_internal_eigenvalues_eV_per_A2": []
+    },
+    {
+      "case": "native_ls-min03",
+      "status": "completed",
+      "fresh_energy_force_seconds": 0.23876850798842497,
+      "fresh_hessian_seconds": 6.634055117989192,
+      "negative_internal_eigenvalues_eV_per_A2": [
+        -0.19145800311630845
+      ]
+    }
+  ],
+  "elapsed_seconds": 22.763303651998285
+}
