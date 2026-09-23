@@ -147,3 +147,50 @@ def test_terminal_ls_update_never_calls_callback(monkeypatch):
                      checkpoint_callback=lambda cp: seen.append(cp) or True)
     assert result.status == result.checkpoint.status == 'ls_update_failed'
     assert seen == []
+
+
+def test_budget_rejection_after_safe_boundary_keeps_terminal_checkpoint(tmp_path):
+    atoms, config, ls = _case()
+    first = run_ssw(atoms, ASESurface(EMT()), steps=1, config=config,
+                    rng=np.random.default_rng(19), ls=ls)
+    cap = first.evaluation_requests
+
+    class BudgetSurface(ASESurface):
+        def evaluate(self, candidate):
+            if self.requests >= cap:
+                raise RuntimeError('intentional request budget exhausted')
+            return super().evaluate(candidate)
+
+    surface = BudgetSurface(EMT())
+    safe_path = tmp_path / 'safe.pkl'
+    terminal_path = tmp_path / 'terminal.pkl'
+    seen = []
+
+    def callback(cp):
+        on_disk = load_ssw_checkpoint(terminal_path)
+        assert (on_disk.next_index, on_disk.status) == (cp.next_index, 'completed')
+        seen.append((cp.next_index, cp.status, cp.evaluation_requests))
+        save_ssw_checkpoint(safe_path, cp)
+        return cp.next_index > 1  # A terminal callback would wrongly claim a pause.
+
+    result = run_ssw(atoms, surface, steps=2, config=config,
+                     rng=np.random.default_rng(19), ls=ls,
+                     checkpoint_path=terminal_path, checkpoint_callback=callback)
+    safe = load_ssw_checkpoint(safe_path)
+    terminal = load_ssw_checkpoint(terminal_path)
+    assert seen == [(1, 'completed', cap)]
+    assert safe.next_index == 1 and safe.status == 'completed'
+    assert result.status == terminal.status == 'ls_prequench_failed'
+    assert result.status != 'paused'
+    assert terminal.next_index == 2
+    assert 'intentional request budget exhausted' in terminal.records[-1].error
+    assert result.evaluation_requests == terminal.evaluation_requests == surface.requests == cap
+    rejected_resume_surface = ASESurface(EMT())
+    with pytest.raises(ValueError, match='terminal checkpoint'):
+        run_ssw(atoms, rejected_resume_surface, steps=1, config=config,
+                rng=np.random.default_rng(999), ls=ls, checkpoint=terminal)
+    assert rejected_resume_surface.requests == 0
+
+    resumed = run_ssw(atoms, ASESurface(EMT()), steps=1, config=config,
+                      rng=np.random.default_rng(999), ls=ls, checkpoint=safe)
+    assert resumed.status == 'completed' and resumed.checkpoint.next_index == 2
