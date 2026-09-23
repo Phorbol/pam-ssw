@@ -20,3 +20,16 @@ metadata. `sacct` confirms FAILED(1)/COMPLETED(0), CPU-MISC allocationdpn01,
 Core/test commit: c047cd914acfde8c787eff9d349aa500036be323. The integration branch
 is intentionally unchanged while its frozen six-arm experiment executes.
 This repairs state fidelity; it is not an algorithm-performance improvement.
+
+Additional pool-persistence regression CPU1470285 passed both existing uniform
+and PAM adapter cases (2 passed in 1.15s):
+
+```sh
+env PYTHONNOUSERSITE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  PYTHONPATH="$PWD" /home/gengjianrui/.conda/envs/mace_env/bin/python -m pytest -q \
+  tests/standalone/test_pool_checkpoint_real.py::test_real_ls_pool_resume_matches_uninterrupted
+```
+
+Logs: `pool-1470285.out`, `pool-1470285.err`. This checks the existing schema5
+pool route in addition to the earlier core checkpoint checks; no new PES
+performance experiment was run.
