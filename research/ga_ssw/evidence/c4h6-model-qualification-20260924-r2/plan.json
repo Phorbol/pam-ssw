@@ -12,7 +12,11 @@
   "head": "omol",
   "device": "cuda",
   "dtype": "float64",
-  "cases": ["butadiene", "cyclobutene", "bicyclobutane"],
+  "cases": [
+    "butadiene",
+    "cyclobutene",
+    "bicyclobutane"
+  ],
   "input_source": "ASE G2, not paper-optimized coordinates or old xTB search endpoints",
   "seed": 59,
   "request_cap_per_case": 1500,
@@ -32,7 +36,7 @@
     "rotation_tol": 0.02,
     "direction_sampling": "global",
     "rotation_solver": "ritz",
-    "cluster_frame": "translation_only",
+    "cluster_frame": "direction_only",
     "quench_optimizer": "safe-lbfgs-total",
     "lbfgs_memory": 500,
     "pre_rotation_hvp": null,
@@ -40,5 +44,7 @@
   },
   "unused_config_fields": "steps=0; all direction, Gaussian, temperature and LS parameters are inactive",
   "acceptance": "Report convergence, fresh energy/force and identity, and each input's graph retention separately; no DFT or reaction-barrier certification",
-  "resources_if_approved": "one V100, at most 10 minutes, group account sjtu-caoxiaoming; no job submitted"
+  "resources_if_approved": "one V100, at most 10 minutes, group account sjtu-caoxiaoming; no job submitted",
+  "parent_attempt": "../c4h6-model-qualification-20260924",
+  "correction": "Nonperiodic input needs direction_only; attempt 1469300 rejected all inputs before any E/F request. Same total E/F budget."
 }

@@ -1,0 +1,74 @@
+{
+  "status": "complete",
+  "runtime": {
+    "python": "3.12.11",
+    "ase": "3.26.0",
+    "mace": "0.3.16",
+    "torch": "2.8.0+cu128"
+  },
+  "provenance": {
+    "actual_head": "28cd6f48188a5942b0fbfc3369ff1c86b6dc86d6",
+    "actual_core_tree": "46f0049ed02c773621ac614093386220227e3d3a",
+    "source_commit": "82da3e33e5dc73a4ff343dd30ba438b527cc4ba3",
+    "model_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+    "shared_ledger_sha256": "729355f7f85defc9faebb3b128ec09fb70d6359e3fb5e89bb8c6949b91c19e45",
+    "shared_ledger": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/periodic-rotation-priority-20260923/ledger.py"
+  },
+  "totals": {
+    "search_requests": 0,
+    "search_calculator_calls": 0,
+    "fresh_requests": 0,
+    "fresh_calculator_calls": 0
+  },
+  "rows": [
+    {
+      "case": "butadiene",
+      "status": "exception",
+      "search_requests": 0,
+      "search_calculator_calls": 0,
+      "fresh_requests": 0,
+      "fresh_calculator_calls": 0,
+      "numerical_qualified": false,
+      "graph_retained": false,
+      "qualified": false,
+      "error": "ValueError('translation_only is the explicit periodic SSW geometry')",
+      "search_denials": 0,
+      "search_boundary": null,
+      "elapsed_seconds": 0.00012568850070238113,
+      "relative_energy_to_butadiene_eV": null
+    },
+    {
+      "case": "cyclobutene",
+      "status": "exception",
+      "search_requests": 0,
+      "search_calculator_calls": 0,
+      "fresh_requests": 0,
+      "fresh_calculator_calls": 0,
+      "numerical_qualified": false,
+      "graph_retained": false,
+      "qualified": false,
+      "error": "ValueError('translation_only is the explicit periodic SSW geometry')",
+      "search_denials": 0,
+      "search_boundary": null,
+      "elapsed_seconds": 8.099060505628586e-05,
+      "relative_energy_to_butadiene_eV": null
+    },
+    {
+      "case": "bicyclobutane",
+      "status": "exception",
+      "search_requests": 0,
+      "search_calculator_calls": 0,
+      "fresh_requests": 0,
+      "fresh_calculator_calls": 0,
+      "numerical_qualified": false,
+      "graph_retained": false,
+      "qualified": false,
+      "error": "ValueError('translation_only is the explicit periodic SSW geometry')",
+      "search_denials": 0,
+      "search_boundary": null,
+      "elapsed_seconds": 7.385015487670898e-05,
+      "relative_energy_to_butadiene_eV": null
+    }
+  ],
+  "all_qualified": false
+}

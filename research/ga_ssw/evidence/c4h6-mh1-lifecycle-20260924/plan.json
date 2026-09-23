@@ -1,8 +1,8 @@
 {
-  "status": "ready_for_qualification",
-  "authorization": "User explicitly approved existing MH-1/omol for bounded C4H6 qualification on 2026-09-24",
-  "purpose": "Three closed-shell C4H6 reference classes; model qualification only, no SSW search or LS",
-  "protocol": "../../../../docs/research/2026-09-24-c4h6-model-qualification.md",
+  "status": "ready_for_pilot",
+  "authorization": "Mainline bounded computations authorized; C4H6 MH-1/omol qualification explicitly approved and passed. Pilot tests execution/cost, not reactive accuracy.",
+  "purpose": "Three-arm lifecycle and cost pilot, not efficacy ranking",
+  "protocol": "plan.md",
   "source_commit": "82da3e33e5dc73a4ff343dd30ba438b527cc4ba3",
   "source_core_tree": "46f0049ed02c773621ac614093386220227e3d3a",
   "shared_ledger": "../periodic-rotation-priority-20260923/ledger.py",
@@ -12,13 +12,8 @@
   "head": "omol",
   "device": "cuda",
   "dtype": "float64",
-  "cases": ["butadiene", "cyclobutene", "bicyclobutane"],
   "input_source": "ASE G2, not paper-optimized coordinates or old xTB search endpoints",
   "seed": 59,
-  "request_cap_per_case": 1500,
-  "wall_seconds_per_case": 120,
-  "search_request_total_cap": 4500,
-  "fresh_total_cap": 3,
   "config": {
     "width": 0.1,
     "rotation_bias": 100.0,
@@ -32,13 +27,40 @@
     "rotation_tol": 0.02,
     "direction_sampling": "global",
     "rotation_solver": "ritz",
-    "cluster_frame": "translation_only",
+    "cluster_frame": "direction_only",
     "quench_optimizer": "safe-lbfgs-total",
     "lbfgs_memory": 500,
     "pre_rotation_hvp": null,
     "rotation_exit_policy": "force_or_budget"
   },
-  "unused_config_fields": "steps=0; all direction, Gaussian, temperature and LS parameters are inactive",
   "acceptance": "Report convergence, fresh energy/force and identity, and each input's graph retention separately; no DFT or reaction-barrier certification",
-  "resources_if_approved": "one V100, at most 10 minutes, group account sjtu-caoxiaoming; no job submitted"
+  "qualification": "../c4h6-model-qualification-20260924-r2/qualification.json",
+  "input": "../c4h6-model-qualification-20260924-r2/butadiene/input.extxyz",
+  "input_sha256": "aa1f59e77d0931acba51e531493deb7257c5716ddc08470ad9fe0a113d53bc45",
+  "arms": [
+    "ssw",
+    "paper_ls",
+    "native_ls"
+  ],
+  "steps": 12,
+  "request_cap_per_arm": 12000,
+  "wall_seconds_per_arm": 840,
+  "fresh_cap_per_arm": 13,
+  "total_search_cap": 36000,
+  "total_fresh_cap": 39,
+  "recovered_rotation": {
+    "pre_rotmax": 5,
+    "rotmax": 15,
+    "pre_ftol": 0.2,
+    "ftol": 0.02,
+    "metric": "euclidean",
+    "max_force_calls": 40
+  },
+  "prequench": {
+    "fmax": 0.1,
+    "steps": 50,
+    "exit_policy": "force_or_step_limit"
+  },
+  "paper_target_eV_per_atom": 0.7,
+  "native_target_meV_per_atom": 700
 }
