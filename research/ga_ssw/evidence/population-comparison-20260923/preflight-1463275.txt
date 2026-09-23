@@ -1,0 +1,70 @@
+{
+  "c60": {
+    "ninputs": 4,
+    "projections": [
+      [
+        1.0000000000000002,
+        0.8047813113742271,
+        0.7837010713703583
+      ],
+      [
+        0.8047813113742271,
+        1.0000000000000002,
+        0.8331424497478449
+      ],
+      [
+        0.7837010713703583,
+        0.8331424497478449,
+        1.0000000000000002
+      ],
+      [
+        0.8465687309933275,
+        0.839033296765243,
+        0.8254124062050606
+      ]
+    ],
+    "distinct_raw_projections": 4,
+    "raw_projection_gate": true,
+    "interpretation": "Raw geometry/reference separation only. Post-quench diversity and GA parent eligibility not yet known.",
+    "reference_graph": {
+      "cutoff_A": 1.8,
+      "all_carbon": true,
+      "components": 1,
+      "edges": 90,
+      "degree_counts": {
+        "3": 60
+      },
+      "three_connected": true,
+      "planar": true,
+      "face_counts": {
+        "6": 20,
+        "5": 12
+      },
+      "graph_cage_candidate": true,
+      "ih_graph_match": false
+    }
+  },
+  "cu13": {
+    "ninputs": 3,
+    "projections": [
+      [
+        1.0,
+        0.8358327723001275,
+        0.806520230963167
+      ],
+      [
+        0.8358327723001275,
+        1.0,
+        0.9297500546699148
+      ],
+      [
+        0.806520230963167,
+        0.9297500546699148,
+        1.0
+      ]
+    ],
+    "distinct_raw_projections": 3,
+    "raw_projection_gate": true,
+    "interpretation": "Raw geometry/reference separation only. Post-quench diversity and GA parent eligibility not yet known."
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "seed": 17,
+  "wall_seconds": 1200,
+  "outer_steps": 10000,
+  "scope": "Development controlled study on reused inputs; no independent success-rate estimate; no target-cage launch seed",
+  "allocation": "SSW first quenches every initial with same GA BFGS; then split remaining global budget across qualified starts in fixed order, carrying only unused allocation. GA uses same total cap.",
+  "code_head": "bd9a8fdc89e13915ed1e1218f627851f0f557c9a",
+  "inputs": [
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/population-comparison-20260923/inputs/cu13-0.extxyz",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/population-comparison-20260923/inputs/cu13-1.extxyz",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/population-comparison-20260923/inputs/cu13-2.extxyz"
+  ],
+  "backend": {
+    "kind": "emt"
+  },
+  "ssw": {
+    "width": 0.2,
+    "rotation_bias": 100.0,
+    "max_gaussians": 14,
+    "temperature_K": 300.0,
+    "fmax": 0.01,
+    "relax_steps": 200,
+    "fd_step": 0.0001,
+    "rotation_hvp": 100,
+    "rotation_tol": 0.02,
+    "forward_force": 0.1,
+    "direction_sampling": "paper",
+    "rotation_solver": "dimer",
+    "cluster_frame": "direction_only",
+    "quench_optimizer": "safe-lbfgs-total"
+  },
+  "ga": {
+    "quick_steps": 10,
+    "generations": 1,
+    "generation_steps": 10,
+    "fine_steps": 10000,
+    "ga_candidates": 8,
+    "regions": 1,
+    "fine_regions": 1,
+    "quench_fmax": 0.01,
+    "quench_steps": 200,
+    "proposal_max_batches": 2,
+    "proposal_max_cut_attempts": 1000,
+    "proposal_max_pair_attempts": 10000,
+    "partition_max_draws": 10000,
+    "projection_tolerance": 0.0001,
+    "energy_window": 10.0,
+    "proposal_type": 0,
+    "proposal_max_insertion_attempts": 10000
+  },
+  "descriptor": {
+    "bond_lengths": [
+      [
+        29,
+        29,
+        2.259876
+      ]
+    ],
+    "neighbor_range": 2.0,
+    "weights": [
+      0.3,
+      0.2,
+      0.2,
+      0.1,
+      0.1,
+      0.1
+    ]
+  },
+  "search_cap": 20000,
+  "sources": {
+    "all": "atomic-cu13-ga/plan.json; stage length changes declared before run"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "seed": 3,
+  "wall_seconds": 5400,
+  "outer_steps": 10000,
+  "scope": "Development controlled study on reused inputs; no independent success-rate estimate; no target-cage launch seed",
+  "allocation": "SSW first quenches every initial with same GA BFGS; then split remaining global budget across qualified starts in fixed order, carrying only unused allocation. GA uses same total cap.",
+  "code_head": "bd9a8fdc89e13915ed1e1218f627851f0f557c9a",
+  "inputs": [
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/population-comparison-20260923/inputs/c60-17093.extxyz",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/population-comparison-20260923/inputs/c60-17094.extxyz",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/population-comparison-20260923/inputs/c60-17095.extxyz",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/population-comparison-20260923/inputs/c60-17096.extxyz"
+  ],
+  "backend": {
+    "kind": "mace",
+    "model": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+    "head": "omol",
+    "device": "cuda",
+    "dtype": "float64"
+  },
+  "ssw": {
+    "width": 0.6,
+    "rotation_bias": 1.0,
+    "max_gaussians": 12,
+    "temperature_K": 150.0,
+    "fmax": 0.03,
+    "relax_steps": 1000,
+    "fd_step": 0.001,
+    "rotation_hvp": 39,
+    "rotation_tol": 0.02,
+    "forward_force": 0.1,
+    "direction_sampling": "global",
+    "cluster_frame": "direction_only",
+    "quench_optimizer": "safe-lbfgs-total",
+    "lbfgs_memory": 500,
+    "bias_stage_steps": null,
+    "bias_fmax": 0.1,
+    "pre_rotation_hvp": null,
+    "rotation_exit_policy": "force_or_budget",
+    "rotation_solver": "broyden-euclidean"
+  },
+  "ga": {
+    "quick_steps": 10,
+    "generations": 1,
+    "generation_steps": 10,
+    "fine_steps": 10000,
+    "ga_candidates": 8,
+    "regions": 1,
+    "fine_regions": 1,
+    "quench_fmax": 0.03,
+    "quench_steps": 1000,
+    "proposal_max_batches": 2,
+    "proposal_max_cut_attempts": 1000,
+    "proposal_max_pair_attempts": 10000,
+    "partition_max_draws": 10000,
+    "projection_tolerance": 0.001,
+    "energy_window": 10.0,
+    "proposal_type": 0,
+    "proposal_max_insertion_attempts": 10000
+  },
+  "descriptor": {
+    "bond_lengths": [
+      [
+        6,
+        6,
+        2.557112
+      ]
+    ],
+    "neighbor_range": 1.5,
+    "weights": [
+      0.3,
+      0.2,
+      0.2,
+      0.1,
+      0.1,
+      0.1
+    ]
+  },
+  "native_mc": {
+    "maxtrap": 99999,
+    "energy_tol_eV": 0.1
+  },
+  "search_cap": 60000,
+  "reference_geometry": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-mh1-qualification-20260919/reference/fresh-final.traj",
+  "reference_energy": -62215.39337032347,
+  "acceptance": {
+    "cage": "60C connected 3-regular 3-connected planar graph, 12 pentagons/20 hexagons; cutoff1.8A;1.64/1.7 sensitivity",
+    "energy_tolerance_eV": 0.01,
+    "fmax": 0.03
+  },
+  "sources": {
+    "ssw": "c60-heldout-protocol-20260922/plan.json",
+    "stage_lengths": "GA-SSW-user.txt:228-252 (quick10-100/fine100-10000); one generation,8 candidates,one region retained explicit bounded development design from Cu13, not optimized/default",
+    "descriptor": "sgn/nna/BasicInfo.java:76-93; sgn/other/ElementPara.java:243-251; TYPE0-LJ75/configure.non:14-29",
+    "anchors": "First three raw initial geometries in fixed input order; operational legacy NNA basis, not paper orthogonal-minima DCCD",
+    "bond_limits": "Empty as original TYPE0.getGA has no getLimit filter; no literal reuse of misleading configure comment"
+  }
+}
