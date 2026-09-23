@@ -517,6 +517,107 @@ def analyze_arm(expected, plan, top_summary_rows):
     return out
 
 
+def cost_prefix_for_arm(arm, budget):
+    directory = Path(arm["directory"])
+    result = load_json(directory / "result.json")
+    initial = result.get("initial") if isinstance(result, dict) else None
+    records = result.get("records") if isinstance(result, dict) else None
+    if not isinstance(initial, dict) or not isinstance(records, list):
+        return {"status": "invalid_result_schema", "common_budget_requests": budget}
+    initial_cost, initial_error = nonnegative_int(initial.get("evaluation_requests"), "initial.evaluation_requests")
+    initial_energy, initial_energy_error = finite_number(initial.get("energy"), "initial.energy")
+    if initial_error or initial_energy_error:
+        return {"status": "invalid_initial", "common_budget_requests": budget,
+                "errors": [value for value in (initial_error, initial_energy_error) if value]}
+    if initial_cost > budget:
+        return {
+            "status": "initial_exceeds_common_budget",
+            "common_budget_requests": budget,
+            "initial_requests_required": initial_cost,
+            "actual_prefix_requests_including_initial": 0,
+            "initial_included": False,
+            "completed_records_inside_prefix": 0,
+            "failed_records_inside_prefix": 0,
+            "converged_landings_inside_prefix": 0,
+            "best_qualified_energy_eV": None,
+            "interpretation": "common budget is insufficient to complete initial quench; no minimum energy is credited",
+        }
+    used = initial_cost
+    included_energies = []
+    initial_qualified = (initial.get("converged") is True and
+                         arm.get("fresh_checks", {}).get("initial", {}).get("recomputed_numerical_qualified") is True)
+    if initial_qualified and used <= budget:
+        included_energies.append(initial_energy)
+    records_inside = failures_inside = landings_inside = 0
+    landing_energy_failures = 0
+    straddling = None
+    record_cost_errors = []
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            record_cost_errors.append(f"record[{index}] is not an object")
+            break
+        cost, error = nonnegative_int(record.get("evaluation_requests"), f"record[{index}].evaluation_requests")
+        if error:
+            record_cost_errors.append(error)
+            break
+        if used + cost > budget:
+            straddling = {"record_index": index, "requests_needed_to_finish": cost,
+                          "prefix_requests_before_record": used}
+            break
+        used += cost
+        records_inside += 1
+        if record.get("error") is not None or (isinstance(record.get("status"), str) and "fail" in record["status"].lower()):
+            failures_inside += 1
+        landing = record.get("landing")
+        if isinstance(landing, dict):
+            converged = landing.get("converged") is True
+            energy, energy_error = finite_number(landing.get("energy"), f"record[{index}].landing.energy")
+            if converged and not energy_error:
+                landings_inside += 1
+                included_energies.append(energy)
+            else:
+                landing_energy_failures += 1
+    return {
+        "status": "complete_prefix" if not record_cost_errors else "prefix_cost_error",
+        "common_budget_requests": budget,
+        "actual_prefix_requests_including_initial": used,
+        "initial_included": bool(initial_qualified and initial_cost <= budget),
+        "initial_energy_eV": initial_energy if initial_qualified and initial_cost <= budget else None,
+        "completed_records_inside_prefix": records_inside,
+        "failed_records_inside_prefix": failures_inside,
+        "converged_landings_inside_prefix": landings_inside,
+        "unqualified_landing_records_inside_prefix": landing_energy_failures,
+        "best_qualified_energy_eV": min(included_energies) if included_energies else None,
+        "excluded_straddling_record": straddling,
+        "record_cost_errors": record_cost_errors,
+        "interpretation": "full-record common request prefix; includes finite converged true landings and a fresh-qualified converged initial state only",
+    }
+
+
+def pairwise_cost_prefixes(arms):
+    result = []
+    cases = sorted({arm["case"] for arm in arms})
+    for case in cases:
+        pair = [arm for arm in arms if arm["case"] == case and arm["method"] in ("ritz", "recovered")]
+        if len(pair) != 2:
+            result.append({"case": case, "status": "missing_or_duplicate_policy_arm",
+                           "available_arms": [arm.get("method") for arm in pair]})
+            continue
+        counts = [arm.get("request_accounting", {}).get("result_evaluation_requests") for arm in pair]
+        if any(isinstance(value, bool) or not isinstance(value, int) or value < 0 for value in counts):
+            result.append({"case": case, "status": "missing_actual_search_count", "methods": [a["method"] for a in pair]})
+            continue
+        budget = min(counts)
+        row = {"case": case, "status": "compared", "common_budget_requests": budget, "policies": {}}
+        for arm in pair:
+            try:
+                row["policies"][arm["method"]] = cost_prefix_for_arm(arm, budget)
+            except Exception as error:
+                row["policies"][arm["method"]] = {"status": "prefix_analysis_error", "error": f"{type(error).__name__}: {error}"}
+        result.append(row)
+    return result
+
+
 def write_report(result):
     lines = [
         "# Periodic rotation-priority comparison: offline readout",
@@ -552,7 +653,16 @@ def write_report(result):
         f"Expected arms: {result['expected_arm_count']}; top-level summary rows: {result.get('aggregate_summary_row_count', 'missing')}; analyzed arms: {sum(a.get('artifact_status') == 'complete' for a in result['arms'])}.",
         f"Analysis state: {result.get('analysis_state', 'unknown')}; cost anomaly arms: {sum(a.get('rotation_and_quench_costs', {}).get('audit_status') == 'review_anomalies' for a in result['arms'])}.",
         f"Pymatgen {result['pymatgen_version']}; analysis elapsed {result.get('elapsed_seconds', 0.0):.1f} s; calculator/PES calls: zero.",
+        "",
+        "## Pairwise common-cost prefixes",
+        "",
+        "| Case | Common requests | Policy | Prefix requests | Records | Failed records | Converged landings | Best qualified E (eV) | Initial included |",
+        "|---|---:|---|---:|---:|---:|---:|---:|---|",
     ])
+    for pair in result.get("pairwise_cost_prefixes", []):
+        for method, prefix in pair.get("policies", {}).items():
+            lines.append(f"| {pair['case']} | {pair.get('common_budget_requests', '—')} | {method} | {prefix.get('actual_prefix_requests_including_initial', '—')} | {prefix.get('completed_records_inside_prefix', '—')} | {prefix.get('failed_records_inside_prefix', '—')} | {prefix.get('converged_landings_inside_prefix', '—')} | {prefix.get('best_qualified_energy_eV', '—')} | {prefix.get('initial_included', '—')} |")
+    lines.append("A record that would cross the common-budget boundary is excluded whole; its required cost is retained in `excluded_straddling_record`. Failed records fully inside the prefix remain in request and failure counts but contribute no landing energy. This is a cost-prefix comparison, not independent validation.")
     OUT_MD.write_text("\n".join(lines) + "\n")
 
 
@@ -603,13 +713,16 @@ def main():
 
     for row in expected:
         result["arms"].append(analyze_arm(row, plan, aggregate_rows))
+        result["pairwise_cost_prefixes"] = pairwise_cost_prefixes(result["arms"])
         persist("partial")
     result["completed_utc"] = datetime.now(timezone.utc).isoformat()
+    result["pairwise_cost_prefixes"] = pairwise_cost_prefixes(result["arms"])
     persist("complete")
     audit_errors = (
         bool(result.get("aggregate_summary_error"))
         or any(a.get("errors") for a in result["arms"])
         or any(a.get("rotation_and_quench_costs", {}).get("anomalies") for a in result["arms"])
+        or any(pair.get("status") not in ("compared",) or any(p.get("status") != "complete_prefix" for p in pair.get("policies", {}).values()) for pair in result.get("pairwise_cost_prefixes", []))
     )
     incomplete = len(result["arms"]) != len(expected) or any(a.get("artifact_status") != "complete" for a in result["arms"])
     return 1 if incomplete or audit_errors else 0
