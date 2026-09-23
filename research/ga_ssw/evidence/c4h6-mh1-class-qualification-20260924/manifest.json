@@ -1,0 +1,672 @@
+{
+  "status": "prepared_for_review",
+  "selection_input": "../c4h6-mh1-coverage-20260924/analysis.json",
+  "selection_input_sha256": "62d6a372af7222728aae25c6332497e8a28672fd420386feff58ffb126f6eaec",
+  "coverage_plan": "../c4h6-mh1-coverage-20260924/plan.json",
+  "coverage_plan_sha256": "f8b712cc2ec282f63772258c50943548d9cabe9d376204ea5cda6d353abf422c",
+  "lifecycle_plan": "../c4h6-mh1-lifecycle-20260924/plan.json",
+  "lifecycle_plan_sha256": "9b5d53fe43b185e1b14efff265b74e31008261183389f0c59882c32b8b9502eb",
+  "protocol_sha256": "bc50e44ea327dedbfd440aa6718645737a37068011c0cdf207d106b938fd99f7",
+  "manifest_builder": "prepare_manifest.py",
+  "manifest_builder_sha256": "15f74269dac9264c4627c4fe07ce98deb503f5f702539764ffa176ca8ebfeba8",
+  "curvature_helper": "../c4h6-mh1-curvature-20260924/run.py",
+  "curvature_helper_sha256": "d557c26ac6abbb1bb1a3c6d17c750cba31990c21f2075f07bb775a23fbe6b853",
+  "common_request_prefix": 200000,
+  "selection_rule": "per arm/seed/global connected graph class, cumulative_requests <= 200000; minimum energy, tie by minimum index",
+  "class_counts_by_arm_seed": {
+    "ssw-seed61": 5,
+    "paper_ls-seed61": 6,
+    "native_ls-seed61": 10,
+    "ssw-seed67": 5,
+    "paper_ls-seed67": 8,
+    "native_ls-seed67": 8
+  },
+  "total_frames": 42,
+  "source_json_sha256_by_arm_seed": {
+    "ssw-seed61": "1b471f5d3320e8c97901075dfb5b03f535a43225f4dcd823bc9841dd3043c418",
+    "paper_ls-seed61": "0ba994351de283e82cc63b3ba7ed216def6e3a4b94e90a0d3d9e16d33fd51001",
+    "native_ls-seed61": "f5081a6865d524820209ac3b084d1ab201779a6695752532a4311eab5433ddb1",
+    "ssw-seed67": "e6d590dcd63d0370d2dd5a22941fb05b705b0906589760ebde3d55c61ec78e14",
+    "paper_ls-seed67": "96b68bc4a106e6252e96c80ceb37e526164634aa2b91fe1891d3787fbe79bd18",
+    "native_ls-seed67": "20e4c9ee8cc9e2633eae0616e44aa62510b5c5fc1470f6f38f655043dd5c99af"
+  },
+  "model": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+  "model_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+  "head": "omol",
+  "device": "cpu",
+  "dtype": "float64",
+  "energy_units_to_eV": 1.0,
+  "length_units_to_A": 1.0,
+  "frames": [
+    {
+      "arm": "native_ls",
+      "seed": 61,
+      "arm_seed": "native_ls-seed61",
+      "minimum_index": 18,
+      "global_graph_class_id": 10,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.921709173468,
+      "cost_requests": 12357,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "source_json_sha256": "f5081a6865d524820209ac3b084d1ab201779a6695752532a4311eab5433ddb1"
+    },
+    {
+      "arm": "native_ls",
+      "seed": 61,
+      "arm_seed": "native_ls-seed61",
+      "minimum_index": 294,
+      "global_graph_class_id": 11,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4240.722153520046,
+      "cost_requests": 192258,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "source_json_sha256": "f5081a6865d524820209ac3b084d1ab201779a6695752532a4311eab5433ddb1"
+    },
+    {
+      "arm": "native_ls",
+      "seed": 61,
+      "arm_seed": "native_ls-seed61",
+      "minimum_index": 152,
+      "global_graph_class_id": 12,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4241.024184914604,
+      "cost_requests": 100521,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "source_json_sha256": "f5081a6865d524820209ac3b084d1ab201779a6695752532a4311eab5433ddb1"
+    },
+    {
+      "arm": "native_ls",
+      "seed": 61,
+      "arm_seed": "native_ls-seed61",
+      "minimum_index": 204,
+      "global_graph_class_id": 13,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4240.80391460274,
+      "cost_requests": 133654,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "source_json_sha256": "f5081a6865d524820209ac3b084d1ab201779a6695752532a4311eab5433ddb1"
+    },
+    {
+      "arm": "native_ls",
+      "seed": 61,
+      "arm_seed": "native_ls-seed61",
+      "minimum_index": 271,
+      "global_graph_class_id": 14,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.358143416157,
+      "cost_requests": 177127,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "source_json_sha256": "f5081a6865d524820209ac3b084d1ab201779a6695752532a4311eab5433ddb1"
+    },
+    {
+      "arm": "native_ls",
+      "seed": 61,
+      "arm_seed": "native_ls-seed61",
+      "minimum_index": 269,
+      "global_graph_class_id": 15,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4241.181372600752,
+      "cost_requests": 175873,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "source_json_sha256": "f5081a6865d524820209ac3b084d1ab201779a6695752532a4311eab5433ddb1"
+    },
+    {
+      "arm": "native_ls",
+      "seed": 61,
+      "arm_seed": "native_ls-seed61",
+      "minimum_index": 280,
+      "global_graph_class_id": 16,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.517933547602,
+      "cost_requests": 183015,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "source_json_sha256": "f5081a6865d524820209ac3b084d1ab201779a6695752532a4311eab5433ddb1"
+    },
+    {
+      "arm": "native_ls",
+      "seed": 61,
+      "arm_seed": "native_ls-seed61",
+      "minimum_index": 202,
+      "global_graph_class_id": 17,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4242.567097131324,
+      "cost_requests": 132481,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "source_json_sha256": "f5081a6865d524820209ac3b084d1ab201779a6695752532a4311eab5433ddb1"
+    },
+    {
+      "arm": "native_ls",
+      "seed": 61,
+      "arm_seed": "native_ls-seed61",
+      "minimum_index": 300,
+      "global_graph_class_id": 18,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4240.90773551985,
+      "cost_requests": 196068,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "source_json_sha256": "f5081a6865d524820209ac3b084d1ab201779a6695752532a4311eab5433ddb1"
+    },
+    {
+      "arm": "native_ls",
+      "seed": 61,
+      "arm_seed": "native_ls-seed61",
+      "minimum_index": 302,
+      "global_graph_class_id": 21,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4242.875770082962,
+      "cost_requests": 197427,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "source_json_sha256": "f5081a6865d524820209ac3b084d1ab201779a6695752532a4311eab5433ddb1"
+    },
+    {
+      "arm": "native_ls",
+      "seed": 67,
+      "arm_seed": "native_ls-seed67",
+      "minimum_index": 56,
+      "global_graph_class_id": 10,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.921712246061,
+      "cost_requests": 36480,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "source_json_sha256": "20e4c9ee8cc9e2633eae0616e44aa62510b5c5fc1470f6f38f655043dd5c99af"
+    },
+    {
+      "arm": "native_ls",
+      "seed": 67,
+      "arm_seed": "native_ls-seed67",
+      "minimum_index": 249,
+      "global_graph_class_id": 11,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4240.722219406244,
+      "cost_requests": 160626,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "source_json_sha256": "20e4c9ee8cc9e2633eae0616e44aa62510b5c5fc1470f6f38f655043dd5c99af"
+    },
+    {
+      "arm": "native_ls",
+      "seed": 67,
+      "arm_seed": "native_ls-seed67",
+      "minimum_index": 271,
+      "global_graph_class_id": 12,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4241.024394867574,
+      "cost_requests": 174924,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "source_json_sha256": "20e4c9ee8cc9e2633eae0616e44aa62510b5c5fc1470f6f38f655043dd5c99af"
+    },
+    {
+      "arm": "native_ls",
+      "seed": 67,
+      "arm_seed": "native_ls-seed67",
+      "minimum_index": 272,
+      "global_graph_class_id": 14,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.358755008526,
+      "cost_requests": 175591,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "source_json_sha256": "20e4c9ee8cc9e2633eae0616e44aa62510b5c5fc1470f6f38f655043dd5c99af"
+    },
+    {
+      "arm": "native_ls",
+      "seed": 67,
+      "arm_seed": "native_ls-seed67",
+      "minimum_index": 216,
+      "global_graph_class_id": 16,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.517924755278,
+      "cost_requests": 139223,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "source_json_sha256": "20e4c9ee8cc9e2633eae0616e44aa62510b5c5fc1470f6f38f655043dd5c99af"
+    },
+    {
+      "arm": "native_ls",
+      "seed": 67,
+      "arm_seed": "native_ls-seed67",
+      "minimum_index": 286,
+      "global_graph_class_id": 17,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4242.56718263216,
+      "cost_requests": 184795,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "source_json_sha256": "20e4c9ee8cc9e2633eae0616e44aa62510b5c5fc1470f6f38f655043dd5c99af"
+    },
+    {
+      "arm": "native_ls",
+      "seed": 67,
+      "arm_seed": "native_ls-seed67",
+      "minimum_index": 160,
+      "global_graph_class_id": 18,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4240.908390514896,
+      "cost_requests": 103842,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "source_json_sha256": "20e4c9ee8cc9e2633eae0616e44aa62510b5c5fc1470f6f38f655043dd5c99af"
+    },
+    {
+      "arm": "native_ls",
+      "seed": 67,
+      "arm_seed": "native_ls-seed67",
+      "minimum_index": 121,
+      "global_graph_class_id": 21,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4242.87576401207,
+      "cost_requests": 78390,
+      "source_json": "../c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "source_json_sha256": "20e4c9ee8cc9e2633eae0616e44aa62510b5c5fc1470f6f38f655043dd5c99af"
+    },
+    {
+      "arm": "paper_ls",
+      "seed": 61,
+      "arm_seed": "paper_ls-seed61",
+      "minimum_index": 110,
+      "global_graph_class_id": 10,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.921708843551,
+      "cost_requests": 70198,
+      "source_json": "../c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "source_json_sha256": "0ba994351de283e82cc63b3ba7ed216def6e3a4b94e90a0d3d9e16d33fd51001"
+    },
+    {
+      "arm": "paper_ls",
+      "seed": 61,
+      "arm_seed": "paper_ls-seed61",
+      "minimum_index": 132,
+      "global_graph_class_id": 11,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4240.722366214535,
+      "cost_requests": 84152,
+      "source_json": "../c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "source_json_sha256": "0ba994351de283e82cc63b3ba7ed216def6e3a4b94e90a0d3d9e16d33fd51001"
+    },
+    {
+      "arm": "paper_ls",
+      "seed": 61,
+      "arm_seed": "paper_ls-seed61",
+      "minimum_index": 178,
+      "global_graph_class_id": 12,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4241.024818139767,
+      "cost_requests": 113376,
+      "source_json": "../c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "source_json_sha256": "0ba994351de283e82cc63b3ba7ed216def6e3a4b94e90a0d3d9e16d33fd51001"
+    },
+    {
+      "arm": "paper_ls",
+      "seed": 61,
+      "arm_seed": "paper_ls-seed61",
+      "minimum_index": 113,
+      "global_graph_class_id": 16,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.517891458095,
+      "cost_requests": 72165,
+      "source_json": "../c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "source_json_sha256": "0ba994351de283e82cc63b3ba7ed216def6e3a4b94e90a0d3d9e16d33fd51001"
+    },
+    {
+      "arm": "paper_ls",
+      "seed": 61,
+      "arm_seed": "paper_ls-seed61",
+      "minimum_index": 224,
+      "global_graph_class_id": 20,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.159717718355,
+      "cost_requests": 142541,
+      "source_json": "../c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "source_json_sha256": "0ba994351de283e82cc63b3ba7ed216def6e3a4b94e90a0d3d9e16d33fd51001"
+    },
+    {
+      "arm": "paper_ls",
+      "seed": 61,
+      "arm_seed": "paper_ls-seed61",
+      "minimum_index": 151,
+      "global_graph_class_id": 21,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4242.875726524159,
+      "cost_requests": 96075,
+      "source_json": "../c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "source_json_sha256": "0ba994351de283e82cc63b3ba7ed216def6e3a4b94e90a0d3d9e16d33fd51001"
+    },
+    {
+      "arm": "paper_ls",
+      "seed": 67,
+      "arm_seed": "paper_ls-seed67",
+      "minimum_index": 6,
+      "global_graph_class_id": 10,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.921712943477,
+      "cost_requests": 3794,
+      "source_json": "../c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "source_json_sha256": "96b68bc4a106e6252e96c80ceb37e526164634aa2b91fe1891d3787fbe79bd18"
+    },
+    {
+      "arm": "paper_ls",
+      "seed": 67,
+      "arm_seed": "paper_ls-seed67",
+      "minimum_index": 62,
+      "global_graph_class_id": 11,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4240.7215143297835,
+      "cost_requests": 39227,
+      "source_json": "../c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "source_json_sha256": "96b68bc4a106e6252e96c80ceb37e526164634aa2b91fe1891d3787fbe79bd18"
+    },
+    {
+      "arm": "paper_ls",
+      "seed": 67,
+      "arm_seed": "paper_ls-seed67",
+      "minimum_index": 112,
+      "global_graph_class_id": 12,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4241.026993355392,
+      "cost_requests": 71626,
+      "source_json": "../c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "source_json_sha256": "96b68bc4a106e6252e96c80ceb37e526164634aa2b91fe1891d3787fbe79bd18"
+    },
+    {
+      "arm": "paper_ls",
+      "seed": 67,
+      "arm_seed": "paper_ls-seed67",
+      "minimum_index": 268,
+      "global_graph_class_id": 14,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.358480293788,
+      "cost_requests": 171235,
+      "source_json": "../c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "source_json_sha256": "96b68bc4a106e6252e96c80ceb37e526164634aa2b91fe1891d3787fbe79bd18"
+    },
+    {
+      "arm": "paper_ls",
+      "seed": 67,
+      "arm_seed": "paper_ls-seed67",
+      "minimum_index": 42,
+      "global_graph_class_id": 15,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4241.182114697077,
+      "cost_requests": 26710,
+      "source_json": "../c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "source_json_sha256": "96b68bc4a106e6252e96c80ceb37e526164634aa2b91fe1891d3787fbe79bd18"
+    },
+    {
+      "arm": "paper_ls",
+      "seed": 67,
+      "arm_seed": "paper_ls-seed67",
+      "minimum_index": 228,
+      "global_graph_class_id": 16,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.517929828835,
+      "cost_requests": 145480,
+      "source_json": "../c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "source_json_sha256": "96b68bc4a106e6252e96c80ceb37e526164634aa2b91fe1891d3787fbe79bd18"
+    },
+    {
+      "arm": "paper_ls",
+      "seed": 67,
+      "arm_seed": "paper_ls-seed67",
+      "minimum_index": 150,
+      "global_graph_class_id": 17,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4242.567222326843,
+      "cost_requests": 95603,
+      "source_json": "../c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "source_json_sha256": "96b68bc4a106e6252e96c80ceb37e526164634aa2b91fe1891d3787fbe79bd18"
+    },
+    {
+      "arm": "paper_ls",
+      "seed": 67,
+      "arm_seed": "paper_ls-seed67",
+      "minimum_index": 94,
+      "global_graph_class_id": 21,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4242.875772130478,
+      "cost_requests": 60130,
+      "source_json": "../c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "source_json_sha256": "96b68bc4a106e6252e96c80ceb37e526164634aa2b91fe1891d3787fbe79bd18"
+    },
+    {
+      "arm": "ssw",
+      "seed": 61,
+      "arm_seed": "ssw-seed61",
+      "minimum_index": 172,
+      "global_graph_class_id": 10,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.921709286931,
+      "cost_requests": 112907,
+      "source_json": "../c4h6-mh1-coverage-20260924/ssw-seed61/result.json",
+      "source_json_sha256": "1b471f5d3320e8c97901075dfb5b03f535a43225f4dcd823bc9841dd3043c418"
+    },
+    {
+      "arm": "ssw",
+      "seed": 61,
+      "arm_seed": "ssw-seed61",
+      "minimum_index": 9,
+      "global_graph_class_id": 12,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4241.022330620551,
+      "cost_requests": 5877,
+      "source_json": "../c4h6-mh1-coverage-20260924/ssw-seed61/result.json",
+      "source_json_sha256": "1b471f5d3320e8c97901075dfb5b03f535a43225f4dcd823bc9841dd3043c418"
+    },
+    {
+      "arm": "ssw",
+      "seed": 61,
+      "arm_seed": "ssw-seed61",
+      "minimum_index": 171,
+      "global_graph_class_id": 15,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4241.112416859861,
+      "cost_requests": 112143,
+      "source_json": "../c4h6-mh1-coverage-20260924/ssw-seed61/result.json",
+      "source_json_sha256": "1b471f5d3320e8c97901075dfb5b03f535a43225f4dcd823bc9841dd3043c418"
+    },
+    {
+      "arm": "ssw",
+      "seed": 61,
+      "arm_seed": "ssw-seed61",
+      "minimum_index": 242,
+      "global_graph_class_id": 16,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.517901481285,
+      "cost_requests": 158843,
+      "source_json": "../c4h6-mh1-coverage-20260924/ssw-seed61/result.json",
+      "source_json_sha256": "1b471f5d3320e8c97901075dfb5b03f535a43225f4dcd823bc9841dd3043c418"
+    },
+    {
+      "arm": "ssw",
+      "seed": 61,
+      "arm_seed": "ssw-seed61",
+      "minimum_index": 122,
+      "global_graph_class_id": 21,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4242.875469317818,
+      "cost_requests": 80292,
+      "source_json": "../c4h6-mh1-coverage-20260924/ssw-seed61/result.json",
+      "source_json_sha256": "1b471f5d3320e8c97901075dfb5b03f535a43225f4dcd823bc9841dd3043c418"
+    },
+    {
+      "arm": "ssw",
+      "seed": 67,
+      "arm_seed": "ssw-seed67",
+      "minimum_index": 170,
+      "global_graph_class_id": 10,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.921706879988,
+      "cost_requests": 110964,
+      "source_json": "../c4h6-mh1-coverage-20260924/ssw-seed67/result.json",
+      "source_json_sha256": "e6d590dcd63d0370d2dd5a22941fb05b705b0906589760ebde3d55c61ec78e14"
+    },
+    {
+      "arm": "ssw",
+      "seed": 67,
+      "arm_seed": "ssw-seed67",
+      "minimum_index": 231,
+      "global_graph_class_id": 14,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.357073841607,
+      "cost_requests": 149682,
+      "source_json": "../c4h6-mh1-coverage-20260924/ssw-seed67/result.json",
+      "source_json_sha256": "e6d590dcd63d0370d2dd5a22941fb05b705b0906589760ebde3d55c61ec78e14"
+    },
+    {
+      "arm": "ssw",
+      "seed": 67,
+      "arm_seed": "ssw-seed67",
+      "minimum_index": 25,
+      "global_graph_class_id": 16,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.517922545717,
+      "cost_requests": 15678,
+      "source_json": "../c4h6-mh1-coverage-20260924/ssw-seed67/result.json",
+      "source_json_sha256": "e6d590dcd63d0370d2dd5a22941fb05b705b0906589760ebde3d55c61ec78e14"
+    },
+    {
+      "arm": "ssw",
+      "seed": 67,
+      "arm_seed": "ssw-seed67",
+      "minimum_index": 194,
+      "global_graph_class_id": 20,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4243.159661667532,
+      "cost_requests": 126844,
+      "source_json": "../c4h6-mh1-coverage-20260924/ssw-seed67/result.json",
+      "source_json_sha256": "e6d590dcd63d0370d2dd5a22941fb05b705b0906589760ebde3d55c61ec78e14"
+    },
+    {
+      "arm": "ssw",
+      "seed": 67,
+      "arm_seed": "ssw-seed67",
+      "minimum_index": 257,
+      "global_graph_class_id": 21,
+      "component_count": 1,
+      "component_formulas": [
+        "C4H6"
+      ],
+      "energy_eV": -4242.875777296843,
+      "cost_requests": 166462,
+      "source_json": "../c4h6-mh1-coverage-20260924/ssw-seed67/result.json",
+      "source_json_sha256": "e6d590dcd63d0370d2dd5a22941fb05b705b0906589760ebde3d55c61ec78e14"
+    }
+  ]
+}
