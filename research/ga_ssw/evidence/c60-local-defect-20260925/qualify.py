@@ -56,7 +56,9 @@ def main():
         with zipfile.ZipFile(SOURCE) as archive:
             original = archive.read(member)
         (case / 'source.xyz').write_bytes(original)
-        atoms = read(io.StringIO(original.decode()), format='xyz')
+        # Published files end with blank lines which ASE's multi-frame XYZ
+        # reader otherwise tries to interpret as another atom count.
+        atoms = read(io.StringIO(original.decode().rstrip() + '\n'), format='xyz')
         atoms.pbc = False
         if len(atoms) != 60 or not np.all(atoms.numbers == 6) or not np.isfinite(atoms.positions).all():
             raise ValueError('invalid source geometry')
