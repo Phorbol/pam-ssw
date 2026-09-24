@@ -35,11 +35,12 @@ def events(checks, ceiling):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--plan', type=Path, default=HERE / 'escape-plan.json')
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     if args.output.exists():
         raise FileExistsError(args.output)
-    plan = json.loads((HERE / 'escape-plan.json').read_text())
+    plan = json.loads(args.plan.read_text())
     runs = Path(plan['output']['runs_dir'])
     global_path = runs / 'summary.json'
     global_rows = json.loads(global_path.read_text()) if global_path.exists() else []
