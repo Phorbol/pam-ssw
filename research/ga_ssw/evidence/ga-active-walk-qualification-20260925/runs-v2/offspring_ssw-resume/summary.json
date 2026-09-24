@@ -1,0 +1,26 @@
+{
+  "name": "offspring_ssw-resume",
+  "status": "completed",
+  "actual_requests": 6825,
+  "cumulative_requests": 9250,
+  "captured": [],
+  "phases": [
+    "initial_quench",
+    "initial_quench",
+    "initial_quench",
+    "quick",
+    "quick",
+    "quick",
+    "proposal",
+    "offspring_ssw",
+    "offspring_ssw",
+    "offspring_ssw",
+    "offspring_ssw",
+    "offspring_ssw",
+    "offspring_ssw",
+    "offspring_ssw",
+    "generation_short",
+    "fine"
+  ],
+  "observations": 39
+}

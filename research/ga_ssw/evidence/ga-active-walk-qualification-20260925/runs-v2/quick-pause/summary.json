@@ -1,0 +1,15 @@
+{
+  "name": "quick-pause",
+  "status": "checkpoint_boundary",
+  "actual_requests": 650,
+  "cumulative_requests": 650,
+  "captured": [
+    "quick"
+  ],
+  "phases": [
+    "initial_quench",
+    "initial_quench",
+    "initial_quench"
+  ],
+  "observations": 3
+}

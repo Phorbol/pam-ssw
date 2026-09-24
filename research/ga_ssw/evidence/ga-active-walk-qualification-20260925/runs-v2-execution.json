@@ -1,0 +1,10 @@
+{
+  "git_head": "3c23a3af91f91ef5231a3613b28166df31baae44",
+  "core_tree": "6af521c7b2e6ecb69972d40d621c0b5ce6a17570",
+  "python": "3.12.11 | packaged by Anaconda, Inc. | (main, Jun  5 2025, 13:09:17) [GCC 11.2.0]",
+  "command": [
+    "/home/gengjianrui/.conda/envs/mace_env/bin/python",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-active-walk-recovery/research/ga_ssw/evidence/ga-active-walk-qualification-20260925/emt_replay.py",
+    "--execute"
+  ]
+}

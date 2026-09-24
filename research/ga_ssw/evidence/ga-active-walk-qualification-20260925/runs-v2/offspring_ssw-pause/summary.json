@@ -1,0 +1,19 @@
+{
+  "name": "offspring_ssw-pause",
+  "status": "checkpoint_boundary",
+  "actual_requests": 2425,
+  "cumulative_requests": 2425,
+  "captured": [
+    "offspring_ssw"
+  ],
+  "phases": [
+    "initial_quench",
+    "initial_quench",
+    "initial_quench",
+    "quick",
+    "quick",
+    "quick",
+    "proposal"
+  ],
+  "observations": 12
+}
