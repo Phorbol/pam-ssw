@@ -23,6 +23,8 @@ with (root/'.submission.lock').open('a') as lock:
     fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     ledger_path=root/'submission-ledger.json'
     ledger=json.loads(ledger_path.read_text())
+    if ledger.get('submission_disabled', False):
+        raise RuntimeError('experiment stopped: production submission disabled')
     qualification=json.loads((root/'preflight-qualification.json').read_text())
     if qualification['status']!='passed':raise RuntimeError('preflight not passed')
     if any(v['stage']==a.stage for v in ledger['submissions']):

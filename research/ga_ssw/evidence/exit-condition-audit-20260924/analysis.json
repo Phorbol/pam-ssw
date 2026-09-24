@@ -1,0 +1,350 @@
+{
+  "rows": [
+    {
+      "path": "c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "records": 400,
+      "statuses": {
+        "gaussian_limit": 400
+      },
+      "early_exit_climb_drop_eV": {
+        "n": 0
+      },
+      "early_exit_landing_drop_eV": {
+        "n": 0
+      },
+      "early_exit_stages": {
+        "n": 0
+      },
+      "early_exit_events": []
+    },
+    {
+      "path": "c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "records": 400,
+      "statuses": {
+        "gaussian_limit": 400
+      },
+      "early_exit_climb_drop_eV": {
+        "n": 0
+      },
+      "early_exit_landing_drop_eV": {
+        "n": 0
+      },
+      "early_exit_stages": {
+        "n": 0
+      },
+      "early_exit_events": []
+    },
+    {
+      "path": "c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "records": 400,
+      "statuses": {
+        "gaussian_limit": 400
+      },
+      "early_exit_climb_drop_eV": {
+        "n": 0
+      },
+      "early_exit_landing_drop_eV": {
+        "n": 0
+      },
+      "early_exit_stages": {
+        "n": 0
+      },
+      "early_exit_events": []
+    },
+    {
+      "path": "c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "records": 400,
+      "statuses": {
+        "gaussian_limit": 400
+      },
+      "early_exit_climb_drop_eV": {
+        "n": 0
+      },
+      "early_exit_landing_drop_eV": {
+        "n": 0
+      },
+      "early_exit_stages": {
+        "n": 0
+      },
+      "early_exit_events": []
+    },
+    {
+      "path": "c4h6-mh1-coverage-20260924/ssw-seed61/result.json",
+      "records": 400,
+      "statuses": {
+        "gaussian_limit": 396,
+        "lower_true_energy": 4
+      },
+      "early_exit_climb_drop_eV": {
+        "n": 4,
+        "minimum": 7.107229066605214e-05,
+        "median": 0.00012276993174964446,
+        "maximum": 0.0006366685602188227
+      },
+      "early_exit_landing_drop_eV": {
+        "n": 4,
+        "minimum": 0.00016831097218528157,
+        "median": 0.0004267389208507666,
+        "maximum": 0.0009234409526470699
+      },
+      "early_exit_stages": {
+        "n": 4,
+        "minimum": 5,
+        "median": 12.0,
+        "maximum": 16
+      },
+      "early_exit_events": [
+        {
+          "index": 45,
+          "stages": 12,
+          "climb_drop_eV": 7.107229066605214e-05,
+          "landing_drop_eV": 0.0005288440970616648,
+          "landing_converged": true,
+          "accepted": true,
+          "requests": 345
+        },
+        {
+          "index": 152,
+          "stages": 16,
+          "climb_drop_eV": 0.0006366685602188227,
+          "landing_drop_eV": 0.0009234409526470699,
+          "landing_converged": true,
+          "accepted": true,
+          "requests": 421
+        },
+        {
+          "index": 193,
+          "stages": 5,
+          "climb_drop_eV": 0.00011964741315750871,
+          "landing_drop_eV": 0.00016831097218528157,
+          "landing_converged": true,
+          "accepted": true,
+          "requests": 202
+        },
+        {
+          "index": 235,
+          "stages": 12,
+          "climb_drop_eV": 0.0001258924503417802,
+          "landing_drop_eV": 0.0003246337446398684,
+          "landing_converged": true,
+          "accepted": true,
+          "requests": 337
+        }
+      ]
+    },
+    {
+      "path": "c4h6-mh1-coverage-20260924/ssw-seed67/result.json",
+      "records": 400,
+      "statuses": {
+        "gaussian_limit": 391,
+        "lower_true_energy": 8,
+        "nonpositive_height": 1
+      },
+      "early_exit_climb_drop_eV": {
+        "n": 8,
+        "minimum": 4.005654864158714e-05,
+        "median": 0.00020645124732254772,
+        "maximum": 0.0016960896573436912
+      },
+      "early_exit_landing_drop_eV": {
+        "n": 8,
+        "minimum": 7.64542000979418e-05,
+        "median": 0.0007549267934336967,
+        "maximum": 0.002027845918746607
+      },
+      "early_exit_stages": {
+        "n": 8,
+        "minimum": 11,
+        "median": 16.5,
+        "maximum": 25
+      },
+      "early_exit_events": [
+        {
+          "index": 14,
+          "stages": 13,
+          "climb_drop_eV": 0.00017546832077641739,
+          "landing_drop_eV": 0.001500134467278258,
+          "landing_converged": true,
+          "accepted": true,
+          "requests": 375
+        },
+        {
+          "index": 177,
+          "stages": 23,
+          "climb_drop_eV": 0.000398506602323323,
+          "landing_drop_eV": 0.002027845918746607,
+          "landing_converged": true,
+          "accepted": true,
+          "requests": 613
+        },
+        {
+          "index": 232,
+          "stages": 14,
+          "climb_drop_eV": 0.00023201960721053183,
+          "landing_drop_eV": 0.00033231355246243766,
+          "landing_converged": true,
+          "accepted": true,
+          "requests": 398
+        },
+        {
+          "index": 252,
+          "stages": 16,
+          "climb_drop_eV": 7.64542000979418e-05,
+          "landing_drop_eV": 7.64542000979418e-05,
+          "landing_converged": true,
+          "accepted": true,
+          "requests": 456
+        },
+        {
+          "index": 299,
+          "stages": 17,
+          "climb_drop_eV": 0.0003977182150265435,
+          "landing_drop_eV": 0.000741378264137893,
+          "landing_converged": true,
+          "accepted": true,
+          "requests": 411
+        },
+        {
+          "index": 303,
+          "stages": 20,
+          "climb_drop_eV": 0.0001808828874345636,
+          "landing_drop_eV": 0.000296771977446042,
+          "landing_converged": true,
+          "accepted": true,
+          "requests": 529
+        },
+        {
+          "index": 327,
+          "stages": 25,
+          "climb_drop_eV": 4.005654864158714e-05,
+          "landing_drop_eV": 0.0007684753227295005,
+          "landing_converged": true,
+          "accepted": true,
+          "requests": 642
+        },
+        {
+          "index": 366,
+          "stages": 11,
+          "climb_drop_eV": 0.0016960896573436912,
+          "landing_drop_eV": 0.0020091396236239234,
+          "landing_converged": true,
+          "accepted": true,
+          "requests": 270
+        }
+      ]
+    },
+    {
+      "path": "periodic-rotation-priority-20260923/aloh3-recovered-seed41/result.json",
+      "records": 23,
+      "statuses": {
+        "lower_true_energy": 1,
+        "gaussian_limit": 21,
+        "evaluation_failed": 1
+      },
+      "early_exit_climb_drop_eV": {
+        "n": 1,
+        "minimum": 0.2355258419518691,
+        "median": 0.2355258419518691,
+        "maximum": 0.2355258419518691
+      },
+      "early_exit_landing_drop_eV": {
+        "n": 1,
+        "minimum": 0.23764749271384744,
+        "median": 0.23764749271384744,
+        "maximum": 0.23764749271384744
+      },
+      "early_exit_stages": {
+        "n": 1,
+        "minimum": 2,
+        "median": 2,
+        "maximum": 2
+      },
+      "early_exit_events": [
+        {
+          "index": 0,
+          "stages": 2,
+          "climb_drop_eV": 0.2355258419518691,
+          "landing_drop_eV": 0.23764749271384744,
+          "landing_converged": true,
+          "accepted": true,
+          "requests": 57
+        }
+      ]
+    },
+    {
+      "path": "periodic-rotation-priority-20260923/aloh3-ritz-seed41/result.json",
+      "records": 14,
+      "statuses": {
+        "lower_true_energy": 1,
+        "gaussian_limit": 12,
+        "evaluation_failed": 1
+      },
+      "early_exit_climb_drop_eV": {
+        "n": 1,
+        "minimum": 0.23674600729310669,
+        "median": 0.23674600729310669,
+        "maximum": 0.23674600729310669
+      },
+      "early_exit_landing_drop_eV": {
+        "n": 1,
+        "minimum": 0.23786845021481895,
+        "median": 0.23786845021481895,
+        "maximum": 0.23786845021481895
+      },
+      "early_exit_stages": {
+        "n": 1,
+        "minimum": 1,
+        "median": 1,
+        "maximum": 1
+      },
+      "early_exit_events": [
+        {
+          "index": 0,
+          "stages": 1,
+          "climb_drop_eV": 0.23674600729310669,
+          "landing_drop_eV": 0.23786845021481895,
+          "landing_converged": true,
+          "accepted": true,
+          "requests": 63
+        }
+      ]
+    },
+    {
+      "path": "periodic-rotation-priority-20260923/brookite48-recovered-seed41/result.json",
+      "records": 30,
+      "statuses": {
+        "gaussian_limit": 29,
+        "evaluation_failed": 1
+      },
+      "early_exit_climb_drop_eV": {
+        "n": 0
+      },
+      "early_exit_landing_drop_eV": {
+        "n": 0
+      },
+      "early_exit_stages": {
+        "n": 0
+      },
+      "early_exit_events": []
+    },
+    {
+      "path": "periodic-rotation-priority-20260923/brookite48-ritz-seed41/result.json",
+      "records": 17,
+      "statuses": {
+        "gaussian_limit": 16,
+        "evaluation_failed": 1
+      },
+      "early_exit_climb_drop_eV": {
+        "n": 0
+      },
+      "early_exit_landing_drop_eV": {
+        "n": 0
+      },
+      "early_exit_stages": {
+        "n": 0
+      },
+      "early_exit_events": []
+    }
+  ],
+  "scope": "existing trajectories; energy-exit triage, not basin identity or independent runs"
+}

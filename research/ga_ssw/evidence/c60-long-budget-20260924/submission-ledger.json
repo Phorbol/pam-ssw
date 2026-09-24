@@ -1,5 +1,5 @@
 {
-  "status": "production_submitted",
+  "status": "stopped_development_priority",
   "input_job": 1477010,
   "cpu_preflight_job": 1477058,
   "max_concurrent_gpus": 2,
@@ -20,7 +20,7 @@
       "array": "0-3%2",
       "allocation_hours_per_task": 12,
       "job_id": "1477591",
-      "sbatch_stderr": "sbatch: WARNING: \u8bf7\u6838\u5bf9\u8ba1\u8d39\u8d26\u6237 / CHECK BILLING ACCOUNT\nsbatch: \u4f5c\u4e1a\u8fd0\u884c\u540e\uff0c\u8d39\u7528\u5c06\u8bb0\u5165 / Charges if run: Account=sjtu-caoxiaoming\nsbatch: \u76ee\u5f55\u63a8\u5bfc / WorkDir account: Account=private-gengjianrui\uff1b\u672c\u6b21\u663e\u5f0f\u6307\u5b9a\u4f18\u5148 / explicit account takes precedence.\nsbatch: \u540e\u7eed\u63d0\u4ea4 / Next submission: --account=<account>\nsbatch: \u6392\u961f\u4f5c\u4e1a\u66f4\u6b63 / Correct pending job: scontrol update JobId=<jobid> Account=<account>\n",
+      "sbatch_stderr": "sbatch: WARNING: 请核对计费账户 / CHECK BILLING ACCOUNT\nsbatch: 作业运行后，费用将记入 / Charges if run: Account=sjtu-caoxiaoming\nsbatch: 目录推导 / WorkDir account: Account=private-gengjianrui；本次显式指定优先 / explicit account takes precedence.\nsbatch: 后续提交 / Next submission: --account=<account>\nsbatch: 排队作业更正 / Correct pending job: scontrol update JobId=<jobid> Account=<account>\n",
       "successor_cpu_job_id": "1477592"
     }
   ],
@@ -38,5 +38,20 @@
   ],
   "cpu_preflight_passed": "preflight-r2/cpu-in-gpu.out:8 passed in 2.59s",
   "diagnostic_gpu_job": 1477513,
-  "ledger_cpu_job": 1477518
+  "ledger_cpu_job": 1477518,
+  "submission_disabled": true,
+  "stop_decision": {
+    "date": "2026-09-24",
+    "reason": "User clarified agile algorithm development takes priority over production-scale C60 evaluation",
+    "cancelled_jobs": [
+      "1477591",
+      "1477592"
+    ],
+    "production_elapsed_gpu_seconds": 1723,
+    "scope": "production array only; excludes prior preflights",
+    "concurrency_change_before_stop": {
+      "from": 2,
+      "to": 4
+    }
+  }
 }
