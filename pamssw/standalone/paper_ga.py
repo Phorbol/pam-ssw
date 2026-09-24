@@ -24,9 +24,9 @@ from .legacy_descriptor import (cluster_descriptor, descriptor_similarity,
                                 energy_window, merge_archive, remove_duplicates)
 from .population import partition, rank_regions
 from .surface import QuenchResult, quench
-from .paper_reference import SSWConfig
+from .paper_reference import SSWConfig, SSWCheckpoint, _validate_ssw_checkpoint
 from ase.optimize import BFGS
-from .ga_checkpoint import GACheckpoint
+from .ga_checkpoint import GACheckpoint, GAActiveWalk
 
 
 def propose_type0(*args, **kwargs):
@@ -155,7 +155,8 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
                offspring_ssw_config: SSWConfig | None = None,
                mc=None, recovered_direction=None, recovered_rotation=None,
                checkpoint: GACheckpoint | None = None,
-               checkpoint_callback: Callable[[GACheckpoint], bool | None] | None = None) -> PaperGAResult:
+               checkpoint_callback: Callable[[GACheckpoint], bool | None] | None = None,
+               checkpoint_walk_steps: bool = False) -> PaperGAResult:
     """Execute all three stages with explicit budgets and complete landing records.
 
     Set config.proposal_type=0 and groups=None for atomic/alloy proposals;
@@ -198,6 +199,12 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
     checkpoint is resumed, the same non-None options must be supplied so the
     explicit checkpoint contract matches; the default None contract remains
     compatible with older checkpoints.
+
+    ``checkpoint_walk_steps=True`` explicitly exposes completed SSW outer-step
+    snapshots to ``checkpoint_callback``. The default callback still sees only
+    completed GA phase boundaries. An active snapshot can be resumed with the
+    same scientific inputs and a fresh surface; the saved selected queue and
+    nested SSW state prevent repeating selection or archive ingestion.
     """
     if not isinstance(config, PaperGAConfig):
         raise TypeError('config must be PaperGAConfig')
@@ -207,12 +214,18 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
         raise TypeError('checkpoint must be GACheckpoint or None')
     if checkpoint_callback is not None and not callable(checkpoint_callback):
         raise TypeError('checkpoint_callback must be callable or None')
+    if not isinstance(checkpoint_walk_steps, bool):
+        raise TypeError('checkpoint_walk_steps must be bool')
     if checkpoint is not None:
-        if checkpoint.version != GACheckpoint.VERSION:
+        if checkpoint.version not in (1, GACheckpoint.VERSION):
             raise ValueError('unsupported GA checkpoint version')
-        if checkpoint.phase not in ('quick_complete', 'generation_complete', 'cycle_complete'):
+        if checkpoint.phase not in ('quick_complete', 'generation_complete', 'cycle_complete', 'active_walk'):
             raise ValueError('checkpoint is not a completed GA boundary')
-        if checkpoint.cycle < 0 or checkpoint.generation < 0 or checkpoint.evaluation_requests < 0:
+        if checkpoint.phase == 'active_walk' and checkpoint.version != 2:
+            raise ValueError('active walk requires GA checkpoint v2')
+        if (checkpoint.cycle < 0 or
+                checkpoint.generation < (-1 if checkpoint.phase == 'active_walk' else 0) or
+                checkpoint.evaluation_requests < 0):
             raise ValueError('checkpoint cursor or request count is invalid')
     if structure_matcher is not None and not callable(structure_matcher):
         raise TypeError('structure_matcher must be callable or None')
@@ -346,6 +359,7 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
     resume_phase = None
     resume_cycle = 0
     resume_generation = 0
+    resume_active = None
     def input_contract():
         def encoded(value):
             return pickle.dumps(value, protocol=4)
@@ -371,6 +385,9 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
             contract['descriptor_row_order'] = descriptor_row_order
         return contract
     if checkpoint is not None:
+        resume_active = getattr(checkpoint, 'active_walk', None)
+        if (checkpoint.phase == 'active_walk') != (resume_active is not None):
+            raise ValueError('checkpoint active walk and phase disagree')
         if checkpoint.phase == 'quick_complete' and (checkpoint.cycle != 0 or checkpoint.generation != 0):
             raise ValueError('quick checkpoint cursor is invalid')
         if checkpoint.phase == 'generation_complete' and not (0 <= checkpoint.cycle < config.cycles and
@@ -379,8 +396,42 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
         if checkpoint.phase == 'cycle_complete' and not (1 <= checkpoint.cycle <= config.cycles and
                                                          checkpoint.generation == 0):
             raise ValueError('cycle checkpoint cursor is invalid')
-        if checkpoint.evaluation_requests != sum(stage.evaluation_requests for stage in checkpoint.stages):
-            raise ValueError('checkpoint request count disagrees with stage ledger')
+        stage_requests = sum(stage.evaluation_requests for stage in checkpoint.stages)
+        if resume_active is None:
+            if checkpoint.evaluation_requests != stage_requests:
+                raise ValueError('checkpoint request count disagrees with stage ledger')
+        else:
+            active = resume_active
+            if not isinstance(active, GAActiveWalk) or active.phase not in (
+                    'quick', 'offspring_ssw', 'generation_short', 'fine'):
+                raise ValueError('checkpoint active walk phase is invalid')
+            if (active.cycle != checkpoint.cycle or active.generation != checkpoint.generation or
+                    not isinstance(active.queue, tuple) or not active.queue or
+                    not isinstance(active.cursor, int) or not 0 <= active.cursor < len(active.queue) or
+                    not isinstance(active.steps, int) or active.steps <= 0):
+                raise ValueError('checkpoint active walk cursor is invalid')
+            if (active.phase == 'quick' and (active.cycle != 0 or active.generation != -1) or
+                    active.phase != 'quick' and not (0 <= active.cycle < config.cycles) or
+                    active.phase in ('offspring_ssw', 'generation_short') and
+                    not (0 <= active.generation < config.generations) or
+                    active.phase == 'fine' and active.generation != config.generations):
+                raise ValueError('checkpoint active walk phase cursor is invalid')
+            expected_steps = {'quick': config.quick_steps, 'offspring_ssw': config.offspring_steps,
+                              'generation_short': config.generation_steps, 'fine': config.fine_steps}[active.phase]
+            if active.steps != expected_steps or not isinstance(active.ssw_checkpoint, SSWCheckpoint):
+                raise ValueError('checkpoint active walk steps or SSW state is invalid')
+            nested = active.ssw_checkpoint
+            _validate_ssw_checkpoint(nested)
+            expected_config = (offspring_ssw_config or ssw_config) if active.phase == 'offspring_ssw' else ssw_config
+            if (nested.status != 'completed' or nested.config != expected_config or
+                    nested.next_index < 1 or nested.next_index > active.steps or
+                    pickle.dumps(nested.rng_state) != pickle.dumps(checkpoint.rng_state) or
+                    active.walk_start_requests != stage_requests or
+                    checkpoint.evaluation_requests != stage_requests + nested.evaluation_requests):
+                raise ValueError('checkpoint active walk state or request ledger disagrees')
+            for item in active.queue:
+                if not isinstance(item, dict) or not isinstance(item.get('row'), dict) or not isinstance(item['row'].get('atoms'), Atoms):
+                    raise ValueError('checkpoint active walk queue is invalid')
         if checkpoint.config != config or checkpoint.ssw_config != ssw_config:
             raise ValueError('checkpoint configuration does not match supplied GA settings')
         if checkpoint.offspring_ssw_config != offspring_ssw_config:
@@ -513,8 +564,9 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
             return None
 
     def walk(row, phase, generation, steps, cycle=0, *, walk_config=None,
-             archive_best=False, parent_ids=(), operator=None, details=None):
-        before = surface.requests
+             archive_best=False, parent_ids=(), operator=None, details=None,
+             nested_checkpoint=None, on_step=None):
+        before = surface.requests - (nested_checkpoint.evaluation_requests if nested_checkpoint else 0)
         if budget_surface:
             budget_surface.mark_exhausted_if_full()
             if budget_surface.blocked:
@@ -535,8 +587,15 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
                 walker_options['recovered_direction'] = recovered_direction
             if recovered_rotation is not None:
                 walker_options['recovered_rotation'] = recovered_rotation
-            result = run_ssw(row['atoms'].copy(), active_surface, steps=steps,
+            if nested_checkpoint is not None:
+                walker_options['checkpoint'] = nested_checkpoint
+            if on_step is not None:
+                walker_options['checkpoint_callback'] = on_step
+            result = run_ssw(row['atoms'].copy(), active_surface,
+                             steps=steps - (nested_checkpoint.next_index if nested_checkpoint else 0),
                              **walker_options)
+            if getattr(result, 'status', 'completed') == 'paused':
+                return True
             walks.append(result)
             landings = list(result.minima)
             seen = {id(q) for q in landings}
@@ -583,6 +642,38 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
             stage_details.update({'steps': steps, 'parent_ids': tuple(parent_ids), 'operator': operator})
             stages.append(GAStage(phase, generation, row['id'], 'failed', cost, len(ids), stage_details, cycle=cycle))
 
+    def run_walk_queue(phase, cycle, generation, steps, queue, *, cursor=0,
+                       nested_checkpoint=None, incomplete_proposal=False):
+        """Continue a fixed selected queue; commit each complete walk once."""
+        for index in range(cursor, len(queue)):
+            item = queue[index]
+            nested = nested_checkpoint if index == cursor else None
+            paused_state = []
+            def on_step(ssw_state):
+                if budget_surface:
+                    budget_surface.mark_exhausted_if_full()
+                    if budget_surface.blocked:
+                        return False
+                active = GAActiveWalk(phase, cycle, generation, copy.deepcopy(queue),
+                    index, steps, copy.deepcopy(ssw_state),
+                    prior_requests + surface.requests - started - ssw_state.evaluation_requests,
+                    incomplete_proposal)
+                state = make_checkpoint('active_walk', cycle, generation, active_walk=active)
+                if checkpoint_callback(state):
+                    paused_state.append(state)
+                    return True
+                return False
+            paused = walk(item['row'], phase, generation, steps, cycle,
+                walk_config=item.get('walk_config'), archive_best=item.get('archive_best', False),
+                parent_ids=item.get('parent_ids', ()), operator=item.get('operator'),
+                details=item.get('details'), nested_checkpoint=nested,
+                on_step=on_step if checkpoint_walk_steps and checkpoint_callback is not None else None)
+            if paused:
+                return paused_state[0]
+            if budget_surface and budget_surface.blocked:
+                return False
+        return None
+
     def regions(phase, generation):
         try:
             return partition(archive, config.regions, rng, max_draws=config.partition_max_draws)
@@ -590,7 +681,7 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
             fail(phase, generation, None, f'{type(error).__name__}: {error}', 0)
             return []
 
-    def make_checkpoint(phase, cycle, generation):
+    def make_checkpoint(phase, cycle, generation, active_walk=None):
         return GACheckpoint(
             GACheckpoint.VERSION, phase, cycle, generation,
             copy.deepcopy(archive), copy.deepcopy(observations),
@@ -598,7 +689,7 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
             validation_attempted, copy.deepcopy(rng.bit_generator.state),
             config, ssw_config, offspring_ssw_config,
             prior_requests + surface.requests - started, max_evaluations,
-            input_contract())
+            input_contract(), active_walk)
 
     def boundary(phase, cycle, generation):
         if checkpoint_callback is None:
@@ -631,81 +722,126 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
                 return finish()
             if observation is not None and observation.eligible_for_archive:
                 seeds.append(dict(id=observation.id, atoms=observation.result.atoms.copy()))
-        for row in seeds:
-            walk(row, 'quick', -1, config.quick_steps)
+        quick_queue = tuple({'row': row} for row in seeds)
+        if quick_queue:
+            paused = run_walk_queue('quick', 0, -1, config.quick_steps, quick_queue)
+            if isinstance(paused, GACheckpoint):
+                return finish(paused, 'checkpoint_boundary')
             if budget_surface and budget_surface.blocked:
                 return finish()
+        saved = boundary('quick_complete', 0, 0)
+        if saved is not None:
+            return finish(saved, 'checkpoint_boundary')
+    elif resume_active is not None and resume_active.phase == 'quick':
+        active = resume_active
+        paused = run_walk_queue('quick', 0, -1, active.steps, active.queue,
+            cursor=active.cursor, nested_checkpoint=active.ssw_checkpoint)
+        if isinstance(paused, GACheckpoint):
+            return finish(paused, 'checkpoint_boundary')
+        if budget_surface and budget_surface.blocked:
+            return finish()
         saved = boundary('quick_complete', 0, 0)
         if saved is not None:
             return finish(saved, 'checkpoint_boundary')
     if not archive:
         return finish()
 
-    def run_cycle(cycle, start_generation=0):
+    def run_cycle(cycle, start_generation=0, active=None):
         # 2. GA generations, true-surface offspring quenching, then short walks.
         for generation in range(start_generation, config.generations):
             if budget_surface:
                 budget_surface.mark_exhausted_if_full()
             if budget_surface and budget_surface.blocked:
                 return finish()
-            selected_regions = regions('generation_partition', generation)
-            indices = [i for region in selected_regions for i in region]
-            if not indices:
-                fail('proposal', generation, None, 'no selected parents', 0)
-                break
-            parent_rows = [archive[i] for i in indices]
-            try:
-                if config.proposal_type == 0:
-                    offsets = []
-                    offset = 0
-                    for region in selected_regions:
-                        offsets.append(tuple(range(offset, offset + len(region))))
-                        offset += len(region)
-                    proposal = propose_type0([row['atoms'] for row in parent_rows],
-                        [row['energy'] for row in parent_rows], rng,
-                        min_ga=config.ga_candidates, bond_limits=proposal_bond_limits,
-                        max_batches=config.proposal_max_batches,
-                        max_cut_attempts=config.proposal_max_cut_attempts,
-                        max_pair_attempts=config.proposal_max_pair_attempts,
-                        parent_regions=offsets,
-                        max_insertion_attempts=config.proposal_max_insertion_attempts)
+            resuming_generation = active is not None and active.generation == generation
+            if resuming_generation and active.phase == 'generation_short':
+                incomplete = active.incomplete_proposal
+            else:
+                if resuming_generation and active.phase == 'offspring_ssw':
+                    incomplete = active.incomplete_proposal
+                    offspring_queue = active.queue
                 else:
-                    proposal = propose_type3([row['atoms'] for row in parent_rows],
-                                             [row['energy'] for row in parent_rows], groups, change_types, rng,
-                                             min_ga=config.ga_candidates, bond_limits=proposal_bond_limits,
-                                             max_batches=config.proposal_max_batches,
-                                             max_cut_attempts=config.proposal_max_cut_attempts,
-                                             max_pair_attempts=config.proposal_max_pair_attempts)
-            except Exception as error:
-                fail('proposal', generation, None, f'{type(error).__name__}: {error}', 0)
-                stages.append(GAStage('proposal', generation, None, 'failed', 0, 0, {}, cycle=cycle))
-                break
-            stages.append(GAStage('proposal', generation, None, proposal.status, 0, 0,
-                                  {'batches': proposal.batches, 'candidates': len(proposal.candidates),
-                                   'rejected_by_bond_limit': proposal.rejected_by_bond_limit}, cycle=cycle))
-            incomplete = proposal.status != 'target_reached'
-            if incomplete:
-                fail('proposal', generation, None, f'{proposal.status}: {proposal.reason}', 0)
-            for candidate in proposal.candidates:
-                lineage = candidate.details.get('atom_parent_indices', candidate.group_parent_indices)
-                parent_ids = tuple(parent_rows[i]['id'] for i in lineage)
-                if config.offspring_steps == 0:
-                    relax(candidate.atoms, 'offspring_quench', generation, parent_ids=parent_ids,
-                          operator=candidate.operation, details=candidate.details, cycle=cycle)
-                else:
-                    walk({'id': None, 'atoms': candidate.atoms.copy()}, 'offspring_ssw', generation,
-                         config.offspring_steps, cycle, walk_config=offspring_ssw_config,
-                         archive_best=True, parent_ids=parent_ids,
-                         operator=candidate.operation, details=candidate.details)
+                    selected_regions = regions('generation_partition', generation)
+                    indices = [i for region in selected_regions for i in region]
+                    if not indices:
+                        fail('proposal', generation, None, 'no selected parents', 0)
+                        break
+                    parent_rows = [archive[i] for i in indices]
+                    try:
+                        if config.proposal_type == 0:
+                            offsets = []
+                            offset = 0
+                            for region in selected_regions:
+                                offsets.append(tuple(range(offset, offset + len(region))))
+                                offset += len(region)
+                            proposal = propose_type0([row['atoms'] for row in parent_rows],
+                                [row['energy'] for row in parent_rows], rng,
+                                min_ga=config.ga_candidates, bond_limits=proposal_bond_limits,
+                                max_batches=config.proposal_max_batches,
+                                max_cut_attempts=config.proposal_max_cut_attempts,
+                                max_pair_attempts=config.proposal_max_pair_attempts,
+                                parent_regions=offsets,
+                                max_insertion_attempts=config.proposal_max_insertion_attempts)
+                        else:
+                            proposal = propose_type3([row['atoms'] for row in parent_rows],
+                                                     [row['energy'] for row in parent_rows], groups, change_types, rng,
+                                                     min_ga=config.ga_candidates, bond_limits=proposal_bond_limits,
+                                                     max_batches=config.proposal_max_batches,
+                                                     max_cut_attempts=config.proposal_max_cut_attempts,
+                                                     max_pair_attempts=config.proposal_max_pair_attempts)
+                    except Exception as error:
+                        fail('proposal', generation, None, f'{type(error).__name__}: {error}', 0)
+                        stages.append(GAStage('proposal', generation, None, 'failed', 0, 0, {}, cycle=cycle))
+                        break
+                    stages.append(GAStage('proposal', generation, None, proposal.status, 0, 0,
+                                          {'batches': proposal.batches, 'candidates': len(proposal.candidates),
+                                           'rejected_by_bond_limit': proposal.rejected_by_bond_limit}, cycle=cycle))
+                    incomplete = proposal.status != 'target_reached'
+                    if incomplete:
+                        fail('proposal', generation, None, f'{proposal.status}: {proposal.reason}', 0)
+                    offspring_queue = []
+                    for candidate in proposal.candidates:
+                        lineage = candidate.details.get('atom_parent_indices', candidate.group_parent_indices)
+                        parent_ids = tuple(parent_rows[i]['id'] for i in lineage)
+                        if config.offspring_steps == 0:
+                            relax(candidate.atoms, 'offspring_quench', generation, parent_ids=parent_ids,
+                                  operator=candidate.operation, details=candidate.details, cycle=cycle)
+                            if budget_surface and budget_surface.blocked:
+                                return finish()
+                        else:
+                            offspring_queue.append(dict(row={'id': None, 'atoms': candidate.atoms.copy()},
+                                walk_config=offspring_ssw_config, archive_best=True,
+                                parent_ids=parent_ids, operator=candidate.operation,
+                                details=candidate.details))
+                    offspring_queue = tuple(offspring_queue)
+                if offspring_queue:
+                    paused = run_walk_queue('offspring_ssw', cycle, generation,
+                        config.offspring_steps, offspring_queue,
+                        cursor=active.cursor if resuming_generation else 0,
+                        nested_checkpoint=active.ssw_checkpoint if resuming_generation else None,
+                        incomplete_proposal=incomplete)
+                    if isinstance(paused, GACheckpoint):
+                        return finish(paused, 'checkpoint_boundary')
+                    if budget_surface and budget_surface.blocked:
+                        return finish()
+            if resuming_generation and active.phase == 'generation_short':
+                generation_queue = active.queue
+            else:
+                selected_regions = regions('generation_partition', generation)
+                generation_seeds = [archive[min(region, key=lambda i: archive[i]['energy'])].copy()
+                                    for region in selected_regions]
+                generation_queue = tuple({'row': row} for row in generation_seeds)
+            if generation_queue:
+                paused = run_walk_queue('generation_short', cycle, generation,
+                    config.generation_steps, generation_queue,
+                    cursor=active.cursor if resuming_generation and active.phase == 'generation_short' else 0,
+                    nested_checkpoint=active.ssw_checkpoint if resuming_generation and active.phase == 'generation_short' else None,
+                    incomplete_proposal=incomplete)
+                if isinstance(paused, GACheckpoint):
+                    return finish(paused, 'checkpoint_boundary')
                 if budget_surface and budget_surface.blocked:
                     return finish()
-            selected_regions = regions('generation_partition', generation)
-            generation_seeds = [archive[min(region, key=lambda i: archive[i]['energy'])].copy()
-                                for region in selected_regions]
-            for row in generation_seeds:
-                walk(row, 'generation_short', generation, config.generation_steps, cycle)
-                if budget_surface and budget_surface.blocked:
-                    return finish()
+            active = None
             if incomplete:
                 break
 
@@ -713,15 +849,24 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
             if saved is not None:
                 return finish(saved, 'checkpoint_boundary')
 
-        selected_regions = regions('fine_partition', config.generations)
-        try:
-            ranked = rank_regions(archive, selected_regions)[:config.fine_regions]
-        except Exception as error:
-            fail('fine_partition', config.generations, None, f'{type(error).__name__}: {error}', 0)
-            return finish()
-        fine_seeds = [archive[min(region.indices, key=lambda i: archive[i]['energy'])].copy() for region in ranked]
-        for row in fine_seeds:
-            walk(row, 'fine', config.generations, config.fine_steps, cycle)
+        if active is not None and active.phase == 'fine':
+            fine_queue = active.queue
+        else:
+            selected_regions = regions('fine_partition', config.generations)
+            try:
+                ranked = rank_regions(archive, selected_regions)[:config.fine_regions]
+            except Exception as error:
+                fail('fine_partition', config.generations, None, f'{type(error).__name__}: {error}', 0)
+                return finish()
+            fine_seeds = [archive[min(region.indices, key=lambda i: archive[i]['energy'])].copy() for region in ranked]
+            fine_queue = tuple({'row': row} for row in fine_seeds)
+        if fine_queue:
+            paused = run_walk_queue('fine', cycle, config.generations,
+                config.fine_steps, fine_queue,
+                cursor=active.cursor if active is not None and active.phase == 'fine' else 0,
+                nested_checkpoint=active.ssw_checkpoint if active is not None and active.phase == 'fine' else None)
+            if isinstance(paused, GACheckpoint):
+                return finish(paused, 'checkpoint_boundary')
             if budget_surface and budget_surface.blocked:
                 return finish()
         saved = boundary('cycle_complete', cycle + 1, 0)
@@ -734,12 +879,16 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
     if checkpoint is not None:
         if resume_phase == 'generation_complete':
             start_generation = resume_generation
+        elif resume_phase == 'active_walk':
+            start_generation = (config.generations if resume_active.phase == 'fine' else
+                                0 if resume_active.phase == 'quick' else resume_generation)
         elif resume_phase == 'cycle_complete':
             start_cycle = resume_cycle
         elif resume_phase != 'quick_complete':
             raise ValueError('checkpoint is not a resumable completed boundary')
     for cycle in range(start_cycle, config.cycles):
-        cycle_result = run_cycle(cycle, start_generation if cycle == start_cycle else 0)
+        cycle_result = run_cycle(cycle, start_generation if cycle == start_cycle else 0,
+                                 resume_active if cycle == start_cycle else None)
         if cycle_result is not None:
             return cycle_result
     return finish()
