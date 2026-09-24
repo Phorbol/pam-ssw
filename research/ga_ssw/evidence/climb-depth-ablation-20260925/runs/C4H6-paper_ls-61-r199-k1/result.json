@@ -1,0 +1,139 @@
+{
+  "case_id": "C4H6-paper_ls-61-r199-k1",
+  "status": "completed",
+  "fresh": [
+    {
+      "label": "truncated",
+      "status": "completed",
+      "energy": -4243.9212078926375,
+      "fmax": 0.01352162344623453,
+      "force_qualified": true
+    },
+    {
+      "label": "full",
+      "status": "completed",
+      "energy": -4243.837488040548,
+      "fmax": 0.02569036141923056,
+      "force_qualified": true
+    }
+  ],
+  "quench": {
+    "atoms": {
+      "numbers": [
+        6,
+        6,
+        6,
+        6,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "positions": [
+        [
+          0.1931870400552734,
+          -0.5768772326583059,
+          -0.4029172101264079
+        ],
+        [
+          0.006325397025468139,
+          0.6524063712999657,
+          1.7131126782163417
+        ],
+        [
+          -0.019198455120965848,
+          -0.6583286015700276,
+          -1.7108387282982165
+        ],
+        [
+          -0.17478016266486027,
+          0.5859647292215991,
+          0.39962810396162646
+        ],
+        [
+          -0.4915029666996202,
+          0.15630697305982794,
+          -2.2475735466556728
+        ],
+        [
+          0.664789777532956,
+          -1.3994837518913705,
+          0.12627566037035876
+        ],
+        [
+          -0.6154719328223863,
+          1.4226433295498544,
+          -0.13438619446743333
+        ],
+        [
+          0.4403496939615788,
+          -0.17995517621379647,
+          2.2546714228296083
+        ],
+        [
+          -0.2692970446152076,
+          1.528245134387611,
+          2.284185502914268
+        ],
+        [
+          0.26559865335094,
+          -1.5309217751851762,
+          -2.282157688743069
+        ]
+      ],
+      "cell": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "pbc": [
+        false,
+        false,
+        false
+      ]
+    },
+    "energy": -4243.9212078926375,
+    "max_force": 0.01352162344623453,
+    "converged": true,
+    "optimizer_steps": 20,
+    "evaluation_requests": 21,
+    "surface": "true",
+    "optimizer_telemetry": {
+      "backend": "safe-lbfgs-total",
+      "evaluator_calls": 21,
+      "backend_evaluations": 21,
+      "reporting_cache_hits": 1,
+      "reporting_evaluator_calls": 0,
+      "finalization_requests": 1,
+      "explicit_finalization_calls": 0,
+      "gradient_measure": "raw_active_max_force",
+      "converged": true,
+      "termination_reason": "converged",
+      "optimizer_success": true,
+      "accepted_steps": 20,
+      "rejected_steps": 0,
+      "accepted_secants": 20,
+      "rejected_secants": 0,
+      "line_search_evaluations": 20,
+      "mic_branch_resets": 0,
+      "bias_secant_curvature_sum": 0.0
+    }
+  },
+  "search_requests": 21,
+  "fresh_requests": 2,
+  "boundary": null
+}

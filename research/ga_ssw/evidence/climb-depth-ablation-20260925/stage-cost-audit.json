@@ -1,0 +1,3171 @@
+{
+  "scope": "Same frozen selected paths only; stages are correlated, no new PES",
+  "summary": {
+    "C4H6": {
+      "stages": 300,
+      "status": [
+        "converged"
+      ],
+      "accepted_steps": {
+        "median": 10.0,
+        "max": 79
+      },
+      "quench_requests": {
+        "median": 11.0,
+        "max": 83
+      },
+      "all_stage_requests": 7468,
+      "quench_requests_total": 4661
+    },
+    "C60": {
+      "stages": 48,
+      "status": [
+        "converged"
+      ],
+      "accepted_steps": {
+        "median": 47.5,
+        "max": 186
+      },
+      "quench_requests": {
+        "median": 49.0,
+        "max": 188
+      },
+      "all_stage_requests": 3211,
+      "quench_requests_total": 2698
+    }
+  },
+  "rows": [
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 0,
+      "accepted_steps": 17,
+      "quench_requests": 20,
+      "requests": 30,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 1,
+      "accepted_steps": 16,
+      "quench_requests": 18,
+      "requests": 29,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 2,
+      "accepted_steps": 17,
+      "quench_requests": 19,
+      "requests": 30,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 3,
+      "accepted_steps": 33,
+      "quench_requests": 36,
+      "requests": 46,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 4,
+      "accepted_steps": 13,
+      "quench_requests": 14,
+      "requests": 24,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 5,
+      "accepted_steps": 33,
+      "quench_requests": 35,
+      "requests": 45,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 6,
+      "accepted_steps": 8,
+      "quench_requests": 9,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 7,
+      "accepted_steps": 8,
+      "quench_requests": 10,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 8,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 9,
+      "accepted_steps": 15,
+      "quench_requests": 18,
+      "requests": 28,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 10,
+      "accepted_steps": 5,
+      "quench_requests": 7,
+      "requests": 17,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 11,
+      "accepted_steps": 58,
+      "quench_requests": 62,
+      "requests": 72,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 12,
+      "accepted_steps": 12,
+      "quench_requests": 14,
+      "requests": 24,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 13,
+      "accepted_steps": 14,
+      "quench_requests": 15,
+      "requests": 25,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 14,
+      "accepted_steps": 13,
+      "quench_requests": 14,
+      "requests": 24,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 15,
+      "accepted_steps": 13,
+      "quench_requests": 14,
+      "requests": 24,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 16,
+      "accepted_steps": 13,
+      "quench_requests": 14,
+      "requests": 24,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 17,
+      "accepted_steps": 56,
+      "quench_requests": 59,
+      "requests": 69,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 18,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 19,
+      "accepted_steps": 14,
+      "quench_requests": 16,
+      "requests": 26,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 20,
+      "accepted_steps": 5,
+      "quench_requests": 7,
+      "requests": 17,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 21,
+      "accepted_steps": 16,
+      "quench_requests": 17,
+      "requests": 27,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 22,
+      "accepted_steps": 11,
+      "quench_requests": 12,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 23,
+      "accepted_steps": 25,
+      "quench_requests": 29,
+      "requests": 39,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 0,
+      "stage": 24,
+      "accepted_steps": 13,
+      "quench_requests": 16,
+      "requests": 26,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 0,
+      "accepted_steps": 10,
+      "quench_requests": 12,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 1,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 2,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 3,
+      "accepted_steps": 13,
+      "quench_requests": 14,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 4,
+      "accepted_steps": 8,
+      "quench_requests": 9,
+      "requests": 17,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 5,
+      "accepted_steps": 13,
+      "quench_requests": 14,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 6,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 17,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 7,
+      "accepted_steps": 14,
+      "quench_requests": 15,
+      "requests": 23,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 8,
+      "accepted_steps": 34,
+      "quench_requests": 36,
+      "requests": 44,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 9,
+      "accepted_steps": 8,
+      "quench_requests": 9,
+      "requests": 18,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 10,
+      "accepted_steps": 13,
+      "quench_requests": 17,
+      "requests": 26,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 11,
+      "accepted_steps": 14,
+      "quench_requests": 15,
+      "requests": 24,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 12,
+      "accepted_steps": 8,
+      "quench_requests": 9,
+      "requests": 18,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 13,
+      "accepted_steps": 16,
+      "quench_requests": 17,
+      "requests": 26,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 14,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 15,
+      "accepted_steps": 19,
+      "quench_requests": 21,
+      "requests": 31,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 16,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 17,
+      "accepted_steps": 6,
+      "quench_requests": 8,
+      "requests": 18,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 18,
+      "accepted_steps": 34,
+      "quench_requests": 36,
+      "requests": 46,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 19,
+      "accepted_steps": 15,
+      "quench_requests": 17,
+      "requests": 26,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 20,
+      "accepted_steps": 19,
+      "quench_requests": 20,
+      "requests": 30,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 21,
+      "accepted_steps": 5,
+      "quench_requests": 7,
+      "requests": 17,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 22,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 23,
+      "accepted_steps": 4,
+      "quench_requests": 5,
+      "requests": 14,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 199,
+      "stage": 24,
+      "accepted_steps": 10,
+      "quench_requests": 13,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 0,
+      "accepted_steps": 8,
+      "quench_requests": 10,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 1,
+      "accepted_steps": 12,
+      "quench_requests": 13,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 2,
+      "accepted_steps": 15,
+      "quench_requests": 18,
+      "requests": 27,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 3,
+      "accepted_steps": 13,
+      "quench_requests": 15,
+      "requests": 24,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 4,
+      "accepted_steps": 12,
+      "quench_requests": 13,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 5,
+      "accepted_steps": 12,
+      "quench_requests": 14,
+      "requests": 23,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 6,
+      "accepted_steps": 34,
+      "quench_requests": 38,
+      "requests": 47,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 7,
+      "accepted_steps": 17,
+      "quench_requests": 19,
+      "requests": 29,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 8,
+      "accepted_steps": 22,
+      "quench_requests": 23,
+      "requests": 33,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 9,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 10,
+      "accepted_steps": 11,
+      "quench_requests": 12,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 11,
+      "accepted_steps": 15,
+      "quench_requests": 16,
+      "requests": 26,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 12,
+      "accepted_steps": 4,
+      "quench_requests": 5,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 13,
+      "accepted_steps": 30,
+      "quench_requests": 33,
+      "requests": 43,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 14,
+      "accepted_steps": 20,
+      "quench_requests": 21,
+      "requests": 31,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 15,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 16,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 16,
+      "accepted_steps": 9,
+      "quench_requests": 12,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 17,
+      "accepted_steps": 10,
+      "quench_requests": 12,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 18,
+      "accepted_steps": 4,
+      "quench_requests": 5,
+      "requests": 14,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 19,
+      "accepted_steps": 37,
+      "quench_requests": 38,
+      "requests": 48,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 20,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 21,
+      "accepted_steps": 11,
+      "quench_requests": 12,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 22,
+      "accepted_steps": 5,
+      "quench_requests": 7,
+      "requests": 17,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 23,
+      "accepted_steps": 14,
+      "quench_requests": 17,
+      "requests": 27,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "record": 399,
+      "stage": 24,
+      "accepted_steps": 5,
+      "quench_requests": 7,
+      "requests": 17,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 0,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 1,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 2,
+      "accepted_steps": 19,
+      "quench_requests": 22,
+      "requests": 31,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 3,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 4,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 5,
+      "accepted_steps": 10,
+      "quench_requests": 12,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 6,
+      "accepted_steps": 10,
+      "quench_requests": 12,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 7,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 8,
+      "accepted_steps": 4,
+      "quench_requests": 6,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 9,
+      "accepted_steps": 10,
+      "quench_requests": 12,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 10,
+      "accepted_steps": 4,
+      "quench_requests": 6,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 11,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 12,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 13,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 14,
+      "accepted_steps": 50,
+      "quench_requests": 51,
+      "requests": 60,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 15,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 16,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 17,
+      "accepted_steps": 5,
+      "quench_requests": 7,
+      "requests": 17,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 18,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 19,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 20,
+      "accepted_steps": 6,
+      "quench_requests": 7,
+      "requests": 16,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 21,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 22,
+      "accepted_steps": 4,
+      "quench_requests": 5,
+      "requests": 14,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 23,
+      "accepted_steps": 7,
+      "quench_requests": 8,
+      "requests": 17,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 0,
+      "stage": 24,
+      "accepted_steps": 8,
+      "quench_requests": 9,
+      "requests": 18,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 0,
+      "accepted_steps": 8,
+      "quench_requests": 10,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 1,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 2,
+      "accepted_steps": 21,
+      "quench_requests": 22,
+      "requests": 31,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 3,
+      "accepted_steps": 8,
+      "quench_requests": 9,
+      "requests": 18,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 4,
+      "accepted_steps": 53,
+      "quench_requests": 55,
+      "requests": 64,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 5,
+      "accepted_steps": 7,
+      "quench_requests": 8,
+      "requests": 17,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 6,
+      "accepted_steps": 14,
+      "quench_requests": 15,
+      "requests": 24,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 7,
+      "accepted_steps": 14,
+      "quench_requests": 15,
+      "requests": 24,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 8,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 9,
+      "accepted_steps": 4,
+      "quench_requests": 5,
+      "requests": 14,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 10,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 11,
+      "accepted_steps": 36,
+      "quench_requests": 38,
+      "requests": 47,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 12,
+      "accepted_steps": 12,
+      "quench_requests": 13,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 13,
+      "accepted_steps": 4,
+      "quench_requests": 5,
+      "requests": 14,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 14,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 15,
+      "accepted_steps": 5,
+      "quench_requests": 7,
+      "requests": 16,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 16,
+      "accepted_steps": 11,
+      "quench_requests": 12,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 17,
+      "accepted_steps": 4,
+      "quench_requests": 6,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 18,
+      "accepted_steps": 11,
+      "quench_requests": 13,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 19,
+      "accepted_steps": 4,
+      "quench_requests": 6,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 20,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 21,
+      "accepted_steps": 4,
+      "quench_requests": 6,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 22,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 23,
+      "accepted_steps": 4,
+      "quench_requests": 6,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 199,
+      "stage": 24,
+      "accepted_steps": 78,
+      "quench_requests": 80,
+      "requests": 89,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 0,
+      "accepted_steps": 12,
+      "quench_requests": 14,
+      "requests": 23,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 1,
+      "accepted_steps": 13,
+      "quench_requests": 16,
+      "requests": 25,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 2,
+      "accepted_steps": 19,
+      "quench_requests": 21,
+      "requests": 30,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 3,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 4,
+      "accepted_steps": 12,
+      "quench_requests": 13,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 5,
+      "accepted_steps": 49,
+      "quench_requests": 50,
+      "requests": 59,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 6,
+      "accepted_steps": 8,
+      "quench_requests": 9,
+      "requests": 18,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 7,
+      "accepted_steps": 14,
+      "quench_requests": 16,
+      "requests": 25,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 8,
+      "accepted_steps": 8,
+      "quench_requests": 9,
+      "requests": 18,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 9,
+      "accepted_steps": 18,
+      "quench_requests": 19,
+      "requests": 28,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 10,
+      "accepted_steps": 7,
+      "quench_requests": 9,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 11,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 16,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 12,
+      "accepted_steps": 6,
+      "quench_requests": 8,
+      "requests": 18,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 13,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 14,
+      "accepted_steps": 2,
+      "quench_requests": 3,
+      "requests": 13,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 15,
+      "accepted_steps": 4,
+      "quench_requests": 6,
+      "requests": 16,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 16,
+      "accepted_steps": 11,
+      "quench_requests": 13,
+      "requests": 23,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 17,
+      "accepted_steps": 2,
+      "quench_requests": 3,
+      "requests": 13,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 18,
+      "accepted_steps": 1,
+      "quench_requests": 2,
+      "requests": 12,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 19,
+      "accepted_steps": 5,
+      "quench_requests": 7,
+      "requests": 17,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 20,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 21,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 22,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 25,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 23,
+      "accepted_steps": 31,
+      "quench_requests": 32,
+      "requests": 46,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "record": 399,
+      "stage": 24,
+      "accepted_steps": 8,
+      "quench_requests": 9,
+      "requests": 18,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 0,
+      "accepted_steps": 18,
+      "quench_requests": 20,
+      "requests": 30,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 1,
+      "accepted_steps": 17,
+      "quench_requests": 20,
+      "requests": 31,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 2,
+      "accepted_steps": 17,
+      "quench_requests": 19,
+      "requests": 30,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 3,
+      "accepted_steps": 32,
+      "quench_requests": 37,
+      "requests": 47,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 4,
+      "accepted_steps": 12,
+      "quench_requests": 14,
+      "requests": 24,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 5,
+      "accepted_steps": 32,
+      "quench_requests": 34,
+      "requests": 44,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 6,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 7,
+      "accepted_steps": 10,
+      "quench_requests": 12,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 8,
+      "accepted_steps": 8,
+      "quench_requests": 9,
+      "requests": 18,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 9,
+      "accepted_steps": 17,
+      "quench_requests": 19,
+      "requests": 29,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 10,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 11,
+      "accepted_steps": 60,
+      "quench_requests": 63,
+      "requests": 73,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 12,
+      "accepted_steps": 11,
+      "quench_requests": 14,
+      "requests": 24,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 13,
+      "accepted_steps": 12,
+      "quench_requests": 13,
+      "requests": 23,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 14,
+      "accepted_steps": 12,
+      "quench_requests": 14,
+      "requests": 24,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 15,
+      "accepted_steps": 11,
+      "quench_requests": 12,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 16,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 17,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 18,
+      "accepted_steps": 53,
+      "quench_requests": 55,
+      "requests": 65,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 19,
+      "accepted_steps": 18,
+      "quench_requests": 20,
+      "requests": 30,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 20,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 21,
+      "accepted_steps": 13,
+      "quench_requests": 15,
+      "requests": 25,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 22,
+      "accepted_steps": 5,
+      "quench_requests": 7,
+      "requests": 17,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 23,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 16,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 0,
+      "stage": 24,
+      "accepted_steps": 10,
+      "quench_requests": 12,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 0,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 1,
+      "accepted_steps": 11,
+      "quench_requests": 13,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 2,
+      "accepted_steps": 12,
+      "quench_requests": 13,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 3,
+      "accepted_steps": 4,
+      "quench_requests": 5,
+      "requests": 14,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 4,
+      "accepted_steps": 14,
+      "quench_requests": 16,
+      "requests": 25,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 5,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 6,
+      "accepted_steps": 47,
+      "quench_requests": 50,
+      "requests": 59,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 7,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 8,
+      "accepted_steps": 11,
+      "quench_requests": 12,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 9,
+      "accepted_steps": 11,
+      "quench_requests": 12,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 10,
+      "accepted_steps": 12,
+      "quench_requests": 13,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 11,
+      "accepted_steps": 4,
+      "quench_requests": 5,
+      "requests": 14,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 12,
+      "accepted_steps": 73,
+      "quench_requests": 77,
+      "requests": 86,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 13,
+      "accepted_steps": 13,
+      "quench_requests": 14,
+      "requests": 23,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 14,
+      "accepted_steps": 13,
+      "quench_requests": 15,
+      "requests": 24,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 15,
+      "accepted_steps": 17,
+      "quench_requests": 18,
+      "requests": 27,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 16,
+      "accepted_steps": 21,
+      "quench_requests": 22,
+      "requests": 31,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 17,
+      "accepted_steps": 6,
+      "quench_requests": 7,
+      "requests": 16,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 18,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 19,
+      "accepted_steps": 15,
+      "quench_requests": 18,
+      "requests": 27,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 20,
+      "accepted_steps": 4,
+      "quench_requests": 5,
+      "requests": 14,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 21,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 22,
+      "accepted_steps": 8,
+      "quench_requests": 9,
+      "requests": 18,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 23,
+      "accepted_steps": 15,
+      "quench_requests": 18,
+      "requests": 27,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 199,
+      "stage": 24,
+      "accepted_steps": 5,
+      "quench_requests": 7,
+      "requests": 16,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 0,
+      "accepted_steps": 15,
+      "quench_requests": 16,
+      "requests": 26,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 1,
+      "accepted_steps": 14,
+      "quench_requests": 15,
+      "requests": 25,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 2,
+      "accepted_steps": 14,
+      "quench_requests": 15,
+      "requests": 25,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 3,
+      "accepted_steps": 14,
+      "quench_requests": 15,
+      "requests": 25,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 4,
+      "accepted_steps": 10,
+      "quench_requests": 12,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 5,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 6,
+      "accepted_steps": 29,
+      "quench_requests": 32,
+      "requests": 42,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 7,
+      "accepted_steps": 16,
+      "quench_requests": 17,
+      "requests": 27,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 8,
+      "accepted_steps": 20,
+      "quench_requests": 21,
+      "requests": 31,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 9,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 10,
+      "accepted_steps": 21,
+      "quench_requests": 22,
+      "requests": 32,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 11,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 12,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 16,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 13,
+      "accepted_steps": 10,
+      "quench_requests": 12,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 14,
+      "accepted_steps": 4,
+      "quench_requests": 5,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 15,
+      "accepted_steps": 16,
+      "quench_requests": 19,
+      "requests": 29,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 16,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 17,
+      "accepted_steps": 4,
+      "quench_requests": 5,
+      "requests": 14,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 18,
+      "accepted_steps": 10,
+      "quench_requests": 12,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 19,
+      "accepted_steps": 4,
+      "quench_requests": 6,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 20,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 21,
+      "accepted_steps": 75,
+      "quench_requests": 78,
+      "requests": 87,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 22,
+      "accepted_steps": 10,
+      "quench_requests": 12,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 23,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "record": 399,
+      "stage": 24,
+      "accepted_steps": 48,
+      "quench_requests": 52,
+      "requests": 61,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 0,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 1,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 2,
+      "accepted_steps": 17,
+      "quench_requests": 19,
+      "requests": 28,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 3,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 4,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 5,
+      "accepted_steps": 11,
+      "quench_requests": 12,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 6,
+      "accepted_steps": 79,
+      "quench_requests": 83,
+      "requests": 92,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 7,
+      "accepted_steps": 8,
+      "quench_requests": 10,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 8,
+      "accepted_steps": 31,
+      "quench_requests": 34,
+      "requests": 43,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 9,
+      "accepted_steps": 8,
+      "quench_requests": 10,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 10,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 11,
+      "accepted_steps": 19,
+      "quench_requests": 21,
+      "requests": 29,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 12,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 13,
+      "accepted_steps": 39,
+      "quench_requests": 41,
+      "requests": 50,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 14,
+      "accepted_steps": 8,
+      "quench_requests": 10,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 15,
+      "accepted_steps": 13,
+      "quench_requests": 15,
+      "requests": 24,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 16,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 17,
+      "accepted_steps": 10,
+      "quench_requests": 12,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 18,
+      "accepted_steps": 29,
+      "quench_requests": 31,
+      "requests": 40,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 19,
+      "accepted_steps": 24,
+      "quench_requests": 27,
+      "requests": 36,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 20,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 21,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 22,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 23,
+      "accepted_steps": 8,
+      "quench_requests": 10,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 0,
+      "stage": 24,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 0,
+      "accepted_steps": 12,
+      "quench_requests": 14,
+      "requests": 24,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 1,
+      "accepted_steps": 11,
+      "quench_requests": 12,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 2,
+      "accepted_steps": 29,
+      "quench_requests": 33,
+      "requests": 43,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 3,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 4,
+      "accepted_steps": 39,
+      "quench_requests": 40,
+      "requests": 50,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 5,
+      "accepted_steps": 8,
+      "quench_requests": 9,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 6,
+      "accepted_steps": 14,
+      "quench_requests": 16,
+      "requests": 26,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 7,
+      "accepted_steps": 8,
+      "quench_requests": 10,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 8,
+      "accepted_steps": 16,
+      "quench_requests": 17,
+      "requests": 27,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 9,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 10,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 11,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 16,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 12,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 13,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 16,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 14,
+      "accepted_steps": 10,
+      "quench_requests": 12,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 15,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 16,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 16,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 17,
+      "accepted_steps": 35,
+      "quench_requests": 36,
+      "requests": 46,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 18,
+      "accepted_steps": 6,
+      "quench_requests": 7,
+      "requests": 16,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 19,
+      "accepted_steps": 11,
+      "quench_requests": 12,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 20,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 21,
+      "accepted_steps": 11,
+      "quench_requests": 13,
+      "requests": 22,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 22,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 23,
+      "accepted_steps": 11,
+      "quench_requests": 12,
+      "requests": 21,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 199,
+      "stage": 24,
+      "accepted_steps": 4,
+      "quench_requests": 5,
+      "requests": 14,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 0,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 18,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 1,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 2,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 3,
+      "accepted_steps": 25,
+      "quench_requests": 26,
+      "requests": 34,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 4,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 18,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 5,
+      "accepted_steps": 47,
+      "quench_requests": 50,
+      "requests": 58,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 6,
+      "accepted_steps": 8,
+      "quench_requests": 10,
+      "requests": 18,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 7,
+      "accepted_steps": 7,
+      "quench_requests": 9,
+      "requests": 17,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 8,
+      "accepted_steps": 7,
+      "quench_requests": 8,
+      "requests": 16,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 9,
+      "accepted_steps": 18,
+      "quench_requests": 21,
+      "requests": 29,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 10,
+      "accepted_steps": 7,
+      "quench_requests": 9,
+      "requests": 17,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 11,
+      "accepted_steps": 6,
+      "quench_requests": 7,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 12,
+      "accepted_steps": 6,
+      "quench_requests": 7,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 13,
+      "accepted_steps": 8,
+      "quench_requests": 9,
+      "requests": 17,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 14,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 14,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 15,
+      "accepted_steps": 10,
+      "quench_requests": 11,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 16,
+      "accepted_steps": 4,
+      "quench_requests": 5,
+      "requests": 13,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 17,
+      "accepted_steps": 9,
+      "quench_requests": 10,
+      "requests": 18,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 18,
+      "accepted_steps": 4,
+      "quench_requests": 5,
+      "requests": 13,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 19,
+      "accepted_steps": 9,
+      "quench_requests": 11,
+      "requests": 19,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 20,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 14,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 21,
+      "accepted_steps": 10,
+      "quench_requests": 12,
+      "requests": 20,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 22,
+      "accepted_steps": 71,
+      "quench_requests": 74,
+      "requests": 82,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 23,
+      "accepted_steps": 5,
+      "quench_requests": 6,
+      "requests": 15,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "record": 399,
+      "stage": 24,
+      "accepted_steps": 6,
+      "quench_requests": 7,
+      "requests": 16,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 5,
+      "stage": 0,
+      "accepted_steps": 45,
+      "quench_requests": 46,
+      "requests": 57,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 5,
+      "stage": 1,
+      "accepted_steps": 78,
+      "quench_requests": 80,
+      "requests": 91,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 5,
+      "stage": 2,
+      "accepted_steps": 55,
+      "quench_requests": 58,
+      "requests": 69,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 5,
+      "stage": 3,
+      "accepted_steps": 66,
+      "quench_requests": 70,
+      "requests": 81,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 5,
+      "stage": 4,
+      "accepted_steps": 39,
+      "quench_requests": 43,
+      "requests": 54,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 5,
+      "stage": 5,
+      "accepted_steps": 52,
+      "quench_requests": 53,
+      "requests": 64,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 5,
+      "stage": 6,
+      "accepted_steps": 37,
+      "quench_requests": 42,
+      "requests": 52,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 5,
+      "stage": 7,
+      "accepted_steps": 45,
+      "quench_requests": 46,
+      "requests": 57,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 5,
+      "stage": 8,
+      "accepted_steps": 36,
+      "quench_requests": 37,
+      "requests": 47,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 5,
+      "stage": 9,
+      "accepted_steps": 41,
+      "quench_requests": 42,
+      "requests": 52,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 5,
+      "stage": 10,
+      "accepted_steps": 92,
+      "quench_requests": 94,
+      "requests": 104,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 5,
+      "stage": 11,
+      "accepted_steps": 50,
+      "quench_requests": 53,
+      "requests": 63,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 69,
+      "stage": 0,
+      "accepted_steps": 12,
+      "quench_requests": 14,
+      "requests": 24,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 69,
+      "stage": 1,
+      "accepted_steps": 16,
+      "quench_requests": 17,
+      "requests": 27,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 69,
+      "stage": 2,
+      "accepted_steps": 16,
+      "quench_requests": 17,
+      "requests": 27,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 69,
+      "stage": 3,
+      "accepted_steps": 41,
+      "quench_requests": 42,
+      "requests": 52,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 69,
+      "stage": 4,
+      "accepted_steps": 22,
+      "quench_requests": 23,
+      "requests": 33,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 69,
+      "stage": 5,
+      "accepted_steps": 37,
+      "quench_requests": 38,
+      "requests": 48,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 69,
+      "stage": 6,
+      "accepted_steps": 66,
+      "quench_requests": 67,
+      "requests": 77,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 69,
+      "stage": 7,
+      "accepted_steps": 27,
+      "quench_requests": 29,
+      "requests": 40,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 69,
+      "stage": 8,
+      "accepted_steps": 47,
+      "quench_requests": 49,
+      "requests": 60,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 69,
+      "stage": 9,
+      "accepted_steps": 31,
+      "quench_requests": 33,
+      "requests": 44,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 69,
+      "stage": 10,
+      "accepted_steps": 49,
+      "quench_requests": 50,
+      "requests": 61,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/result.json",
+      "record": 69,
+      "stage": 11,
+      "accepted_steps": 62,
+      "quench_requests": 64,
+      "requests": 75,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 0,
+      "stage": 0,
+      "accepted_steps": 56,
+      "quench_requests": 59,
+      "requests": 72,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 0,
+      "stage": 1,
+      "accepted_steps": 86,
+      "quench_requests": 88,
+      "requests": 101,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 0,
+      "stage": 2,
+      "accepted_steps": 109,
+      "quench_requests": 111,
+      "requests": 123,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 0,
+      "stage": 3,
+      "accepted_steps": 42,
+      "quench_requests": 44,
+      "requests": 56,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 0,
+      "stage": 4,
+      "accepted_steps": 83,
+      "quench_requests": 84,
+      "requests": 96,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 0,
+      "stage": 5,
+      "accepted_steps": 44,
+      "quench_requests": 46,
+      "requests": 58,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 0,
+      "stage": 6,
+      "accepted_steps": 186,
+      "quench_requests": 188,
+      "requests": 199,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 0,
+      "stage": 7,
+      "accepted_steps": 108,
+      "quench_requests": 109,
+      "requests": 120,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 0,
+      "stage": 8,
+      "accepted_steps": 102,
+      "quench_requests": 103,
+      "requests": 114,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 0,
+      "stage": 9,
+      "accepted_steps": 74,
+      "quench_requests": 76,
+      "requests": 87,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 0,
+      "stage": 10,
+      "accepted_steps": 78,
+      "quench_requests": 81,
+      "requests": 92,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 0,
+      "stage": 11,
+      "accepted_steps": 76,
+      "quench_requests": 77,
+      "requests": 88,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 82,
+      "stage": 0,
+      "accepted_steps": 13,
+      "quench_requests": 15,
+      "requests": 25,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 82,
+      "stage": 1,
+      "accepted_steps": 13,
+      "quench_requests": 14,
+      "requests": 24,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 82,
+      "stage": 2,
+      "accepted_steps": 45,
+      "quench_requests": 46,
+      "requests": 56,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 82,
+      "stage": 3,
+      "accepted_steps": 17,
+      "quench_requests": 19,
+      "requests": 29,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 82,
+      "stage": 4,
+      "accepted_steps": 14,
+      "quench_requests": 15,
+      "requests": 25,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 82,
+      "stage": 5,
+      "accepted_steps": 74,
+      "quench_requests": 81,
+      "requests": 91,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 82,
+      "stage": 6,
+      "accepted_steps": 67,
+      "quench_requests": 70,
+      "requests": 80,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 82,
+      "stage": 7,
+      "accepted_steps": 47,
+      "quench_requests": 48,
+      "requests": 58,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 82,
+      "stage": 8,
+      "accepted_steps": 67,
+      "quench_requests": 69,
+      "requests": 80,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 82,
+      "stage": 9,
+      "accepted_steps": 42,
+      "quench_requests": 43,
+      "requests": 53,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 82,
+      "stage": 10,
+      "accepted_steps": 48,
+      "quench_requests": 49,
+      "requests": 59,
+      "status": "converged"
+    },
+    {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/result.json",
+      "record": 82,
+      "stage": 11,
+      "accepted_steps": 53,
+      "quench_requests": 56,
+      "requests": 66,
+      "status": "converged"
+    }
+  ]
+}

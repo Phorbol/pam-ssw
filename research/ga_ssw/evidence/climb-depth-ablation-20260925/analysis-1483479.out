@@ -1,0 +1,460 @@
+{
+  "rows_expected": 32,
+  "rows_with_result": 32,
+  "rows_missing": 0,
+  "observed_charged_requests": 1416,
+  "all_ledger_totals_known": true,
+  "total_cap": 32064,
+  "cap_respected_by_observed_calls": true,
+  "by_system": {
+    "C4H6": {
+      "rows": 24,
+      "missing_runs": 0,
+      "fresh_qualified_truncated": 24,
+      "fresh_qualified_full": 24,
+      "ledger_mismatches": 0,
+      "ledger_issues": 0,
+      "quench_converged": 24,
+      "quench_not_converged": 0,
+      "quench_missing": 0
+    },
+    "C60": {
+      "rows": 8,
+      "missing_runs": 0,
+      "fresh_qualified_truncated": 8,
+      "fresh_qualified_full": 8,
+      "ledger_mismatches": 0,
+      "ledger_issues": 0,
+      "quench_converged": 8,
+      "quench_not_converged": 0,
+      "quench_missing": 0
+    }
+  },
+  "by_system_depth": [
+    {
+      "system": "C4H6",
+      "depth": 1,
+      "rows": 12,
+      "cost_delta_vs_full_requests": {
+        "n": 12,
+        "median": -609.0,
+        "min": -728.0,
+        "max": -509.0
+      },
+      "fresh_energy_difference_truncated_minus_full_eV": {
+        "n": 12,
+        "median": -0.08380980475612887,
+        "min": -0.40400894950107613,
+        "max": 0.0004896056680081529
+      },
+      "quench_convergence": {
+        "converged": 12,
+        "not_converged": 0,
+        "missing_quench_or_flag": 0,
+        "denominator": 12
+      }
+    },
+    {
+      "system": "C4H6",
+      "depth": 12,
+      "rows": 12,
+      "cost_delta_vs_full_requests": {
+        "n": 12,
+        "median": -315.5,
+        "min": -381.0,
+        "max": -243.0
+      },
+      "fresh_energy_difference_truncated_minus_full_eV": {
+        "n": 12,
+        "median": -0.04491738623391939,
+        "min": -0.3201530408077815,
+        "max": 0.08389274085402576
+      },
+      "quench_convergence": {
+        "converged": 12,
+        "not_converged": 0,
+        "missing_quench_or_flag": 0,
+        "denominator": 12
+      }
+    },
+    {
+      "system": "C60",
+      "depth": 1,
+      "rows": 4,
+      "cost_delta_vs_full_requests": {
+        "n": 4,
+        "median": -682.5,
+        "min": -1368.0,
+        "max": -610.0
+      },
+      "fresh_energy_difference_truncated_minus_full_eV": {
+        "n": 4,
+        "median": -10.041300138807856,
+        "min": -20.74705980564613,
+        "max": 0.7761571050505154
+      },
+      "quench_convergence": {
+        "converged": 4,
+        "not_converged": 0,
+        "missing_quench_or_flag": 0,
+        "denominator": 4
+      }
+    },
+    {
+      "system": "C60",
+      "depth": 6,
+      "rows": 4,
+      "cost_delta_vs_full_requests": {
+        "n": 4,
+        "median": -406.0,
+        "min": -826.0,
+        "max": -361.0
+      },
+      "fresh_energy_difference_truncated_minus_full_eV": {
+        "n": 4,
+        "median": -4.548864244883589,
+        "min": -20.74708178320725,
+        "max": 1.3022838521719677
+      },
+      "quench_convergence": {
+        "converged": 4,
+        "not_converged": 0,
+        "missing_quench_or_flag": 0,
+        "denominator": 4
+      }
+    }
+  ],
+  "structural_pairs": [
+    {
+      "system": "C4H6",
+      "depth": 1,
+      "comparison": "truncated_vs_start",
+      "source_rows": 12,
+      "geometry_pairs_compared": 12,
+      "fresh_qualified_pairs": 0,
+      "scope": "archived geometry diagnostic; not force-qualified at both endpoints",
+      "graph_same": 12,
+      "graph_different": 0,
+      "graph_unassessed": 0,
+      "proper_kabsch_rms_A": {
+        "n": 12,
+        "median": 0.023301904118033977,
+        "min": 0.0069130772475960445,
+        "max": 0.07390734680811037
+      },
+      "absolute_circular_torsion_difference_deg": {
+        "n": 12,
+        "median": 2.642702392355787,
+        "min": 0.4170900392785768,
+        "max": 8.662634835762816
+      },
+      "torsion_region_same": 12,
+      "torsion_region_different": 0
+    },
+    {
+      "system": "C4H6",
+      "depth": 1,
+      "comparison": "start_vs_original_full",
+      "source_rows": 12,
+      "geometry_pairs_compared": 12,
+      "fresh_qualified_pairs": 0,
+      "scope": "archived geometry diagnostic; not force-qualified at both endpoints",
+      "graph_same": 10,
+      "graph_different": 2,
+      "graph_unassessed": 0,
+      "proper_kabsch_rms_A": {
+        "n": 10,
+        "median": 1.2680519268761001,
+        "min": 0.008353369830250425,
+        "max": 1.4149749869219141
+      },
+      "absolute_circular_torsion_difference_deg": {
+        "n": 10,
+        "median": 149.49303230835372,
+        "min": 0.2651878827621488,
+        "max": 175.059578648836
+      },
+      "torsion_region_same": 4,
+      "torsion_region_different": 6
+    },
+    {
+      "system": "C4H6",
+      "depth": 1,
+      "comparison": "truncated_vs_original_full",
+      "source_rows": 12,
+      "geometry_pairs_compared": 12,
+      "fresh_qualified_pairs": 12,
+      "scope": "fresh-qualified endpoints",
+      "graph_same": 10,
+      "graph_different": 2,
+      "graph_unassessed": 0,
+      "proper_kabsch_rms_A": {
+        "n": 10,
+        "median": 1.2846074406433903,
+        "min": 0.012762908137092797,
+        "max": 1.407477067511811
+      },
+      "absolute_circular_torsion_difference_deg": {
+        "n": 10,
+        "median": 152.1389122996366,
+        "min": 1.582189579571434,
+        "max": 172.25710109596912
+      },
+      "torsion_region_same": 4,
+      "torsion_region_different": 6
+    },
+    {
+      "system": "C4H6",
+      "depth": 12,
+      "comparison": "truncated_vs_start",
+      "source_rows": 12,
+      "geometry_pairs_compared": 12,
+      "fresh_qualified_pairs": 0,
+      "scope": "archived geometry diagnostic; not force-qualified at both endpoints",
+      "graph_same": 12,
+      "graph_different": 0,
+      "graph_unassessed": 0,
+      "proper_kabsch_rms_A": {
+        "n": 12,
+        "median": 1.2715170508231752,
+        "min": 0.004890176968373806,
+        "max": 1.3171461588146771
+      },
+      "absolute_circular_torsion_difference_deg": {
+        "n": 12,
+        "median": 150.001025811418,
+        "min": 0.49605721689349025,
+        "max": 156.98985069570278
+      },
+      "torsion_region_same": 4,
+      "torsion_region_different": 8
+    },
+    {
+      "system": "C4H6",
+      "depth": 12,
+      "comparison": "start_vs_original_full",
+      "source_rows": 12,
+      "geometry_pairs_compared": 12,
+      "fresh_qualified_pairs": 0,
+      "scope": "archived geometry diagnostic; not force-qualified at both endpoints",
+      "graph_same": 10,
+      "graph_different": 2,
+      "graph_unassessed": 0,
+      "proper_kabsch_rms_A": {
+        "n": 10,
+        "median": 1.2680519268761001,
+        "min": 0.008353369830250425,
+        "max": 1.4149749869219141
+      },
+      "absolute_circular_torsion_difference_deg": {
+        "n": 10,
+        "median": 149.49303230835372,
+        "min": 0.2651878827621488,
+        "max": 175.059578648836
+      },
+      "torsion_region_same": 4,
+      "torsion_region_different": 6
+    },
+    {
+      "system": "C4H6",
+      "depth": 12,
+      "comparison": "truncated_vs_original_full",
+      "source_rows": 12,
+      "geometry_pairs_compared": 12,
+      "fresh_qualified_pairs": 12,
+      "scope": "fresh-qualified endpoints",
+      "graph_same": 10,
+      "graph_different": 2,
+      "graph_unassessed": 0,
+      "proper_kabsch_rms_A": {
+        "n": 10,
+        "median": 0.9462324169400258,
+        "min": 0.028264172014234305,
+        "max": 1.286133706838628
+      },
+      "absolute_circular_torsion_difference_deg": {
+        "n": 10,
+        "median": 110.0940258339287,
+        "min": 3.3732623653692713,
+        "max": 152.73754438808135
+      },
+      "torsion_region_same": 4,
+      "torsion_region_different": 6
+    },
+    {
+      "system": "C60",
+      "depth": 1,
+      "comparison": "truncated_vs_start",
+      "source_rows": 4,
+      "geometry_pairs_compared": 4,
+      "fresh_qualified_pairs": 0,
+      "scope": "archived geometry diagnostic; not force-qualified at both endpoints",
+      "c60_cutoff_graphs": {
+        "1.80A": {
+          "same_graph": 4,
+          "different_graph": 0,
+          "unassessed": 0,
+          "both_connected": 4
+        },
+        "1.64A": {
+          "same_graph": 4,
+          "different_graph": 0,
+          "unassessed": 0,
+          "both_connected": 4
+        }
+      },
+      "proper_kabsch_rms_A": {
+        "n": 4,
+        "median": 0.03846686595234093,
+        "min": 0.0016502568736850146,
+        "max": 0.24341568667084154
+      }
+    },
+    {
+      "system": "C60",
+      "depth": 1,
+      "comparison": "start_vs_original_full",
+      "source_rows": 4,
+      "geometry_pairs_compared": 4,
+      "fresh_qualified_pairs": 0,
+      "scope": "archived geometry diagnostic; not force-qualified at both endpoints",
+      "c60_cutoff_graphs": {
+        "1.80A": {
+          "same_graph": 0,
+          "different_graph": 4,
+          "unassessed": 0,
+          "both_connected": 4
+        },
+        "1.64A": {
+          "same_graph": 0,
+          "different_graph": 4,
+          "unassessed": 0,
+          "both_connected": 4
+        }
+      },
+      "proper_kabsch_rms_A": {
+        "n": 0,
+        "median": null,
+        "min": null,
+        "max": null
+      }
+    },
+    {
+      "system": "C60",
+      "depth": 1,
+      "comparison": "truncated_vs_original_full",
+      "source_rows": 4,
+      "geometry_pairs_compared": 4,
+      "fresh_qualified_pairs": 4,
+      "scope": "fresh-qualified endpoints",
+      "c60_cutoff_graphs": {
+        "1.80A": {
+          "same_graph": 0,
+          "different_graph": 4,
+          "unassessed": 0,
+          "both_connected": 4
+        },
+        "1.64A": {
+          "same_graph": 0,
+          "different_graph": 4,
+          "unassessed": 0,
+          "both_connected": 4
+        }
+      },
+      "proper_kabsch_rms_A": {
+        "n": 0,
+        "median": null,
+        "min": null,
+        "max": null
+      }
+    },
+    {
+      "system": "C60",
+      "depth": 6,
+      "comparison": "truncated_vs_start",
+      "source_rows": 4,
+      "geometry_pairs_compared": 4,
+      "fresh_qualified_pairs": 0,
+      "scope": "archived geometry diagnostic; not force-qualified at both endpoints",
+      "c60_cutoff_graphs": {
+        "1.80A": {
+          "same_graph": 2,
+          "different_graph": 2,
+          "unassessed": 0,
+          "both_connected": 4
+        },
+        "1.64A": {
+          "same_graph": 2,
+          "different_graph": 2,
+          "unassessed": 0,
+          "both_connected": 4
+        }
+      },
+      "proper_kabsch_rms_A": {
+        "n": 2,
+        "median": 0.7061793105841462,
+        "min": 0.003913135664766355,
+        "max": 1.408445485503526
+      }
+    },
+    {
+      "system": "C60",
+      "depth": 6,
+      "comparison": "start_vs_original_full",
+      "source_rows": 4,
+      "geometry_pairs_compared": 4,
+      "fresh_qualified_pairs": 0,
+      "scope": "archived geometry diagnostic; not force-qualified at both endpoints",
+      "c60_cutoff_graphs": {
+        "1.80A": {
+          "same_graph": 0,
+          "different_graph": 4,
+          "unassessed": 0,
+          "both_connected": 4
+        },
+        "1.64A": {
+          "same_graph": 0,
+          "different_graph": 4,
+          "unassessed": 0,
+          "both_connected": 4
+        }
+      },
+      "proper_kabsch_rms_A": {
+        "n": 0,
+        "median": null,
+        "min": null,
+        "max": null
+      }
+    },
+    {
+      "system": "C60",
+      "depth": 6,
+      "comparison": "truncated_vs_original_full",
+      "source_rows": 4,
+      "geometry_pairs_compared": 4,
+      "fresh_qualified_pairs": 4,
+      "scope": "fresh-qualified endpoints",
+      "c60_cutoff_graphs": {
+        "1.80A": {
+          "same_graph": 0,
+          "different_graph": 4,
+          "unassessed": 0,
+          "both_connected": 4
+        },
+        "1.64A": {
+          "same_graph": 0,
+          "different_graph": 4,
+          "unassessed": 0,
+          "both_connected": 4
+        }
+      },
+      "proper_kabsch_rms_A": {
+        "n": 0,
+        "median": null,
+        "min": null,
+        "max": null
+      }
+    }
+  ]
+}
+alignment self-check: {"status": "passed", "case_id": "C4H6-paper_ls-61-r0-k1", "operation": "proper rigid rotation + translation + reversed atom order", "alignment": {"status": "computed", "rms_A": 4.470715934036822e-16, "isomorphic_mappings": 8, "rotation_constraint": "proper_only_det_plus_1", "similarity_threshold": null}, "numerical_self_check_tolerance_A": 1e-08}

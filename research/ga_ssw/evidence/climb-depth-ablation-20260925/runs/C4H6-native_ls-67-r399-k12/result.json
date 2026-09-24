@@ -1,0 +1,139 @@
+{
+  "case_id": "C4H6-native_ls-67-r399-k12",
+  "status": "completed",
+  "fresh": [
+    {
+      "label": "truncated",
+      "status": "completed",
+      "energy": -4243.834829443453,
+      "fmax": 0.027712565428871586,
+      "force_qualified": true
+    },
+    {
+      "label": "full",
+      "status": "completed",
+      "energy": -4243.517909546423,
+      "fmax": 0.022780980783372234,
+      "force_qualified": true
+    }
+  ],
+  "quench": {
+    "atoms": {
+      "numbers": [
+        6,
+        6,
+        6,
+        6,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "positions": [
+        [
+          1.021844951147777,
+          0.6048852947328422,
+          -1.052466307470586
+        ],
+        [
+          -0.018371402033822832,
+          -0.2107210753140441,
+          -0.9324605529082663
+        ],
+        [
+          -0.8554584140359845,
+          -0.33927807222276535,
+          0.2690811534090422
+        ],
+        [
+          -0.4153313743373401,
+          -0.21389946648240382,
+          1.5154018879058342
+        ],
+        [
+          1.3109655586165903,
+          1.2804827402809724,
+          -0.25632230415869584
+        ],
+        [
+          -0.29172028359749835,
+          -0.8371782836196368,
+          -1.77546872529365
+        ],
+        [
+          1.6078048604364614,
+          0.6282538547846961,
+          -1.9609604545975359
+        ],
+        [
+          -1.902413733966136,
+          -0.573142846941543,
+          0.1024661125230151
+        ],
+        [
+          -1.084452166592135,
+          -0.32326853030164315,
+          2.3580020982760854
+        ],
+        [
+          0.6271320043600008,
+          -0.01613361491778185,
+          1.7327270923205835
+        ]
+      ],
+      "cell": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "pbc": [
+        false,
+        false,
+        false
+      ]
+    },
+    "energy": -4243.834829443453,
+    "max_force": 0.027712565428871586,
+    "converged": true,
+    "optimizer_steps": 32,
+    "evaluation_requests": 33,
+    "surface": "true",
+    "optimizer_telemetry": {
+      "backend": "safe-lbfgs-total",
+      "evaluator_calls": 33,
+      "backend_evaluations": 33,
+      "reporting_cache_hits": 1,
+      "reporting_evaluator_calls": 0,
+      "finalization_requests": 1,
+      "explicit_finalization_calls": 0,
+      "gradient_measure": "raw_active_max_force",
+      "converged": true,
+      "termination_reason": "converged",
+      "optimizer_success": true,
+      "accepted_steps": 32,
+      "rejected_steps": 0,
+      "accepted_secants": 32,
+      "rejected_secants": 0,
+      "line_search_evaluations": 32,
+      "mic_branch_resets": 0,
+      "bias_secant_curvature_sum": 0.0
+    }
+  },
+  "search_requests": 33,
+  "fresh_requests": 2,
+  "boundary": null
+}

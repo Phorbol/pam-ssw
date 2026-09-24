@@ -1,0 +1,7 @@
+{
+  "git_head": "979c65c7b17811af3fdfd579c1f3c3feb4ef3bb8",
+  "core_tree": "c91783c10ae061f86cfadee08e3c5ed1dcfa7263",
+  "runner_sha256": "a85c3c4aae9a8575b7a1b0f517373c36534066f423742cd0c1957aaad8c2b146",
+  "input_sha256": "de731031bf5786c54404b08c71697a96739dc1f9f06bc889e98e9c81f986d24b",
+  "python": "3.12.11 | packaged by Anaconda, Inc. | (main, Jun  5 2025, 13:09:17) [GCC 11.2.0]"
+}
