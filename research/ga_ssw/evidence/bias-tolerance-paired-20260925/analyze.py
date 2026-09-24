@@ -81,14 +81,19 @@ def main():
                    "fresh_ledger": analyzer.stream_ledger(arm / "fresh-requests.jsonl"),
                    "graph_equality_is_not_a_basin_test": True}
             row["search_ledger_matches_summary"] = (
+                row["search_ledger"].get("status") == "valid" and
                 row["search_ledger"].get("charged_calls") == summary.get("search_requests"))
             row["fresh_ledger_matches_summary"] = (
+                row["fresh_ledger"].get("status") == "valid" and
                 row["fresh_ledger"].get("charged_calls") == summary.get("fresh_requests"))
             output_rows.append(row)
             by_bias[str(bias)] = row
             structures[str(bias)] = landing
         low, high = by_bias.get("0.1"), by_bias.get("0.2")
         pair = {"case": name, "seed": spec["seed"],
+                "both_ledgers_valid_and_closed": bool(low and high and all(
+                    row[flag] for row in (low, high) for flag in
+                    ("search_ledger_matches_summary", "fresh_ledger_matches_summary"))),
                 "both_landing_force_qualified": bool(low and high and
                     low["landing_fresh_qualified"] and high["landing_fresh_qualified"]),
                 "total_cost_0.1": None if low is None else low["total_requests_including_fresh"],

@@ -1,0 +1,90 @@
+{
+  "case": "C4H6-native-LS-seed61",
+  "system": "C4H6",
+  "seed": 61,
+  "bias_fmax": 0.1,
+  "status": "completed",
+  "outer_steps_requested": 1,
+  "runtime": {
+    "python": "3.12.11",
+    "torch": "2.8.0+cu128",
+    "torch_seed": 0,
+    "deterministic_algorithms": false
+  },
+  "provenance": {
+    "git_head": "222f079e9b3dc21b2f4b0b66c8330b7bfc9fed30",
+    "core_tree": "c91783c10ae061f86cfadee08e3c5ed1dcfa7263",
+    "input_sha256": "aa1f59e77d0931acba51e531493deb7257c5716ddc08470ad9fe0a113d53bc45",
+    "effective_config_sha256": "a6c1bcf638fcd56b57fc6afe0e56b07c393dbe442e400a814be835a61e36fa28"
+  },
+  "result_records": 1,
+  "record_statuses": [
+    "gaussian_limit"
+  ],
+  "result_evaluation_requests": 808,
+  "request_count_matches_result": true,
+  "search_requests": 808,
+  "search_calculator_calls": 729,
+  "search_denials": 0,
+  "search_boundary": null,
+  "fresh_checks": [
+    {
+      "label": "post-initial-quench",
+      "status": "completed",
+      "energy_eV": -4243.921327009705,
+      "fmax_eV_A": 0.025287701582547378,
+      "force_qualified": true,
+      "same_numbers": true,
+      "same_cell": true,
+      "same_pbc": true
+    },
+    {
+      "label": "outer-landing",
+      "status": "completed",
+      "energy_eV": -4243.836690855281,
+      "fmax_eV_A": 0.029042170653464677,
+      "force_qualified": true,
+      "same_numbers": true,
+      "same_cell": true,
+      "same_pbc": true
+    }
+  ],
+  "fresh_requests": 2,
+  "fresh_calculator_calls": 2,
+  "completed_gaussian_stages": 25,
+  "biased_stage_requests": [
+    30,
+    31,
+    30,
+    47,
+    24,
+    44,
+    19,
+    18,
+    18,
+    27,
+    21,
+    71,
+    24,
+    23,
+    21,
+    26,
+    22,
+    24,
+    23,
+    71,
+    26,
+    26,
+    31,
+    29,
+    27
+  ],
+  "initial_quench_requests": 9,
+  "landing_quench_requests": 37,
+  "landing_reported_converged": true,
+  "landing_reported_fmax_eV_A": 0.02904217065346433,
+  "elapsed_seconds": 47.929329817183316,
+  "budget_censored": false,
+  "landing_fresh_qualified": true,
+  "total_requests_including_fresh": 810
+}

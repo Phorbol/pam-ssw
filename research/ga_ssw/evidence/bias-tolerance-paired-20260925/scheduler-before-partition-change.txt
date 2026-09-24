@@ -1,0 +1,30 @@
+JobId=1483551 JobName=bias-tol-paired
+   UserId=gengjianrui(1478400059) GroupId=gengjianrui(1478400059) MCS_label=N/A
+   Priority=10040 Nice=0 Account=sjtu-caoxiaoming QOS=rush-1o2gpu WCKey=*
+   JobState=PENDING Reason=Priority Dependency=(null)
+   Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=00:00:00 TimeLimit=00:30:00 TimeMin=N/A
+   SubmitTime=2026-09-25T01:32:55 EligibleTime=2026-09-25T01:32:55
+   AccrueTime=2026-09-25T01:32:55
+   StartTime=2026-09-25T20:24:04 EndTime=2026-09-25T20:54:04 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-09-25T01:39:44 Scheduler=Main
+   Partition=4V100 AllocNode:Sid=login-01:2045877
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList= SchedNodeList=4v100n02
+   NumNodes=1-1 NumCPUs=1 NumTasks=1 CPUs/Task=1 ReqB:S:C:T=0:0:*:*
+   ReqTRES=cpu=1,mem=22G,node=1,billing=194,gres/gpu=1
+   AllocTRES=(null)
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=1 MinMemoryTRES=22G MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=NO Exclusive=NO Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)
+   Command=/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/gpu.sbatch
+   SubmitLine=sbatch research/ga_ssw/evidence/bias-tolerance-paired-20260925/gpu.sbatch
+   WorkDir=/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity
+   StdErr=/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/gpu-1483551.err
+   StdIn=/dev/null
+   StdOut=/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/gpu-1483551.out
+   CpusPerTres=gpu:8
+   MemPerTres=gpu:22528
+   TresPerNode=gres/gpu:1
+

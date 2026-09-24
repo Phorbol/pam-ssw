@@ -9,7 +9,7 @@ force-qualified landing different from the post-initial-quench start?
 
 This is a development numerical-sensitivity probe, not parameter tuning,
 default selection, or a claim of a generally optimal tolerance. Near a stable
-minimum of the biased surface, the local approximation
+minimum of the biased surface, after removing rigid/constraint null modes and restricting to a locally positive-curvature subspace, the local approximation
 `δR ≈ -H_eff^{-1} g` allows soft modes to amplify a residual force. It does not
 guarantee that the looser threshold preserves useful escape progress; that is
 why each arm retains the complete Gaussian depth and is measured end to end.
@@ -98,3 +98,7 @@ reviewed and explicitly launched.
 ## Preflight and execution decision
 
 CPU1483548 completed1s with no PES: all8 configs constructed from actual public interfaces and paired inputs matched; only bias_fmax differs within each pair. Main-agent reviewed raw request accounting, fixed-tree import, NativeMC field mapping, and removal of unsupported geometry thresholds. Proceed with the existing48016-call/30-minute ceiling, no retry or expansion.
+
+Execution: frozen runner222f079; GPU1483551 submitted on4V100/rush-1o2gpu, group account; CPU1483553 depends afterany for5min structural readout. No explicit sbatch export override.
+
+Scheduler-only amendment before execution:4V100 was fully allocated and the job waited on Priority. Live inspection found8V100V0 UP with4 idle V100-SXM2 nodes and the same permitted rush-1o2gpu QOS. Updated the existing pending1483551 to8V100V0/6 CPUs (partition's per-GPU default); one GPU,30min, single-thread math, same account and48016-call ceiling remain. Allocated billing weight180 matches the original180; this is a scheduler weight, not a currency-price claim. Started2026-09-25 01:39:51 on8v100v0n01. Before/after scheduler records retained. Frozen scientific plan/runner unchanged; this is an explicit resource-location amendment, not a rerun. Pairwise timings remain from the same job/node; no wall-time ranking against old4V100 campaigns.

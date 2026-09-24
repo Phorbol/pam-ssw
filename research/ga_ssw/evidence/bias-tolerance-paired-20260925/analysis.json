@@ -1,0 +1,757 @@
+{
+  "status": "analyzed_development_probe",
+  "scope": "one first outer attempt per fresh start; not default selection or universal performance",
+  "structural_method": "existing climb-depth analyzer: element-labeled graphs, proper Kabsch over graph-compatible mappings, C4H6 CCCC torsion; C60 graph cutoffs 1.80 and 1.64 A",
+  "rows": [
+    {
+      "case": "C4H6-native-LS-seed61",
+      "system": "C4H6",
+      "seed": 61,
+      "bias_fmax": 0.1,
+      "execution_status": "completed",
+      "outer_records": 1,
+      "completed_gaussian_stages": 25,
+      "search_requests": 808,
+      "fresh_requests": 2,
+      "total_requests_including_fresh": 810,
+      "initial_fresh_qualified": true,
+      "landing_fresh_qualified": true,
+      "qualifying_landing_total_cost": 810,
+      "landing_vs_post_initial_structure": {
+        "graph": {
+          "isomorphic": true,
+          "left_component_count": 1,
+          "right_component_count": 1
+        },
+        "geometry": {
+          "status": "computed",
+          "rms_A": 1.2781937450616139,
+          "isomorphic_mappings": 8,
+          "rotation_constraint": "proper_only_det_plus_1",
+          "similarity_threshold": null
+        },
+        "torsion_left": {
+          "status": "computed",
+          "carbon_path": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_degrees": 180.0,
+          "cosine": -1.0,
+          "cosine_sign_region": "negative"
+        },
+        "torsion_right": {
+          "status": "computed",
+          "carbon_path": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_degrees": 28.911594576083758,
+          "cosine": 0.8753667103470002,
+          "cosine_sign_region": "positive"
+        },
+        "interpretation": "same connectivity graph does not imply same conformational basin"
+      },
+      "fresh_start_energy_eV": -4243.921327009705,
+      "fresh_landing_energy_eV": -4243.836690855281,
+      "fresh_landing_minus_start_energy_eV": 0.08463615442451555,
+      "search_ledger": {
+        "status": "valid",
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/runs/C4H6-native-LS-seed61-bias010/requests.jsonl",
+        "charged_calls": 808,
+        "search": 808,
+        "search_failure": 0,
+        "search_denial": 0,
+        "line_count": 808,
+        "last_charged_request": 808,
+        "errors": []
+      },
+      "fresh_ledger": {
+        "status": "valid",
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/runs/C4H6-native-LS-seed61-bias010/fresh-requests.jsonl",
+        "charged_calls": 2,
+        "search": 2,
+        "search_failure": 0,
+        "search_denial": 0,
+        "line_count": 2,
+        "last_charged_request": 2,
+        "errors": []
+      },
+      "graph_equality_is_not_a_basin_test": true,
+      "search_ledger_matches_summary": true,
+      "fresh_ledger_matches_summary": true
+    },
+    {
+      "case": "C4H6-native-LS-seed61",
+      "system": "C4H6",
+      "seed": 61,
+      "bias_fmax": 0.2,
+      "execution_status": "completed",
+      "outer_records": 1,
+      "completed_gaussian_stages": 25,
+      "search_requests": 593,
+      "fresh_requests": 2,
+      "total_requests_including_fresh": 595,
+      "initial_fresh_qualified": true,
+      "landing_fresh_qualified": true,
+      "qualifying_landing_total_cost": 595,
+      "landing_vs_post_initial_structure": {
+        "graph": {
+          "isomorphic": true,
+          "left_component_count": 1,
+          "right_component_count": 1
+        },
+        "geometry": {
+          "status": "computed",
+          "rms_A": 1.2850875951193603,
+          "isomorphic_mappings": 8,
+          "rotation_constraint": "proper_only_det_plus_1",
+          "similarity_threshold": null
+        },
+        "torsion_left": {
+          "status": "computed",
+          "carbon_path": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_degrees": 180.0,
+          "cosine": -1.0,
+          "cosine_sign_region": "negative"
+        },
+        "torsion_right": {
+          "status": "computed",
+          "carbon_path": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_degrees": 27.81283521255377,
+          "cosine": 0.8844764746152034,
+          "cosine_sign_region": "positive"
+        },
+        "interpretation": "same connectivity graph does not imply same conformational basin"
+      },
+      "fresh_start_energy_eV": -4243.921327009705,
+      "fresh_landing_energy_eV": -4243.837469652409,
+      "fresh_landing_minus_start_energy_eV": 0.08385735729643784,
+      "search_ledger": {
+        "status": "valid",
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/runs/C4H6-native-LS-seed61-bias020/requests.jsonl",
+        "charged_calls": 593,
+        "search": 593,
+        "search_failure": 0,
+        "search_denial": 0,
+        "line_count": 593,
+        "last_charged_request": 593,
+        "errors": []
+      },
+      "fresh_ledger": {
+        "status": "valid",
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/runs/C4H6-native-LS-seed61-bias020/fresh-requests.jsonl",
+        "charged_calls": 2,
+        "search": 2,
+        "search_failure": 0,
+        "search_denial": 0,
+        "line_count": 2,
+        "last_charged_request": 2,
+        "errors": []
+      },
+      "graph_equality_is_not_a_basin_test": true,
+      "search_ledger_matches_summary": true,
+      "fresh_ledger_matches_summary": true
+    },
+    {
+      "case": "C4H6-native-LS-seed67",
+      "system": "C4H6",
+      "seed": 67,
+      "bias_fmax": 0.1,
+      "execution_status": "completed",
+      "outer_records": 1,
+      "completed_gaussian_stages": 25,
+      "search_requests": 763,
+      "fresh_requests": 2,
+      "total_requests_including_fresh": 765,
+      "initial_fresh_qualified": true,
+      "landing_fresh_qualified": true,
+      "qualifying_landing_total_cost": 765,
+      "landing_vs_post_initial_structure": {
+        "graph": {
+          "isomorphic": true,
+          "left_component_count": 1,
+          "right_component_count": 1
+        },
+        "geometry": {
+          "status": "computed",
+          "rms_A": 1.2816097945599223,
+          "isomorphic_mappings": 8,
+          "rotation_constraint": "proper_only_det_plus_1",
+          "similarity_threshold": null
+        },
+        "torsion_left": {
+          "status": "computed",
+          "carbon_path": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_degrees": 180.0,
+          "cosine": -1.0,
+          "cosine_sign_region": "negative"
+        },
+        "torsion_right": {
+          "status": "computed",
+          "carbon_path": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_degrees": 331.69251002850103,
+          "cosine": 0.8804153709645125,
+          "cosine_sign_region": "positive"
+        },
+        "interpretation": "same connectivity graph does not imply same conformational basin"
+      },
+      "fresh_start_energy_eV": -4243.921327009705,
+      "fresh_landing_energy_eV": -4243.837430647289,
+      "fresh_landing_minus_start_energy_eV": 0.08389636241645348,
+      "search_ledger": {
+        "status": "valid",
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/runs/C4H6-native-LS-seed67-bias010/requests.jsonl",
+        "charged_calls": 763,
+        "search": 763,
+        "search_failure": 0,
+        "search_denial": 0,
+        "line_count": 763,
+        "last_charged_request": 763,
+        "errors": []
+      },
+      "fresh_ledger": {
+        "status": "valid",
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/runs/C4H6-native-LS-seed67-bias010/fresh-requests.jsonl",
+        "charged_calls": 2,
+        "search": 2,
+        "search_failure": 0,
+        "search_denial": 0,
+        "line_count": 2,
+        "last_charged_request": 2,
+        "errors": []
+      },
+      "graph_equality_is_not_a_basin_test": true,
+      "search_ledger_matches_summary": true,
+      "fresh_ledger_matches_summary": true
+    },
+    {
+      "case": "C4H6-native-LS-seed67",
+      "system": "C4H6",
+      "seed": 67,
+      "bias_fmax": 0.2,
+      "execution_status": "completed",
+      "outer_records": 1,
+      "completed_gaussian_stages": 25,
+      "search_requests": 479,
+      "fresh_requests": 2,
+      "total_requests_including_fresh": 481,
+      "initial_fresh_qualified": true,
+      "landing_fresh_qualified": true,
+      "qualifying_landing_total_cost": 481,
+      "landing_vs_post_initial_structure": {
+        "graph": {
+          "isomorphic": true,
+          "left_component_count": 1,
+          "right_component_count": 1
+        },
+        "geometry": {
+          "status": "computed",
+          "rms_A": 0.011530838649645863,
+          "isomorphic_mappings": 8,
+          "rotation_constraint": "proper_only_det_plus_1",
+          "similarity_threshold": null
+        },
+        "torsion_left": {
+          "status": "computed",
+          "carbon_path": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_degrees": 180.0,
+          "cosine": -1.0,
+          "cosine_sign_region": "negative"
+        },
+        "torsion_right": {
+          "status": "computed",
+          "carbon_path": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_degrees": 178.6567646525346,
+          "cosine": -0.9997252048446627,
+          "cosine_sign_region": "negative"
+        },
+        "interpretation": "same connectivity graph does not imply same conformational basin"
+      },
+      "fresh_start_energy_eV": -4243.921327009705,
+      "fresh_landing_energy_eV": -4243.9213643996845,
+      "fresh_landing_minus_start_energy_eV": -3.738997929758625e-05,
+      "search_ledger": {
+        "status": "valid",
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/runs/C4H6-native-LS-seed67-bias020/requests.jsonl",
+        "charged_calls": 479,
+        "search": 479,
+        "search_failure": 0,
+        "search_denial": 0,
+        "line_count": 479,
+        "last_charged_request": 479,
+        "errors": []
+      },
+      "fresh_ledger": {
+        "status": "valid",
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/runs/C4H6-native-LS-seed67-bias020/fresh-requests.jsonl",
+        "charged_calls": 2,
+        "search": 2,
+        "search_failure": 0,
+        "search_denial": 0,
+        "line_count": 2,
+        "last_charged_request": 2,
+        "errors": []
+      },
+      "graph_equality_is_not_a_basin_test": true,
+      "search_ledger_matches_summary": true,
+      "fresh_ledger_matches_summary": true
+    },
+    {
+      "case": "C60-seed17093",
+      "system": "C60",
+      "seed": 17093,
+      "bias_fmax": 0.1,
+      "execution_status": "completed",
+      "outer_records": 1,
+      "completed_gaussian_stages": 4,
+      "search_requests": 708,
+      "fresh_requests": 2,
+      "total_requests_including_fresh": 710,
+      "initial_fresh_qualified": true,
+      "landing_fresh_qualified": true,
+      "qualifying_landing_total_cost": 710,
+      "landing_vs_post_initial_structure": {
+        "cutoff_graphs": {
+          "1.80A": {
+            "isomorphic": false,
+            "left_connected": true,
+            "right_connected": true
+          },
+          "1.64A": {
+            "isomorphic": false,
+            "left_connected": true,
+            "right_connected": true
+          }
+        },
+        "geometry": {
+          "1.80A": {
+            "status": "graphs_not_isomorphic",
+            "isomorphic_mappings": 0
+          }
+        }
+      },
+      "fresh_start_energy_eV": -62150.68280959669,
+      "fresh_landing_energy_eV": -62153.997843713114,
+      "fresh_landing_minus_start_energy_eV": -3.3150341164218844,
+      "search_ledger": {
+        "status": "valid",
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/runs/C60-seed17093-bias010/requests.jsonl",
+        "charged_calls": 708,
+        "search": 708,
+        "search_failure": 0,
+        "search_denial": 0,
+        "line_count": 708,
+        "last_charged_request": 708,
+        "errors": []
+      },
+      "fresh_ledger": {
+        "status": "valid",
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/runs/C60-seed17093-bias010/fresh-requests.jsonl",
+        "charged_calls": 2,
+        "search": 2,
+        "search_failure": 0,
+        "search_denial": 0,
+        "line_count": 2,
+        "last_charged_request": 2,
+        "errors": []
+      },
+      "graph_equality_is_not_a_basin_test": true,
+      "search_ledger_matches_summary": true,
+      "fresh_ledger_matches_summary": true
+    },
+    {
+      "case": "C60-seed17093",
+      "system": "C60",
+      "seed": 17093,
+      "bias_fmax": 0.2,
+      "execution_status": "completed",
+      "outer_records": 1,
+      "completed_gaussian_stages": 12,
+      "search_requests": 1118,
+      "fresh_requests": 2,
+      "total_requests_including_fresh": 1120,
+      "initial_fresh_qualified": true,
+      "landing_fresh_qualified": true,
+      "qualifying_landing_total_cost": 1120,
+      "landing_vs_post_initial_structure": {
+        "cutoff_graphs": {
+          "1.80A": {
+            "isomorphic": false,
+            "left_connected": true,
+            "right_connected": true
+          },
+          "1.64A": {
+            "isomorphic": false,
+            "left_connected": true,
+            "right_connected": true
+          }
+        },
+        "geometry": {
+          "1.80A": {
+            "status": "graphs_not_isomorphic",
+            "isomorphic_mappings": 0
+          }
+        }
+      },
+      "fresh_start_energy_eV": -62150.6812893783,
+      "fresh_landing_energy_eV": -62159.82869947393,
+      "fresh_landing_minus_start_energy_eV": -9.14741009563295,
+      "search_ledger": {
+        "status": "valid",
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/runs/C60-seed17093-bias020/requests.jsonl",
+        "charged_calls": 1118,
+        "search": 1118,
+        "search_failure": 0,
+        "search_denial": 0,
+        "line_count": 1118,
+        "last_charged_request": 1118,
+        "errors": []
+      },
+      "fresh_ledger": {
+        "status": "valid",
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/runs/C60-seed17093-bias020/fresh-requests.jsonl",
+        "charged_calls": 2,
+        "search": 2,
+        "search_failure": 0,
+        "search_denial": 0,
+        "line_count": 2,
+        "last_charged_request": 2,
+        "errors": []
+      },
+      "graph_equality_is_not_a_basin_test": true,
+      "search_ledger_matches_summary": true,
+      "fresh_ledger_matches_summary": true
+    },
+    {
+      "case": "C60-seed17094",
+      "system": "C60",
+      "seed": 17094,
+      "bias_fmax": 0.1,
+      "execution_status": "completed",
+      "outer_records": 1,
+      "completed_gaussian_stages": 12,
+      "search_requests": 2186,
+      "fresh_requests": 2,
+      "total_requests_including_fresh": 2188,
+      "initial_fresh_qualified": true,
+      "landing_fresh_qualified": true,
+      "qualifying_landing_total_cost": 2188,
+      "landing_vs_post_initial_structure": {
+        "cutoff_graphs": {
+          "1.80A": {
+            "isomorphic": false,
+            "left_connected": true,
+            "right_connected": true
+          },
+          "1.64A": {
+            "isomorphic": false,
+            "left_connected": true,
+            "right_connected": true
+          }
+        },
+        "geometry": {
+          "1.80A": {
+            "status": "graphs_not_isomorphic",
+            "isomorphic_mappings": 0
+          }
+        }
+      },
+      "fresh_start_energy_eV": -62153.36200223099,
+      "fresh_landing_energy_eV": -62157.659256858045,
+      "fresh_landing_minus_start_energy_eV": -4.297254627053917,
+      "search_ledger": {
+        "status": "valid",
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/runs/C60-seed17094-bias010/requests.jsonl",
+        "charged_calls": 2186,
+        "search": 2186,
+        "search_failure": 0,
+        "search_denial": 0,
+        "line_count": 2186,
+        "last_charged_request": 2186,
+        "errors": []
+      },
+      "fresh_ledger": {
+        "status": "valid",
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/runs/C60-seed17094-bias010/fresh-requests.jsonl",
+        "charged_calls": 2,
+        "search": 2,
+        "search_failure": 0,
+        "search_denial": 0,
+        "line_count": 2,
+        "last_charged_request": 2,
+        "errors": []
+      },
+      "graph_equality_is_not_a_basin_test": true,
+      "search_ledger_matches_summary": true,
+      "fresh_ledger_matches_summary": true
+    },
+    {
+      "case": "C60-seed17094",
+      "system": "C60",
+      "seed": 17094,
+      "bias_fmax": 0.2,
+      "execution_status": "completed",
+      "outer_records": 1,
+      "completed_gaussian_stages": 8,
+      "search_requests": 1516,
+      "fresh_requests": 2,
+      "total_requests_including_fresh": 1518,
+      "initial_fresh_qualified": true,
+      "landing_fresh_qualified": true,
+      "qualifying_landing_total_cost": 1518,
+      "landing_vs_post_initial_structure": {
+        "cutoff_graphs": {
+          "1.80A": {
+            "isomorphic": false,
+            "left_connected": true,
+            "right_connected": true
+          },
+          "1.64A": {
+            "isomorphic": false,
+            "left_connected": true,
+            "right_connected": true
+          }
+        },
+        "geometry": {
+          "1.80A": {
+            "status": "graphs_not_isomorphic",
+            "isomorphic_mappings": 0
+          }
+        }
+      },
+      "fresh_start_energy_eV": -62153.36200223099,
+      "fresh_landing_energy_eV": -62155.64935996071,
+      "fresh_landing_minus_start_energy_eV": -2.287357729721407,
+      "search_ledger": {
+        "status": "valid",
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/runs/C60-seed17094-bias020/requests.jsonl",
+        "charged_calls": 1516,
+        "search": 1516,
+        "search_failure": 0,
+        "search_denial": 0,
+        "line_count": 1516,
+        "last_charged_request": 1516,
+        "errors": []
+      },
+      "fresh_ledger": {
+        "status": "valid",
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/bias-tolerance-paired-20260925/runs/C60-seed17094-bias020/fresh-requests.jsonl",
+        "charged_calls": 2,
+        "search": 2,
+        "search_failure": 0,
+        "search_denial": 0,
+        "line_count": 2,
+        "last_charged_request": 2,
+        "errors": []
+      },
+      "graph_equality_is_not_a_basin_test": true,
+      "search_ledger_matches_summary": true,
+      "fresh_ledger_matches_summary": true
+    }
+  ],
+  "paired_costs": [
+    {
+      "case": "C4H6-native-LS-seed61",
+      "seed": 61,
+      "both_ledgers_valid_and_closed": true,
+      "both_landing_force_qualified": true,
+      "total_cost_0.1": 810,
+      "total_cost_0.2": 595,
+      "delta_total_cost_0.2_minus_0.1": -215,
+      "landing_vs_landing_structure": {
+        "graph": {
+          "isomorphic": true,
+          "left_component_count": 1,
+          "right_component_count": 1
+        },
+        "geometry": {
+          "status": "computed",
+          "rms_A": 0.01482657243872892,
+          "isomorphic_mappings": 8,
+          "rotation_constraint": "proper_only_det_plus_1",
+          "similarity_threshold": null
+        },
+        "torsion_left": {
+          "status": "computed",
+          "carbon_path": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_degrees": 28.911594576083758,
+          "cosine": 0.8753667103470002,
+          "cosine_sign_region": "positive"
+        },
+        "torsion_right": {
+          "status": "computed",
+          "carbon_path": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_degrees": 27.81283521255377,
+          "cosine": 0.8844764746152034,
+          "cosine_sign_region": "positive"
+        },
+        "interpretation": "same connectivity graph does not imply same conformational basin"
+      },
+      "fresh_landing_energy_0.2_minus_0.1_eV": -0.0007787971280777128,
+      "both_landings_fresh_force_qualified": true,
+      "interpretation": "paired start and RNG seed; tolerance may alter later RNG consumption; not bitwise trajectory pairing"
+    },
+    {
+      "case": "C4H6-native-LS-seed67",
+      "seed": 67,
+      "both_ledgers_valid_and_closed": true,
+      "both_landing_force_qualified": true,
+      "total_cost_0.1": 765,
+      "total_cost_0.2": 481,
+      "delta_total_cost_0.2_minus_0.1": -284,
+      "landing_vs_landing_structure": {
+        "graph": {
+          "isomorphic": true,
+          "left_component_count": 1,
+          "right_component_count": 1
+        },
+        "geometry": {
+          "status": "computed",
+          "rms_A": 1.2891182504451053,
+          "isomorphic_mappings": 8,
+          "rotation_constraint": "proper_only_det_plus_1",
+          "similarity_threshold": null
+        },
+        "torsion_left": {
+          "status": "computed",
+          "carbon_path": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_degrees": 331.69251002850103,
+          "cosine": 0.8804153709645125,
+          "cosine_sign_region": "positive"
+        },
+        "torsion_right": {
+          "status": "computed",
+          "carbon_path": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "raw_degrees": 178.6567646525346,
+          "cosine": -0.9997252048446627,
+          "cosine_sign_region": "negative"
+        },
+        "interpretation": "same connectivity graph does not imply same conformational basin"
+      },
+      "fresh_landing_energy_0.2_minus_0.1_eV": -0.08393375239575107,
+      "both_landings_fresh_force_qualified": true,
+      "interpretation": "paired start and RNG seed; tolerance may alter later RNG consumption; not bitwise trajectory pairing"
+    },
+    {
+      "case": "C60-seed17093",
+      "seed": 17093,
+      "both_ledgers_valid_and_closed": true,
+      "both_landing_force_qualified": true,
+      "total_cost_0.1": 710,
+      "total_cost_0.2": 1120,
+      "delta_total_cost_0.2_minus_0.1": 410,
+      "landing_vs_landing_structure": {
+        "cutoff_graphs": {
+          "1.80A": {
+            "isomorphic": false,
+            "left_connected": true,
+            "right_connected": true
+          },
+          "1.64A": {
+            "isomorphic": false,
+            "left_connected": true,
+            "right_connected": true
+          }
+        },
+        "geometry": {
+          "1.80A": {
+            "status": "graphs_not_isomorphic",
+            "isomorphic_mappings": 0
+          }
+        }
+      },
+      "fresh_landing_energy_0.2_minus_0.1_eV": -5.83085576081794,
+      "both_landings_fresh_force_qualified": true,
+      "interpretation": "paired start and RNG seed; tolerance may alter later RNG consumption; not bitwise trajectory pairing"
+    },
+    {
+      "case": "C60-seed17094",
+      "seed": 17094,
+      "both_ledgers_valid_and_closed": true,
+      "both_landing_force_qualified": true,
+      "total_cost_0.1": 2188,
+      "total_cost_0.2": 1518,
+      "delta_total_cost_0.2_minus_0.1": -670,
+      "landing_vs_landing_structure": {
+        "cutoff_graphs": {
+          "1.80A": {
+            "isomorphic": false,
+            "left_connected": true,
+            "right_connected": true
+          },
+          "1.64A": {
+            "isomorphic": false,
+            "left_connected": true,
+            "right_connected": true
+          }
+        },
+        "geometry": {
+          "1.80A": {
+            "status": "graphs_not_isomorphic",
+            "isomorphic_mappings": 0
+          }
+        }
+      },
+      "fresh_landing_energy_0.2_minus_0.1_eV": 2.00989689733251,
+      "both_landings_fresh_force_qualified": true,
+      "interpretation": "paired start and RNG seed; tolerance may alter later RNG consumption; not bitwise trajectory pairing"
+    }
+  ],
+  "total_search_requests": 8171,
+  "total_fresh_requests": 16
+}

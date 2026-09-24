@@ -1,0 +1,73 @@
+{
+  "case": "C60-seed17094",
+  "system": "C60",
+  "seed": 17094,
+  "bias_fmax": 0.2,
+  "status": "completed",
+  "outer_steps_requested": 1,
+  "runtime": {
+    "python": "3.12.11",
+    "torch": "2.8.0+cu128",
+    "torch_seed": 0,
+    "deterministic_algorithms": true
+  },
+  "provenance": {
+    "git_head": "222f079e9b3dc21b2f4b0b66c8330b7bfc9fed30",
+    "core_tree": "c91783c10ae061f86cfadee08e3c5ed1dcfa7263",
+    "input_sha256": "2e49eabd0ae1bf854aa6baf07a2b583f4d21933ce55ba295983e146172c44b6f",
+    "effective_config_sha256": "1e9b2ce2f3a0f4a022d010a223f7ed156f3a91f91e22526940caeb0c841e2546"
+  },
+  "result_records": 1,
+  "record_statuses": [
+    "lower_true_energy"
+  ],
+  "result_evaluation_requests": 1516,
+  "request_count_matches_result": true,
+  "search_requests": 1516,
+  "search_calculator_calls": 1488,
+  "search_denials": 0,
+  "search_boundary": null,
+  "fresh_checks": [
+    {
+      "label": "post-initial-quench",
+      "status": "completed",
+      "energy_eV": -62153.36200223099,
+      "fmax_eV_A": 0.018229977383161806,
+      "force_qualified": true,
+      "same_numbers": true,
+      "same_cell": true,
+      "same_pbc": true
+    },
+    {
+      "label": "outer-landing",
+      "status": "completed",
+      "energy_eV": -62155.64935996071,
+      "fmax_eV_A": 0.02824645241833879,
+      "force_qualified": true,
+      "same_numbers": true,
+      "same_cell": true,
+      "same_pbc": true
+    }
+  ],
+  "fresh_requests": 2,
+  "fresh_calculator_calls": 2,
+  "completed_gaussian_stages": 8,
+  "biased_stage_requests": [
+    40,
+    75,
+    46,
+    84,
+    38,
+    63,
+    32,
+    203
+  ],
+  "initial_quench_requests": 661,
+  "landing_quench_requests": 257,
+  "landing_reported_converged": true,
+  "landing_reported_fmax_eV_A": 0.02824645241833879,
+  "elapsed_seconds": 109.79387031123042,
+  "budget_censored": false,
+  "landing_fresh_qualified": true,
+  "total_requests_including_fresh": 1518
+}

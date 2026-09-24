@@ -1,0 +1,68 @@
+{
+  "case": "C60-seed17093",
+  "seed": 17093,
+  "bias_fmax": 0.2,
+  "config": {
+    "width": 0.6,
+    "rotation_bias": 1.0,
+    "max_gaussians": 12,
+    "temperature_K": 150.0,
+    "fmax": 0.03,
+    "relax_steps": 1000,
+    "fd_step": 0.001,
+    "rotation_hvp": 39,
+    "rotation_tol": 0.02,
+    "forward_force": 0.1,
+    "direction_sampling": "global",
+    "rotation_solver": "broyden-euclidean",
+    "cluster_frame": "direction_only",
+    "quench_optimizer": "safe-lbfgs-total",
+    "lbfgs_memory": 500,
+    "bias_stage_steps": null,
+    "bias_fmax": 0.2,
+    "pre_rotation_hvp": null,
+    "rotation_exit_policy": "force_or_budget"
+  },
+  "native_ls": {
+    "bond_energies": {
+      "(6, 6)": 3.4468400478363037
+    },
+    "bond_lengths": {
+      "(6, 6)": 1.5399999618530273
+    },
+    "scale": 5.0,
+    "energy_filter": null,
+    "length_filter": null,
+    "atom_filter": null,
+    "amp_c": 2.0,
+    "length_tolerance": 0.1,
+    "target_mev_per_atom": 20.0,
+    "eta": 0.005,
+    "max_change": 0.01,
+    "frequency": 10,
+    "presteps": 100,
+    "cycle": 100,
+    "ratio": 1.100000023841858,
+    "lselfadapt": true,
+    "bond_geometry": "native-mic",
+    "prequench": {
+      "fmax": 0.1,
+      "steps": 50,
+      "exit_policy": "force_or_step_limit"
+    }
+  },
+  "rotation_settings": {
+    "pre_rotmax": 5,
+    "rotmax": 15,
+    "pre_ftol": 0.2,
+    "ftol": 0.02,
+    "metric": "euclidean",
+    "max_force_calls": 40
+  },
+  "native_mc": {
+    "energy_tol": 0.1,
+    "maxtrap": 99999
+  },
+  "source_effective_config": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/effective-config.json",
+  "input": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/inputs/c60_17093.traj"
+}

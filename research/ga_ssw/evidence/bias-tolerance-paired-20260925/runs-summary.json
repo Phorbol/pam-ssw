@@ -1,0 +1,664 @@
+{
+  "status": "complete",
+  "rows": [
+    {
+      "case": "C4H6-native-LS-seed61",
+      "system": "C4H6",
+      "seed": 61,
+      "bias_fmax": 0.1,
+      "status": "completed",
+      "outer_steps_requested": 1,
+      "runtime": {
+        "python": "3.12.11",
+        "torch": "2.8.0+cu128",
+        "torch_seed": 0,
+        "deterministic_algorithms": false
+      },
+      "provenance": {
+        "git_head": "222f079e9b3dc21b2f4b0b66c8330b7bfc9fed30",
+        "core_tree": "c91783c10ae061f86cfadee08e3c5ed1dcfa7263",
+        "input_sha256": "aa1f59e77d0931acba51e531493deb7257c5716ddc08470ad9fe0a113d53bc45",
+        "effective_config_sha256": "a6c1bcf638fcd56b57fc6afe0e56b07c393dbe442e400a814be835a61e36fa28"
+      },
+      "result_records": 1,
+      "record_statuses": [
+        "gaussian_limit"
+      ],
+      "result_evaluation_requests": 808,
+      "request_count_matches_result": true,
+      "search_requests": 808,
+      "search_calculator_calls": 729,
+      "search_denials": 0,
+      "search_boundary": null,
+      "fresh_checks": [
+        {
+          "label": "post-initial-quench",
+          "status": "completed",
+          "energy_eV": -4243.921327009705,
+          "fmax_eV_A": 0.025287701582547378,
+          "force_qualified": true,
+          "same_numbers": true,
+          "same_cell": true,
+          "same_pbc": true
+        },
+        {
+          "label": "outer-landing",
+          "status": "completed",
+          "energy_eV": -4243.836690855281,
+          "fmax_eV_A": 0.029042170653464677,
+          "force_qualified": true,
+          "same_numbers": true,
+          "same_cell": true,
+          "same_pbc": true
+        }
+      ],
+      "fresh_requests": 2,
+      "fresh_calculator_calls": 2,
+      "completed_gaussian_stages": 25,
+      "biased_stage_requests": [
+        30,
+        31,
+        30,
+        47,
+        24,
+        44,
+        19,
+        18,
+        18,
+        27,
+        21,
+        71,
+        24,
+        23,
+        21,
+        26,
+        22,
+        24,
+        23,
+        71,
+        26,
+        26,
+        31,
+        29,
+        27
+      ],
+      "initial_quench_requests": 9,
+      "landing_quench_requests": 37,
+      "landing_reported_converged": true,
+      "landing_reported_fmax_eV_A": 0.02904217065346433,
+      "elapsed_seconds": 47.929329817183316,
+      "budget_censored": false,
+      "landing_fresh_qualified": true,
+      "total_requests_including_fresh": 810
+    },
+    {
+      "case": "C4H6-native-LS-seed61",
+      "system": "C4H6",
+      "seed": 61,
+      "bias_fmax": 0.2,
+      "status": "completed",
+      "outer_steps_requested": 1,
+      "runtime": {
+        "python": "3.12.11",
+        "torch": "2.8.0+cu128",
+        "torch_seed": 0,
+        "deterministic_algorithms": false
+      },
+      "provenance": {
+        "git_head": "222f079e9b3dc21b2f4b0b66c8330b7bfc9fed30",
+        "core_tree": "c91783c10ae061f86cfadee08e3c5ed1dcfa7263",
+        "input_sha256": "aa1f59e77d0931acba51e531493deb7257c5716ddc08470ad9fe0a113d53bc45",
+        "effective_config_sha256": "a6c1bcf638fcd56b57fc6afe0e56b07c393dbe442e400a814be835a61e36fa28"
+      },
+      "result_records": 1,
+      "record_statuses": [
+        "gaussian_limit"
+      ],
+      "result_evaluation_requests": 593,
+      "request_count_matches_result": true,
+      "search_requests": 593,
+      "search_calculator_calls": 514,
+      "search_denials": 0,
+      "search_boundary": null,
+      "fresh_checks": [
+        {
+          "label": "post-initial-quench",
+          "status": "completed",
+          "energy_eV": -4243.921327009705,
+          "fmax_eV_A": 0.025287701582548068,
+          "force_qualified": true,
+          "same_numbers": true,
+          "same_cell": true,
+          "same_pbc": true
+        },
+        {
+          "label": "outer-landing",
+          "status": "completed",
+          "energy_eV": -4243.837469652409,
+          "fmax_eV_A": 0.027232551735446458,
+          "force_qualified": true,
+          "same_numbers": true,
+          "same_cell": true,
+          "same_pbc": true
+        }
+      ],
+      "fresh_requests": 2,
+      "fresh_calculator_calls": 2,
+      "completed_gaussian_stages": 25,
+      "biased_stage_requests": [
+        18,
+        27,
+        26,
+        15,
+        42,
+        19,
+        21,
+        36,
+        17,
+        16,
+        12,
+        17,
+        19,
+        16,
+        44,
+        17,
+        19,
+        19,
+        19,
+        19,
+        24,
+        24,
+        15,
+        15,
+        15
+      ],
+      "initial_quench_requests": 9,
+      "landing_quench_requests": 44,
+      "landing_reported_converged": true,
+      "landing_reported_fmax_eV_A": 0.027232551735446225,
+      "elapsed_seconds": 27.39849746134132,
+      "budget_censored": false,
+      "landing_fresh_qualified": true,
+      "total_requests_including_fresh": 595
+    },
+    {
+      "case": "C4H6-native-LS-seed67",
+      "system": "C4H6",
+      "seed": 67,
+      "bias_fmax": 0.1,
+      "status": "completed",
+      "outer_steps_requested": 1,
+      "runtime": {
+        "python": "3.12.11",
+        "torch": "2.8.0+cu128",
+        "torch_seed": 0,
+        "deterministic_algorithms": false
+      },
+      "provenance": {
+        "git_head": "222f079e9b3dc21b2f4b0b66c8330b7bfc9fed30",
+        "core_tree": "c91783c10ae061f86cfadee08e3c5ed1dcfa7263",
+        "input_sha256": "aa1f59e77d0931acba51e531493deb7257c5716ddc08470ad9fe0a113d53bc45",
+        "effective_config_sha256": "f709d004ff3346641b3e924cc08439d8fbf62790dac5fa29133c63b250088bd3"
+      },
+      "result_records": 1,
+      "record_statuses": [
+        "gaussian_limit"
+      ],
+      "result_evaluation_requests": 763,
+      "request_count_matches_result": true,
+      "search_requests": 763,
+      "search_calculator_calls": 684,
+      "search_denials": 0,
+      "search_boundary": null,
+      "fresh_checks": [
+        {
+          "label": "post-initial-quench",
+          "status": "completed",
+          "energy_eV": -4243.921327009705,
+          "fmax_eV_A": 0.025287701582550323,
+          "force_qualified": true,
+          "same_numbers": true,
+          "same_cell": true,
+          "same_pbc": true
+        },
+        {
+          "label": "outer-landing",
+          "status": "completed",
+          "energy_eV": -4243.837430647289,
+          "fmax_eV_A": 0.02660688823759671,
+          "force_qualified": true,
+          "same_numbers": true,
+          "same_cell": true,
+          "same_pbc": true
+        }
+      ],
+      "fresh_requests": 2,
+      "fresh_calculator_calls": 2,
+      "completed_gaussian_stages": 25,
+      "biased_stage_requests": [
+        19,
+        20,
+        28,
+        20,
+        20,
+        21,
+        91,
+        19,
+        19,
+        41,
+        21,
+        19,
+        64,
+        21,
+        20,
+        21,
+        23,
+        31,
+        20,
+        20,
+        20,
+        17,
+        20,
+        59,
+        34
+      ],
+      "initial_quench_requests": 9,
+      "landing_quench_requests": 37,
+      "landing_reported_converged": true,
+      "landing_reported_fmax_eV_A": 0.026606888237597243,
+      "elapsed_seconds": 37.19807484652847,
+      "budget_censored": false,
+      "landing_fresh_qualified": true,
+      "total_requests_including_fresh": 765
+    },
+    {
+      "case": "C4H6-native-LS-seed67",
+      "system": "C4H6",
+      "seed": 67,
+      "bias_fmax": 0.2,
+      "status": "completed",
+      "outer_steps_requested": 1,
+      "runtime": {
+        "python": "3.12.11",
+        "torch": "2.8.0+cu128",
+        "torch_seed": 0,
+        "deterministic_algorithms": false
+      },
+      "provenance": {
+        "git_head": "222f079e9b3dc21b2f4b0b66c8330b7bfc9fed30",
+        "core_tree": "c91783c10ae061f86cfadee08e3c5ed1dcfa7263",
+        "input_sha256": "aa1f59e77d0931acba51e531493deb7257c5716ddc08470ad9fe0a113d53bc45",
+        "effective_config_sha256": "f709d004ff3346641b3e924cc08439d8fbf62790dac5fa29133c63b250088bd3"
+      },
+      "result_records": 1,
+      "record_statuses": [
+        "gaussian_limit"
+      ],
+      "result_evaluation_requests": 479,
+      "request_count_matches_result": true,
+      "search_requests": 479,
+      "search_calculator_calls": 400,
+      "search_denials": 0,
+      "search_boundary": null,
+      "fresh_checks": [
+        {
+          "label": "post-initial-quench",
+          "status": "completed",
+          "energy_eV": -4243.921327009705,
+          "fmax_eV_A": 0.02528770158277543,
+          "force_qualified": true,
+          "same_numbers": true,
+          "same_cell": true,
+          "same_pbc": true
+        },
+        {
+          "label": "outer-landing",
+          "status": "completed",
+          "energy_eV": -4243.9213643996845,
+          "fmax_eV_A": 0.020077699393153303,
+          "force_qualified": true,
+          "same_numbers": true,
+          "same_cell": true,
+          "same_pbc": true
+        }
+      ],
+      "fresh_requests": 2,
+      "fresh_calculator_calls": 2,
+      "completed_gaussian_stages": 25,
+      "biased_stage_requests": [
+        18,
+        15,
+        17,
+        21,
+        14,
+        16,
+        20,
+        14,
+        14,
+        20,
+        15,
+        14,
+        15,
+        15,
+        51,
+        16,
+        16,
+        21,
+        15,
+        14,
+        15,
+        12,
+        16,
+        12,
+        15
+      ],
+      "initial_quench_requests": 9,
+      "landing_quench_requests": 30,
+      "landing_reported_converged": true,
+      "landing_reported_fmax_eV_A": 0.02007769939315484,
+      "elapsed_seconds": 22.85768005438149,
+      "budget_censored": false,
+      "landing_fresh_qualified": true,
+      "total_requests_including_fresh": 481
+    },
+    {
+      "case": "C60-seed17093",
+      "system": "C60",
+      "seed": 17093,
+      "bias_fmax": 0.1,
+      "status": "completed",
+      "outer_steps_requested": 1,
+      "runtime": {
+        "python": "3.12.11",
+        "torch": "2.8.0+cu128",
+        "torch_seed": 0,
+        "deterministic_algorithms": true
+      },
+      "provenance": {
+        "git_head": "222f079e9b3dc21b2f4b0b66c8330b7bfc9fed30",
+        "core_tree": "c91783c10ae061f86cfadee08e3c5ed1dcfa7263",
+        "input_sha256": "33a322f4c1c9c7daf3eb8c71b0f67929bf0b619dcd972bc021add6f382b6323b",
+        "effective_config_sha256": "93011582b20a0afb40c0e63e1f1ae8671ecfff88ae7f85a95b8eb56d53efc43c"
+      },
+      "result_records": 1,
+      "record_statuses": [
+        "lower_true_energy"
+      ],
+      "result_evaluation_requests": 708,
+      "request_count_matches_result": true,
+      "search_requests": 708,
+      "search_calculator_calls": 692,
+      "search_denials": 0,
+      "search_boundary": null,
+      "fresh_checks": [
+        {
+          "label": "post-initial-quench",
+          "status": "completed",
+          "energy_eV": -62150.68280959669,
+          "fmax_eV_A": 0.029857555238461515,
+          "force_qualified": true,
+          "same_numbers": true,
+          "same_cell": true,
+          "same_pbc": true
+        },
+        {
+          "label": "outer-landing",
+          "status": "completed",
+          "energy_eV": -62153.997843713114,
+          "fmax_eV_A": 0.0240037665129359,
+          "force_qualified": true,
+          "same_numbers": true,
+          "same_cell": true,
+          "same_pbc": true
+        }
+      ],
+      "fresh_requests": 2,
+      "fresh_calculator_calls": 2,
+      "completed_gaussian_stages": 4,
+      "biased_stage_requests": [
+        69,
+        78,
+        71,
+        226
+      ],
+      "initial_quench_requests": 220,
+      "landing_quench_requests": 31,
+      "landing_reported_converged": true,
+      "landing_reported_fmax_eV_A": 0.0240037665129359,
+      "elapsed_seconds": 59.82944340445101,
+      "budget_censored": false,
+      "landing_fresh_qualified": true,
+      "total_requests_including_fresh": 710
+    },
+    {
+      "case": "C60-seed17093",
+      "system": "C60",
+      "seed": 17093,
+      "bias_fmax": 0.2,
+      "status": "completed",
+      "outer_steps_requested": 1,
+      "runtime": {
+        "python": "3.12.11",
+        "torch": "2.8.0+cu128",
+        "torch_seed": 0,
+        "deterministic_algorithms": true
+      },
+      "provenance": {
+        "git_head": "222f079e9b3dc21b2f4b0b66c8330b7bfc9fed30",
+        "core_tree": "c91783c10ae061f86cfadee08e3c5ed1dcfa7263",
+        "input_sha256": "33a322f4c1c9c7daf3eb8c71b0f67929bf0b619dcd972bc021add6f382b6323b",
+        "effective_config_sha256": "93011582b20a0afb40c0e63e1f1ae8671ecfff88ae7f85a95b8eb56d53efc43c"
+      },
+      "result_records": 1,
+      "record_statuses": [
+        "lower_true_energy"
+      ],
+      "result_evaluation_requests": 1118,
+      "request_count_matches_result": true,
+      "search_requests": 1118,
+      "search_calculator_calls": 1078,
+      "search_denials": 0,
+      "search_boundary": null,
+      "fresh_checks": [
+        {
+          "label": "post-initial-quench",
+          "status": "completed",
+          "energy_eV": -62150.6812893783,
+          "fmax_eV_A": 0.027566450938158772,
+          "force_qualified": true,
+          "same_numbers": true,
+          "same_cell": true,
+          "same_pbc": true
+        },
+        {
+          "label": "outer-landing",
+          "status": "completed",
+          "energy_eV": -62159.82869947393,
+          "fmax_eV_A": 0.02564537146793462,
+          "force_qualified": true,
+          "same_numbers": true,
+          "same_cell": true,
+          "same_pbc": true
+        }
+      ],
+      "fresh_requests": 2,
+      "fresh_calculator_calls": 2,
+      "completed_gaussian_stages": 12,
+      "biased_stage_requests": [
+        37,
+        53,
+        47,
+        56,
+        59,
+        81,
+        41,
+        50,
+        124,
+        30,
+        34,
+        80
+      ],
+      "initial_quench_requests": 217,
+      "landing_quench_requests": 196,
+      "landing_reported_converged": true,
+      "landing_reported_fmax_eV_A": 0.02564537146793462,
+      "elapsed_seconds": 84.12781505472958,
+      "budget_censored": false,
+      "landing_fresh_qualified": true,
+      "total_requests_including_fresh": 1120
+    },
+    {
+      "case": "C60-seed17094",
+      "system": "C60",
+      "seed": 17094,
+      "bias_fmax": 0.1,
+      "status": "completed",
+      "outer_steps_requested": 1,
+      "runtime": {
+        "python": "3.12.11",
+        "torch": "2.8.0+cu128",
+        "torch_seed": 0,
+        "deterministic_algorithms": true
+      },
+      "provenance": {
+        "git_head": "222f079e9b3dc21b2f4b0b66c8330b7bfc9fed30",
+        "core_tree": "c91783c10ae061f86cfadee08e3c5ed1dcfa7263",
+        "input_sha256": "2e49eabd0ae1bf854aa6baf07a2b583f4d21933ce55ba295983e146172c44b6f",
+        "effective_config_sha256": "1e9b2ce2f3a0f4a022d010a223f7ed156f3a91f91e22526940caeb0c841e2546"
+      },
+      "result_records": 1,
+      "record_statuses": [
+        "gaussian_limit"
+      ],
+      "result_evaluation_requests": 2186,
+      "request_count_matches_result": true,
+      "search_requests": 2186,
+      "search_calculator_calls": 2146,
+      "search_denials": 0,
+      "search_boundary": null,
+      "fresh_checks": [
+        {
+          "label": "post-initial-quench",
+          "status": "completed",
+          "energy_eV": -62153.36200223099,
+          "fmax_eV_A": 0.018229977383161806,
+          "force_qualified": true,
+          "same_numbers": true,
+          "same_cell": true,
+          "same_pbc": true
+        },
+        {
+          "label": "outer-landing",
+          "status": "completed",
+          "energy_eV": -62157.659256858045,
+          "fmax_eV_A": 0.027804191638478373,
+          "force_qualified": true,
+          "same_numbers": true,
+          "same_cell": true,
+          "same_pbc": true
+        }
+      ],
+      "fresh_requests": 2,
+      "fresh_calculator_calls": 2,
+      "completed_gaussian_stages": 12,
+      "biased_stage_requests": [
+        70,
+        100,
+        112,
+        60,
+        91,
+        52,
+        240,
+        72,
+        125,
+        68,
+        78,
+        123
+      ],
+      "initial_quench_requests": 661,
+      "landing_quench_requests": 317,
+      "landing_reported_converged": true,
+      "landing_reported_fmax_eV_A": 0.027804191638478373,
+      "elapsed_seconds": 159.26428852695972,
+      "budget_censored": false,
+      "landing_fresh_qualified": true,
+      "total_requests_including_fresh": 2188
+    },
+    {
+      "case": "C60-seed17094",
+      "system": "C60",
+      "seed": 17094,
+      "bias_fmax": 0.2,
+      "status": "completed",
+      "outer_steps_requested": 1,
+      "runtime": {
+        "python": "3.12.11",
+        "torch": "2.8.0+cu128",
+        "torch_seed": 0,
+        "deterministic_algorithms": true
+      },
+      "provenance": {
+        "git_head": "222f079e9b3dc21b2f4b0b66c8330b7bfc9fed30",
+        "core_tree": "c91783c10ae061f86cfadee08e3c5ed1dcfa7263",
+        "input_sha256": "2e49eabd0ae1bf854aa6baf07a2b583f4d21933ce55ba295983e146172c44b6f",
+        "effective_config_sha256": "1e9b2ce2f3a0f4a022d010a223f7ed156f3a91f91e22526940caeb0c841e2546"
+      },
+      "result_records": 1,
+      "record_statuses": [
+        "lower_true_energy"
+      ],
+      "result_evaluation_requests": 1516,
+      "request_count_matches_result": true,
+      "search_requests": 1516,
+      "search_calculator_calls": 1488,
+      "search_denials": 0,
+      "search_boundary": null,
+      "fresh_checks": [
+        {
+          "label": "post-initial-quench",
+          "status": "completed",
+          "energy_eV": -62153.36200223099,
+          "fmax_eV_A": 0.018229977383161806,
+          "force_qualified": true,
+          "same_numbers": true,
+          "same_cell": true,
+          "same_pbc": true
+        },
+        {
+          "label": "outer-landing",
+          "status": "completed",
+          "energy_eV": -62155.64935996071,
+          "fmax_eV_A": 0.02824645241833879,
+          "force_qualified": true,
+          "same_numbers": true,
+          "same_cell": true,
+          "same_pbc": true
+        }
+      ],
+      "fresh_requests": 2,
+      "fresh_calculator_calls": 2,
+      "completed_gaussian_stages": 8,
+      "biased_stage_requests": [
+        40,
+        75,
+        46,
+        84,
+        38,
+        63,
+        32,
+        203
+      ],
+      "initial_quench_requests": 661,
+      "landing_quench_requests": 257,
+      "landing_reported_converged": true,
+      "landing_reported_fmax_eV_A": 0.02824645241833879,
+      "elapsed_seconds": 109.79387031123042,
+      "budget_censored": false,
+      "landing_fresh_qualified": true,
+      "total_requests_including_fresh": 1518
+    }
+  ],
+  "elapsed_seconds": 577.1045473488048,
+  "total_search_requests": 8171,
+  "total_fresh_requests": 16
+}

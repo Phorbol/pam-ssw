@@ -1,0 +1,9 @@
+{
+  "status": "started",
+  "head": "222f079e9b3dc21b2f4b0b66c8330b7bfc9fed30",
+  "core_tree": "c91783c10ae061f86cfadee08e3c5ed1dcfa7263",
+  "plan_sha256": "0c91b3c31fa47e3126337c9791f59cef4d12c1a34720e574e9a7cdf6a31896ff",
+  "runner_sha256": "f71045a695878bde1962e53ce1dee8a1aa3a9fe36d7b032de529eaa4bd80ad6c",
+  "model_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+  "started_unix": 1790271606.490575
+}
