@@ -1,0 +1,108 @@
+{
+  "boundary": "Climb cost is computed as sum(record.evaluation_requests) minus LS-preparation requests and true-quench landing.evaluation_requests; these stage buckets plus the separately reported initial quench add exactly to result.evaluation_requests. True prequench response is 1000*(true_energy_after-true_energy_before)/60.",
+  "native_ls_state": {
+    "interpretation": "0 < nsoftstep < cycle is false (110 < 100 fails), so periodic save/zero/restore cycling is inactive. This does not disable the separate adaptive normal_update path; normal_update_due is true at each nonzero step <= presteps.",
+    "observed": {
+      "cc_table_coefficient_eV_range_including_initialized_value": [
+        0.06666666269302368,
+        0.10653914115571067
+      ],
+      "cc_table_initialized_coefficient_eV_from_source_initializer": 0.06666666269302368,
+      "fraction_of_20mev_target_range": [
+        0.17319012692799635,
+        0.4058948365551866
+      ],
+      "normal_update_records": 20,
+      "other_action_records": 0,
+      "q_range": [
+        1.0,
+        1.0
+      ],
+      "records": 20,
+      "records_at_or_above_target": 0,
+      "records_below_target": 20,
+      "true_energy_prequench_response_mev_per_atom_range": [
+        3.463802538559927,
+        8.117896731103732
+      ],
+      "updated_cc_table_coefficient_eV_range": [
+        0.07034137302098055,
+        0.10653914115571067
+      ]
+    },
+    "settings": {
+      "computed_nsoftstep": 110,
+      "cycle": 100,
+      "frequency": 10,
+      "lselfadapt": true,
+      "presteps": 100,
+      "ratio": 1.100000023841858,
+      "target_mev_per_atom": 20.0
+    }
+  },
+  "paired_cost_delta_native_minus_no_ls": {
+    "1101": 67,
+    "1102": -6
+  },
+  "request_arithmetic": {
+    "native_ls-1101": {
+      "accounting_exact": true,
+      "climb_excluding_preparation_and_true_quench": 5478,
+      "initial_quench": 1,
+      "ls_preparation": 71,
+      "records": 10,
+      "result_reported": 6387,
+      "status": "completed",
+      "total": 6387,
+      "true_quench": 837
+    },
+    "native_ls-1102": {
+      "accounting_exact": true,
+      "climb_excluding_preparation_and_true_quench": 6126,
+      "initial_quench": 1,
+      "ls_preparation": 70,
+      "records": 10,
+      "result_reported": 6898,
+      "status": "completed",
+      "total": 6898,
+      "true_quench": 701
+    },
+    "ssw_without_ls-1101": {
+      "accounting_exact": true,
+      "climb_excluding_preparation_and_true_quench": 5581,
+      "initial_quench": 1,
+      "ls_preparation": 0,
+      "records": 10,
+      "result_reported": 6320,
+      "status": "completed",
+      "total": 6320,
+      "true_quench": 738
+    },
+    "ssw_without_ls-1102": {
+      "accounting_exact": true,
+      "climb_excluding_preparation_and_true_quench": 6266,
+      "initial_quench": 1,
+      "ls_preparation": 0,
+      "records": 10,
+      "result_reported": 6904,
+      "status": "completed",
+      "total": 6904,
+      "true_quench": 637
+    }
+  },
+  "scope": "Read-only accounting and native-LS state audit of completed C60 paired runs; no new PES requests.",
+  "sources": {
+    "implementation": "pamssw/standalone/native_ls.py (NativeLSCycleState, normal_update_due)",
+    "protocol": "escape-plan.md",
+    "record_costs": [
+      "runs/native_ls-1101/record-costs.json",
+      "runs/native_ls-1102/record-costs.json"
+    ],
+    "runs": [
+      "runs/native_ls-1101/result.json",
+      "runs/native_ls-1102/result.json",
+      "runs/ssw_without_ls-1101/result.json",
+      "runs/ssw_without_ls-1102/result.json"
+    ]
+  }
+}

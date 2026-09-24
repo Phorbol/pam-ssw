@@ -89,7 +89,7 @@ def execute():
         row.update(search_requests=search.requests,fresh_requests=fresh.requests,boundary=search.boundary)
         ledger.dump(folder/'result.json',row);rows.append(row)
         ledger.dump(HERE/'runs/summary.json',dict(status='running',rows=rows))
-    ledger.dump(HERE/'runs/summary.json',dict(status='complete' if len(rows)==32 else 'wall_censored',rows=rows,
+    ledger.dump(HERE/'runs/summary.json',dict(status='complete' if len(rows)==len(data['rows']) else 'wall_censored',rows=rows,
         elapsed_seconds=time.monotonic()-started,total_requests=sum(x['search_requests']+x['fresh_requests'] for x in rows)))
 
 if __name__=='__main__':
