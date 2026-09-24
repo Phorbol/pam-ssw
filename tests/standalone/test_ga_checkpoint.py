@@ -28,6 +28,7 @@ def _atoms(x):
 
 def _run(monkeypatch, surface, **kwargs):
     step_walk = kwargs.pop('step_walk', False)
+    failed_record = kwargs.pop('failed_record', False)
     monkeypatch.setattr(paper_ga, 'cluster_descriptor',
                         lambda numbers, positions, *args: float(positions[0, 0]))
     monkeypatch.setattr(paper_ga, 'descriptor_similarity',
@@ -63,8 +64,11 @@ def _run(monkeypatch, surface, **kwargs):
                 start, paid = saved.next_index, saved.evaluation_requests
             for index in range(start, start + steps):
                 pay()
-                records.append(SSWStep(index, 'accepted', True, (float(rng.random()),),
-                                       q, None, 1, last_atoms=atoms.copy()))
+                landing = (QuenchResult(atoms.copy(), q.energy + 1., 1., False,
+                                       1, 1, 'true') if failed_record else q)
+                records.append(SSWStep(index, 'true_quench_failed' if failed_record else 'accepted',
+                                       not failed_record, (float(rng.random()),),
+                                       landing, None, 1, last_atoms=atoms.copy()))
                 paid += 1
                 # SSW snapshots copy minima and records independently. The
                 # same converged landing therefore loses Python identity.
@@ -286,6 +290,18 @@ def test_active_walk_checkpoint_callback_error_is_not_recorded_as_walk_failure(m
              checkpoint_callback=failed_save)
 
 
+def test_unconverged_record_landing_is_observed_once(monkeypatch):
+    config = paper_ga.PaperGAConfig(**{**_config().__dict__,
+        'quick_steps': 1, 'generations': 0, 'generation_steps': 0,
+        'fine_steps': 0})
+    result, _ = _run(monkeypatch, SimpleNamespace(requests=0), config=config,
+                     step_walk=True, failed_record=True)
+    quick = [observation for observation in result.observations if observation.phase == 'quick']
+    assert len(quick) == 2  # SSW initial minimum plus unconverged record landing.
+    assert sum(not observation.eligible_for_archive for observation in quick) == 1
+    assert quick[1].result.converged is False
+
+
 def test_v1_completed_boundary_still_resumes(monkeypatch, tmp_path):
     paused, _ = _run(monkeypatch, SimpleNamespace(requests=0),
         checkpoint_callback=lambda cp: cp.phase == 'quick_complete')
@@ -327,6 +343,15 @@ def test_real_emt_ls_active_quick_walk_resume(monkeypatch):
         checkpoint_walk_steps=True, checkpoint=first.checkpoint, **common)
     assert resumed.evaluation_requests == full.evaluation_requests
     assert first_surface.requests + second_surface.requests == full.evaluation_requests
+    assert [(o.id, o.phase, o.seed_id, o.parent_ids, o.operator,
+             o.result.energy, o.result.max_force, o.eligible_for_archive)
+            for o in resumed.observations] == [
+            (o.id, o.phase, o.seed_id, o.parent_ids, o.operator,
+             o.result.energy, o.result.max_force, o.eligible_for_archive)
+            for o in full.observations]
+    for actual, expected in zip(resumed.observations, full.observations):
+        np.testing.assert_array_equal(actual.result.atoms.positions,
+                                      expected.result.atoms.positions)
     assert resumed.walks[0].checkpoint.response.steps == full.walks[0].checkpoint.response.steps
     assert [r.ls_update for r in resumed.walks[0].records] == [r.ls_update for r in full.walks[0].records]
     np.testing.assert_array_equal(resumed.walks[0].current.positions, full.walks[0].current.positions)
