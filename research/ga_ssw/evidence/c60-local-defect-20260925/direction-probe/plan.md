@@ -11,3 +11,5 @@ Qualification: initial and every recorded landing independently fresh checked; g
 If no useful cage rearrangement appears, end this local-defect branch rather than increase its budget or tune selector/LS parameters. If useful cage/Ih appears, preserve as bounded mechanism evidence and assess transfer to existing other-system data before any default decision. No automatic successor, retry/resume, budget extension or production acceptance claim. Parent SSW/LS study and these arms still share one structural input; two seeds are not independent structural validation.
 
 Execution: CPU1484967 passed actual settings/input/curvature preflight (zero PES). GPU1484974 submitted with explicit group account,8V100V0/rush-1o2gpu,1V100/60min, frozen3f35a98. Runtime preflight checks the frozen shared runner/plan before evaluating the model. Source and saved-stage milestones pushed through3f35a98.
+
+Readout GPU1484974 completed20m12, CPU1484988 exit0. Follow-up geometric identity CPU1485232 failed because directory glob included preflight-used.json; fixed iteration to actual arm checks paths. Failed log preserved, no PES involved.

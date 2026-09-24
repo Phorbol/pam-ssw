@@ -1,0 +1,175 @@
+{
+  "scope": "Geometric identity check alongside existing fresh force/energy checks; not a TS/barrier or new Hessian certificate",
+  "rows": [
+    {
+      "arm": "native_ls-1101",
+      "first_hit": {
+        "role": "landing-6",
+        "search_cost": 2748,
+        "reported_converged": true,
+        "status": "checked",
+        "energy_eV": -62215.392788593126,
+        "fmax_eV_A": 0.029279715543956805,
+        "force_qualified": true,
+        "composition_preserved": true,
+        "cell_preserved": true,
+        "pbc_preserved": true,
+        "delta_ih_eV": 0.0005821974991704337,
+        "energy_window_met": true,
+        "graphs": {
+          "1.64": {
+            "cutoff_A": 1.64,
+            "all_carbon": true,
+            "components": 1,
+            "edges": 90,
+            "degree_counts": {
+              "3": 60
+            },
+            "three_connected": true,
+            "planar": true,
+            "face_counts": {
+              "6": 20,
+              "5": 12
+            },
+            "graph_cage_candidate": true,
+            "ih_graph_match": true,
+            "source_defect_graph_match": false,
+            "source_defect_labeled_edges_preserved": false
+          },
+          "1.7": {
+            "cutoff_A": 1.7,
+            "all_carbon": true,
+            "components": 1,
+            "edges": 90,
+            "degree_counts": {
+              "3": 60
+            },
+            "three_connected": true,
+            "planar": true,
+            "face_counts": {
+              "6": 20,
+              "5": 12
+            },
+            "graph_cage_candidate": true,
+            "ih_graph_match": true,
+            "source_defect_graph_match": false,
+            "source_defect_labeled_edges_preserved": false
+          },
+          "1.8": {
+            "cutoff_A": 1.8,
+            "all_carbon": true,
+            "components": 1,
+            "edges": 90,
+            "degree_counts": {
+              "3": 60
+            },
+            "three_connected": true,
+            "planar": true,
+            "face_counts": {
+              "6": 20,
+              "5": 12
+            },
+            "graph_cage_candidate": true,
+            "ih_graph_match": true,
+            "source_defect_graph_match": false,
+            "source_defect_labeled_edges_preserved": false
+          }
+        }
+      },
+      "accepted": true,
+      "minimum_pair_distance_A": 1.379081636620094,
+      "independent_geometry_vs_reference": {
+        "status": "computed",
+        "rms_A": 0.0023841585237772515,
+        "isomorphic_mappings": 120,
+        "rotation_constraint": "proper_only_det_plus_1",
+        "similarity_threshold": null
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1102",
+      "first_hit": {
+        "role": "landing-3",
+        "search_cost": 1614,
+        "reported_converged": true,
+        "status": "checked",
+        "energy_eV": -62215.39299583169,
+        "fmax_eV_A": 0.01777982037406769,
+        "force_qualified": true,
+        "composition_preserved": true,
+        "cell_preserved": true,
+        "pbc_preserved": true,
+        "delta_ih_eV": 0.00037495893775485456,
+        "energy_window_met": true,
+        "graphs": {
+          "1.64": {
+            "cutoff_A": 1.64,
+            "all_carbon": true,
+            "components": 1,
+            "edges": 90,
+            "degree_counts": {
+              "3": 60
+            },
+            "three_connected": true,
+            "planar": true,
+            "face_counts": {
+              "6": 20,
+              "5": 12
+            },
+            "graph_cage_candidate": true,
+            "ih_graph_match": true,
+            "source_defect_graph_match": false,
+            "source_defect_labeled_edges_preserved": false
+          },
+          "1.7": {
+            "cutoff_A": 1.7,
+            "all_carbon": true,
+            "components": 1,
+            "edges": 90,
+            "degree_counts": {
+              "3": 60
+            },
+            "three_connected": true,
+            "planar": true,
+            "face_counts": {
+              "6": 20,
+              "5": 12
+            },
+            "graph_cage_candidate": true,
+            "ih_graph_match": true,
+            "source_defect_graph_match": false,
+            "source_defect_labeled_edges_preserved": false
+          },
+          "1.8": {
+            "cutoff_A": 1.8,
+            "all_carbon": true,
+            "components": 1,
+            "edges": 90,
+            "degree_counts": {
+              "3": 60
+            },
+            "three_connected": true,
+            "planar": true,
+            "face_counts": {
+              "6": 20,
+              "5": 12
+            },
+            "graph_cage_candidate": true,
+            "ih_graph_match": true,
+            "source_defect_graph_match": false,
+            "source_defect_labeled_edges_preserved": false
+          }
+        }
+      },
+      "accepted": true,
+      "minimum_pair_distance_A": 1.3790976753301911,
+      "independent_geometry_vs_reference": {
+        "status": "computed",
+        "rms_A": 0.001790240225724169,
+        "isomorphic_mappings": 120,
+        "rotation_constraint": "proper_only_det_plus_1",
+        "similarity_threshold": null
+      }
+    }
+  ]
+}

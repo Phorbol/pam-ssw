@@ -1,0 +1,10 @@
+{
+  "elapsed_seconds": 1208.2456680368632,
+  "search_requests": 16298,
+  "fresh_requests": 44,
+  "search_calculations": 14832,
+  "fresh_calculations": 44,
+  "planned_arms": 4,
+  "reported_arms": 4,
+  "head": "a618cc7aeca76e42edb899839636cd3df3d5965d"
+}
