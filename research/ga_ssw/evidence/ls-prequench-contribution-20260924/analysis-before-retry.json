@@ -1,0 +1,64 @@
+{
+  "rows": [
+    {
+      "case_id": "paper_ls-seed61-record000",
+      "status": "missing"
+    },
+    {
+      "case_id": "paper_ls-seed61-record199",
+      "status": "missing"
+    },
+    {
+      "case_id": "paper_ls-seed61-record399",
+      "status": "missing"
+    },
+    {
+      "case_id": "paper_ls-seed67-record000",
+      "status": "missing"
+    },
+    {
+      "case_id": "paper_ls-seed67-record199",
+      "status": "missing"
+    },
+    {
+      "case_id": "paper_ls-seed67-record399",
+      "status": "missing"
+    },
+    {
+      "case_id": "native_ls-seed61-record000",
+      "status": "missing"
+    },
+    {
+      "case_id": "native_ls-seed61-record199",
+      "status": "missing"
+    },
+    {
+      "case_id": "native_ls-seed61-record399",
+      "status": "missing"
+    },
+    {
+      "case_id": "native_ls-seed67-record000",
+      "status": "missing"
+    },
+    {
+      "case_id": "native_ls-seed67-record199",
+      "status": "missing"
+    },
+    {
+      "case_id": "native_ls-seed67-record399",
+      "status": "missing"
+    }
+  ],
+  "invariance_check": {
+    "graph_isomorphic": true,
+    "graph_permutations": 8,
+    "aligned_geometry": {
+      "rms_A": 4.981333295763811e-16,
+      "max_atom_A": 9.155133597044475e-16
+    },
+    "components_a": 1,
+    "components_b": 1
+  },
+  "requests": 0,
+  "scope": "12 fixed saved states; geometric similarity and force qualification, not certified basin identity or global-search ranking"
+}
