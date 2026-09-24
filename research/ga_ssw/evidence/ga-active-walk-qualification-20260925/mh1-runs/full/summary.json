@@ -1,0 +1,58 @@
+{
+  "accepted_observations": 12,
+  "actual_suffix_requests": 8266,
+  "archive_count": 8,
+  "captured_phase": null,
+  "checkpoint_prefix_requests": 0,
+  "cumulative_requests": 8266,
+  "mode": "full",
+  "observation_count": 12,
+  "observation_ids_unique": true,
+  "stages": [
+    {
+      "observations": 1,
+      "phase": "initial_quench",
+      "requests": 221,
+      "status": "completed"
+    },
+    {
+      "observations": 1,
+      "phase": "initial_quench",
+      "requests": 501,
+      "status": "completed"
+    },
+    {
+      "observations": 1,
+      "phase": "initial_quench",
+      "requests": 377,
+      "status": "completed"
+    },
+    {
+      "observations": 2,
+      "phase": "quick",
+      "requests": 948,
+      "status": "completed"
+    },
+    {
+      "observations": 2,
+      "phase": "quick",
+      "requests": 1050,
+      "status": "completed"
+    },
+    {
+      "observations": 2,
+      "phase": "quick",
+      "requests": 1695,
+      "status": "completed"
+    },
+    {
+      "observations": 3,
+      "phase": "fine",
+      "requests": 3474,
+      "status": "completed"
+    }
+  ],
+  "status": "completed",
+  "walk_ingestion_count": 9,
+  "walk_stage_observation_count": 9
+}

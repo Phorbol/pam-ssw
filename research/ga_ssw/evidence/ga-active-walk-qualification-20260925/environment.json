@@ -1,0 +1,17 @@
+{
+  "packages": {
+    "numpy": "2.0.2",
+    "scipy": "1.16.0",
+    "ase": "3.26.0",
+    "torch": "2.8.0",
+    "mace-torch": "0.3.16"
+  },
+  "note": "Metadata read after completion from unchanged mace_env with PYTHONNOUSERSITE=1; no model calls",
+  "gpu_job": 1483856,
+  "node": "8v100v0n01",
+  "partition": "8V100V0",
+  "qos": "rush-1o2gpu",
+  "account": "sjtu-caoxiaoming",
+  "elapsed_seconds": 1215,
+  "gpu_count": 1
+}

@@ -86,3 +86,13 @@ all outputs and stop for review.
 The root agent reviews the artifacts and decides whether to authorize the
 bounded run after the EMT gate. No code, model, scientific parameter, or
 resource change is implied by this prepared probe.
+
+Implementation provenance clarification (while GPU1483856 runs; no runtime change):
+this fixture inherits the JSON configuration and uses the public default
+`descriptor_row_order='legacy_counts'`. The older population-comparison runner
+separately passes `full_fingerprint`; that argument is absent from its JSON.
+Thus this is not a replay of that older population experiment. Full and split
+arms here use the same legacy identity mode, appropriate for the checkpoint
+contract under test; no cross-experiment search comparison is made. EMT uses
+the same public default. This clarification does not change frozen code or
+relax any recovery acceptance criterion.

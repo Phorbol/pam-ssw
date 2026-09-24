@@ -1,0 +1,80 @@
+{
+  "configured_model_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+  "effective_descriptor": {
+    "bond_lengths": [
+      [
+        6,
+        6,
+        2.557112
+      ]
+    ],
+    "neighbor_range": 1.5,
+    "weights": [
+      0.3,
+      0.2,
+      0.2,
+      0.1,
+      0.1,
+      0.1
+    ]
+  },
+  "effective_ga": {
+    "cycles": 1,
+    "energy_window": 10.0,
+    "fine_regions": 1,
+    "fine_steps": 2,
+    "ga_candidates": 8,
+    "generation_steps": 10,
+    "generations": 0,
+    "partition_max_draws": 10000,
+    "projection_tolerance": 0.001,
+    "proposal_max_batches": 2,
+    "proposal_max_cut_attempts": 1000,
+    "proposal_max_insertion_attempts": 10000,
+    "proposal_max_pair_attempts": 10000,
+    "proposal_type": 0,
+    "quench_fmax": 0.03,
+    "quench_steps": 1000,
+    "quick_steps": 1,
+    "regions": 1
+  },
+  "effective_ssw": {
+    "bias_fmax": 0.1,
+    "bias_stage_steps": null,
+    "cluster_frame": "direction_only",
+    "direction_sampling": "global",
+    "fd_step": 0.001,
+    "fmax": 0.03,
+    "forward_force": 0.1,
+    "lbfgs_memory": 500,
+    "max_gaussians": 12,
+    "pre_rotation_hvp": null,
+    "quench_optimizer": "safe-lbfgs-total",
+    "relax_steps": 1000,
+    "rotation_bias": 1.0,
+    "rotation_exit_policy": "force_or_budget",
+    "rotation_hvp": 39,
+    "rotation_solver": "broyden-euclidean",
+    "rotation_tol": 0.02,
+    "temperature_K": 150.0,
+    "width": 0.6
+  },
+  "executable": "/home/gengjianrui/.conda/envs/mace_env/bin/python",
+  "git_head": "67aacfb6c8a7c2ef5a83c038d5fd89936be240f4",
+  "inputs": [
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-active-walk-recovery/research/ga_ssw/evidence/population-comparison-20260923/inputs/c60-17093.extxyz",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-active-walk-recovery/research/ga_ssw/evidence/population-comparison-20260923/inputs/c60-17094.extxyz",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-active-walk-recovery/research/ga_ssw/evidence/population-comparison-20260923/inputs/c60-17095.extxyz"
+  ],
+  "mode": "resume",
+  "model": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+  "native_mc": {
+    "energy_tol": 0.1,
+    "maxtrap": 99999
+  },
+  "pamssw_head_tree": "6af521c7b2e6ecb69972d40d621c0b5ce6a17570",
+  "python": "3.12.11 | packaged by Anaconda, Inc. | (main, Jun  5 2025, 13:09:17) [GCC 11.2.0]",
+  "request_cap": 12000,
+  "runtime_search_requests": 1354,
+  "seed_config": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-active-walk-recovery/research/ga_ssw/evidence/population-comparison-20260923/c60-seed3.json"
+}

@@ -1,6 +1,6 @@
 # 提案：GA 内部正在执行的 SSW 长轨迹恢复
 
-状态（2026-09-25）：用户已批准最小方案；固定胞两项有界诊断结束后恢复实施。源码已在隔离分支实现，正在进行独立进程真实体系资格检查，尚未合入主线。详见 [资格记录](../../research/ga_ssw/evidence/ga-active-walk-qualification-20260925/README.md)。
+状态（2026-09-25）：用户已批准最小方案；固定胞两项有界诊断结束后恢复实施。源码已在隔离分支实现，通过Cu13/EMT四阶段严格恢复及C60/MH1有界恢复资格；GPU轨迹不保证逐位一致。详见 [资格记录](../../research/ga_ssw/evidence/ga-active-walk-qualification-20260925/README.md)。
 
 ## 为什么现在需要决定
 
