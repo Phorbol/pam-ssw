@@ -2,51 +2,813 @@
   "rows": [
     {
       "case_id": "paper_ls-seed61-record000",
-      "status": "missing"
+      "status": "completed",
+      "requests": 7,
+      "fresh": [
+        {
+          "label": "original_ssw_landing",
+          "status": "completed",
+          "energy_eV": -4243.837493783981,
+          "max_force_eV_A": 0.023600171700586897,
+          "force_qualified": true
+        },
+        {
+          "label": "prequench_only_terminal",
+          "status": "completed",
+          "energy_eV": -4243.921425182997,
+          "max_force_eV_A": 0.021470078264510088,
+          "force_qualified": true
+        }
+      ],
+      "pre_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.003117744431832293,
+          "max_atom_A": 0.005971318077219235
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "full_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 1.2857589322860499,
+          "max_atom_A": 1.929366421864494
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "pre_vs_full": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 1.2857777380284554,
+          "max_atom_A": 1.9302244126592996
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "torsion_degrees_cos": {
+        "start": [
+          180.0,
+          -1.0
+        ],
+        "pre": [
+          180.0,
+          -1.0
+        ],
+        "full": [
+          27.691818779084773,
+          0.8854599911714154
+        ]
+      },
+      "pre_minus_full_eV": -0.0839313990163646,
+      "original_full_requests": 796,
+      "original_preparation_requests": 7,
+      "new_pre_only_quench_requests": 5
     },
     {
       "case_id": "paper_ls-seed61-record199",
-      "status": "missing"
+      "status": "completed",
+      "requests": 24,
+      "fresh": [
+        {
+          "label": "original_ssw_landing",
+          "status": "completed",
+          "energy_eV": -4243.837488040548,
+          "max_force_eV_A": 0.025690361419231127,
+          "force_qualified": true
+        },
+        {
+          "label": "prequench_only_terminal",
+          "status": "completed",
+          "energy_eV": -4243.919951408845,
+          "max_force_eV_A": 0.021566233047743716,
+          "force_qualified": true
+        }
+      ],
+      "pre_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.019562865377396568,
+          "max_atom_A": 0.026509553084605647
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "full_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 1.251864355696071,
+          "max_atom_A": 1.8806360312343695
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "pre_vs_full": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 1.2649884101188857,
+          "max_atom_A": 1.902019138341602
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "torsion_degrees_cos": {
+        "start": [
+          186.84826914375458,
+          -0.9928654056764129
+        ],
+        "pre": [
+          184.22216925314257,
+          -0.9972860647737962
+        ],
+        "full": [
+          333.7832583552251,
+          0.8971293247649088
+        ]
+      },
+      "pre_minus_full_eV": -0.08246336829688516,
+      "original_full_requests": 654,
+      "original_preparation_requests": 22,
+      "new_pre_only_quench_requests": 22
     },
     {
       "case_id": "paper_ls-seed61-record399",
-      "status": "missing"
+      "status": "completed",
+      "requests": 24,
+      "fresh": [
+        {
+          "label": "original_ssw_landing",
+          "status": "completed",
+          "energy_eV": -4243.829755065607,
+          "max_force_eV_A": 0.025528159679266794,
+          "force_qualified": true
+        },
+        {
+          "label": "prequench_only_terminal",
+          "status": "completed",
+          "energy_eV": -4243.921700794167,
+          "max_force_eV_A": 0.012973228101163258,
+          "force_qualified": true
+        }
+      ],
+      "pre_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.0018435114165634837,
+          "max_atom_A": 0.002691582469183911
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "full_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 1.4149749869219141,
+          "max_atom_A": 3.1466084209954217
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "pre_vs_full": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 1.4155180099340958,
+          "max_atom_A": 3.147337702556943
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "torsion_degrees_cos": {
+        "start": [
+          180.2110187491175,
+          -0.9999932178664536
+        ],
+        "pre": [
+          180.1122564247887,
+          -0.999998080681659
+        ],
+        "full": [
+          5.151440100281478,
+          0.9959608547741522
+        ]
+      },
+      "pre_minus_full_eV": -0.0919457285599492,
+      "original_full_requests": 677,
+      "original_preparation_requests": 22,
+      "new_pre_only_quench_requests": 22
     },
     {
       "case_id": "paper_ls-seed67-record000",
-      "status": "missing"
+      "status": "completed",
+      "requests": 7,
+      "fresh": [
+        {
+          "label": "original_ssw_landing",
+          "status": "completed",
+          "energy_eV": -4243.9207479923,
+          "max_force_eV_A": 0.022650682674615123,
+          "force_qualified": true
+        },
+        {
+          "label": "prequench_only_terminal",
+          "status": "completed",
+          "energy_eV": -4243.921425182997,
+          "max_force_eV_A": 0.021470078264511607,
+          "force_qualified": true
+        }
+      ],
+      "pre_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.00311774443183264,
+          "max_atom_A": 0.005971318077220115
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "full_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.02526664134460437,
+          "max_atom_A": 0.04111833710925735
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "pre_vs_full": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.025169133223090504,
+          "max_atom_A": 0.04105108993612859
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "torsion_degrees_cos": {
+        "start": [
+          180.0,
+          -1.0
+        ],
+        "pre": [
+          180.0,
+          -1.0
+        ],
+        "full": [
+          177.12279485152422,
+          -0.998739406303551
+        ]
+      },
+      "pre_minus_full_eV": -0.0006771906973881414,
+      "original_full_requests": 561,
+      "original_preparation_requests": 7,
+      "new_pre_only_quench_requests": 5
     },
     {
       "case_id": "paper_ls-seed67-record199",
-      "status": "missing"
+      "status": "completed",
+      "requests": 20,
+      "fresh": [
+        {
+          "label": "original_ssw_landing",
+          "status": "completed",
+          "energy_eV": -4243.8374480597195,
+          "max_force_eV_A": 0.023293414784875257,
+          "force_qualified": true
+        },
+        {
+          "label": "prequench_only_terminal",
+          "status": "completed",
+          "energy_eV": -4243.921583976395,
+          "max_force_eV_A": 0.02999172419799234,
+          "force_qualified": true
+        }
+      ],
+      "pre_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.0036623127276920555,
+          "max_atom_A": 0.007226023485369778
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "full_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 1.2897316610944274,
+          "max_atom_A": 1.943646976839877
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "pre_vs_full": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 1.2888794677955884,
+          "max_atom_A": 1.9371931010703947
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "torsion_degrees_cos": {
+        "start": [
+          180.59129677978078,
+          -0.9999467484917759
+        ],
+        "pre": [
+          180.29886527026596,
+          -0.9999863957483743
+        ],
+        "full": [
+          27.47782532973268,
+          0.8871894731563279
+        ]
+      },
+      "pre_minus_full_eV": -0.08413591667522269,
+      "original_full_requests": 671,
+      "original_preparation_requests": 18,
+      "new_pre_only_quench_requests": 18
     },
     {
       "case_id": "paper_ls-seed67-record399",
-      "status": "missing"
+      "status": "completed",
+      "requests": 25,
+      "fresh": [
+        {
+          "label": "original_ssw_landing",
+          "status": "completed",
+          "energy_eV": -4243.687553317195,
+          "max_force_eV_A": 0.025759776930460873,
+          "force_qualified": true
+        },
+        {
+          "label": "prequench_only_terminal",
+          "status": "completed",
+          "energy_eV": -4243.92164623273,
+          "max_force_eV_A": 0.00668438532538316,
+          "force_qualified": true
+        }
+      ],
+      "pre_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.008769555390274863,
+          "max_atom_A": 0.013114373192665547
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "full_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.7336315015508678,
+          "max_atom_A": 1.1290129596454503
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "pre_vs_full": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.7314690661757619,
+          "max_atom_A": 1.1206892169454075
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "torsion_degrees_cos": {
+        "start": [
+          180.73069976967616,
+          -0.9999186801078095
+        ],
+        "pre": [
+          180.5701943110211,
+          -0.9999504815644922
+        ],
+        "full": [
+          99.6437125098615,
+          -0.16752094132546022
+        ]
+      },
+      "pre_minus_full_eV": -0.2340929155352569,
+      "original_full_requests": 609,
+      "original_preparation_requests": 20,
+      "new_pre_only_quench_requests": 23
     },
     {
       "case_id": "native_ls-seed61-record000",
-      "status": "missing"
+      "status": "completed",
+      "requests": 12,
+      "fresh": [
+        {
+          "label": "original_ssw_landing",
+          "status": "completed",
+          "energy_eV": -4243.837461359575,
+          "max_force_eV_A": 0.024593881650835266,
+          "force_qualified": true
+        },
+        {
+          "label": "prequench_only_terminal",
+          "status": "completed",
+          "energy_eV": -4243.921574681832,
+          "max_force_eV_A": 0.02061328638619456,
+          "force_qualified": true
+        }
+      ],
+      "pre_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.0026348734727957234,
+          "max_atom_A": 0.004337855682976716
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "full_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 1.28423949805613,
+          "max_atom_A": 1.9306264622057203
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "pre_vs_full": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 1.284543054062816,
+          "max_atom_A": 1.9323312581684609
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "torsion_degrees_cos": {
+        "start": [
+          180.0,
+          -1.0
+        ],
+        "pre": [
+          180.0,
+          -1.0
+        ],
+        "full": [
+          27.948924594763078,
+          0.8833657448919081
+        ]
+      },
+      "pre_minus_full_eV": -0.08411332225659862,
+      "original_full_requests": 770,
+      "original_preparation_requests": 9,
+      "new_pre_only_quench_requests": 10
     },
     {
       "case_id": "native_ls-seed61-record199",
-      "status": "missing"
+      "status": "completed",
+      "requests": 22,
+      "fresh": [
+        {
+          "label": "original_ssw_landing",
+          "status": "completed",
+          "energy_eV": -4243.9214717544555,
+          "max_force_eV_A": 0.02869738384008792,
+          "force_qualified": true
+        },
+        {
+          "label": "prequench_only_terminal",
+          "status": "completed",
+          "energy_eV": -4243.9217022707935,
+          "max_force_eV_A": 0.0074802294166156,
+          "force_qualified": true
+        }
+      ],
+      "pre_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.002357413254584117,
+          "max_atom_A": 0.0042477482093744865
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "full_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.010739709113697446,
+          "max_atom_A": 0.018824976955601765
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "pre_vs_full": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.010032986945817383,
+          "max_atom_A": 0.01610383644776927
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "torsion_degrees_cos": {
+        "start": [
+          179.75869599091433,
+          -0.999991131438695
+        ],
+        "pre": [
+          179.78209164218129,
+          -0.9999927677739548
+        ],
+        "full": [
+          180.7700285610815,
+          -0.9999096908259476
+        ]
+      },
+      "pre_minus_full_eV": -0.00023051633797877003,
+      "original_full_requests": 675,
+      "original_preparation_requests": 17,
+      "new_pre_only_quench_requests": 20
     },
     {
       "case_id": "native_ls-seed61-record399",
-      "status": "missing"
+      "status": "completed",
+      "requests": 25,
+      "fresh": [
+        {
+          "label": "original_ssw_landing",
+          "status": "completed",
+          "energy_eV": -4243.837285298248,
+          "max_force_eV_A": 0.01342992009978555,
+          "force_qualified": true
+        },
+        {
+          "label": "prequench_only_terminal",
+          "status": "completed",
+          "energy_eV": -4243.92165894728,
+          "max_force_eV_A": 0.02045757200132991,
+          "force_qualified": true
+        }
+      ],
+      "pre_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.006373456519191594,
+          "max_atom_A": 0.009731658269146081
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "full_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 1.302825744088168,
+          "max_atom_A": 1.9784788704589547
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "pre_vs_full": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 1.304223137564657,
+          "max_atom_A": 1.967563628510582
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "torsion_degrees_cos": {
+        "start": [
+          179.54210598832293,
+          -0.9999680660709684
+        ],
+        "pre": [
+          179.65168692964528,
+          -0.9999815216603714
+        ],
+        "full": [
+          24.428649402007597,
+          0.9104769838490196
+        ]
+      },
+      "pre_minus_full_eV": -0.08437364903147682,
+      "original_full_requests": 712,
+      "original_preparation_requests": 17,
+      "new_pre_only_quench_requests": 23
     },
     {
       "case_id": "native_ls-seed67-record000",
-      "status": "missing"
+      "status": "completed",
+      "requests": 12,
+      "fresh": [
+        {
+          "label": "original_ssw_landing",
+          "status": "completed",
+          "energy_eV": -4243.921421864712,
+          "max_force_eV_A": 0.027149299013545958,
+          "force_qualified": true
+        },
+        {
+          "label": "prequench_only_terminal",
+          "status": "completed",
+          "energy_eV": -4243.921574681832,
+          "max_force_eV_A": 0.020613286386119197,
+          "force_qualified": true
+        }
+      ],
+      "pre_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.002634873472796461,
+          "max_atom_A": 0.004337855682979487
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "full_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.008353369830250328,
+          "max_atom_A": 0.013970169686454518
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "pre_vs_full": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.006880476249870527,
+          "max_atom_A": 0.013521874841329497
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "torsion_degrees_cos": {
+        "start": [
+          180.0,
+          -1.0
+        ],
+        "pre": [
+          180.0,
+          -1.0
+        ],
+        "full": [
+          180.26518788276215,
+          -0.9999892889680163
+        ]
+      },
+      "pre_minus_full_eV": -0.00015281711966963485,
+      "original_full_requests": 722,
+      "original_preparation_requests": 9,
+      "new_pre_only_quench_requests": 10
     },
     {
       "case_id": "native_ls-seed67-record199",
-      "status": "missing"
+      "status": "completed",
+      "requests": 23,
+      "fresh": [
+        {
+          "label": "original_ssw_landing",
+          "status": "completed",
+          "energy_eV": -4243.517438727182,
+          "max_force_eV_A": 0.02783595992877509,
+          "force_qualified": true
+        },
+        {
+          "label": "prequench_only_terminal",
+          "status": "completed",
+          "energy_eV": -4243.92154749826,
+          "max_force_eV_A": 0.015277766626189244,
+          "force_qualified": true
+        }
+      ],
+      "pre_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.01163572861997777,
+          "max_atom_A": 0.015660774255674945
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "full_vs_start": {
+        "graph_isomorphic": false,
+        "graph_permutations": 0,
+        "aligned_geometry": null,
+        "components_a": 1,
+        "components_b": 1
+      },
+      "pre_vs_full": {
+        "graph_isomorphic": false,
+        "graph_permutations": 0,
+        "aligned_geometry": null,
+        "components_a": 1,
+        "components_b": 1
+      },
+      "torsion_degrees_cos": {
+        "start": [
+          181.35263862082138,
+          -0.9997213441689515
+        ],
+        "pre": [
+          180.82109502993677,
+          -0.99989731567477
+        ],
+        "full": null
+      },
+      "pre_minus_full_eV": -0.4041087710784268,
+      "original_full_requests": 615,
+      "original_preparation_requests": 16,
+      "new_pre_only_quench_requests": 21
     },
     {
       "case_id": "native_ls-seed67-record399",
-      "status": "missing"
+      "status": "completed",
+      "requests": 25,
+      "fresh": [
+        {
+          "label": "original_ssw_landing",
+          "status": "completed",
+          "energy_eV": -4243.517909546423,
+          "max_force_eV_A": 0.02278098078337255,
+          "force_qualified": true
+        },
+        {
+          "label": "prequench_only_terminal",
+          "status": "completed",
+          "energy_eV": -4243.9216958520765,
+          "max_force_eV_A": 0.018457078973623173,
+          "force_qualified": true
+        }
+      ],
+      "pre_vs_start": {
+        "graph_isomorphic": true,
+        "graph_permutations": 8,
+        "aligned_geometry": {
+          "rms_A": 0.002669022157293638,
+          "max_atom_A": 0.005070320997183861
+        },
+        "components_a": 1,
+        "components_b": 1
+      },
+      "full_vs_start": {
+        "graph_isomorphic": false,
+        "graph_permutations": 0,
+        "aligned_geometry": null,
+        "components_a": 1,
+        "components_b": 1
+      },
+      "pre_vs_full": {
+        "graph_isomorphic": false,
+        "graph_permutations": 0,
+        "aligned_geometry": null,
+        "components_a": 1,
+        "components_b": 1
+      },
+      "torsion_degrees_cos": {
+        "start": [
+          180.06064501270853,
+          -0.9999994398364035
+        ],
+        "pre": [
+          180.0176779783034,
+          -0.9999999524018658
+        ],
+        "full": null
+      },
+      "pre_minus_full_eV": -0.40378630565373896,
+      "original_full_requests": 598,
+      "original_preparation_requests": 19,
+      "new_pre_only_quench_requests": 23
     }
   ],
   "invariance_check": {
@@ -59,6 +821,6 @@
     "components_a": 1,
     "components_b": 1
   },
-  "requests": 0,
+  "requests": 226,
   "scope": "12 fixed saved states; geometric similarity and force qualification, not certified basin identity or global-search ranking"
 }
