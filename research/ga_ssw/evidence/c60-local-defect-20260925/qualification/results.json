@@ -1,0 +1,249 @@
+{
+  "cases": [
+    {
+      "member": "c60/c60-iso-1_opt.xyz",
+      "converged": true,
+      "steps": 4,
+      "optimization_calls": 5,
+      "fresh_calls": 1,
+      "energy_eV": -62215.393370790625,
+      "fresh_energy_eV": -62215.393370790625,
+      "fresh_fmax_eV_A": 0.004075178353159756,
+      "force_qualified": true,
+      "labeled_edges_preserved": {
+        "1.64": true,
+        "1.7": true,
+        "1.8": true
+      },
+      "initial_graphs": [
+        {
+          "cutoff_A": 1.64,
+          "all_carbon": true,
+          "components": 1,
+          "edges": 90,
+          "degree_counts": {
+            "3": 60
+          },
+          "three_connected": true,
+          "planar": true,
+          "face_counts": {
+            "5": 12,
+            "6": 20
+          },
+          "graph_cage_candidate": true,
+          "ih_graph_match": true
+        },
+        {
+          "cutoff_A": 1.7,
+          "all_carbon": true,
+          "components": 1,
+          "edges": 90,
+          "degree_counts": {
+            "3": 60
+          },
+          "three_connected": true,
+          "planar": true,
+          "face_counts": {
+            "5": 12,
+            "6": 20
+          },
+          "graph_cage_candidate": true,
+          "ih_graph_match": true
+        },
+        {
+          "cutoff_A": 1.8,
+          "all_carbon": true,
+          "components": 1,
+          "edges": 90,
+          "degree_counts": {
+            "3": 60
+          },
+          "three_connected": true,
+          "planar": true,
+          "face_counts": {
+            "5": 12,
+            "6": 20
+          },
+          "graph_cage_candidate": true,
+          "ih_graph_match": true
+        }
+      ],
+      "final_graphs": [
+        {
+          "cutoff_A": 1.64,
+          "all_carbon": true,
+          "components": 1,
+          "edges": 90,
+          "degree_counts": {
+            "3": 60
+          },
+          "three_connected": true,
+          "planar": true,
+          "face_counts": {
+            "5": 12,
+            "6": 20
+          },
+          "graph_cage_candidate": true,
+          "ih_graph_match": true
+        },
+        {
+          "cutoff_A": 1.7,
+          "all_carbon": true,
+          "components": 1,
+          "edges": 90,
+          "degree_counts": {
+            "3": 60
+          },
+          "three_connected": true,
+          "planar": true,
+          "face_counts": {
+            "5": 12,
+            "6": 20
+          },
+          "graph_cage_candidate": true,
+          "ih_graph_match": true
+        },
+        {
+          "cutoff_A": 1.8,
+          "all_carbon": true,
+          "components": 1,
+          "edges": 90,
+          "degree_counts": {
+            "3": 60
+          },
+          "three_connected": true,
+          "planar": true,
+          "face_counts": {
+            "5": 12,
+            "6": 20
+          },
+          "graph_cage_candidate": true,
+          "ih_graph_match": true
+        }
+      ]
+    },
+    {
+      "member": "c60/c60-iso-2_opt.xyz",
+      "converged": true,
+      "steps": 10,
+      "optimization_calls": 11,
+      "fresh_calls": 1,
+      "energy_eV": -62214.17020995536,
+      "fresh_energy_eV": -62214.17020995536,
+      "fresh_fmax_eV_A": 0.028464907632923028,
+      "force_qualified": true,
+      "labeled_edges_preserved": {
+        "1.64": true,
+        "1.7": true,
+        "1.8": true
+      },
+      "initial_graphs": [
+        {
+          "cutoff_A": 1.64,
+          "all_carbon": true,
+          "components": 1,
+          "edges": 90,
+          "degree_counts": {
+            "3": 60
+          },
+          "three_connected": true,
+          "planar": true,
+          "face_counts": {
+            "5": 12,
+            "6": 20
+          },
+          "graph_cage_candidate": true,
+          "ih_graph_match": false
+        },
+        {
+          "cutoff_A": 1.7,
+          "all_carbon": true,
+          "components": 1,
+          "edges": 90,
+          "degree_counts": {
+            "3": 60
+          },
+          "three_connected": true,
+          "planar": true,
+          "face_counts": {
+            "5": 12,
+            "6": 20
+          },
+          "graph_cage_candidate": true,
+          "ih_graph_match": false
+        },
+        {
+          "cutoff_A": 1.8,
+          "all_carbon": true,
+          "components": 1,
+          "edges": 90,
+          "degree_counts": {
+            "3": 60
+          },
+          "three_connected": true,
+          "planar": true,
+          "face_counts": {
+            "5": 12,
+            "6": 20
+          },
+          "graph_cage_candidate": true,
+          "ih_graph_match": false
+        }
+      ],
+      "final_graphs": [
+        {
+          "cutoff_A": 1.64,
+          "all_carbon": true,
+          "components": 1,
+          "edges": 90,
+          "degree_counts": {
+            "3": 60
+          },
+          "three_connected": true,
+          "planar": true,
+          "face_counts": {
+            "5": 12,
+            "6": 20
+          },
+          "graph_cage_candidate": true,
+          "ih_graph_match": false
+        },
+        {
+          "cutoff_A": 1.7,
+          "all_carbon": true,
+          "components": 1,
+          "edges": 90,
+          "degree_counts": {
+            "3": 60
+          },
+          "three_connected": true,
+          "planar": true,
+          "face_counts": {
+            "5": 12,
+            "6": 20
+          },
+          "graph_cage_candidate": true,
+          "ih_graph_match": false
+        },
+        {
+          "cutoff_A": 1.8,
+          "all_carbon": true,
+          "components": 1,
+          "edges": 90,
+          "degree_counts": {
+            "3": 60
+          },
+          "three_connected": true,
+          "planar": true,
+          "face_counts": {
+            "5": 12,
+            "6": 20
+          },
+          "graph_cage_candidate": true,
+          "ih_graph_match": false
+        }
+      ]
+    }
+  ],
+  "total_calculations": 18
+}

@@ -1,0 +1,15 @@
+{
+  "head": "08c217a0e791c7e6f7e0e00686d3264b7481307d",
+  "model": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+  "backend_head": "omol",
+  "dtype": "float64",
+  "device": "cuda",
+  "ase": "3.26.0",
+  "torch": "2.8.0+cu128",
+  "source": "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/literature/c60-defect-input-20260925/41524_2024_1410_MOESM3_ESM.zip",
+  "fmax_eV_A": 0.03,
+  "max_steps": 200,
+  "memory": 100,
+  "maxstep_A": 0.2,
+  "alpha": 70
+}

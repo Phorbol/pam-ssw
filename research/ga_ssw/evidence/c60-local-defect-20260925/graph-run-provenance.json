@@ -1,0 +1,59 @@
+{
+  "objective": "CPU-only source graph audit of author dataset C60 isomers #1 and #2; no calculator or PES requests",
+  "worktree_head_at_final_run": "08c217a0e791c7e6f7e0e00686d3264b7481307d",
+  "runner": "research/ga_ssw/evidence/c60-local-defect-20260925/graph_audit.py",
+  "runner_sha256": "b3b31e611e73b90a6c9d1a03c19f98572f5314b2601f4612c2885745fb983235",
+  "python": "/home/gengjianrui/.conda/envs/mace_env/bin/python, Python 3.12.11",
+  "final_scheduler_run": {
+    "job_id": "1484150",
+    "partition": "CPU-MISC",
+    "qos": "rush-cpu",
+    "account": "sjtu-caoxiaoming",
+    "nodes": 1,
+    "ntasks": 1,
+    "cpus_per_task": 1,
+    "time_limit": "00:05:00",
+    "state": "COMPLETED",
+    "elapsed": "00:00:04",
+    "exit_code": "0:0",
+    "environment_set_inside_wrap": [
+      "PYTHONNOUSERSITE=1",
+      "OMP_NUM_THREADS=1",
+      "OPENBLAS_NUM_THREADS=1",
+      "MKL_NUM_THREADS=1"
+    ],
+    "export_override": false,
+    "stdout": "slurm-1484150.out"
+  },
+  "prior_attempts": [
+    {
+      "job_id": "1484087",
+      "state": "CANCELLED by 0",
+      "elapsed": "00:00:01",
+      "exit_code": "0:0",
+      "note": "Submitted with --export=ALL,PYTHONNOUSERSITE=1,OMP_NUM_THREADS=1; no script output created. Known SAI UID0-cancellation pattern."
+    },
+    {
+      "job_id": "1484140",
+      "state": "FAILED",
+      "elapsed": "00:00:05",
+      "exit_code": "1:0",
+      "stdout": "slurm-1484140.out",
+      "note": "ASE XYZ parser encountered trailing blank lines as a next frame. Source bytes preserved; parser input changed to rstrip plus one newline."
+    },
+    {
+      "job_id": "1484145",
+      "state": "COMPLETED",
+      "elapsed": "00:00:04",
+      "exit_code": "0:0",
+      "note": "Graph checks completed, but initial witness JSON lacked materialized GraphMatcher mapping; superseded by job 1484150."
+    }
+  ],
+  "final_artifacts": [
+    "graph_audit.json",
+    "witness.json",
+    "graph_audit.py",
+    "slurm-1484150.out"
+  ],
+  "interpretation_boundary": "The one-switch result is an abstract cutoff-graph relation only. It does not establish a physical Stone-Wales pathway, transition state, barrier, or Atlas-number mapping."
+}
