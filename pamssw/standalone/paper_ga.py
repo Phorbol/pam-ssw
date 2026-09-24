@@ -108,6 +108,10 @@ class BudgetExhausted(RuntimeError):
     """The next physical surface request would exceed the global run cap."""
 
 
+class _CheckpointCallbackError(RuntimeError):
+    """Do not turn a failed user checkpoint save into a GA walk failure."""
+
+
 @dataclass(frozen=True)
 class GAStage:
     phase: str
@@ -566,6 +570,7 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
     def walk(row, phase, generation, steps, cycle=0, *, walk_config=None,
              archive_best=False, parent_ids=(), operator=None, details=None,
              nested_checkpoint=None, on_step=None):
+        call_started = surface.requests
         before = surface.requests - (nested_checkpoint.evaluation_requests if nested_checkpoint else 0)
         if budget_surface:
             budget_surface.mark_exhausted_if_full()
@@ -598,12 +603,13 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
                 return True
             walks.append(result)
             landings = list(result.minima)
-            seen = {id(q) for q in landings}
             for record in result.records:
                 landing = getattr(record, 'landing', None)
-                if isinstance(landing, QuenchResult) and id(landing) not in seen:
+                # SSW puts every converged landing in minima. A resumed SSW
+                # copies minima and records separately, so object identity
+                # cannot tell whether a record landing is already present.
+                if isinstance(landing, QuenchResult) and not landing.converged:
                     landings.append(landing)
-                    seen.add(id(landing))
             ids = ingest(landings, phase, generation, row['id'], parent_ids=parent_ids,
                          operator=operator, details=details, archive_best=archive_best)
             bad = any(not observations[i].eligible_for_archive for i in ids)
@@ -630,7 +636,14 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
                 stage_details['operator'] = operator
             stages.append(GAStage(phase, generation, row['id'], 'completed_with_failures' if bad else 'completed',
                                   surface.requests-before, len(ids), stage_details, cycle=cycle))
+        except _CheckpointCallbackError:
+            raise
         except Exception as error:
+            # SSW checks its nested scientific/options contract before its
+            # first PES call. An incompatible saved state must not be turned
+            # into a recoverable walk failure followed by new GA requests.
+            if nested_checkpoint is not None and surface.requests == call_started:
+                raise
             cost = surface.requests-before
             landing = getattr(error, 'result', None)
             ids = (ingest((landing,), phase, generation, row['id'],
@@ -659,7 +672,11 @@ def run_ga_ssw(initial: Sequence[Atoms], surface, *, groups, references,
                     prior_requests + surface.requests - started - ssw_state.evaluation_requests,
                     incomplete_proposal)
                 state = make_checkpoint('active_walk', cycle, generation, active_walk=active)
-                if checkpoint_callback(state):
+                try:
+                    pause = checkpoint_callback(state)
+                except Exception as error:
+                    raise _CheckpointCallbackError(f'GA checkpoint callback failed: {error}') from error
+                if pause:
                     paused_state.append(state)
                     return True
                 return False

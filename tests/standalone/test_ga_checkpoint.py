@@ -64,9 +64,12 @@ def _run(monkeypatch, surface, **kwargs):
             for index in range(start, start + steps):
                 pay()
                 records.append(SSWStep(index, 'accepted', True, (float(rng.random()),),
-                                       None, None, 1, last_atoms=atoms.copy()))
+                                       q, None, 1, last_atoms=atoms.copy()))
                 paid += 1
-                cp = SSWCheckpoint(q, atoms.copy(), q.energy, q, (q,), tuple(records),
+                # SSW snapshots copy minima and records independently. The
+                # same converged landing therefore loses Python identity.
+                cp = SSWCheckpoint(deepcopy(q), atoms.copy(), q.energy,
+                    deepcopy(q), (deepcopy(q),), deepcopy(tuple(records)),
                     None, None, unused['config'], unused.get('ls'),
                     unused.get('height_policy'), unused.get('gaussian_policy'),
                     unused.get('height_update_budget', 1000), None,
@@ -225,6 +228,7 @@ def test_active_walk_resume_all_phases_preserves_queue_rng_and_cost(monkeypatch,
             (s.phase, s.seed_id, s.evaluation_requests) for s in full.stages]
         assert [(o.phase, o.id, o.parent_ids, o.operator) for o in resumed.observations] == [
             (o.phase, o.id, o.parent_ids, o.operator) for o in full.observations]
+        assert len(resumed.observations) == len(full.observations)
         assert [r.climb for w in resumed.walks for r in w.records] == [
             r.climb for w in full.walks for r in w.records]
 
@@ -241,6 +245,45 @@ def test_active_walk_rejects_incompatible_nested_state_before_pes(monkeypatch):
         _run(monkeypatch, surface, config=config, step_walk=True,
              checkpoint_walk_steps=True, checkpoint=corrupt)
     assert surface.requests == 0
+
+
+def test_active_walk_rejects_nested_policy_mismatch_before_pes(monkeypatch):
+    from ase.calculators.emt import EMT
+    from pamssw.standalone.surface import ASESurface
+    from test_ssw_checkpoint import _case
+
+    atoms, ssw_config, ls = _case()
+    monkeypatch.setattr(paper_ga, 'cluster_descriptor', lambda *args: 0.)
+    monkeypatch.setattr(paper_ga, 'descriptor_similarity', lambda *args: 0.)
+    config = paper_ga.PaperGAConfig(**{**_config().__dict__,
+        'proposal_type': 0, 'quick_steps': 2, 'generations': 0,
+        'generation_steps': 0, 'fine_steps': 0, 'quench_fmax': 1e-5,
+        'quench_steps': 100})
+    common = dict(initial=[atoms], groups=None, references=(0., 1., 2.),
+        descriptor_bonds={}, descriptor_weights=(1.,) * 6, neighbor_range=1.,
+        proposal_bond_limits={}, config=config, ssw_config=ssw_config, ls=ls,
+        checkpoint_walk_steps=True)
+    paused = paper_ga.run_ga_ssw(surface=ASESurface(EMT()), rng=np.random.default_rng(19),
+        checkpoint_callback=lambda cp: cp.phase == 'active_walk', **common)
+    corrupt = paused.checkpoint.clone()
+    corrupt.active_walk.ssw_checkpoint.height_update_budget += 1
+    surface = ASESurface(EMT())
+    with np.testing.assert_raises(ValueError):
+        paper_ga.run_ga_ssw(surface=surface, rng=np.random.default_rng(999),
+            checkpoint=corrupt, **common)
+    assert surface.requests == 0
+
+
+def test_active_walk_checkpoint_callback_error_is_not_recorded_as_walk_failure(monkeypatch):
+    config = paper_ga.PaperGAConfig(**{**_config().__dict__, 'quick_steps': 2})
+    def failed_save(state):
+        if state.phase == 'active_walk':
+            raise RuntimeError('checkpoint save failed')
+        return False
+    with np.testing.assert_raises_regex(RuntimeError, 'checkpoint save failed'):
+        _run(monkeypatch, SimpleNamespace(requests=0), config=config,
+             step_walk=True, checkpoint_walk_steps=True,
+             checkpoint_callback=failed_save)
 
 
 def test_v1_completed_boundary_still_resumes(monkeypatch, tmp_path):
