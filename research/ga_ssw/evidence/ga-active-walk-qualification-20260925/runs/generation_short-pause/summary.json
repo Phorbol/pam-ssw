@@ -1,0 +1,26 @@
+{
+  "name": "generation_short-pause",
+  "status": "checkpoint_boundary",
+  "actual_requests": 7385,
+  "cumulative_requests": 7385,
+  "captured": [
+    "generation_short"
+  ],
+  "phases": [
+    "initial_quench",
+    "initial_quench",
+    "initial_quench",
+    "quick",
+    "quick",
+    "quick",
+    "proposal",
+    "offspring_ssw",
+    "offspring_ssw",
+    "offspring_ssw",
+    "offspring_ssw",
+    "offspring_ssw",
+    "offspring_ssw",
+    "offspring_ssw"
+  ],
+  "observations": 33
+}

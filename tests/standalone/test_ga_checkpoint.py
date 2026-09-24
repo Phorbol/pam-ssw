@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from copy import deepcopy
 
 import numpy as np
 from ase import Atoms
@@ -7,6 +8,7 @@ from pamssw.standalone import paper_ga
 from pamssw.standalone.ga_checkpoint import GACheckpoint
 from pamssw.standalone.ga_operators import GeneticCandidate, ProposalResult
 from pamssw.standalone.surface import QuenchResult
+from pamssw.standalone.paper_reference import SSWCheckpoint, SSWStep
 
 
 def _config():
@@ -25,6 +27,8 @@ def _atoms(x):
 
 
 def _run(monkeypatch, surface, **kwargs):
+    step_walk = kwargs.pop('step_walk', False)
+    failed_record = kwargs.pop('failed_record', False)
     monkeypatch.setattr(paper_ga, 'cluster_descriptor',
                         lambda numbers, positions, *args: float(positions[0, 0]))
     monkeypatch.setattr(paper_ga, 'descriptor_similarity',
@@ -39,6 +43,47 @@ def _run(monkeypatch, surface, **kwargs):
         return QuenchResult(atoms.copy(), 10. - x, 0., True, 1, 1, 'true')
     monkeypatch.setattr(paper_ga, 'quench', quench)
     def walk(atoms, surface, *, steps, **unused):
+        if step_walk:
+            def pay():
+                if hasattr(surface, 'evaluate'):
+                    surface.evaluate(atoms)
+                else:
+                    surface.requests += 1
+            saved = unused.get('checkpoint')
+            rng = unused['rng']
+            if saved is None:
+                pay()
+                q = QuenchResult(atoms.copy(), 10. - float(atoms.positions[0, 0]),
+                                 0., True, 1, 1, 'true')
+                records = []
+                start, paid = 0, 1
+            else:
+                rng.bit_generator.state = deepcopy(saved.rng_state)
+                q = saved.initial
+                records = list(saved.records)
+                start, paid = saved.next_index, saved.evaluation_requests
+            for index in range(start, start + steps):
+                pay()
+                landing = (QuenchResult(atoms.copy(), q.energy + 1., 1., False,
+                                       1, 1, 'true') if failed_record else q)
+                records.append(SSWStep(index, 'true_quench_failed' if failed_record else 'accepted',
+                                       not failed_record, (float(rng.random()),),
+                                       landing, None, 1, last_atoms=atoms.copy()))
+                paid += 1
+                # SSW snapshots copy minima and records independently. The
+                # same converged landing therefore loses Python identity.
+                cp = SSWCheckpoint(deepcopy(q), atoms.copy(), q.energy,
+                    deepcopy(q), (deepcopy(q),), deepcopy(tuple(records)),
+                    None, None, unused['config'], unused.get('ls'),
+                    unused.get('height_policy'), unused.get('gaussian_policy'),
+                    unused.get('height_update_budget', 1000), None,
+                    deepcopy(rng.bit_generator.state), paid, index + 1, 'completed')
+                callback = unused.get('checkpoint_callback')
+                if callback is not None and callback(cp):
+                    return SimpleNamespace(initial=q, minima=(q,), records=tuple(records),
+                        evaluation_requests=paid, status='paused', checkpoint=cp)
+            return SimpleNamespace(initial=q, minima=(q,), records=tuple(records),
+                evaluation_requests=paid, status='completed')
         if hasattr(surface, 'evaluate'):
             surface.evaluate(atoms)
         else:
@@ -158,3 +203,155 @@ def test_cycle_boundary_resume_advances_to_next_cycle(monkeypatch):
                       checkpoint=partial.checkpoint)
     assert resumed.status in ('completed', 'completed_with_failures')
     assert len(resumed.stages) > len(partial.stages)
+
+
+def test_active_walk_resume_all_phases_preserves_queue_rng_and_cost(monkeypatch, tmp_path):
+    config = paper_ga.PaperGAConfig(**{**_config().__dict__,
+        'quick_steps': 2, 'generation_steps': 2, 'fine_steps': 2,
+        'offspring_steps': 2})
+    full, full_proposals = _run(monkeypatch, SimpleNamespace(requests=0),
+        config=config, step_walk=True, checkpoint_walk_steps=True)
+    for phase in ('quick', 'offspring_ssw', 'generation_short', 'fine'):
+        first_surface = SimpleNamespace(requests=0)
+        first, first_proposals = _run(monkeypatch, first_surface,
+            config=config, step_walk=True, checkpoint_walk_steps=True,
+            checkpoint_callback=lambda cp: cp.phase == 'active_walk' and cp.active_walk.phase == phase)
+        assert first.status == 'checkpoint_boundary'
+        assert first.checkpoint.active_walk.phase == phase
+        assert first.checkpoint.active_walk.ssw_checkpoint.next_index == 1
+        path = tmp_path / f'{phase}.pkl'
+        first.checkpoint.save(path)
+        second_surface = SimpleNamespace(requests=0)
+        resumed, second_proposals = _run(monkeypatch, second_surface,
+            config=config, step_walk=True, checkpoint_walk_steps=True,
+            checkpoint=GACheckpoint.load(path))
+        assert first_surface.requests + second_surface.requests == full.evaluation_requests
+        assert resumed.evaluation_requests == full.evaluation_requests
+        assert first_proposals + second_proposals == full_proposals
+        assert [(s.phase, s.seed_id, s.evaluation_requests) for s in resumed.stages] == [
+            (s.phase, s.seed_id, s.evaluation_requests) for s in full.stages]
+        assert [(o.phase, o.id, o.parent_ids, o.operator) for o in resumed.observations] == [
+            (o.phase, o.id, o.parent_ids, o.operator) for o in full.observations]
+        assert len(resumed.observations) == len(full.observations)
+        assert [r.climb for w in resumed.walks for r in w.records] == [
+            r.climb for w in full.walks for r in w.records]
+
+
+def test_active_walk_rejects_incompatible_nested_state_before_pes(monkeypatch):
+    config = paper_ga.PaperGAConfig(**{**_config().__dict__, 'quick_steps': 2})
+    paused, _ = _run(monkeypatch, SimpleNamespace(requests=0), config=config,
+        step_walk=True, checkpoint_walk_steps=True,
+        checkpoint_callback=lambda cp: cp.phase == 'active_walk')
+    corrupt = paused.checkpoint.clone()
+    corrupt.active_walk.ssw_checkpoint.config = SimpleNamespace(bad=True)
+    surface = SimpleNamespace(requests=0)
+    with np.testing.assert_raises(ValueError):
+        _run(monkeypatch, surface, config=config, step_walk=True,
+             checkpoint_walk_steps=True, checkpoint=corrupt)
+    assert surface.requests == 0
+
+
+def test_active_walk_rejects_nested_policy_mismatch_before_pes(monkeypatch):
+    from ase.calculators.emt import EMT
+    from pamssw.standalone.surface import ASESurface
+    from test_ssw_checkpoint import _case
+
+    atoms, ssw_config, ls = _case()
+    monkeypatch.setattr(paper_ga, 'cluster_descriptor', lambda *args: 0.)
+    monkeypatch.setattr(paper_ga, 'descriptor_similarity', lambda *args: 0.)
+    config = paper_ga.PaperGAConfig(**{**_config().__dict__,
+        'proposal_type': 0, 'quick_steps': 2, 'generations': 0,
+        'generation_steps': 0, 'fine_steps': 0, 'quench_fmax': 1e-5,
+        'quench_steps': 100})
+    common = dict(initial=[atoms], groups=None, references=(0., 1., 2.),
+        descriptor_bonds={}, descriptor_weights=(1.,) * 6, neighbor_range=1.,
+        proposal_bond_limits={}, config=config, ssw_config=ssw_config, ls=ls,
+        checkpoint_walk_steps=True)
+    paused = paper_ga.run_ga_ssw(surface=ASESurface(EMT()), rng=np.random.default_rng(19),
+        checkpoint_callback=lambda cp: cp.phase == 'active_walk', **common)
+    corrupt = paused.checkpoint.clone()
+    corrupt.active_walk.ssw_checkpoint.height_update_budget += 1
+    surface = ASESurface(EMT())
+    with np.testing.assert_raises(ValueError):
+        paper_ga.run_ga_ssw(surface=surface, rng=np.random.default_rng(999),
+            checkpoint=corrupt, **common)
+    assert surface.requests == 0
+
+
+def test_active_walk_checkpoint_callback_error_is_not_recorded_as_walk_failure(monkeypatch):
+    config = paper_ga.PaperGAConfig(**{**_config().__dict__, 'quick_steps': 2})
+    def failed_save(state):
+        if state.phase == 'active_walk':
+            raise RuntimeError('checkpoint save failed')
+        return False
+    with np.testing.assert_raises_regex(RuntimeError, 'checkpoint save failed'):
+        _run(monkeypatch, SimpleNamespace(requests=0), config=config,
+             step_walk=True, checkpoint_walk_steps=True,
+             checkpoint_callback=failed_save)
+
+
+def test_unconverged_record_landing_is_observed_once(monkeypatch):
+    config = paper_ga.PaperGAConfig(**{**_config().__dict__,
+        'quick_steps': 1, 'generations': 0, 'generation_steps': 0,
+        'fine_steps': 0})
+    result, _ = _run(monkeypatch, SimpleNamespace(requests=0), config=config,
+                     step_walk=True, failed_record=True)
+    quick = [observation for observation in result.observations if observation.phase == 'quick']
+    assert len(quick) == 2  # SSW initial minimum plus unconverged record landing.
+    assert sum(not observation.eligible_for_archive for observation in quick) == 1
+    assert quick[1].result.converged is False
+
+
+def test_v1_completed_boundary_still_resumes(monkeypatch, tmp_path):
+    paused, _ = _run(monkeypatch, SimpleNamespace(requests=0),
+        checkpoint_callback=lambda cp: cp.phase == 'quick_complete')
+    old = paused.checkpoint.clone()
+    old.version = 1
+    del old.active_walk
+    path = tmp_path / 'v1.pkl'
+    old.save(path)
+    loaded = GACheckpoint.load(path)
+    resumed, _ = _run(monkeypatch, SimpleNamespace(requests=0), checkpoint=loaded)
+    assert resumed.status in ('completed', 'completed_with_failures')
+
+
+def test_real_emt_ls_active_quick_walk_resume(monkeypatch):
+    from ase.calculators.emt import EMT
+    from pamssw.standalone.surface import ASESurface
+    from test_ssw_checkpoint import _case
+
+    atoms, ssw_config, ls = _case()
+    monkeypatch.setattr(paper_ga, 'cluster_descriptor', lambda *args: 0.)
+    monkeypatch.setattr(paper_ga, 'descriptor_similarity', lambda *args: 0.)
+    config = paper_ga.PaperGAConfig(**{**_config().__dict__,
+        'proposal_type': 0, 'quick_steps': 2, 'generations': 0,
+        'generation_steps': 0, 'fine_steps': 0, 'quench_fmax': 1e-5,
+        'quench_steps': 100})
+    common = dict(initial=[atoms], groups=None, references=(0., 1., 2.),
+        descriptor_bonds={}, descriptor_weights=(1.,) * 6, neighbor_range=1.,
+        proposal_bond_limits={}, config=config, ssw_config=ssw_config, ls=ls)
+    full = paper_ga.run_ga_ssw(surface=ASESurface(EMT()), rng=np.random.default_rng(19),
+        checkpoint_walk_steps=True, checkpoint_callback=lambda cp: False, **common)
+    first_surface = ASESurface(EMT())
+    first = paper_ga.run_ga_ssw(surface=first_surface, rng=np.random.default_rng(19),
+        checkpoint_walk_steps=True,
+        checkpoint_callback=lambda cp: cp.phase == 'active_walk', **common)
+    assert first.checkpoint.active_walk.ssw_checkpoint.response.steps == 1
+    second_surface = ASESurface(EMT())
+    resumed_rng = np.random.default_rng(999)
+    resumed = paper_ga.run_ga_ssw(surface=second_surface, rng=resumed_rng,
+        checkpoint_walk_steps=True, checkpoint=first.checkpoint, **common)
+    assert resumed.evaluation_requests == full.evaluation_requests
+    assert first_surface.requests + second_surface.requests == full.evaluation_requests
+    assert [(o.id, o.phase, o.seed_id, o.parent_ids, o.operator,
+             o.result.energy, o.result.max_force, o.eligible_for_archive)
+            for o in resumed.observations] == [
+            (o.id, o.phase, o.seed_id, o.parent_ids, o.operator,
+             o.result.energy, o.result.max_force, o.eligible_for_archive)
+            for o in full.observations]
+    for actual, expected in zip(resumed.observations, full.observations):
+        np.testing.assert_array_equal(actual.result.atoms.positions,
+                                      expected.result.atoms.positions)
+    assert resumed.walks[0].checkpoint.response.steps == full.walks[0].checkpoint.response.steps
+    assert [r.ls_update for r in resumed.walks[0].records] == [r.ls_update for r in full.walks[0].records]
+    np.testing.assert_array_equal(resumed.walks[0].current.positions, full.walks[0].current.positions)

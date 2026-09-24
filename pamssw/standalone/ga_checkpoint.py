@@ -1,4 +1,4 @@
-"""Trusted local persistence for completed GA controller boundaries."""
+"""Trusted local persistence for GA boundaries and optional active walks."""
 from dataclasses import dataclass
 import copy
 import os
@@ -7,8 +7,23 @@ import tempfile
 
 
 @dataclass
+class GAActiveWalk:
+    """Selected work and one completed SSW outer-step continuation point."""
+
+    phase: str
+    cycle: int
+    generation: int
+    queue: tuple
+    cursor: int
+    steps: int
+    ssw_checkpoint: object
+    walk_start_requests: int
+    incomplete_proposal: bool = False
+
+
+@dataclass
 class GACheckpoint:
-    """A restartable GA state captured only at a completed phase boundary.
+    """A restartable GA state captured at a completed safe boundary.
 
     The calculator, surface and user callbacks are deliberately absent.  A
     caller must provide compatible objects again when resuming a checkpoint.
@@ -32,11 +47,12 @@ class GACheckpoint:
     evaluation_requests: int
     max_evaluations: int | None
     contract: dict
+    active_walk: GAActiveWalk | None = None
 
-    VERSION = 1
+    VERSION = 2
 
     def __post_init__(self):
-        if self.version != self.VERSION:
+        if self.version not in (1, self.VERSION):
             raise ValueError(f'unsupported GA checkpoint version: {self.version}')
 
     def clone(self):
@@ -64,6 +80,6 @@ class GACheckpoint:
             state = pickle.load(handle)
         if not isinstance(state, cls):
             raise TypeError('file does not contain a GACheckpoint')
-        if state.version != cls.VERSION:
+        if state.version not in (1, cls.VERSION):
             raise ValueError(f'unsupported GA checkpoint version: {state.version}')
         return state

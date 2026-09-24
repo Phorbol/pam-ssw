@@ -1,0 +1,132 @@
+{
+  "fresh_checks": [
+    {
+      "candidate": "best",
+      "energy_eV": -62158.100118507355,
+      "fmax_eV_A": 0.02534675152756821,
+      "mode": "full",
+      "numerical_qualified": true
+    },
+    {
+      "candidate": "current",
+      "energy_eV": -62158.100118507355,
+      "fmax_eV_A": 0.02534675152756821,
+      "mode": "full",
+      "numerical_qualified": true
+    },
+    {
+      "candidate": "best",
+      "energy_eV": -62157.41628283345,
+      "fmax_eV_A": 0.028139724846214378,
+      "mode": "resumed",
+      "numerical_qualified": true
+    },
+    {
+      "candidate": "current",
+      "energy_eV": -62157.41628283345,
+      "fmax_eV_A": 0.028139724846214378,
+      "mode": "resumed",
+      "numerical_qualified": true
+    }
+  ],
+  "fresh_requests": 4,
+  "numerical_qualified": true,
+  "resumed_suffix_requests": 1354,
+  "split_suffix_requests": 6727,
+  "total_search_requests_full_plus_split": 16347,
+  "trajectory_differences": {
+    "accepted_observations": 0,
+    "archive_count": 0,
+    "cumulative_requests": -185,
+    "full_stages": [
+      {
+        "observations": 1,
+        "phase": "initial_quench",
+        "requests": 221,
+        "status": "completed"
+      },
+      {
+        "observations": 1,
+        "phase": "initial_quench",
+        "requests": 501,
+        "status": "completed"
+      },
+      {
+        "observations": 1,
+        "phase": "initial_quench",
+        "requests": 377,
+        "status": "completed"
+      },
+      {
+        "observations": 2,
+        "phase": "quick",
+        "requests": 948,
+        "status": "completed"
+      },
+      {
+        "observations": 2,
+        "phase": "quick",
+        "requests": 1050,
+        "status": "completed"
+      },
+      {
+        "observations": 2,
+        "phase": "quick",
+        "requests": 1695,
+        "status": "completed"
+      },
+      {
+        "observations": 3,
+        "phase": "fine",
+        "requests": 3474,
+        "status": "completed"
+      }
+    ],
+    "observation_count": 0,
+    "resumed_stages": [
+      {
+        "observations": 1,
+        "phase": "initial_quench",
+        "requests": 221,
+        "status": "completed"
+      },
+      {
+        "observations": 1,
+        "phase": "initial_quench",
+        "requests": 501,
+        "status": "completed"
+      },
+      {
+        "observations": 1,
+        "phase": "initial_quench",
+        "requests": 377,
+        "status": "completed"
+      },
+      {
+        "observations": 2,
+        "phase": "quick",
+        "requests": 948,
+        "status": "completed"
+      },
+      {
+        "observations": 2,
+        "phase": "quick",
+        "requests": 1050,
+        "status": "completed"
+      },
+      {
+        "observations": 2,
+        "phase": "quick",
+        "requests": 1695,
+        "status": "completed"
+      },
+      {
+        "observations": 3,
+        "phase": "fine",
+        "requests": 3289,
+        "status": "completed"
+      }
+    ]
+  },
+  "trajectory_equality_claimed": false
+}
