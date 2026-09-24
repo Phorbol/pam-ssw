@@ -1,0 +1,1 @@
+check_passed: 8 arm configs and inputs checked; paired configs differ only by bias_fmax; steps=1 is one additional outer attempt; no MACE/PES call

@@ -1,0 +1,70 @@
+{
+  "status": "PREPARED_NOT_SUBMITTED",
+  "protocol": "plan.md",
+  "experiment_class": "development numerical sensitivity; one additional outer attempt per fresh start",
+  "arms": [0.1, 0.2],
+  "cases": {
+    "C4H6-native-LS-seed61": {
+      "system": "C4H6",
+      "source_case": "c4h6-mh1-coverage-20260924",
+      "seed": 61,
+      "input": "../c4h6-model-qualification-20260924-r2/butadiene/input.extxyz",
+      "input_sha256": "aa1f59e77d0931acba51e531493deb7257c5716ddc08470ad9fe0a113d53bc45",
+      "effective_config": "research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/effective_config.json",
+      "effective_config_sha256": "a6c1bcf638fcd56b57fc6afe0e56b07c393dbe442e400a814be835a61e36fa28"
+    },
+    "C4H6-native-LS-seed67": {
+      "system": "C4H6",
+      "source_case": "c4h6-mh1-coverage-20260924",
+      "seed": 67,
+      "input": "../c4h6-model-qualification-20260924-r2/butadiene/input.extxyz",
+      "input_sha256": "aa1f59e77d0931acba51e531493deb7257c5716ddc08470ad9fe0a113d53bc45",
+      "effective_config": "research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/effective_config.json",
+      "effective_config_sha256": "f709d004ff3346641b3e924cc08439d8fbf62790dac5fa29133c63b250088bd3"
+    },
+    "C60-seed17093": {
+      "system": "C60",
+      "source_case": "c60-recovered-rotation-ls-prospective-20260922",
+      "seed": 17093,
+      "input": "research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/inputs/c60_17093.traj",
+      "input_sha256": "33a322f4c1c9c7daf3eb8c71b0f67929bf0b619dcd972bc021add6f382b6323b",
+      "effective_config": "research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/effective-config.json",
+      "effective_config_sha256": "93011582b20a0afb40c0e63e1f1ae8671ecfff88ae7f85a95b8eb56d53efc43c"
+    },
+    "C60-seed17094": {
+      "system": "C60",
+      "source_case": "c60-recovered-rotation-ls-prospective-20260922",
+      "seed": 17094,
+      "input": "research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/inputs/c60_17094.traj",
+      "input_sha256": "2e49eabd0ae1bf854aa6baf07a2b583f4d21933ce55ba295983e146172c44b6f",
+      "effective_config": "research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17094-seed17094/effective-config.json",
+      "effective_config_sha256": "1e9b2ce2f3a0f4a022d010a223f7ed156f3a91f91e22526940caeb0c841e2546"
+    }
+  },
+  "model": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+  "model_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+  "head": "omol",
+  "device": "cuda",
+  "dtype": "float64",
+  "core_tree": "c91783c10ae061f86cfadee08e3c5ed1dcfa7263",
+  "outer_steps": 1,
+  "search_cap_per_arm": 6000,
+  "fresh_cap_per_arm": 2,
+  "search_wall_seconds_per_arm": 1740,
+  "total_request_cap_including_fresh": 48016,
+  "runtime": {
+    "torch_manual_seed": 0,
+    "torch_deterministic_algorithms": true,
+    "torch_num_threads": 1,
+    "tf32": false,
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8"
+  },
+  "resource_ceiling": {
+    "gpu": 1,
+    "partition": "4V100",
+    "qos": "rush-1o2gpu",
+    "slurm_minutes": 30,
+    "cooperative_seconds": 1740
+  },
+  "no_automatic_retry": true
+}
