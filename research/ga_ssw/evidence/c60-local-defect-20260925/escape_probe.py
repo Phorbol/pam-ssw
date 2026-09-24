@@ -248,6 +248,16 @@ def execute():
                            requests_match_result=result.evaluation_requests == surface.requests)
             except Exception as error:
                 row.update(status='exception', error=repr(error), traceback=traceback.format_exc())
+                # Preserve available completed records for diagnostics only;
+                # this does not resume the run or turn an exception into success.
+                if result is None and (folder / 'checkpoint.pkl').exists():
+                    try:
+                        from pamssw.standalone import load_ssw_checkpoint
+                        result = load_ssw_checkpoint(folder / 'checkpoint.pkl')
+                        ledger.dump(folder / 'checkpoint-prefix.json', result)
+                        row['diagnostic_source'] = 'saved_checkpoint_prefix'
+                    except Exception as checkpoint_error:
+                        row['checkpoint_read_error'] = repr(checkpoint_error)
             checks, costs = [], []
             if result is not None:
                 cumulative = result.initial.evaluation_requests
@@ -261,6 +271,7 @@ def execute():
                     if record.landing is not None:
                         endpoints.append((f'landing-{record.index}', record.landing, cumulative))
                 row['record_cost_sum_matches_requests'] = cumulative == surface.requests
+                row['requests_outside_saved_records'] = surface.requests - cumulative
                 for role, endpoint, cost in endpoints:
                     atoms = endpoint.atoms.copy()
                     atoms.calc = None
