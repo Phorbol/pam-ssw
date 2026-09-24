@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "paired_input_config_equal_except_LS": true,
+  "total_search_cap": 10000000,
+  "total_fresh_cap": 12,
+  "total_gpu_hours": 176,
+  "source_files_match": true,
+  "syntax": true
+}

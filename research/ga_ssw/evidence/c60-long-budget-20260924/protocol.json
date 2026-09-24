@@ -1,0 +1,19 @@
+{
+  "category": "prospective fixed protocol, two new inputs",
+  "seeds": [
+    17101,
+    17102
+  ],
+  "radius_A": 5,
+  "minimum_separation_A": 1,
+  "rule": "uniform cube rejection into sphere, sequential pair-distance exclusion",
+  "parameters": "Provisional finite-volume input distribution, retained from interface fixture; no optimality or literature-default claim",
+  "coordinate_rounding_decimals": 10,
+  "translation_A": [
+    25,
+    25,
+    25
+  ],
+  "pbc": false,
+  "acceptance": "Report cage and same-model reference-energy metrics separately; no success-rate inference from two prospective seeds"
+}

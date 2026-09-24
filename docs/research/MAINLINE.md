@@ -37,8 +37,8 @@ dataclass复制时丢失，隔离修复分支fix/paper-ls-checkpoint-metadata已
 新增预算拒绝测试后该文件8项通过（与前32项有重叠，不相加）。SSW/paper-LS/native-LS均可
 保存完整外步后暂停并恢复，默认/旧schema保留。
 [实现、命令与失败记录](../../research/ga_ssw/evidence/ssw-boundary-pause-20260924/README.md)。
-GA active-walk仍暂缓。C60百万请求验收提出最多176V100 GPU小时的新预算，尚未获批/提交；
-[具体资源与路线方案](2026-09-24-c60-long-budget-decision.md)，当前不据此启动GPU任务。
+GA active-walk仍暂缓。用户已批准C60四轨迹最多1000万搜索请求＋12复核、176 V100 GPU小时、最多两卡并发；先完成续跑预检再提交。生产尚未提交；
+[具体资源与路线方案](2026-09-24-c60-long-budget-decision.md)，两个新输入已冻结；分段账本与安全边界已完成CPU初检。首轮MH1预检1477074零搜索调用因NativeMC字段映射失败，已修正；CPU节点占用后，将正式组合8项检查放入1477138的短初始化阶段，已全部通过；等待其MH1跨进程部分完成。通过后才启动生产任务。
 方案见[有界资格协议](2026-09-24-c4h6-model-qualification.md)。
 不把同材料两相或不同随机种子称作独立体系类别，不逐例调参；本轮不改算法默认。
 见[案例选择与停止规则](2026-09-24-benchmark-selection.md)。GA active-walk仍为已批准但暂缓；

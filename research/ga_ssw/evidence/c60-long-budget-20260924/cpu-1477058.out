@@ -1,0 +1,38 @@
+.F..                                                                     [100%]
+=================================== FAILURES ===================================
+_____________ test_segmented_state_and_cost_match_continuous[True] _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-gengjianrui/pytest-0/test_segmented_state_and_cost_1')
+native = True
+
+    @pytest.mark.parametrize('native', [False, True])
+    def test_segmented_state_and_cost_match_continuous(tmp_path, native):
+        a, b = tmp_path / 'full', tmp_path / 'split'
+        prepare(a, native); prepare(b, native)
+>       full = r.run_segment(a, 900, max_attempts=3)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/standalone/test_c60_long_budget.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/ga_ssw/c60_long_budget.py:181: in run_segment
+    result = run_ssw(read(folder / plan['input']), surface,
+pamssw/standalone/paper_reference.py:638: in run_ssw
+    validate_prequench_exit_policy(getattr(ls, 'prequench', None),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+prequench = LSPrequenchSettings(fmax=0.1, steps=50, exit_policy='force_or_step_limit')
+optimizer = <class 'ase.optimize.lbfgs.LBFGS'>
+
+    def validate_prequench_exit_policy(prequench, *, optimizer):
+        """Validate the optional iteration-cap release before any PES request."""
+        validate_prequench(prequench)
+        if prequench is None or prequench.exit_policy == 'force':
+            return
+        if optimizer != 'safe-lbfgs-total':
+>           raise ValueError("exit_policy='force_or_step_limit' requires safe-lbfgs-total telemetry")
+E           ValueError: exit_policy='force_or_step_limit' requires safe-lbfgs-total telemetry
+
+pamssw/standalone/ls_prequench.py:46: ValueError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_c60_long_budget.py::test_segmented_state_and_cost_match_continuous[True]
+1 failed, 3 passed in 1.81s
