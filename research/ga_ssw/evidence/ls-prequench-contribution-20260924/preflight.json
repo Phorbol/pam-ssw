@@ -1,0 +1,98 @@
+{
+  "status": "prepared_not_executed",
+  "purpose": "same-state LS prequench contribution ablation",
+  "git_head": "422d2b6c82d40e466e4e52bde5b6e3963ea507b9",
+  "core_tree": "c91783c10ae061f86cfadee08e3c5ed1dcfa7263",
+  "source_root": "research/ga_ssw/evidence/c4h6-mh1-coverage-20260924",
+  "selected_records": [
+    0,
+    199,
+    399
+  ],
+  "arms": [
+    "paper_ls",
+    "native_ls"
+  ],
+  "seeds": [
+    61,
+    67
+  ],
+  "case_count": 12,
+  "request_cap_per_quench": 1000,
+  "fresh_requests_per_case": 2,
+  "total_request_cap": 12024,
+  "inputs": [
+    {
+      "case_id": "paper_ls-seed61-record000",
+      "source_result": "research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "source_sha256": "0ba994351de283e82cc63b3ba7ed216def6e3a4b94e90a0d3d9e16d33fd51001",
+      "input_json_sha256": "68b115dd913e3cdbeddf998a1a186789ee1b581cb2b8126e26c1339cf31b4bad"
+    },
+    {
+      "case_id": "paper_ls-seed61-record199",
+      "source_result": "research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "source_sha256": "0ba994351de283e82cc63b3ba7ed216def6e3a4b94e90a0d3d9e16d33fd51001",
+      "input_json_sha256": "286148e1f7e93350e8f018b8f3af1989fcf90bd279addd34990833d2b8376626"
+    },
+    {
+      "case_id": "paper_ls-seed61-record399",
+      "source_result": "research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed61/result.json",
+      "source_sha256": "0ba994351de283e82cc63b3ba7ed216def6e3a4b94e90a0d3d9e16d33fd51001",
+      "input_json_sha256": "032543b2a372ffe17cf2f645d9d877c5680a12cc73ef75404361cff617a9a2ee"
+    },
+    {
+      "case_id": "paper_ls-seed67-record000",
+      "source_result": "research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "source_sha256": "96b68bc4a106e6252e96c80ceb37e526164634aa2b91fe1891d3787fbe79bd18",
+      "input_json_sha256": "4dbe089dec7e60f105efb4a0825f0e3f23a2dfc1c4fc90202b1e4d8a253788ba"
+    },
+    {
+      "case_id": "paper_ls-seed67-record199",
+      "source_result": "research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "source_sha256": "96b68bc4a106e6252e96c80ceb37e526164634aa2b91fe1891d3787fbe79bd18",
+      "input_json_sha256": "5c138800a3ca4f4d1db2e2599339ea0ae0c2b57e0e30f9c2293d427b8ce81cfb"
+    },
+    {
+      "case_id": "paper_ls-seed67-record399",
+      "source_result": "research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/paper_ls-seed67/result.json",
+      "source_sha256": "96b68bc4a106e6252e96c80ceb37e526164634aa2b91fe1891d3787fbe79bd18",
+      "input_json_sha256": "d9b4ee284307196c6e5f6682ce6b39a81d931d844ced893b4d0a941637d48bdd"
+    },
+    {
+      "case_id": "native_ls-seed61-record000",
+      "source_result": "research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "source_sha256": "f5081a6865d524820209ac3b084d1ab201779a6695752532a4311eab5433ddb1",
+      "input_json_sha256": "9e156b2e530aeb117424346fca85b7ada2285050956ad42a715c6f1ffd19480a"
+    },
+    {
+      "case_id": "native_ls-seed61-record199",
+      "source_result": "research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "source_sha256": "f5081a6865d524820209ac3b084d1ab201779a6695752532a4311eab5433ddb1",
+      "input_json_sha256": "78ff6b6418c280dc0657845a5dfc57d16cad571b373bd2a5dca7084ebc498620"
+    },
+    {
+      "case_id": "native_ls-seed61-record399",
+      "source_result": "research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "source_sha256": "f5081a6865d524820209ac3b084d1ab201779a6695752532a4311eab5433ddb1",
+      "input_json_sha256": "e0324978ea538af238dc63104196590221745e4b482821d3c2968f1358b94ab2"
+    },
+    {
+      "case_id": "native_ls-seed67-record000",
+      "source_result": "research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "source_sha256": "20e4c9ee8cc9e2633eae0616e44aa62510b5c5fc1470f6f38f655043dd5c99af",
+      "input_json_sha256": "a7b51a37d4ab96367df89dfd2fb9eaf9a575d4bebc5fa83eb4f87b27d8cecbb2"
+    },
+    {
+      "case_id": "native_ls-seed67-record199",
+      "source_result": "research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "source_sha256": "20e4c9ee8cc9e2633eae0616e44aa62510b5c5fc1470f6f38f655043dd5c99af",
+      "input_json_sha256": "38a13cc23977f7a57e8b6460128af92d8133acbff4728cca99e093ee57d50e42"
+    },
+    {
+      "case_id": "native_ls-seed67-record399",
+      "source_result": "research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "source_sha256": "20e4c9ee8cc9e2633eae0616e44aa62510b5c5fc1470f6f38f655043dd5c99af",
+      "input_json_sha256": "421bd66e7b8ab14359a723caf60c7a107d87106ccd5ee64e2683153f92413e22"
+    }
+  ]
+}

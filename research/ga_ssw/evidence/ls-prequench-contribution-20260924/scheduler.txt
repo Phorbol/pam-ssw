@@ -1,0 +1,6 @@
+JobID|State|Elapsed|ExitCode|Reason|AdminComment|SystemComment
+1477850|COMPLETED|00:00:10|0:0|None||
+1477853|FAILED|00:00:04|0:11|None||
+1477876|COMPLETED|00:00:02|0:0|Dependency||
+1477882|COMPLETED|00:00:14|0:0|None||
+1477892|CANCELLED by 0|00:00:02|0:0|None||

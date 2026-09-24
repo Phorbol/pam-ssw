@@ -1,0 +1,5 @@
+before numpy
+before torch
+before MACECalculator
+before standalone surface
+imports completed; no calculator loaded, zero PES

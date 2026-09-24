@@ -1,0 +1,16 @@
+NodeName=4v100n06 Arch=x86_64 CoresPerSocket=8 
+   CPUAlloc=16 CPUEfctv=32 CPUTot=32 CPULoad=6.33
+   AvailableFeatures=(null)
+   ActiveFeatures=(null)
+   Gres=gpu:V100-SXM2:4(S:0-1)
+   NodeAddr=4v100n06 NodeHostName=4v100n06 Version=26.05.1
+   OS=Linux 6.8.0-71-generic #71-Ubuntu SMP PREEMPT_DYNAMIC Tue Jul 22 16:52:38 UTC 2025 
+   RealMemory=90112 AllocMem=45056 FreeMem=70500 Sockets=2 Boards=1
+   State=MIXED+COMPLETING+NOT_RESPONDING ThreadsPerCore=2 TmpDisk=0 Weight=1 Owner=N/A MCS_label=N/A
+   Partitions=4V100 
+   BootTime=2026-09-14T16:46:40 SlurmdStartTime=2026-09-14T16:48:54
+   LastBusyTime=2026-09-24T10:14:39 ResumeAfterTime=None SuspendTime=INFINITE
+   CfgTRES=cpu=32,mem=88G,billing=776,gres/gpu=4
+   AllocTRES=cpu=16,mem=44G,gres/gpu=2
+   CurrentWatts=0 AveWatts=0
+
