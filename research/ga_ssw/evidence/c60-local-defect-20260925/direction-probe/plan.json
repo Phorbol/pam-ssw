@@ -1,0 +1,232 @@
+{
+  "status": "PREPARED_NOT_SUBMITTED",
+  "objective": "Single paired diagnostic of the existing full recovered direction bundle on the qualified local C60 defect.",
+  "interpretation_boundary": "Two RNG seeds are repeat probes from one structural input, not independent structural validation. Graph change, Ih graph recovery, and energy window are separate outcomes; intact starting cage is not success. No physical Stone-Wales pathway or barrier claim.",
+  "checkout": {
+    "root": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification",
+    "prepared_head": "838e69b2b84b4dd6c1d03047d9fdf1427088d8f3",
+    "core_tree": "6af521c7b2e6ecb69972d40d621c0b5ce6a17570",
+    "core_clean_required": true
+  },
+  "source_effective_config": {
+    "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-recovered-rotation-ls-prospective-20260922/c60_17093-seed17093/effective-config.json",
+    "sha256_raw": "93011582b20a0afb40c0e63e1f1ae8671ecfff88ae7f85a95b8eb56d53efc43c",
+    "snapshot": {
+      "arm": "recovered_rotation_native_ls",
+      "case": "c60_17093",
+      "seed": 17093,
+      "ssw_config": {
+        "width": 0.6,
+        "rotation_bias": 1.0,
+        "max_gaussians": 12,
+        "temperature_K": 150.0,
+        "fmax": 0.03,
+        "relax_steps": 1000,
+        "fd_step": 0.001,
+        "rotation_hvp": 39,
+        "rotation_tol": 0.02,
+        "forward_force": 0.1,
+        "direction_sampling": "global",
+        "rotation_solver": "broyden-euclidean",
+        "cluster_frame": "direction_only",
+        "quench_optimizer": "safe-lbfgs-total",
+        "lbfgs_memory": 500,
+        "bias_stage_steps": null,
+        "bias_fmax": 0.1,
+        "pre_rotation_hvp": null,
+        "rotation_exit_policy": "force_or_budget"
+      },
+      "recovered_rotation": {
+        "pre_rotmax": 5,
+        "rotmax": 15,
+        "pre_ftol": 0.2,
+        "ftol": 0.02,
+        "metric": "euclidean",
+        "max_force_calls": 40
+      },
+      "native_ls": {
+        "bond_energies": {
+          "6,6": 3.4468400478363037
+        },
+        "bond_lengths": {
+          "6,6": 1.5399999618530273
+        },
+        "scale": 5.0,
+        "amp_c": 2.0,
+        "length_tolerance": 0.1,
+        "target_mev_per_atom": 20.0,
+        "eta": 0.005,
+        "max_change": 0.01,
+        "frequency": 10,
+        "presteps": 100,
+        "cycle": 100,
+        "ratio": 1.100000023841858,
+        "lselfadapt": true,
+        "bond_geometry": "native-mic",
+        "prequench": {
+          "fmax": 0.1,
+          "steps": 50,
+          "exit_policy": "force_or_step_limit"
+        },
+        "parameter_source": "run_c60_fixed_budget.py native-ls variant; C-C release lookup and recovered-materials .1/50 prequench protocol; not C60 fitting or exact native LASP LS/stage-exit parity"
+      },
+      "native_mc": {
+        "maxtrap": 99999,
+        "energy_tol_eV": 0.1
+      },
+      "runtime_versions": {
+        "python": "3.12.11 | packaged by Anaconda, Inc. | (main, Jun  5 2025, 13:09:17) [GCC 11.2.0]",
+        "executable": "/home/gengjianrui/.conda/envs/mace_env/bin/python",
+        "packages": {
+          "numpy": "2.0.2",
+          "scipy": "1.16.0",
+          "ase": "3.26.0",
+          "mace-torch": "0.3.16",
+          "torch": "2.8.0"
+        }
+      }
+    }
+  },
+  "source_artifacts": {
+    "defect_input": {
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-2/final.extxyz",
+      "sha256": "ce9a47447535c400dc7d3c527ef891ed326563f357858916c2265232fbf980fb"
+    },
+    "defect_qualification": {
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-2/result.json",
+      "sha256": "f3bcb0ad4d7cb924f1678bb5016c78fd9e9106ce22f1c995e58351a7d9c10353"
+    },
+    "ih_graph_reference": {
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-1/final.extxyz",
+      "sha256": "6a5a4a34abdf618aaaf45be77b0492c4f2fef61b104eb361c9d0030b5e598355"
+    },
+    "ih_energy_reference": {
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-1/result.json",
+      "sha256": "693a23f7e216b26deeabb13956d1e421ebd4db8bf40688b9b94336f1795a57e9"
+    },
+    "curvature_results": {
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/curvature/results.json",
+      "sha256": "041a17b76f561a7253225385b7d816ede2122d65cd0eb0149382d30fd37716ea"
+    },
+    "curvature_runner": {
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/curvature/runner.py",
+      "sha256": "26707765e0e7920cf9d883c595147c1a34a59a1a8790d03239ff2c1783a68bd9"
+    },
+    "graph_runner": {
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/graph_audit.py",
+      "sha256": "b3b31e611e73b90a6c9d1a03c19f98572f5314b2601f4612c2885745fb983235"
+    }
+  },
+  "model": {
+    "path": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+    "head": "omol",
+    "device": "cuda",
+    "dtype": "float64",
+    "enable_cueq": false,
+    "enable_oeq": false
+  },
+  "runtime": {
+    "torch_manual_seed": 0,
+    "torch_deterministic_algorithms": true,
+    "allow_tf32": false,
+    "threads": 1,
+    "python": "3.12.11 | packaged by Anaconda, Inc. | (main, Jun  5 2025, 13:09:17) [GCC 11.2.0]",
+    "package_versions": {
+      "numpy": "2.0.2",
+      "scipy": "1.16.0",
+      "ase": "3.26.0",
+      "mace-torch": "0.3.16",
+      "torch": "2.8.0"
+    },
+    "environment": [
+      "PYTHONNOUSERSITE=1",
+      "OMP_NUM_THREADS=1",
+      "OPENBLAS_NUM_THREADS=1",
+      "MKL_NUM_THREADS=1",
+      "CUBLAS_WORKSPACE_CONFIG=:4096:8"
+    ]
+  },
+  "input": {
+    "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-2/final.extxyz",
+    "composition": "C60",
+    "pbc": [
+      false,
+      false,
+      false
+    ],
+    "constraints": null,
+    "source_dataset_author_id": 2,
+    "atlas_number_unverified": true
+  },
+  "references": {
+    "ih_graph_input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-1/final.extxyz",
+    "ih_energy_input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-1/result.json",
+    "ih_energy_eV": -62215.393370790625,
+    "energy_window_eV": 0.01,
+    "graph_cutoffs_A": [
+      1.64,
+      1.7,
+      1.8
+    ],
+    "source_defect_reference_input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-2/final.extxyz"
+  },
+  "curvature_gate": {
+    "results": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/curvature/results.json",
+    "all_174_internal_eigenvalues_positive": true,
+    "both_lowest_mode_direct_checks_positive": true,
+    "must_pass_before_run": true,
+    "scope": "Approximate projected local stability at the saved force-qualified endpoint; not proof of an exact stationary point."
+  },
+  "methods": [
+    "ssw_without_ls",
+    "native_ls"
+  ],
+  "arms": {
+    "unit": "one (method, seed) trajectory; each same-seed method pair starts from identical source coordinates",
+    "seeds": [
+      1101,
+      1102
+    ],
+    "outer_attempts": 10,
+    "search_requests_per_arm": 12000,
+    "fresh_requests_per_arm": 11,
+    "total_arms": 4,
+    "total_search_request_ceiling": 48000,
+    "total_fresh_request_ceiling": 44,
+    "max_total_calculator_requests": 48044
+  },
+  "protocol": {
+    "only_run_ssw_arm_difference": "Within these new arms LS None vs NativeLSSettings. Against parent global+CBD arms, replace separate recovered_rotation with existing full recovered_direction bundle; same input, seeds, SSW/LS/MC and CBD numeric limits. Not a selector-only ablation.",
+    "request_budget_semantics": "12,000 request cap applies separately to each method-seed trajectory; no retry, resume, parameter scan, or cap extension.",
+    "fresh_validation": "After each run, independently fresh-evaluate the source start and every recorded outer landing endpoint, up to 11 per method-seed arm. Use distinct fresh calculator and ledger. Missing checks at deadline remain missing/censored.",
+    "outer_record_costs": "Record each step request count and cumulative count including initial quench requests; retain search and fresh ledgers separately.",
+    "output": "Full SSWResult JSON, atomic native checkpoint, actual effective-config snapshot, run summary, per-record cost ledger, per-endpoint fresh E/F and graph qualification; preserve exceptions, failed landings, and budget-censored prefixes.",
+    "native_ls_behavior": "Use source NativeLSSettings unchanged. Under current implementation normal_update_due can update every nonzero outer step within presteps=100; frequency=10 remains the configured value, not a claim that updates occur only once per 10 steps."
+  },
+  "resources": {
+    "wall_seconds_total": 3540,
+    "slurm_ceiling_seconds": 3600,
+    "gpu": 1,
+    "whole_job_wall_includes_model_load_search_fresh_checks_and_failure_work": true
+  },
+  "output": {
+    "runs_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/direction-probe/runs",
+    "must_not_exist_before_run": true,
+    "overwrite_resume_retry": false,
+    "preflight_output": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/direction-probe/preflight.json"
+  },
+  "recovered_direction": {
+    "ratio_local": 50,
+    "local_probability": 0.5,
+    "group_threshold": 0.5,
+    "pre_rotmax": 5,
+    "rotmax": 15,
+    "pre_ftol": 0.2,
+    "ftol": 0.02,
+    "metric": "euclidean",
+    "max_force_calls": 40,
+    "c1_radius_policy": "restricted"
+  },
+  "parent_protocol": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/escape-plan.json",
+  "comparison": "Parent global+CBD trajectories already complete; do not rerun them. Cost-aligned prefixes plus capped ten-attempt outcomes; retain failure/censoring."
+}

@@ -56,8 +56,17 @@ def runtime_support(plan):
     settings_module = load_module("c60_escape_settings_source", SETTINGS_RUNNER)
     config, native_ls, rotation, mc = settings_module.make_settings(
         effective, effective["ssw_config"]["bias_fmax"])
+    direction_data = plan.get("recovered_direction")
+    direction = None
+    if direction_data is not None:
+        from pamssw.standalone.recovered_direction import RecoveredDirectionSettings
+        direction = RecoveredDirectionSettings(**direction_data)
+        # The public driver treats these as mutually exclusive modes. The plan
+        # field selects the complete pair/group direction bundle in place of
+        # the separately configured recovered-rotation-only route.
+        rotation = None
     ledger = load_module("c60_escape_ledger", LEDGER_PATH)
-    return settings_module, ledger, config, native_ls, rotation, mc
+    return settings_module, ledger, config, native_ls, rotation, mc, direction
 
 
 def preflight(*, require_preflight=False):
@@ -132,12 +141,16 @@ def preflight(*, require_preflight=False):
         curvature_rows.append({"source": case["source"], "minimum_internal_eigenvalue_eV_A2": float(values.min()),
                                "lowest_direct_curvatures_eV_A2": direct})
 
-    _, ledger, config, ls, rotation, mc = runtime_support(plan)
+    _, ledger, config, ls, rotation, mc, direction = runtime_support(plan)
     snapshot = plan["source_effective_config"]["snapshot"]
     if (config.max_gaussians != 12 or config.bias_fmax != 0.1 or config.fmax != 0.03
             or config.quench_optimizer != "safe-lbfgs-total" or config.lbfgs_memory != 500
             or config.cluster_frame != "direction_only" or ls is None or mc is None):
         raise RuntimeError("constructed run settings differ from the frozen C60 protocol")
+    if (rotation is None) == (direction is None):
+        raise RuntimeError("exactly one recovered rotation/direction mode must be active")
+    if direction is not None and config.pre_rotation_hvp is not None:
+        raise RuntimeError("recovered direction owns PreRot; pre_rotation_hvp must remain unset")
     runner_hash = sha256(__file__)
     plan_hash = sha256(PLAN)
     if require_preflight:
@@ -155,7 +168,8 @@ def preflight(*, require_preflight=False):
         "core_tree": git("rev-parse", "HEAD:pamssw"),
         "runner_sha256": runner_hash, "plan_sha256": plan_hash,
         "settings": {"ssw_config": config, "native_ls": ls,
-                     "recovered_rotation": rotation, "native_mc": mc},
+                     "recovered_rotation": rotation,
+                     "recovered_direction": direction, "native_mc": mc},
         "source_graph_checks": source_rows, "curvature_gate": curvature_rows,
         "resource_contract": {
             "arms": 4, "search_request_ceiling": 48000,
@@ -227,10 +241,11 @@ def execute():
                 continue
             folder = runs / f'{method}-{seed}'
             folder.mkdir()
-            _, _, config, ls, rotation, mc = runtime_support(plan)
+            _, _, config, ls, rotation, mc, direction = runtime_support(plan)
             selected_ls = ls if method == 'native_ls' else None
             ledger.dump(folder / 'effective-config.json', dict(config=config, ls=selected_ls,
-                        rotation=rotation, mc=mc, seed=seed))
+                        rotation=rotation, recovered_direction=direction,
+                        mc=mc, seed=seed))
             before, fresh_before = counter['calls'], fresh_counter['calls']
             calculator.reset()
             surface = ledger.CountedSurface(calculator, folder / 'requests.jsonl',
@@ -240,9 +255,14 @@ def execute():
             result = None
             arm_start = time.monotonic()
             try:
-                result = run_ssw(initial.copy(), surface, steps=plan['arms']['outer_attempts'],
-                    config=config, rng=np.random.default_rng(seed), ls=selected_ls,
-                    recovered_rotation=rotation, mc=mc, checkpoint_path=folder / 'checkpoint.pkl')
+                run_options = dict(config=config, rng=np.random.default_rng(seed),
+                    ls=selected_ls, mc=mc, checkpoint_path=folder / 'checkpoint.pkl')
+                if direction is None:
+                    run_options['recovered_rotation'] = rotation
+                else:
+                    run_options['recovered_direction'] = direction
+                result = run_ssw(initial.copy(), surface,
+                    steps=plan['arms']['outer_attempts'], **run_options)
                 ledger.dump(folder / 'result.json', result)
                 row.update(status=result.status, result_requests=result.evaluation_requests,
                            requests_match_result=result.evaluation_requests == surface.requests)
