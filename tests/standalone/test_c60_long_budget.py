@@ -49,6 +49,7 @@ def test_segmented_state_and_cost_match_continuous(tmp_path, native):
     if native:
         assert vars(x.response) == vars(y.response)
     assert split['reserved_seconds'] == 1800
+    assert all(0 <= item['budget_io_seconds'] <= item['elapsed_seconds'] for item in split['segments'])
 
 
 def test_durable_charge_never_refunded_and_caps(tmp_path):
@@ -59,20 +60,20 @@ def test_durable_charge_never_refunded_and_caps(tmp_path):
     budget = r.Budget(folder, plan); budget.begin(400)
     assert budget.charge('search') == 1
     recovered = r.Budget(folder, plan)
-    assert recovered.state['search'] == 1
+    assert recovered.state['search'] == 2  # unfinished block is conservatively consumed
     with pytest.raises(ValueError, match='interrupted'):
         recovered.begin(400)
-    recovered.begin(400, interrupted=True)
-    assert recovered.charge('search') == 2
+    # Budget is already exhausted by the conservative recovery.
+    with pytest.raises(ValueError, match='exhausted'):
+        recovered.begin(400, interrupted=True)
     with pytest.raises(RuntimeError, match='search_budget'):
         recovered.charge('search')
     assert recovered.charge('fresh') == 1
     with pytest.raises(RuntimeError, match='fresh_budget'):
         recovered.charge('fresh')
-    recovered.finish('paused')
     with pytest.raises(ValueError, match='allocation'):
-        recovered.begin(101)
-    assert recovered.state['reserved_seconds'] == 800
+        recovered.begin(501, interrupted=True)
+    assert recovered.state['reserved_seconds'] == 400
 
 
 def test_changed_plan_rejected_before_calculator(tmp_path):
@@ -92,7 +93,8 @@ def test_interrupted_paid_request_survives_checkpoint_rollback(tmp_path):
     state = r.run_segment(folder, 600, max_attempts=1, interrupted=True)
     resumed = load_ssw_checkpoint(folder / 'checkpoint.pkl')
     assert resumed.next_index == saved.next_index + 1
-    assert state['search'] == resumed.evaluation_requests + 1
+    assert state['search'] == resumed.evaluation_requests + 64
+    assert state['unconfirmed_search_reservations'] == 64
     assert state['reserved_seconds'] == 1800
 
 

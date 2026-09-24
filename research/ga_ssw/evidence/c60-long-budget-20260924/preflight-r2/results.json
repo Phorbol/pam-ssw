@@ -1,0 +1,49 @@
+{
+  "rows": [
+    {
+      "arm": "ssw",
+      "actual_paid_requests": 4130,
+      "indices": [
+        3,
+        3
+      ],
+      "requests": [
+        2478,
+        2352
+      ],
+      "rng_equal": true,
+      "max_coordinate_difference_A": 0.0,
+      "boundary_differences_A": [
+        0.0,
+        0.0,
+        5.734845785248446
+      ],
+      "status_acceptance_equal": true,
+      "checkpoint_bytes": 245630,
+      "exact_match": false
+    },
+    {
+      "arm": "native-ls",
+      "actual_paid_requests": 1890,
+      "indices": [
+        3,
+        3
+      ],
+      "requests": [
+        1300,
+        1297
+      ],
+      "rng_equal": true,
+      "max_coordinate_difference_A": 0.018493771403054637,
+      "boundary_differences_A": [
+        0.0,
+        0.0,
+        0.003211414367296328
+      ],
+      "status_acceptance_equal": true,
+      "checkpoint_bytes": 133990,
+      "exact_match": false
+    }
+  ],
+  "elapsed_seconds": 1293.8250670520065
+}

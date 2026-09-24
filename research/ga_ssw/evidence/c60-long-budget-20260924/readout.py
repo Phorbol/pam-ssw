@@ -12,7 +12,10 @@ for name in ('ssw-17101','native-ls-17101','ssw-17102','native-ls-17102'):
     state=json.loads((folder/'budget.json').read_text())
     summary=json.loads((folder/'summary.json').read_text()) if (folder/'summary.json').exists() else {}
     fresh=state['fresh_checks']
-    rows.append(dict(arm=name,status=state['status'],search=state['search'],fresh=state['fresh'],
+    charged=max(state['search'],state.get('search_reserved',state['search'])) if state['status']=='running' else state['search']
+    uncertain=state.get('unconfirmed_search_reservations',0)+charged-state['search']
+    rows.append(dict(arm=name,status=state['status'],search=charged,fresh=state['fresh'],
+        unconfirmed_search_reservations=uncertain,
         reserved_gpu_seconds=state['reserved_seconds'],
         joint_fresh_candidates=[k for k,v in fresh.items() if v.get('joint_target',False)],
         physical_cage_review='pending for any graph-qualified candidate',

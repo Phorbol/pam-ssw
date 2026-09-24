@@ -1,0 +1,50 @@
+[
+  {
+    "mode": "per_request",
+    "synthetic_accounting_operations": 128,
+    "actual_PES_requests": 0,
+    "elapsed_seconds": 27.42312834097538,
+    "state": {
+      "plan_sha256": "0299e2e60c672be813613647fc97a62602814ae164e5e795ecc09af0f736a465",
+      "search": 128,
+      "fresh": 0,
+      "reserved_seconds": 120,
+      "segments": [
+        {
+          "reserved_seconds": 120,
+          "job_id": "1477518",
+          "started_unix": 1790227225.5368547,
+          "state": "paused",
+          "elapsed_seconds": 27.43694342300296
+        }
+      ],
+      "status": "paused",
+      "fresh_checks": {}
+    }
+  },
+  {
+    "mode": "reserved64",
+    "synthetic_accounting_operations": 128,
+    "actual_PES_requests": 0,
+    "elapsed_seconds": 0.8178218390094116,
+    "state": {
+      "plan_sha256": "0299e2e60c672be813613647fc97a62602814ae164e5e795ecc09af0f736a465",
+      "search": 128,
+      "fresh": 0,
+      "reserved_seconds": 120,
+      "segments": [
+        {
+          "reserved_seconds": 120,
+          "job_id": "1477518",
+          "started_unix": 1790227253.4399035,
+          "state": "paused",
+          "elapsed_seconds": 0.8194606640026905,
+          "budget_io_seconds": 0.9760373189928941
+        }
+      ],
+      "status": "paused",
+      "fresh_checks": {},
+      "search_reserved": 128
+    }
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "cpu_final_job": 1477564,
+  "cpu_tests": 8,
+  "gpu_job_id": 1477513,
+  "original_gpu_preflight": 1477138,
+  "ledger_benchmark_job": 1477518,
+  "exact_GPU_trajectory_match": false,
+  "live_search_state_and_disk_roundtrip_equal": true,
+  "qualification_scope": "State/cost continuation qualified; GPU roundoff may alter later stochastic escape trajectory.",
+  "state_evidence": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-resume-diagnosis-20260924/analysis.json",
+  "budget_evidence": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c60-resume-diagnosis-20260924/ledger-benchmark.json",
+  "final_runner_sha256": "753c90faefc63307bada1fff761bdd1d26d528d7c9d4de2721f23844f0839e32",
+  "test_sha256": "e97464677576cb19f026b5067f6675195ee698267a459e4b4fed11a23998c141",
+  "initial_inputs_untouched": true,
+  "checked_unix": 1790227815.8880482
+}

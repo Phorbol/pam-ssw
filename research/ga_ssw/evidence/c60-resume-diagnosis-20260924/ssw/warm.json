@@ -1,0 +1,20 @@
+{
+  "status": "completed",
+  "requests": 1778,
+  "trace_requests": 1166,
+  "elapsed_seconds": 90.15823234710842,
+  "state_checks": {
+    "initial": true,
+    "current": true,
+    "current_energy": true,
+    "best": true,
+    "minima": true,
+    "records": true,
+    "frozen": true,
+    "response": true,
+    "ls": true,
+    "native_mc_state": true,
+    "rng": true,
+    "disk_roundtrip": true
+  }
+}

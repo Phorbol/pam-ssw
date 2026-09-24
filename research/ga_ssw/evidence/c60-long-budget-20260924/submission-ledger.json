@@ -13,17 +13,19 @@
   ],
   "production_gpu_hours": 176,
   "submissions": [],
-  "cpu_final_preflight_job": null,
+  "cpu_final_preflight_job": 1477564,
   "gpu_preflight_jobs": [
     1477074,
     1477138
   ],
   "gpu_preflight_latest": "1477138 combined CPU8 then MH1 cross-process",
-  "preflight_status": "pending",
+  "preflight_status": "passed_state_and_budget_not_bitwise_gpu",
   "cancelled_pending_cpu_jobs": [
     1477127,
     1477130,
     1477133
   ],
-  "cpu_preflight_passed": "preflight-r2/cpu-in-gpu.out:8 passed in 2.59s"
+  "cpu_preflight_passed": "preflight-r2/cpu-in-gpu.out:8 passed in 2.59s",
+  "diagnostic_gpu_job": 1477513,
+  "ledger_cpu_job": 1477518
 }

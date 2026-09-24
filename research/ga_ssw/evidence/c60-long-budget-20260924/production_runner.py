@@ -2,7 +2,8 @@
 """One bounded segment of a frozen C60 SSW/LS experiment (research harness).
 
 No automatic submission, retry, input replacement, or budget redistribution.
-Every attempted E/F request is durably charged before invoking the calculator.
+A durable 64-request reservation precedes E/F calls; clean boundaries reconcile
+actual charges, while hard interruptions retain the uncertain reservation.
 Allocation reservations include startup and remain charged after interruption.
 """
 from __future__ import annotations
@@ -39,12 +40,28 @@ class Budget:
             'reserved_seconds': 0, 'segments': [], 'status': 'ready', 'fresh_checks': {}}
         if self.state['plan_sha256'] != sha(self.folder / 'plan.json'):
             raise ValueError('frozen plan changed')
+        # Only an unfinished process can leave an uncertain issued-request count.
+        # Consume its durable reservation conservatively rather than refund work.
+        reserved = self.state.get('search_reserved', self.state['search'])
+        if self.state['status'] == 'running' and reserved > self.state['search']:
+            self.state['unconfirmed_search_reservations'] = (
+                self.state.get('unconfirmed_search_reservations', 0) + reserved - self.state['search'])
+            self.state['search'] = reserved
+        self.state['search_reserved'] = self.state['search']
+        self.io_seconds = 0.
         self.started = None
         self.deadline = None
         self.save()
 
     def save(self):
+        started = time.monotonic()
         atomic_json(self.path, self.state)
+        self.io_seconds += time.monotonic() - started
+
+    def sync_search(self):
+        # Called only when no E/F request is in flight. Unused quota is not work.
+        self.state['search_reserved'] = self.state['search']
+        self.save()
 
     def begin(self, seconds, *, interrupted=False):
         if self.state['status'] not in ('ready', 'paused'):
@@ -58,6 +75,7 @@ class Budget:
         self.state['segments'].append({'reserved_seconds': seconds, 'job_id': os.getenv('SLURM_JOB_ID'),
                                        'started_unix': time.time(), 'state': 'running'})
         self.state['status'] = 'running'
+        self.io_seconds = 0.  # segment metric excludes constructor I/O before timing
         self.started = time.monotonic()
         self.deadline = self.started + seconds
         self.save()
@@ -67,15 +85,23 @@ class Budget:
             raise RuntimeError(category + '_budget_exhausted')
         if self.deadline is not None and time.monotonic() >= self.deadline - 60:
             raise RuntimeError('segment_hard_deadline')
-        self.state[category] += 1
-        self.save()  # precedes even a failing calculator call; never refunded
+        if category == 'search':
+            if self.state['search'] >= self.state['search_reserved']:
+                # Fixed engineering granularity: at most 64 uncertain requests
+                # after a hard interruption, independent of the search algorithm.
+                self.state['search_reserved'] = min(self.plan['search_cap'], self.state['search'] + 64)
+                self.save()  # durable upper bound BEFORE any request in this block
+            self.state['search'] += 1
+        else:
+            self.state[category] += 1
+            self.save()
         return self.state[category]
 
     def finish(self, status, **details):
         self.state['status'] = status
         self.state['segments'][-1].update(state=status,
-            elapsed_seconds=time.monotonic() - self.started, **details)
-        self.save()
+            elapsed_seconds=time.monotonic() - self.started, budget_io_seconds=self.io_seconds, **details)
+        self.sync_search()
 
 
 def calculator(plan):
@@ -171,6 +197,7 @@ def run_segment(folder, seconds, *, max_attempts=None, interrupted=False):
     safe_count = 0
     def boundary(snapshot):
         nonlocal safe_count
+        budget.sync_search()
         save_ssw_checkpoint(cp_path, snapshot)
         safe_count += 1
         atomic_json(folder / 'boundary.json', {
