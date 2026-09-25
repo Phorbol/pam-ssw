@@ -1,0 +1,7 @@
+# Approved compact observer: engineering equivalence
+
+Question: does progress-only observation eliminate repeated full-history copies without changing SSW state transitions, numerical trajectories or cost? User approved the linked minimal public contract on2026-09-25. No algorithm defaults or checkpoint format change.
+
+CPU Cu13/EMT panel: one Icosahedron(Cu,2), independently seeded0.04Angstrom perturbation, search seed25092531, four outer attempts. Compare legacy checkpoint callback, compact continuous observer, compact initialization pause/resume, compact pause after two outer attempts/resume. Same recovered rotation5/15 and40-request bound, width0.6Angstrom, six Gaussians, fmax0.03,bias_fmax0.1eV/Angstrom, Safe-total/history500, relaxation1000steps, finite difference0.001Angstrom; these are fixed engineering-test settings, not optimized copper parameters. All states/records/minima, cumulative requests and final RNG must match exactly within the same environment; a failed or incomplete baseline is not a passing trajectory qualification.
+
+Bound: <=40000search requests across panel,10CPU minutes, one task, no GPU. Independent final E/F checks <=4. Preserve each arm and any failure; no automatic retry or parameter tuning. Targeted contract tests separately cover detachment, callback conflicts, failure accounting, legacy checkpoint and LS/pool persistence. Zero-PES prefix-copy profile separately compares bounded payload against full history; this does not establish search speedup or scientific superiority.
