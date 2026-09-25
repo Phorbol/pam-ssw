@@ -1,0 +1,287 @@
+{
+  "rows": [
+    {
+      "seed": 25092501,
+      "outer": 0,
+      "gaussian": 0,
+      "search_requests": 20,
+      "fresh_requests": 1,
+      "status": "converged",
+      "energy": -163.01690900494378,
+      "max_force": 0.009520622005272275,
+      "geometry_to_start": {
+        "graph_mappings_examined": 0,
+        "proper_rms_A": null,
+        "connected_components": 1,
+        "geometry_match": false,
+        "interpretation": "Positive RMS match proves geometric agreement; exhausted mapping cap without match is inconclusive."
+      },
+      "connectivity": {
+        "1.3": {
+          "sizes": [
+            38
+          ],
+          "isolated": []
+        },
+        "1.5": {
+          "sizes": [
+            38
+          ],
+          "isolated": []
+        }
+      },
+      "fresh_energy": -163.01690900494378,
+      "fresh_fmax": 0.009520622005272275,
+      "fresh_force_qualified": true,
+      "boundary": null
+    },
+    {
+      "seed": 25092501,
+      "outer": 0,
+      "gaussian": 3,
+      "search_requests": 32,
+      "fresh_requests": 1,
+      "status": "converged",
+      "energy": -163.02895635018706,
+      "max_force": 0.00965293929880504,
+      "geometry_to_start": {
+        "graph_mappings_examined": 0,
+        "proper_rms_A": null,
+        "connected_components": 1,
+        "geometry_match": false,
+        "interpretation": "Positive RMS match proves geometric agreement; exhausted mapping cap without match is inconclusive."
+      },
+      "connectivity": {
+        "1.3": {
+          "sizes": [
+            38
+          ],
+          "isolated": []
+        },
+        "1.5": {
+          "sizes": [
+            38
+          ],
+          "isolated": []
+        }
+      },
+      "fresh_energy": -163.02895635018706,
+      "fresh_fmax": 0.00965293929880504,
+      "fresh_force_qualified": true,
+      "boundary": null
+    },
+    {
+      "seed": 25092501,
+      "outer": 0,
+      "gaussian": 6,
+      "search_requests": 80,
+      "fresh_requests": 1,
+      "status": "converged",
+      "energy": -165.4231003355896,
+      "max_force": 0.008690312576408156,
+      "geometry_to_start": {
+        "graph_mappings_examined": 0,
+        "proper_rms_A": null,
+        "connected_components": 1,
+        "geometry_match": false,
+        "interpretation": "Positive RMS match proves geometric agreement; exhausted mapping cap without match is inconclusive."
+      },
+      "connectivity": {
+        "1.3": {
+          "sizes": [
+            38
+          ],
+          "isolated": []
+        },
+        "1.5": {
+          "sizes": [
+            38
+          ],
+          "isolated": []
+        }
+      },
+      "fresh_energy": -165.4231003355896,
+      "fresh_fmax": 0.008690312576408156,
+      "fresh_force_qualified": true,
+      "boundary": null
+    },
+    {
+      "seed": 25092501,
+      "outer": 0,
+      "gaussian": 7,
+      "search_requests": 127,
+      "fresh_requests": 1,
+      "status": "converged",
+      "energy": -167.85535134328973,
+      "max_force": 0.0074081802576809385,
+      "geometry_to_start": {
+        "graph_mappings_examined": 0,
+        "proper_rms_A": null,
+        "connected_components": 1,
+        "geometry_match": false,
+        "interpretation": "Positive RMS match proves geometric agreement; exhausted mapping cap without match is inconclusive."
+      },
+      "connectivity": {
+        "1.3": {
+          "sizes": [
+            38
+          ],
+          "isolated": []
+        },
+        "1.5": {
+          "sizes": [
+            38
+          ],
+          "isolated": []
+        }
+      },
+      "fresh_energy": -167.85535134328973,
+      "fresh_fmax": 0.0074081802576809385,
+      "fresh_force_qualified": true,
+      "boundary": null
+    },
+    {
+      "seed": 25092502,
+      "outer": 2,
+      "gaussian": 0,
+      "search_requests": 28,
+      "fresh_requests": 1,
+      "status": "converged",
+      "energy": -168.43594209763023,
+      "max_force": 0.00879793702850131,
+      "geometry_to_start": {
+        "graph_mappings_examined": 1,
+        "proper_rms_A": 0.0010331071973443777,
+        "connected_components": 1,
+        "geometry_match": true,
+        "interpretation": "Positive RMS match proves geometric agreement; exhausted mapping cap without match is inconclusive."
+      },
+      "connectivity": {
+        "1.3": {
+          "sizes": [
+            38
+          ],
+          "isolated": []
+        },
+        "1.5": {
+          "sizes": [
+            38
+          ],
+          "isolated": []
+        }
+      },
+      "fresh_energy": -168.43594209763023,
+      "fresh_fmax": 0.00879793702850131,
+      "fresh_force_qualified": true,
+      "boundary": null
+    },
+    {
+      "seed": 25092502,
+      "outer": 2,
+      "gaussian": 3,
+      "search_requests": 20,
+      "fresh_requests": 1,
+      "status": "converged",
+      "energy": -163.89702991499638,
+      "max_force": 0.0077510683178300035,
+      "geometry_to_start": {
+        "graph_mappings_examined": 0,
+        "proper_rms_A": null,
+        "connected_components": 1,
+        "geometry_match": false,
+        "interpretation": "Positive RMS match proves geometric agreement; exhausted mapping cap without match is inconclusive."
+      },
+      "connectivity": {
+        "1.3": {
+          "sizes": [
+            38
+          ],
+          "isolated": []
+        },
+        "1.5": {
+          "sizes": [
+            38
+          ],
+          "isolated": []
+        }
+      },
+      "fresh_energy": -163.89702991499638,
+      "fresh_fmax": 0.0077510683178300035,
+      "fresh_force_qualified": true,
+      "boundary": null
+    },
+    {
+      "seed": 25092502,
+      "outer": 2,
+      "gaussian": 6,
+      "search_requests": 19,
+      "fresh_requests": 1,
+      "status": "converged",
+      "energy": -165.33383836611512,
+      "max_force": 0.009570812823762497,
+      "geometry_to_start": {
+        "graph_mappings_examined": 0,
+        "proper_rms_A": null,
+        "connected_components": 1,
+        "geometry_match": false,
+        "interpretation": "Positive RMS match proves geometric agreement; exhausted mapping cap without match is inconclusive."
+      },
+      "connectivity": {
+        "1.3": {
+          "sizes": [
+            38
+          ],
+          "isolated": []
+        },
+        "1.5": {
+          "sizes": [
+            38
+          ],
+          "isolated": []
+        }
+      },
+      "fresh_energy": -165.33383836611512,
+      "fresh_fmax": 0.009570812823762497,
+      "fresh_force_qualified": true,
+      "boundary": null
+    },
+    {
+      "seed": 25092502,
+      "outer": 2,
+      "gaussian": 8,
+      "search_requests": 126,
+      "fresh_requests": 1,
+      "status": "converged",
+      "energy": -167.55537350008308,
+      "max_force": 0.006229813910294447,
+      "geometry_to_start": {
+        "graph_mappings_examined": 0,
+        "proper_rms_A": null,
+        "connected_components": 1,
+        "geometry_match": false,
+        "interpretation": "Positive RMS match proves geometric agreement; exhausted mapping cap without match is inconclusive."
+      },
+      "connectivity": {
+        "1.3": {
+          "sizes": [
+            38
+          ],
+          "isolated": []
+        },
+        "1.5": {
+          "sizes": [
+            38
+          ],
+          "isolated": []
+        }
+      },
+      "fresh_energy": -167.55537350008308,
+      "fresh_fmax": 0.006229813910294447,
+      "fresh_force_qualified": true,
+      "boundary": null
+    }
+  ],
+  "status": "complete_or_censored",
+  "search_requests": 452,
+  "fresh_requests": 8
+}
