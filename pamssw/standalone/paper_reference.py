@@ -1357,9 +1357,8 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
             checkpoint_result = build_checkpoint(0, run_status)
         if checkpoint_path is not None:
             save_ssw_checkpoint(checkpoint_path, checkpoint_result)
-    if checkpoint_path is not None and steps == 0 and checkpoint is not None:
-        save_ssw_checkpoint(checkpoint_path, checkpoint_result)
-    if checkpoint_path is not None and paused_at_call_start and checkpoint is not None and steps > 0:
+    if (checkpoint_path is not None and checkpoint is not None and
+            (steps == 0 or paused_at_call_start)):
         save_ssw_checkpoint(checkpoint_path, checkpoint_result)
     final_checkpoint = checkpoint_result if checkpoint_enabled else None
     return SSWResult(initial, current.copy(), best.atoms.copy(), tuple(minima),

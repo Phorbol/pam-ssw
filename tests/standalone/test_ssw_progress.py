@@ -184,20 +184,33 @@ def test_progress_with_checkpoint_path_keeps_each_outer_persistence(tmp_path):
     assert [p.kind for p in seen] == ['initial', 'outer_step']
 
 
-def test_resumed_initial_pause_with_checkpoint_path_persists_incoming_checkpoint(tmp_path):
+@pytest.mark.parametrize('steps', [0, 2])
+def test_resumed_initial_pause_with_checkpoint_path_persists_incoming_checkpoint(
+        tmp_path, monkeypatch, steps):
+    import pamssw.standalone.paper_reference as ref
+
     atoms, config, ls = _case()
     first = run_ssw(atoms, ASESurface(EMT()), steps=1, config=config,
                     rng=np.random.default_rng(19), ls=ls,
                     progress_callback=lambda _p: False)
     path = tmp_path / 'initial-pause-resume.pkl'
     seen = []
-    result = run_ssw(atoms, ASESurface(EMT()), steps=2, config=config,
+    writes = []
+    original_save = ref.save_ssw_checkpoint
+
+    def track_save(destination, checkpoint):
+        writes.append(destination)
+        return original_save(destination, checkpoint)
+
+    monkeypatch.setattr(ref, 'save_ssw_checkpoint', track_save)
+    result = run_ssw(atoms, ASESurface(EMT()), steps=steps, config=config,
                      rng=np.random.default_rng(999), ls=ls,
                      checkpoint=first.checkpoint, checkpoint_path=path,
                      progress_callback=lambda p: seen.append(p) or True)
     stored = load_ssw_checkpoint(path)
     assert result.status == 'paused'
     assert [p.kind for p in seen] == ['initial']
+    assert writes == [path]
     assert stored.next_index == first.checkpoint.next_index == result.checkpoint.next_index
     assert stored.evaluation_requests == first.checkpoint.evaluation_requests
     np.testing.assert_array_equal(stored.current.positions,
