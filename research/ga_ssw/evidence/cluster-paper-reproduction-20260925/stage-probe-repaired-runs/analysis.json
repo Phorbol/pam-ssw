@@ -1,0 +1,2391 @@
+{
+  "scope": "Outcome-selected diagnostic; connectivity and localization are not a causal mechanism or basin identity.",
+  "potential_requests": 0,
+  "all_prefixes_qualified": true,
+  "runs": [
+    {
+      "arm": "global",
+      "seed": 25092501,
+      "prefix_qualified": true,
+      "status": "completed",
+      "requests": 2776,
+      "mismatches": [],
+      "stages": [
+        {
+          "outer": 0,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 77,
+          "rotation_requests": 7,
+          "quench_requests": 68,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.4334961610338524,
+          "largest_atom_weight": 0.13141763664481076,
+          "largest_atom_index": 30
+        },
+        {
+          "outer": 0,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 57,
+          "rotation_requests": 7,
+          "quench_requests": 48,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.41122235502300264,
+          "largest_atom_weight": 0.1485906685110611,
+          "largest_atom_index": 30
+        },
+        {
+          "outer": 0,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 87,
+          "rotation_requests": 7,
+          "quench_requests": 78,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.4143757870868617,
+          "largest_atom_weight": 0.12980821769076714,
+          "largest_atom_index": 0
+        },
+        {
+          "outer": 0,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 126,
+          "rotation_requests": 7,
+          "quench_requests": 117,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.3979284735724184,
+          "largest_atom_weight": 0.1282528226122884,
+          "largest_atom_index": 0
+        },
+        {
+          "outer": 0,
+          "gaussian": "true_landing",
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          }
+        },
+        {
+          "outer": 1,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 60,
+          "rotation_requests": 7,
+          "quench_requests": 51,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.4541532585998005,
+          "largest_atom_weight": 0.12809583807317346,
+          "largest_atom_index": 30
+        },
+        {
+          "outer": 1,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 41,
+          "rotation_requests": 7,
+          "quench_requests": 32,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.4821506037317798,
+          "largest_atom_weight": 0.09909658396933158,
+          "largest_atom_index": 0
+        },
+        {
+          "outer": 1,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 42,
+          "rotation_requests": 7,
+          "quench_requests": 33,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.52586413717764,
+          "largest_atom_weight": 0.0919793000534674,
+          "largest_atom_index": 27
+        },
+        {
+          "outer": 1,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 94,
+          "rotation_requests": 6,
+          "quench_requests": 86,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.5236101962079024,
+          "largest_atom_weight": 0.09273114173555531,
+          "largest_atom_index": 33
+        },
+        {
+          "outer": 1,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 87,
+          "rotation_requests": 6,
+          "quench_requests": 79,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.5122707847286876,
+          "largest_atom_weight": 0.12006986292445541,
+          "largest_atom_index": 14
+        },
+        {
+          "outer": 1,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 79,
+          "rotation_requests": 7,
+          "quench_requests": 70,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.5221523607992591,
+          "largest_atom_weight": 0.1267415179799609,
+          "largest_atom_index": 14
+        },
+        {
+          "outer": 1,
+          "gaussian": 6,
+          "status": "converged",
+          "requests": 101,
+          "rotation_requests": 7,
+          "quench_requests": 92,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.520515168678645,
+          "largest_atom_weight": 0.0929499396740037,
+          "largest_atom_index": 14
+        },
+        {
+          "outer": 1,
+          "gaussian": 7,
+          "status": "converged",
+          "requests": 89,
+          "rotation_requests": 7,
+          "quench_requests": 80,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.43164219227008777,
+          "largest_atom_weight": 0.14614409309509502,
+          "largest_atom_index": 33
+        },
+        {
+          "outer": 1,
+          "gaussian": "true_landing",
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          }
+        },
+        {
+          "outer": 2,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 30,
+          "rotation_requests": 7,
+          "quench_requests": 21,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.47553618010621695,
+          "largest_atom_weight": 0.11400147620993947,
+          "largest_atom_index": 4
+        },
+        {
+          "outer": 2,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 71,
+          "rotation_requests": 7,
+          "quench_requests": 62,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.397272806250215,
+          "largest_atom_weight": 0.13667257888746526,
+          "largest_atom_index": 4
+        },
+        {
+          "outer": 2,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 50,
+          "rotation_requests": 7,
+          "quench_requests": 41,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.35233986182538346,
+          "largest_atom_weight": 0.18078500805768274,
+          "largest_atom_index": 4
+        },
+        {
+          "outer": 2,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 67,
+          "rotation_requests": 7,
+          "quench_requests": 58,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.34790245269434217,
+          "largest_atom_weight": 0.17265819669775498,
+          "largest_atom_index": 17
+        },
+        {
+          "outer": 2,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 62,
+          "rotation_requests": 6,
+          "quench_requests": 54,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.5030638890676498,
+          "largest_atom_weight": 0.12178567048825556,
+          "largest_atom_index": 17
+        },
+        {
+          "outer": 2,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 48,
+          "rotation_requests": 6,
+          "quench_requests": 40,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.4325681286774741,
+          "largest_atom_weight": 0.13835448869421763,
+          "largest_atom_index": 4
+        },
+        {
+          "outer": 2,
+          "gaussian": 6,
+          "status": "converged",
+          "requests": 104,
+          "rotation_requests": 6,
+          "quench_requests": 96,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.3678958647268002,
+          "largest_atom_weight": 0.1761332567979359,
+          "largest_atom_index": 4
+        },
+        {
+          "outer": 2,
+          "gaussian": 7,
+          "status": "converged",
+          "requests": 48,
+          "rotation_requests": 6,
+          "quench_requests": 40,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.48330150449159076,
+          "largest_atom_weight": 0.11769962227587408,
+          "largest_atom_index": 4
+        },
+        {
+          "outer": 2,
+          "gaussian": 8,
+          "status": "converged",
+          "requests": 52,
+          "rotation_requests": 6,
+          "quench_requests": 44,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.4480510393591867,
+          "largest_atom_weight": 0.14908256841896986,
+          "largest_atom_index": 4
+        },
+        {
+          "outer": 2,
+          "gaussian": 9,
+          "status": "converged",
+          "requests": 73,
+          "rotation_requests": 6,
+          "quench_requests": 65,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.4325176321261297,
+          "largest_atom_weight": 0.1602137590103004,
+          "largest_atom_index": 4
+        },
+        {
+          "outer": 2,
+          "gaussian": 10,
+          "status": "converged",
+          "requests": 76,
+          "rotation_requests": 6,
+          "quench_requests": 68,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.45612312886410367,
+          "largest_atom_weight": 0.1416719434130143,
+          "largest_atom_index": 4
+        },
+        {
+          "outer": 2,
+          "gaussian": 11,
+          "status": "converged",
+          "requests": 141,
+          "rotation_requests": 6,
+          "quench_requests": 133,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.4514691070202964,
+          "largest_atom_weight": 0.15933494599238335,
+          "largest_atom_index": 4
+        },
+        {
+          "outer": 2,
+          "gaussian": 12,
+          "status": "converged",
+          "requests": 36,
+          "rotation_requests": 7,
+          "quench_requests": 27,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.44593461885205943,
+          "largest_atom_weight": 0.13849127758157226,
+          "largest_atom_index": 4
+        },
+        {
+          "outer": 2,
+          "gaussian": 13,
+          "status": "converged",
+          "requests": 80,
+          "rotation_requests": 6,
+          "quench_requests": 72,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.4011484250888376,
+          "largest_atom_weight": 0.16383545163644114,
+          "largest_atom_index": 4
+        },
+        {
+          "outer": 2,
+          "gaussian": "true_landing",
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "arm": "global",
+      "seed": 25092502,
+      "prefix_qualified": true,
+      "status": "completed",
+      "requests": 2064,
+      "mismatches": [],
+      "stages": [
+        {
+          "outer": 0,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 93,
+          "rotation_requests": 7,
+          "quench_requests": 84,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.4029062617920971,
+          "largest_atom_weight": 0.1456761000968017,
+          "largest_atom_index": 9
+        },
+        {
+          "outer": 0,
+          "gaussian": "true_landing",
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          }
+        },
+        {
+          "outer": 1,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 65,
+          "rotation_requests": 7,
+          "quench_requests": 56,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.5051798863541307,
+          "largest_atom_weight": 0.1306349316356189,
+          "largest_atom_index": 15
+        },
+        {
+          "outer": 1,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 26,
+          "rotation_requests": 7,
+          "quench_requests": 17,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.520095461198382,
+          "largest_atom_weight": 0.11015654683061159,
+          "largest_atom_index": 15
+        },
+        {
+          "outer": 1,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 43,
+          "rotation_requests": 7,
+          "quench_requests": 34,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.4972093625327347,
+          "largest_atom_weight": 0.11083030933301125,
+          "largest_atom_index": 15
+        },
+        {
+          "outer": 1,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 61,
+          "rotation_requests": 8,
+          "quench_requests": 51,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.325454837658205,
+          "largest_atom_weight": 0.21308858619756788,
+          "largest_atom_index": 15
+        },
+        {
+          "outer": 1,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 40,
+          "rotation_requests": 8,
+          "quench_requests": 30,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.5665368025752818,
+          "largest_atom_weight": 0.11317141307748933,
+          "largest_atom_index": 15
+        },
+        {
+          "outer": 1,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 48,
+          "rotation_requests": 8,
+          "quench_requests": 38,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.4774839520112113,
+          "largest_atom_weight": 0.13663149329875285,
+          "largest_atom_index": 15
+        },
+        {
+          "outer": 1,
+          "gaussian": 6,
+          "status": "converged",
+          "requests": 92,
+          "rotation_requests": 8,
+          "quench_requests": 82,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.46825649622693966,
+          "largest_atom_weight": 0.15918940806380635,
+          "largest_atom_index": 15
+        },
+        {
+          "outer": 1,
+          "gaussian": 7,
+          "status": "converged",
+          "requests": 70,
+          "rotation_requests": 8,
+          "quench_requests": 60,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.4252288193110394,
+          "largest_atom_weight": 0.17136224802356345,
+          "largest_atom_index": 15
+        },
+        {
+          "outer": 1,
+          "gaussian": 8,
+          "status": "converged",
+          "requests": 30,
+          "rotation_requests": 8,
+          "quench_requests": 20,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.4106451772107316,
+          "largest_atom_weight": 0.16788175711136225,
+          "largest_atom_index": 15
+        },
+        {
+          "outer": 1,
+          "gaussian": 9,
+          "status": "converged",
+          "requests": 109,
+          "rotation_requests": 7,
+          "quench_requests": 100,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.4026744084937741,
+          "largest_atom_weight": 0.1901069461252914,
+          "largest_atom_index": 15
+        },
+        {
+          "outer": 1,
+          "gaussian": 10,
+          "status": "converged",
+          "requests": 54,
+          "rotation_requests": 7,
+          "quench_requests": 45,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.4829089665754554,
+          "largest_atom_weight": 0.122853820522701,
+          "largest_atom_index": 15
+        },
+        {
+          "outer": 1,
+          "gaussian": 11,
+          "status": "converged",
+          "requests": 127,
+          "rotation_requests": 7,
+          "quench_requests": 118,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.49631455317971074,
+          "largest_atom_weight": 0.10725929377613212,
+          "largest_atom_index": 15
+        },
+        {
+          "outer": 1,
+          "gaussian": 12,
+          "status": "converged",
+          "requests": 34,
+          "rotation_requests": 7,
+          "quench_requests": 25,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.5875011633475432,
+          "largest_atom_weight": 0.08528232885103047,
+          "largest_atom_index": 37
+        },
+        {
+          "outer": 1,
+          "gaussian": 13,
+          "status": "converged",
+          "requests": 59,
+          "rotation_requests": 7,
+          "quench_requests": 50,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.5788900338092959,
+          "largest_atom_weight": 0.09430343986433407,
+          "largest_atom_index": 8
+        },
+        {
+          "outer": 1,
+          "gaussian": "true_landing",
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          }
+        },
+        {
+          "outer": 2,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 90,
+          "rotation_requests": 7,
+          "quench_requests": 81,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.5443777186756181,
+          "largest_atom_weight": 0.11483046609033117,
+          "largest_atom_index": 7
+        },
+        {
+          "outer": 2,
+          "gaussian": "true_landing",
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "arm": "paper",
+      "seed": 25092501,
+      "prefix_qualified": true,
+      "status": "completed",
+      "requests": 2140,
+      "mismatches": [],
+      "stages": [
+        {
+          "outer": 0,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 97,
+          "rotation_requests": 6,
+          "quench_requests": 89,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.08887520668419607,
+          "largest_atom_weight": 0.43047704803428477,
+          "largest_atom_index": 23
+        },
+        {
+          "outer": 0,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 43,
+          "rotation_requests": 7,
+          "quench_requests": 34,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.07270605032849778,
+          "largest_atom_weight": 0.5187807516610657,
+          "largest_atom_index": 23
+        },
+        {
+          "outer": 0,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 49,
+          "rotation_requests": 6,
+          "quench_requests": 41,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.07085761351800283,
+          "largest_atom_weight": 0.4612048566927354,
+          "largest_atom_index": 23
+        },
+        {
+          "outer": 0,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 31,
+          "rotation_requests": 6,
+          "quench_requests": 23,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.07815592517349762,
+          "largest_atom_weight": 0.4499998966329185,
+          "largest_atom_index": 23
+        },
+        {
+          "outer": 0,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 74,
+          "rotation_requests": 7,
+          "quench_requests": 65,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.0677383206549431,
+          "largest_atom_weight": 0.53536405162158,
+          "largest_atom_index": 6
+        },
+        {
+          "outer": 0,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 30,
+          "rotation_requests": 6,
+          "quench_requests": 22,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.07613602191454422,
+          "largest_atom_weight": 0.4164238657375073,
+          "largest_atom_index": 6
+        },
+        {
+          "outer": 0,
+          "gaussian": 6,
+          "status": "converged",
+          "requests": 45,
+          "rotation_requests": 6,
+          "quench_requests": 37,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.0691500965673539,
+          "largest_atom_weight": 0.47638464608328884,
+          "largest_atom_index": 23
+        },
+        {
+          "outer": 0,
+          "gaussian": 7,
+          "status": "converged",
+          "requests": 47,
+          "rotation_requests": 7,
+          "quench_requests": 38,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.06277625599135879,
+          "largest_atom_weight": 0.5709903652270385,
+          "largest_atom_index": 23
+        },
+        {
+          "outer": 0,
+          "gaussian": 8,
+          "status": "converged",
+          "requests": 29,
+          "rotation_requests": 6,
+          "quench_requests": 21,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                23
+              ]
+            },
+            "1.5": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                23
+              ]
+            }
+          },
+          "participation_ratio": 0.05534746085695567,
+          "largest_atom_weight": 0.6452643352948585,
+          "largest_atom_index": 23
+        },
+        {
+          "outer": 0,
+          "gaussian": 9,
+          "status": "converged",
+          "requests": 30,
+          "rotation_requests": 7,
+          "quench_requests": 21,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                23
+              ]
+            },
+            "1.5": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                23
+              ]
+            }
+          },
+          "participation_ratio": 0.04432408205045889,
+          "largest_atom_weight": 0.7541671311752438,
+          "largest_atom_index": 23
+        },
+        {
+          "outer": 0,
+          "gaussian": 10,
+          "status": "converged",
+          "requests": 30,
+          "rotation_requests": 7,
+          "quench_requests": 21,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                23
+              ]
+            },
+            "1.5": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                23
+              ]
+            }
+          },
+          "participation_ratio": 0.04395408603405416,
+          "largest_atom_weight": 0.758546421409296,
+          "largest_atom_index": 23
+        },
+        {
+          "outer": 0,
+          "gaussian": 11,
+          "status": "converged",
+          "requests": 30,
+          "rotation_requests": 7,
+          "quench_requests": 21,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                23
+              ]
+            },
+            "1.5": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                23
+              ]
+            }
+          },
+          "participation_ratio": 0.04368461867562682,
+          "largest_atom_weight": 0.7611081166294801,
+          "largest_atom_index": 23
+        },
+        {
+          "outer": 0,
+          "gaussian": 12,
+          "status": "converged",
+          "requests": 30,
+          "rotation_requests": 7,
+          "quench_requests": 21,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                23
+              ]
+            },
+            "1.5": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                23
+              ]
+            }
+          },
+          "participation_ratio": 0.04367759621592133,
+          "largest_atom_weight": 0.761088921007985,
+          "largest_atom_index": 23
+        },
+        {
+          "outer": 0,
+          "gaussian": 13,
+          "status": "converged",
+          "requests": 30,
+          "rotation_requests": 7,
+          "quench_requests": 21,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                23
+              ]
+            },
+            "1.5": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                23
+              ]
+            }
+          },
+          "participation_ratio": 0.043656186759791125,
+          "largest_atom_weight": 0.7611625199342313,
+          "largest_atom_index": 23
+        },
+        {
+          "outer": 0,
+          "gaussian": "true_landing",
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                23
+              ]
+            },
+            "1.5": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                23
+              ]
+            }
+          }
+        },
+        {
+          "outer": 1,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 123,
+          "rotation_requests": 6,
+          "quench_requests": 115,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.06554540523054013,
+          "largest_atom_weight": 0.4658805865313001,
+          "largest_atom_index": 37
+        },
+        {
+          "outer": 1,
+          "gaussian": "true_landing",
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          }
+        },
+        {
+          "outer": 2,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 88,
+          "rotation_requests": 6,
+          "quench_requests": 80,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.061931085232191804,
+          "largest_atom_weight": 0.5960029939827746,
+          "largest_atom_index": 0
+        },
+        {
+          "outer": 2,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 96,
+          "rotation_requests": 7,
+          "quench_requests": 87,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.07706103769007311,
+          "largest_atom_weight": 0.5161346240334418,
+          "largest_atom_index": 0
+        },
+        {
+          "outer": 2,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 85,
+          "rotation_requests": 6,
+          "quench_requests": 77,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.06780875103232697,
+          "largest_atom_weight": 0.5534916318112713,
+          "largest_atom_index": 9
+        },
+        {
+          "outer": 2,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 42,
+          "rotation_requests": 6,
+          "quench_requests": 34,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.0814273865079496,
+          "largest_atom_weight": 0.4284177360184664,
+          "largest_atom_index": 9
+        },
+        {
+          "outer": 2,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 58,
+          "rotation_requests": 6,
+          "quench_requests": 50,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.07368287971329651,
+          "largest_atom_weight": 0.5335096704647275,
+          "largest_atom_index": 9
+        },
+        {
+          "outer": 2,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 62,
+          "rotation_requests": 7,
+          "quench_requests": 53,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.07565063564626301,
+          "largest_atom_weight": 0.5526537038257762,
+          "largest_atom_index": 0
+        },
+        {
+          "outer": 2,
+          "gaussian": 6,
+          "status": "converged",
+          "requests": 98,
+          "rotation_requests": 8,
+          "quench_requests": 88,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.12030837943744743,
+          "largest_atom_weight": 0.4272580898219114,
+          "largest_atom_index": 0
+        },
+        {
+          "outer": 2,
+          "gaussian": "true_landing",
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "arm": "paper",
+      "seed": 25092502,
+      "prefix_qualified": true,
+      "status": "completed",
+      "requests": 1920,
+      "mismatches": [],
+      "stages": [
+        {
+          "outer": 0,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 106,
+          "rotation_requests": 7,
+          "quench_requests": 97,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.06030649445621216,
+          "largest_atom_weight": 0.6360612513601812,
+          "largest_atom_index": 37
+        },
+        {
+          "outer": 0,
+          "gaussian": "true_landing",
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          }
+        },
+        {
+          "outer": 1,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 39,
+          "rotation_requests": 8,
+          "quench_requests": 29,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.4409068374477938,
+          "largest_atom_weight": 0.1315978795117532,
+          "largest_atom_index": 24
+        },
+        {
+          "outer": 1,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 63,
+          "rotation_requests": 8,
+          "quench_requests": 53,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.5523677351703115,
+          "largest_atom_weight": 0.09389107231338308,
+          "largest_atom_index": 12
+        },
+        {
+          "outer": 1,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 60,
+          "rotation_requests": 8,
+          "quench_requests": 50,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.539361271065944,
+          "largest_atom_weight": 0.1010114398203342,
+          "largest_atom_index": 19
+        },
+        {
+          "outer": 1,
+          "gaussian": "true_landing",
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          }
+        },
+        {
+          "outer": 2,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 28,
+          "rotation_requests": 6,
+          "quench_requests": 20,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.07799160829854701,
+          "largest_atom_weight": 0.4261620046377469,
+          "largest_atom_index": 18
+        },
+        {
+          "outer": 2,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 54,
+          "rotation_requests": 7,
+          "quench_requests": 45,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.12219403263924537,
+          "largest_atom_weight": 0.347198733442813,
+          "largest_atom_index": 34
+        },
+        {
+          "outer": 2,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 42,
+          "rotation_requests": 6,
+          "quench_requests": 34,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.08158377969197002,
+          "largest_atom_weight": 0.42522059267250056,
+          "largest_atom_index": 34
+        },
+        {
+          "outer": 2,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 66,
+          "rotation_requests": 7,
+          "quench_requests": 57,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.07791401865268778,
+          "largest_atom_weight": 0.5235462824949142,
+          "largest_atom_index": 18
+        },
+        {
+          "outer": 2,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 50,
+          "rotation_requests": 6,
+          "quench_requests": 42,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.0626893139561521,
+          "largest_atom_weight": 0.5923049971325975,
+          "largest_atom_index": 18
+        },
+        {
+          "outer": 2,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 39,
+          "rotation_requests": 10,
+          "quench_requests": 27,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.05860491578028514,
+          "largest_atom_weight": 0.6529607941821507,
+          "largest_atom_index": 18
+        },
+        {
+          "outer": 2,
+          "gaussian": 6,
+          "status": "converged",
+          "requests": 110,
+          "rotation_requests": 7,
+          "quench_requests": 101,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.05724503609728937,
+          "largest_atom_weight": 0.655142689793174,
+          "largest_atom_index": 18
+        },
+        {
+          "outer": 2,
+          "gaussian": 7,
+          "status": "converged",
+          "requests": 61,
+          "rotation_requests": 8,
+          "quench_requests": 51,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.07093194712591573,
+          "largest_atom_weight": 0.5964876588677308,
+          "largest_atom_index": 18
+        },
+        {
+          "outer": 2,
+          "gaussian": 8,
+          "status": "converged",
+          "requests": 57,
+          "rotation_requests": 8,
+          "quench_requests": 47,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            },
+            "1.5": {
+              "sizes": [
+                38
+              ],
+              "isolated": []
+            }
+          },
+          "participation_ratio": 0.0889838612761113,
+          "largest_atom_weight": 0.5263665239745104,
+          "largest_atom_index": 18
+        },
+        {
+          "outer": 2,
+          "gaussian": 9,
+          "status": "converged",
+          "requests": 38,
+          "rotation_requests": 7,
+          "quench_requests": 29,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                18
+              ]
+            },
+            "1.5": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                18
+              ]
+            }
+          },
+          "participation_ratio": 0.04811732968891464,
+          "largest_atom_weight": 0.7336108079612577,
+          "largest_atom_index": 18
+        },
+        {
+          "outer": 2,
+          "gaussian": 10,
+          "status": "converged",
+          "requests": 32,
+          "rotation_requests": 9,
+          "quench_requests": 21,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                18
+              ]
+            },
+            "1.5": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                18
+              ]
+            }
+          },
+          "participation_ratio": 0.02968059998859925,
+          "largest_atom_weight": 0.9414977062247561,
+          "largest_atom_index": 18
+        },
+        {
+          "outer": 2,
+          "gaussian": 11,
+          "status": "converged",
+          "requests": 26,
+          "rotation_requests": 7,
+          "quench_requests": 17,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                18
+              ]
+            },
+            "1.5": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                18
+              ]
+            }
+          },
+          "participation_ratio": 0.031831433934705326,
+          "largest_atom_weight": 0.9086991627703764,
+          "largest_atom_index": 18
+        },
+        {
+          "outer": 2,
+          "gaussian": 12,
+          "status": "converged",
+          "requests": 28,
+          "rotation_requests": 7,
+          "quench_requests": 19,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                18
+              ]
+            },
+            "1.5": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                18
+              ]
+            }
+          },
+          "participation_ratio": 0.0315647288795164,
+          "largest_atom_weight": 0.9126117685191536,
+          "largest_atom_index": 18
+        },
+        {
+          "outer": 2,
+          "gaussian": 13,
+          "status": "converged",
+          "requests": 26,
+          "rotation_requests": 7,
+          "quench_requests": 17,
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                18
+              ]
+            },
+            "1.5": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                18
+              ]
+            }
+          },
+          "participation_ratio": 0.03188175193767201,
+          "largest_atom_weight": 0.9079643351526665,
+          "largest_atom_index": 18
+        },
+        {
+          "outer": 2,
+          "gaussian": "true_landing",
+          "endpoints": {
+            "1.3": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                18
+              ]
+            },
+            "1.5": {
+              "sizes": [
+                37,
+                1
+              ],
+              "isolated": [
+                18
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
