@@ -166,6 +166,19 @@ class SSWStep:
 
 
 @dataclass(frozen=True)
+class SSWProgress:
+    """Detached bounded observer state at call start or an outer boundary."""
+    kind: str
+    step: SSWStep | None
+    new_minimum: QuenchResult | None
+    current: object
+    current_energy: float
+    best: QuenchResult
+    evaluation_requests: int
+    next_index: int
+
+
+@dataclass(frozen=True)
 class BiasStageQuenchOutcome:
     """Result returned by the explicit experimental biased-quench adapter."""
     relaxed: QuenchResult
@@ -427,7 +440,8 @@ def _prepare_pool_restart(selected, *, ls, recovered_direction, rng):
 
 def run_ssw(atoms, surface, *, steps, config, rng, ls=None, height_policy=None, gaussian_policy=None,
             height_update_budget=1000, reconnect_distance=None, checkpoint=None,
-            checkpoint_path=None, checkpoint_callback=None, structure_matcher=None, bias_quench_adapter=None,
+            checkpoint_path=None, checkpoint_callback=None, progress_callback=None,
+            structure_matcher=None, bias_quench_adapter=None,
             recovered_direction=None, recovered_rotation=None, mc=None,
             starter_selector=None, selector_rng=None):
     """Run independent fixed-cell SSW; optional LS uses frozen image bonds for full PBC.
@@ -442,6 +456,13 @@ def run_ssw(atoms, surface, *, steps, config, rng, ls=None, height_policy=None, 
     explicit resume. It is not called on zero steps or terminal failures.
     The surface must use the same potential/settings; its counter is not reset.
     Failed terminal states are diagnostic snapshots, not resumable boundaries.
+
+``progress_callback`` receives detached ``SSWProgress`` values at call start
+and completed resumable outer boundaries. The payload has bounded per-step
+state only, not accumulated history. Returning true pauses; one compatible full
+checkpoint is returned on pause or final completion. It cannot be combined
+with ``checkpoint_callback``. With only this observer, full checkpoint copying
+is deferred until return; ``checkpoint_path`` retains per-step persistence.
 
 ``bias_quench_adapter`` is an explicit experimental hook replacing only the
 biased quench. It receives the original quench arguments plus a ``context``
@@ -513,6 +534,10 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
             raise ValueError(f'cannot resume terminal checkpoint with status {checkpoint.status!r}')
     if checkpoint_callback is not None and not callable(checkpoint_callback):
         raise TypeError('checkpoint_callback must be callable or None')
+    if progress_callback is not None and not callable(progress_callback):
+        raise TypeError('progress_callback must be callable or None')
+    if checkpoint_callback is not None and progress_callback is not None:
+        raise ValueError('progress_callback and checkpoint_callback are mutually exclusive')
     if starter_selector is None and selector_rng is not None:
         raise ValueError('selector_rng requires starter_selector')
     if starter_selector is not None:
@@ -524,7 +549,8 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
             raise ValueError('selector_rng must be independent and must not share the main rng or bit_generator')
     pool_resume = checkpoint is not None and getattr(checkpoint, 'pool_state', None) is not None
     pool_checkpoint = starter_selector is not None and (
-        checkpoint_path is not None or checkpoint_callback is not None or pool_resume)
+        checkpoint_path is not None or checkpoint_callback is not None or
+        progress_callback is not None or pool_resume)
     if pool_resume and starter_selector is None:
         raise ValueError('pool checkpoint resume requires starter_selector')
     if pool_checkpoint or pool_resume:
@@ -599,7 +625,8 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
     if bias_quench_adapter is not None and not callable(bias_quench_adapter):
         raise TypeError('bias_quench_adapter must be callable or None')
     if bias_quench_adapter is not None and (
-            checkpoint is not None or checkpoint_path is not None or checkpoint_callback is not None):
+            checkpoint is not None or checkpoint_path is not None or
+            checkpoint_callback is not None or progress_callback is not None):
         raise ValueError('bias_quench_adapter cannot be combined with checkpointing')
     if atoms.constraints:
         raise NotImplementedError('standalone SSW currently requires unconstrained atoms')
@@ -717,6 +744,26 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
             current_index=current_observation_index,
             last_landing_index=last_landing_index)
 
+    def build_checkpoint(next_index, status):
+        return SSWCheckpoint(
+            _checkpoint_copy(initial), _checkpoint_copy(current), current_energy,
+            _checkpoint_copy(best), tuple(_checkpoint_copy(minima)),
+            tuple(_checkpoint_copy(records)), _checkpoint_copy(frozen),
+            _checkpoint_copy(response), config, _checkpoint_copy(ls),
+            _checkpoint_copy(height_policy), _checkpoint_copy(gaussian_policy),
+            height_update_budget, reconnect_distance,
+            deepcopy(rng.bit_generator.state), prior_requests + surface.requests - begin,
+            next_index, status, identity_view=_checkpoint_copy(identity_view),
+            schema_version=(5 if pool_checkpoint_enabled else
+                (4 if direction_controller is not None else
+                 (3 if recovered_rotation is not None else (2 if mc is not None else 1)))),
+            mc_settings=_checkpoint_copy(mc),
+            native_mc_state=_checkpoint_copy(native_mc_state),
+            recovered_rotation=_checkpoint_copy(recovered_rotation),
+            recovered_direction_state=(None if direction_controller is None else
+                _checkpoint_copy(direction_controller.checkpoint_state())),
+            pool_state=_checkpoint_copy(checkpoint_pool_state()))
+
     if checkpoint is None and ls is not None:
         try:
             frozen, response = _initialize_ls_state(current, ls)
@@ -727,7 +774,7 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
                              None, 0, str(error), current.copy())
             terminal = 'ls_initialization_failed'
             cp = None
-            if checkpoint_path is not None:
+            if checkpoint_path is not None or progress_callback is not None:
                 cp = SSWCheckpoint(_checkpoint_copy(initial), _checkpoint_copy(current), current_energy,
                     _checkpoint_copy(best), tuple(_checkpoint_copy(minima)), (record,), None, None,
                     config, _checkpoint_copy(ls), _checkpoint_copy(height_policy),
@@ -740,14 +787,31 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
                     recovered_rotation=_checkpoint_copy(recovered_rotation),
                     recovered_direction_state=(None if direction_controller is None else _checkpoint_copy(direction_controller.checkpoint_state())),
                     pool_state=_checkpoint_copy(checkpoint_pool_state()))
-                save_ssw_checkpoint(checkpoint_path, cp)
+                if checkpoint_path is not None:
+                    save_ssw_checkpoint(checkpoint_path, cp)
             return SSWResult(initial, current.copy(), best.atoms.copy(), tuple(minima),
                              (record,), surface.requests-begin, terminal, cp, identity_view)
     run_status = 'completed'
     checkpoint_result = checkpoint if checkpoint is not None else None
-    checkpoint_enabled = checkpoint is not None or checkpoint_path is not None or checkpoint_callback is not None
-    for index in range(start_index, start_index + steps):
+    checkpoint_enabled = (checkpoint is not None or checkpoint_path is not None or
+                          checkpoint_callback is not None or progress_callback is not None)
+    defer_full_checkpoint = (progress_callback is not None and checkpoint_path is None and
+                             checkpoint_callback is None)
+    checkpoint_each_step = checkpoint_enabled and not defer_full_checkpoint
+    checkpoint_next_index = start_index
+    progress_paused = False
+    if progress_callback is not None:
+        initial_progress = SSWProgress(
+            'initial', None, None if checkpoint is not None else initial,
+            current, current_energy, best,
+            prior_requests + surface.requests - begin, start_index)
+        progress_paused = bool(progress_callback(_checkpoint_copy(initial_progress)))
+    paused_at_call_start = progress_paused
+
+    loop_steps = 0 if progress_paused else steps
+    for index in range(start_index, start_index + loop_steps):
         before = surface.requests
+        minima_before = len(minima)
         work = current.copy()
         climb = []
         landing = prepared = None
@@ -768,21 +832,9 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
                     failed, None, surface.requests - before, str(error),
                     work.copy() if failed is None else failed.atoms.copy()))
                 run_status = 'ls_prequench_failed'
-                if checkpoint_enabled:
-                    checkpoint_result = SSWCheckpoint(
-                        _checkpoint_copy(initial), _checkpoint_copy(current), current_energy,
-                        _checkpoint_copy(best), tuple(_checkpoint_copy(minima)),
-                        tuple(_checkpoint_copy(records)), _checkpoint_copy(frozen), _checkpoint_copy(response),
-                        config, _checkpoint_copy(ls), _checkpoint_copy(height_policy),
-                        _checkpoint_copy(gaussian_policy), height_update_budget, reconnect_distance,
-                        deepcopy(rng.bit_generator.state), prior_requests + surface.requests - begin,
-                        index + 1, run_status, identity_view=_checkpoint_copy(identity_view),
-                        schema_version=(5 if pool_checkpoint_enabled else (4 if direction_controller is not None else (3 if recovered_rotation is not None else (2 if mc is not None else 1)))),
-                        mc_settings=_checkpoint_copy(mc),
-                        native_mc_state=_checkpoint_copy(native_mc_state),
-                        recovered_rotation=_checkpoint_copy(recovered_rotation),
-                        recovered_direction_state=(None if direction_controller is None else _checkpoint_copy(direction_controller.checkpoint_state())),
-                        pool_state=_checkpoint_copy(checkpoint_pool_state()))
+                checkpoint_next_index = index + 1
+                if checkpoint_each_step:
+                    checkpoint_result = build_checkpoint(checkpoint_next_index, run_status)
                     if checkpoint_path is not None:
                         save_ssw_checkpoint(checkpoint_path, checkpoint_result)
                 break
@@ -1274,25 +1326,12 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
                               error_message, work.copy(), initial_anchor, update_record,
                               cluster_reconnection, ls_preparation, mc_telemetry,
                               starter_selection))
+        checkpoint_next_index = index + 1
         if identity_view is not None:
             from .minimum_identity import update_identity_view
             update_identity_view(identity_view, minima, structure_matcher)
-        if checkpoint_enabled:
-            checkpoint_result = SSWCheckpoint(
-            _checkpoint_copy(initial), _checkpoint_copy(current), current_energy,
-            _checkpoint_copy(best), tuple(_checkpoint_copy(minima)),
-            tuple(_checkpoint_copy(records)), _checkpoint_copy(frozen),
-            _checkpoint_copy(response), config, _checkpoint_copy(ls),
-            _checkpoint_copy(height_policy), _checkpoint_copy(gaussian_policy),
-            height_update_budget, reconnect_distance, deepcopy(rng.bit_generator.state),
-                prior_requests + surface.requests - begin, index + 1, run_status,
-                identity_view=_checkpoint_copy(identity_view),
-                schema_version=(5 if pool_checkpoint_enabled else (4 if direction_controller is not None else (3 if recovered_rotation is not None else (2 if mc is not None else 1)))),
-                mc_settings=_checkpoint_copy(mc),
-                native_mc_state=_checkpoint_copy(native_mc_state),
-                recovered_rotation=_checkpoint_copy(recovered_rotation),
-                recovered_direction_state=(None if direction_controller is None else _checkpoint_copy(direction_controller.checkpoint_state())),
-                pool_state=_checkpoint_copy(checkpoint_pool_state()))
+        if checkpoint_each_step:
+            checkpoint_result = build_checkpoint(index + 1, run_status)
             if checkpoint_path is not None:
                 save_ssw_checkpoint(checkpoint_path, checkpoint_result)
         if run_status != 'completed':
@@ -1300,26 +1339,30 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
         if checkpoint_callback is not None and checkpoint_callback(_checkpoint_copy(checkpoint_result)):
             run_status = 'paused'
             break
+        if progress_callback is not None:
+            progress = SSWProgress(
+                'outer_step', records[-1],
+                minima[-1] if len(minima) > minima_before else None,
+                current, current_energy, best,
+                prior_requests + surface.requests - begin, index + 1)
+            if progress_callback(_checkpoint_copy(progress)):
+                progress_paused = True
+                break
+    if defer_full_checkpoint:
+        checkpoint_result = build_checkpoint(checkpoint_next_index, run_status)
     if checkpoint_enabled and not records and checkpoint is None:
-        checkpoint_result = SSWCheckpoint(_checkpoint_copy(initial), _checkpoint_copy(current), current_energy,
-            _checkpoint_copy(best), tuple(_checkpoint_copy(minima)), tuple(), _checkpoint_copy(frozen),
-            _checkpoint_copy(response), config, _checkpoint_copy(ls), _checkpoint_copy(height_policy),
-            _checkpoint_copy(gaussian_policy), height_update_budget, reconnect_distance,
-            deepcopy(rng.bit_generator.state), prior_requests + surface.requests - begin, 0, run_status,
-            identity_view=_checkpoint_copy(identity_view),
-            schema_version=(5 if pool_checkpoint_enabled else (4 if direction_controller is not None else (3 if recovered_rotation is not None else (2 if mc is not None else 1)))),
-            mc_settings=_checkpoint_copy(mc),
-            native_mc_state=_checkpoint_copy(native_mc_state),
-            recovered_rotation=_checkpoint_copy(recovered_rotation),
-            recovered_direction_state=(None if direction_controller is None else _checkpoint_copy(direction_controller.checkpoint_state())),
-            pool_state=_checkpoint_copy(checkpoint_pool_state()))
+        if checkpoint_result is None:
+            checkpoint_result = build_checkpoint(0, run_status)
         if checkpoint_path is not None:
             save_ssw_checkpoint(checkpoint_path, checkpoint_result)
     if checkpoint_path is not None and steps == 0 and checkpoint is not None:
         save_ssw_checkpoint(checkpoint_path, checkpoint_result)
+    if checkpoint_path is not None and paused_at_call_start and checkpoint is not None and steps > 0:
+        save_ssw_checkpoint(checkpoint_path, checkpoint_result)
     final_checkpoint = checkpoint_result if checkpoint_enabled else None
     return SSWResult(initial, current.copy(), best.atoms.copy(), tuple(minima),
-                     tuple(records), prior_requests + surface.requests - begin, run_status,
+                     tuple(records), prior_requests + surface.requests - begin,
+                     'paused' if progress_paused else run_status,
                      final_checkpoint, identity_view)
 
 

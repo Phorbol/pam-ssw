@@ -7,7 +7,8 @@ joint log-strain VC have explicit, separate entry-point contracts.
 """
 from .surface import ASESurface
 from .generalized_numerics import generalized_central_ritz
-from .paper_reference import (SSWConfig, LSSettings, SSWCheckpoint, BiasStageQuenchOutcome, run_ssw, run_ls_ssw,
+from .paper_reference import (SSWConfig, LSSettings, SSWCheckpoint, SSWProgress,
+                              BiasStageQuenchOutcome, run_ssw, run_ls_ssw,
                               save_ssw_checkpoint, load_ssw_checkpoint)
 from .native_mc import NativeMCSettings, NativeMCState
 from .paper_ga import PaperGAConfig, run_ga_ssw
@@ -15,7 +16,8 @@ from .ga_checkpoint import GACheckpoint
 from .minimum_identity import MinimumIdentityView
 
 __all__ = ['ASESurface', 'SSWConfig', 'LSSettings', 'PaperGAConfig',
-           'run_ssw', 'run_ls_ssw', 'SSWCheckpoint', 'BiasStageQuenchOutcome', 'save_ssw_checkpoint',
+           'run_ssw', 'run_ls_ssw', 'SSWCheckpoint', 'SSWProgress',
+           'BiasStageQuenchOutcome', 'save_ssw_checkpoint',
            'load_ssw_checkpoint', 'run_ga_ssw', 'GACheckpoint', 'MinimumIdentityView', 'generalized_central_ritz']
 __all__ += ['NativeMCSettings', 'NativeMCState']
 

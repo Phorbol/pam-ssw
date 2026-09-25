@@ -216,6 +216,18 @@ code is responsible for its own side effects. A hard
 kill inside an attempt still requires the previous saved boundary and an
 external ledger for work already paid since then.
 
+For lightweight observation, `run_ssw` also accepts
+`progress_callback(SSWProgress)`. It receives a detached call-start event
+(`kind='initial'`) and one bounded event per completed resumable outer step
+(`kind='outer_step'`). Each payload contains only the current step, any new
+landing, current structure/energy, best minimum, cumulative request count, and
+next index; it omits prior records, minima history, and restart-controller
+state. A true return pauses and returns a full compatible checkpoint. Progress
+observation alone defers that full checkpoint copy until return; adding
+`checkpoint_path` retains its existing per-step persistence. The lightweight
+observer cannot be combined with `checkpoint_callback`; pool starter selectors
+still need their pure-data save/restore contract whenever progress may pause.
+
 Full `recovered_direction` uses schema 4 to retain the selected atom pair,
 group mask, group marker, selection diagnostics and existing RNG/MC state.
 On resume its settings may be omitted (inferred from the checkpoint), or
