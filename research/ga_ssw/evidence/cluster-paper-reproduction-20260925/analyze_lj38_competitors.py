@@ -14,6 +14,10 @@ CASES = (
     ("runs/lj38-seed25092502", "runs"),
     ("paper-direction-runs/lj38-seed25092501", "paper-direction-runs"),
     ("paper-direction-runs/lj38-seed25092502", "paper-direction-runs"),
+    ("compact-global-runs/lj38-seed25092501", "compact-global-runs"),
+    ("compact-global-runs/lj38-seed25092502", "compact-global-runs"),
+    ("compact-paper-runs/lj38-seed25092501", "compact-paper-runs"),
+    ("compact-paper-runs/lj38-seed25092502", "compact-paper-runs"),
 )
 def main():
     ref = read(REFERENCE_DIR / "optim-finish.extxyz")
@@ -38,7 +42,7 @@ def main():
             row.update({"geometry_match": None, "classification": "failure", "error": f"{type(exc).__name__}: {exc}"})
         rows.append(row)
     result = {
-        "scope": "Four saved best geometries vs independently qualified OPTIM second-lowest minimum; geometry only, zero potential evaluations.",
+        "scope": "Old and compact-replay best geometries vs independently qualified OPTIM second-lowest minimum; geometry only, zero potential evaluations.",
         "reference": {
             "file": str((REFERENCE_DIR / "optim-finish.extxyz")),
             "energy_eV": ref_properties["energy"],

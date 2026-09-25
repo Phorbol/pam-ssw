@@ -1,0 +1,60 @@
+{
+  "status": "preflight_passed_zero_PES",
+  "output_available": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/stage-probe-runs",
+  "source_runner": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/run_lj_pilot.py",
+  "ledger_serializer": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/periodic-rotation-priority-20260923/ledger.py",
+  "full_pair_lj": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/full_pair_lj.py",
+  "source_runner_sha256": "31e6d26dffff81274b0f022565362645f4200ed0e81c9429227b13fb3f38c6c9",
+  "ledger_serializer_loadable": true,
+  "arms": [
+    "global",
+    "paper"
+  ],
+  "seeds": [
+    25092501,
+    25092502
+  ],
+  "outer_attempts_per_arm": 3,
+  "requests_per_arm_max": 6000,
+  "campaign_requests_max": 24000,
+  "campaign_wall_cap_seconds": 660,
+  "seeded_inputs": [
+    {
+      "arm": "global",
+      "seed": 25092501,
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/runs/lj38-seed25092501/initial.extxyz",
+      "atoms": 38,
+      "positions_exact_between_generators": true,
+      "search_child_rng_exact": true,
+      "direction_sampling": "global"
+    },
+    {
+      "arm": "global",
+      "seed": 25092502,
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/runs/lj38-seed25092502/initial.extxyz",
+      "atoms": 38,
+      "positions_exact_between_generators": true,
+      "search_child_rng_exact": true,
+      "direction_sampling": "global"
+    },
+    {
+      "arm": "paper",
+      "seed": 25092501,
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/paper-direction-runs/lj38-seed25092501/initial.extxyz",
+      "atoms": 38,
+      "positions_exact_between_generators": true,
+      "search_child_rng_exact": true,
+      "direction_sampling": "paper"
+    },
+    {
+      "arm": "paper",
+      "seed": 25092502,
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/paper-direction-runs/lj38-seed25092502/initial.extxyz",
+      "atoms": 38,
+      "positions_exact_between_generators": true,
+      "search_child_rng_exact": true,
+      "direction_sampling": "paper"
+    }
+  ],
+  "PES_requests": 0
+}

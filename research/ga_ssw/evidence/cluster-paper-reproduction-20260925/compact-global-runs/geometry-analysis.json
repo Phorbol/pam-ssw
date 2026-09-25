@@ -1,0 +1,23 @@
+{
+  "scope": "Geometry only: combine with independent energy/force qualification",
+  "rows": [
+    {
+      "arm": "lj38-seed25092501",
+      "role": "best",
+      "graph_mappings_examined": 0,
+      "proper_rms_A": null,
+      "connected_components": 1,
+      "geometry_match": false,
+      "interpretation": "Positive RMS match proves geometric agreement; exhausted mapping cap without match is inconclusive."
+    },
+    {
+      "arm": "lj38-seed25092502",
+      "role": "best",
+      "graph_mappings_examined": 0,
+      "proper_rms_A": null,
+      "connected_components": 1,
+      "geometry_match": false,
+      "interpretation": "Positive RMS match proves geometric agreement; exhausted mapping cap without match is inconclusive."
+    }
+  ]
+}

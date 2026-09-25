@@ -1,0 +1,146 @@
+{
+  "scope": "Reused-input development, not independent success-rate validation. Targets require separate geometry-analysis and fresh E/F qualification.",
+  "observer_prefix_checks": [
+    {
+      "direction": "global",
+      "n": 38,
+      "seed": 25092501,
+      "identical_initial_coordinates": true,
+      "shared_boundaries": 388,
+      "mismatch_indices": [],
+      "previous_boundaries": 388,
+      "replay_boundaries": 906,
+      "qualified": true
+    },
+    {
+      "direction": "global",
+      "n": 38,
+      "seed": 25092502,
+      "identical_initial_coordinates": true,
+      "shared_boundaries": 384,
+      "mismatch_indices": [],
+      "previous_boundaries": 384,
+      "replay_boundaries": 904,
+      "qualified": true
+    },
+    {
+      "direction": "paper",
+      "n": 38,
+      "seed": 25092501,
+      "identical_initial_coordinates": true,
+      "shared_boundaries": 401,
+      "mismatch_indices": [],
+      "previous_boundaries": 401,
+      "replay_boundaries": 1163,
+      "qualified": true
+    },
+    {
+      "direction": "paper",
+      "n": 38,
+      "seed": 25092502,
+      "identical_initial_coordinates": true,
+      "shared_boundaries": 397,
+      "mismatch_indices": [],
+      "previous_boundaries": 397,
+      "replay_boundaries": 1149,
+      "qualified": true
+    }
+  ],
+  "pairs": [
+    {
+      "n": 38,
+      "seed": 25092501,
+      "common_search_budget": 800000,
+      "global_arm": {
+        "status": "evaluation_failed",
+        "search_requests": 800000,
+        "complete_outer_callbacks": 905,
+        "accepted": 13,
+        "requests_after_last_logged_boundary": 20,
+        "best_energy_eV": -173.25237389147497,
+        "first_candidate": null,
+        "fresh_checks": [
+          {
+            "label": "final_best",
+            "energy_eV": -173.25237389147497,
+            "energy_error_eV": 0.0,
+            "fmax_eV_A": 0.00876181716957677,
+            "force_qualified": true,
+            "energy_candidate": false,
+            "pair_distance_rms_to_reference_A": 0.35517478521277723
+          }
+        ]
+      },
+      "paper_arm": {
+        "status": "evaluation_failed",
+        "search_requests": 800000,
+        "complete_outer_callbacks": 1162,
+        "accepted": 29,
+        "requests_after_last_logged_boundary": 575,
+        "best_energy_eV": -173.25234971390014,
+        "first_candidate": null,
+        "fresh_checks": [
+          {
+            "label": "final_best",
+            "energy_eV": -173.25234971390014,
+            "energy_error_eV": 0.0,
+            "fmax_eV_A": 0.006031813722158428,
+            "force_qualified": true,
+            "energy_candidate": false,
+            "pair_distance_rms_to_reference_A": 0.355117659225533
+          }
+        ]
+      },
+      "global_best_at_common_budget": -173.25237389147497,
+      "paper_best_at_common_budget": -173.25234971390014
+    },
+    {
+      "n": 38,
+      "seed": 25092502,
+      "common_search_budget": 800000,
+      "global_arm": {
+        "status": "evaluation_failed",
+        "search_requests": 800000,
+        "complete_outer_callbacks": 903,
+        "accepted": 20,
+        "requests_after_last_logged_boundary": 362,
+        "best_energy_eV": -173.25236929189765,
+        "first_candidate": null,
+        "fresh_checks": [
+          {
+            "label": "final_best",
+            "energy_eV": -173.25236929189765,
+            "energy_error_eV": 0.0,
+            "fmax_eV_A": 0.005922715976245084,
+            "force_qualified": true,
+            "energy_candidate": false,
+            "pair_distance_rms_to_reference_A": 0.35512688892987015
+          }
+        ]
+      },
+      "paper_arm": {
+        "status": "evaluation_failed",
+        "search_requests": 800000,
+        "complete_outer_callbacks": 1148,
+        "accepted": 16,
+        "requests_after_last_logged_boundary": 470,
+        "best_energy_eV": -173.25236500427914,
+        "first_candidate": null,
+        "fresh_checks": [
+          {
+            "label": "final_best",
+            "energy_eV": -173.25236500427914,
+            "energy_error_eV": 0.0,
+            "fmax_eV_A": 0.007455360179616687,
+            "force_qualified": true,
+            "energy_candidate": false,
+            "pair_distance_rms_to_reference_A": 0.3552084800648603
+          }
+        ]
+      },
+      "global_best_at_common_budget": -173.25236929189765,
+      "paper_best_at_common_budget": -173.25236500427914
+    }
+  ],
+  "all_observer_checks_pass": true
+}

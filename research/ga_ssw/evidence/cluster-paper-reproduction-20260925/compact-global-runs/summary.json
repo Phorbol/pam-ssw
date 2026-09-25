@@ -1,0 +1,170 @@
+{
+  "trajectories": [
+    {
+      "n": 38,
+      "seed": 25092501,
+      "status": "evaluation_failed",
+      "search_cap": 800000,
+      "wall_cap_seconds": 1800,
+      "outer_step_cap": 2000,
+      "observer_mode": "compact",
+      "initial_input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/compact-global-runs/lj38-seed25092501/initial.extxyz",
+      "radius_A": 14.850000000000001,
+      "initialization": "independent iid uniform-volume points in a sphere; no rejection",
+      "rng_streams": "SeedSequence(seed).spawn(): child 0 positions, child 1 SSW",
+      "reference_energy_eV": -173.928427,
+      "energy_candidate_tolerance_eV": 0.001,
+      "settings": {
+        "ssw_config": {
+          "width": 0.6,
+          "rotation_bias": 1.0,
+          "max_gaussians": 14,
+          "temperature_K": 9283.617648320807,
+          "fmax": 0.01,
+          "relax_steps": 1000,
+          "fd_step": 0.001,
+          "rotation_hvp": 39,
+          "rotation_tol": 0.02,
+          "forward_force": 0.1,
+          "direction_sampling": "global",
+          "rotation_solver": "broyden-euclidean",
+          "cluster_frame": "direction_only",
+          "quench_optimizer": "safe-lbfgs-total",
+          "lbfgs_memory": 500,
+          "bias_stage_steps": null,
+          "bias_fmax": 0.1,
+          "pre_rotation_hvp": null,
+          "rotation_exit_policy": "force_or_budget"
+        },
+        "recovered_rotation": {
+          "pre_rotmax": 5,
+          "rotmax": 15,
+          "pre_ftol": 0.2,
+          "ftol": 0.02,
+          "metric": "euclidean",
+          "max_force_calls": 40
+        },
+        "mc": null,
+        "ls": null,
+        "potential": "full-pair nonperiodic LJ"
+      },
+      "completed_outer_attempts": 906,
+      "checkpoint_requests": 800000,
+      "best_energy_eV": -173.25237389147497,
+      "best_fmax_eV_A": 0.00876181716957677,
+      "final_best_geometry": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/compact-global-runs/lj38-seed25092501/best.extxyz",
+      "final_best_geometry_diagnostics": {
+        "minimum_pair_distance_A": 2.8868263630878706,
+        "nearest_neighbor_p10_A": 2.8870034348990363,
+        "nearest_neighbor_median_A": 2.9392346961700104,
+        "nearest_neighbor_max_A": 3.0022353950617267,
+        "radius_of_gyration_A": 4.295132517473157,
+        "diameter_A": 10.325270862323322
+      },
+      "search_requests": 800000,
+      "denials": 1,
+      "boundary": "arm_request_cap",
+      "wall_seconds": 797.5379715140443,
+      "callback_function_seconds": 173.86999301146716,
+      "requests_equal_checkpoint": true,
+      "fresh_checks": [
+        {
+          "label": "final_best",
+          "energy_eV": -173.25237389147497,
+          "energy_error_eV": 0.0,
+          "fmax_eV_A": 0.00876181716957677,
+          "force_qualified": true,
+          "energy_candidate": false,
+          "pair_distance_rms_to_reference_A": 0.35517478521277723
+        }
+      ],
+      "fresh_requests": 1,
+      "wall_budget_remaining_campaign_seconds": 2793.2212547480012
+    },
+    {
+      "n": 38,
+      "seed": 25092502,
+      "status": "evaluation_failed",
+      "search_cap": 800000,
+      "wall_cap_seconds": 1800,
+      "outer_step_cap": 2000,
+      "observer_mode": "compact",
+      "initial_input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/compact-global-runs/lj38-seed25092502/initial.extxyz",
+      "radius_A": 14.850000000000001,
+      "initialization": "independent iid uniform-volume points in a sphere; no rejection",
+      "rng_streams": "SeedSequence(seed).spawn(): child 0 positions, child 1 SSW",
+      "reference_energy_eV": -173.928427,
+      "energy_candidate_tolerance_eV": 0.001,
+      "settings": {
+        "ssw_config": {
+          "width": 0.6,
+          "rotation_bias": 1.0,
+          "max_gaussians": 14,
+          "temperature_K": 9283.617648320807,
+          "fmax": 0.01,
+          "relax_steps": 1000,
+          "fd_step": 0.001,
+          "rotation_hvp": 39,
+          "rotation_tol": 0.02,
+          "forward_force": 0.1,
+          "direction_sampling": "global",
+          "rotation_solver": "broyden-euclidean",
+          "cluster_frame": "direction_only",
+          "quench_optimizer": "safe-lbfgs-total",
+          "lbfgs_memory": 500,
+          "bias_stage_steps": null,
+          "bias_fmax": 0.1,
+          "pre_rotation_hvp": null,
+          "rotation_exit_policy": "force_or_budget"
+        },
+        "recovered_rotation": {
+          "pre_rotmax": 5,
+          "rotmax": 15,
+          "pre_ftol": 0.2,
+          "ftol": 0.02,
+          "metric": "euclidean",
+          "max_force_calls": 40
+        },
+        "mc": null,
+        "ls": null,
+        "potential": "full-pair nonperiodic LJ"
+      },
+      "completed_outer_attempts": 904,
+      "checkpoint_requests": 800000,
+      "best_energy_eV": -173.25236929189765,
+      "best_fmax_eV_A": 0.005922715976245084,
+      "final_best_geometry": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/compact-global-runs/lj38-seed25092502/best.extxyz",
+      "final_best_geometry_diagnostics": {
+        "minimum_pair_distance_A": 2.8869262636729105,
+        "nearest_neighbor_p10_A": 2.8869686225737836,
+        "nearest_neighbor_median_A": 2.9392071918008575,
+        "nearest_neighbor_max_A": 3.0021342697468985,
+        "radius_of_gyration_A": 4.295078234392505,
+        "diameter_A": 10.325033676123883
+      },
+      "search_requests": 800000,
+      "denials": 1,
+      "boundary": "arm_request_cap",
+      "wall_seconds": 866.1827136279899,
+      "callback_function_seconds": 248.93050897441572,
+      "requests_equal_checkpoint": true,
+      "fresh_checks": [
+        {
+          "label": "final_best",
+          "energy_eV": -173.25236929189765,
+          "energy_error_eV": 0.0,
+          "fmax_eV_A": 0.005922715976245084,
+          "force_qualified": true,
+          "energy_candidate": false,
+          "pair_distance_rms_to_reference_A": 0.35512688892987015
+        }
+      ],
+      "fresh_requests": 1,
+      "wall_budget_remaining_campaign_seconds": 1926.7144424400176
+    }
+  ],
+  "search_requests_total": 1600000,
+  "fresh_requests_total": 2,
+  "wall_seconds_total": 1673.6069587999955,
+  "status": "complete_or_censored"
+}
