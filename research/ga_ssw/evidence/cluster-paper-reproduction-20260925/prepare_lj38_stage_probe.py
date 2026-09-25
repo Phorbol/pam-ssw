@@ -25,9 +25,9 @@ ORACLE = ROOT / "research/ga_ssw/full_pair_lj.py"
 SEEDS = (25092501, 25092502)
 ARMS = ("global", "paper")
 OUTER_ATTEMPTS = 3
-REQUEST_CAP_PER_ARM = 6000
-WALL_CAP_TOTAL_SECONDS = 660
-DEFAULT_OUTPUT = HERE / "stage-probe-runs"
+REQUEST_CAP_PER_ARM = 3750
+WALL_CAP_TOTAL_SECONDS = 540
+DEFAULT_OUTPUT = HERE / "stage-probe-repaired-runs"
 
 
 def load_source_runner():
@@ -263,7 +263,7 @@ def execute(output, validation):
                 row.update(status=result.status, outer_attempts=len(result.records),
                            search_requests=int(surface.requests), denials=int(surface.denials),
                            boundary=surface.boundary, initial_requests=int(result.initial.evaluation_requests),
-                           final_best_energy_eV=float(result.best.energy),
+                           final_best_energy_eV=best_energy,
                            outer_steps=outer_rows, biased_endpoints=biased_endpoints)
                 if result.evaluation_requests != surface.requests:
                     row["request_accounting_warning"] = {

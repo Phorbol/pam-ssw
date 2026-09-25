@@ -1,0 +1,31 @@
+{
+  "scope": "Outcome-selected diagnostic; connectivity and localization are not a causal mechanism or basin identity.",
+  "potential_requests": 0,
+  "all_prefixes_qualified": false,
+  "runs": [
+    {
+      "arm": "global",
+      "seed": 25092501,
+      "prefix_qualified": false,
+      "error": "KeyError: 'initial_requests'"
+    },
+    {
+      "arm": "global",
+      "seed": 25092502,
+      "prefix_qualified": false,
+      "error": "KeyError: 'initial_requests'"
+    },
+    {
+      "arm": "paper",
+      "seed": 25092501,
+      "prefix_qualified": false,
+      "error": "KeyError: 'initial_requests'"
+    },
+    {
+      "arm": "paper",
+      "seed": 25092502,
+      "prefix_qualified": false,
+      "error": "KeyError: 'initial_requests'"
+    }
+  ]
+}

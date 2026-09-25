@@ -29,3 +29,9 @@ Before interpreting this replay, compare each run's first three scalar records w
 ## Execution decision
 
 Parent reviewed the script and reran zero-PES preflight: all four generated initial arrays/child RNG streams and numerical settings match their frozen sources. After the compact panel completed at4x800000 requests without a target hit, CPU1493151 was submitted on sjtu-caoxiaoming/CPU-MISC/rush-cpu,1CPU,12min ceiling, frozen runner commit947dc50. The same job runs the zero-PES prefix/connectivity analyzer afterward; no GPU, no automatic continuation. Height metadata uses eV (Gaussian weight), not force units.
+
+## Focused recovery after output serialization defect
+
+CPU1493151 used8900 actual search requests in85s. All four runs finished search and saved initial/outer/biased geometries, but scalar summary construction then raised `AttributeError: Atoms has no energy` because SSWResult.best is Atoms, unlike checkpoint.best. No scientific interpretation passes the prefix gate; original failed summaries and analysis are preserved. The in-memory rotation/scalar records were not serialized and cannot be reconstructed completely from coordinate files.
+
+One explicit child replay corrects only the report expression to the already accumulated best_energy. It writes a distinct `stage-probe-repaired-runs` directory. Remaining budget is bounded by3750 requests per arm (15000 total),540s internal and10min Slurm; combined with failed85s this stays below the original12CPU-minute allocation ceiling, and combined maximum23900 search stays below24000. Shorter caps affect only censoring and do not change successful three-step prefixes. No automatic retry, parameter change or further extension. Root will verify all12 scalar steps before interpretation. The analyzer now takes an explicit run directory and writes its derived analysis there, preserving the first failure.

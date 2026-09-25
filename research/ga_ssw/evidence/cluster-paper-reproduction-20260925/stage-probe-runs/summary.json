@@ -1,0 +1,613 @@
+{
+  "status": "complete_or_censored",
+  "trajectories": [
+    {
+      "arm": "global",
+      "seed": 25092501,
+      "status": "exception",
+      "direction_sampling": "global",
+      "settings": {
+        "ssw_config": {
+          "width": 0.6,
+          "rotation_bias": 1.0,
+          "max_gaussians": 14,
+          "temperature_K": 9283.617648320807,
+          "fmax": 0.01,
+          "relax_steps": 1000,
+          "fd_step": 0.001,
+          "rotation_hvp": 39,
+          "rotation_tol": 0.02,
+          "forward_force": 0.1,
+          "direction_sampling": "global",
+          "rotation_solver": "broyden-euclidean",
+          "cluster_frame": "direction_only",
+          "quench_optimizer": "safe-lbfgs-total",
+          "lbfgs_memory": 500,
+          "bias_stage_steps": null,
+          "bias_fmax": 0.1,
+          "pre_rotation_hvp": null,
+          "rotation_exit_policy": "force_or_budget"
+        },
+        "recovered_rotation": {
+          "pre_rotmax": 5,
+          "rotmax": 15,
+          "pre_ftol": 0.2,
+          "ftol": 0.02,
+          "metric": "euclidean",
+          "max_force_calls": 40
+        }
+      },
+      "outer_attempts_requested": 3,
+      "request_cap": 6000,
+      "initialization": "same uniform_volume_cluster and RNG child streams as archived pilot",
+      "initial_input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/stage-probe-runs/lj38-global-seed25092501/initial.extxyz",
+      "error": "AttributeError(\"'Atoms' object has no attribute 'energy'\")",
+      "traceback": "Traceback (most recent call last):\n  File \"/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/prepare_lj38_stage_probe.py\", line 266, in execute\n    final_best_energy_eV=float(result.best.energy),\n                               ^^^^^^^^^^^^^^^^^^\nAttributeError: 'Atoms' object has no attribute 'energy'\n",
+      "search_requests": 2776,
+      "denials": 0,
+      "boundary": null,
+      "biased_endpoints": [
+        {
+          "outer_index": 0,
+          "gaussian_index": 0,
+          "path": "biased-endpoints/outer-00-gaussian-00.extxyz"
+        },
+        {
+          "outer_index": 0,
+          "gaussian_index": 1,
+          "path": "biased-endpoints/outer-00-gaussian-01.extxyz"
+        },
+        {
+          "outer_index": 0,
+          "gaussian_index": 2,
+          "path": "biased-endpoints/outer-00-gaussian-02.extxyz"
+        },
+        {
+          "outer_index": 0,
+          "gaussian_index": 3,
+          "path": "biased-endpoints/outer-00-gaussian-03.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 0,
+          "path": "biased-endpoints/outer-01-gaussian-00.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 1,
+          "path": "biased-endpoints/outer-01-gaussian-01.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 2,
+          "path": "biased-endpoints/outer-01-gaussian-02.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 3,
+          "path": "biased-endpoints/outer-01-gaussian-03.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 4,
+          "path": "biased-endpoints/outer-01-gaussian-04.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 5,
+          "path": "biased-endpoints/outer-01-gaussian-05.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 6,
+          "path": "biased-endpoints/outer-01-gaussian-06.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 7,
+          "path": "biased-endpoints/outer-01-gaussian-07.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 0,
+          "path": "biased-endpoints/outer-02-gaussian-00.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 1,
+          "path": "biased-endpoints/outer-02-gaussian-01.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 2,
+          "path": "biased-endpoints/outer-02-gaussian-02.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 3,
+          "path": "biased-endpoints/outer-02-gaussian-03.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 4,
+          "path": "biased-endpoints/outer-02-gaussian-04.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 5,
+          "path": "biased-endpoints/outer-02-gaussian-05.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 6,
+          "path": "biased-endpoints/outer-02-gaussian-06.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 7,
+          "path": "biased-endpoints/outer-02-gaussian-07.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 8,
+          "path": "biased-endpoints/outer-02-gaussian-08.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 9,
+          "path": "biased-endpoints/outer-02-gaussian-09.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 10,
+          "path": "biased-endpoints/outer-02-gaussian-10.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 11,
+          "path": "biased-endpoints/outer-02-gaussian-11.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 12,
+          "path": "biased-endpoints/outer-02-gaussian-12.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 13,
+          "path": "biased-endpoints/outer-02-gaussian-13.extxyz"
+        }
+      ],
+      "wall_seconds": 52.98993778403383
+    },
+    {
+      "arm": "global",
+      "seed": 25092502,
+      "status": "exception",
+      "direction_sampling": "global",
+      "settings": {
+        "ssw_config": {
+          "width": 0.6,
+          "rotation_bias": 1.0,
+          "max_gaussians": 14,
+          "temperature_K": 9283.617648320807,
+          "fmax": 0.01,
+          "relax_steps": 1000,
+          "fd_step": 0.001,
+          "rotation_hvp": 39,
+          "rotation_tol": 0.02,
+          "forward_force": 0.1,
+          "direction_sampling": "global",
+          "rotation_solver": "broyden-euclidean",
+          "cluster_frame": "direction_only",
+          "quench_optimizer": "safe-lbfgs-total",
+          "lbfgs_memory": 500,
+          "bias_stage_steps": null,
+          "bias_fmax": 0.1,
+          "pre_rotation_hvp": null,
+          "rotation_exit_policy": "force_or_budget"
+        },
+        "recovered_rotation": {
+          "pre_rotmax": 5,
+          "rotmax": 15,
+          "pre_ftol": 0.2,
+          "ftol": 0.02,
+          "metric": "euclidean",
+          "max_force_calls": 40
+        }
+      },
+      "outer_attempts_requested": 3,
+      "request_cap": 6000,
+      "initialization": "same uniform_volume_cluster and RNG child streams as archived pilot",
+      "initial_input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/stage-probe-runs/lj38-global-seed25092502/initial.extxyz",
+      "error": "AttributeError(\"'Atoms' object has no attribute 'energy'\")",
+      "traceback": "Traceback (most recent call last):\n  File \"/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/prepare_lj38_stage_probe.py\", line 266, in execute\n    final_best_energy_eV=float(result.best.energy),\n                               ^^^^^^^^^^^^^^^^^^\nAttributeError: 'Atoms' object has no attribute 'energy'\n",
+      "search_requests": 2064,
+      "denials": 0,
+      "boundary": null,
+      "biased_endpoints": [
+        {
+          "outer_index": 0,
+          "gaussian_index": 0,
+          "path": "biased-endpoints/outer-00-gaussian-00.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 0,
+          "path": "biased-endpoints/outer-01-gaussian-00.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 1,
+          "path": "biased-endpoints/outer-01-gaussian-01.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 2,
+          "path": "biased-endpoints/outer-01-gaussian-02.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 3,
+          "path": "biased-endpoints/outer-01-gaussian-03.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 4,
+          "path": "biased-endpoints/outer-01-gaussian-04.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 5,
+          "path": "biased-endpoints/outer-01-gaussian-05.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 6,
+          "path": "biased-endpoints/outer-01-gaussian-06.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 7,
+          "path": "biased-endpoints/outer-01-gaussian-07.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 8,
+          "path": "biased-endpoints/outer-01-gaussian-08.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 9,
+          "path": "biased-endpoints/outer-01-gaussian-09.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 10,
+          "path": "biased-endpoints/outer-01-gaussian-10.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 11,
+          "path": "biased-endpoints/outer-01-gaussian-11.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 12,
+          "path": "biased-endpoints/outer-01-gaussian-12.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 13,
+          "path": "biased-endpoints/outer-01-gaussian-13.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 0,
+          "path": "biased-endpoints/outer-02-gaussian-00.extxyz"
+        }
+      ],
+      "wall_seconds": 54.956713680992834
+    },
+    {
+      "arm": "paper",
+      "seed": 25092501,
+      "status": "exception",
+      "direction_sampling": "paper",
+      "settings": {
+        "ssw_config": {
+          "width": 0.6,
+          "rotation_bias": 1.0,
+          "max_gaussians": 14,
+          "temperature_K": 9283.617648320807,
+          "fmax": 0.01,
+          "relax_steps": 1000,
+          "fd_step": 0.001,
+          "rotation_hvp": 39,
+          "rotation_tol": 0.02,
+          "forward_force": 0.1,
+          "direction_sampling": "paper",
+          "rotation_solver": "broyden-euclidean",
+          "cluster_frame": "direction_only",
+          "quench_optimizer": "safe-lbfgs-total",
+          "lbfgs_memory": 500,
+          "bias_stage_steps": null,
+          "bias_fmax": 0.1,
+          "pre_rotation_hvp": null,
+          "rotation_exit_policy": "force_or_budget"
+        },
+        "recovered_rotation": {
+          "pre_rotmax": 5,
+          "rotmax": 15,
+          "pre_ftol": 0.2,
+          "ftol": 0.02,
+          "metric": "euclidean",
+          "max_force_calls": 40
+        }
+      },
+      "outer_attempts_requested": 3,
+      "request_cap": 6000,
+      "initialization": "same uniform_volume_cluster and RNG child streams as archived pilot",
+      "initial_input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/stage-probe-runs/lj38-paper-seed25092501/initial.extxyz",
+      "error": "AttributeError(\"'Atoms' object has no attribute 'energy'\")",
+      "traceback": "Traceback (most recent call last):\n  File \"/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/prepare_lj38_stage_probe.py\", line 266, in execute\n    final_best_energy_eV=float(result.best.energy),\n                               ^^^^^^^^^^^^^^^^^^\nAttributeError: 'Atoms' object has no attribute 'energy'\n",
+      "search_requests": 2140,
+      "denials": 0,
+      "boundary": null,
+      "biased_endpoints": [
+        {
+          "outer_index": 0,
+          "gaussian_index": 0,
+          "path": "biased-endpoints/outer-00-gaussian-00.extxyz"
+        },
+        {
+          "outer_index": 0,
+          "gaussian_index": 1,
+          "path": "biased-endpoints/outer-00-gaussian-01.extxyz"
+        },
+        {
+          "outer_index": 0,
+          "gaussian_index": 2,
+          "path": "biased-endpoints/outer-00-gaussian-02.extxyz"
+        },
+        {
+          "outer_index": 0,
+          "gaussian_index": 3,
+          "path": "biased-endpoints/outer-00-gaussian-03.extxyz"
+        },
+        {
+          "outer_index": 0,
+          "gaussian_index": 4,
+          "path": "biased-endpoints/outer-00-gaussian-04.extxyz"
+        },
+        {
+          "outer_index": 0,
+          "gaussian_index": 5,
+          "path": "biased-endpoints/outer-00-gaussian-05.extxyz"
+        },
+        {
+          "outer_index": 0,
+          "gaussian_index": 6,
+          "path": "biased-endpoints/outer-00-gaussian-06.extxyz"
+        },
+        {
+          "outer_index": 0,
+          "gaussian_index": 7,
+          "path": "biased-endpoints/outer-00-gaussian-07.extxyz"
+        },
+        {
+          "outer_index": 0,
+          "gaussian_index": 8,
+          "path": "biased-endpoints/outer-00-gaussian-08.extxyz"
+        },
+        {
+          "outer_index": 0,
+          "gaussian_index": 9,
+          "path": "biased-endpoints/outer-00-gaussian-09.extxyz"
+        },
+        {
+          "outer_index": 0,
+          "gaussian_index": 10,
+          "path": "biased-endpoints/outer-00-gaussian-10.extxyz"
+        },
+        {
+          "outer_index": 0,
+          "gaussian_index": 11,
+          "path": "biased-endpoints/outer-00-gaussian-11.extxyz"
+        },
+        {
+          "outer_index": 0,
+          "gaussian_index": 12,
+          "path": "biased-endpoints/outer-00-gaussian-12.extxyz"
+        },
+        {
+          "outer_index": 0,
+          "gaussian_index": 13,
+          "path": "biased-endpoints/outer-00-gaussian-13.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 0,
+          "path": "biased-endpoints/outer-01-gaussian-00.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 0,
+          "path": "biased-endpoints/outer-02-gaussian-00.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 1,
+          "path": "biased-endpoints/outer-02-gaussian-01.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 2,
+          "path": "biased-endpoints/outer-02-gaussian-02.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 3,
+          "path": "biased-endpoints/outer-02-gaussian-03.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 4,
+          "path": "biased-endpoints/outer-02-gaussian-04.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 5,
+          "path": "biased-endpoints/outer-02-gaussian-05.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 6,
+          "path": "biased-endpoints/outer-02-gaussian-06.extxyz"
+        }
+      ],
+      "wall_seconds": 57.05223078903509
+    },
+    {
+      "arm": "paper",
+      "seed": 25092502,
+      "status": "exception",
+      "direction_sampling": "paper",
+      "settings": {
+        "ssw_config": {
+          "width": 0.6,
+          "rotation_bias": 1.0,
+          "max_gaussians": 14,
+          "temperature_K": 9283.617648320807,
+          "fmax": 0.01,
+          "relax_steps": 1000,
+          "fd_step": 0.001,
+          "rotation_hvp": 39,
+          "rotation_tol": 0.02,
+          "forward_force": 0.1,
+          "direction_sampling": "paper",
+          "rotation_solver": "broyden-euclidean",
+          "cluster_frame": "direction_only",
+          "quench_optimizer": "safe-lbfgs-total",
+          "lbfgs_memory": 500,
+          "bias_stage_steps": null,
+          "bias_fmax": 0.1,
+          "pre_rotation_hvp": null,
+          "rotation_exit_policy": "force_or_budget"
+        },
+        "recovered_rotation": {
+          "pre_rotmax": 5,
+          "rotmax": 15,
+          "pre_ftol": 0.2,
+          "ftol": 0.02,
+          "metric": "euclidean",
+          "max_force_calls": 40
+        }
+      },
+      "outer_attempts_requested": 3,
+      "request_cap": 6000,
+      "initialization": "same uniform_volume_cluster and RNG child streams as archived pilot",
+      "initial_input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/stage-probe-runs/lj38-paper-seed25092502/initial.extxyz",
+      "error": "AttributeError(\"'Atoms' object has no attribute 'energy'\")",
+      "traceback": "Traceback (most recent call last):\n  File \"/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/prepare_lj38_stage_probe.py\", line 266, in execute\n    final_best_energy_eV=float(result.best.energy),\n                               ^^^^^^^^^^^^^^^^^^\nAttributeError: 'Atoms' object has no attribute 'energy'\n",
+      "search_requests": 1920,
+      "denials": 0,
+      "boundary": null,
+      "biased_endpoints": [
+        {
+          "outer_index": 0,
+          "gaussian_index": 0,
+          "path": "biased-endpoints/outer-00-gaussian-00.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 0,
+          "path": "biased-endpoints/outer-01-gaussian-00.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 1,
+          "path": "biased-endpoints/outer-01-gaussian-01.extxyz"
+        },
+        {
+          "outer_index": 1,
+          "gaussian_index": 2,
+          "path": "biased-endpoints/outer-01-gaussian-02.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 0,
+          "path": "biased-endpoints/outer-02-gaussian-00.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 1,
+          "path": "biased-endpoints/outer-02-gaussian-01.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 2,
+          "path": "biased-endpoints/outer-02-gaussian-02.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 3,
+          "path": "biased-endpoints/outer-02-gaussian-03.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 4,
+          "path": "biased-endpoints/outer-02-gaussian-04.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 5,
+          "path": "biased-endpoints/outer-02-gaussian-05.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 6,
+          "path": "biased-endpoints/outer-02-gaussian-06.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 7,
+          "path": "biased-endpoints/outer-02-gaussian-07.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 8,
+          "path": "biased-endpoints/outer-02-gaussian-08.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 9,
+          "path": "biased-endpoints/outer-02-gaussian-09.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 10,
+          "path": "biased-endpoints/outer-02-gaussian-10.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 11,
+          "path": "biased-endpoints/outer-02-gaussian-11.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 12,
+          "path": "biased-endpoints/outer-02-gaussian-12.extxyz"
+        },
+        {
+          "outer_index": 2,
+          "gaussian_index": 13,
+          "path": "biased-endpoints/outer-02-gaussian-13.extxyz"
+        }
+      ],
+      "wall_seconds": 61.31029067200143
+    }
+  ],
+  "search_requests_total": 8900,
+  "wall_seconds_total": 64.60373524401803
+}

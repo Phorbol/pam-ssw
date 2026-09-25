@@ -1,4 +1,5 @@
 """Check capture replay identity and locate fragmentation; no PES requests."""
+import argparse
 import json
 import math
 from pathlib import Path
@@ -28,10 +29,13 @@ def same(a, b):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--runs", type=Path, default=HERE/"stage-probe-runs")
+    args = parser.parse_args()
     results = []
     for arm in ('global', 'paper'):
         for seed in (25092501, 25092502):
-            folder = HERE/'stage-probe-runs'/f'lj38-{arm}-seed{seed}'
+            folder = args.runs/f'lj38-{arm}-seed{seed}'
             row = dict(arm=arm, seed=seed, prefix_qualified=False)
             try:
                 run = json.loads((folder/'summary.json').read_text())
@@ -83,7 +87,7 @@ def main():
             results.append(row)
     output = dict(scope='Outcome-selected diagnostic; connectivity and localization are not a causal mechanism or basin identity.',
                   potential_requests=0, all_prefixes_qualified=all(r['prefix_qualified'] for r in results), runs=results)
-    (HERE/'stage-probe-analysis.json').write_text(json.dumps(output, indent=2)+'\n')
+    (args.runs/'analysis.json').write_text(json.dumps(output, indent=2)+'\n')
     print('prefixes qualified:', output['all_prefixes_qualified'])
     for row in results:
         print(row['arm'],row['seed'],row.get('requests'),row.get('mismatches'),row.get('error'))
