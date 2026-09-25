@@ -5,7 +5,7 @@ helpers.  Startup is an explicit Python contract; it is not evidence for the
 native program's complete startup trajectory.  CBD rotation and walker
 checkpointing remain caller responsibilities.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import numpy as np
 
@@ -26,6 +26,7 @@ class RecoveredDirectionSettings:
     metric: str
     max_force_calls: int
     c1_radius_policy: str = 'restricted'
+    startup_order: str = 'legacy'
 
     def __post_init__(self):
         if (isinstance(self.ratio_local, (bool, np.bool_)) or
@@ -53,6 +54,8 @@ class RecoveredDirectionSettings:
             raise ValueError('max_force_calls must be an integer >=2')
         if self.c1_radius_policy not in ('restricted', 'per_atom'):
             raise ValueError('c1_radius_policy must be restricted or per_atom')
+        if self.startup_order not in ('legacy', 'randomized'):
+            raise ValueError('startup_order must be legacy or randomized')
 
 
 @dataclass(frozen=True)
@@ -163,6 +166,10 @@ class RecoveredDirectionController:
             raise ValueError('native selection did not produce a complete atom pair')
         return tuple(int(value) for value in pair)
 
+    @staticmethod
+    def _map_pair(pair, order):
+        return tuple(None if value is None else int(order[value]) for value in pair)
+
     def _select_and_refresh(self, reference, atoms, rng):
         selected = select_native_local_group(reference, atoms, rng)
         refreshed = refresh_native_pair(atoms, selected.pair, rng)
@@ -179,7 +186,27 @@ class RecoveredDirectionController:
         if reference.shape != current.shape or not np.array_equal(input_atoms.numbers,
                                                                    initial_quenched.numbers):
             raise ValueError('startup structures require matching atoms')
-        self._select_and_refresh(reference, initial_quenched, rng)
+        if self.settings.startup_order == 'legacy':
+            self._select_and_refresh(reference, initial_quenched, rng)
+            return
+        if not callable(getattr(rng, 'permutation', None)):
+            raise TypeError('randomized startup_order requires an RNG with permutation()')
+        order = np.asarray(rng.permutation(len(initial_quenched)), dtype=int)
+        ordered_atoms = initial_quenched[order]
+        selected = select_native_local_group(reference[order], ordered_atoms, rng)
+        refreshed = refresh_native_pair(
+            ordered_atoms, selected.pair, rng)
+        selected = replace(
+            selected,
+            pair=self._map_pair(selected.pair, order),
+            group_mask=np.asarray(selected.group_mask)[np.argsort(order)].copy(),
+        )
+        refreshed = replace(
+            refreshed, pair=self._map_pair(refreshed.pair, order))
+        self._pair = self._require_pair(refreshed.pair)
+        self._group = selected.group_mask.copy()
+        self._selection = selected
+        self._refresh = refreshed
 
     def begin_escape(self, current, work, rng):
         """Start after optional LS prequench while retaining the pre-LS reference."""

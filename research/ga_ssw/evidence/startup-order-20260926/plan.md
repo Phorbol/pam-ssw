@@ -1,0 +1,7 @@
+# Approved optional startup order: interface qualification
+
+Purpose: verify index mapping and restart/continuation state, not whether the option improves global search. User approved legacy-default plus optional randomized startup on2026-09-26. No thresholds, low-level selectors, continuous refresh or checkpoint schema change.
+
+Unit checks cover active/diagnostic remapping, old missing field, schema4/5 synthetic old pickle, mismatch rejection before RNG/PES, and pool initializer. Real Cu13/EMT uses the prior observer qualification input and numerical settings, changing to the approved full direction controller. Compare uninterrupted two outer steps against initial pause and first-outer pause, with and without an explicit alternate-observation pool restart: six paths. Require exact records/minima/RNG/direction/pool/cost equality and force-qualified best endpoints. Also load an actual archived pre-feature C60 schema4 checkpoint and restore zero steps with zero PES; schema5 old-field behavior is separately a synthetic compatibility check.
+
+Single CPU task, ten minutes,40000 shared search requests plus6 fresh; internal540s. No GPU. Failed paths retain artifacts; no silent retries or settings changes. Code and test failures do not justify lowering equality or force criteria. This is engineering/real-calculator validation, not a success-rate study or full-search row-invariance proof.
