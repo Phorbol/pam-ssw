@@ -1,0 +1,261 @@
+{
+  "scope": "Development panel, not published success-rate replication. Energy candidates require geometry-analysis.json. Prefix energies use completed qualified observations only; all partial costs remain charged.",
+  "pairs": [
+    {
+      "n": 38,
+      "seed": 25092501,
+      "identical_initial_coordinates": true,
+      "common_search_budget": 275113,
+      "global_arm": {
+        "status": "evaluation_failed",
+        "search_requests": 340393,
+        "complete_outer_callbacks": 387,
+        "accepted": 10,
+        "requests_after_last_logged_boundary": 0,
+        "best_energy_eV": -173.1342933735681,
+        "first_candidate": null,
+        "fresh_checks": [
+          {
+            "label": "final_best",
+            "energy_eV": -173.1342933735681,
+            "energy_error_eV": 0.0,
+            "fmax_eV_A": 0.005556405180557281,
+            "force_qualified": true,
+            "energy_candidate": false,
+            "pair_distance_rms_to_reference_A": 0.33033678312035103
+          }
+        ]
+      },
+      "paper_arm": {
+        "status": "evaluation_failed",
+        "search_requests": 275113,
+        "complete_outer_callbacks": 400,
+        "accepted": 25,
+        "requests_after_last_logged_boundary": 0,
+        "best_energy_eV": -173.25234971390014,
+        "first_candidate": null,
+        "fresh_checks": [
+          {
+            "label": "final_best",
+            "energy_eV": -173.25234971390014,
+            "energy_error_eV": 0.0,
+            "fmax_eV_A": 0.006031813722158428,
+            "force_qualified": true,
+            "energy_candidate": false,
+            "pair_distance_rms_to_reference_A": 0.355117659225533
+          }
+        ]
+      },
+      "global_best_at_common_budget": -173.1342933735681,
+      "paper_best_at_common_budget": -173.25234971390014
+    },
+    {
+      "n": 38,
+      "seed": 25092502,
+      "identical_initial_coordinates": true,
+      "common_search_budget": 279329,
+      "global_arm": {
+        "status": "evaluation_failed",
+        "search_requests": 334677,
+        "complete_outer_callbacks": 383,
+        "accepted": 12,
+        "requests_after_last_logged_boundary": 0,
+        "best_energy_eV": -173.25236929189765,
+        "first_candidate": null,
+        "fresh_checks": [
+          {
+            "label": "final_best",
+            "energy_eV": -173.25236929189765,
+            "energy_error_eV": 0.0,
+            "fmax_eV_A": 0.005922715976245084,
+            "force_qualified": true,
+            "energy_candidate": false,
+            "pair_distance_rms_to_reference_A": 0.35512688892987015
+          }
+        ]
+      },
+      "paper_arm": {
+        "status": "evaluation_failed",
+        "search_requests": 279329,
+        "complete_outer_callbacks": 396,
+        "accepted": 6,
+        "requests_after_last_logged_boundary": 0,
+        "best_energy_eV": -173.25233941994514,
+        "first_candidate": null,
+        "fresh_checks": [
+          {
+            "label": "final_best",
+            "energy_eV": -173.25233941994514,
+            "energy_error_eV": 0.0,
+            "fmax_eV_A": 0.007455009973492966,
+            "force_qualified": true,
+            "energy_candidate": false,
+            "pair_distance_rms_to_reference_A": 0.3552566987987014
+          }
+        ]
+      },
+      "global_best_at_common_budget": -173.25236929189765,
+      "paper_best_at_common_budget": -173.25233941994514
+    },
+    {
+      "n": 55,
+      "seed": 25092501,
+      "identical_initial_coordinates": true,
+      "common_search_budget": 44661,
+      "global_arm": {
+        "status": "first_hit",
+        "search_requests": 54139,
+        "complete_outer_callbacks": 68,
+        "accepted": 18,
+        "requests_after_last_logged_boundary": 0,
+        "best_energy_eV": -279.2484547158115,
+        "first_candidate": {
+          "minimum_index": 68,
+          "step": 67,
+          "cumulative_search_requests": 54139,
+          "energy_eV": -279.2484547158115,
+          "fmax_eV_A": 0.004563179035569502,
+          "pair_distance_rms_to_reference_A": 0.00021014571504551514
+        },
+        "fresh_checks": [
+          {
+            "label": "candidate",
+            "energy_eV": -279.2484547158115,
+            "energy_error_eV": 0.0,
+            "fmax_eV_A": 0.004563179035569502,
+            "force_qualified": true,
+            "energy_candidate": true,
+            "pair_distance_rms_to_reference_A": 0.00021014571504551514
+          },
+          {
+            "label": "final_best",
+            "energy_eV": -279.2484547158115,
+            "energy_error_eV": 0.0,
+            "fmax_eV_A": 0.004563179035569502,
+            "force_qualified": true,
+            "energy_candidate": true,
+            "pair_distance_rms_to_reference_A": 0.00021014571504551514
+          }
+        ]
+      },
+      "paper_arm": {
+        "status": "first_hit",
+        "search_requests": 44661,
+        "complete_outer_callbacks": 76,
+        "accepted": 16,
+        "requests_after_last_logged_boundary": 0,
+        "best_energy_eV": -279.2484642537747,
+        "first_candidate": {
+          "minimum_index": 76,
+          "step": 75,
+          "cumulative_search_requests": 44661,
+          "energy_eV": -279.2484642537747,
+          "fmax_eV_A": 0.003886147843033517,
+          "pair_distance_rms_to_reference_A": 0.00011489223965352893
+        },
+        "fresh_checks": [
+          {
+            "label": "candidate",
+            "energy_eV": -279.2484642537747,
+            "energy_error_eV": 0.0,
+            "fmax_eV_A": 0.003886147843033517,
+            "force_qualified": true,
+            "energy_candidate": true,
+            "pair_distance_rms_to_reference_A": 0.00011489223965352893
+          },
+          {
+            "label": "final_best",
+            "energy_eV": -279.2484642537747,
+            "energy_error_eV": 0.0,
+            "fmax_eV_A": 0.003886147843033517,
+            "force_qualified": true,
+            "energy_candidate": true,
+            "pair_distance_rms_to_reference_A": 0.00011489223965352893
+          }
+        ]
+      },
+      "global_best_at_common_budget": -270.75559388765544,
+      "paper_best_at_common_budget": -279.2484642537747
+    },
+    {
+      "n": 55,
+      "seed": 25092502,
+      "identical_initial_coordinates": true,
+      "common_search_budget": 71555,
+      "global_arm": {
+        "status": "first_hit",
+        "search_requests": 71555,
+        "complete_outer_callbacks": 86,
+        "accepted": 7,
+        "requests_after_last_logged_boundary": 0,
+        "best_energy_eV": -279.2484507454537,
+        "first_candidate": {
+          "minimum_index": 86,
+          "step": 85,
+          "cumulative_search_requests": 71555,
+          "energy_eV": -279.2484507454537,
+          "fmax_eV_A": 0.00596900596699031,
+          "pair_distance_rms_to_reference_A": 0.0002017473895658217
+        },
+        "fresh_checks": [
+          {
+            "label": "candidate",
+            "energy_eV": -279.2484507454537,
+            "energy_error_eV": 0.0,
+            "fmax_eV_A": 0.00596900596699031,
+            "force_qualified": true,
+            "energy_candidate": true,
+            "pair_distance_rms_to_reference_A": 0.0002017473895658217
+          },
+          {
+            "label": "final_best",
+            "energy_eV": -279.2484507454537,
+            "energy_error_eV": 0.0,
+            "fmax_eV_A": 0.00596900596699031,
+            "force_qualified": true,
+            "energy_candidate": true,
+            "pair_distance_rms_to_reference_A": 0.0002017473895658217
+          }
+        ]
+      },
+      "paper_arm": {
+        "status": "first_hit",
+        "search_requests": 129724,
+        "complete_outer_callbacks": 195,
+        "accepted": 15,
+        "requests_after_last_logged_boundary": 0,
+        "best_energy_eV": -279.2484647006452,
+        "first_candidate": {
+          "minimum_index": 195,
+          "step": 194,
+          "cumulative_search_requests": 129724,
+          "energy_eV": -279.2484647006452,
+          "fmax_eV_A": 0.005437867118821949,
+          "pair_distance_rms_to_reference_A": 0.0001055843235049254
+        },
+        "fresh_checks": [
+          {
+            "label": "candidate",
+            "energy_eV": -279.2484647006452,
+            "energy_error_eV": 0.0,
+            "fmax_eV_A": 0.005437867118821949,
+            "force_qualified": true,
+            "energy_candidate": true,
+            "pair_distance_rms_to_reference_A": 0.0001055843235049254
+          },
+          {
+            "label": "final_best",
+            "energy_eV": -279.2484647006452,
+            "energy_error_eV": 0.0,
+            "fmax_eV_A": 0.005437867118821949,
+            "force_qualified": true,
+            "energy_candidate": true,
+            "pair_distance_rms_to_reference_A": 0.0001055843235049254
+          }
+        ]
+      },
+      "global_best_at_common_budget": -279.2484507454537,
+      "paper_best_at_common_budget": -276.6042769884116
+    }
+  ]
+}

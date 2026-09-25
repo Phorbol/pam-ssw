@@ -1,0 +1,23 @@
+{
+  "status": "compact_observer_smoke_passed",
+  "output": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/compact-observer-smoke",
+  "search_requests_total": 1001,
+  "fresh_requests_total": 3,
+  "scope": "reference LJ55 plus known LJ38 SLM; no random-search evidence",
+  "trajectories": [
+    {
+      "n": 55,
+      "status": "first_hit",
+      "search_requests": 1,
+      "completed_outer_attempts": 0,
+      "callback_function_seconds": 0.0
+    },
+    {
+      "n": 38,
+      "status": "evaluation_failed",
+      "search_requests": 1000,
+      "completed_outer_attempts": 2,
+      "callback_function_seconds": 0.0023631700314581394
+    }
+  ]
+}

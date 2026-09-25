@@ -1,0 +1,70 @@
+{
+  "trajectories": [
+    {
+      "n": 55,
+      "seed": 25092501,
+      "status": "exception",
+      "error": "RuntimeError('request_cap')",
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/runs/lj55-seed25092501/initial.extxyz",
+      "ase_version": "3.26.0",
+      "temperature_eV": 0.8,
+      "dr_A": 1.026,
+      "fmax_eV_A": 0.01,
+      "relax_steps": 1000,
+      "lbfgs_memory": 500,
+      "outer_step_cap": 5000,
+      "search_cap": 200000,
+      "search_requests": 200000,
+      "campaign_search_requests": 200000,
+      "quench_records": 799,
+      "boundary": "request_cap",
+      "fresh_checks": [
+        {
+          "kind": "best",
+          "energy_eV": -273.50540629098435,
+          "fmax_eV_A": 0.00890331365785704,
+          "requests": 1
+        }
+      ],
+      "fresh_requests_total": 1,
+      "wall_seconds": 201.9097498729825,
+      "candidate_geometry": null,
+      "best_geometry": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/bh-runs/lj55-seed25092501/best.extxyz"
+    },
+    {
+      "n": 55,
+      "seed": 25092502,
+      "status": "exception",
+      "error": "RuntimeError('request_cap')",
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/runs/lj55-seed25092502/initial.extxyz",
+      "ase_version": "3.26.0",
+      "temperature_eV": 0.8,
+      "dr_A": 1.026,
+      "fmax_eV_A": 0.01,
+      "relax_steps": 1000,
+      "lbfgs_memory": 500,
+      "outer_step_cap": 5000,
+      "search_cap": 200000,
+      "search_requests": 200000,
+      "campaign_search_requests": 400000,
+      "quench_records": 571,
+      "boundary": "request_cap",
+      "fresh_checks": [
+        {
+          "kind": "best",
+          "energy_eV": -276.6031731799126,
+          "fmax_eV_A": 0.009266999307808466,
+          "requests": 1
+        }
+      ],
+      "fresh_requests_total": 2,
+      "wall_seconds": 236.13256619003369,
+      "candidate_geometry": null,
+      "best_geometry": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/bh-runs/lj55-seed25092502/best.extxyz"
+    }
+  ],
+  "campaign_search_requests": 400000,
+  "fresh_requests_total": 2,
+  "wall_seconds": 438.67423261801014,
+  "status": "complete_or_censored"
+}

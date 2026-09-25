@@ -1,6 +1,6 @@
 # Compact SSW progress callback: approved minimal design
 
-User approved this minimum contract on2026-09-25. Implementation commit d27252b; targeted compatibility tests passed. Independent Cu13/EMT trajectory and zero-PES copy qualification submitted as CPU1488820; results pending. Follow-up documentation clarifies that call-start events require successfully initialized resumable state.
+User approved this minimum contract on2026-09-25. Implementation commit d27252b; targeted compatibility tests passed. Independent Cu13/EMT trajectory and zero-PES copy qualification completed as CPU1488820; see [qualification report](../../research/ga_ssw/evidence/ssw-light-observer-20260925/report.md). Follow-up documentation clarifies that call-start events require successfully initialized resumable state.
 
 ## Goal and evidence
 
