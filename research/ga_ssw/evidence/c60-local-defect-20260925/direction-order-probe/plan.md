@@ -19,3 +19,7 @@ All four runs share one physical structure, so they do not provide independent s
 ## Execution boundary
 
 `python direction_order_probe.py --preflight` runs the existing CPU-only qualification/configuration checks plus an exact physical-identity and permutation-map check. It creates only the new preflight record and makes zero calculator/PES requests. `--run` remains opt-in and uses the existing full panel's resource and output bounds. This preparation task does not submit a job, load MACE, or run PES calculations.
+
+## Execution record
+
+Parent repeated zero-PES preflight and directly compared all numerical/model/runtime/resource fields against the original four-arm plan. The only extra arms field is a human-readable interpretation note. Frozen code01d33fc; GPU1493205 submitted on authorized sjtu-caoxiaoming/8V100V0/rush-1o2gpu,1V100,60min ceiling. CPU1493206 depends on its terminal state and reads preserved force/geometry/cost evidence, then independently matches first Ih candidates. No automatic new permutation or search follows.
