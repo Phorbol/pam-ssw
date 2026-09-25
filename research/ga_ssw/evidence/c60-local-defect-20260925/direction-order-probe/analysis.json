@@ -1,0 +1,3795 @@
+{
+  "scope": "Two paired RNG probes of one input; no global success-rate or general algorithm ranking.",
+  "interpretation": "Counts are landing observations, not unique basins. First-hit costs are retrospective search requests; fresh validation was paid after each full arm. All fresh and failed work is also reported. Positive source Hessians do not qualify every searched landing.",
+  "execution": {
+    "elapsed_seconds": 2565.028555578552,
+    "search_requests": 17446,
+    "fresh_requests": 44,
+    "search_calculations": 15929,
+    "fresh_calculations": 44,
+    "planned_arms": 4,
+    "reported_arms": 4,
+    "head": "b86930d054381d9a68eed73a3627ddee0bb314d0"
+  },
+  "observed_search_requests": 17446,
+  "observed_fresh_requests": 44,
+  "arms": [
+    {
+      "seed": 1101,
+      "method": "ssw_without_ls",
+      "summary_present": true,
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/direction-order-probe/runs/ssw_without_ls-1101/summary.json",
+      "status": "completed",
+      "search_requests": 4078,
+      "fresh_requests": 11,
+      "total_requests": 4089,
+      "search_calculations": 3714,
+      "fresh_calculations": 11,
+      "boundary": null,
+      "elapsed_seconds": 487.3140497766435,
+      "record_statuses": [
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit"
+      ],
+      "record_cost_sum_matches_requests": true,
+      "requests_outside_saved_records": 0,
+      "fresh_missing_or_failed": 0,
+      "full_observed_prefix": {
+        "search_prefix_ceiling": 4078,
+        "qualified_landing_observations": 10,
+        "changed_graph_observations": 6,
+        "intact_cage_observations": 4,
+        "fragmented_observations": 0,
+        "ih_recovery_observations": 0,
+        "energy_window_observations": 0,
+        "first_ih_search_requests": null,
+        "first_energy_window_search_requests": null,
+        "best_delta_ih_eV": 1.2226593926607165,
+        "best_intact_cage_delta_ih_eV": 1.2226593926607165
+      },
+      "checks": [
+        {
+          "role": "initial",
+          "search_cost": 1,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.17020995466,
+          "fmax_eV_A": 0.028464821692655014,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.2231608359652455,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        },
+        {
+          "role": "landing-0",
+          "search_cost": 400,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62196.90746302303,
+          "fmax_eV_A": 0.023574186899427457,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 18.485907767593744,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 58,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 16,
+                "5": 11,
+                "3": 1,
+                "9": 1,
+                "8": 1,
+                "7": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 58,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 16,
+                "5": 11,
+                "3": 1,
+                "9": 1,
+                "8": 1,
+                "7": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 58,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 16,
+                "5": 11,
+                "3": 1,
+                "9": 1,
+                "8": 1,
+                "7": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-1",
+          "search_cost": 822,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.170636682706,
+          "fmax_eV_A": 0.02099083075019488,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.2227341079196776,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        },
+        {
+          "role": "landing-2",
+          "search_cost": 1261,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62205.18306789122,
+          "fmax_eV_A": 0.02335442062337811,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 10.21030289940245,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "2": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 15,
+                "5": 14,
+                "10": 1,
+                "7": 1,
+                "3": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "2": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 15,
+                "5": 14,
+                "10": 1,
+                "7": 1,
+                "3": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "2": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 15,
+                "5": 14,
+                "10": 1,
+                "7": 1,
+                "3": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-3",
+          "search_cost": 1651,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62196.46776325709,
+          "fmax_eV_A": 0.023582189241499785,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 18.925607533536095,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 56,
+                "4": 2,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 10,
+                "11": 1,
+                "4": 2,
+                "3": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 91,
+              "degree_counts": {
+                "3": 54,
+                "4": 4,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 9,
+                "11": 1,
+                "4": 3,
+                "3": 2
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 91,
+              "degree_counts": {
+                "3": 54,
+                "4": 4,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 9,
+                "11": 1,
+                "4": 3,
+                "3": 2
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-4",
+          "search_cost": 2036,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62204.900268177866,
+          "fmax_eV_A": 0.023047683768515233,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 10.493102612759685,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 58,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 11,
+                "7": 1,
+                "8": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 58,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 11,
+                "7": 1,
+                "8": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 58,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 11,
+                "7": 1,
+                "8": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-5",
+          "search_cost": 2546,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62207.52039272474,
+          "fmax_eV_A": 0.022616898669352275,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 7.872978065883217,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 57,
+                "4": 1,
+                "2": 1,
+                "1": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 12,
+                "7": 1,
+                "9": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 57,
+                "4": 1,
+                "2": 1,
+                "1": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 12,
+                "7": 1,
+                "9": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 57,
+                "4": 1,
+                "2": 1,
+                "1": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 12,
+                "7": 1,
+                "9": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-6",
+          "search_cost": 2928,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.170504284535,
+          "fmax_eV_A": 0.019430127533937077,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.222866506090213,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        },
+        {
+          "role": "landing-7",
+          "search_cost": 3281,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.170711397965,
+          "fmax_eV_A": 0.019143857350640153,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.2226593926607165,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        },
+        {
+          "role": "landing-8",
+          "search_cost": 3750,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62208.42597161099,
+          "fmax_eV_A": 0.029525976668724755,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 6.967399179637141,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "2": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 12,
+                "9": 1,
+                "3": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "2": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 12,
+                "9": 1,
+                "3": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "2": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 12,
+                "9": 1,
+                "3": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-9",
+          "search_cost": 4078,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.17066364358,
+          "fmax_eV_A": 0.023478887364003352,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.2227071470479132,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "seed": 1101,
+      "method": "native_ls",
+      "summary_present": true,
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/direction-order-probe/runs/native_ls-1101/summary.json",
+      "status": "completed",
+      "search_requests": 4378,
+      "fresh_requests": 11,
+      "total_requests": 4389,
+      "search_calculations": 3986,
+      "fresh_calculations": 11,
+      "boundary": null,
+      "elapsed_seconds": 516.5847588200122,
+      "record_statuses": [
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit"
+      ],
+      "record_cost_sum_matches_requests": true,
+      "requests_outside_saved_records": 0,
+      "fresh_missing_or_failed": 0,
+      "full_observed_prefix": {
+        "search_prefix_ceiling": 4378,
+        "qualified_landing_observations": 10,
+        "changed_graph_observations": 9,
+        "intact_cage_observations": 1,
+        "fragmented_observations": 0,
+        "ih_recovery_observations": 0,
+        "energy_window_observations": 0,
+        "first_ih_search_requests": null,
+        "first_energy_window_search_requests": null,
+        "best_delta_ih_eV": 1.2226486019499134,
+        "best_intact_cage_delta_ih_eV": 1.2226486019499134
+      },
+      "checks": [
+        {
+          "role": "initial",
+          "search_cost": 1,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.17020995466,
+          "fmax_eV_A": 0.028464821692655014,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.2231608359652455,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        },
+        {
+          "role": "landing-0",
+          "search_cost": 449,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62194.2868625308,
+          "fmax_eV_A": 0.028782883367502825,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 21.106508259828843,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 87,
+              "degree_counts": {
+                "3": 54,
+                "2": 6
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 16,
+                "5": 10,
+                "10": 1,
+                "11": 1,
+                "7": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 87,
+              "degree_counts": {
+                "3": 54,
+                "2": 6
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 16,
+                "5": 10,
+                "10": 1,
+                "11": 1,
+                "7": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 88,
+              "degree_counts": {
+                "3": 52,
+                "4": 2,
+                "2": 6
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 15,
+                "5": 11,
+                "10": 1,
+                "3": 1,
+                "11": 1,
+                "7": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-1",
+          "search_cost": 862,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62204.9065053654,
+          "fmax_eV_A": 0.028489930513838767,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 10.486865425227734,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 57,
+                "4": 1,
+                "1": 1,
+                "2": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 12,
+                "7": 1,
+                "9": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 57,
+                "4": 1,
+                "1": 1,
+                "2": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 12,
+                "7": 1,
+                "9": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 57,
+                "4": 1,
+                "1": 1,
+                "2": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 12,
+                "7": 1,
+                "9": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-2",
+          "search_cost": 1378,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62201.410884477955,
+          "fmax_eV_A": 0.020212616565134036,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 13.982486312670517,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "2": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 10,
+                "7": 2,
+                "8": 1,
+                "3": 2
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "2": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 10,
+                "7": 2,
+                "8": 1,
+                "3": 2
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "2": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 10,
+                "7": 2,
+                "8": 1,
+                "3": 2
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-3",
+          "search_cost": 1904,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62199.98190427182,
+          "fmax_eV_A": 0.023211004230225672,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 15.411466518802627,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 56,
+                "2": 3,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "4": 1,
+                "8": 2,
+                "6": 16,
+                "5": 11,
+                "7": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 56,
+                "2": 3,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "4": 1,
+                "8": 2,
+                "6": 16,
+                "5": 11,
+                "7": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 56,
+                "2": 3,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "4": 1,
+                "8": 2,
+                "6": 16,
+                "5": 11,
+                "7": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-4",
+          "search_cost": 2400,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62206.34575942948,
+          "fmax_eV_A": 0.028816609061807663,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 9.047611361143936,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 57,
+                "2": 1,
+                "1": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 12,
+                "9": 1,
+                "7": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 57,
+                "2": 1,
+                "1": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 12,
+                "9": 1,
+                "7": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 57,
+                "2": 1,
+                "1": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 12,
+                "9": 1,
+                "7": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-5",
+          "search_cost": 2807,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.170722188675,
+          "fmax_eV_A": 0.020412069532239844,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.2226486019499134,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        },
+        {
+          "role": "landing-6",
+          "search_cost": 3170,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62201.26904440633,
+          "fmax_eV_A": 0.022393522811731643,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 14.12432638429891,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 56,
+                "4": 2,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "8": 1,
+                "5": 11,
+                "9": 1,
+                "3": 2
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 56,
+                "4": 2,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "8": 1,
+                "5": 11,
+                "9": 1,
+                "3": 2
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 56,
+                "4": 2,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "8": 1,
+                "5": 11,
+                "9": 1,
+                "3": 2
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-7",
+          "search_cost": 3579,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62203.489319630055,
+          "fmax_eV_A": 0.028243704450497443,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 11.904051160570816,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 12,
+                "4": 1,
+                "11": 1,
+                "3": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 12,
+                "4": 1,
+                "11": 1,
+                "3": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 12,
+                "4": 1,
+                "11": 1,
+                "3": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-8",
+          "search_cost": 4031,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62202.62543547337,
+          "fmax_eV_A": 0.020069117212011243,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 12.76793531725707,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 88,
+              "degree_counts": {
+                "3": 57,
+                "2": 2,
+                "1": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 14,
+                "5": 12,
+                "7": 3,
+                "11": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 88,
+              "degree_counts": {
+                "3": 57,
+                "2": 2,
+                "1": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 14,
+                "5": 12,
+                "7": 3,
+                "11": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 88,
+              "degree_counts": {
+                "3": 57,
+                "2": 2,
+                "1": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 14,
+                "5": 12,
+                "7": 3,
+                "11": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-9",
+          "search_cost": 4378,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62204.900353387835,
+          "fmax_eV_A": 0.02424176714948807,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 10.493017402790429,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 58,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 11,
+                "7": 1,
+                "8": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 58,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 11,
+                "7": 1,
+                "8": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 58,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 11,
+                "7": 1,
+                "8": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "seed": 1102,
+      "method": "ssw_without_ls",
+      "summary_present": true,
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/direction-order-probe/runs/ssw_without_ls-1102/summary.json",
+      "status": "completed",
+      "search_requests": 4742,
+      "fresh_requests": 11,
+      "total_requests": 4753,
+      "search_calculations": 4376,
+      "fresh_calculations": 11,
+      "boundary": null,
+      "elapsed_seconds": 690.2833111416548,
+      "record_statuses": [
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit"
+      ],
+      "record_cost_sum_matches_requests": true,
+      "requests_outside_saved_records": 0,
+      "fresh_missing_or_failed": 0,
+      "full_observed_prefix": {
+        "search_prefix_ceiling": 4742,
+        "qualified_landing_observations": 10,
+        "changed_graph_observations": 5,
+        "intact_cage_observations": 5,
+        "fragmented_observations": 0,
+        "ih_recovery_observations": 0,
+        "energy_window_observations": 0,
+        "first_ih_search_requests": null,
+        "first_energy_window_search_requests": null,
+        "best_delta_ih_eV": 1.222540707400185,
+        "best_intact_cage_delta_ih_eV": 1.222540707400185
+      },
+      "checks": [
+        {
+          "role": "initial",
+          "search_cost": 1,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.17020995466,
+          "fmax_eV_A": 0.028464821692655014,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.2231608359652455,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        },
+        {
+          "role": "landing-0",
+          "search_cost": 413,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.170830083225,
+          "fmax_eV_A": 0.016757976721903472,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.222540707400185,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        },
+        {
+          "role": "landing-1",
+          "search_cost": 940,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.17069605774,
+          "fmax_eV_A": 0.019691248359503928,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.2226747328822967,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        },
+        {
+          "role": "landing-2",
+          "search_cost": 1494,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62206.416818228005,
+          "fmax_eV_A": 0.02374138024944046,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 8.976552562620782,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "4": 1,
+                "2": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 19,
+                "5": 10,
+                "3": 1,
+                "9": 1,
+                "4": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "4": 1,
+                "2": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 19,
+                "5": 10,
+                "3": 1,
+                "9": 1,
+                "4": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "4": 1,
+                "2": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 19,
+                "5": 10,
+                "3": 1,
+                "9": 1,
+                "4": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-3",
+          "search_cost": 1921,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.17039210561,
+          "fmax_eV_A": 0.028474167149389305,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.222978685014823,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        },
+        {
+          "role": "landing-4",
+          "search_cost": 2346,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.17072381244,
+          "fmax_eV_A": 0.015943394434043273,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.2226469781817286,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        },
+        {
+          "role": "landing-5",
+          "search_cost": 2824,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.17023403725,
+          "fmax_eV_A": 0.0276736546319542,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.2231367533750017,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        },
+        {
+          "role": "landing-6",
+          "search_cost": 3195,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62196.67829200342,
+          "fmax_eV_A": 0.02783793791036686,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 18.715078787208768,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 56,
+                "2": 3,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 9,
+                "3": 1,
+                "9": 2,
+                "4": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 56,
+                "2": 3,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 9,
+                "3": 1,
+                "9": 2,
+                "4": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 56,
+                "2": 3,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 9,
+                "3": 1,
+                "9": 2,
+                "4": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-7",
+          "search_cost": 3684,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62205.742862813444,
+          "fmax_eV_A": 0.026347562294569166,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 9.650507977181405,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 57,
+                "2": 1,
+                "1": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 12,
+                "7": 1,
+                "9": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 57,
+                "2": 1,
+                "1": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 12,
+                "7": 1,
+                "9": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 57,
+                "2": 1,
+                "1": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 17,
+                "5": 12,
+                "7": 1,
+                "9": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-8",
+          "search_cost": 4154,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62200.3244671706,
+          "fmax_eV_A": 0.026269826281891076,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 15.068903620027413,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "2": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "5": 11,
+                "9": 1,
+                "6": 17,
+                "7": 1,
+                "3": 1,
+                "4": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "2": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "5": 11,
+                "9": 1,
+                "6": 17,
+                "7": 1,
+                "3": 1,
+                "4": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "2": 1,
+                "4": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "5": 11,
+                "9": 1,
+                "6": 17,
+                "7": 1,
+                "3": 1,
+                "4": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-9",
+          "search_cost": 4742,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62203.89009751279,
+          "fmax_eV_A": 0.026330586101203816,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 11.503273277834523,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 58,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 11,
+                "11": 1,
+                "4": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 58,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 11,
+                "11": 1,
+                "4": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 89,
+              "degree_counts": {
+                "3": 58,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 11,
+                "11": 1,
+                "4": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "seed": 1102,
+      "method": "native_ls",
+      "summary_present": true,
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/direction-order-probe/runs/native_ls-1102/summary.json",
+      "status": "completed",
+      "search_requests": 4248,
+      "fresh_requests": 11,
+      "total_requests": 4259,
+      "search_calculations": 3853,
+      "fresh_calculations": 11,
+      "boundary": null,
+      "elapsed_seconds": 564.5058450140059,
+      "record_statuses": [
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit",
+        "gaussian_limit"
+      ],
+      "record_cost_sum_matches_requests": true,
+      "requests_outside_saved_records": 0,
+      "fresh_missing_or_failed": 0,
+      "full_observed_prefix": {
+        "search_prefix_ceiling": 4248,
+        "qualified_landing_observations": 10,
+        "changed_graph_observations": 6,
+        "intact_cage_observations": 4,
+        "fragmented_observations": 0,
+        "ih_recovery_observations": 0,
+        "energy_window_observations": 0,
+        "first_ih_search_requests": null,
+        "first_energy_window_search_requests": null,
+        "best_delta_ih_eV": 1.222539221169427,
+        "best_intact_cage_delta_ih_eV": 1.222539221169427
+      },
+      "checks": [
+        {
+          "role": "initial",
+          "search_cost": 1,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.17020995466,
+          "fmax_eV_A": 0.028464821692655014,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.2231608359652455,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        },
+        {
+          "role": "landing-0",
+          "search_cost": 457,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62201.7377305667,
+          "fmax_eV_A": 0.020134787073857074,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 13.655640223922092,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "4": 1,
+                "2": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 19,
+                "5": 10,
+                "3": 2,
+                "10": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "4": 1,
+                "2": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 19,
+                "5": 10,
+                "3": 2,
+                "10": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 58,
+                "4": 1,
+                "2": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 19,
+                "5": 10,
+                "3": 2,
+                "10": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-1",
+          "search_cost": 903,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62205.431558375254,
+          "fmax_eV_A": 0.02920667321587454,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 9.961812415371242,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 56,
+                "4": 2,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 19,
+                "5": 11,
+                "3": 1,
+                "8": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 56,
+                "4": 2,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 19,
+                "5": 11,
+                "3": 1,
+                "8": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 56,
+                "4": 2,
+                "2": 2
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "6": 19,
+                "5": 11,
+                "3": 1,
+                "8": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-2",
+          "search_cost": 1292,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62210.168953123786,
+          "fmax_eV_A": 0.02854049816884434,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 5.224417666839145,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 16,
+                "5": 14,
+                "7": 2
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 16,
+                "5": 14,
+                "7": 2
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 16,
+                "5": 14,
+                "7": 2
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-3",
+          "search_cost": 1673,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.17041375384,
+          "fmax_eV_A": 0.029425299440467866,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.222957036785374,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        },
+        {
+          "role": "landing-4",
+          "search_cost": 2036,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.170831569456,
+          "fmax_eV_A": 0.014335655651018785,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.222539221169427,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        },
+        {
+          "role": "landing-5",
+          "search_cost": 2403,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62205.27219956109,
+          "fmax_eV_A": 0.02497632713239206,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 10.121171229533502,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 11,
+                "11": 1,
+                "3": 2
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 11,
+                "11": 1,
+                "3": 2
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 18,
+                "5": 11,
+                "11": 1,
+                "3": 2
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-6",
+          "search_cost": 2857,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.170741487076,
+          "fmax_eV_A": 0.020210787372184562,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.2226293035491835,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        },
+        {
+          "role": "landing-7",
+          "search_cost": 3351,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62204.536400535064,
+          "fmax_eV_A": 0.01319256619368907,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 10.856970255561464,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "4": 1,
+                "3": 58,
+                "2": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "3": 1,
+                "7": 3,
+                "5": 12,
+                "6": 16
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "4": 1,
+                "3": 58,
+                "2": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "3": 1,
+                "7": 3,
+                "5": 12,
+                "6": 16
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "4": 1,
+                "3": 58,
+                "2": 1
+              },
+              "three_connected": false,
+              "planar": true,
+              "face_counts": {
+                "3": 1,
+                "7": 3,
+                "5": 12,
+                "6": 16
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        },
+        {
+          "role": "landing-8",
+          "search_cost": 3777,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62214.17041351737,
+          "fmax_eV_A": 0.02341780573220316,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 1.2229572732539964,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "6": 20,
+                "5": 12
+              },
+              "graph_cage_candidate": true,
+              "ih_graph_match": false,
+              "source_defect_graph_match": true,
+              "source_defect_labeled_edges_preserved": true
+            }
+          }
+        },
+        {
+          "role": "landing-9",
+          "search_cost": 4248,
+          "reported_converged": true,
+          "status": "checked",
+          "energy_eV": -62206.83161008176,
+          "fmax_eV_A": 0.028117566079817965,
+          "force_qualified": true,
+          "composition_preserved": true,
+          "cell_preserved": true,
+          "pbc_preserved": true,
+          "delta_ih_eV": 8.561760708864313,
+          "energy_window_met": false,
+          "graphs": {
+            "1.64": {
+              "cutoff_A": 1.64,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "5": 12,
+                "8": 1,
+                "6": 18,
+                "4": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.7": {
+              "cutoff_A": 1.7,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "5": 12,
+                "8": 1,
+                "6": 18,
+                "4": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            },
+            "1.8": {
+              "cutoff_A": 1.8,
+              "all_carbon": true,
+              "components": 1,
+              "edges": 90,
+              "degree_counts": {
+                "3": 60
+              },
+              "three_connected": true,
+              "planar": true,
+              "face_counts": {
+                "5": 12,
+                "8": 1,
+                "6": 18,
+                "4": 1
+              },
+              "graph_cage_candidate": false,
+              "ih_graph_match": false,
+              "source_defect_graph_match": false,
+              "source_defect_labeled_edges_preserved": false
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "paired_common_prefixes": [
+    {
+      "seed": 1101,
+      "common_search_prefix": 4078,
+      "methods": {
+        "ssw_without_ls": {
+          "search_prefix_ceiling": 4078,
+          "qualified_landing_observations": 10,
+          "changed_graph_observations": 6,
+          "intact_cage_observations": 4,
+          "fragmented_observations": 0,
+          "ih_recovery_observations": 0,
+          "energy_window_observations": 0,
+          "first_ih_search_requests": null,
+          "first_energy_window_search_requests": null,
+          "best_delta_ih_eV": 1.2226593926607165,
+          "best_intact_cage_delta_ih_eV": 1.2226593926607165
+        },
+        "native_ls": {
+          "search_prefix_ceiling": 4078,
+          "qualified_landing_observations": 9,
+          "changed_graph_observations": 8,
+          "intact_cage_observations": 1,
+          "fragmented_observations": 0,
+          "ih_recovery_observations": 0,
+          "energy_window_observations": 0,
+          "first_ih_search_requests": null,
+          "first_energy_window_search_requests": null,
+          "best_delta_ih_eV": 1.2226486019499134,
+          "best_intact_cage_delta_ih_eV": 1.2226486019499134
+        }
+      }
+    },
+    {
+      "seed": 1102,
+      "common_search_prefix": 4248,
+      "methods": {
+        "ssw_without_ls": {
+          "search_prefix_ceiling": 4248,
+          "qualified_landing_observations": 9,
+          "changed_graph_observations": 4,
+          "intact_cage_observations": 5,
+          "fragmented_observations": 0,
+          "ih_recovery_observations": 0,
+          "energy_window_observations": 0,
+          "first_ih_search_requests": null,
+          "first_energy_window_search_requests": null,
+          "best_delta_ih_eV": 1.222540707400185,
+          "best_intact_cage_delta_ih_eV": 1.222540707400185
+        },
+        "native_ls": {
+          "search_prefix_ceiling": 4248,
+          "qualified_landing_observations": 10,
+          "changed_graph_observations": 6,
+          "intact_cage_observations": 4,
+          "fragmented_observations": 0,
+          "ih_recovery_observations": 0,
+          "energy_window_observations": 0,
+          "first_ih_search_requests": null,
+          "first_energy_window_search_requests": null,
+          "best_delta_ih_eV": 1.222539221169427,
+          "best_intact_cage_delta_ih_eV": 1.222539221169427
+        }
+      }
+    }
+  ]
+}

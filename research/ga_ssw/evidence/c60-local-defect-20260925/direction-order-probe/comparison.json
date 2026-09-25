@@ -1,0 +1,1269 @@
+{
+  "scope": "One physical C60 defect and one fixed row permutation; two numeric seeds per method. No independent structural replication or causal startup-tie attribution.",
+  "criteria": "Joint hit requires qualified fresh force/convergence/composition/cell/PBC, Ih graph at every frozen cutoff, and reference-energy window on the same landing. Counts include repeat visits.",
+  "interpretation": "Same numeric seeds after permutation do not preserve physical random vectors. Prefixes are retrospective; full search and fresh costs remain charged.",
+  "comparisons": [
+    {
+      "seed": 1101,
+      "method": "ssw_without_ls",
+      "status": "compared",
+      "common_search_prefix": 4078,
+      "arms": {
+        "original": {
+          "status": "completed",
+          "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/direction-probe/runs/ssw_without_ls-1101/summary.json",
+          "costs": {
+            "search_requests": 4106,
+            "fresh_requests": 11,
+            "total_requests": 4117,
+            "search_calculations": 3743,
+            "fresh_calculations": 11,
+            "search_boundary": null,
+            "search_denials": 0,
+            "fresh_boundary": null,
+            "fresh_denials": 0,
+            "elapsed_seconds": 291.4047325477004,
+            "record_statuses": [
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit"
+            ],
+            "record_costs": [
+              {
+                "index": 0,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 498,
+                "cumulative_requests": 499
+              },
+              {
+                "index": 1,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 473,
+                "cumulative_requests": 972
+              },
+              {
+                "index": 2,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 347,
+                "cumulative_requests": 1319
+              },
+              {
+                "index": 3,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 496,
+                "cumulative_requests": 1815
+              },
+              {
+                "index": 4,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 430,
+                "cumulative_requests": 2245
+              },
+              {
+                "index": 5,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 369,
+                "cumulative_requests": 2614
+              },
+              {
+                "index": 6,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 429,
+                "cumulative_requests": 3043
+              },
+              {
+                "index": 7,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 341,
+                "cumulative_requests": 3384
+              },
+              {
+                "index": 8,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 367,
+                "cumulative_requests": 3751
+              },
+              {
+                "index": 9,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 355,
+                "cumulative_requests": 4106
+              }
+            ],
+            "record_cost_sum_matches_requests": true,
+            "requests_outside_saved_records": 0,
+            "fresh_missing_or_failed": 0,
+            "check_failures": [],
+            "initial_check_present": true,
+            "landing_check_count": 10
+          },
+          "full_events": {
+            "search_prefix_ceiling": 4106,
+            "qualified_landing_observations": 10,
+            "changed_graph_observations": 8,
+            "intact_cage_observations": 2,
+            "fragmented_observations": 0,
+            "ih_recovery_observations": 0,
+            "energy_window_observations": 0,
+            "first_ih_search_requests": null,
+            "first_energy_window_search_requests": null,
+            "best_delta_ih_eV": 1.2224891170408227,
+            "best_intact_cage_delta_ih_eV": 1.2224891170408227
+          },
+          "full_joint_hits": [],
+          "common_events": {
+            "search_prefix_ceiling": 4078,
+            "qualified_landing_observations": 9,
+            "changed_graph_observations": 7,
+            "intact_cage_observations": 2,
+            "fragmented_observations": 0,
+            "ih_recovery_observations": 0,
+            "energy_window_observations": 0,
+            "first_ih_search_requests": null,
+            "first_energy_window_search_requests": null,
+            "best_delta_ih_eV": 1.2224891170408227,
+            "best_intact_cage_delta_ih_eV": 1.2224891170408227
+          },
+          "common_joint_hits": [],
+          "best_including_initial": {
+            "candidate_count": 11,
+            "best": {
+              "role": "landing-2",
+              "search_cost": 1319,
+              "energy_eV": -62214.170881673585,
+              "delta_ih_eV": 1.2224891170408227,
+              "energy_target_met": false,
+              "cage_candidate_all_cutoffs": true,
+              "ih_graph_match_all_cutoffs": false,
+              "non_cage": false
+            }
+          }
+        },
+        "permuted": {
+          "status": "completed",
+          "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/direction-order-probe/runs/ssw_without_ls-1101/summary.json",
+          "costs": {
+            "search_requests": 4078,
+            "fresh_requests": 11,
+            "total_requests": 4089,
+            "search_calculations": 3714,
+            "fresh_calculations": 11,
+            "search_boundary": null,
+            "search_denials": 0,
+            "fresh_boundary": null,
+            "fresh_denials": 0,
+            "elapsed_seconds": 487.3140497766435,
+            "record_statuses": [
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit"
+            ],
+            "record_costs": [
+              {
+                "index": 0,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 399,
+                "cumulative_requests": 400
+              },
+              {
+                "index": 1,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 422,
+                "cumulative_requests": 822
+              },
+              {
+                "index": 2,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 439,
+                "cumulative_requests": 1261
+              },
+              {
+                "index": 3,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 390,
+                "cumulative_requests": 1651
+              },
+              {
+                "index": 4,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 385,
+                "cumulative_requests": 2036
+              },
+              {
+                "index": 5,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 510,
+                "cumulative_requests": 2546
+              },
+              {
+                "index": 6,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 382,
+                "cumulative_requests": 2928
+              },
+              {
+                "index": 7,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 353,
+                "cumulative_requests": 3281
+              },
+              {
+                "index": 8,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 469,
+                "cumulative_requests": 3750
+              },
+              {
+                "index": 9,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 328,
+                "cumulative_requests": 4078
+              }
+            ],
+            "record_cost_sum_matches_requests": true,
+            "requests_outside_saved_records": 0,
+            "fresh_missing_or_failed": 0,
+            "check_failures": [],
+            "initial_check_present": true,
+            "landing_check_count": 10
+          },
+          "full_events": {
+            "search_prefix_ceiling": 4078,
+            "qualified_landing_observations": 10,
+            "changed_graph_observations": 6,
+            "intact_cage_observations": 4,
+            "fragmented_observations": 0,
+            "ih_recovery_observations": 0,
+            "energy_window_observations": 0,
+            "first_ih_search_requests": null,
+            "first_energy_window_search_requests": null,
+            "best_delta_ih_eV": 1.2226593926607165,
+            "best_intact_cage_delta_ih_eV": 1.2226593926607165
+          },
+          "full_joint_hits": [],
+          "common_events": {
+            "search_prefix_ceiling": 4078,
+            "qualified_landing_observations": 10,
+            "changed_graph_observations": 6,
+            "intact_cage_observations": 4,
+            "fragmented_observations": 0,
+            "ih_recovery_observations": 0,
+            "energy_window_observations": 0,
+            "first_ih_search_requests": null,
+            "first_energy_window_search_requests": null,
+            "best_delta_ih_eV": 1.2226593926607165,
+            "best_intact_cage_delta_ih_eV": 1.2226593926607165
+          },
+          "common_joint_hits": [],
+          "best_including_initial": {
+            "candidate_count": 11,
+            "best": {
+              "role": "landing-7",
+              "search_cost": 3281,
+              "energy_eV": -62214.170711397965,
+              "delta_ih_eV": 1.2226593926607165,
+              "energy_target_met": false,
+              "cage_candidate_all_cutoffs": true,
+              "ih_graph_match_all_cutoffs": false,
+              "non_cage": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 1101,
+      "method": "native_ls",
+      "status": "compared",
+      "common_search_prefix": 4090,
+      "arms": {
+        "original": {
+          "status": "completed",
+          "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/direction-probe/runs/native_ls-1101/summary.json",
+          "costs": {
+            "search_requests": 4090,
+            "fresh_requests": 11,
+            "total_requests": 4101,
+            "search_calculations": 3723,
+            "fresh_calculations": 11,
+            "search_boundary": null,
+            "search_denials": 0,
+            "fresh_boundary": null,
+            "fresh_denials": 0,
+            "elapsed_seconds": 318.72713648714125,
+            "record_statuses": [
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "lower_true_energy",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit"
+            ],
+            "record_costs": [
+              {
+                "index": 0,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 466,
+                "cumulative_requests": 467
+              },
+              {
+                "index": 1,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 527,
+                "cumulative_requests": 994
+              },
+              {
+                "index": 2,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 326,
+                "cumulative_requests": 1320
+              },
+              {
+                "index": 3,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 458,
+                "cumulative_requests": 1778
+              },
+              {
+                "index": 4,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 402,
+                "cumulative_requests": 2180
+              },
+              {
+                "index": 5,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 425,
+                "cumulative_requests": 2605
+              },
+              {
+                "index": 6,
+                "status": "lower_true_energy",
+                "accepted": true,
+                "requests": 143,
+                "cumulative_requests": 2748
+              },
+              {
+                "index": 7,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 384,
+                "cumulative_requests": 3132
+              },
+              {
+                "index": 8,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 499,
+                "cumulative_requests": 3631
+              },
+              {
+                "index": 9,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 459,
+                "cumulative_requests": 4090
+              }
+            ],
+            "record_cost_sum_matches_requests": true,
+            "requests_outside_saved_records": 0,
+            "fresh_missing_or_failed": 0,
+            "check_failures": [],
+            "initial_check_present": true,
+            "landing_check_count": 10
+          },
+          "full_events": {
+            "search_prefix_ceiling": 4090,
+            "qualified_landing_observations": 10,
+            "changed_graph_observations": 9,
+            "intact_cage_observations": 3,
+            "fragmented_observations": 0,
+            "ih_recovery_observations": 2,
+            "energy_window_observations": 2,
+            "first_ih_search_requests": 2748,
+            "first_energy_window_search_requests": 2748,
+            "best_delta_ih_eV": 0.00040772757347440347,
+            "best_intact_cage_delta_ih_eV": 0.00040772757347440347
+          },
+          "full_joint_hits": [
+            {
+              "role": "landing-6",
+              "search_cost": 2748,
+              "delta_ih_eV": 0.0005821974991704337
+            },
+            {
+              "role": "landing-8",
+              "search_cost": 3631,
+              "delta_ih_eV": 0.00040772757347440347
+            }
+          ],
+          "common_events": {
+            "search_prefix_ceiling": 4090,
+            "qualified_landing_observations": 10,
+            "changed_graph_observations": 9,
+            "intact_cage_observations": 3,
+            "fragmented_observations": 0,
+            "ih_recovery_observations": 2,
+            "energy_window_observations": 2,
+            "first_ih_search_requests": 2748,
+            "first_energy_window_search_requests": 2748,
+            "best_delta_ih_eV": 0.00040772757347440347,
+            "best_intact_cage_delta_ih_eV": 0.00040772757347440347
+          },
+          "common_joint_hits": [
+            {
+              "role": "landing-6",
+              "search_cost": 2748,
+              "delta_ih_eV": 0.0005821974991704337
+            },
+            {
+              "role": "landing-8",
+              "search_cost": 3631,
+              "delta_ih_eV": 0.00040772757347440347
+            }
+          ],
+          "best_including_initial": {
+            "candidate_count": 11,
+            "best": {
+              "role": "landing-8",
+              "search_cost": 3631,
+              "energy_eV": -62215.39296306305,
+              "delta_ih_eV": 0.00040772757347440347,
+              "energy_target_met": true,
+              "cage_candidate_all_cutoffs": true,
+              "ih_graph_match_all_cutoffs": true,
+              "non_cage": false
+            }
+          }
+        },
+        "permuted": {
+          "status": "completed",
+          "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/direction-order-probe/runs/native_ls-1101/summary.json",
+          "costs": {
+            "search_requests": 4378,
+            "fresh_requests": 11,
+            "total_requests": 4389,
+            "search_calculations": 3986,
+            "fresh_calculations": 11,
+            "search_boundary": null,
+            "search_denials": 0,
+            "fresh_boundary": null,
+            "fresh_denials": 0,
+            "elapsed_seconds": 516.5847588200122,
+            "record_statuses": [
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit"
+            ],
+            "record_costs": [
+              {
+                "index": 0,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 448,
+                "cumulative_requests": 449
+              },
+              {
+                "index": 1,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 413,
+                "cumulative_requests": 862
+              },
+              {
+                "index": 2,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 516,
+                "cumulative_requests": 1378
+              },
+              {
+                "index": 3,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 526,
+                "cumulative_requests": 1904
+              },
+              {
+                "index": 4,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 496,
+                "cumulative_requests": 2400
+              },
+              {
+                "index": 5,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 407,
+                "cumulative_requests": 2807
+              },
+              {
+                "index": 6,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 363,
+                "cumulative_requests": 3170
+              },
+              {
+                "index": 7,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 409,
+                "cumulative_requests": 3579
+              },
+              {
+                "index": 8,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 452,
+                "cumulative_requests": 4031
+              },
+              {
+                "index": 9,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 347,
+                "cumulative_requests": 4378
+              }
+            ],
+            "record_cost_sum_matches_requests": true,
+            "requests_outside_saved_records": 0,
+            "fresh_missing_or_failed": 0,
+            "check_failures": [],
+            "initial_check_present": true,
+            "landing_check_count": 10
+          },
+          "full_events": {
+            "search_prefix_ceiling": 4378,
+            "qualified_landing_observations": 10,
+            "changed_graph_observations": 9,
+            "intact_cage_observations": 1,
+            "fragmented_observations": 0,
+            "ih_recovery_observations": 0,
+            "energy_window_observations": 0,
+            "first_ih_search_requests": null,
+            "first_energy_window_search_requests": null,
+            "best_delta_ih_eV": 1.2226486019499134,
+            "best_intact_cage_delta_ih_eV": 1.2226486019499134
+          },
+          "full_joint_hits": [],
+          "common_events": {
+            "search_prefix_ceiling": 4090,
+            "qualified_landing_observations": 9,
+            "changed_graph_observations": 8,
+            "intact_cage_observations": 1,
+            "fragmented_observations": 0,
+            "ih_recovery_observations": 0,
+            "energy_window_observations": 0,
+            "first_ih_search_requests": null,
+            "first_energy_window_search_requests": null,
+            "best_delta_ih_eV": 1.2226486019499134,
+            "best_intact_cage_delta_ih_eV": 1.2226486019499134
+          },
+          "common_joint_hits": [],
+          "best_including_initial": {
+            "candidate_count": 11,
+            "best": {
+              "role": "landing-5",
+              "search_cost": 2807,
+              "energy_eV": -62214.170722188675,
+              "delta_ih_eV": 1.2226486019499134,
+              "energy_target_met": false,
+              "cage_candidate_all_cutoffs": true,
+              "ih_graph_match_all_cutoffs": false,
+              "non_cage": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 1102,
+      "method": "ssw_without_ls",
+      "status": "compared",
+      "common_search_prefix": 4301,
+      "arms": {
+        "original": {
+          "status": "completed",
+          "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/direction-probe/runs/ssw_without_ls-1102/summary.json",
+          "costs": {
+            "search_requests": 4301,
+            "fresh_requests": 11,
+            "total_requests": 4312,
+            "search_calculations": 3958,
+            "fresh_calculations": 11,
+            "search_boundary": null,
+            "search_denials": 0,
+            "fresh_boundary": null,
+            "fresh_denials": 0,
+            "elapsed_seconds": 304.6165243703872,
+            "record_statuses": [
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "lower_true_energy",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit"
+            ],
+            "record_costs": [
+              {
+                "index": 0,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 485,
+                "cumulative_requests": 486
+              },
+              {
+                "index": 1,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 401,
+                "cumulative_requests": 887
+              },
+              {
+                "index": 2,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 504,
+                "cumulative_requests": 1391
+              },
+              {
+                "index": 3,
+                "status": "lower_true_energy",
+                "accepted": true,
+                "requests": 223,
+                "cumulative_requests": 1614
+              },
+              {
+                "index": 4,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 505,
+                "cumulative_requests": 2119
+              },
+              {
+                "index": 5,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 466,
+                "cumulative_requests": 2585
+              },
+              {
+                "index": 6,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 347,
+                "cumulative_requests": 2932
+              },
+              {
+                "index": 7,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 388,
+                "cumulative_requests": 3320
+              },
+              {
+                "index": 8,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 463,
+                "cumulative_requests": 3783
+              },
+              {
+                "index": 9,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 518,
+                "cumulative_requests": 4301
+              }
+            ],
+            "record_cost_sum_matches_requests": true,
+            "requests_outside_saved_records": 0,
+            "fresh_missing_or_failed": 0,
+            "check_failures": [],
+            "initial_check_present": true,
+            "landing_check_count": 10
+          },
+          "full_events": {
+            "search_prefix_ceiling": 4301,
+            "qualified_landing_observations": 10,
+            "changed_graph_observations": 10,
+            "intact_cage_observations": 3,
+            "fragmented_observations": 0,
+            "ih_recovery_observations": 3,
+            "energy_window_observations": 3,
+            "first_ih_search_requests": 1614,
+            "first_energy_window_search_requests": 1614,
+            "best_delta_ih_eV": 0.00018825028382707387,
+            "best_intact_cage_delta_ih_eV": 0.00018825028382707387
+          },
+          "full_joint_hits": [
+            {
+              "role": "landing-3",
+              "search_cost": 1614,
+              "delta_ih_eV": 0.00037495893775485456
+            },
+            {
+              "role": "landing-6",
+              "search_cost": 2932,
+              "delta_ih_eV": 0.0003657408888102509
+            },
+            {
+              "role": "landing-7",
+              "search_cost": 3320,
+              "delta_ih_eV": 0.00018825028382707387
+            }
+          ],
+          "common_events": {
+            "search_prefix_ceiling": 4301,
+            "qualified_landing_observations": 10,
+            "changed_graph_observations": 10,
+            "intact_cage_observations": 3,
+            "fragmented_observations": 0,
+            "ih_recovery_observations": 3,
+            "energy_window_observations": 3,
+            "first_ih_search_requests": 1614,
+            "first_energy_window_search_requests": 1614,
+            "best_delta_ih_eV": 0.00018825028382707387,
+            "best_intact_cage_delta_ih_eV": 0.00018825028382707387
+          },
+          "common_joint_hits": [
+            {
+              "role": "landing-3",
+              "search_cost": 1614,
+              "delta_ih_eV": 0.00037495893775485456
+            },
+            {
+              "role": "landing-6",
+              "search_cost": 2932,
+              "delta_ih_eV": 0.0003657408888102509
+            },
+            {
+              "role": "landing-7",
+              "search_cost": 3320,
+              "delta_ih_eV": 0.00018825028382707387
+            }
+          ],
+          "best_including_initial": {
+            "candidate_count": 11,
+            "best": {
+              "role": "landing-7",
+              "search_cost": 3320,
+              "energy_eV": -62215.39318254034,
+              "delta_ih_eV": 0.00018825028382707387,
+              "energy_target_met": true,
+              "cage_candidate_all_cutoffs": true,
+              "ih_graph_match_all_cutoffs": true,
+              "non_cage": false
+            }
+          }
+        },
+        "permuted": {
+          "status": "completed",
+          "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/direction-order-probe/runs/ssw_without_ls-1102/summary.json",
+          "costs": {
+            "search_requests": 4742,
+            "fresh_requests": 11,
+            "total_requests": 4753,
+            "search_calculations": 4376,
+            "fresh_calculations": 11,
+            "search_boundary": null,
+            "search_denials": 0,
+            "fresh_boundary": null,
+            "fresh_denials": 0,
+            "elapsed_seconds": 690.2833111416548,
+            "record_statuses": [
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit"
+            ],
+            "record_costs": [
+              {
+                "index": 0,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 412,
+                "cumulative_requests": 413
+              },
+              {
+                "index": 1,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 527,
+                "cumulative_requests": 940
+              },
+              {
+                "index": 2,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 554,
+                "cumulative_requests": 1494
+              },
+              {
+                "index": 3,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 427,
+                "cumulative_requests": 1921
+              },
+              {
+                "index": 4,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 425,
+                "cumulative_requests": 2346
+              },
+              {
+                "index": 5,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 478,
+                "cumulative_requests": 2824
+              },
+              {
+                "index": 6,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 371,
+                "cumulative_requests": 3195
+              },
+              {
+                "index": 7,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 489,
+                "cumulative_requests": 3684
+              },
+              {
+                "index": 8,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 470,
+                "cumulative_requests": 4154
+              },
+              {
+                "index": 9,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 588,
+                "cumulative_requests": 4742
+              }
+            ],
+            "record_cost_sum_matches_requests": true,
+            "requests_outside_saved_records": 0,
+            "fresh_missing_or_failed": 0,
+            "check_failures": [],
+            "initial_check_present": true,
+            "landing_check_count": 10
+          },
+          "full_events": {
+            "search_prefix_ceiling": 4742,
+            "qualified_landing_observations": 10,
+            "changed_graph_observations": 5,
+            "intact_cage_observations": 5,
+            "fragmented_observations": 0,
+            "ih_recovery_observations": 0,
+            "energy_window_observations": 0,
+            "first_ih_search_requests": null,
+            "first_energy_window_search_requests": null,
+            "best_delta_ih_eV": 1.222540707400185,
+            "best_intact_cage_delta_ih_eV": 1.222540707400185
+          },
+          "full_joint_hits": [],
+          "common_events": {
+            "search_prefix_ceiling": 4301,
+            "qualified_landing_observations": 9,
+            "changed_graph_observations": 4,
+            "intact_cage_observations": 5,
+            "fragmented_observations": 0,
+            "ih_recovery_observations": 0,
+            "energy_window_observations": 0,
+            "first_ih_search_requests": null,
+            "first_energy_window_search_requests": null,
+            "best_delta_ih_eV": 1.222540707400185,
+            "best_intact_cage_delta_ih_eV": 1.222540707400185
+          },
+          "common_joint_hits": [],
+          "best_including_initial": {
+            "candidate_count": 11,
+            "best": {
+              "role": "landing-0",
+              "search_cost": 413,
+              "energy_eV": -62214.170830083225,
+              "delta_ih_eV": 1.222540707400185,
+              "energy_target_met": false,
+              "cage_candidate_all_cutoffs": true,
+              "ih_graph_match_all_cutoffs": false,
+              "non_cage": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 1102,
+      "method": "native_ls",
+      "status": "compared",
+      "common_search_prefix": 3801,
+      "arms": {
+        "original": {
+          "status": "completed",
+          "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/direction-probe/runs/native_ls-1102/summary.json",
+          "costs": {
+            "search_requests": 3801,
+            "fresh_requests": 11,
+            "total_requests": 3812,
+            "search_calculations": 3408,
+            "fresh_calculations": 11,
+            "search_boundary": null,
+            "search_denials": 0,
+            "fresh_boundary": null,
+            "fresh_denials": 0,
+            "elapsed_seconds": 284.6893571158871,
+            "record_statuses": [
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit"
+            ],
+            "record_costs": [
+              {
+                "index": 0,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 359,
+                "cumulative_requests": 360
+              },
+              {
+                "index": 1,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 370,
+                "cumulative_requests": 730
+              },
+              {
+                "index": 2,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 429,
+                "cumulative_requests": 1159
+              },
+              {
+                "index": 3,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 407,
+                "cumulative_requests": 1566
+              },
+              {
+                "index": 4,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 354,
+                "cumulative_requests": 1920
+              },
+              {
+                "index": 5,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 348,
+                "cumulative_requests": 2268
+              },
+              {
+                "index": 6,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 465,
+                "cumulative_requests": 2733
+              },
+              {
+                "index": 7,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 367,
+                "cumulative_requests": 3100
+              },
+              {
+                "index": 8,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 374,
+                "cumulative_requests": 3474
+              },
+              {
+                "index": 9,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 327,
+                "cumulative_requests": 3801
+              }
+            ],
+            "record_cost_sum_matches_requests": true,
+            "requests_outside_saved_records": 0,
+            "fresh_missing_or_failed": 0,
+            "check_failures": [],
+            "initial_check_present": true,
+            "landing_check_count": 10
+          },
+          "full_events": {
+            "search_prefix_ceiling": 3801,
+            "qualified_landing_observations": 10,
+            "changed_graph_observations": 7,
+            "intact_cage_observations": 3,
+            "fragmented_observations": 0,
+            "ih_recovery_observations": 0,
+            "energy_window_observations": 0,
+            "first_ih_search_requests": null,
+            "first_energy_window_search_requests": null,
+            "best_delta_ih_eV": 1.2225080551288556,
+            "best_intact_cage_delta_ih_eV": 1.2225080551288556
+          },
+          "full_joint_hits": [],
+          "common_events": {
+            "search_prefix_ceiling": 3801,
+            "qualified_landing_observations": 10,
+            "changed_graph_observations": 7,
+            "intact_cage_observations": 3,
+            "fragmented_observations": 0,
+            "ih_recovery_observations": 0,
+            "energy_window_observations": 0,
+            "first_ih_search_requests": null,
+            "first_energy_window_search_requests": null,
+            "best_delta_ih_eV": 1.2225080551288556,
+            "best_intact_cage_delta_ih_eV": 1.2225080551288556
+          },
+          "common_joint_hits": [],
+          "best_including_initial": {
+            "candidate_count": 11,
+            "best": {
+              "role": "landing-8",
+              "search_cost": 3474,
+              "energy_eV": -62214.1708627355,
+              "delta_ih_eV": 1.2225080551288556,
+              "energy_target_met": false,
+              "cage_candidate_all_cutoffs": true,
+              "ih_graph_match_all_cutoffs": false,
+              "non_cage": false
+            }
+          }
+        },
+        "permuted": {
+          "status": "completed",
+          "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/direction-order-probe/runs/native_ls-1102/summary.json",
+          "costs": {
+            "search_requests": 4248,
+            "fresh_requests": 11,
+            "total_requests": 4259,
+            "search_calculations": 3853,
+            "fresh_calculations": 11,
+            "search_boundary": null,
+            "search_denials": 0,
+            "fresh_boundary": null,
+            "fresh_denials": 0,
+            "elapsed_seconds": 564.5058450140059,
+            "record_statuses": [
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit",
+              "gaussian_limit"
+            ],
+            "record_costs": [
+              {
+                "index": 0,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 456,
+                "cumulative_requests": 457
+              },
+              {
+                "index": 1,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 446,
+                "cumulative_requests": 903
+              },
+              {
+                "index": 2,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 389,
+                "cumulative_requests": 1292
+              },
+              {
+                "index": 3,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 381,
+                "cumulative_requests": 1673
+              },
+              {
+                "index": 4,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 363,
+                "cumulative_requests": 2036
+              },
+              {
+                "index": 5,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 367,
+                "cumulative_requests": 2403
+              },
+              {
+                "index": 6,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 454,
+                "cumulative_requests": 2857
+              },
+              {
+                "index": 7,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 494,
+                "cumulative_requests": 3351
+              },
+              {
+                "index": 8,
+                "status": "gaussian_limit",
+                "accepted": true,
+                "requests": 426,
+                "cumulative_requests": 3777
+              },
+              {
+                "index": 9,
+                "status": "gaussian_limit",
+                "accepted": false,
+                "requests": 471,
+                "cumulative_requests": 4248
+              }
+            ],
+            "record_cost_sum_matches_requests": true,
+            "requests_outside_saved_records": 0,
+            "fresh_missing_or_failed": 0,
+            "check_failures": [],
+            "initial_check_present": true,
+            "landing_check_count": 10
+          },
+          "full_events": {
+            "search_prefix_ceiling": 4248,
+            "qualified_landing_observations": 10,
+            "changed_graph_observations": 6,
+            "intact_cage_observations": 4,
+            "fragmented_observations": 0,
+            "ih_recovery_observations": 0,
+            "energy_window_observations": 0,
+            "first_ih_search_requests": null,
+            "first_energy_window_search_requests": null,
+            "best_delta_ih_eV": 1.222539221169427,
+            "best_intact_cage_delta_ih_eV": 1.222539221169427
+          },
+          "full_joint_hits": [],
+          "common_events": {
+            "search_prefix_ceiling": 3801,
+            "qualified_landing_observations": 9,
+            "changed_graph_observations": 5,
+            "intact_cage_observations": 4,
+            "fragmented_observations": 0,
+            "ih_recovery_observations": 0,
+            "energy_window_observations": 0,
+            "first_ih_search_requests": null,
+            "first_energy_window_search_requests": null,
+            "best_delta_ih_eV": 1.222539221169427,
+            "best_intact_cage_delta_ih_eV": 1.222539221169427
+          },
+          "common_joint_hits": [],
+          "best_including_initial": {
+            "candidate_count": 11,
+            "best": {
+              "role": "landing-4",
+              "search_cost": 2036,
+              "energy_eV": -62214.170831569456,
+              "delta_ih_eV": 1.222539221169427,
+              "energy_target_met": false,
+              "cage_candidate_all_cutoffs": true,
+              "ih_graph_match_all_cutoffs": false,
+              "non_cage": false
+            }
+          }
+        }
+      }
+    }
+  ]
+}
