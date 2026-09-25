@@ -1,5 +1,12 @@
 # Q-gradient contract: bounded candidate review
 
+**2026-09-26 status correction:** The execution blocker stated in the historical
+candidate below was subsequently closed. CPU1447836 produced ten passing
+isolated instruction-arithmetic cases; CPU1447868 reported four passing tests.
+See [completed follow-up and original artifacts](../../research/ga_ssw/evidence/s1-cutoff-contract-20260922/README.md).
+This does not qualify full native S1 derivatives, periodic indexing or the Q
+controller. Keep the [existing Q deferral](2026-09-21-forced-q-results.md).
+
 Date: 2026-09-22. This note records a read-only review from the `eafbc57`
 checkout. It does not implement the complete Q controller or change the
 walker/public API/checkpoint/default. A later private analytic primitive and

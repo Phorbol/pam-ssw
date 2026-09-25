@@ -1,0 +1,19 @@
+{
+  "changed_spec_zero_step_accepted": true,
+  "denials": [],
+  "elapsed_seconds": 1.83049734699307,
+  "exact_continuation": true,
+  "hookean_active_initially": true,
+  "input_geometry_preserved": true,
+  "requests_by_phase": {
+    "continuous": 388,
+    "endpoint_augmented": 1,
+    "endpoint_direct_ase": 1,
+    "endpoint_raw": 1,
+    "preflight": 1,
+    "split": 388
+  },
+  "status": "completed",
+  "total_physical_EF_requests": 780,
+  "wall_cap_seconds": 270.0
+}

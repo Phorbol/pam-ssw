@@ -1,0 +1,73 @@
+{
+  "budget": {
+    "internal_wall_seconds": 270.0,
+    "per_trajectory_EF_requests": 3000,
+    "total_EF_requests": 6000
+  },
+  "config": {
+    "bias_fmax": 0.1,
+    "bias_stage_steps": null,
+    "cluster_frame": "direction_only",
+    "direction_sampling": "global",
+    "fd_step": 0.001,
+    "fmax": 0.03,
+    "forward_force": 0.1,
+    "lbfgs_memory": 500,
+    "max_gaussians": 6,
+    "pre_rotation_hvp": null,
+    "quench_optimizer": "safe-lbfgs-total",
+    "relax_steps": 1000,
+    "rotation_bias": 1.0,
+    "rotation_exit_policy": "force_or_budget",
+    "rotation_hvp": 39,
+    "rotation_solver": "broyden-euclidean",
+    "rotation_tol": 0.02,
+    "temperature_K": 300.0,
+    "width": 0.6
+  },
+  "git_head": "14b03c1ed492234c989ca106cbd3f3c2af7ccb7d",
+  "hookean": {
+    "indices": [
+      0,
+      1
+    ],
+    "initial_pair_distance_A": 2.604501791767256,
+    "k_eV_A2": 1.0,
+    "rt_A": 2.3440516125905306
+  },
+  "input_sha256": "c2aadd614fba6e58b019f916c2f0763614720d0fc67dc6a24cd28e18e960a192",
+  "native_ls": "omitted to keep this an isolated wrapper/direction/checkpoint composition check",
+  "outputs": [
+    "input.extxyz",
+    "protocol.json",
+    "preflight.json",
+    "continuous/result.json",
+    "continuous/checkpoint.pkl",
+    "split/paused-result.json",
+    "split/paused-checkpoint.pkl",
+    "split/result.json",
+    "split/checkpoint.pkl",
+    "continuity.json",
+    "identity-check.json",
+    "endpoint-check.json",
+    "summary.json",
+    "failure.json (only if execution fails)"
+  ],
+  "pool": "omitted; no selector required for exact two-step restart comparison",
+  "purpose": "Cu13/EMT interface stress check; not search efficacy or Hookean tuning",
+  "recovered_direction": {
+    "c1_radius_policy": "restricted",
+    "ftol": 0.02,
+    "group_threshold": 0.5,
+    "local_probability": 0.5,
+    "max_force_calls": 40,
+    "metric": "euclidean",
+    "pre_ftol": 0.2,
+    "pre_rotmax": 5,
+    "ratio_local": 50,
+    "rotmax": 15,
+    "startup_order": "randomized"
+  },
+  "seed": 25092531,
+  "source_input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/startup-order-20260926/runs/input.extxyz"
+}

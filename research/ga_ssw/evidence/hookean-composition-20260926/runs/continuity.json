@@ -1,0 +1,14 @@
+{
+  "complete_compared_state_exact": true,
+  "continuous_requests": 388,
+  "continuous_status": "completed",
+  "hookean_specs_equal_across_all_walk_segments": true,
+  "input_geometry_preserved": true,
+  "main_rng_exact": true,
+  "records_exact": true,
+  "recovered_direction_state_exact": true,
+  "resumed_status": "completed",
+  "split_requests_across_pause_and_resume": 388,
+  "steps_each": 2,
+  "total_request_cost_exact": true
+}

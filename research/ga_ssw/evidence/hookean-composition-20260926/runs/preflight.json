@@ -1,0 +1,17 @@
+{
+  "augmented_energy_eV": 10.985918992440475,
+  "distance_A": 2.604501791767256,
+  "hookean_energy_eV": 0.03391714791659422,
+  "hookean_force_norm_eV_A": 0.3683321757142279,
+  "hookean_spec": [
+    "{\"kwargs\":{\"a1\":0,\"a2\":1,\"k\":1.0,\"rt\":2.3440516125905306},\"name\":\"Hookean\"}"
+  ],
+  "input_geometry_preserved": true,
+  "one_physical_request_per_augmented_evaluation": true,
+  "pair": [
+    0,
+    1
+  ],
+  "physical_energy_eV": 10.952001844523881,
+  "physical_requests": 1
+}

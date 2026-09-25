@@ -400,6 +400,39 @@ reports unprojected objective forces; fixed atoms and cell remain fixed througho
 For Hookean, certificates additionally store bare physical and restraint E/F.
 A restrained minimum need not be stationary on the unrestrained physical PES.
 
+For the full nonperiodic recovered-direction controller, an **atom-pair**
+Hookean term can instead be composed explicitly with the ordinary surface:
+
+```python
+from ase.constraints import Hookean
+from pamssw.standalone.ase_constraints import normalize_constraints, bind_hookean_surface
+
+# i and j are atom indices; k and rt are explicit caller-supplied restraint settings.
+# Start from an unconstrained nonperiodic cluster; do not discard existing FixAtoms.
+assert not atoms.constraints and not atoms.pbc.any()
+restrained_input = atoms.copy()
+restrained_input.set_constraint(Hookean(i, j, k=k, rt=rt))
+constraints = normalize_constraints(restrained_input)
+clean = constraints.clean_atoms(restrained_input)
+surface = bind_hookean_surface(ASESurface(calculator), constraints.hookean_specs)
+result = run_ssw(clean, surface, steps=steps, config=config, rng=rng,
+                 recovered_direction=direction_settings)
+```
+
+This uses the existing surface interface; it does not make `run_ssw` accept
+attached ASE constraints automatically. The objective throughout is **V + U**,
+including the final quench and selection. Returned ordinary-walker Atoms are
+constraint-free: use the same wrapped surface for evaluation, or attach the
+saved constraints to a copy when using ASE directly. Do not interpret its
+stored energy as bare V. On resume reconstruct the same calculator **and the
+same saved Hookean specification**, rather than recomputing a threshold from
+the resumed geometry. Ordinary checkpoints do not validate external potential
+identity. Changing k, rt or the pair invalidates same-objective continuation.
+Point/plane restraints and FixAtoms are excluded from this recipe: they do not
+generally preserve the rigid-motion invariance assumed by full cluster directions.
+Use the constrained entry for those geometries. A pair restraint alone is not
+a general cluster-connectivity guarantee or a recommended C60 confinement policy.
+
 `run_periodic_ga` supplies three-stage TYPE1 exploration with a periodic image
 routing descriptor and an independent caller-supplied identity matcher.
 `run_molecular_periodic_ga(..., molecules=...)` runs the same lifecycle with TYPE2

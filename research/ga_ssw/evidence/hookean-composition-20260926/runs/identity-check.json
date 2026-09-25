@@ -1,0 +1,13 @@
+{
+  "accepted": true,
+  "changed_hookean_specs": [
+    "{\"kwargs\":{\"a1\":0,\"a2\":1,\"k\":2.0,\"rt\":2.3440516125905306},\"name\":\"Hookean\"}"
+  ],
+  "new_physical_requests": 0,
+  "saved_hookean_specs": [
+    "{\"kwargs\":{\"a1\":0,\"a2\":1,\"k\":1.0,\"rt\":2.3440516125905306},\"name\":\"Hookean\"}"
+  ],
+  "saved_rng_unchanged": true,
+  "scientific_interpretation": "oracle-identity boundary only; never use this zero-step result as a changed-potential scientific continuation",
+  "status": "completed"
+}
