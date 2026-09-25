@@ -1,0 +1,7 @@
+claim,source,location,status,boundary
+LJ sigma2.7 epsilon1 width0.6 temperature0.8,SSW2013,section3.2,reported,temperature treated as reduced in independent recipe
+LJ55 energy -297.24847,SSW2013,Table1 page1843,conflicting,visually confirmed PDF; CCD gives -279.248470; qualify actual coordinates
+Random starting distribution for SSW table,SSW2013,Table1 and section3.3,not disclosed,do not claim exact success-rate replication
+Morse rho14 epsilon1 r0=2.7,SSW2013,Eq11,reported,sigma notation in force threshold unresolved
+BH random initial sphere radius5.5sigma,BH1997,method page5114,reported,distribution and overlap rules incompletely disclosed
+Existing 12000-call LJ38 comparison reproduces paper performance,local old experiment,20260912,inadequate,only short development comparison

@@ -1,0 +1,28 @@
+[
+  {
+    "label": "29E",
+    "n": 29,
+    "initial_rho14_energy": -100.26739782650623,
+    "energy": -102.7745892039387,
+    "target": -102.774589,
+    "delta": -2.039386970409396e-07,
+    "fmax": 3.5606061465829064e-06,
+    "steps": 9,
+    "converged": true,
+    "max_diameter": 8.16051418265587,
+    "qualified": true
+  },
+  {
+    "label": "80G",
+    "n": 80,
+    "initial_rho14_energy": -326.3756780683403,
+    "energy": -340.8113706600243,
+    "target": -340.811371,
+    "delta": 3.3997571335930843e-07,
+    "fmax": 6.50100525801108e-05,
+    "steps": 28,
+    "converged": true,
+    "max_diameter": 12.37057848772436,
+    "qualified": true
+  }
+]

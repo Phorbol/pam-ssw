@@ -1,0 +1,5 @@
+id,title,doi_or_url,access,evidence_scope
+SSW2013,Stochastic Surface Walking Method for Structure Prediction and Pathway Searching,10.1021/ct301010b,local 74.pdf and 74.txt,sections 2 and 3 and Table1
+LS2024,Local-Softening Stochastic Surface Walking,10.1021/acs.jctc.4c01081,local 215.pdf and SI,Morse M4 illustration not M80 performance
+BH1997,Global Optimization by Basin-Hopping,10.1021/jp970984n,author full PDF online,method and initial sphere radius
+CCD-LJ,Global minima of LJ clusters,https://www-wales.ch.cam.ac.uk/~jon/structures/LJ/tables.150.html,online 2026-09-25,reference energies and coordinates
