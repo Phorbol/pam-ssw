@@ -217,9 +217,11 @@ kill inside an attempt still requires the previous saved boundary and an
 external ledger for work already paid since then.
 
 For lightweight observation, `run_ssw` also accepts
-`progress_callback(SSWProgress)`. It receives a detached call-start event
-(`kind='initial'`) and one bounded event per completed resumable outer step
-(`kind='outer_step'`). Each payload contains only the current step, any new
+`progress_callback(SSWProgress)`. After the initial search state is established,
+it receives a detached event (`kind='initial'`) and one bounded event per
+completed resumable outer step (`kind='outer_step'`). If initialization fails,
+the run terminates through its result and diagnostic checkpoint without an
+observer event. Each payload contains only the current step, any new
 landing, current structure/energy, best minimum, cumulative request count, and
 next index; it omits prior records, minima history, and restart-controller
 state. A true return pauses and returns a full compatible checkpoint. Progress

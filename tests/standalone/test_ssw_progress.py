@@ -124,6 +124,27 @@ def test_progress_terminal_outer_failure_returns_paid_terminal_checkpoint():
     assert 'intentional terminal request cap' in result.records[-1].error
 
 
+def test_ls_initialization_failure_returns_diagnostic_checkpoint_without_event(monkeypatch):
+    import pamssw.standalone.paper_reference as ref
+
+    atoms, config, ls = _case()
+    surface = ASESurface(EMT())
+    seen = []
+
+    def fail_ls_initialization(*_args, **_kwargs):
+        raise ValueError('intentional LS initialization failure')
+
+    monkeypatch.setattr(ref, '_initialize_ls_state', fail_ls_initialization)
+    result = run_ssw(atoms, surface, steps=2, config=config,
+                     rng=np.random.default_rng(19), ls=ls,
+                     progress_callback=lambda progress: seen.append(progress) or True)
+    assert result.status == result.checkpoint.status == 'ls_initialization_failed'
+    assert result.checkpoint.next_index == 0
+    assert result.evaluation_requests == result.checkpoint.evaluation_requests == surface.requests
+    assert result.records[0].status == 'ls_initialization_failed'
+    assert seen == []
+
+
 def test_progress_only_copies_full_history_once_at_return(monkeypatch):
     import pamssw.standalone.paper_reference as ref
 

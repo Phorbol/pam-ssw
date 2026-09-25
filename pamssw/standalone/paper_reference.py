@@ -167,7 +167,7 @@ class SSWStep:
 
 @dataclass(frozen=True)
 class SSWProgress:
-    """Detached bounded observer state at call start or an outer boundary."""
+    """Detached bounded observer state after initialization or at an outer boundary."""
     kind: str
     step: SSWStep | None
     new_minimum: QuenchResult | None
@@ -457,12 +457,14 @@ def run_ssw(atoms, surface, *, steps, config, rng, ls=None, height_policy=None, 
     The surface must use the same potential/settings; its counter is not reset.
     Failed terminal states are diagnostic snapshots, not resumable boundaries.
 
-``progress_callback`` receives detached ``SSWProgress`` values at call start
-and completed resumable outer boundaries. The payload has bounded per-step
-state only, not accumulated history. Returning true pauses; one compatible full
-checkpoint is returned on pause or final completion. It cannot be combined
-with ``checkpoint_callback``. With only this observer, full checkpoint copying
-is deferred until return; ``checkpoint_path`` retains per-step persistence.
+``progress_callback`` receives a detached ``SSWProgress`` value once the initial
+search state is successfully established, then at completed resumable outer
+boundaries. Initialization failures terminate through the result and diagnostic
+checkpoint without an observer event. The payload has bounded per-step state
+only, not accumulated history. Returning true pauses; one compatible full
+checkpoint is returned on pause or final completion. It cannot be combined with
+``checkpoint_callback``. With only this observer, full checkpoint copying is
+deferred until return; ``checkpoint_path`` retains per-step persistence.
 
 ``bias_quench_adapter`` is an explicit experimental hook replacing only the
 biased quench. It receives the original quench arguments plus a ``context``
