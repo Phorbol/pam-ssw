@@ -1,6 +1,6 @@
 """Qualify a prospective Morse input ensemble, not global-search performance."""
 from pathlib import Path
-import importlib.util,json,time,sys
+import importlib.util,json,time,sys,argparse
 import numpy as np
 import networkx as nx
 from ase.calculators.morse import MorsePotential
@@ -11,7 +11,10 @@ sys.path.insert(0,str(ROOT))
 from pamssw.standalone.surface import ASESurface,quench
 spec=importlib.util.spec_from_file_location('pilot',HERE/'run_lj_pilot.py')
 pilot=importlib.util.module_from_spec(spec);spec.loader.exec_module(pilot)
-OUT=HERE/'morse-initials'
+parser=argparse.ArgumentParser()
+parser.add_argument('--compact',action='store_true')
+args=parser.parse_args()
+OUT=HERE/('morse-compact-initials' if args.compact else 'morse-initials')
 OUT.mkdir(exist_ok=False)
 rows=[]
 for n in (29,80):
@@ -23,10 +26,12 @@ for n in (29,80):
      raise RuntimeError('initial qualification cap')
     return super().evaluate(atoms)
   atoms,_=pilot.uniform_volume_cluster(n,seed)
+  radius=2.7*(1+(3*n/(4*np.pi*np.sqrt(2)))**(1/3)) if args.compact else 5.5*2.7
+  atoms.positions*=radius/(5.5*2.7)
   folder=OUT/f'm{n}-{seed}';folder.mkdir()
   write(folder/'initial.extxyz',atoms)
   surface=Bounded(MorsePotential(epsilon=1.,rho0=14.,r0=2.7,rcut1=100.,rcut2=101.))
-  row=dict(n=n,seed=seed,scope='random-ensemble qualification only',r0_A=2.7,rho0=14.,radius_A=5.5*2.7)
+  row=dict(n=n,seed=seed,scope='random-ensemble qualification only',r0_A=2.7,rho0=14.,radius_A=radius,ensemble=('fcc_volume_plus_shell' if args.compact else 'diffuse_sphere'))
   try:
    result=quench(atoms,surface,fmax=.01,steps=1000,optimizer='safe-lbfgs-total',lbfgs_memory=500)
    final=result.atoms
