@@ -1,0 +1,171 @@
+{
+  "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/lj38-connectivity.json",
+  "PES_requests": 0,
+  "rows": [
+    {
+      "run": "runs/lj38-seed25092501",
+      "total_search_requests": 340393,
+      "initial_quench_requests": 778,
+      "by_cutoff": {
+        "1.3": {
+          "connected": {
+            "landings": 324,
+            "accepted": 10,
+            "search_requests": 294563
+          },
+          "fragmented": {
+            "landings": 63,
+            "accepted": 0,
+            "search_requests": 45052
+          },
+          "unclassified": {
+            "landings": 0,
+            "accepted": 0,
+            "search_requests": 0
+          }
+        },
+        "1.5": {
+          "connected": {
+            "landings": 324,
+            "accepted": 10,
+            "search_requests": 294563
+          },
+          "fragmented": {
+            "landings": 63,
+            "accepted": 0,
+            "search_requests": 45052
+          },
+          "unclassified": {
+            "landings": 0,
+            "accepted": 0,
+            "search_requests": 0
+          }
+        }
+      }
+    },
+    {
+      "run": "runs/lj38-seed25092502",
+      "total_search_requests": 334677,
+      "initial_quench_requests": 833,
+      "by_cutoff": {
+        "1.3": {
+          "connected": {
+            "landings": 334,
+            "accepted": 12,
+            "search_requests": 299349
+          },
+          "fragmented": {
+            "landings": 49,
+            "accepted": 0,
+            "search_requests": 34495
+          },
+          "unclassified": {
+            "landings": 0,
+            "accepted": 0,
+            "search_requests": 0
+          }
+        },
+        "1.5": {
+          "connected": {
+            "landings": 334,
+            "accepted": 12,
+            "search_requests": 299349
+          },
+          "fragmented": {
+            "landings": 49,
+            "accepted": 0,
+            "search_requests": 34495
+          },
+          "unclassified": {
+            "landings": 0,
+            "accepted": 0,
+            "search_requests": 0
+          }
+        }
+      }
+    },
+    {
+      "run": "paper-direction-runs/lj38-seed25092501",
+      "total_search_requests": 275113,
+      "initial_quench_requests": 778,
+      "by_cutoff": {
+        "1.3": {
+          "connected": {
+            "landings": 191,
+            "accepted": 25,
+            "search_requests": 150301
+          },
+          "fragmented": {
+            "landings": 209,
+            "accepted": 0,
+            "search_requests": 124034
+          },
+          "unclassified": {
+            "landings": 0,
+            "accepted": 0,
+            "search_requests": 0
+          }
+        },
+        "1.5": {
+          "connected": {
+            "landings": 191,
+            "accepted": 25,
+            "search_requests": 150301
+          },
+          "fragmented": {
+            "landings": 209,
+            "accepted": 0,
+            "search_requests": 124034
+          },
+          "unclassified": {
+            "landings": 0,
+            "accepted": 0,
+            "search_requests": 0
+          }
+        }
+      }
+    },
+    {
+      "run": "paper-direction-runs/lj38-seed25092502",
+      "total_search_requests": 279329,
+      "initial_quench_requests": 833,
+      "by_cutoff": {
+        "1.3": {
+          "connected": {
+            "landings": 187,
+            "accepted": 6,
+            "search_requests": 150587
+          },
+          "fragmented": {
+            "landings": 209,
+            "accepted": 0,
+            "search_requests": 127909
+          },
+          "unclassified": {
+            "landings": 0,
+            "accepted": 0,
+            "search_requests": 0
+          }
+        },
+        "1.5": {
+          "connected": {
+            "landings": 187,
+            "accepted": 6,
+            "search_requests": 150587
+          },
+          "fragmented": {
+            "landings": 209,
+            "accepted": 0,
+            "search_requests": 127909
+          },
+          "unclassified": {
+            "landings": 0,
+            "accepted": 0,
+            "search_requests": 0
+          }
+        }
+      }
+    }
+  ],
+  "scope": "Costs of completed outer steps with saved landings, including their climbing. Initial quench and terminal partial attempts are outside these bins but remain in total cost. Connectivity is not basin identity or causal proof of performance."
+}
