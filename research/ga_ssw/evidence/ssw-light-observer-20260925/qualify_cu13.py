@@ -81,6 +81,7 @@ def main():
         assert state == baseline, f'{mode}: state or cost diverged'
         fresh = ASESurface(EMT())
         energy, forces = fresh.evaluate(result.best)
+        assert float(np.linalg.norm(forces, axis=1).max()) <= config.fmax
         row = dict(mode=mode, exact_state_match=True, requests=result.evaluation_requests,
             actual_requests=total[0]-before, fresh_requests=fresh.requests,
             best_energy_eV=energy, best_fmax_eV_A=float(np.linalg.norm(forces, axis=1).max()),
