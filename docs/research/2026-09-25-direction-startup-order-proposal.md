@@ -1,3 +1,5 @@
+> 后续用户决定：先做固定输入编号验证和原版启动核查，再判断是否需要此公共选项。此文保留为暂缓备选，不表示已批准或正在实现；目前不改变方向/RNG/checkpoint契约。
+
 # Explicit startup order for independent recovered-direction searches
 
 Status: proposal, not implemented. Evidence:[local C60 outcome](../../research/ga_ssw/evidence/c60-local-defect-20260925/direction-probe/report.md).
