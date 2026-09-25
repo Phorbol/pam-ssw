@@ -122,16 +122,21 @@ class BoundedSurface:
 
 
 def first_energy_candidate(minima, n):
-    threshold = REFERENCE_ENERGY[n] + HIT_ENERGY_TOL
     for index, minimum in enumerate(minima):
-        if (minimum.converged and np.isfinite(minimum.energy) and
-                np.isfinite(minimum.max_force) and minimum.max_force <= 0.01 and
-                minimum.energy <= threshold):
+        if qualifies_energy_candidate(minimum, n):
             return index, minimum
     return None
 
 
-def run_one(n, seed, out, config, rotation, total_deadline, fresh_total, ledger):
+def qualifies_energy_candidate(minimum, n):
+    threshold = REFERENCE_ENERGY[n] + HIT_ENERGY_TOL
+    return (minimum.converged and np.isfinite(minimum.energy) and
+            np.isfinite(minimum.max_force) and minimum.max_force <= 0.01 and
+            minimum.energy <= threshold)
+
+
+def run_one(n, seed, out, config, rotation, total_deadline, fresh_total, ledger,
+            compact_observer=False):
     from ase import Atoms
     from ase.io import write
     from pamssw.standalone import ASESurface, run_ssw
@@ -160,20 +165,27 @@ def run_one(n, seed, out, config, rotation, total_deadline, fresh_total, ledger)
     minima_dir = folder / 'minima'
     minima_dir.mkdir()
 
-    def save_new_minima(snapshot):
+    def save_new_minimum(index, minimum):
         nonlocal saved_minima
+        if index != saved_minima:
+            raise RuntimeError(f'nonsequential minimum index {index}, expected {saved_minima}')
+        write(minima_dir / f'minimum-{index:04d}.extxyz', minimum.atoms)
+        row = {'index': index, 'energy_eV': float(minimum.energy),
+            'fmax_eV_A': float(minimum.max_force), 'converged': bool(minimum.converged),
+            **geometry_diagnostics(minimum.atoms)}
+        saved_minima += 1
+        return row
+
+    def save_new_minima(snapshot):
         new = []
         for index in range(saved_minima, len(snapshot.minima)):
             minimum = snapshot.minima[index]
-            write(minima_dir / f'minimum-{index:04d}.extxyz', minimum.atoms)
-            new.append({'index': index, 'energy_eV': float(minimum.energy),
-                'fmax_eV_A': float(minimum.max_force), 'converged': bool(minimum.converged),
-                **geometry_diagnostics(minimum.atoms)})
-        saved_minima = len(snapshot.minima)
+            new.append(save_new_minimum(index, minimum))
         return new
 
     row = {'n': n, 'seed': seed, 'status': 'started', 'search_cap': search_cap,
         'wall_cap_seconds': wall_cap, 'outer_step_cap': step_cap,
+        'observer_mode': 'compact' if compact_observer else 'checkpoint',
         'initial_input': str(input_path), 'radius_A': RADIUS_A,
         'initialization': 'independent iid uniform-volume points in a sphere; no rejection',
         'rng_streams': 'SeedSequence(seed).spawn(): child 0 positions, child 1 SSW',
@@ -209,43 +221,78 @@ def run_one(n, seed, out, config, rotation, total_deadline, fresh_total, ledger)
             stream.flush()
 
         if hit is None:
+            def record_outer_event(record, new_minima, cumulative_requests,
+                                   current_energy, best_energy):
+                nonlocal hit
+                if new_minima:
+                    minimum_index, minimum, _row = new_minima[0]
+                    if qualifies_energy_candidate(minimum, n):
+                        hit = {'minimum_index': minimum_index,
+                            'step': int(record.index),
+                            'cumulative_search_requests': int(cumulative_requests),
+                            'energy_eV': float(minimum.energy),
+                            'fmax_eV_A': float(minimum.max_force)}
+                with step_log.open('a') as stream:
+                    stream.write(json.dumps({'step': int(record.index),
+                        'status': str(record.status), 'accepted': bool(record.accepted),
+                        'step_requests': int(record.evaluation_requests),
+                        'cumulative_requests': int(cumulative_requests),
+                        'landing_energy_eV': (None if record.landing is None else
+                                              float(record.landing.energy)),
+                        'current_energy_eV': float(current_energy),
+                        'best_energy_eV': float(best_energy),
+                        'new_minima': [row for _, _, row in new_minima],
+                        'first_hit': hit},
+                        allow_nan=False) + '\n')
+                    stream.flush()
+                return hit is not None
+
             def after_outer_step(snapshot):
-                nonlocal hit, latest, callback_seconds
+                nonlocal latest, callback_seconds
                 tick = time.monotonic()
                 try:
                     latest = snapshot
-                    record = snapshot.records[-1]
                     new_rows = save_new_minima(snapshot)
                     new_start = len(snapshot.minima) - len(new_rows)
-                    local_hit = first_energy_candidate(snapshot.minima[new_start:], n)
-                    if local_hit is not None:
-                        local_index, minimum = local_hit
-                        hit = {'minimum_index': new_start + local_index,
-                            'step': int(record.index),
-                            'cumulative_search_requests': int(snapshot.evaluation_requests),
-                            'energy_eV': float(minimum.energy),
-                            'fmax_eV_A': float(minimum.max_force)}
-                    with step_log.open('a') as stream:
-                        stream.write(json.dumps({'step': int(record.index),
-                            'status': str(record.status), 'accepted': bool(record.accepted),
-                            'step_requests': int(record.evaluation_requests),
-                            'cumulative_requests': int(snapshot.evaluation_requests),
-                            'landing_energy_eV': (None if record.landing is None else
-                                                  float(record.landing.energy)),
-                            'current_energy_eV': float(snapshot.current_energy),
-                            'best_energy_eV': float(snapshot.best.energy),
-                            'new_minima': new_rows, 'first_hit': hit},
-                            allow_nan=False) + '\n')
-                        stream.flush()
-                    return hit is not None
+                    new_minima = [(new_start + offset, snapshot.minima[new_start + offset], row)
+                                  for offset, row in enumerate(new_rows)]
+                    return record_outer_event(snapshot.records[-1], new_minima,
+                        snapshot.evaluation_requests, snapshot.current_energy, snapshot.best.energy)
+                finally:
+                    callback_seconds += time.monotonic() - tick
+
+            def after_compact_progress(progress):
+                nonlocal callback_seconds
+                tick = time.monotonic()
+                try:
+                    if progress.kind == 'initial':
+                        # run_one has already ingested the zero-step initial minimum;
+                        # resumed call-start carries new_minimum=None by contract.
+                        if progress.new_minimum is not None:
+                            raise RuntimeError('compact resume unexpectedly emitted a fresh initial minimum')
+                        return False
+                    if progress.kind != 'outer_step' or progress.step is None:
+                        raise RuntimeError(f'unexpected compact progress event: {progress.kind!r}')
+                    new_minima = []
+                    if progress.new_minimum is not None:
+                        minimum_index = saved_minima
+                        minimum_row = save_new_minimum(minimum_index, progress.new_minimum)
+                        new_minima.append((minimum_index, progress.new_minimum, minimum_row))
+                    return record_outer_event(progress.step, new_minima,
+                        progress.evaluation_requests, progress.current_energy, progress.best.energy)
                 finally:
                     callback_seconds += time.monotonic() - tick
 
             # One driver call avoids repeated checkpoint restoration. Each
             # completed outer step still reports through the safe callback.
-            result = run_ssw(atoms.copy(), surface, steps=step_cap, config=config,
-                rng=rng, checkpoint=checkpoint, checkpoint_callback=after_outer_step,
-                recovered_rotation=rotation)
+            if compact_observer:
+                result = run_ssw(atoms.copy(), surface, steps=step_cap, config=config,
+                    rng=rng, checkpoint=checkpoint, progress_callback=after_compact_progress,
+                    recovered_rotation=rotation)
+            else:
+                result = run_ssw(atoms.copy(), surface, steps=step_cap, config=config,
+                    rng=rng, checkpoint=checkpoint, checkpoint_callback=after_outer_step,
+                    recovered_rotation=rotation)
             latest = result.checkpoint or latest
         row['status'] = ('first_hit' if hit is not None else
                          (result.status if result is not None else 'initial_quench_failed'))
@@ -352,7 +399,7 @@ def preflight(output: Path):
         'PES_requests': 0}, indent=2))
 
 
-def execute(output: Path):
+def execute(output: Path, compact_observer=False):
     if output.exists():
         raise FileExistsError(output)
     output.mkdir(parents=True)
@@ -369,12 +416,14 @@ def execute(output: Path):
     git = lambda *args: subprocess.check_output(['git', '-C', str(ROOT), *args], text=True).strip()
     ledger.dump(output / 'execution.json', {'git_head': git('rev-parse', 'HEAD'),
         'core_tree': git('rev-parse', 'HEAD:pamssw'),
+        'observer_mode': 'compact' if compact_observer else 'checkpoint',
         'runner_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         'plan_sha256': hashlib.sha256(PLAN.read_bytes()).hexdigest(),
         'search_cap_total': SEARCH_CAP_TOTAL, 'wall_cap_total_seconds': WALL_CAP_TOTAL,
         'fresh_cap_total': FRESH_CAP_TOTAL})
     ledger.dump(output / 'effective-plan.json', {'settings': {'ssw_config': config,
         'recovered_rotation': rotation, 'mc': None, 'ls': None},
+        'observer_mode': 'compact' if compact_observer else 'checkpoint',
         'trajectory_order': [{'n': n, 'seed': seed} for n in (55, 38) for seed in SEEDS],
         'reference_energy_eV': REFERENCE_ENERGY, 'epsilon_eV': EPSILON_EV,
         'sigma_A': SIGMA_A, 'radius_A': RADIUS_A, 'search_cap_total': SEARCH_CAP_TOTAL,
@@ -396,7 +445,8 @@ def execute(output: Path):
                        'search_requests': 0, 'fresh_requests': 0}
             else:
                 try:
-                    row = run_one(n, seed, output, config, rotation, deadline, fresh_total, ledger)
+                    row = run_one(n, seed, output, config, rotation, deadline, fresh_total,
+                                  ledger, compact_observer=compact_observer)
                 except Exception as error:
                     row = {'n': n, 'seed': seed, 'status': 'exception',
                            'search_requests': 0, 'fresh_requests': 0,
@@ -413,6 +463,8 @@ def execute(output: Path):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--observer', choices=('checkpoint', 'compact'), default='checkpoint',
+        help='outer-step reporting mode; checkpoint preserves legacy default')
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument('--preflight', action='store_true')
     modes.add_argument('--execute', action='store_true')
@@ -421,7 +473,7 @@ def main():
     if args.preflight:
         preflight(output)
     elif args.execute:
-        execute(output)
+        execute(output, compact_observer=(args.observer == 'compact'))
     else:
         print('Runner prepared. Use --preflight for zero-PES checks; --execute starts PES work.')
 
