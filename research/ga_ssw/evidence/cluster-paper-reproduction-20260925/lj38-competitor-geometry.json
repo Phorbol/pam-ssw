@@ -1,0 +1,68 @@
+{
+  "scope": "Four saved best geometries vs independently qualified OPTIM second-lowest minimum; geometry only, zero potential evaluations.",
+  "reference": {
+    "file": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/lj38-source-20260912/optim-finish.extxyz",
+    "energy_eV": -173.25237760119302,
+    "fmax_eV_per_A": 0.0015821779885481586,
+    "qualification": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/lj38-source-20260912/optim-qualification.json",
+    "classification": "second-lowest minimum (SLM); optim-odata is the lower GM endpoint"
+  },
+  "geometry_method": {
+    "implementation": "analyze_lj_pilot.geometry",
+    "potential_evaluations": 0
+  },
+  "limitations": [
+    "A capped search without a match is inconclusive, not proof of distinct minima.",
+    "Matching the SLM endpoint does not establish full funnel connectivity or a path between minima."
+  ],
+  "rows": [
+    {
+      "arm": "runs",
+      "case": "lj38-seed25092501",
+      "input": "runs/lj38-seed25092501/best.extxyz",
+      "atom_count": 38,
+      "graph_mappings_examined": 0,
+      "proper_rms_A": null,
+      "connected_components": 1,
+      "geometry_match": false,
+      "interpretation": "no match found; capped or exhausted graph mappings, so nonmatch is inconclusive",
+      "classification": "inconclusive"
+    },
+    {
+      "arm": "runs",
+      "case": "lj38-seed25092502",
+      "input": "runs/lj38-seed25092502/best.extxyz",
+      "atom_count": 38,
+      "graph_mappings_examined": 10,
+      "proper_rms_A": 0.0002799594171085749,
+      "connected_components": 1,
+      "geometry_match": true,
+      "interpretation": "positive RMS match supports geometric identity to reference",
+      "classification": "match"
+    },
+    {
+      "arm": "paper-direction-runs",
+      "case": "lj38-seed25092501",
+      "input": "paper-direction-runs/lj38-seed25092501/best.extxyz",
+      "atom_count": 38,
+      "graph_mappings_examined": 10,
+      "proper_rms_A": 0.0005732867070233378,
+      "connected_components": 1,
+      "geometry_match": true,
+      "interpretation": "positive RMS match supports geometric identity to reference",
+      "classification": "match"
+    },
+    {
+      "arm": "paper-direction-runs",
+      "case": "lj38-seed25092502",
+      "input": "paper-direction-runs/lj38-seed25092502/best.extxyz",
+      "atom_count": 38,
+      "graph_mappings_examined": 10,
+      "proper_rms_A": 0.0006744965401163911,
+      "connected_components": 1,
+      "geometry_match": true,
+      "interpretation": "positive RMS match supports geometric identity to reference",
+      "classification": "match"
+    }
+  ]
+}
