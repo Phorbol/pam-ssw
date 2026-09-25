@@ -1,0 +1,80 @@
+{
+  "n": 38,
+  "seed": 917,
+  "status": "evaluation_failed",
+  "search_cap": 800000,
+  "wall_cap_seconds": 1800,
+  "outer_step_cap": 2000,
+  "initial_input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/runner-smoke/lj38-seed917/initial.extxyz",
+  "radius_A": 14.850000000000001,
+  "initialization": "independent iid uniform-volume points in a sphere; no rejection",
+  "rng_streams": "SeedSequence(seed).spawn(): child 0 positions, child 1 SSW",
+  "reference_energy_eV": -173.928427,
+  "energy_candidate_tolerance_eV": 0.001,
+  "settings": {
+    "ssw_config": {
+      "width": 0.6,
+      "rotation_bias": 1.0,
+      "max_gaussians": 14,
+      "temperature_K": 9283.617648320807,
+      "fmax": 0.01,
+      "relax_steps": 1000,
+      "fd_step": 0.001,
+      "rotation_hvp": 39,
+      "rotation_tol": 0.02,
+      "forward_force": 0.1,
+      "direction_sampling": "global",
+      "rotation_solver": "broyden-euclidean",
+      "cluster_frame": "direction_only",
+      "quench_optimizer": "safe-lbfgs-total",
+      "lbfgs_memory": 500,
+      "bias_stage_steps": null,
+      "bias_fmax": 0.1,
+      "pre_rotation_hvp": null,
+      "rotation_exit_policy": "force_or_budget"
+    },
+    "recovered_rotation": {
+      "pre_rotmax": 5,
+      "rotmax": 15,
+      "pre_ftol": 0.2,
+      "ftol": 0.02,
+      "metric": "euclidean",
+      "max_force_calls": 40
+    },
+    "mc": null,
+    "ls": null,
+    "potential": "full-pair nonperiodic LJ"
+  },
+  "completed_outer_attempts": 2,
+  "checkpoint_requests": 1000,
+  "best_energy_eV": -173.25237760119302,
+  "best_fmax_eV_A": 0.0015821779885481586,
+  "final_best_geometry": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/runner-smoke/lj38-seed917/best.extxyz",
+  "final_best_geometry_diagnostics": {
+    "minimum_pair_distance_A": 2.886959918582767,
+    "nearest_neighbor_p10_A": 2.8870192114152533,
+    "nearest_neighbor_median_A": 2.939221861641278,
+    "nearest_neighbor_max_A": 3.002268423653956,
+    "radius_of_gyration_A": 4.295118272302749,
+    "diameter_A": 10.325063994589218
+  },
+  "search_requests": 1000,
+  "denials": 1,
+  "boundary": "arm_request_cap",
+  "wall_seconds": 1.3390058359946124,
+  "callback_function_seconds": 0.00265640503494069,
+  "requests_equal_checkpoint": true,
+  "fresh_checks": [
+    {
+      "label": "final_best",
+      "energy_eV": -173.25237760119302,
+      "energy_error_eV": 0.0,
+      "fmax_eV_A": 0.0015821779885481586,
+      "force_qualified": true,
+      "energy_candidate": false,
+      "pair_distance_rms_to_reference_A": 0.355162118981153
+    }
+  ],
+  "fresh_requests": 1,
+  "wall_budget_remaining_campaign_seconds": 58.65811191499233
+}

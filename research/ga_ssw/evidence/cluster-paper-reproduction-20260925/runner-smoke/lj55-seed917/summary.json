@@ -1,0 +1,99 @@
+{
+  "n": 55,
+  "seed": 917,
+  "status": "first_hit",
+  "search_cap": 200000,
+  "wall_cap_seconds": 600,
+  "outer_step_cap": 500,
+  "initial_input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/runner-smoke/lj55-seed917/initial.extxyz",
+  "radius_A": 14.850000000000001,
+  "initialization": "independent iid uniform-volume points in a sphere; no rejection",
+  "rng_streams": "SeedSequence(seed).spawn(): child 0 positions, child 1 SSW",
+  "reference_energy_eV": -279.24847,
+  "energy_candidate_tolerance_eV": 0.001,
+  "settings": {
+    "ssw_config": {
+      "width": 0.6,
+      "rotation_bias": 1.0,
+      "max_gaussians": 14,
+      "temperature_K": 9283.617648320807,
+      "fmax": 0.01,
+      "relax_steps": 1000,
+      "fd_step": 0.001,
+      "rotation_hvp": 39,
+      "rotation_tol": 0.02,
+      "forward_force": 0.1,
+      "direction_sampling": "global",
+      "rotation_solver": "broyden-euclidean",
+      "cluster_frame": "direction_only",
+      "quench_optimizer": "safe-lbfgs-total",
+      "lbfgs_memory": 500,
+      "bias_stage_steps": null,
+      "bias_fmax": 0.1,
+      "pre_rotation_hvp": null,
+      "rotation_exit_policy": "force_or_budget"
+    },
+    "recovered_rotation": {
+      "pre_rotmax": 5,
+      "rotmax": 15,
+      "pre_ftol": 0.2,
+      "ftol": 0.02,
+      "metric": "euclidean",
+      "max_force_calls": 40
+    },
+    "mc": null,
+    "ls": null,
+    "potential": "full-pair nonperiodic LJ"
+  },
+  "completed_outer_attempts": 0,
+  "checkpoint_requests": 1,
+  "best_energy_eV": -279.2484703081428,
+  "best_fmax_eV_A": 0.0024444536889191475,
+  "final_best_geometry": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/runner-smoke/lj55-seed917/best.extxyz",
+  "final_best_geometry_diagnostics": {
+    "minimum_pair_distance_A": 2.836180085652939,
+    "nearest_neighbor_p10_A": 2.836212356796765,
+    "nearest_neighbor_median_A": 2.943451890557374,
+    "nearest_neighbor_max_A": 2.9434674835522237,
+    "radius_of_gyration_A": 4.733144135730647,
+    "diameter_A": 11.55279010575525
+  },
+  "candidate_geometry": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/runner-smoke/lj55-seed917/candidate.extxyz",
+  "first_hit": {
+    "minimum_index": 0,
+    "step": -1,
+    "source": "initial_quench",
+    "cumulative_search_requests": 1,
+    "energy_eV": -279.2484703081428,
+    "fmax_eV_A": 0.0024444536889191475,
+    "pair_distance_rms_to_reference_A": 0.0
+  },
+  "search_requests": 1,
+  "denials": 0,
+  "boundary": null,
+  "wall_seconds": 0.01860002800822258,
+  "callback_function_seconds": 0.0,
+  "requests_equal_checkpoint": true,
+  "fresh_checks": [
+    {
+      "label": "candidate",
+      "energy_eV": -279.2484703081428,
+      "energy_error_eV": 0.0,
+      "fmax_eV_A": 0.0024444536889191475,
+      "force_qualified": true,
+      "energy_candidate": true,
+      "pair_distance_rms_to_reference_A": 0.0
+    },
+    {
+      "label": "final_best",
+      "energy_eV": -279.2484703081428,
+      "energy_error_eV": 0.0,
+      "fmax_eV_A": 0.0024444536889191475,
+      "force_qualified": true,
+      "energy_candidate": true,
+      "pair_distance_rms_to_reference_A": 0.0
+    }
+  ],
+  "fresh_requests": 2,
+  "wall_budget_remaining_campaign_seconds": 59.975393802975304
+}
