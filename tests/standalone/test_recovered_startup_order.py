@@ -28,8 +28,9 @@ def test_startup_setting_default_validation_and_missing_pickle_field():
         settings(startup_order='unknown')
 
 
-def test_randomized_startup_maps_active_and_diagnostic_state_and_rng():
-    atoms = molecule('C60')
+@pytest.mark.parametrize("name", ["C60", "butadiene"])
+def test_randomized_startup_maps_active_and_diagnostic_state_and_rng(name):
+    atoms = molecule(name)
     reference = atoms.copy()
     reference.positions += np.arange(len(atoms))[:, None] * [.003, -.001, .002]
     before = atoms.positions.copy()

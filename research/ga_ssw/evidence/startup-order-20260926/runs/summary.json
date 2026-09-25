@@ -1,0 +1,54 @@
+{
+  "rows": [
+    {
+      "name": "pool0-pauseNone",
+      "exact_state_match": true,
+      "requests": 404,
+      "fresh_requests": 1,
+      "energy_eV": 9.361382664259065,
+      "fmax_eV_A": 0.007229443282025707
+    },
+    {
+      "name": "pool0-pause0",
+      "exact_state_match": true,
+      "requests": 404,
+      "fresh_requests": 1,
+      "energy_eV": 9.361382664259065,
+      "fmax_eV_A": 0.007229443282025707
+    },
+    {
+      "name": "pool0-pause1",
+      "exact_state_match": true,
+      "requests": 404,
+      "fresh_requests": 1,
+      "energy_eV": 9.361382664259065,
+      "fmax_eV_A": 0.007229443282025707
+    },
+    {
+      "name": "pool1-pauseNone",
+      "exact_state_match": true,
+      "requests": 372,
+      "fresh_requests": 1,
+      "energy_eV": 9.361450144562902,
+      "fmax_eV_A": 0.011636552109345253
+    },
+    {
+      "name": "pool1-pause0",
+      "exact_state_match": true,
+      "requests": 372,
+      "fresh_requests": 1,
+      "energy_eV": 9.361450144562902,
+      "fmax_eV_A": 0.011636552109345253
+    },
+    {
+      "name": "pool1-pause1",
+      "exact_state_match": true,
+      "requests": 372,
+      "fresh_requests": 1,
+      "energy_eV": 9.361450144562902,
+      "fmax_eV_A": 0.011636552109345253
+    }
+  ],
+  "search_requests": 2328,
+  "complete": true
+}
