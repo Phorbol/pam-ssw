@@ -25,3 +25,7 @@ Before interpreting this replay, compare each run's first three scalar records w
 ## Invocation boundary
 
 `python prepare_lj38_stage_probe.py --preflight` performs only path, settings, generated-position, and child-RNG checks and reports zero PES requests. `--execute` first runs the same preflight before creating outputs, then is the explicit PES opt-in. This task prepared the runner and plan only; it did not execute the probe or submit a job.
+
+## Execution decision
+
+Parent reviewed the script and reran zero-PES preflight: all four generated initial arrays/child RNG streams and numerical settings match their frozen sources. After the compact panel completed at4x800000 requests without a target hit, CPU1493151 was submitted on sjtu-caoxiaoming/CPU-MISC/rush-cpu,1CPU,12min ceiling, frozen runner commit947dc50. The same job runs the zero-PES prefix/connectivity analyzer afterward; no GPU, no automatic continuation. Height metadata uses eV (Gaussian weight), not force units.
