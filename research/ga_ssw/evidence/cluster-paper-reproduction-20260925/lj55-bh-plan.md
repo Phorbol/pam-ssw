@@ -1,0 +1,9 @@
+# Plain ASE BasinHopping: matched LJ55 cost reference
+
+Question: how costly is the independent SSW positive-control success relative to a mature simple global optimizer? Two actual `runs/lj55-seed25092501/initial.extxyz` and `...25092502/initial.extxyz`, unchanged; same full-pair LJ(epsilon1,sigma2.7), initial/local quench Safe-total/history500,fmax.01,relax1000,temperature kBT=.8. Algorithm differences are explicit, not a one-component SSW ablation.
+
+ASE3.26 in the isolated mace_env, PYTHONNOUSERSITE=1. Retain its accepted raw-proposal restart semantics; do not patch it or imply a transition-network sampler. Fixed component displacement bound dr=.38sigma=1.026Angstrom, within .36–.40sigma reported in Wales/Doye1997. This is an operational baseline choice, not tuned. Unlike that study this baseline has no acceptance-rate adaptation, angular moves, neighbor-size seeds, container or original CG optimizer. Therefore name it plain ASE BH with common modern quench, not exact BH1997 reproduction.
+
+Per seed: at most5000BH trials,200000search requests,600seconds; total400000search+4fresh, one CPU task <=25min. Stop at first energy+force candidate, independently validate geometry with the same LJ target matcher; preserve failed quench, runtime errors, censored costs and raw/best/candidate coordinates. If a local quench fails, stop that arm with its cost, no hidden optimizer fallback or retry. Report requests (including failed attempts), fresh checks and wall time separately; request count is an API budget, not automatically an actual Calculator-forward count. Search steps are not comparable between BH and SSW.
+
+Run source-based dr unchanged on both seeds. Favoring either method in this two-input development check does not select a universal default; no parameter sweep or additional budget follows automatically.

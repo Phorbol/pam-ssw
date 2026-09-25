@@ -1,0 +1,126 @@
+[
+  {
+    "n": 29,
+    "seed": 25092501,
+    "scope": "random-ensemble qualification only",
+    "r0_A": 2.7,
+    "rho0": 14.0,
+    "radius_A": 7.284534314977538,
+    "ensemble": "fcc_volume_plus_shell",
+    "status": "force_converged",
+    "converged": true,
+    "energy": -89.27063835262997,
+    "fmax": 0.009560789048671622,
+    "components_by_cutoff_r0": {
+      "1.3": [
+        28,
+        1
+      ],
+      "1.5": [
+        28,
+        1
+      ],
+      "2.0": [
+        28,
+        1
+      ]
+    },
+    "diameter_A": 11.053499395898386,
+    "fresh_requests": 1,
+    "search_requests": 708,
+    "wall_seconds": 1.5800224879640155
+  },
+  {
+    "n": 29,
+    "seed": 25092502,
+    "scope": "random-ensemble qualification only",
+    "r0_A": 2.7,
+    "rho0": 14.0,
+    "radius_A": 7.284534314977538,
+    "ensemble": "fcc_volume_plus_shell",
+    "status": "force_converged",
+    "converged": true,
+    "energy": -77.00063352856407,
+    "fmax": 0.008906294741626615,
+    "components_by_cutoff_r0": {
+      "1.3": [
+        27,
+        1,
+        1
+      ],
+      "1.5": [
+        27,
+        1,
+        1
+      ],
+      "2.0": [
+        28,
+        1
+      ]
+    },
+    "diameter_A": 13.062625436955562,
+    "fresh_requests": 1,
+    "search_requests": 498,
+    "wall_seconds": 0.9575245150481351
+  },
+  {
+    "n": 80,
+    "seed": 25092501,
+    "scope": "random-ensemble qualification only",
+    "r0_A": 2.7,
+    "rho0": 14.0,
+    "radius_A": 9.129727353150995,
+    "ensemble": "fcc_volume_plus_shell",
+    "status": "force_converged",
+    "converged": true,
+    "energy": -271.52928536658067,
+    "fmax": 0.008289778664225242,
+    "components_by_cutoff_r0": {
+      "1.3": [
+        80
+      ],
+      "1.5": [
+        80
+      ],
+      "2.0": [
+        80
+      ]
+    },
+    "diameter_A": 15.417611935679709,
+    "fresh_requests": 1,
+    "search_requests": 1006,
+    "wall_seconds": 6.263246806047391
+  },
+  {
+    "n": 80,
+    "seed": 25092502,
+    "scope": "random-ensemble qualification only",
+    "r0_A": 2.7,
+    "rho0": 14.0,
+    "radius_A": 9.129727353150995,
+    "ensemble": "fcc_volume_plus_shell",
+    "status": "force_converged",
+    "converged": true,
+    "energy": -249.64881533198206,
+    "fmax": 0.008919435023568447,
+    "components_by_cutoff_r0": {
+      "1.3": [
+        73,
+        6,
+        1
+      ],
+      "1.5": [
+        73,
+        6,
+        1
+      ],
+      "2.0": [
+        80
+      ]
+    },
+    "diameter_A": 16.9903725193064,
+    "fresh_requests": 1,
+    "search_requests": 666,
+    "wall_seconds": 3.927664390008431
+  }
+]

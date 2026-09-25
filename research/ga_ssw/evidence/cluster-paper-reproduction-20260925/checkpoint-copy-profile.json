@@ -1,0 +1,54 @@
+{
+  "scope": "copy timing only; real C4H6 history prefixes are not search runs or valid truncated restart files",
+  "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/ssw-seed61/checkpoint.pkl",
+  "source_bytes": 26530707,
+  "source_records": 400,
+  "rows": [
+    {
+      "records": 10,
+      "minima": 11,
+      "seconds": [
+        0.05737765901722014,
+        0.05481231497833505,
+        0.05745415098499507
+      ]
+    },
+    {
+      "records": 50,
+      "minima": 51,
+      "seconds": [
+        0.27052344899857417,
+        0.26549563399748877,
+        0.2744130929931998
+      ]
+    },
+    {
+      "records": 100,
+      "minima": 101,
+      "seconds": [
+        0.5284909029724076,
+        0.533708191011101,
+        0.5258693810319528
+      ]
+    },
+    {
+      "records": 200,
+      "minima": 201,
+      "seconds": [
+        1.4498533500009216,
+        1.454195526021067,
+        1.4623396859969944
+      ]
+    },
+    {
+      "records": 400,
+      "minima": 401,
+      "seconds": [
+        3.0588380109984428,
+        3.0171687669935636,
+        3.0467673459788784
+      ]
+    }
+  ],
+  "PES_requests": 0
+}
