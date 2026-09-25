@@ -1,0 +1,33 @@
+{
+  "config": {
+    "width": 0.6,
+    "rotation_bias": 1.0,
+    "max_gaussians": 6,
+    "temperature_K": 300.0,
+    "fmax": 0.03,
+    "relax_steps": 1000,
+    "fd_step": 0.001,
+    "rotation_hvp": 39,
+    "rotation_tol": 0.02,
+    "forward_force": 0.1,
+    "direction_sampling": "global",
+    "rotation_solver": "broyden-euclidean",
+    "cluster_frame": "direction_only",
+    "quench_optimizer": "safe-lbfgs-total",
+    "lbfgs_memory": 500,
+    "bias_stage_steps": null,
+    "bias_fmax": 0.1,
+    "pre_rotation_hvp": null,
+    "rotation_exit_policy": "force_or_budget"
+  },
+  "rotation": {
+    "pre_rotmax": 5,
+    "rotmax": 15,
+    "pre_ftol": 0.2,
+    "ftol": 0.02,
+    "metric": "euclidean",
+    "max_force_calls": 40
+  },
+  "seed": 25092531,
+  "git_head": "30e5a9f573a25f9980b1aa1635b6dba92106400a"
+}

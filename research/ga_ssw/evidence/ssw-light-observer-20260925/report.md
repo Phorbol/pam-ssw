@@ -1,0 +1,16 @@
+# Compact progress observer: qualified engineering change
+
+User approved the minimal interface on2026-09-25. Core implementation d27252b; clarification30e5a9f; one-write path correction b60cbd4. No Gaussian, rotation, quench, acceptance, RNG policy or checkpoint-format changes. `run_ssw(progress_callback=...)` emits detached SSWProgress at successfully initialized call start and completed resumable outer boundaries. `True` pauses safely; the full compatible checkpoint is constructed at return. Progress plus checkpoint_callback is rejected. Supplying checkpoint_path explicitly retains per-step full persistence. This does not remove linear in-memory result history or selector archive costs.
+
+Independent review checked the new path, legacy checkpoint behavior, nested copies and selector contracts. Review found and corrected LS-prequench failure next-index/double-copy behavior, resumed initial-pause output persistence, and wording about unsuccessful LS initialization. Failed initialization has no resumable initial event. A zero-step resumed initial pause writes the requested file once.
+
+## Checks and actual results
+
+- Implementer:38 tests covering new progress, existing boundary pause, checkpoint and native MC passed before the final documentation/path refinements. Final new progress test module:12 passed.
+- Main agent: `PYTHONNOUSERSITE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/gengjianrui/.conda/envs/mace_env/bin/python -m pytest -q tests/standalone/test_ssw_progress.py tests/standalone/test_pool_checkpoint.py tests/standalone/test_recovered_direction_checkpoint.py` →27 passed in0.98s. Overlapping checks are not independent scientific replicates. Raw log `contract-tests.log`.
+- CPU1488820: `qualify_cu13.py` then `profile_observer.py`. Cu13/EMT four-outer-step trajectories under legacy observer, compact observer, initialization pause/resume and two-step pause/resume exactly match all serialized records/minima/current/best and final RNG state. Each uses833 search requests. Campaign3332search+4fresh. Every fresh best passes fmax0.03eV/Angstrom (actual0.011637). Source revision recorded by runtime30e5a9f; subsequent b60cbd4 changes only a checkpoint_path condition unused by this panel and is independently tested.
+- Copy-only profile using a saved real400-step C4H6 checkpoint: full-copy median3.041s at400 records vs0.0576s at10; compact last-step payload medians0.0054–0.0058s across those history sizes. Three measurements each, zeroPES; exact rows in `copy-profile.json`. It measures copying, not the entire search and not a universal speedup factor.
+
+Decision: retain the optional interface and use it for subsequent progress-only research runs. Existing scripts keep their old default unless explicitly migrated. Legacy LJ wall-censored results remain unchanged. Next controlled use will freeze the same inputs, numerical settings and request/step limits so greater completed work cannot be confused with a changed SSW kernel.
+
+Raw Cu13 evidence remains in `cu13/*-state.json` (four full state files); tracked `cu13/protocol.json`, `cu13/summary.json`, `cu13/initial.extxyz` and scripts locate and reproduce it. This is an engineering-equivalence result on one real atomic system plus contract checks, not global-search or cross-material performance validation.

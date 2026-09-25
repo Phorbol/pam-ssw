@@ -1,0 +1,47 @@
+{
+  "rows": [
+    {
+      "mode": "legacy",
+      "exact_state_match": true,
+      "requests": 833,
+      "actual_requests": 833,
+      "fresh_requests": 1,
+      "best_energy_eV": 9.361450144562902,
+      "best_fmax_eV_A": 0.011636552109345253,
+      "wall_seconds": 1.3602755399770103
+    },
+    {
+      "mode": "compact",
+      "exact_state_match": true,
+      "requests": 833,
+      "actual_requests": 833,
+      "fresh_requests": 1,
+      "best_energy_eV": 9.361450144562902,
+      "best_fmax_eV_A": 0.011636552109345253,
+      "wall_seconds": 1.062144936004188
+    },
+    {
+      "mode": "pause_initial",
+      "exact_state_match": true,
+      "requests": 833,
+      "actual_requests": 833,
+      "fresh_requests": 1,
+      "best_energy_eV": 9.361450144562902,
+      "best_fmax_eV_A": 0.011636552109345253,
+      "wall_seconds": 1.118712114985101
+    },
+    {
+      "mode": "pause_outer",
+      "exact_state_match": true,
+      "requests": 833,
+      "actual_requests": 833,
+      "fresh_requests": 1,
+      "best_energy_eV": 9.361450144562902,
+      "best_fmax_eV_A": 0.011636552109345253,
+      "wall_seconds": 1.1136695629684255
+    }
+  ],
+  "search_requests": 3332,
+  "complete": true,
+  "scope": "Engineering equivalence only"
+}

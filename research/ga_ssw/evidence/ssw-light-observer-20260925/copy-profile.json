@@ -1,0 +1,72 @@
+{
+  "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/ssw-seed61/checkpoint.pkl",
+  "rows": [
+    {
+      "history_records": 10,
+      "full_seconds": [
+        0.0569468000321649,
+        0.05780365801183507,
+        0.05755524494452402
+      ],
+      "compact_seconds": [
+        0.005602823046501726,
+        0.005257732002064586,
+        0.00539790402399376
+      ]
+    },
+    {
+      "history_records": 50,
+      "full_seconds": [
+        0.25767265004105866,
+        0.27095459698466584,
+        0.27322020602878183
+      ],
+      "compact_seconds": [
+        0.0056429109536111355,
+        0.005547539971303195,
+        0.00534483598312363
+      ]
+    },
+    {
+      "history_records": 100,
+      "full_seconds": [
+        0.5068225089926273,
+        0.5350354939582758,
+        0.5406491960166022
+      ],
+      "compact_seconds": [
+        0.005707536009140313,
+        0.005577791016548872,
+        0.005303270008880645
+      ]
+    },
+    {
+      "history_records": 200,
+      "full_seconds": [
+        1.4611085169599392,
+        1.4818554780213162,
+        1.5097734819864854
+      ],
+      "compact_seconds": [
+        0.005807670997455716,
+        0.005616889975499362,
+        0.005418202024884522
+      ]
+    },
+    {
+      "history_records": 400,
+      "full_seconds": [
+        3.041385392018128,
+        3.0344665219890885,
+        3.06069422402652
+      ],
+      "compact_seconds": [
+        0.006101461010985076,
+        0.00575637596193701,
+        0.0056938810157589614
+      ]
+    }
+  ],
+  "PES_requests": 0,
+  "scope": "Copy-only comparison: same latest-step compact payload across history sizes. Prefixes are not valid restart files. Not a whole-search speedup."
+}

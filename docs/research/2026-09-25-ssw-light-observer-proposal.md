@@ -1,4 +1,6 @@
-# Proposed compact SSW progress callback; no implementation yet
+# Compact SSW progress callback: approved minimal design
+
+User approved this minimum contract on2026-09-25. Implementation commit d27252b; targeted compatibility tests passed. Independent Cu13/EMT trajectory and zero-PES copy qualification submitted as CPU1488820; results pending. Follow-up documentation clarifies that call-start events require successfully initialized resumable state.
 
 ## Goal and evidence
 
@@ -24,4 +26,4 @@ Keep existing checkpoint_callback, checkpoint_path and pickle formats unchanged.
 
 Before implementation inspect existing callback/pause/resume tests. Test payload detachment, initial and outer pauses, final error costs, callback conflicts and old checkpoint/default compatibility. Use matched Cu13/EMT short trajectories (real atomic system) with fixed seeds and old-vs-new observers: identical minima, acceptance, RNG continuation and E/F request counts; separately report observer runtime. Repeat the zero-PES prefix-copy measurement using bounded progress payloads to verify cost does not grow with accumulated history. These checks establish engineering equivalence, not new global-search effectiveness. Reuse completed LJ inputs for a subsequent fixed-budget run only if needed; do not erase or relabel existing runs.
 
-Decision needed under the user's supplied AGENTS.md §8 (important public-interface/architecture design discussion). No core implementation has been made. Approval covers this bounded contract and routine implementation/testing; it does not authorize a checkpoint-format or archive redesign.
+Approval received under the user's supplied AGENTS.md §8. It covers this bounded contract and routine implementation/testing; it does not authorize a checkpoint-format or archive redesign.
