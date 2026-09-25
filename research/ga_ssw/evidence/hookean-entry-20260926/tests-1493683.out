@@ -1,0 +1,48 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_______ test_schema_six_retains_required_feature_state_guards[direction] _______
+
+feature = 'direction'
+
+    @pytest.mark.parametrize('feature', ['direction', 'pool'])
+    def test_schema_six_retains_required_feature_state_guards(feature):
+        from pamssw.standalone.paper_reference import _validate_ssw_checkpoint
+        from pamssw.standalone.recovered_direction import RecoveredDirectionSettings
+        if feature == 'direction':
+            settings = RecoveredDirectionSettings(50,.5,.5,1,1,.01,.01,'euclidean',8)
+            cp = run(fixture(), recovered_direction=settings).checkpoint
+            cp.recovered_direction_state = None
+        else:
+            cp = run(fixture(), starter_selector=StatefulSelector(),
+                     selector_rng=np.random.default_rng(34)).checkpoint
+            cp.pool_state = None
+>       with pytest.raises(ValueError, match='direction|pool'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/standalone/test_ssw_hookean_entry.py:178: Failed
+_________ test_schema_six_retains_required_feature_state_guards[pool] __________
+
+feature = 'pool'
+
+    @pytest.mark.parametrize('feature', ['direction', 'pool'])
+    def test_schema_six_retains_required_feature_state_guards(feature):
+        from pamssw.standalone.paper_reference import _validate_ssw_checkpoint
+        from pamssw.standalone.recovered_direction import RecoveredDirectionSettings
+        if feature == 'direction':
+            settings = RecoveredDirectionSettings(50,.5,.5,1,1,.01,.01,'euclidean',8)
+            cp = run(fixture(), recovered_direction=settings).checkpoint
+            cp.recovered_direction_state = None
+        else:
+            cp = run(fixture(), starter_selector=StatefulSelector(),
+                     selector_rng=np.random.default_rng(34)).checkpoint
+            cp.pool_state = None
+>       with pytest.raises(ValueError, match='direction|pool'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/standalone/test_ssw_hookean_entry.py:178: Failed
+=========================== short test summary info ============================
+FAILED tests/standalone/test_ssw_hookean_entry.py::test_schema_six_retains_required_feature_state_guards[direction]
+FAILED tests/standalone/test_ssw_hookean_entry.py::test_schema_six_retains_required_feature_state_guards[pool]
+2 failed, 16 deselected in 0.50s

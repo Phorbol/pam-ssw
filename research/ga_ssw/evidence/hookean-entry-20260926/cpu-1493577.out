@@ -1,0 +1,28 @@
+Traceback (most recent call last):
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/hookean-entry-20260926/qualify.py", line 107, in <module>
+    if __name__=='__main__': main()
+                             ^^^^^^
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/hookean-entry-20260926/qualify.py", line 39, in main
+    write(out / 'input.extxyz', atoms)
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/io/formats.py", line 686, in write
+    return _write(filename, fd, format, io, images,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/parallel.py", line 261, in new_func
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/io/formats.py", line 722, in _write
+    return io.write(fd, images, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/io/formats.py", line 183, in _write_wrapper
+    return function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/utils/__init__.py", line 599, in iofunc
+    obj = func(fd, *args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/io/extxyz.py", line 926, in write_xyz
+    comm, ncols, dtype, fmt = output_column_format(atoms,
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/io/extxyz.py", line 764, in output_column_format
+    dtype = array.dtype
+            ^^^^^^^^^^^
+AttributeError: 'list' object has no attribute 'dtype'

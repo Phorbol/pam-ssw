@@ -1,0 +1,1366 @@
+FFFFFF...                                                                [100%]
+=================================== FAILURES ===================================
+___________ test_pair_hookean_saved_roundtrip_and_idempotent_binding ___________
+
+    def test_pair_hookean_saved_roundtrip_and_idempotent_binding():
+        atoms = fixture()
+        specs = normalize_constraints(atoms).hookean_specs
+        surface = FlatSurface()
+>       result = run(atoms, bind_hookean_surface(surface, specs))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/standalone/test_ssw_hookean_entry.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/standalone/test_ssw_hookean_entry.py:37: in run
+    return run_ssw(atoms, surface or FlatSurface(), steps=0, config=config(),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+atoms = Atoms(symbols='Cu13', pbc=False, tags=..., constraint=Hookean(0, 1))
+surface = <pamssw.standalone.ase_constraints.HookeanSurface object at 0x152c1638b140>
+steps = 0
+config = SSWConfig(width=0.1, rotation_bias=1.0, max_gaussians=2, temperature_K=0.0, fmax=0.03, relax_steps=2, fd_step=0.001, r...-lbfgs', lbfgs_memory=None, bias_stage_steps=None, bias_fmax=None, pre_rotation_hvp=None, rotation_exit_policy='force')
+rng = Generator(PCG64) at 0x152C1640FAE0, ls = None, height_policy = None
+gaussian_policy = None, height_update_budget = 1000, reconnect_distance = None
+checkpoint = None, checkpoint_path = None, checkpoint_callback = None
+progress_callback = <function run.<locals>.<lambda> at 0x152c16241b20>
+structure_matcher = None, bias_quench_adapter = None, recovered_direction = None
+recovered_rotation = None, mc = None, starter_selector = None
+selector_rng = None
+
+    def run_ssw(atoms, surface, *, steps, config, rng, ls=None, height_policy=None, gaussian_policy=None,
+                height_update_budget=1000, reconnect_distance=None, checkpoint=None,
+                checkpoint_path=None, checkpoint_callback=None, progress_callback=None,
+                structure_matcher=None, bias_quench_adapter=None,
+                recovered_direction=None, recovered_rotation=None, mc=None,
+                starter_selector=None, selector_rng=None):
+        """Run independent fixed-cell SSW; optional LS uses frozen image bonds for full PBC.
+    
+    ``steps`` counts additional outer attempts. To resume, explicitly pass a
+        loaded ``checkpoint`` and the same settings and RNG bit-generator type;
+        positions come from the checkpoint. ``checkpoint_path`` is an output file,
+        atomically replaced after each completed attempt (never an implicit input).
+        ``checkpoint_callback`` receives a detached checkpoint after each resumable
+        completed attempt. A true return pauses the run at that boundary: the result
+        status is ``paused``, while its checkpoint status remains ``completed`` for
+        explicit resume. It is not called on zero steps or terminal failures.
+        The surface must use the same potential/settings; its counter is not reset.
+        Failed terminal states are diagnostic snapshots, not resumable boundaries.
+    
+    ``progress_callback`` receives a detached ``SSWProgress`` value once the initial
+    search state is successfully established, then at completed resumable outer
+    boundaries. Initialization failures terminate through the result and diagnostic
+    checkpoint without an observer event. The payload has bounded per-step state
+    only, not accumulated history. Returning true pauses; one compatible full
+    checkpoint is returned on pause or final completion. It cannot be combined with
+    ``checkpoint_callback``. With only this observer, full checkpoint copying is
+    deferred until return; ``checkpoint_path`` retains per-step persistence.
+    
+    ``bias_quench_adapter`` is an explicit experimental hook replacing only the
+    biased quench. It receives the original quench arguments plus a ``context``
+    dict with fixed keys and must return ``BiasStageQuenchOutcome``. It cannot be
+    combined with checkpointing; the default path remains the direct ``quench``
+    call. ``gaussian_index`` is zero-based and ``steps`` remains the number of
+    additional outer attempts.
+    
+    ``recovered_direction`` explicitly selects experimental Run5/Q-off local
+    generation, stage displacement updates and recovered CBD. It requires a free
+    nonperiodic cluster with ``cluster_frame='direction_only'``. Outer-boundary
+    checkpointing uses schema 4 and restores pair/group/marker and main RNG. Its settings replace SSWConfig's rotation_solver, rotation_bias,
+    rotation_hvp and rotation_tol; fd_step and rotation_exit_policy still apply.
+    Startup selection is a stated Python contract, not full native trajectory
+    parity. Gaussian/quench/MC rules remain those of this shared driver.
+    
+    ``recovered_rotation`` selects the stateless recovered-CBD rotation stages
+    while retaining the ordinary global/paper direction proposal and outer
+    Gaussian/landing lifecycle. It requires explicit ``RecoveredRotationSettings``
+    and is checkpointed as schema 3; it cannot be combined with
+    ``recovered_direction`` or ``pre_rotation_hvp``.
+    
+    ``starter_selector(snapshot, selector_rng)`` optionally chooses an index from
+    all force-certified observations, including MC-rejected landings. It runs only
+    after a successful true landing and completed state updates. Return None to
+    retain the MC-selected current observation. A different index explicitly
+    restarts direction selection from that stored geometry without another quench.
+    The controller persists across other outer steps. The snapshot owns copies;
+    its cost includes initialization and failed work. A different selected
+    observation reinitializes LS and recovered-direction state transactionally;
+    failed restart preparation leaves the prior current/LS state in place and is
+    recorded as a terminal selection failure. Selection errors otherwise propagate.
+    ``selector_rng`` must be an independent Generator. With checkpointing, the
+    selector must expose the pure-data checkpoint contract methods. ``accepted`` remains the MC decision;
+    ``starter_selection`` separately records the actual next-starter decision.
+    
+    No native program is called. Atoms/its calculator are not changed. The
+    returned minima include rejected MC landings, all force-converged on the
+    true surface; they are NOT deduplicated or positive-Hessian certified.
+        Optional height_policy selects the explicitly conservative native-derived
+        stage-height/history policy; its weights freeze throughout each quench.
+        height_update_budget is a numerical loop ceiling, not an accepted fallback.
+    Failed rotations/quenches consume an outer step and stay in records,
+        never enter minima. A failed LS strength update retains any already valid
+        landing. Calculator exceptions propagate; there is no alternate potential.
+        Explicit rotation_exit_policy="force_or_budget" allows a finite evaluated
+        direction at its numerical request limit to enter Gaussian climbing. It
+        remains marked unconverged; subspace exhaustion and numerical errors are
+        not budget exits. True landing force qualification is unchanged.
+    Random velocity directions use normal components divided by sqrt(mass),
+    then normalize; the Maxwell temperature factor cancels. Global rigid modes
+    are not projected out by default (external ASE potentials may break these
+    symmetries). Explicit cluster_frame="eckart" restricts each escape to a fixed
+    linear section, including full modified-energy quenching. This requires an
+    isolated free cluster; it is an experimental formulation, not native parity.
+    Initial and final true quenches remain unrestricted and use full atomic forces.
+    With cluster_frame="direction_only", the direction/HVP projector is rebuilt at
+    each Gaussian center, while biased quenching stays unrestricted Cartesian. This
+    follows the recovered native rigid tangent span, not exact CBD execution parity.
+    Three-dimensional PBC uses explicit translation_only/global sampling: continuous
+    unwrapped Cartesian positions and fixed cell throughout each escape, projecting
+    only global translations in direction refinement. No rotation removal, MIC bias,
+    or cell optimization is performed. Physical E/F retain ASE PBC; the path bias
+    lives on the continuous coordinate lift and must not be evaluated after wrapping.
+    """
+        if checkpoint is not None:
+            _validate_ssw_checkpoint(checkpoint)
+            if checkpoint.status != 'completed':
+                raise ValueError(f'cannot resume terminal checkpoint with status {checkpoint.status!r}')
+        if checkpoint_callback is not None and not callable(checkpoint_callback):
+            raise TypeError('checkpoint_callback must be callable or None')
+        if progress_callback is not None and not callable(progress_callback):
+            raise TypeError('progress_callback must be callable or None')
+        if checkpoint_callback is not None and progress_callback is not None:
+            raise ValueError('progress_callback and checkpoint_callback are mutually exclusive')
+        if starter_selector is None and selector_rng is not None:
+            raise ValueError('selector_rng requires starter_selector')
+        if starter_selector is not None:
+            if not callable(starter_selector):
+                raise TypeError('starter_selector must be callable or None')
+            if not isinstance(selector_rng, np.random.Generator):
+                raise ValueError('starter_selector requires an independent selector_rng Generator')
+            if selector_rng is rng or selector_rng.bit_generator is rng.bit_generator:
+                raise ValueError('selector_rng must be independent and must not share the main rng or bit_generator')
+        pool_resume = checkpoint is not None and getattr(checkpoint, 'pool_state', None) is not None
+        pool_checkpoint = starter_selector is not None and (
+            checkpoint_path is not None or checkpoint_callback is not None or
+            progress_callback is not None or pool_resume)
+        if pool_resume and starter_selector is None:
+            raise ValueError('pool checkpoint resume requires starter_selector')
+        if pool_checkpoint or pool_resume:
+            from .pool_checkpoint import _require_contract, _require_restore, _require_state
+            _require_contract(starter_selector)
+            _require_state(starter_selector)
+            _require_restore(starter_selector)
+        if checkpoint is not None and getattr(checkpoint, 'pool_state', None) is None and starter_selector is not None:
+            raise ValueError('checkpoint lacks pool selector state')
+        if mc is not None and not isinstance(mc, NativeMCSettings):
+            raise TypeError('mc must be NativeMCSettings or None')
+        if mc is not None and config.temperature_K <= 0:
+            raise ValueError('native MC requires positive temperature_K')
+        if checkpoint is not None and recovered_rotation is None:
+            recovered_rotation = getattr(checkpoint, 'recovered_rotation', None)
+        if checkpoint is not None and recovered_direction is None:
+            saved_direction = getattr(checkpoint, 'recovered_direction_state', None)
+            if saved_direction is not None:
+                recovered_direction = saved_direction.settings
+        direction_controller = None
+        if recovered_direction is not None:
+            from .recovered_direction import (RecoveredDirectionSettings,
+                                               RecoveredDirectionCheckpointState,
+                                               RecoveredDirectionController)
+            if not isinstance(recovered_direction, RecoveredDirectionSettings):
+                raise TypeError('recovered_direction must be RecoveredDirectionSettings')
+            if checkpoint is not None and getattr(checkpoint, 'recovered_direction_state', None) is None:
+                raise ValueError('checkpoint lacks recovered direction state')
+            if checkpoint is not None:
+                saved_direction = checkpoint.recovered_direction_state
+                if not isinstance(saved_direction, RecoveredDirectionCheckpointState):
+                    raise ValueError('checkpoint recovered direction state is invalid')
+                if saved_direction.settings != recovered_direction:
+                    raise ValueError('checkpoint recovered direction settings do not match requested settings')
+                if any(i < 0 or i >= len(atoms) for i in saved_direction.pair):
+                    raise ValueError('checkpoint recovered direction pair does not match input atom count')
+                if len(saved_direction.group) != len(atoms):
+                    raise ValueError('checkpoint recovered direction group does not match input atom count')
+                # Pickle bypasses dataclass construction; validate the saved values
+                # before restoring RNG or entering the PES, including zero-step resumes.
+                _checkpoint_copy(saved_direction).validate_for_atom_count(len(atoms))
+            if atoms.pbc.any() or atoms.constraints or config.cluster_frame != 'direction_only':
+                raise ValueError('recovered direction requires a free nonperiodic cluster and direction_only frame')
+            if config.pre_rotation_hvp is not None:
+                raise ValueError('recovered direction owns its PreRot stages; do not combine pre_rotation_hvp')
+            direction_controller = RecoveredDirectionController(recovered_direction)
+        if recovered_rotation is not None:
+            from .recovered_rotation import RecoveredRotationSettings
+            if not isinstance(recovered_rotation, RecoveredRotationSettings):
+                raise TypeError('recovered_rotation must be RecoveredRotationSettings')
+            if recovered_direction is not None:
+                raise ValueError('recovered_rotation and recovered_direction are mutually exclusive')
+            if config.pre_rotation_hvp is not None:
+                raise ValueError('recovered_rotation and pre_rotation_hvp are mutually exclusive')
+            if atoms.constraints:
+                raise NotImplementedError('recovered_rotation requires unconstrained atoms')
+        from .minimal_angle_height import MinimalAngleHeightPolicy
+        if reconnect_distance is not None:
+            # Validate the optional geometry contract before the initial PES call.
+            reconnect_clusters(atoms, reconnect_distance, repair=False)
+        _validate_height_policy_options(config, height_policy, height_update_budget)
+        if gaussian_policy is not None:
+            from .pam_gaussian import PAMCurvatureGaussian
+            if not isinstance(gaussian_policy, PAMCurvatureGaussian):
+                raise TypeError('gaussian_policy must be PAMCurvatureGaussian')
+            if height_policy is not None:
+                raise ValueError('gaussian_policy and height_policy are mutually exclusive')
+            if config.cluster_frame == 'eckart':
+                raise NotImplementedError('PAM Gaussian policy has no eckart section contract')
+        if isinstance(steps, bool) or not isinstance(steps, (int, np.integer)) or steps < 0:
+            raise ValueError('steps must be a nonnegative integer')
+        if bias_quench_adapter is not None and not callable(bias_quench_adapter):
+            raise TypeError('bias_quench_adapter must be callable or None')
+        if bias_quench_adapter is not None and (
+                checkpoint is not None or checkpoint_path is not None or
+                checkpoint_callback is not None or progress_callback is not None):
+            raise ValueError('bias_quench_adapter cannot be combined with checkpointing')
+        if atoms.constraints:
+>           raise NotImplementedError('standalone SSW currently requires unconstrained atoms')
+E           NotImplementedError: standalone SSW currently requires unconstrained atoms
+
+pamssw/standalone/paper_reference.py:634: NotImplementedError
+____________ test_changed_restraint_rejected_before_rng_and_pes[k] _____________
+
+change = 'k'
+
+    @pytest.mark.parametrize('change', ['k', 'rt', 'pair', 'remove'])
+    def test_changed_restraint_rejected_before_rng_and_pes(change):
+        atoms = fixture()
+>       checkpoint = run(atoms).checkpoint
+                     ^^^^^^^^^^
+
+tests/standalone/test_ssw_hookean_entry.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/standalone/test_ssw_hookean_entry.py:37: in run
+    return run_ssw(atoms, surface or FlatSurface(), steps=0, config=config(),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+atoms = Atoms(symbols='Cu13', pbc=False, tags=..., constraint=Hookean(0, 1))
+surface = <test_ssw_hookean_entry.FlatSurface object at 0x152c16263ef0>
+steps = 0
+config = SSWConfig(width=0.1, rotation_bias=1.0, max_gaussians=2, temperature_K=0.0, fmax=0.03, relax_steps=2, fd_step=0.001, r...-lbfgs', lbfgs_memory=None, bias_stage_steps=None, bias_fmax=None, pre_rotation_hvp=None, rotation_exit_policy='force')
+rng = Generator(PCG64) at 0x152C162C4200, ls = None, height_policy = None
+gaussian_policy = None, height_update_budget = 1000, reconnect_distance = None
+checkpoint = None, checkpoint_path = None, checkpoint_callback = None
+progress_callback = <function run.<locals>.<lambda> at 0x152c1629f060>
+structure_matcher = None, bias_quench_adapter = None, recovered_direction = None
+recovered_rotation = None, mc = None, starter_selector = None
+selector_rng = None
+
+    def run_ssw(atoms, surface, *, steps, config, rng, ls=None, height_policy=None, gaussian_policy=None,
+                height_update_budget=1000, reconnect_distance=None, checkpoint=None,
+                checkpoint_path=None, checkpoint_callback=None, progress_callback=None,
+                structure_matcher=None, bias_quench_adapter=None,
+                recovered_direction=None, recovered_rotation=None, mc=None,
+                starter_selector=None, selector_rng=None):
+        """Run independent fixed-cell SSW; optional LS uses frozen image bonds for full PBC.
+    
+    ``steps`` counts additional outer attempts. To resume, explicitly pass a
+        loaded ``checkpoint`` and the same settings and RNG bit-generator type;
+        positions come from the checkpoint. ``checkpoint_path`` is an output file,
+        atomically replaced after each completed attempt (never an implicit input).
+        ``checkpoint_callback`` receives a detached checkpoint after each resumable
+        completed attempt. A true return pauses the run at that boundary: the result
+        status is ``paused``, while its checkpoint status remains ``completed`` for
+        explicit resume. It is not called on zero steps or terminal failures.
+        The surface must use the same potential/settings; its counter is not reset.
+        Failed terminal states are diagnostic snapshots, not resumable boundaries.
+    
+    ``progress_callback`` receives a detached ``SSWProgress`` value once the initial
+    search state is successfully established, then at completed resumable outer
+    boundaries. Initialization failures terminate through the result and diagnostic
+    checkpoint without an observer event. The payload has bounded per-step state
+    only, not accumulated history. Returning true pauses; one compatible full
+    checkpoint is returned on pause or final completion. It cannot be combined with
+    ``checkpoint_callback``. With only this observer, full checkpoint copying is
+    deferred until return; ``checkpoint_path`` retains per-step persistence.
+    
+    ``bias_quench_adapter`` is an explicit experimental hook replacing only the
+    biased quench. It receives the original quench arguments plus a ``context``
+    dict with fixed keys and must return ``BiasStageQuenchOutcome``. It cannot be
+    combined with checkpointing; the default path remains the direct ``quench``
+    call. ``gaussian_index`` is zero-based and ``steps`` remains the number of
+    additional outer attempts.
+    
+    ``recovered_direction`` explicitly selects experimental Run5/Q-off local
+    generation, stage displacement updates and recovered CBD. It requires a free
+    nonperiodic cluster with ``cluster_frame='direction_only'``. Outer-boundary
+    checkpointing uses schema 4 and restores pair/group/marker and main RNG. Its settings replace SSWConfig's rotation_solver, rotation_bias,
+    rotation_hvp and rotation_tol; fd_step and rotation_exit_policy still apply.
+    Startup selection is a stated Python contract, not full native trajectory
+    parity. Gaussian/quench/MC rules remain those of this shared driver.
+    
+    ``recovered_rotation`` selects the stateless recovered-CBD rotation stages
+    while retaining the ordinary global/paper direction proposal and outer
+    Gaussian/landing lifecycle. It requires explicit ``RecoveredRotationSettings``
+    and is checkpointed as schema 3; it cannot be combined with
+    ``recovered_direction`` or ``pre_rotation_hvp``.
+    
+    ``starter_selector(snapshot, selector_rng)`` optionally chooses an index from
+    all force-certified observations, including MC-rejected landings. It runs only
+    after a successful true landing and completed state updates. Return None to
+    retain the MC-selected current observation. A different index explicitly
+    restarts direction selection from that stored geometry without another quench.
+    The controller persists across other outer steps. The snapshot owns copies;
+    its cost includes initialization and failed work. A different selected
+    observation reinitializes LS and recovered-direction state transactionally;
+    failed restart preparation leaves the prior current/LS state in place and is
+    recorded as a terminal selection failure. Selection errors otherwise propagate.
+    ``selector_rng`` must be an independent Generator. With checkpointing, the
+    selector must expose the pure-data checkpoint contract methods. ``accepted`` remains the MC decision;
+    ``starter_selection`` separately records the actual next-starter decision.
+    
+    No native program is called. Atoms/its calculator are not changed. The
+    returned minima include rejected MC landings, all force-converged on the
+    true surface; they are NOT deduplicated or positive-Hessian certified.
+        Optional height_policy selects the explicitly conservative native-derived
+        stage-height/history policy; its weights freeze throughout each quench.
+        height_update_budget is a numerical loop ceiling, not an accepted fallback.
+    Failed rotations/quenches consume an outer step and stay in records,
+        never enter minima. A failed LS strength update retains any already valid
+        landing. Calculator exceptions propagate; there is no alternate potential.
+        Explicit rotation_exit_policy="force_or_budget" allows a finite evaluated
+        direction at its numerical request limit to enter Gaussian climbing. It
+        remains marked unconverged; subspace exhaustion and numerical errors are
+        not budget exits. True landing force qualification is unchanged.
+    Random velocity directions use normal components divided by sqrt(mass),
+    then normalize; the Maxwell temperature factor cancels. Global rigid modes
+    are not projected out by default (external ASE potentials may break these
+    symmetries). Explicit cluster_frame="eckart" restricts each escape to a fixed
+    linear section, including full modified-energy quenching. This requires an
+    isolated free cluster; it is an experimental formulation, not native parity.
+    Initial and final true quenches remain unrestricted and use full atomic forces.
+    With cluster_frame="direction_only", the direction/HVP projector is rebuilt at
+    each Gaussian center, while biased quenching stays unrestricted Cartesian. This
+    follows the recovered native rigid tangent span, not exact CBD execution parity.
+    Three-dimensional PBC uses explicit translation_only/global sampling: continuous
+    unwrapped Cartesian positions and fixed cell throughout each escape, projecting
+    only global translations in direction refinement. No rotation removal, MIC bias,
+    or cell optimization is performed. Physical E/F retain ASE PBC; the path bias
+    lives on the continuous coordinate lift and must not be evaluated after wrapping.
+    """
+        if checkpoint is not None:
+            _validate_ssw_checkpoint(checkpoint)
+            if checkpoint.status != 'completed':
+                raise ValueError(f'cannot resume terminal checkpoint with status {checkpoint.status!r}')
+        if checkpoint_callback is not None and not callable(checkpoint_callback):
+            raise TypeError('checkpoint_callback must be callable or None')
+        if progress_callback is not None and not callable(progress_callback):
+            raise TypeError('progress_callback must be callable or None')
+        if checkpoint_callback is not None and progress_callback is not None:
+            raise ValueError('progress_callback and checkpoint_callback are mutually exclusive')
+        if starter_selector is None and selector_rng is not None:
+            raise ValueError('selector_rng requires starter_selector')
+        if starter_selector is not None:
+            if not callable(starter_selector):
+                raise TypeError('starter_selector must be callable or None')
+            if not isinstance(selector_rng, np.random.Generator):
+                raise ValueError('starter_selector requires an independent selector_rng Generator')
+            if selector_rng is rng or selector_rng.bit_generator is rng.bit_generator:
+                raise ValueError('selector_rng must be independent and must not share the main rng or bit_generator')
+        pool_resume = checkpoint is not None and getattr(checkpoint, 'pool_state', None) is not None
+        pool_checkpoint = starter_selector is not None and (
+            checkpoint_path is not None or checkpoint_callback is not None or
+            progress_callback is not None or pool_resume)
+        if pool_resume and starter_selector is None:
+            raise ValueError('pool checkpoint resume requires starter_selector')
+        if pool_checkpoint or pool_resume:
+            from .pool_checkpoint import _require_contract, _require_restore, _require_state
+            _require_contract(starter_selector)
+            _require_state(starter_selector)
+            _require_restore(starter_selector)
+        if checkpoint is not None and getattr(checkpoint, 'pool_state', None) is None and starter_selector is not None:
+            raise ValueError('checkpoint lacks pool selector state')
+        if mc is not None and not isinstance(mc, NativeMCSettings):
+            raise TypeError('mc must be NativeMCSettings or None')
+        if mc is not None and config.temperature_K <= 0:
+            raise ValueError('native MC requires positive temperature_K')
+        if checkpoint is not None and recovered_rotation is None:
+            recovered_rotation = getattr(checkpoint, 'recovered_rotation', None)
+        if checkpoint is not None and recovered_direction is None:
+            saved_direction = getattr(checkpoint, 'recovered_direction_state', None)
+            if saved_direction is not None:
+                recovered_direction = saved_direction.settings
+        direction_controller = None
+        if recovered_direction is not None:
+            from .recovered_direction import (RecoveredDirectionSettings,
+                                               RecoveredDirectionCheckpointState,
+                                               RecoveredDirectionController)
+            if not isinstance(recovered_direction, RecoveredDirectionSettings):
+                raise TypeError('recovered_direction must be RecoveredDirectionSettings')
+            if checkpoint is not None and getattr(checkpoint, 'recovered_direction_state', None) is None:
+                raise ValueError('checkpoint lacks recovered direction state')
+            if checkpoint is not None:
+                saved_direction = checkpoint.recovered_direction_state
+                if not isinstance(saved_direction, RecoveredDirectionCheckpointState):
+                    raise ValueError('checkpoint recovered direction state is invalid')
+                if saved_direction.settings != recovered_direction:
+                    raise ValueError('checkpoint recovered direction settings do not match requested settings')
+                if any(i < 0 or i >= len(atoms) for i in saved_direction.pair):
+                    raise ValueError('checkpoint recovered direction pair does not match input atom count')
+                if len(saved_direction.group) != len(atoms):
+                    raise ValueError('checkpoint recovered direction group does not match input atom count')
+                # Pickle bypasses dataclass construction; validate the saved values
+                # before restoring RNG or entering the PES, including zero-step resumes.
+                _checkpoint_copy(saved_direction).validate_for_atom_count(len(atoms))
+            if atoms.pbc.any() or atoms.constraints or config.cluster_frame != 'direction_only':
+                raise ValueError('recovered direction requires a free nonperiodic cluster and direction_only frame')
+            if config.pre_rotation_hvp is not None:
+                raise ValueError('recovered direction owns its PreRot stages; do not combine pre_rotation_hvp')
+            direction_controller = RecoveredDirectionController(recovered_direction)
+        if recovered_rotation is not None:
+            from .recovered_rotation import RecoveredRotationSettings
+            if not isinstance(recovered_rotation, RecoveredRotationSettings):
+                raise TypeError('recovered_rotation must be RecoveredRotationSettings')
+            if recovered_direction is not None:
+                raise ValueError('recovered_rotation and recovered_direction are mutually exclusive')
+            if config.pre_rotation_hvp is not None:
+                raise ValueError('recovered_rotation and pre_rotation_hvp are mutually exclusive')
+            if atoms.constraints:
+                raise NotImplementedError('recovered_rotation requires unconstrained atoms')
+        from .minimal_angle_height import MinimalAngleHeightPolicy
+        if reconnect_distance is not None:
+            # Validate the optional geometry contract before the initial PES call.
+            reconnect_clusters(atoms, reconnect_distance, repair=False)
+        _validate_height_policy_options(config, height_policy, height_update_budget)
+        if gaussian_policy is not None:
+            from .pam_gaussian import PAMCurvatureGaussian
+            if not isinstance(gaussian_policy, PAMCurvatureGaussian):
+                raise TypeError('gaussian_policy must be PAMCurvatureGaussian')
+            if height_policy is not None:
+                raise ValueError('gaussian_policy and height_policy are mutually exclusive')
+            if config.cluster_frame == 'eckart':
+                raise NotImplementedError('PAM Gaussian policy has no eckart section contract')
+        if isinstance(steps, bool) or not isinstance(steps, (int, np.integer)) or steps < 0:
+            raise ValueError('steps must be a nonnegative integer')
+        if bias_quench_adapter is not None and not callable(bias_quench_adapter):
+            raise TypeError('bias_quench_adapter must be callable or None')
+        if bias_quench_adapter is not None and (
+                checkpoint is not None or checkpoint_path is not None or
+                checkpoint_callback is not None or progress_callback is not None):
+            raise ValueError('bias_quench_adapter cannot be combined with checkpointing')
+        if atoms.constraints:
+>           raise NotImplementedError('standalone SSW currently requires unconstrained atoms')
+E           NotImplementedError: standalone SSW currently requires unconstrained atoms
+
+pamssw/standalone/paper_reference.py:634: NotImplementedError
+____________ test_changed_restraint_rejected_before_rng_and_pes[rt] ____________
+
+change = 'rt'
+
+    @pytest.mark.parametrize('change', ['k', 'rt', 'pair', 'remove'])
+    def test_changed_restraint_rejected_before_rng_and_pes(change):
+        atoms = fixture()
+>       checkpoint = run(atoms).checkpoint
+                     ^^^^^^^^^^
+
+tests/standalone/test_ssw_hookean_entry.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/standalone/test_ssw_hookean_entry.py:37: in run
+    return run_ssw(atoms, surface or FlatSurface(), steps=0, config=config(),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+atoms = Atoms(symbols='Cu13', pbc=False, tags=..., constraint=Hookean(0, 1))
+surface = <test_ssw_hookean_entry.FlatSurface object at 0x152c162616a0>
+steps = 0
+config = SSWConfig(width=0.1, rotation_bias=1.0, max_gaussians=2, temperature_K=0.0, fmax=0.03, relax_steps=2, fd_step=0.001, r...-lbfgs', lbfgs_memory=None, bias_stage_steps=None, bias_fmax=None, pre_rotation_hvp=None, rotation_exit_policy='force')
+rng = Generator(PCG64) at 0x152C162C4F20, ls = None, height_policy = None
+gaussian_policy = None, height_update_budget = 1000, reconnect_distance = None
+checkpoint = None, checkpoint_path = None, checkpoint_callback = None
+progress_callback = <function run.<locals>.<lambda> at 0x152c1629f240>
+structure_matcher = None, bias_quench_adapter = None, recovered_direction = None
+recovered_rotation = None, mc = None, starter_selector = None
+selector_rng = None
+
+    def run_ssw(atoms, surface, *, steps, config, rng, ls=None, height_policy=None, gaussian_policy=None,
+                height_update_budget=1000, reconnect_distance=None, checkpoint=None,
+                checkpoint_path=None, checkpoint_callback=None, progress_callback=None,
+                structure_matcher=None, bias_quench_adapter=None,
+                recovered_direction=None, recovered_rotation=None, mc=None,
+                starter_selector=None, selector_rng=None):
+        """Run independent fixed-cell SSW; optional LS uses frozen image bonds for full PBC.
+    
+    ``steps`` counts additional outer attempts. To resume, explicitly pass a
+        loaded ``checkpoint`` and the same settings and RNG bit-generator type;
+        positions come from the checkpoint. ``checkpoint_path`` is an output file,
+        atomically replaced after each completed attempt (never an implicit input).
+        ``checkpoint_callback`` receives a detached checkpoint after each resumable
+        completed attempt. A true return pauses the run at that boundary: the result
+        status is ``paused``, while its checkpoint status remains ``completed`` for
+        explicit resume. It is not called on zero steps or terminal failures.
+        The surface must use the same potential/settings; its counter is not reset.
+        Failed terminal states are diagnostic snapshots, not resumable boundaries.
+    
+    ``progress_callback`` receives a detached ``SSWProgress`` value once the initial
+    search state is successfully established, then at completed resumable outer
+    boundaries. Initialization failures terminate through the result and diagnostic
+    checkpoint without an observer event. The payload has bounded per-step state
+    only, not accumulated history. Returning true pauses; one compatible full
+    checkpoint is returned on pause or final completion. It cannot be combined with
+    ``checkpoint_callback``. With only this observer, full checkpoint copying is
+    deferred until return; ``checkpoint_path`` retains per-step persistence.
+    
+    ``bias_quench_adapter`` is an explicit experimental hook replacing only the
+    biased quench. It receives the original quench arguments plus a ``context``
+    dict with fixed keys and must return ``BiasStageQuenchOutcome``. It cannot be
+    combined with checkpointing; the default path remains the direct ``quench``
+    call. ``gaussian_index`` is zero-based and ``steps`` remains the number of
+    additional outer attempts.
+    
+    ``recovered_direction`` explicitly selects experimental Run5/Q-off local
+    generation, stage displacement updates and recovered CBD. It requires a free
+    nonperiodic cluster with ``cluster_frame='direction_only'``. Outer-boundary
+    checkpointing uses schema 4 and restores pair/group/marker and main RNG. Its settings replace SSWConfig's rotation_solver, rotation_bias,
+    rotation_hvp and rotation_tol; fd_step and rotation_exit_policy still apply.
+    Startup selection is a stated Python contract, not full native trajectory
+    parity. Gaussian/quench/MC rules remain those of this shared driver.
+    
+    ``recovered_rotation`` selects the stateless recovered-CBD rotation stages
+    while retaining the ordinary global/paper direction proposal and outer
+    Gaussian/landing lifecycle. It requires explicit ``RecoveredRotationSettings``
+    and is checkpointed as schema 3; it cannot be combined with
+    ``recovered_direction`` or ``pre_rotation_hvp``.
+    
+    ``starter_selector(snapshot, selector_rng)`` optionally chooses an index from
+    all force-certified observations, including MC-rejected landings. It runs only
+    after a successful true landing and completed state updates. Return None to
+    retain the MC-selected current observation. A different index explicitly
+    restarts direction selection from that stored geometry without another quench.
+    The controller persists across other outer steps. The snapshot owns copies;
+    its cost includes initialization and failed work. A different selected
+    observation reinitializes LS and recovered-direction state transactionally;
+    failed restart preparation leaves the prior current/LS state in place and is
+    recorded as a terminal selection failure. Selection errors otherwise propagate.
+    ``selector_rng`` must be an independent Generator. With checkpointing, the
+    selector must expose the pure-data checkpoint contract methods. ``accepted`` remains the MC decision;
+    ``starter_selection`` separately records the actual next-starter decision.
+    
+    No native program is called. Atoms/its calculator are not changed. The
+    returned minima include rejected MC landings, all force-converged on the
+    true surface; they are NOT deduplicated or positive-Hessian certified.
+        Optional height_policy selects the explicitly conservative native-derived
+        stage-height/history policy; its weights freeze throughout each quench.
+        height_update_budget is a numerical loop ceiling, not an accepted fallback.
+    Failed rotations/quenches consume an outer step and stay in records,
+        never enter minima. A failed LS strength update retains any already valid
+        landing. Calculator exceptions propagate; there is no alternate potential.
+        Explicit rotation_exit_policy="force_or_budget" allows a finite evaluated
+        direction at its numerical request limit to enter Gaussian climbing. It
+        remains marked unconverged; subspace exhaustion and numerical errors are
+        not budget exits. True landing force qualification is unchanged.
+    Random velocity directions use normal components divided by sqrt(mass),
+    then normalize; the Maxwell temperature factor cancels. Global rigid modes
+    are not projected out by default (external ASE potentials may break these
+    symmetries). Explicit cluster_frame="eckart" restricts each escape to a fixed
+    linear section, including full modified-energy quenching. This requires an
+    isolated free cluster; it is an experimental formulation, not native parity.
+    Initial and final true quenches remain unrestricted and use full atomic forces.
+    With cluster_frame="direction_only", the direction/HVP projector is rebuilt at
+    each Gaussian center, while biased quenching stays unrestricted Cartesian. This
+    follows the recovered native rigid tangent span, not exact CBD execution parity.
+    Three-dimensional PBC uses explicit translation_only/global sampling: continuous
+    unwrapped Cartesian positions and fixed cell throughout each escape, projecting
+    only global translations in direction refinement. No rotation removal, MIC bias,
+    or cell optimization is performed. Physical E/F retain ASE PBC; the path bias
+    lives on the continuous coordinate lift and must not be evaluated after wrapping.
+    """
+        if checkpoint is not None:
+            _validate_ssw_checkpoint(checkpoint)
+            if checkpoint.status != 'completed':
+                raise ValueError(f'cannot resume terminal checkpoint with status {checkpoint.status!r}')
+        if checkpoint_callback is not None and not callable(checkpoint_callback):
+            raise TypeError('checkpoint_callback must be callable or None')
+        if progress_callback is not None and not callable(progress_callback):
+            raise TypeError('progress_callback must be callable or None')
+        if checkpoint_callback is not None and progress_callback is not None:
+            raise ValueError('progress_callback and checkpoint_callback are mutually exclusive')
+        if starter_selector is None and selector_rng is not None:
+            raise ValueError('selector_rng requires starter_selector')
+        if starter_selector is not None:
+            if not callable(starter_selector):
+                raise TypeError('starter_selector must be callable or None')
+            if not isinstance(selector_rng, np.random.Generator):
+                raise ValueError('starter_selector requires an independent selector_rng Generator')
+            if selector_rng is rng or selector_rng.bit_generator is rng.bit_generator:
+                raise ValueError('selector_rng must be independent and must not share the main rng or bit_generator')
+        pool_resume = checkpoint is not None and getattr(checkpoint, 'pool_state', None) is not None
+        pool_checkpoint = starter_selector is not None and (
+            checkpoint_path is not None or checkpoint_callback is not None or
+            progress_callback is not None or pool_resume)
+        if pool_resume and starter_selector is None:
+            raise ValueError('pool checkpoint resume requires starter_selector')
+        if pool_checkpoint or pool_resume:
+            from .pool_checkpoint import _require_contract, _require_restore, _require_state
+            _require_contract(starter_selector)
+            _require_state(starter_selector)
+            _require_restore(starter_selector)
+        if checkpoint is not None and getattr(checkpoint, 'pool_state', None) is None and starter_selector is not None:
+            raise ValueError('checkpoint lacks pool selector state')
+        if mc is not None and not isinstance(mc, NativeMCSettings):
+            raise TypeError('mc must be NativeMCSettings or None')
+        if mc is not None and config.temperature_K <= 0:
+            raise ValueError('native MC requires positive temperature_K')
+        if checkpoint is not None and recovered_rotation is None:
+            recovered_rotation = getattr(checkpoint, 'recovered_rotation', None)
+        if checkpoint is not None and recovered_direction is None:
+            saved_direction = getattr(checkpoint, 'recovered_direction_state', None)
+            if saved_direction is not None:
+                recovered_direction = saved_direction.settings
+        direction_controller = None
+        if recovered_direction is not None:
+            from .recovered_direction import (RecoveredDirectionSettings,
+                                               RecoveredDirectionCheckpointState,
+                                               RecoveredDirectionController)
+            if not isinstance(recovered_direction, RecoveredDirectionSettings):
+                raise TypeError('recovered_direction must be RecoveredDirectionSettings')
+            if checkpoint is not None and getattr(checkpoint, 'recovered_direction_state', None) is None:
+                raise ValueError('checkpoint lacks recovered direction state')
+            if checkpoint is not None:
+                saved_direction = checkpoint.recovered_direction_state
+                if not isinstance(saved_direction, RecoveredDirectionCheckpointState):
+                    raise ValueError('checkpoint recovered direction state is invalid')
+                if saved_direction.settings != recovered_direction:
+                    raise ValueError('checkpoint recovered direction settings do not match requested settings')
+                if any(i < 0 or i >= len(atoms) for i in saved_direction.pair):
+                    raise ValueError('checkpoint recovered direction pair does not match input atom count')
+                if len(saved_direction.group) != len(atoms):
+                    raise ValueError('checkpoint recovered direction group does not match input atom count')
+                # Pickle bypasses dataclass construction; validate the saved values
+                # before restoring RNG or entering the PES, including zero-step resumes.
+                _checkpoint_copy(saved_direction).validate_for_atom_count(len(atoms))
+            if atoms.pbc.any() or atoms.constraints or config.cluster_frame != 'direction_only':
+                raise ValueError('recovered direction requires a free nonperiodic cluster and direction_only frame')
+            if config.pre_rotation_hvp is not None:
+                raise ValueError('recovered direction owns its PreRot stages; do not combine pre_rotation_hvp')
+            direction_controller = RecoveredDirectionController(recovered_direction)
+        if recovered_rotation is not None:
+            from .recovered_rotation import RecoveredRotationSettings
+            if not isinstance(recovered_rotation, RecoveredRotationSettings):
+                raise TypeError('recovered_rotation must be RecoveredRotationSettings')
+            if recovered_direction is not None:
+                raise ValueError('recovered_rotation and recovered_direction are mutually exclusive')
+            if config.pre_rotation_hvp is not None:
+                raise ValueError('recovered_rotation and pre_rotation_hvp are mutually exclusive')
+            if atoms.constraints:
+                raise NotImplementedError('recovered_rotation requires unconstrained atoms')
+        from .minimal_angle_height import MinimalAngleHeightPolicy
+        if reconnect_distance is not None:
+            # Validate the optional geometry contract before the initial PES call.
+            reconnect_clusters(atoms, reconnect_distance, repair=False)
+        _validate_height_policy_options(config, height_policy, height_update_budget)
+        if gaussian_policy is not None:
+            from .pam_gaussian import PAMCurvatureGaussian
+            if not isinstance(gaussian_policy, PAMCurvatureGaussian):
+                raise TypeError('gaussian_policy must be PAMCurvatureGaussian')
+            if height_policy is not None:
+                raise ValueError('gaussian_policy and height_policy are mutually exclusive')
+            if config.cluster_frame == 'eckart':
+                raise NotImplementedError('PAM Gaussian policy has no eckart section contract')
+        if isinstance(steps, bool) or not isinstance(steps, (int, np.integer)) or steps < 0:
+            raise ValueError('steps must be a nonnegative integer')
+        if bias_quench_adapter is not None and not callable(bias_quench_adapter):
+            raise TypeError('bias_quench_adapter must be callable or None')
+        if bias_quench_adapter is not None and (
+                checkpoint is not None or checkpoint_path is not None or
+                checkpoint_callback is not None or progress_callback is not None):
+            raise ValueError('bias_quench_adapter cannot be combined with checkpointing')
+        if atoms.constraints:
+>           raise NotImplementedError('standalone SSW currently requires unconstrained atoms')
+E           NotImplementedError: standalone SSW currently requires unconstrained atoms
+
+pamssw/standalone/paper_reference.py:634: NotImplementedError
+___________ test_changed_restraint_rejected_before_rng_and_pes[pair] ___________
+
+change = 'pair'
+
+    @pytest.mark.parametrize('change', ['k', 'rt', 'pair', 'remove'])
+    def test_changed_restraint_rejected_before_rng_and_pes(change):
+        atoms = fixture()
+>       checkpoint = run(atoms).checkpoint
+                     ^^^^^^^^^^
+
+tests/standalone/test_ssw_hookean_entry.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/standalone/test_ssw_hookean_entry.py:37: in run
+    return run_ssw(atoms, surface or FlatSurface(), steps=0, config=config(),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+atoms = Atoms(symbols='Cu13', pbc=False, tags=..., constraint=Hookean(0, 1))
+surface = <test_ssw_hookean_entry.FlatSurface object at 0x152c16262a50>
+steps = 0
+config = SSWConfig(width=0.1, rotation_bias=1.0, max_gaussians=2, temperature_K=0.0, fmax=0.03, relax_steps=2, fd_step=0.001, r...-lbfgs', lbfgs_memory=None, bias_stage_steps=None, bias_fmax=None, pre_rotation_hvp=None, rotation_exit_policy='force')
+rng = Generator(PCG64) at 0x152C162C58C0, ls = None, height_policy = None
+gaussian_policy = None, height_update_budget = 1000, reconnect_distance = None
+checkpoint = None, checkpoint_path = None, checkpoint_callback = None
+progress_callback = <function run.<locals>.<lambda> at 0x152c1629d620>
+structure_matcher = None, bias_quench_adapter = None, recovered_direction = None
+recovered_rotation = None, mc = None, starter_selector = None
+selector_rng = None
+
+    def run_ssw(atoms, surface, *, steps, config, rng, ls=None, height_policy=None, gaussian_policy=None,
+                height_update_budget=1000, reconnect_distance=None, checkpoint=None,
+                checkpoint_path=None, checkpoint_callback=None, progress_callback=None,
+                structure_matcher=None, bias_quench_adapter=None,
+                recovered_direction=None, recovered_rotation=None, mc=None,
+                starter_selector=None, selector_rng=None):
+        """Run independent fixed-cell SSW; optional LS uses frozen image bonds for full PBC.
+    
+    ``steps`` counts additional outer attempts. To resume, explicitly pass a
+        loaded ``checkpoint`` and the same settings and RNG bit-generator type;
+        positions come from the checkpoint. ``checkpoint_path`` is an output file,
+        atomically replaced after each completed attempt (never an implicit input).
+        ``checkpoint_callback`` receives a detached checkpoint after each resumable
+        completed attempt. A true return pauses the run at that boundary: the result
+        status is ``paused``, while its checkpoint status remains ``completed`` for
+        explicit resume. It is not called on zero steps or terminal failures.
+        The surface must use the same potential/settings; its counter is not reset.
+        Failed terminal states are diagnostic snapshots, not resumable boundaries.
+    
+    ``progress_callback`` receives a detached ``SSWProgress`` value once the initial
+    search state is successfully established, then at completed resumable outer
+    boundaries. Initialization failures terminate through the result and diagnostic
+    checkpoint without an observer event. The payload has bounded per-step state
+    only, not accumulated history. Returning true pauses; one compatible full
+    checkpoint is returned on pause or final completion. It cannot be combined with
+    ``checkpoint_callback``. With only this observer, full checkpoint copying is
+    deferred until return; ``checkpoint_path`` retains per-step persistence.
+    
+    ``bias_quench_adapter`` is an explicit experimental hook replacing only the
+    biased quench. It receives the original quench arguments plus a ``context``
+    dict with fixed keys and must return ``BiasStageQuenchOutcome``. It cannot be
+    combined with checkpointing; the default path remains the direct ``quench``
+    call. ``gaussian_index`` is zero-based and ``steps`` remains the number of
+    additional outer attempts.
+    
+    ``recovered_direction`` explicitly selects experimental Run5/Q-off local
+    generation, stage displacement updates and recovered CBD. It requires a free
+    nonperiodic cluster with ``cluster_frame='direction_only'``. Outer-boundary
+    checkpointing uses schema 4 and restores pair/group/marker and main RNG. Its settings replace SSWConfig's rotation_solver, rotation_bias,
+    rotation_hvp and rotation_tol; fd_step and rotation_exit_policy still apply.
+    Startup selection is a stated Python contract, not full native trajectory
+    parity. Gaussian/quench/MC rules remain those of this shared driver.
+    
+    ``recovered_rotation`` selects the stateless recovered-CBD rotation stages
+    while retaining the ordinary global/paper direction proposal and outer
+    Gaussian/landing lifecycle. It requires explicit ``RecoveredRotationSettings``
+    and is checkpointed as schema 3; it cannot be combined with
+    ``recovered_direction`` or ``pre_rotation_hvp``.
+    
+    ``starter_selector(snapshot, selector_rng)`` optionally chooses an index from
+    all force-certified observations, including MC-rejected landings. It runs only
+    after a successful true landing and completed state updates. Return None to
+    retain the MC-selected current observation. A different index explicitly
+    restarts direction selection from that stored geometry without another quench.
+    The controller persists across other outer steps. The snapshot owns copies;
+    its cost includes initialization and failed work. A different selected
+    observation reinitializes LS and recovered-direction state transactionally;
+    failed restart preparation leaves the prior current/LS state in place and is
+    recorded as a terminal selection failure. Selection errors otherwise propagate.
+    ``selector_rng`` must be an independent Generator. With checkpointing, the
+    selector must expose the pure-data checkpoint contract methods. ``accepted`` remains the MC decision;
+    ``starter_selection`` separately records the actual next-starter decision.
+    
+    No native program is called. Atoms/its calculator are not changed. The
+    returned minima include rejected MC landings, all force-converged on the
+    true surface; they are NOT deduplicated or positive-Hessian certified.
+        Optional height_policy selects the explicitly conservative native-derived
+        stage-height/history policy; its weights freeze throughout each quench.
+        height_update_budget is a numerical loop ceiling, not an accepted fallback.
+    Failed rotations/quenches consume an outer step and stay in records,
+        never enter minima. A failed LS strength update retains any already valid
+        landing. Calculator exceptions propagate; there is no alternate potential.
+        Explicit rotation_exit_policy="force_or_budget" allows a finite evaluated
+        direction at its numerical request limit to enter Gaussian climbing. It
+        remains marked unconverged; subspace exhaustion and numerical errors are
+        not budget exits. True landing force qualification is unchanged.
+    Random velocity directions use normal components divided by sqrt(mass),
+    then normalize; the Maxwell temperature factor cancels. Global rigid modes
+    are not projected out by default (external ASE potentials may break these
+    symmetries). Explicit cluster_frame="eckart" restricts each escape to a fixed
+    linear section, including full modified-energy quenching. This requires an
+    isolated free cluster; it is an experimental formulation, not native parity.
+    Initial and final true quenches remain unrestricted and use full atomic forces.
+    With cluster_frame="direction_only", the direction/HVP projector is rebuilt at
+    each Gaussian center, while biased quenching stays unrestricted Cartesian. This
+    follows the recovered native rigid tangent span, not exact CBD execution parity.
+    Three-dimensional PBC uses explicit translation_only/global sampling: continuous
+    unwrapped Cartesian positions and fixed cell throughout each escape, projecting
+    only global translations in direction refinement. No rotation removal, MIC bias,
+    or cell optimization is performed. Physical E/F retain ASE PBC; the path bias
+    lives on the continuous coordinate lift and must not be evaluated after wrapping.
+    """
+        if checkpoint is not None:
+            _validate_ssw_checkpoint(checkpoint)
+            if checkpoint.status != 'completed':
+                raise ValueError(f'cannot resume terminal checkpoint with status {checkpoint.status!r}')
+        if checkpoint_callback is not None and not callable(checkpoint_callback):
+            raise TypeError('checkpoint_callback must be callable or None')
+        if progress_callback is not None and not callable(progress_callback):
+            raise TypeError('progress_callback must be callable or None')
+        if checkpoint_callback is not None and progress_callback is not None:
+            raise ValueError('progress_callback and checkpoint_callback are mutually exclusive')
+        if starter_selector is None and selector_rng is not None:
+            raise ValueError('selector_rng requires starter_selector')
+        if starter_selector is not None:
+            if not callable(starter_selector):
+                raise TypeError('starter_selector must be callable or None')
+            if not isinstance(selector_rng, np.random.Generator):
+                raise ValueError('starter_selector requires an independent selector_rng Generator')
+            if selector_rng is rng or selector_rng.bit_generator is rng.bit_generator:
+                raise ValueError('selector_rng must be independent and must not share the main rng or bit_generator')
+        pool_resume = checkpoint is not None and getattr(checkpoint, 'pool_state', None) is not None
+        pool_checkpoint = starter_selector is not None and (
+            checkpoint_path is not None or checkpoint_callback is not None or
+            progress_callback is not None or pool_resume)
+        if pool_resume and starter_selector is None:
+            raise ValueError('pool checkpoint resume requires starter_selector')
+        if pool_checkpoint or pool_resume:
+            from .pool_checkpoint import _require_contract, _require_restore, _require_state
+            _require_contract(starter_selector)
+            _require_state(starter_selector)
+            _require_restore(starter_selector)
+        if checkpoint is not None and getattr(checkpoint, 'pool_state', None) is None and starter_selector is not None:
+            raise ValueError('checkpoint lacks pool selector state')
+        if mc is not None and not isinstance(mc, NativeMCSettings):
+            raise TypeError('mc must be NativeMCSettings or None')
+        if mc is not None and config.temperature_K <= 0:
+            raise ValueError('native MC requires positive temperature_K')
+        if checkpoint is not None and recovered_rotation is None:
+            recovered_rotation = getattr(checkpoint, 'recovered_rotation', None)
+        if checkpoint is not None and recovered_direction is None:
+            saved_direction = getattr(checkpoint, 'recovered_direction_state', None)
+            if saved_direction is not None:
+                recovered_direction = saved_direction.settings
+        direction_controller = None
+        if recovered_direction is not None:
+            from .recovered_direction import (RecoveredDirectionSettings,
+                                               RecoveredDirectionCheckpointState,
+                                               RecoveredDirectionController)
+            if not isinstance(recovered_direction, RecoveredDirectionSettings):
+                raise TypeError('recovered_direction must be RecoveredDirectionSettings')
+            if checkpoint is not None and getattr(checkpoint, 'recovered_direction_state', None) is None:
+                raise ValueError('checkpoint lacks recovered direction state')
+            if checkpoint is not None:
+                saved_direction = checkpoint.recovered_direction_state
+                if not isinstance(saved_direction, RecoveredDirectionCheckpointState):
+                    raise ValueError('checkpoint recovered direction state is invalid')
+                if saved_direction.settings != recovered_direction:
+                    raise ValueError('checkpoint recovered direction settings do not match requested settings')
+                if any(i < 0 or i >= len(atoms) for i in saved_direction.pair):
+                    raise ValueError('checkpoint recovered direction pair does not match input atom count')
+                if len(saved_direction.group) != len(atoms):
+                    raise ValueError('checkpoint recovered direction group does not match input atom count')
+                # Pickle bypasses dataclass construction; validate the saved values
+                # before restoring RNG or entering the PES, including zero-step resumes.
+                _checkpoint_copy(saved_direction).validate_for_atom_count(len(atoms))
+            if atoms.pbc.any() or atoms.constraints or config.cluster_frame != 'direction_only':
+                raise ValueError('recovered direction requires a free nonperiodic cluster and direction_only frame')
+            if config.pre_rotation_hvp is not None:
+                raise ValueError('recovered direction owns its PreRot stages; do not combine pre_rotation_hvp')
+            direction_controller = RecoveredDirectionController(recovered_direction)
+        if recovered_rotation is not None:
+            from .recovered_rotation import RecoveredRotationSettings
+            if not isinstance(recovered_rotation, RecoveredRotationSettings):
+                raise TypeError('recovered_rotation must be RecoveredRotationSettings')
+            if recovered_direction is not None:
+                raise ValueError('recovered_rotation and recovered_direction are mutually exclusive')
+            if config.pre_rotation_hvp is not None:
+                raise ValueError('recovered_rotation and pre_rotation_hvp are mutually exclusive')
+            if atoms.constraints:
+                raise NotImplementedError('recovered_rotation requires unconstrained atoms')
+        from .minimal_angle_height import MinimalAngleHeightPolicy
+        if reconnect_distance is not None:
+            # Validate the optional geometry contract before the initial PES call.
+            reconnect_clusters(atoms, reconnect_distance, repair=False)
+        _validate_height_policy_options(config, height_policy, height_update_budget)
+        if gaussian_policy is not None:
+            from .pam_gaussian import PAMCurvatureGaussian
+            if not isinstance(gaussian_policy, PAMCurvatureGaussian):
+                raise TypeError('gaussian_policy must be PAMCurvatureGaussian')
+            if height_policy is not None:
+                raise ValueError('gaussian_policy and height_policy are mutually exclusive')
+            if config.cluster_frame == 'eckart':
+                raise NotImplementedError('PAM Gaussian policy has no eckart section contract')
+        if isinstance(steps, bool) or not isinstance(steps, (int, np.integer)) or steps < 0:
+            raise ValueError('steps must be a nonnegative integer')
+        if bias_quench_adapter is not None and not callable(bias_quench_adapter):
+            raise TypeError('bias_quench_adapter must be callable or None')
+        if bias_quench_adapter is not None and (
+                checkpoint is not None or checkpoint_path is not None or
+                checkpoint_callback is not None or progress_callback is not None):
+            raise ValueError('bias_quench_adapter cannot be combined with checkpointing')
+        if atoms.constraints:
+>           raise NotImplementedError('standalone SSW currently requires unconstrained atoms')
+E           NotImplementedError: standalone SSW currently requires unconstrained atoms
+
+pamssw/standalone/paper_reference.py:634: NotImplementedError
+__________ test_changed_restraint_rejected_before_rng_and_pes[remove] __________
+
+change = 'remove'
+
+    @pytest.mark.parametrize('change', ['k', 'rt', 'pair', 'remove'])
+    def test_changed_restraint_rejected_before_rng_and_pes(change):
+        atoms = fixture()
+>       checkpoint = run(atoms).checkpoint
+                     ^^^^^^^^^^
+
+tests/standalone/test_ssw_hookean_entry.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/standalone/test_ssw_hookean_entry.py:37: in run
+    return run_ssw(atoms, surface or FlatSurface(), steps=0, config=config(),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+atoms = Atoms(symbols='Cu13', pbc=False, tags=..., constraint=Hookean(0, 1))
+surface = <test_ssw_hookean_entry.FlatSurface object at 0x152c162633b0>
+steps = 0
+config = SSWConfig(width=0.1, rotation_bias=1.0, max_gaussians=2, temperature_K=0.0, fmax=0.03, relax_steps=2, fd_step=0.001, r...-lbfgs', lbfgs_memory=None, bias_stage_steps=None, bias_fmax=None, pre_rotation_hvp=None, rotation_exit_policy='force')
+rng = Generator(PCG64) at 0x152C1640FE60, ls = None, height_policy = None
+gaussian_policy = None, height_update_budget = 1000, reconnect_distance = None
+checkpoint = None, checkpoint_path = None, checkpoint_callback = None
+progress_callback = <function run.<locals>.<lambda> at 0x152c16241ee0>
+structure_matcher = None, bias_quench_adapter = None, recovered_direction = None
+recovered_rotation = None, mc = None, starter_selector = None
+selector_rng = None
+
+    def run_ssw(atoms, surface, *, steps, config, rng, ls=None, height_policy=None, gaussian_policy=None,
+                height_update_budget=1000, reconnect_distance=None, checkpoint=None,
+                checkpoint_path=None, checkpoint_callback=None, progress_callback=None,
+                structure_matcher=None, bias_quench_adapter=None,
+                recovered_direction=None, recovered_rotation=None, mc=None,
+                starter_selector=None, selector_rng=None):
+        """Run independent fixed-cell SSW; optional LS uses frozen image bonds for full PBC.
+    
+    ``steps`` counts additional outer attempts. To resume, explicitly pass a
+        loaded ``checkpoint`` and the same settings and RNG bit-generator type;
+        positions come from the checkpoint. ``checkpoint_path`` is an output file,
+        atomically replaced after each completed attempt (never an implicit input).
+        ``checkpoint_callback`` receives a detached checkpoint after each resumable
+        completed attempt. A true return pauses the run at that boundary: the result
+        status is ``paused``, while its checkpoint status remains ``completed`` for
+        explicit resume. It is not called on zero steps or terminal failures.
+        The surface must use the same potential/settings; its counter is not reset.
+        Failed terminal states are diagnostic snapshots, not resumable boundaries.
+    
+    ``progress_callback`` receives a detached ``SSWProgress`` value once the initial
+    search state is successfully established, then at completed resumable outer
+    boundaries. Initialization failures terminate through the result and diagnostic
+    checkpoint without an observer event. The payload has bounded per-step state
+    only, not accumulated history. Returning true pauses; one compatible full
+    checkpoint is returned on pause or final completion. It cannot be combined with
+    ``checkpoint_callback``. With only this observer, full checkpoint copying is
+    deferred until return; ``checkpoint_path`` retains per-step persistence.
+    
+    ``bias_quench_adapter`` is an explicit experimental hook replacing only the
+    biased quench. It receives the original quench arguments plus a ``context``
+    dict with fixed keys and must return ``BiasStageQuenchOutcome``. It cannot be
+    combined with checkpointing; the default path remains the direct ``quench``
+    call. ``gaussian_index`` is zero-based and ``steps`` remains the number of
+    additional outer attempts.
+    
+    ``recovered_direction`` explicitly selects experimental Run5/Q-off local
+    generation, stage displacement updates and recovered CBD. It requires a free
+    nonperiodic cluster with ``cluster_frame='direction_only'``. Outer-boundary
+    checkpointing uses schema 4 and restores pair/group/marker and main RNG. Its settings replace SSWConfig's rotation_solver, rotation_bias,
+    rotation_hvp and rotation_tol; fd_step and rotation_exit_policy still apply.
+    Startup selection is a stated Python contract, not full native trajectory
+    parity. Gaussian/quench/MC rules remain those of this shared driver.
+    
+    ``recovered_rotation`` selects the stateless recovered-CBD rotation stages
+    while retaining the ordinary global/paper direction proposal and outer
+    Gaussian/landing lifecycle. It requires explicit ``RecoveredRotationSettings``
+    and is checkpointed as schema 3; it cannot be combined with
+    ``recovered_direction`` or ``pre_rotation_hvp``.
+    
+    ``starter_selector(snapshot, selector_rng)`` optionally chooses an index from
+    all force-certified observations, including MC-rejected landings. It runs only
+    after a successful true landing and completed state updates. Return None to
+    retain the MC-selected current observation. A different index explicitly
+    restarts direction selection from that stored geometry without another quench.
+    The controller persists across other outer steps. The snapshot owns copies;
+    its cost includes initialization and failed work. A different selected
+    observation reinitializes LS and recovered-direction state transactionally;
+    failed restart preparation leaves the prior current/LS state in place and is
+    recorded as a terminal selection failure. Selection errors otherwise propagate.
+    ``selector_rng`` must be an independent Generator. With checkpointing, the
+    selector must expose the pure-data checkpoint contract methods. ``accepted`` remains the MC decision;
+    ``starter_selection`` separately records the actual next-starter decision.
+    
+    No native program is called. Atoms/its calculator are not changed. The
+    returned minima include rejected MC landings, all force-converged on the
+    true surface; they are NOT deduplicated or positive-Hessian certified.
+        Optional height_policy selects the explicitly conservative native-derived
+        stage-height/history policy; its weights freeze throughout each quench.
+        height_update_budget is a numerical loop ceiling, not an accepted fallback.
+    Failed rotations/quenches consume an outer step and stay in records,
+        never enter minima. A failed LS strength update retains any already valid
+        landing. Calculator exceptions propagate; there is no alternate potential.
+        Explicit rotation_exit_policy="force_or_budget" allows a finite evaluated
+        direction at its numerical request limit to enter Gaussian climbing. It
+        remains marked unconverged; subspace exhaustion and numerical errors are
+        not budget exits. True landing force qualification is unchanged.
+    Random velocity directions use normal components divided by sqrt(mass),
+    then normalize; the Maxwell temperature factor cancels. Global rigid modes
+    are not projected out by default (external ASE potentials may break these
+    symmetries). Explicit cluster_frame="eckart" restricts each escape to a fixed
+    linear section, including full modified-energy quenching. This requires an
+    isolated free cluster; it is an experimental formulation, not native parity.
+    Initial and final true quenches remain unrestricted and use full atomic forces.
+    With cluster_frame="direction_only", the direction/HVP projector is rebuilt at
+    each Gaussian center, while biased quenching stays unrestricted Cartesian. This
+    follows the recovered native rigid tangent span, not exact CBD execution parity.
+    Three-dimensional PBC uses explicit translation_only/global sampling: continuous
+    unwrapped Cartesian positions and fixed cell throughout each escape, projecting
+    only global translations in direction refinement. No rotation removal, MIC bias,
+    or cell optimization is performed. Physical E/F retain ASE PBC; the path bias
+    lives on the continuous coordinate lift and must not be evaluated after wrapping.
+    """
+        if checkpoint is not None:
+            _validate_ssw_checkpoint(checkpoint)
+            if checkpoint.status != 'completed':
+                raise ValueError(f'cannot resume terminal checkpoint with status {checkpoint.status!r}')
+        if checkpoint_callback is not None and not callable(checkpoint_callback):
+            raise TypeError('checkpoint_callback must be callable or None')
+        if progress_callback is not None and not callable(progress_callback):
+            raise TypeError('progress_callback must be callable or None')
+        if checkpoint_callback is not None and progress_callback is not None:
+            raise ValueError('progress_callback and checkpoint_callback are mutually exclusive')
+        if starter_selector is None and selector_rng is not None:
+            raise ValueError('selector_rng requires starter_selector')
+        if starter_selector is not None:
+            if not callable(starter_selector):
+                raise TypeError('starter_selector must be callable or None')
+            if not isinstance(selector_rng, np.random.Generator):
+                raise ValueError('starter_selector requires an independent selector_rng Generator')
+            if selector_rng is rng or selector_rng.bit_generator is rng.bit_generator:
+                raise ValueError('selector_rng must be independent and must not share the main rng or bit_generator')
+        pool_resume = checkpoint is not None and getattr(checkpoint, 'pool_state', None) is not None
+        pool_checkpoint = starter_selector is not None and (
+            checkpoint_path is not None or checkpoint_callback is not None or
+            progress_callback is not None or pool_resume)
+        if pool_resume and starter_selector is None:
+            raise ValueError('pool checkpoint resume requires starter_selector')
+        if pool_checkpoint or pool_resume:
+            from .pool_checkpoint import _require_contract, _require_restore, _require_state
+            _require_contract(starter_selector)
+            _require_state(starter_selector)
+            _require_restore(starter_selector)
+        if checkpoint is not None and getattr(checkpoint, 'pool_state', None) is None and starter_selector is not None:
+            raise ValueError('checkpoint lacks pool selector state')
+        if mc is not None and not isinstance(mc, NativeMCSettings):
+            raise TypeError('mc must be NativeMCSettings or None')
+        if mc is not None and config.temperature_K <= 0:
+            raise ValueError('native MC requires positive temperature_K')
+        if checkpoint is not None and recovered_rotation is None:
+            recovered_rotation = getattr(checkpoint, 'recovered_rotation', None)
+        if checkpoint is not None and recovered_direction is None:
+            saved_direction = getattr(checkpoint, 'recovered_direction_state', None)
+            if saved_direction is not None:
+                recovered_direction = saved_direction.settings
+        direction_controller = None
+        if recovered_direction is not None:
+            from .recovered_direction import (RecoveredDirectionSettings,
+                                               RecoveredDirectionCheckpointState,
+                                               RecoveredDirectionController)
+            if not isinstance(recovered_direction, RecoveredDirectionSettings):
+                raise TypeError('recovered_direction must be RecoveredDirectionSettings')
+            if checkpoint is not None and getattr(checkpoint, 'recovered_direction_state', None) is None:
+                raise ValueError('checkpoint lacks recovered direction state')
+            if checkpoint is not None:
+                saved_direction = checkpoint.recovered_direction_state
+                if not isinstance(saved_direction, RecoveredDirectionCheckpointState):
+                    raise ValueError('checkpoint recovered direction state is invalid')
+                if saved_direction.settings != recovered_direction:
+                    raise ValueError('checkpoint recovered direction settings do not match requested settings')
+                if any(i < 0 or i >= len(atoms) for i in saved_direction.pair):
+                    raise ValueError('checkpoint recovered direction pair does not match input atom count')
+                if len(saved_direction.group) != len(atoms):
+                    raise ValueError('checkpoint recovered direction group does not match input atom count')
+                # Pickle bypasses dataclass construction; validate the saved values
+                # before restoring RNG or entering the PES, including zero-step resumes.
+                _checkpoint_copy(saved_direction).validate_for_atom_count(len(atoms))
+            if atoms.pbc.any() or atoms.constraints or config.cluster_frame != 'direction_only':
+                raise ValueError('recovered direction requires a free nonperiodic cluster and direction_only frame')
+            if config.pre_rotation_hvp is not None:
+                raise ValueError('recovered direction owns its PreRot stages; do not combine pre_rotation_hvp')
+            direction_controller = RecoveredDirectionController(recovered_direction)
+        if recovered_rotation is not None:
+            from .recovered_rotation import RecoveredRotationSettings
+            if not isinstance(recovered_rotation, RecoveredRotationSettings):
+                raise TypeError('recovered_rotation must be RecoveredRotationSettings')
+            if recovered_direction is not None:
+                raise ValueError('recovered_rotation and recovered_direction are mutually exclusive')
+            if config.pre_rotation_hvp is not None:
+                raise ValueError('recovered_rotation and pre_rotation_hvp are mutually exclusive')
+            if atoms.constraints:
+                raise NotImplementedError('recovered_rotation requires unconstrained atoms')
+        from .minimal_angle_height import MinimalAngleHeightPolicy
+        if reconnect_distance is not None:
+            # Validate the optional geometry contract before the initial PES call.
+            reconnect_clusters(atoms, reconnect_distance, repair=False)
+        _validate_height_policy_options(config, height_policy, height_update_budget)
+        if gaussian_policy is not None:
+            from .pam_gaussian import PAMCurvatureGaussian
+            if not isinstance(gaussian_policy, PAMCurvatureGaussian):
+                raise TypeError('gaussian_policy must be PAMCurvatureGaussian')
+            if height_policy is not None:
+                raise ValueError('gaussian_policy and height_policy are mutually exclusive')
+            if config.cluster_frame == 'eckart':
+                raise NotImplementedError('PAM Gaussian policy has no eckart section contract')
+        if isinstance(steps, bool) or not isinstance(steps, (int, np.integer)) or steps < 0:
+            raise ValueError('steps must be a nonnegative integer')
+        if bias_quench_adapter is not None and not callable(bias_quench_adapter):
+            raise TypeError('bias_quench_adapter must be callable or None')
+        if bias_quench_adapter is not None and (
+                checkpoint is not None or checkpoint_path is not None or
+                checkpoint_callback is not None or progress_callback is not None):
+            raise ValueError('bias_quench_adapter cannot be combined with checkpointing')
+        if atoms.constraints:
+>           raise NotImplementedError('standalone SSW currently requires unconstrained atoms')
+E           NotImplementedError: standalone SSW currently requires unconstrained atoms
+
+pamssw/standalone/paper_reference.py:634: NotImplementedError
+____________ test_legacy_checkpoint_cannot_silently_gain_restraint _____________
+
+    def test_legacy_checkpoint_cannot_silently_gain_restraint():
+        atoms = fixture()
+        bare = atoms.copy()
+        bare.set_constraint()
+        cp = run(bare).checkpoint
+        assert cp.schema_version == 1
+        cp.__dict__.pop('hookean_specs', None)
+        cp = pickle.loads(pickle.dumps(cp))
+        surface = FlatSurface()
+        run(bare, surface, checkpoint=cp)
+        assert surface.requests == 0
+        with pytest.raises(ValueError, match='Hookean|constraint|restraint'):
+>           run(atoms, surface, checkpoint=cp)
+
+tests/standalone/test_ssw_hookean_entry.py:90: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/standalone/test_ssw_hookean_entry.py:37: in run
+    return run_ssw(atoms, surface or FlatSurface(), steps=0, config=config(),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+atoms = Atoms(symbols='Cu13', pbc=False, tags=..., constraint=Hookean(0, 1))
+surface = <test_ssw_hookean_entry.FlatSurface object at 0x152c169ebce0>
+steps = 0
+config = SSWConfig(width=0.1, rotation_bias=1.0, max_gaussians=2, temperature_K=0.0, fmax=0.03, relax_steps=2, fd_step=0.001, r...-lbfgs', lbfgs_memory=None, bias_stage_steps=None, bias_fmax=None, pre_rotation_hvp=None, rotation_exit_policy='force')
+rng = Generator(PCG64) at 0x152C162C4D60, ls = None, height_policy = None
+gaussian_policy = None, height_update_budget = 1000, reconnect_distance = None
+checkpoint = SSWCheckpoint(initial=QuenchResult(atoms=Atoms(symbols='Cu13', pbc=False, tags=...), energy=0.0, max_force=0.0, conver...None, mc_settings=None, native_mc_state=None, recovered_rotation=None, recovered_direction_state=None, pool_state=None)
+checkpoint_path = None, checkpoint_callback = None
+progress_callback = <function run.<locals>.<lambda> at 0x152c1630efc0>
+structure_matcher = None, bias_quench_adapter = None, recovered_direction = None
+recovered_rotation = None, mc = None, starter_selector = None
+selector_rng = None
+
+    def run_ssw(atoms, surface, *, steps, config, rng, ls=None, height_policy=None, gaussian_policy=None,
+                height_update_budget=1000, reconnect_distance=None, checkpoint=None,
+                checkpoint_path=None, checkpoint_callback=None, progress_callback=None,
+                structure_matcher=None, bias_quench_adapter=None,
+                recovered_direction=None, recovered_rotation=None, mc=None,
+                starter_selector=None, selector_rng=None):
+        """Run independent fixed-cell SSW; optional LS uses frozen image bonds for full PBC.
+    
+    ``steps`` counts additional outer attempts. To resume, explicitly pass a
+        loaded ``checkpoint`` and the same settings and RNG bit-generator type;
+        positions come from the checkpoint. ``checkpoint_path`` is an output file,
+        atomically replaced after each completed attempt (never an implicit input).
+        ``checkpoint_callback`` receives a detached checkpoint after each resumable
+        completed attempt. A true return pauses the run at that boundary: the result
+        status is ``paused``, while its checkpoint status remains ``completed`` for
+        explicit resume. It is not called on zero steps or terminal failures.
+        The surface must use the same potential/settings; its counter is not reset.
+        Failed terminal states are diagnostic snapshots, not resumable boundaries.
+    
+    ``progress_callback`` receives a detached ``SSWProgress`` value once the initial
+    search state is successfully established, then at completed resumable outer
+    boundaries. Initialization failures terminate through the result and diagnostic
+    checkpoint without an observer event. The payload has bounded per-step state
+    only, not accumulated history. Returning true pauses; one compatible full
+    checkpoint is returned on pause or final completion. It cannot be combined with
+    ``checkpoint_callback``. With only this observer, full checkpoint copying is
+    deferred until return; ``checkpoint_path`` retains per-step persistence.
+    
+    ``bias_quench_adapter`` is an explicit experimental hook replacing only the
+    biased quench. It receives the original quench arguments plus a ``context``
+    dict with fixed keys and must return ``BiasStageQuenchOutcome``. It cannot be
+    combined with checkpointing; the default path remains the direct ``quench``
+    call. ``gaussian_index`` is zero-based and ``steps`` remains the number of
+    additional outer attempts.
+    
+    ``recovered_direction`` explicitly selects experimental Run5/Q-off local
+    generation, stage displacement updates and recovered CBD. It requires a free
+    nonperiodic cluster with ``cluster_frame='direction_only'``. Outer-boundary
+    checkpointing uses schema 4 and restores pair/group/marker and main RNG. Its settings replace SSWConfig's rotation_solver, rotation_bias,
+    rotation_hvp and rotation_tol; fd_step and rotation_exit_policy still apply.
+    Startup selection is a stated Python contract, not full native trajectory
+    parity. Gaussian/quench/MC rules remain those of this shared driver.
+    
+    ``recovered_rotation`` selects the stateless recovered-CBD rotation stages
+    while retaining the ordinary global/paper direction proposal and outer
+    Gaussian/landing lifecycle. It requires explicit ``RecoveredRotationSettings``
+    and is checkpointed as schema 3; it cannot be combined with
+    ``recovered_direction`` or ``pre_rotation_hvp``.
+    
+    ``starter_selector(snapshot, selector_rng)`` optionally chooses an index from
+    all force-certified observations, including MC-rejected landings. It runs only
+    after a successful true landing and completed state updates. Return None to
+    retain the MC-selected current observation. A different index explicitly
+    restarts direction selection from that stored geometry without another quench.
+    The controller persists across other outer steps. The snapshot owns copies;
+    its cost includes initialization and failed work. A different selected
+    observation reinitializes LS and recovered-direction state transactionally;
+    failed restart preparation leaves the prior current/LS state in place and is
+    recorded as a terminal selection failure. Selection errors otherwise propagate.
+    ``selector_rng`` must be an independent Generator. With checkpointing, the
+    selector must expose the pure-data checkpoint contract methods. ``accepted`` remains the MC decision;
+    ``starter_selection`` separately records the actual next-starter decision.
+    
+    No native program is called. Atoms/its calculator are not changed. The
+    returned minima include rejected MC landings, all force-converged on the
+    true surface; they are NOT deduplicated or positive-Hessian certified.
+        Optional height_policy selects the explicitly conservative native-derived
+        stage-height/history policy; its weights freeze throughout each quench.
+        height_update_budget is a numerical loop ceiling, not an accepted fallback.
+    Failed rotations/quenches consume an outer step and stay in records,
+        never enter minima. A failed LS strength update retains any already valid
+        landing. Calculator exceptions propagate; there is no alternate potential.
+        Explicit rotation_exit_policy="force_or_budget" allows a finite evaluated
+        direction at its numerical request limit to enter Gaussian climbing. It
+        remains marked unconverged; subspace exhaustion and numerical errors are
+        not budget exits. True landing force qualification is unchanged.
+    Random velocity directions use normal components divided by sqrt(mass),
+    then normalize; the Maxwell temperature factor cancels. Global rigid modes
+    are not projected out by default (external ASE potentials may break these
+    symmetries). Explicit cluster_frame="eckart" restricts each escape to a fixed
+    linear section, including full modified-energy quenching. This requires an
+    isolated free cluster; it is an experimental formulation, not native parity.
+    Initial and final true quenches remain unrestricted and use full atomic forces.
+    With cluster_frame="direction_only", the direction/HVP projector is rebuilt at
+    each Gaussian center, while biased quenching stays unrestricted Cartesian. This
+    follows the recovered native rigid tangent span, not exact CBD execution parity.
+    Three-dimensional PBC uses explicit translation_only/global sampling: continuous
+    unwrapped Cartesian positions and fixed cell throughout each escape, projecting
+    only global translations in direction refinement. No rotation removal, MIC bias,
+    or cell optimization is performed. Physical E/F retain ASE PBC; the path bias
+    lives on the continuous coordinate lift and must not be evaluated after wrapping.
+    """
+        if checkpoint is not None:
+            _validate_ssw_checkpoint(checkpoint)
+            if checkpoint.status != 'completed':
+                raise ValueError(f'cannot resume terminal checkpoint with status {checkpoint.status!r}')
+        if checkpoint_callback is not None and not callable(checkpoint_callback):
+            raise TypeError('checkpoint_callback must be callable or None')
+        if progress_callback is not None and not callable(progress_callback):
+            raise TypeError('progress_callback must be callable or None')
+        if checkpoint_callback is not None and progress_callback is not None:
+            raise ValueError('progress_callback and checkpoint_callback are mutually exclusive')
+        if starter_selector is None and selector_rng is not None:
+            raise ValueError('selector_rng requires starter_selector')
+        if starter_selector is not None:
+            if not callable(starter_selector):
+                raise TypeError('starter_selector must be callable or None')
+            if not isinstance(selector_rng, np.random.Generator):
+                raise ValueError('starter_selector requires an independent selector_rng Generator')
+            if selector_rng is rng or selector_rng.bit_generator is rng.bit_generator:
+                raise ValueError('selector_rng must be independent and must not share the main rng or bit_generator')
+        pool_resume = checkpoint is not None and getattr(checkpoint, 'pool_state', None) is not None
+        pool_checkpoint = starter_selector is not None and (
+            checkpoint_path is not None or checkpoint_callback is not None or
+            progress_callback is not None or pool_resume)
+        if pool_resume and starter_selector is None:
+            raise ValueError('pool checkpoint resume requires starter_selector')
+        if pool_checkpoint or pool_resume:
+            from .pool_checkpoint import _require_contract, _require_restore, _require_state
+            _require_contract(starter_selector)
+            _require_state(starter_selector)
+            _require_restore(starter_selector)
+        if checkpoint is not None and getattr(checkpoint, 'pool_state', None) is None and starter_selector is not None:
+            raise ValueError('checkpoint lacks pool selector state')
+        if mc is not None and not isinstance(mc, NativeMCSettings):
+            raise TypeError('mc must be NativeMCSettings or None')
+        if mc is not None and config.temperature_K <= 0:
+            raise ValueError('native MC requires positive temperature_K')
+        if checkpoint is not None and recovered_rotation is None:
+            recovered_rotation = getattr(checkpoint, 'recovered_rotation', None)
+        if checkpoint is not None and recovered_direction is None:
+            saved_direction = getattr(checkpoint, 'recovered_direction_state', None)
+            if saved_direction is not None:
+                recovered_direction = saved_direction.settings
+        direction_controller = None
+        if recovered_direction is not None:
+            from .recovered_direction import (RecoveredDirectionSettings,
+                                               RecoveredDirectionCheckpointState,
+                                               RecoveredDirectionController)
+            if not isinstance(recovered_direction, RecoveredDirectionSettings):
+                raise TypeError('recovered_direction must be RecoveredDirectionSettings')
+            if checkpoint is not None and getattr(checkpoint, 'recovered_direction_state', None) is None:
+                raise ValueError('checkpoint lacks recovered direction state')
+            if checkpoint is not None:
+                saved_direction = checkpoint.recovered_direction_state
+                if not isinstance(saved_direction, RecoveredDirectionCheckpointState):
+                    raise ValueError('checkpoint recovered direction state is invalid')
+                if saved_direction.settings != recovered_direction:
+                    raise ValueError('checkpoint recovered direction settings do not match requested settings')
+                if any(i < 0 or i >= len(atoms) for i in saved_direction.pair):
+                    raise ValueError('checkpoint recovered direction pair does not match input atom count')
+                if len(saved_direction.group) != len(atoms):
+                    raise ValueError('checkpoint recovered direction group does not match input atom count')
+                # Pickle bypasses dataclass construction; validate the saved values
+                # before restoring RNG or entering the PES, including zero-step resumes.
+                _checkpoint_copy(saved_direction).validate_for_atom_count(len(atoms))
+            if atoms.pbc.any() or atoms.constraints or config.cluster_frame != 'direction_only':
+                raise ValueError('recovered direction requires a free nonperiodic cluster and direction_only frame')
+            if config.pre_rotation_hvp is not None:
+                raise ValueError('recovered direction owns its PreRot stages; do not combine pre_rotation_hvp')
+            direction_controller = RecoveredDirectionController(recovered_direction)
+        if recovered_rotation is not None:
+            from .recovered_rotation import RecoveredRotationSettings
+            if not isinstance(recovered_rotation, RecoveredRotationSettings):
+                raise TypeError('recovered_rotation must be RecoveredRotationSettings')
+            if recovered_direction is not None:
+                raise ValueError('recovered_rotation and recovered_direction are mutually exclusive')
+            if config.pre_rotation_hvp is not None:
+                raise ValueError('recovered_rotation and pre_rotation_hvp are mutually exclusive')
+            if atoms.constraints:
+                raise NotImplementedError('recovered_rotation requires unconstrained atoms')
+        from .minimal_angle_height import MinimalAngleHeightPolicy
+        if reconnect_distance is not None:
+            # Validate the optional geometry contract before the initial PES call.
+            reconnect_clusters(atoms, reconnect_distance, repair=False)
+        _validate_height_policy_options(config, height_policy, height_update_budget)
+        if gaussian_policy is not None:
+            from .pam_gaussian import PAMCurvatureGaussian
+            if not isinstance(gaussian_policy, PAMCurvatureGaussian):
+                raise TypeError('gaussian_policy must be PAMCurvatureGaussian')
+            if height_policy is not None:
+                raise ValueError('gaussian_policy and height_policy are mutually exclusive')
+            if config.cluster_frame == 'eckart':
+                raise NotImplementedError('PAM Gaussian policy has no eckart section contract')
+        if isinstance(steps, bool) or not isinstance(steps, (int, np.integer)) or steps < 0:
+            raise ValueError('steps must be a nonnegative integer')
+        if bias_quench_adapter is not None and not callable(bias_quench_adapter):
+            raise TypeError('bias_quench_adapter must be callable or None')
+        if bias_quench_adapter is not None and (
+                checkpoint is not None or checkpoint_path is not None or
+                checkpoint_callback is not None or progress_callback is not None):
+            raise ValueError('bias_quench_adapter cannot be combined with checkpointing')
+        if atoms.constraints:
+>           raise NotImplementedError('standalone SSW currently requires unconstrained atoms')
+E           NotImplementedError: standalone SSW currently requires unconstrained atoms
+
+pamssw/standalone/paper_reference.py:634: NotImplementedError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_ssw_hookean_entry.py::test_pair_hookean_saved_roundtrip_and_idempotent_binding
+FAILED tests/standalone/test_ssw_hookean_entry.py::test_changed_restraint_rejected_before_rng_and_pes[k]
+FAILED tests/standalone/test_ssw_hookean_entry.py::test_changed_restraint_rejected_before_rng_and_pes[rt]
+FAILED tests/standalone/test_ssw_hookean_entry.py::test_changed_restraint_rejected_before_rng_and_pes[pair]
+FAILED tests/standalone/test_ssw_hookean_entry.py::test_changed_restraint_rejected_before_rng_and_pes[remove]
+FAILED tests/standalone/test_ssw_hookean_entry.py::test_legacy_checkpoint_cannot_silently_gain_restraint
+6 failed, 3 passed in 0.91s

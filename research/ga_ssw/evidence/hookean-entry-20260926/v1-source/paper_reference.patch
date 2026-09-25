@@ -1,0 +1,108 @@
+diff --git a/pamssw/standalone/paper_reference.py b/pamssw/standalone/paper_reference.py
+index 3a505f4..2273d4e 100644
+--- a/pamssw/standalone/paper_reference.py
++++ b/pamssw/standalone/paper_reference.py
+@@ -234,6 +234,7 @@ class SSWCheckpoint:
+     recovered_rotation: object = None
+     recovered_direction_state: object = None
+     pool_state: object = None
++    hookean_specs: tuple = ()
+ 
+ 
+ def _checkpoint_copy(value):
+@@ -253,7 +254,8 @@ def _checkpoint_copy(value):
+             _checkpoint_copy(getattr(value, 'native_mc_state', None)),
+             _checkpoint_copy(getattr(value, 'recovered_rotation', None)),
+             _checkpoint_copy(getattr(value, 'recovered_direction_state', None)),
+-            _checkpoint_copy(getattr(value, 'pool_state', None)))
++            _checkpoint_copy(getattr(value, 'pool_state', None)),
++            tuple(getattr(value, 'hookean_specs', ())))
+     if isinstance(value, Atoms):
+         result = value.copy()
+         result.calc = None
+@@ -311,8 +313,10 @@ def save_ssw_checkpoint(path, checkpoint):
+ def _validate_ssw_checkpoint(checkpoint):
+     if not isinstance(checkpoint, SSWCheckpoint):
+         raise TypeError('checkpoint must be SSWCheckpoint')
+-    if checkpoint.schema_version not in (1, 2, 3, 4, 5):
++    if checkpoint.schema_version not in (1, 2, 3, 4, 5, 6):
+         raise ValueError(f'unsupported SSW checkpoint schema {checkpoint.schema_version!r}')
++    from .ssw_restraints import validate_checkpoint_hookean_metadata
++    validate_checkpoint_hookean_metadata(checkpoint)
+     pool_state = getattr(checkpoint, 'pool_state', None)
+     if checkpoint.schema_version == 5 and pool_state is None:
+         raise ValueError('schema 5 checkpoint requires pool state')
+@@ -330,7 +334,7 @@ def _validate_ssw_checkpoint(checkpoint):
+             raise ValueError('schema 2 checkpoint requires native MC settings')
+         if not isinstance(getattr(checkpoint, 'native_mc_state', None), NativeMCState):
+             raise ValueError('schema 2 checkpoint requires native MC state')
+-    if checkpoint.schema_version in (3, 4, 5) and saved_mc is not None:
++    if checkpoint.schema_version in (3, 4, 5, 6) and saved_mc is not None:
+         if not isinstance(checkpoint.mc_settings, NativeMCSettings):
+             raise ValueError('schema 3 checkpoint has invalid native MC settings')
+         if not isinstance(getattr(checkpoint, 'native_mc_state', None), NativeMCState):
+@@ -466,6 +470,12 @@ checkpoint is returned on pause or final completion. It cannot be combined with
+ ``checkpoint_callback``. With only this observer, full checkpoint copying is
+ deferred until return; ``checkpoint_path`` retains per-step persistence.
+ 
++Atom-pair ASE Hookean constraints on nonperiodic input are evaluated as an
++additional objective term: every SSW stage minimizes ``V + U_Hookean``. The
++constraint metadata is retained in schema 6 checkpoints, and restored runs
++must supply the same atom-pair constraints. Returned ordinary atom snapshots
++remain constraint-free; the checkpoint identifies their restrained objective.
++
+ ``bias_quench_adapter`` is an explicit experimental hook replacing only the
+ biased quench. It receives the original quench arguments plus a ``context``
+ dict with fixed keys and must return ``BiasStageQuenchOutcome``. It cannot be
+@@ -534,6 +544,8 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
+         _validate_ssw_checkpoint(checkpoint)
+         if checkpoint.status != 'completed':
+             raise ValueError(f'cannot resume terminal checkpoint with status {checkpoint.status!r}')
++    from .ssw_restraints import prepare_ssw_restraints
++    atoms, surface, hookean_specs = prepare_ssw_restraints(atoms, surface, checkpoint)
+     if checkpoint_callback is not None and not callable(checkpoint_callback):
+         raise TypeError('checkpoint_callback must be callable or None')
+     if progress_callback is not None and not callable(progress_callback):
+@@ -650,7 +662,7 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
+         if mc is None and saved_mc:
+             raise ValueError('native MC checkpoint requires native MC settings')
+         if mc is not None:
+-            if checkpoint.schema_version not in (2, 3, 4, 5) or getattr(checkpoint, 'native_mc_state', None) is None:
++            if checkpoint.schema_version not in (2, 3, 4, 5, 6) or getattr(checkpoint, 'native_mc_state', None) is None:
+                 raise ValueError('checkpoint lacks native MC state')
+             if getattr(checkpoint, 'mc_settings', None) != mc:
+                 raise ValueError('checkpoint native MC settings do not match requested settings')
+@@ -758,13 +770,15 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
+             next_index, status, identity_view=_checkpoint_copy(identity_view),
+             schema_version=(5 if pool_checkpoint_enabled else
+                 (4 if direction_controller is not None else
+-                 (3 if recovered_rotation is not None else (2 if mc is not None else 1)))),
++                 (3 if recovered_rotation is not None else (2 if mc is not None else 1))))
++                if not hookean_specs else 6,
+             mc_settings=_checkpoint_copy(mc),
+             native_mc_state=_checkpoint_copy(native_mc_state),
+             recovered_rotation=_checkpoint_copy(recovered_rotation),
+             recovered_direction_state=(None if direction_controller is None else
+                 _checkpoint_copy(direction_controller.checkpoint_state())),
+-            pool_state=_checkpoint_copy(checkpoint_pool_state()))
++            pool_state=_checkpoint_copy(checkpoint_pool_state()),
++            hookean_specs=tuple(hookean_specs))
+ 
+     if checkpoint is None and ls is not None:
+         try:
+@@ -783,12 +797,13 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
+                     _checkpoint_copy(gaussian_policy), height_update_budget, reconnect_distance,
+                     deepcopy(rng.bit_generator.state), surface.requests - begin, 0, terminal,
+                     identity_view=_checkpoint_copy(identity_view),
+-                    schema_version=(5 if pool_checkpoint_enabled else (4 if recovered_direction is not None else (3 if recovered_rotation is not None else (2 if mc is not None else 1)))),
+                     mc_settings=_checkpoint_copy(mc),
+                     native_mc_state=_checkpoint_copy(native_mc_state),
+                     recovered_rotation=_checkpoint_copy(recovered_rotation),
+                     recovered_direction_state=(None if direction_controller is None else _checkpoint_copy(direction_controller.checkpoint_state())),
+-                    pool_state=_checkpoint_copy(checkpoint_pool_state()))
++                    pool_state=_checkpoint_copy(checkpoint_pool_state()),
++                    hookean_specs=tuple(hookean_specs),
++                    schema_version=(6 if hookean_specs else (5 if pool_checkpoint_enabled else (4 if recovered_direction is not None else (3 if recovered_rotation is not None else (2 if mc is not None else 1))))))
+                 if checkpoint_path is not None:
+                     save_ssw_checkpoint(checkpoint_path, cp)
+             return SSWResult(initial, current.copy(), best.atoms.copy(), tuple(minima),

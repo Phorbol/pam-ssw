@@ -1,4 +1,6 @@
-# 原子对Hookean自动入口：供用户决定
+# 原子对Hookean自动入口：已批准设计
+
+用户已批准原生入口与配置保存；实现及验证见[后续报告](../../research/ga_ssw/evidence/hookean-entry-20260926/report.md)。
 
 现有手动surface组合已用Cu13/EMT验证，见
 [780次调用的结果](../../research/ga_ssw/evidence/hookean-composition-20260926/report.md)。
@@ -22,4 +24,4 @@ FixAtoms/slab仍走现有constrained入口，不借此统一VC/RC或引入新几
 之后用一条实际池重启路径核验组合。不以此声称成笼成功率改善。
 
 讨论依据：项目AGENTS.md第8节的重要公共接口/持久化设计条款。
-此处触及输入语义和保存格式；本轮只完成既有接口验证和文档，未实施扩展。
+此处触及输入语义和保存格式；已获明确批准，不重复申请。

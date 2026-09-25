@@ -400,8 +400,31 @@ reports unprojected objective forces; fixed atoms and cell remain fixed througho
 For Hookean, certificates additionally store bare physical and restraint E/F.
 A restrained minimum need not be stationary on the unrestrained physical PES.
 
-For the full nonperiodic recovered-direction controller, an **atom-pair**
-Hookean term can instead be composed explicitly with the ordinary surface:
+The ordinary `run_ssw` entry accepts **atom-pair** Hookean constraints on
+nonperiodic input, including full recovered-direction and pool paths:
+
+```python
+from ase.constraints import Hookean
+
+atoms.set_constraint(Hookean(i, j, k=k, rt=rt))  # explicit caller parameters
+result = run_ssw(atoms, ASESurface(calculator), steps=steps, config=config,
+                 rng=rng, recovered_direction=direction_settings,
+                 checkpoint_path="state.pkl")
+```
+
+The target throughout is **V + U**, including true quench and selection.
+Schema 6 stores `checkpoint.hookean_specs` and the original capability version
+(`base_schema_version`), preserving the prior required-state checks. Resume with the same constraints
+attached to the input and a fresh surface for the same physical calculator.
+Changed or removed constraints fail before RNG restoration or PES calls.
+Old unrestrained calls/checkpoints retain their format and behavior; they
+cannot silently gain an attached restraint during resume. Returned ordinary
+Atoms remain constraint-free. Their stored energies refer to V + U; attach
+saved constraints to a copy for ASE evaluation or use the wrapped surface.
+Do not infer bare-PES stationarity from restrained force convergence.
+
+For callers managing their objective externally, the previous explicit surface
+composition remains available:
 
 ```python
 from ase.constraints import Hookean
@@ -419,14 +442,14 @@ result = run_ssw(clean, surface, steps=steps, config=config, rng=rng,
                  recovered_direction=direction_settings)
 ```
 
-This uses the existing surface interface; it does not make `run_ssw` accept
-attached ASE constraints automatically. The objective throughout is **V + U**,
+This manual route retains external wrapper identity; only the automatic
+attached-constraint route records schema 6 metadata. The objective is **V + U**,
 including the final quench and selection. Returned ordinary-walker Atoms are
 constraint-free: use the same wrapped surface for evaluation, or attach the
 saved constraints to a copy when using ASE directly. Do not interpret its
 stored energy as bare V. On resume reconstruct the same calculator **and the
 same saved Hookean specification**, rather than recomputing a threshold from
-the resumed geometry. Ordinary checkpoints do not validate external potential
+the resumed geometry. Manual-route checkpoints do not validate external potential
 identity. Changing k, rt or the pair invalidates same-objective continuation.
 Point/plane restraints and FixAtoms are excluded from this recipe: they do not
 generally preserve the rigid-motion invariance assumed by full cluster directions.
