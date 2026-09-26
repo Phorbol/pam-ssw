@@ -1,0 +1,142 @@
+{
+  "output_available": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/lj-gaussian-policy-probe-20260927/unused-preflight-output",
+  "input_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/runs/run_lj_pilot.py",
+  "reference_qualification": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/lj-reference-qualification.json",
+  "sizes": [
+    38,
+    55
+  ],
+  "seeds": [
+    25092501,
+    25092502
+  ],
+  "steps_per_arm": 1,
+  "search_request_cap_per_arm_including_initial": 2500,
+  "search_request_cap_total": 20000,
+  "fresh_request_cap_total": 16,
+  "campaign_wall_seconds": 240,
+  "ssw_config": {
+    "width": 0.6,
+    "rotation_bias": 1.0,
+    "max_gaussians": 14,
+    "temperature_K": 9283.617648320807,
+    "fmax": 0.01,
+    "relax_steps": 1000,
+    "fd_step": 0.001,
+    "rotation_hvp": 39,
+    "rotation_tol": 0.02,
+    "forward_force": 0.1,
+    "direction_sampling": "paper",
+    "rotation_solver": "broyden-euclidean",
+    "cluster_frame": "direction_only",
+    "quench_optimizer": "safe-lbfgs-total",
+    "lbfgs_memory": 500,
+    "bias_stage_steps": null,
+    "bias_fmax": 0.1,
+    "pre_rotation_hvp": null,
+    "rotation_exit_policy": "force_or_budget"
+  },
+  "recovered_rotation": {
+    "pre_rotmax": 5,
+    "rotmax": 15,
+    "pre_ftol": 0.2,
+    "ftol": 0.02,
+    "metric": "euclidean",
+    "max_force_calls": 40
+  },
+  "arms": [
+    {
+      "name": "forward_default",
+      "gaussian_policy": null
+    },
+    {
+      "name": "pam_curvature_height_width",
+      "gaussian_policy": {
+        "target_uphill_energy": 0.6,
+        "target_negative_curvature": 0.05,
+        "min_width": 0.15,
+        "max_width": 1.5,
+        "min_weight": 0.0,
+        "max_weight": 10.0,
+        "curvature_floor": 0.0001,
+        "mode": "height_width"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "n": 38,
+      "seed": 25092501,
+      "atom_count": 38,
+      "pbc": [
+        false,
+        false,
+        false
+      ],
+      "input_sha256": "e69c9417d308d794086edcc5ffdd3e186696a158f335accbd65e4ccf2b2ce040",
+      "search_rng_seed_sequence": {
+        "entropy": 25092501,
+        "spawn_key": [
+          1
+        ],
+        "pool_size": 4
+      }
+    },
+    {
+      "n": 38,
+      "seed": 25092502,
+      "atom_count": 38,
+      "pbc": [
+        false,
+        false,
+        false
+      ],
+      "input_sha256": "af9601fd8a44443967e32915f61468d709e4c92612b6c2b6f026c085b81e4b59",
+      "search_rng_seed_sequence": {
+        "entropy": 25092502,
+        "spawn_key": [
+          1
+        ],
+        "pool_size": 4
+      }
+    },
+    {
+      "n": 55,
+      "seed": 25092501,
+      "atom_count": 55,
+      "pbc": [
+        false,
+        false,
+        false
+      ],
+      "input_sha256": "f2043e1e2c571088d82d2e61c0c8c0a18f106cf36b3d9d6d751dc17b96cedc13",
+      "search_rng_seed_sequence": {
+        "entropy": 25092501,
+        "spawn_key": [
+          1
+        ],
+        "pool_size": 4
+      }
+    },
+    {
+      "n": 55,
+      "seed": 25092502,
+      "atom_count": 55,
+      "pbc": [
+        false,
+        false,
+        false
+      ],
+      "input_sha256": "c444265735a4b0d51595ef1ccb0818d30e0c448ea5f943d1700fba15e74e19bf",
+      "search_rng_seed_sequence": {
+        "entropy": 25092502,
+        "spawn_key": [
+          1
+        ],
+        "pool_size": 4
+      }
+    }
+  ],
+  "PES_requests": 0,
+  "status": "prepare_only_passed_zero_PES"
+}
