@@ -1,0 +1,83 @@
+.F....                                                                   [100%]
+=================================== FAILURES ===================================
+_ VCE2EOptimizerPanelTest.test_three_methods_preserve_context_ledger_cost_and_record_backed_fresh _
+
+self = <test_vc_e2e_optimizer_panel.VCE2EOptimizerPanelTest testMethod=test_three_methods_preserve_context_ledger_cost_and_record_backed_fresh>
+
+    def test_three_methods_preserve_context_ledger_cost_and_record_backed_fresh(self):
+        methods = ("safe_total", "ase", "scipy")
+        original_vc = vc_reference.safe_lbfgs
+        original_cell = cell_relax.safe_lbfgs
+        with tempfile.TemporaryDirectory() as tmp:
+            for method in methods:
+                out = Path(tmp) / method
+>               result = run_arm(self.atoms(), self.calculator, config(),
+                    method=method, seed=7, steps=1, request_cap=240,
+                    search_seconds=60, output_dir=out,
+                    case_name="Cu4-EMT-test")
+
+tests/research/test_vc_e2e_optimizer_panel.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+research/ga_ssw/run_vc_e2e_optimizer_panel.py:241: in run_arm
+    json.dumps(result_payload, indent=2, allow_nan=False) + "\n")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.conda/envs/mace_env/lib/python3.12/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+../../../.conda/envs/mace_env/lib/python3.12/json/encoder.py:202: in encode
+    chunks = list(chunks)
+             ^^^^^^^^^^^^
+../../../.conda/envs/mace_env/lib/python3.12/json/encoder.py:432: in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+../../../.conda/envs/mace_env/lib/python3.12/json/encoder.py:406: in _iterencode_dict
+    yield from chunks
+../../../.conda/envs/mace_env/lib/python3.12/json/encoder.py:326: in _iterencode_list
+    yield from chunks
+../../../.conda/envs/mace_env/lib/python3.12/json/encoder.py:406: in _iterencode_dict
+    yield from chunks
+../../../.conda/envs/mace_env/lib/python3.12/json/encoder.py:406: in _iterencode_dict
+    yield from chunks
+../../../.conda/envs/mace_env/lib/python3.12/json/encoder.py:439: in _iterencode
+    o = _default(o)
+        ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0xedc719ff1a0>
+o = array([-3.01326508e-17, -2.57563268e-16, -4.61058487e-16, -1.44258678e-15,
+        1.80750000e+00,  1.80750000e+00,  1...6,
+       -2.53804725e-02, -2.53804725e-02, -2.53804725e-02,  2.22802497e-16,
+       -1.71744995e-16, -1.29073231e-16])
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type ndarray is not JSON serializable
+
+../../../.conda/envs/mace_env/lib/python3.12/json/encoder.py:180: TypeError
+=============================== warnings summary ===============================
+tests/research/test_vc_e2e_optimizer_panel.py::VCE2EOptimizerPanelTest::test_global_cap_is_reported_as_censor_with_paid_cost
+  /home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/torch/cuda/__init__.py:63: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/research/test_vc_e2e_optimizer_panel.py::VCE2EOptimizerPanelTest::test_three_methods_preserve_context_ledger_cost_and_record_backed_fresh
+1 failed, 5 passed, 1 warning in 3.58s

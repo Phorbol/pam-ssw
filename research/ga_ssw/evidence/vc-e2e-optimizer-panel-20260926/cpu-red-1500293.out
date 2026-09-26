@@ -1,0 +1,16 @@
+
+==================================== ERRORS ====================================
+________ ERROR collecting tests/research/test_vc_e2e_optimizer_panel.py ________
+ImportError while importing test module '/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/tests/research/test_vc_e2e_optimizer_panel.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../.conda/envs/mace_env/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/research/test_vc_e2e_optimizer_panel.py:14: in <module>
+    from research.ga_ssw.run_vc_e2e_optimizer_panel import run_arm
+E   ModuleNotFoundError: No module named 'research.ga_ssw.run_vc_e2e_optimizer_panel'
+=========================== short test summary info ============================
+ERROR tests/research/test_vc_e2e_optimizer_panel.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.93s
