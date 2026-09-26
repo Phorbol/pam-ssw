@@ -20,11 +20,15 @@ from pamssw.state import State
 class PoolStarterAdapter:
     CHECKPOINT_VERSION = 1
 
-    def __init__(self, *, mode, energy_tol, rmsd_tol):
+    def __init__(self, *, mode, energy_tol, rmsd_tol, identity_matcher='ordered_v1'):
         if mode not in ('uniform', 'pam'):
             raise ValueError('mode must be uniform or pam')
+        if identity_matcher not in ('ordered_v1', 'ase_permute_v1'):
+            raise ValueError('identity_matcher must be ordered_v1 or ase_permute_v1')
         self.mode = mode
-        self.archive = MinimaArchive(energy_tol, rmsd_tol)
+        self.identity_matcher = identity_matcher
+        self._checkpoint_version = self.CHECKPOINT_VERSION if identity_matcher == 'ordered_v1' else 2
+        self.archive = self._new_archive(energy_tol=energy_tol, rmsd_tol=rmsd_tol)
         self.selector = BanditSelector()
         self.scorer = ProposalScorer()
         self.mapping = []
@@ -34,6 +38,12 @@ class PoolStarterAdapter:
         self._source = None
         self._executed = 0
         self._finalized = False
+
+    def _new_archive(self, **config):
+        if self.identity_matcher == 'ase_permute_v1':
+            from research.ga_ssw.pool_molecular_archive import ASEPermutationArchive
+            return ASEPermutationArchive(**config)
+        return MinimaArchive(**config)
 
     @staticmethod
     def _state_payload(state):
@@ -67,8 +77,8 @@ class PoolStarterAdapter:
     def checkpoint_contract(self):
         """Return the pure configuration identity required for restoration."""
         policy = self.selector.policy
-        return {
-            'version': self.CHECKPOINT_VERSION,
+        contract = {
+            'version': self._checkpoint_version,
             'identity': 'research.ga_ssw.pool_starter_adapter.PoolStarterAdapter',
             'mode': self.mode,
             'archive': {
@@ -83,6 +93,18 @@ class PoolStarterAdapter:
             },
             'selector': {'policy': self._policy_payload(policy)},
         }
+        # Keep the legacy v1 contract byte-for-byte in shape and values.
+        if self.identity_matcher == 'ase_permute_v1':
+            import ase
+            contract['identity_matcher'] = {
+                'mode': self.identity_matcher,
+                'implementation': 'ase.geometry.distance',
+                'ase_version': ase.__version__,
+                'permute': True,
+                'normalization': 'divide_by_sqrt_n_atoms',
+                'domain': 'nonperiodic_unconstrained',
+            }
+        return contract
 
     def export_state(self):
         """Export adapter state as explicit data, without strategy instances."""
@@ -107,7 +129,7 @@ class PoolStarterAdapter:
         } for prototype in self.archive.prototypes]
         outcomes = [dict(vars(outcome)) for outcome in self.outcomes]
         return {
-            'version': self.CHECKPOINT_VERSION,
+            'version': self._checkpoint_version,
             'contract': self.checkpoint_contract(),
             'archive': {
                 'entries': entries, 'prototypes': prototypes,
@@ -140,7 +162,7 @@ class PoolStarterAdapter:
                             'source', 'executed', 'finalized')
         if any(key not in payload for key in required_payload):
             raise ValueError('checkpoint payload is incomplete')
-        if payload['version'] != self.CHECKPOINT_VERSION:
+        if payload['version'] != self._checkpoint_version:
             raise ValueError('checkpoint version does not match')
         if payload['finalized']:
             raise ValueError('cannot restore finalized pool adapter')
@@ -151,15 +173,18 @@ class PoolStarterAdapter:
                             'max_energy_mismatch')
         if any(key not in archive_payload for key in required_archive):
             raise ValueError('checkpoint archive is incomplete')
-        archive = MinimaArchive(**self.checkpoint_contract()['archive'])
+        archive = self._new_archive(**self.checkpoint_contract()['archive'])
         entries = []
         for index, item in enumerate(archive_payload.get('entries', ())):
             item = self._require_mapping(item, 'entry')
             if item.get('entry_id') != index:
                 raise ValueError('checkpoint entry ids are not contiguous')
             descriptor = item.get('descriptor')
+            state = self._state_from_payload(item['state'])
+            if self.identity_matcher == 'ase_permute_v1':
+                archive.validate_state(state)
             entries.append(MinimaEntry(
-                entry_id=index, state=self._state_from_payload(item['state']),
+                entry_id=index, state=state,
                 energy=float(item['energy']), parent_id=item.get('parent_id'),
                 visits=int(item['visits']),
                 descriptor=None if descriptor is None else np.asarray(descriptor, dtype=float).copy(),

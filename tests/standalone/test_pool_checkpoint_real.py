@@ -9,10 +9,12 @@ from test_ssw_checkpoint import _case
 
 
 @pytest.mark.parametrize('mode', ['uniform', 'pam'])
-def test_real_ls_pool_resume_matches_uninterrupted(mode, tmp_path):
+@pytest.mark.parametrize('identity_matcher', ['ordered_v1', 'ase_permute_v1'])
+def test_real_ls_pool_resume_matches_uninterrupted(mode, identity_matcher, tmp_path):
     atoms, config, ls = _case()
     def adapter():
-        return PoolStarterAdapter(mode=mode, energy_tol=1e-5, rmsd_tol=1e-3)
+        return PoolStarterAdapter(mode=mode, energy_tol=1e-5, rmsd_tol=1e-3,
+                                  identity_matcher=identity_matcher)
     continuous_policy, partial_policy = adapter(), adapter()
     main_rng, pool_rng = np.random.default_rng(19), np.random.default_rng(23)
     full = run_ssw(atoms, ASESurface(EMT()), steps=4, config=config, ls=ls,

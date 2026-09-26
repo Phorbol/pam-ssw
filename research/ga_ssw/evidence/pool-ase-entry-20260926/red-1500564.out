@@ -1,0 +1,182 @@
+FFFFFFFFF                                                                [100%]
+=================================== FAILURES ===================================
+____________________ test_default_contract_stays_legacy_v1 _____________________
+
+    def test_default_contract_stays_legacy_v1():
+        old = PoolStarterAdapter(mode='uniform', energy_tol=.001, rmsd_tol=.1)
+>       explicit = pool('ordered_v1')
+                   ^^^^^^^^^^^^^^^^^^
+
+tests/standalone/test_pool_ase_identity.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+identity = 'ordered_v1'
+
+    def pool(identity='ase_permute_v1'):
+>       return PoolStarterAdapter(mode='uniform', energy_tol=.001, rmsd_tol=.1,
+                                  identity_matcher=identity)
+E       TypeError: PoolStarterAdapter.__init__() got an unexpected keyword argument 'identity_matcher'
+
+tests/standalone/test_pool_ase_identity.py:16: TypeError
+_____________ test_permuted_c60_is_one_entry_and_keeps_input_order _____________
+
+    def test_permuted_c60_is_one_entry_and_keeps_input_order():
+        initial = molecule('C60')
+        permuted = initial[np.random.default_rng(3).permutation(60)]
+        permuted.rotate(35, 'z')
+        permuted.translate([2., -1., .3])
+        positions = permuted.positions.copy()
+>       a = pool()
+            ^^^^^^
+
+tests/standalone/test_pool_ase_identity.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+identity = 'ase_permute_v1'
+
+    def pool(identity='ase_permute_v1'):
+>       return PoolStarterAdapter(mode='uniform', energy_tol=.001, rmsd_tol=.1,
+                                  identity_matcher=identity)
+E       TypeError: PoolStarterAdapter.__init__() got an unexpected keyword argument 'identity_matcher'
+
+tests/standalone/test_pool_ase_identity.py:16: TypeError
+____________ test_restore_retains_matcher_and_duplicate_accounting _____________
+
+    def test_restore_retains_matcher_and_duplicate_accounting():
+        initial = molecule('H2O')
+        first = (obs(0, initial),)
+>       a = pool()
+            ^^^^^^
+
+tests/standalone/test_pool_ase_identity.py:56: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+identity = 'ase_permute_v1'
+
+    def pool(identity='ase_permute_v1'):
+>       return PoolStarterAdapter(mode='uniform', energy_tol=.001, rmsd_tol=.1,
+                                  identity_matcher=identity)
+E       TypeError: PoolStarterAdapter.__init__() got an unexpected keyword argument 'identity_matcher'
+
+tests/standalone/test_pool_ase_identity.py:16: TypeError
+___ test_cross_mode_restore_fails_before_mutation[ordered_v1-ase_permute_v1] ___
+
+source = 'ordered_v1', target = 'ase_permute_v1'
+
+    @pytest.mark.parametrize('source,target', [('ordered_v1', 'ase_permute_v1'),
+                                              ('ase_permute_v1', 'ordered_v1')])
+    def test_cross_mode_restore_fails_before_mutation(source, target):
+>       destination = pool(target)
+                      ^^^^^^^^^^^^
+
+tests/standalone/test_pool_ase_identity.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+identity = 'ase_permute_v1'
+
+    def pool(identity='ase_permute_v1'):
+>       return PoolStarterAdapter(mode='uniform', energy_tol=.001, rmsd_tol=.1,
+                                  identity_matcher=identity)
+E       TypeError: PoolStarterAdapter.__init__() got an unexpected keyword argument 'identity_matcher'
+
+tests/standalone/test_pool_ase_identity.py:16: TypeError
+___ test_cross_mode_restore_fails_before_mutation[ase_permute_v1-ordered_v1] ___
+
+source = 'ase_permute_v1', target = 'ordered_v1'
+
+    @pytest.mark.parametrize('source,target', [('ordered_v1', 'ase_permute_v1'),
+                                              ('ase_permute_v1', 'ordered_v1')])
+    def test_cross_mode_restore_fails_before_mutation(source, target):
+>       destination = pool(target)
+                      ^^^^^^^^^^^^
+
+tests/standalone/test_pool_ase_identity.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+identity = 'ordered_v1'
+
+    def pool(identity='ase_permute_v1'):
+>       return PoolStarterAdapter(mode='uniform', energy_tol=.001, rmsd_tol=.1,
+                                  identity_matcher=identity)
+E       TypeError: PoolStarterAdapter.__init__() got an unexpected keyword argument 'identity_matcher'
+
+tests/standalone/test_pool_ase_identity.py:16: TypeError
+____________________ test_ase_version_mismatch_is_rejected _____________________
+
+    def test_ase_version_mismatch_is_rejected():
+>       a = pool()
+            ^^^^^^
+
+tests/standalone/test_pool_ase_identity.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+identity = 'ase_permute_v1'
+
+    def pool(identity='ase_permute_v1'):
+>       return PoolStarterAdapter(mode='uniform', energy_tol=.001, rmsd_tol=.1,
+                                  identity_matcher=identity)
+E       TypeError: PoolStarterAdapter.__init__() got an unexpected keyword argument 'identity_matcher'
+
+tests/standalone/test_pool_ase_identity.py:16: TypeError
+________________ test_periodic_input_rejected_before_insertion _________________
+
+    def test_periodic_input_rejected_before_insertion():
+>       a = pool()
+            ^^^^^^
+
+tests/standalone/test_pool_ase_identity.py:88: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+identity = 'ase_permute_v1'
+
+    def pool(identity='ase_permute_v1'):
+>       return PoolStarterAdapter(mode='uniform', energy_tol=.001, rmsd_tol=.1,
+                                  identity_matcher=identity)
+E       TypeError: PoolStarterAdapter.__init__() got an unexpected keyword argument 'identity_matcher'
+
+tests/standalone/test_pool_ase_identity.py:16: TypeError
+_____ test_mismatched_composition_is_distinct_and_single_atom_is_supported _____
+
+    def test_mismatched_composition_is_distinct_and_single_atom_is_supported():
+>       a = pool()
+            ^^^^^^
+
+tests/standalone/test_pool_ase_identity.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+identity = 'ase_permute_v1'
+
+    def pool(identity='ase_permute_v1'):
+>       return PoolStarterAdapter(mode='uniform', energy_tol=.001, rmsd_tol=.1,
+                                  identity_matcher=identity)
+E       TypeError: PoolStarterAdapter.__init__() got an unexpected keyword argument 'identity_matcher'
+
+tests/standalone/test_pool_ase_identity.py:16: TypeError
+_______________________ test_unknown_matcher_is_rejected _______________________
+
+    def test_unknown_matcher_is_rejected():
+        with pytest.raises(ValueError, match='identity_matcher'):
+>           pool('invalid')
+
+tests/standalone/test_pool_ase_identity.py:109: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+identity = 'invalid'
+
+    def pool(identity='ase_permute_v1'):
+>       return PoolStarterAdapter(mode='uniform', energy_tol=.001, rmsd_tol=.1,
+                                  identity_matcher=identity)
+E       TypeError: PoolStarterAdapter.__init__() got an unexpected keyword argument 'identity_matcher'
+
+tests/standalone/test_pool_ase_identity.py:16: TypeError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_pool_ase_identity.py::test_default_contract_stays_legacy_v1
+FAILED tests/standalone/test_pool_ase_identity.py::test_permuted_c60_is_one_entry_and_keeps_input_order
+FAILED tests/standalone/test_pool_ase_identity.py::test_restore_retains_matcher_and_duplicate_accounting
+FAILED tests/standalone/test_pool_ase_identity.py::test_cross_mode_restore_fails_before_mutation[ordered_v1-ase_permute_v1]
+FAILED tests/standalone/test_pool_ase_identity.py::test_cross_mode_restore_fails_before_mutation[ase_permute_v1-ordered_v1]
+FAILED tests/standalone/test_pool_ase_identity.py::test_ase_version_mismatch_is_rejected
+FAILED tests/standalone/test_pool_ase_identity.py::test_periodic_input_rejected_before_insertion
+FAILED tests/standalone/test_pool_ase_identity.py::test_mismatched_composition_is_distinct_and_single_atom_is_supported
+FAILED tests/standalone/test_pool_ase_identity.py::test_unknown_matcher_is_rejected
+9 failed in 0.92s

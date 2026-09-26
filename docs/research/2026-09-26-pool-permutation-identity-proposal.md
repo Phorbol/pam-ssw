@@ -1,5 +1,7 @@
 # Pool adapter: optional element-permutation identity
 
+User decision: approved `ase_permute_v1` as an optional research adapter mode; retain the historical default. Implementation/verification record: [entry qualification](../../research/ga_ssw/evidence/pool-ase-entry-20260926/implementation.md).
+
 ## Decision scope
 
 The question is whether the research-only `PoolStarterAdapter` should expose a non-default molecular identity matcher for LS-plus-pool experiments. This proposal is scoped to that adapter and its explicit checkpoint contract. It does not change `MinimaArchive`, public `run_ssw`, or default matching, and it does not assert that a bond graph or one geometric match proves two physical minima are the same.
