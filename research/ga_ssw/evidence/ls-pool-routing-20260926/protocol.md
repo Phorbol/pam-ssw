@@ -55,5 +55,14 @@ minimum search. If uniform and PAM show no useful discovery-cost advantage,
 do not tune weights or automatically expand the budget. If matching/qualification
 fails, stop scientific comparison and resolve that specific prerequisite.
 
-Status: protocol prepared, not an executed or submitted experiment. Implementation
-and final run configuration remain pending the offline identity findings.
+Status before submission: all prerequisites passed. CPU1500664 exercised the same
+worker path with the established Cu13/EMT Native-LS fixture: MC/uniform/PAM each
+completed two steps and three independent force certificates; search costs67/67/64,
+fresh3 each. Worker SHA256123612e948f634d4c4019f0244a28061133a53074261e87a8774ae9b3355c76b.
+The preserved CPU fixture failures were in input setup and JSON serialization, not
+changes to the scientific protocol. Existing checkpoint serialization is reused;
+JSON contains scientific results and a checkpoint-file reference.
+CPU1500671 then passed three offline analyzer regressions and read all three actual
+EMT outputs with closed costs and shared prefix64; no additional PES evaluation.
+Analyzer SHA256d3ae179ed6c18eaa3c1828baf37deba54955fa03e9663a2d40b4e199421f2b6a.
+The GPU run will use the frozen scientific plan, not the EMT fixture.
