@@ -1,0 +1,29 @@
+{
+  "complete": true,
+  "rows": [
+    {
+      "split": false,
+      "search": 269,
+      "status": "completed",
+      "exact_state": true,
+      "stages": 4,
+      "landings": 2,
+      "fresh": 3,
+      "has_continuation": true
+    },
+    {
+      "split": true,
+      "search": 269,
+      "status": "completed",
+      "exact_state": true,
+      "stages": 4,
+      "landings": 2,
+      "fresh": 3,
+      "has_continuation": true
+    }
+  ],
+  "search": 538,
+  "fresh": 3,
+  "live_search": 269,
+  "replayed": 269
+}

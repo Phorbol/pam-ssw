@@ -9,7 +9,7 @@
 | globalcompress | 多段方向公式及加权消费者已恢复；没有接入当前完整方向控制器 | 非坐标压缩，也不保证防碎裂；不因原版有此选项就推广 |
 | CBD 历史/旋转 | 已有恢复的阶段、角度限制、重试和历史实现；新阶段 reset 已核实 | 独立算法替代与完整 native recurrence 不同，不再笼统写“CBD 未实现” |
 | LS 周期表状态 | `NativeLSCycleState.advance` 已包含 save_zero/restore，runtime 确实调用它 | 旧 normal-update helper 的说明不是整个 LS 缺失证据；不重写已实现组件 |
-| ASE 约束与完整方向/池 | `run_constrained_ssw` 支持 FixAtoms/Hookean、恢复 CBD 和 checkpoint；但没有完整方向控制器/池选点入口。`run_ssw` 已按批准方案接入非周期原子对 Hookean，并保存/核对约束身份 | 原子对入口缺口已关闭；FixAtoms、固定点/平面约束与完整方向/池组合仍未接入 |
+| ASE 约束与完整方向/池 | `run_constrained_ssw` 已按批准方案接通非周期活动坐标完整方向及schema2恢复；Cu13/EMT普通与native LS、C4H6/MH-1点约束资格完成。`run_ssw`已有非周期原子对Hookean及约束身份检查 | 受限完整方向缺口关闭；受限池、周期选轴仍未接入，不推广搜索收益 |
 | VC/RC | block/joint、RC/RC-VC 均有可运行独立实现；这些入口缺少固定胞同等恢复/池功能，native cell lifecycle/RC 映射仍有差别 | 明确保留功能缺口，暂不扩到主线外的新状态框架 |
 | GA | 原子/分子/周期/表面入口和 active-walk 恢复均已实现；论文 DCCD 与 Java 公式身份有差别 | 暂不扩性能试验或复制 Java 调度常数 |
 | 搜索效果 | 随机 C60 成笼与参考能量联合验收未达成；LS 和方向机制收益不一致 | 不把接口测试、短缺陷修复或 LJ 结果称为全局验收 |
@@ -50,3 +50,5 @@ Hookean 是附加势，不等于删掉活动自由度。原子对 Hookean 仅依
 后续：用户批准自动入口与持久化扩展，已完成82项回归和Cu13/EMT四路径验证；
 见[验收记录](../../research/ga_ssw/evidence/hookean-entry-20260926/report.md)。
 上述“不改持久化格式”仅对应批准前的手动组合核查。
+
+2026-09-26受限方向更新见[验收记录](../../research/ga_ssw/evidence/constrained-direction-20260926/report.md)，后续事实优先于上表原基线。

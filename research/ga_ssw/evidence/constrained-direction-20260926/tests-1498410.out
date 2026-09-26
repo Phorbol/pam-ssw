@@ -1,0 +1,34 @@
+....F................................................................... [ 72%]
+............................                                             [100%]
+=================================== FAILURES ===================================
+________ test_all_fixed_active_controller_rejects_before_selection_draw ________
+
+    def test_all_fixed_active_controller_rejects_before_selection_draw():
+        atoms = geometry()
+        draws = iter([.2] * 100)
+>       controller = RecoveredDirectionController(settings(), active_mask=np.zeros(6, bool))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/standalone/test_active_recovered_direction.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pamssw.standalone.recovered_direction.RecoveredDirectionController object at 0x122006431820>
+settings = RecoveredDirectionSettings(ratio_local=5, local_probability=1.0, group_threshold=0.5, pre_rotmax=2, rotmax=4, pre_ftol=0.001, ftol=0.002, metric='euclidean', max_force_calls=8, c1_radius_policy='restricted', startup_order='legacy')
+active_mask = array([False, False, False, False, False, False])
+
+    def __init__(self, settings, active_mask=None):
+        if not isinstance(settings, RecoveredDirectionSettings):
+            raise TypeError('settings must be RecoveredDirectionSettings')
+        self.settings = settings
+        self.active_mask = None if active_mask is None else np.asarray(active_mask).copy()
+        if self.active_mask is not None:
+            if self.active_mask.dtype != np.bool_ or self.active_mask.ndim != 1:
+                raise ValueError('active_mask must be a boolean N-vector')
+            if not np.any(self.active_mask):
+>               raise ValueError('active_mask must contain at least one active atom')
+E               ValueError: active_mask must contain at least one active atom
+
+pamssw/standalone/recovered_direction.py:144: ValueError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_active_recovered_direction.py::test_all_fixed_active_controller_rejects_before_selection_draw
+1 failed, 99 passed in 2.46s

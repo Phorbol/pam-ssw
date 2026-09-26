@@ -1,0 +1,27 @@
+{
+  "complete": true,
+  "rows": [
+    {
+      "split": false,
+      "search": 238,
+      "status": "completed",
+      "exact_state": true,
+      "stages": 6,
+      "landings": 2,
+      "fresh": 3,
+      "has_continuation": true
+    },
+    {
+      "split": true,
+      "search": 238,
+      "status": "completed",
+      "exact_state": true,
+      "stages": 6,
+      "landings": 2,
+      "fresh": 6,
+      "has_continuation": true
+    }
+  ],
+  "search": 476,
+  "fresh": 6
+}

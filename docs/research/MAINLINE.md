@@ -1,3 +1,17 @@
+## 2026-09-26 当前：非周期受限完整方向已完成最小实现与资格验证
+
+已接通真实几何选轴、活动坐标方向与阶段记忆、恢复CBD以及schema2 checkpoint；
+旧默认/schema1保留。最终133项回归通过。Cu13固定三原子，普通SSW与native LS
+连续/分段状态严格一致；C4H6固定点Hookean的真实MH-1响应记录/重放也严格一致。
+独立GPU运行的严格比较失败发生在恢复前，原失败及成本保留，不归因于检查点。
+本轮1815真实搜索请求+269重放+18独立复核；无搜索效率或C60验收结论。
+已修复无磁盘checkpoint时重复复制历史的开销，显式逐步保存行为保留。
+
+[批准设计](2026-09-26-constrained-direction-geometry-proposal.md)、
+[协议](../../research/ga_ssw/evidence/constrained-direction-20260926/plan.md)、
+[验收与边界](../../research/ga_ssw/evidence/constrained-direction-20260926/report.md)。
+受限池、周期slab及VC/RC完整方向不在本次范围；以下为历史阶段。
+
 ## 2026-09-26 当前：LS与原生原子对约束的组合资格补齐
 
 沿用Cu13/EMT测试，两种LS与完整方向、池重启、暂停恢复共12路径均通过；

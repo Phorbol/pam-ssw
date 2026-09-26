@@ -200,6 +200,8 @@ class ConstrainedCheckpoint:
     schema_version: int = 1
     hookean_specs: tuple = ()
     gaussian_policy: object = None
+    recovered_direction: object = None
+    recovered_direction_state: object = None
 
 
 @dataclass(frozen=True)
@@ -278,7 +280,27 @@ def _constrained_config_equal(saved, requested):
 
 def _validate_constrained_checkpoint(checkpoint):
     if not isinstance(checkpoint,ConstrainedCheckpoint): raise TypeError('checkpoint must be ConstrainedCheckpoint')
-    if checkpoint.schema_version != 1: raise ValueError(f'unsupported constrained checkpoint schema {checkpoint.schema_version!r}')
+    if checkpoint.schema_version not in (1, 2): raise ValueError(f'unsupported constrained checkpoint schema {checkpoint.schema_version!r}')
+    direction = getattr(checkpoint, 'recovered_direction', None)
+    state = getattr(checkpoint, 'recovered_direction_state', None)
+    if checkpoint.schema_version == 1 and (direction is not None or state is not None):
+        raise ValueError('direction metadata requires constrained schema 2')
+    if checkpoint.schema_version == 2:
+        from .recovered_direction import RecoveredDirectionSettings, RecoveredDirectionCheckpointState
+        if not isinstance(direction, RecoveredDirectionSettings):
+            raise ValueError('schema 2 requires recovered direction settings')
+        if checkpoint.chart_reference.pbc.any():
+            raise ValueError('recovered direction checkpoint requires nonperiodic geometry')
+        if checkpoint.status in ('completed', 'completed_with_failures') or state is not None:
+            if not isinstance(state, RecoveredDirectionCheckpointState):
+                raise ValueError('schema 2 requires recovered direction state')
+            state.validate_for_atom_count(len(checkpoint.chart_reference))
+            mask = np.ones(len(checkpoint.chart_reference), dtype=bool)
+            mask[list(checkpoint.fixed_indices)] = False
+            mask[list(checkpoint.direction_fixed_indices)] = False
+            if (state.settings != direction or getattr(state, 'active_mask', None) is None
+                    or not np.array_equal(state.active_mask, mask)):
+                raise ValueError('checkpoint direction settings or active mask mismatch')
     if not isinstance(checkpoint.rng_state,dict) or checkpoint.rng_state.get('bit_generator') is None:
         raise ValueError('checkpoint RNG state is invalid')
     if checkpoint.next_index < 0: raise ValueError('checkpoint next_index must be nonnegative')
@@ -332,7 +354,7 @@ def constrained_quench(atoms,surface,*,fixed_indices=None,fmax,max_step,maxiter,
     return ConstrainedQuenchResult(a,energy,active,full,relaxed,certificate,objective.requests-before)
 
 
-def run_constrained_ssw(atoms,surface,*,steps,config,rng,fixed_indices=None,direction_fixed_indices=None,ls=None,gaussian_policy=None,checkpoint=None,checkpoint_path=None):
+def run_constrained_ssw(atoms,surface,*,steps,config,rng,fixed_indices=None,direction_fixed_indices=None,ls=None,gaussian_policy=None,checkpoint=None,checkpoint_path=None,recovered_direction=None):
     """Complete fixed-cell SSW with explicit fixed substrate and active forces.
 
     True landing relaxation stays on the constrained manifold. A certified
@@ -351,12 +373,39 @@ def run_constrained_ssw(atoms,surface,*,steps,config,rng,fixed_indices=None,dire
         raise TypeError('gaussian_policy must be PAMCurvatureGaussian')
     if config.recovered_rotation is not None and gaussian_policy is not None:
         raise ValueError('recovered_rotation requires a compatible explicit anchor; PAM Gaussian is unsupported')
+    if recovered_direction is not None:
+        if direction_fixed_indices is not None:
+            direction_fixed_indices = tuple(direction_fixed_indices)
+        from .recovered_direction import RecoveredDirectionSettings
+        if not isinstance(recovered_direction, RecoveredDirectionSettings):
+            raise TypeError('recovered_direction must be RecoveredDirectionSettings')
+        if atoms.pbc.any():
+            raise NotImplementedError('complete constrained directions require nonperiodic atoms')
+        if (config.recovered_rotation is not None or config.pre_rotation_hvp is not None
+                or gaussian_policy is not None):
+            raise ValueError('recovered_direction supplies rotation settings and excludes separate rotation/PAM policy')
     constraints=normalize_constraints(atoms, fixed_indices=fixed_indices)
     atoms=constraints.clean_atoms(atoms)
     surface=bind_hookean_surface(surface, constraints.hookean_specs)
     reference=ReducedCartesianChart(atoms,fixed_indices=constraints.fixed_indices,allow_no_fixed=True);fixed=reference.fixed_indices
+    direction_lifecycle = None
+    if recovered_direction is not None:
+        from .constrained_direction import ConstrainedDirectionLifecycle
+        active_mask = np.ones(len(atoms), dtype=bool)
+        active_mask[fixed] = False
+        if direction_fixed_indices is not None:
+            excluded = tuple(direction_fixed_indices)
+            if (len(set(excluded)) != len(excluded) or any(isinstance(i, (bool, np.bool_))
+                    or not isinstance(i, (int, np.integer)) or i < 0 or i >= len(atoms) for i in excluded)):
+                raise ValueError('direction_fixed_indices requires unique valid atom indices')
+            active_mask[list(excluded)] = False
+        if not np.any(active_mask):
+            raise ValueError('direction subspace must contain a mobile atom')
+        direction_lifecycle = ConstrainedDirectionLifecycle(recovered_direction, active_mask)
     if checkpoint is not None:
         _validate_constrained_checkpoint(checkpoint)
+        if getattr(checkpoint, 'recovered_direction', None) != recovered_direction:
+            raise ValueError('checkpoint recovered direction settings do not match requested settings')
         if checkpoint.status not in ('completed','completed_with_failures'):
             raise ValueError(f'cannot resume terminal constrained checkpoint with status {checkpoint.status!r}')
         cp_atoms=checkpoint.chart_reference
@@ -422,6 +471,8 @@ def run_constrained_ssw(atoms,surface,*,steps,config,rng,fixed_indices=None,dire
                 ls_runtime.native=native
             else:
                 ls_runtime.response=_constrained_copy(state['response'])
+        if direction_lifecycle is not None:
+            direction_lifecycle.restore(checkpoint.recovered_direction_state)
         rng.bit_generator.state=_constrained_copy(checkpoint.rng_state)
     rotation_indices=None
     if direction_fixed_indices is not None:
@@ -436,7 +487,7 @@ def run_constrained_ssw(atoms,surface,*,steps,config,rng,fixed_indices=None,dire
         chart=ReducedCartesianChart(constraints.clean_atoms(a),fixed_indices=fixed,allow_no_fixed=True)
         return _ReducedSurface(chart,ls_runtime.soft_surface if ls_runtime is not None else surface)
     def quench(a):return constrained_quench(constraints.attach(a),surface,fixed_indices=fixed,fmax=config.fmax,max_step=config.max_step,maxiter=config.relax_steps,lbfgs_memory=config.lbfgs_memory)
-    callback = (_active_rotation_callback if (config.recovered_rotation is not None or
+    callback = (_active_rotation_callback if (direction_lifecycle is not None or config.recovered_rotation is not None or
                                               config.rotation_solver != 'generalized-dimer') else None)
     latest=None
     def ls_state():
@@ -451,8 +502,13 @@ def run_constrained_ssw(atoms,surface,*,steps,config,rng,fixed_indices=None,dire
                 last_update=_constrained_copy(native.last_update))
         return dict(reference=_constrained_copy(ls_runtime.reference),softening=_constrained_copy(ls_runtime.softening),
                     response=_constrained_copy(ls_runtime.response))
+    target_index = (checkpoint.next_index if checkpoint is not None else 0) + steps
     def boundary(initial,current,best,minima,records,next_index,status):
         nonlocal latest
+        # In-memory return needs the terminal snapshot, not every history prefix.
+        if (direction_lifecycle is not None and checkpoint_path is None
+                and status == "completed" and next_index < target_index):
+            return
         latest=ConstrainedCheckpoint(_constrained_copy(initial),_constrained_copy(current),_constrained_copy(best),
             tuple(_constrained_copy(_restore_constraints(minima, constraints))),
             tuple(_constrained_copy(_restore_constraints(records, constraints))),_constrained_copy(reference.reference),
@@ -460,17 +516,21 @@ def run_constrained_ssw(atoms,surface,*,steps,config,rng,fixed_indices=None,dire
             config,_constrained_copy(ls),ls_state(),_constrained_copy(rng.bit_generator.state),
             (resume_state['evaluation_requests'] if resume_state is not None else 0)+surface.requests-begin_requests,
             next_index,status,hookean_specs=tuple(constraints.hookean_specs),
-            gaussian_policy=None if gaussian_policy is None else _constrained_copy(gaussian_policy))
+            gaussian_policy=None if gaussian_policy is None else _constrained_copy(gaussian_policy),
+            schema_version=2 if direction_lifecycle is not None else 1,
+            recovered_direction=_constrained_copy(recovered_direction),
+            recovered_direction_state=(None if direction_lifecycle is None else
+                                       _constrained_copy(direction_lifecycle.checkpoint_state())))
         if checkpoint_path is not None: save_constrained_checkpoint(checkpoint_path,latest)
     begin_requests=surface.requests
     def result_factory(initial,current,best,minima,records,requests,status):
         return ConstrainedSSWResult(initial,current,best,
             _restore_constraints(minima, constraints),
             _restore_constraints(records, constraints),requests,status,latest)
-    boundary_hook = boundary if (checkpoint is not None or checkpoint_path is not None) else None
+    boundary_hook = boundary if (checkpoint is not None or checkpoint_path is not None or direction_lifecycle is not None) else None
     return _run_reduced_ssw(atoms,surface,steps=steps,config=config,rng=rng,factory=factory,
         coordinate_label='active_displacements',quench_callback=quench,
         rotation_indices=rotation_indices,ls_runtime=ls_runtime,
         rotation_callback=callback,gaussian_policy=gaussian_policy,
         resume_state=resume_state,boundary_callback=boundary_hook,
-        result_factory=result_factory)
+        result_factory=result_factory,direction_lifecycle=direction_lifecycle)

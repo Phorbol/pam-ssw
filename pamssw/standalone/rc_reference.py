@@ -96,9 +96,11 @@ def run_rc_ssw(atoms,surface,*,bodies,parents,joints,steps,config,rng):
     return _run_reduced_ssw(atoms,surface,steps=steps,config=config,rng=rng,factory=factory)
 
 
-def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="scaled_torsions",quench_callback=None,rotation_indices=None,ls_runtime=None,rotation_callback=None, gaussian_policy=None, resume_state=None, boundary_callback=None, result_factory=RCSSWResult):
+def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="scaled_torsions",quench_callback=None,rotation_indices=None,ls_runtime=None,rotation_callback=None, gaussian_policy=None, resume_state=None, boundary_callback=None, result_factory=RCSSWResult, direction_lifecycle=None):
     """Shared exact-coordinate climbing lifecycle; factory rebuilds each chart."""
     factory(atoms)  # reject invalid geometry before spending oracle requests
+    rotation_settings = (direction_lifecycle.rotation_settings if direction_lifecycle is not None
+                         else getattr(config, "recovered_rotation", None))
     begin=surface.requests;records=[];minima=[];initial=current=best=None;run_status='completed';next_index=0
     prior_requests=0
     if resume_state is not None:
@@ -122,6 +124,13 @@ def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="
       records.append(dict(stage='initial',status='converged' if initial.converged else 'quench_failed',landing=initial,requests=surface.requests-begin))
       if not initial.converged:return finish('initial_quench_failed')
       current=best=initial;minima.append(initial)
+    if direction_lifecycle is not None and resume_state is None:
+        try:
+            direction_lifecycle.initialize(atoms, initial.atoms, rng)
+        except (ValueError, RuntimeError, FloatingPointError, np.linalg.LinAlgError) as error:
+            records.append(dict(stage='direction_initialize', status='direction_initialization_failed',
+                                error=str(error), requests=0))
+            return finish('direction_initialization_failed')
     if ls_runtime is not None and resume_state is None:
         try:
             ls_runtime.initialize_at(initial.atoms)
@@ -157,14 +166,18 @@ def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="
             if prepared is not None and hasattr(reduced, 'chart') and hasattr(reduced.chart, 'active_indices'):
                 active=np.asarray(reduced.chart.active_indices, dtype=int)
                 work=(prepared.atoms.positions[active]-current.atoms.positions[active]).ravel()
-            anchor=rng.normal(size=reduced.dimension);anchor/=np.linalg.norm(anchor)
+            if direction_lifecycle is None:
+                anchor=rng.normal(size=reduced.dimension);anchor/=np.linalg.norm(anchor)
+            else:
+                anchor=np.zeros(reduced.dimension)
             terms=[]
             policy_terms=[]
             event.update(chart_reference=current.atoms.copy(),last_work=(current.atoms.copy() if prepared is None else prepared.atoms.copy()),frozen_gaussians=[])
             if rotation_indices is not None:
-                anchor_masked=np.zeros_like(anchor)
-                anchor_masked[rotation_indices]=anchor[rotation_indices]
-                anchor=anchor_masked/np.linalg.norm(anchor_masked)
+                if direction_lifecycle is None:
+                    anchor_masked=np.zeros_like(anchor)
+                    anchor_masked[rotation_indices]=anchor[rotation_indices]
+                    anchor=anchor_masked/np.linalg.norm(anchor_masked)
                 event['rotation_coordinate_indices']=rotation_indices.copy()
             def biased(x):
                 e,g=reduced.evaluate(x)
@@ -181,6 +194,15 @@ def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="
             status='gaussian_limit'
             for j in range(config.max_gaussians):
                 stage=dict(index=j,status='running');event['climb'].append(stage);stage_before=surface.requests
+                if direction_lifecycle is not None:
+                    anchor, release, diagnostic = direction_lifecycle.propose(
+                        current.atoms, reduced, work, first=(j == 0), rng=rng)
+                    stage['recovered_direction'] = diagnostic
+                    stage['initial_direction'] = anchor.copy()
+                    if release:
+                        stage.update(status='direction_zero_release', requests=surface.requests-stage_before)
+                        status='stage_release'
+                        break
                 rotation_kwargs=dict(rotation_bias=config.rotation_bias,fd_step=config.fd_step,max_hvp=config.rotation_hvp,tol=config.rotation_tol)
                 if rotation_callback is not None:
                     if rotation_indices is None:
@@ -189,7 +211,7 @@ def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="
                                                max_hvp=config.rotation_hvp,tol=config.rotation_tol,
                                                pre_rotation_hvp=getattr(config,'pre_rotation_hvp',None),
                                                rotation_solver=getattr(config,'rotation_solver',None),
-                                               recovered_rotation=getattr(config, 'recovered_rotation', None))
+                                               recovered_rotation=rotation_settings)
                     else:
                         def restricted_evaluate(z):
                             lifted=work.copy(); lifted[rotation_indices]=z
@@ -201,10 +223,10 @@ def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="
                             tol=config.rotation_tol,
                             pre_rotation_hvp=getattr(config,'pre_rotation_hvp',None),
                             rotation_solver=getattr(config,'rotation_solver',None),
-                            recovered_rotation=getattr(config, 'recovered_rotation', None))
+                            recovered_rotation=rotation_settings)
                         lifted=np.zeros_like(work); lifted[rotation_indices]=submode.direction
                         mode=replace(submode,direction=lifted)
-                        if getattr(config, 'recovered_rotation', None) is not None:
+                        if rotation_settings is not None:
                             lifted_reference=np.zeros_like(work)
                             lifted_reference[rotation_indices]=submode.bias_reference
                             mode=replace(mode,bias_reference=lifted_reference)
@@ -226,7 +248,7 @@ def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="
                     stage['rotation_residual_scope']='selected_coordinate_subspace'
                 stage['mode']=mode
                 rotation_stop = getattr(mode, 'stop_reason', 'unspecified')
-                recovered = getattr(config, 'recovered_rotation', None) is not None
+                recovered = rotation_settings is not None
                 budget_released = (not mode.converged and
                     getattr(config, 'rotation_exit_policy', 'force') == 'force_or_budget' and
                     (rotation_stop == 'budget_exhausted' or
@@ -291,6 +313,8 @@ def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="
                     from .gaussian import ProjectedGaussian
                     term=ProjectedGaussian(work.reshape(-1,3).copy(),mode.direction.reshape(-1,3).copy(),width,w)
                     policy_terms.append(term)
+                if direction_lifecycle is not None:
+                    direction_lifecycle.save_center(reduced, work)
                 event['frozen_gaussians'].append(dict(center=work.copy(),direction=mode.direction.copy(),weight=w,width=width))
                 displaced=work+width*mode.direction
                 relaxed=safe_lbfgs(displaced,biased,gradient_norm=np.linalg.norm,step_norm=np.linalg.norm,gtol=config.gradient_tol,max_step=config.max_step,maxiter=config.relax_steps,lbfgs_memory=getattr(config, 'lbfgs_memory', None))
@@ -302,11 +326,26 @@ def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="
                 stage.update(true_energy=e,requests=surface.requests-stage_before)
                 if e<current.energy:status='lower_true_energy';break
             event['last_work']=reduced.atoms(work)
-            if status in ('gaussian_limit','lower_true_energy'):
+            if status in ('gaussian_limit','lower_true_energy','stage_release'):
                 landing=full_quench(event['last_work']);event['landing']=landing
                 if not landing.converged:status='true_quench_failed'
                 else:
-                    minima.append(landing);delta=landing.energy-current.energy
+                    if direction_lifecycle is not None:
+                        # Qualified structures survive failure of the next-axis
+                        # selection. That failure is terminal, not an MC reject.
+                        minima.append(landing)
+                        if landing.energy < best.energy:
+                            best = landing
+                        try:
+                            direction_lifecycle.observe(landing.atoms, rng)
+                        except (ValueError, RuntimeError, FloatingPointError, np.linalg.LinAlgError) as error:
+                            event.update(status='direction_selection_failed', error=str(error),
+                                         requests=surface.requests-before)
+                            next_index=index+1
+                            return finish('direction_selection_failed')
+                    else:
+                        minima.append(landing)
+                    delta=landing.energy-current.energy
                     accepted=delta<=0 or (config.temperature_K>0 and rng.random()<math.exp(-delta/(units.kB*config.temperature_K)))
                     if landing.energy<best.energy:best=landing
                     if accepted:current=landing

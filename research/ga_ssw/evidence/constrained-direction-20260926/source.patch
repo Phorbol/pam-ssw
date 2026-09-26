@@ -1,0 +1,643 @@
+diff --git a/pamssw/standalone/constrained_reference.py b/pamssw/standalone/constrained_reference.py
+index 2716502..611758c 100644
+--- a/pamssw/standalone/constrained_reference.py
++++ b/pamssw/standalone/constrained_reference.py
+@@ -200,6 +200,8 @@ class ConstrainedCheckpoint:
+     schema_version: int = 1
+     hookean_specs: tuple = ()
+     gaussian_policy: object = None
++    recovered_direction: object = None
++    recovered_direction_state: object = None
+ 
+ 
+ @dataclass(frozen=True)
+@@ -278,7 +280,27 @@ def _constrained_config_equal(saved, requested):
+ 
+ def _validate_constrained_checkpoint(checkpoint):
+     if not isinstance(checkpoint,ConstrainedCheckpoint): raise TypeError('checkpoint must be ConstrainedCheckpoint')
+-    if checkpoint.schema_version != 1: raise ValueError(f'unsupported constrained checkpoint schema {checkpoint.schema_version!r}')
++    if checkpoint.schema_version not in (1, 2): raise ValueError(f'unsupported constrained checkpoint schema {checkpoint.schema_version!r}')
++    direction = getattr(checkpoint, 'recovered_direction', None)
++    state = getattr(checkpoint, 'recovered_direction_state', None)
++    if checkpoint.schema_version == 1 and (direction is not None or state is not None):
++        raise ValueError('direction metadata requires constrained schema 2')
++    if checkpoint.schema_version == 2:
++        from .recovered_direction import RecoveredDirectionSettings, RecoveredDirectionCheckpointState
++        if not isinstance(direction, RecoveredDirectionSettings):
++            raise ValueError('schema 2 requires recovered direction settings')
++        if checkpoint.chart_reference.pbc.any():
++            raise ValueError('recovered direction checkpoint requires nonperiodic geometry')
++        if checkpoint.status in ('completed', 'completed_with_failures') or state is not None:
++            if not isinstance(state, RecoveredDirectionCheckpointState):
++                raise ValueError('schema 2 requires recovered direction state')
++            state.validate_for_atom_count(len(checkpoint.chart_reference))
++            mask = np.ones(len(checkpoint.chart_reference), dtype=bool)
++            mask[list(checkpoint.fixed_indices)] = False
++            mask[list(checkpoint.direction_fixed_indices)] = False
++            if (state.settings != direction or getattr(state, 'active_mask', None) is None
++                    or not np.array_equal(state.active_mask, mask)):
++                raise ValueError('checkpoint direction settings or active mask mismatch')
+     if not isinstance(checkpoint.rng_state,dict) or checkpoint.rng_state.get('bit_generator') is None:
+         raise ValueError('checkpoint RNG state is invalid')
+     if checkpoint.next_index < 0: raise ValueError('checkpoint next_index must be nonnegative')
+@@ -332,7 +354,7 @@ def constrained_quench(atoms,surface,*,fixed_indices=None,fmax,max_step,maxiter,
+     return ConstrainedQuenchResult(a,energy,active,full,relaxed,certificate,objective.requests-before)
+ 
+ 
+-def run_constrained_ssw(atoms,surface,*,steps,config,rng,fixed_indices=None,direction_fixed_indices=None,ls=None,gaussian_policy=None,checkpoint=None,checkpoint_path=None):
++def run_constrained_ssw(atoms,surface,*,steps,config,rng,fixed_indices=None,direction_fixed_indices=None,ls=None,gaussian_policy=None,checkpoint=None,checkpoint_path=None,recovered_direction=None):
+     """Complete fixed-cell SSW with explicit fixed substrate and active forces.
+ 
+     True landing relaxation stays on the constrained manifold. A certified
+@@ -351,12 +373,39 @@ def run_constrained_ssw(atoms,surface,*,steps,config,rng,fixed_indices=None,dire
+         raise TypeError('gaussian_policy must be PAMCurvatureGaussian')
+     if config.recovered_rotation is not None and gaussian_policy is not None:
+         raise ValueError('recovered_rotation requires a compatible explicit anchor; PAM Gaussian is unsupported')
++    if recovered_direction is not None:
++        if direction_fixed_indices is not None:
++            direction_fixed_indices = tuple(direction_fixed_indices)
++        from .recovered_direction import RecoveredDirectionSettings
++        if not isinstance(recovered_direction, RecoveredDirectionSettings):
++            raise TypeError('recovered_direction must be RecoveredDirectionSettings')
++        if atoms.pbc.any():
++            raise NotImplementedError('complete constrained directions require nonperiodic atoms')
++        if (config.recovered_rotation is not None or config.pre_rotation_hvp is not None
++                or gaussian_policy is not None):
++            raise ValueError('recovered_direction supplies rotation settings and excludes separate rotation/PAM policy')
+     constraints=normalize_constraints(atoms, fixed_indices=fixed_indices)
+     atoms=constraints.clean_atoms(atoms)
+     surface=bind_hookean_surface(surface, constraints.hookean_specs)
+     reference=ReducedCartesianChart(atoms,fixed_indices=constraints.fixed_indices,allow_no_fixed=True);fixed=reference.fixed_indices
++    direction_lifecycle = None
++    if recovered_direction is not None:
++        from .constrained_direction import ConstrainedDirectionLifecycle
++        active_mask = np.ones(len(atoms), dtype=bool)
++        active_mask[fixed] = False
++        if direction_fixed_indices is not None:
++            excluded = tuple(direction_fixed_indices)
++            if (len(set(excluded)) != len(excluded) or any(isinstance(i, (bool, np.bool_))
++                    or not isinstance(i, (int, np.integer)) or i < 0 or i >= len(atoms) for i in excluded)):
++                raise ValueError('direction_fixed_indices requires unique valid atom indices')
++            active_mask[list(excluded)] = False
++        if not np.any(active_mask):
++            raise ValueError('direction subspace must contain a mobile atom')
++        direction_lifecycle = ConstrainedDirectionLifecycle(recovered_direction, active_mask)
+     if checkpoint is not None:
+         _validate_constrained_checkpoint(checkpoint)
++        if getattr(checkpoint, 'recovered_direction', None) != recovered_direction:
++            raise ValueError('checkpoint recovered direction settings do not match requested settings')
+         if checkpoint.status not in ('completed','completed_with_failures'):
+             raise ValueError(f'cannot resume terminal constrained checkpoint with status {checkpoint.status!r}')
+         cp_atoms=checkpoint.chart_reference
+@@ -422,6 +471,8 @@ def run_constrained_ssw(atoms,surface,*,steps,config,rng,fixed_indices=None,dire
+                 ls_runtime.native=native
+             else:
+                 ls_runtime.response=_constrained_copy(state['response'])
++        if direction_lifecycle is not None:
++            direction_lifecycle.restore(checkpoint.recovered_direction_state)
+         rng.bit_generator.state=_constrained_copy(checkpoint.rng_state)
+     rotation_indices=None
+     if direction_fixed_indices is not None:
+@@ -436,7 +487,7 @@ def run_constrained_ssw(atoms,surface,*,steps,config,rng,fixed_indices=None,dire
+         chart=ReducedCartesianChart(constraints.clean_atoms(a),fixed_indices=fixed,allow_no_fixed=True)
+         return _ReducedSurface(chart,ls_runtime.soft_surface if ls_runtime is not None else surface)
+     def quench(a):return constrained_quench(constraints.attach(a),surface,fixed_indices=fixed,fmax=config.fmax,max_step=config.max_step,maxiter=config.relax_steps,lbfgs_memory=config.lbfgs_memory)
+-    callback = (_active_rotation_callback if (config.recovered_rotation is not None or
++    callback = (_active_rotation_callback if (direction_lifecycle is not None or config.recovered_rotation is not None or
+                                               config.rotation_solver != 'generalized-dimer') else None)
+     latest=None
+     def ls_state():
+@@ -460,17 +511,21 @@ def run_constrained_ssw(atoms,surface,*,steps,config,rng,fixed_indices=None,dire
+             config,_constrained_copy(ls),ls_state(),_constrained_copy(rng.bit_generator.state),
+             (resume_state['evaluation_requests'] if resume_state is not None else 0)+surface.requests-begin_requests,
+             next_index,status,hookean_specs=tuple(constraints.hookean_specs),
+-            gaussian_policy=None if gaussian_policy is None else _constrained_copy(gaussian_policy))
++            gaussian_policy=None if gaussian_policy is None else _constrained_copy(gaussian_policy),
++            schema_version=2 if direction_lifecycle is not None else 1,
++            recovered_direction=_constrained_copy(recovered_direction),
++            recovered_direction_state=(None if direction_lifecycle is None else
++                                       _constrained_copy(direction_lifecycle.checkpoint_state())))
+         if checkpoint_path is not None: save_constrained_checkpoint(checkpoint_path,latest)
+     begin_requests=surface.requests
+     def result_factory(initial,current,best,minima,records,requests,status):
+         return ConstrainedSSWResult(initial,current,best,
+             _restore_constraints(minima, constraints),
+             _restore_constraints(records, constraints),requests,status,latest)
+-    boundary_hook = boundary if (checkpoint is not None or checkpoint_path is not None) else None
++    boundary_hook = boundary if (checkpoint is not None or checkpoint_path is not None or direction_lifecycle is not None) else None
+     return _run_reduced_ssw(atoms,surface,steps=steps,config=config,rng=rng,factory=factory,
+         coordinate_label='active_displacements',quench_callback=quench,
+         rotation_indices=rotation_indices,ls_runtime=ls_runtime,
+         rotation_callback=callback,gaussian_policy=gaussian_policy,
+         resume_state=resume_state,boundary_callback=boundary_hook,
+-        result_factory=result_factory)
++        result_factory=result_factory,direction_lifecycle=direction_lifecycle)
+diff --git a/pamssw/standalone/native_direction_control.py b/pamssw/standalone/native_direction_control.py
+index 5139278..4aae50d 100644
+--- a/pamssw/standalone/native_direction_control.py
++++ b/pamssw/standalone/native_direction_control.py
+@@ -69,13 +69,14 @@ class LocalDirectionState:
+     """
+ 
+     def __init__(self, pair, group, coefficients, *, group_marker,
+-                 c1_radius_policy='restricted'):
++                 c1_radius_policy='restricted', active_mask=None):
+         self.pair = tuple(pair)
+         self.group = np.asarray(group).copy()
+         self.coefficients = np.asarray(coefficients, dtype=float).copy()
+         if self.coefficients.shape != (10,):
+             raise ValueError('coefficients require ten entries')
+         self.group_marker = group_marker
++        self.active_mask = _validated_active_mask(active_mask, len(self.group))
+         if c1_radius_policy not in ('restricted', 'per_atom'):
+             raise ValueError('c1_radius_policy must be restricted or per_atom')
+         self.c1_radius_policy = c1_radius_policy
+@@ -96,7 +97,11 @@ class LocalDirectionState:
+             raise ValueError('save the actual Gaussian center before updating direction')
+         if atoms.positions.shape != self.gaussian_center.shape:
+             raise ValueError('atom count changed within escape')
+-        seed = _native_normalize(atoms.positions-self.gaussian_center)
++        displacement = atoms.positions-self.gaussian_center
++        if self.active_mask is not None:
++            displacement = displacement.copy()
++            displacement[~self.active_mask] = 0.
++        seed = _native_normalize(displacement)
+         coefficients = np.zeros(10)
+         coefficients[4:7] = self.coefficients[4:7]
+         coefficients[9] = 1.2*np.sum(coefficients[:9])
+@@ -106,13 +111,15 @@ class LocalDirectionState:
+         self.last_coefficients = np.asarray(coefficients).copy()
+         result = generate_local_direction(atoms, seed, coefficients, self.pair,
+                                           self.group, rng, group_marker=self.group_marker,
+-                                          c1_radius_policy=self.c1_radius_policy)
++                                          c1_radius_policy=self.c1_radius_policy,
++                                          active_mask=self.active_mask)
+         self.group_marker = result.group_marker
+         return result
+ 
+ 
+ def generate_local_direction(atoms, seed, coefficients, pair, group, rng, *,
+-                             group_marker, c1_radius_policy='restricted'):
++                             group_marker, c1_radius_policy='restricted',
++                             active_mask=None):
+     """Recovered free-cluster c1/c4/c6 generator composition (experimental).
+ 
+     ``seed`` is the caller-owned accumulator, normally zero initially and a
+@@ -134,11 +141,14 @@ def generate_local_direction(atoms, seed, coefficients, pair, group, rng, *,
+     from .native_local_pair import native_local_pair
+ 
+     positions, pair = _coordinates(atoms, pair)
+-    frame = ClusterFrame(atoms)
++    active_mask = _validated_active_mask(active_mask, len(atoms))
++    frame = None if active_mask is not None else ClusterFrame(atoms)
+     vector = np.asarray(seed, dtype=float).copy()
+     coeff = np.asarray(coefficients, dtype=float)
+     if vector.shape != positions.shape or not np.isfinite(vector).all():
+         raise ValueError('seed requires finite (N,3) coordinates')
++    if active_mask is not None:
++        vector[~active_mask] = 0.
+     if coeff.shape != (10,) or not np.isfinite(coeff).all() or np.any(coeff < 0):
+         raise ValueError('coefficients require ten finite nonnegative values')
+     if c1_radius_policy not in ('restricted', 'per_atom'):
+@@ -155,7 +165,7 @@ def generate_local_direction(atoms, seed, coefficients, pair, group, rng, *,
+         if c1_radius_policy == 'restricted' and not np.all(near):
+             raise NotImplementedError('c1 reference currently requires the all-near radius domain')
+         random = native_vmb2(np.zeros_like(positions), near[:, None] * np.ones((1, 3), dtype=bool), uniform)
+-        vector += coeff[1]*_native_normalize(frame.project(random))
++        vector += coeff[1]*_native_normalize(_project_direction(random, frame, active_mask))
+     route = 'none'
+     if coeff[4] > 1e-6:
+         if native_pair_allowed(atoms, pair):
+@@ -174,12 +184,31 @@ def generate_local_direction(atoms, seed, coefficients, pair, group, rng, *,
+             else:
+                 local = native_local_pair(atoms,pair,rng).raw_direction
+                 route = 'pair'
+-            vector += coeff[4]*_native_normalize(frame.project(local))
++            vector += coeff[4]*_native_normalize(_project_direction(local, frame, active_mask))
+         else:
+             route = 'forbidden'
+     if coeff[6] > 1e-6:
+         local = native_local_group(atoms,pair,group)
+-        vector += coeff[6]*_native_normalize(frame.project(local))
++        vector += coeff[6]*_native_normalize(_project_direction(local, frame, active_mask))
+         route = 'torsion'
+     direction = _native_normalize(vector)
+     return LocalDirectionResult(direction,not np.any(direction),route,group_marker)
++
++
++def _validated_active_mask(active_mask, atom_count):
++    if active_mask is None:
++        return None
++    mask = np.asarray(active_mask)
++    if mask.dtype != np.bool_ or mask.shape != (atom_count,):
++        raise ValueError('active_mask must be a boolean N-vector')
++    if not np.any(mask):
++        raise ValueError('active_mask must contain at least one active atom')
++    return mask.copy()
++
++
++def _project_direction(vector, frame, active_mask):
++    if active_mask is None:
++        return frame.project(vector)
++    result = np.asarray(vector, dtype=float).copy()
++    result[~active_mask] = 0.
++    return result
+diff --git a/pamssw/standalone/rc_reference.py b/pamssw/standalone/rc_reference.py
+index 0dbfa0d..5d0729c 100644
+--- a/pamssw/standalone/rc_reference.py
++++ b/pamssw/standalone/rc_reference.py
+@@ -96,9 +96,11 @@ def run_rc_ssw(atoms,surface,*,bodies,parents,joints,steps,config,rng):
+     return _run_reduced_ssw(atoms,surface,steps=steps,config=config,rng=rng,factory=factory)
+ 
+ 
+-def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="scaled_torsions",quench_callback=None,rotation_indices=None,ls_runtime=None,rotation_callback=None, gaussian_policy=None, resume_state=None, boundary_callback=None, result_factory=RCSSWResult):
++def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="scaled_torsions",quench_callback=None,rotation_indices=None,ls_runtime=None,rotation_callback=None, gaussian_policy=None, resume_state=None, boundary_callback=None, result_factory=RCSSWResult, direction_lifecycle=None):
+     """Shared exact-coordinate climbing lifecycle; factory rebuilds each chart."""
+     factory(atoms)  # reject invalid geometry before spending oracle requests
++    rotation_settings = (direction_lifecycle.rotation_settings if direction_lifecycle is not None
++                         else getattr(config, "recovered_rotation", None))
+     begin=surface.requests;records=[];minima=[];initial=current=best=None;run_status='completed';next_index=0
+     prior_requests=0
+     if resume_state is not None:
+@@ -122,6 +124,13 @@ def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="
+       records.append(dict(stage='initial',status='converged' if initial.converged else 'quench_failed',landing=initial,requests=surface.requests-begin))
+       if not initial.converged:return finish('initial_quench_failed')
+       current=best=initial;minima.append(initial)
++    if direction_lifecycle is not None and resume_state is None:
++        try:
++            direction_lifecycle.initialize(atoms, initial.atoms, rng)
++        except (ValueError, RuntimeError, FloatingPointError, np.linalg.LinAlgError) as error:
++            records.append(dict(stage='direction_initialize', status='direction_initialization_failed',
++                                error=str(error), requests=0))
++            return finish('direction_initialization_failed')
+     if ls_runtime is not None and resume_state is None:
+         try:
+             ls_runtime.initialize_at(initial.atoms)
+@@ -157,14 +166,18 @@ def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="
+             if prepared is not None and hasattr(reduced, 'chart') and hasattr(reduced.chart, 'active_indices'):
+                 active=np.asarray(reduced.chart.active_indices, dtype=int)
+                 work=(prepared.atoms.positions[active]-current.atoms.positions[active]).ravel()
+-            anchor=rng.normal(size=reduced.dimension);anchor/=np.linalg.norm(anchor)
++            if direction_lifecycle is None:
++                anchor=rng.normal(size=reduced.dimension);anchor/=np.linalg.norm(anchor)
++            else:
++                anchor=np.zeros(reduced.dimension)
+             terms=[]
+             policy_terms=[]
+             event.update(chart_reference=current.atoms.copy(),last_work=(current.atoms.copy() if prepared is None else prepared.atoms.copy()),frozen_gaussians=[])
+             if rotation_indices is not None:
+-                anchor_masked=np.zeros_like(anchor)
+-                anchor_masked[rotation_indices]=anchor[rotation_indices]
+-                anchor=anchor_masked/np.linalg.norm(anchor_masked)
++                if direction_lifecycle is None:
++                    anchor_masked=np.zeros_like(anchor)
++                    anchor_masked[rotation_indices]=anchor[rotation_indices]
++                    anchor=anchor_masked/np.linalg.norm(anchor_masked)
+                 event['rotation_coordinate_indices']=rotation_indices.copy()
+             def biased(x):
+                 e,g=reduced.evaluate(x)
+@@ -181,6 +194,15 @@ def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="
+             status='gaussian_limit'
+             for j in range(config.max_gaussians):
+                 stage=dict(index=j,status='running');event['climb'].append(stage);stage_before=surface.requests
++                if direction_lifecycle is not None:
++                    anchor, release, diagnostic = direction_lifecycle.propose(
++                        current.atoms, reduced, work, first=(j == 0), rng=rng)
++                    stage['recovered_direction'] = diagnostic
++                    stage['initial_direction'] = anchor.copy()
++                    if release:
++                        stage.update(status='direction_zero_release', requests=surface.requests-stage_before)
++                        status='stage_release'
++                        break
+                 rotation_kwargs=dict(rotation_bias=config.rotation_bias,fd_step=config.fd_step,max_hvp=config.rotation_hvp,tol=config.rotation_tol)
+                 if rotation_callback is not None:
+                     if rotation_indices is None:
+@@ -189,7 +211,7 @@ def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="
+                                                max_hvp=config.rotation_hvp,tol=config.rotation_tol,
+                                                pre_rotation_hvp=getattr(config,'pre_rotation_hvp',None),
+                                                rotation_solver=getattr(config,'rotation_solver',None),
+-                                               recovered_rotation=getattr(config, 'recovered_rotation', None))
++                                               recovered_rotation=rotation_settings)
+                     else:
+                         def restricted_evaluate(z):
+                             lifted=work.copy(); lifted[rotation_indices]=z
+@@ -201,10 +223,10 @@ def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="
+                             tol=config.rotation_tol,
+                             pre_rotation_hvp=getattr(config,'pre_rotation_hvp',None),
+                             rotation_solver=getattr(config,'rotation_solver',None),
+-                            recovered_rotation=getattr(config, 'recovered_rotation', None))
++                            recovered_rotation=rotation_settings)
+                         lifted=np.zeros_like(work); lifted[rotation_indices]=submode.direction
+                         mode=replace(submode,direction=lifted)
+-                        if getattr(config, 'recovered_rotation', None) is not None:
++                        if rotation_settings is not None:
+                             lifted_reference=np.zeros_like(work)
+                             lifted_reference[rotation_indices]=submode.bias_reference
+                             mode=replace(mode,bias_reference=lifted_reference)
+@@ -226,7 +248,7 @@ def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="
+                     stage['rotation_residual_scope']='selected_coordinate_subspace'
+                 stage['mode']=mode
+                 rotation_stop = getattr(mode, 'stop_reason', 'unspecified')
+-                recovered = getattr(config, 'recovered_rotation', None) is not None
++                recovered = rotation_settings is not None
+                 budget_released = (not mode.converged and
+                     getattr(config, 'rotation_exit_policy', 'force') == 'force_or_budget' and
+                     (rotation_stop == 'budget_exhausted' or
+@@ -291,6 +313,8 @@ def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="
+                     from .gaussian import ProjectedGaussian
+                     term=ProjectedGaussian(work.reshape(-1,3).copy(),mode.direction.reshape(-1,3).copy(),width,w)
+                     policy_terms.append(term)
++                if direction_lifecycle is not None:
++                    direction_lifecycle.save_center(reduced, work)
+                 event['frozen_gaussians'].append(dict(center=work.copy(),direction=mode.direction.copy(),weight=w,width=width))
+                 displaced=work+width*mode.direction
+                 relaxed=safe_lbfgs(displaced,biased,gradient_norm=np.linalg.norm,step_norm=np.linalg.norm,gtol=config.gradient_tol,max_step=config.max_step,maxiter=config.relax_steps,lbfgs_memory=getattr(config, 'lbfgs_memory', None))
+@@ -302,11 +326,26 @@ def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="
+                 stage.update(true_energy=e,requests=surface.requests-stage_before)
+                 if e<current.energy:status='lower_true_energy';break
+             event['last_work']=reduced.atoms(work)
+-            if status in ('gaussian_limit','lower_true_energy'):
++            if status in ('gaussian_limit','lower_true_energy','stage_release'):
+                 landing=full_quench(event['last_work']);event['landing']=landing
+                 if not landing.converged:status='true_quench_failed'
+                 else:
+-                    minima.append(landing);delta=landing.energy-current.energy
++                    if direction_lifecycle is not None:
++                        # Qualified structures survive failure of the next-axis
++                        # selection. That failure is terminal, not an MC reject.
++                        minima.append(landing)
++                        if landing.energy < best.energy:
++                            best = landing
++                        try:
++                            direction_lifecycle.observe(landing.atoms, rng)
++                        except (ValueError, RuntimeError, FloatingPointError, np.linalg.LinAlgError) as error:
++                            event.update(status='direction_selection_failed', error=str(error),
++                                         requests=surface.requests-before)
++                            next_index=index+1
++                            return finish('direction_selection_failed')
++                    else:
++                        minima.append(landing)
++                    delta=landing.energy-current.energy
+                     accepted=delta<=0 or (config.temperature_K>0 and rng.random()<math.exp(-delta/(units.kB*config.temperature_K)))
+                     if landing.energy<best.energy:best=landing
+                     if accepted:current=landing
+diff --git a/pamssw/standalone/recovered_direction.py b/pamssw/standalone/recovered_direction.py
+index 3f52fd0..145b109 100644
+--- a/pamssw/standalone/recovered_direction.py
++++ b/pamssw/standalone/recovered_direction.py
+@@ -10,7 +10,10 @@ from dataclasses import dataclass, replace
+ import numpy as np
+ 
+ from .native_direction_control import LocalDirectionState, select_local_coefficients
+-from .native_local_group import LocalGroupSelection, select_native_local_group
++from .native_local_group import (
++    LocalGroupSelection, _NEAR_CENTER_A, _OUTER_BAND_A,
++    select_native_local_group,
++)
+ from .native_pair_selection import PairRefreshResult, refresh_native_pair
+ 
+ 
+@@ -67,6 +70,7 @@ class RecoveredDirectionCheckpointState:
+     group_marker: int | None
+     selection: LocalGroupSelection | None = None
+     refresh: PairRefreshResult | None = None
++    active_mask: np.ndarray | None = None
+ 
+     def __post_init__(self):
+         if not isinstance(self.settings, RecoveredDirectionSettings):
+@@ -90,6 +94,39 @@ class RecoveredDirectionCheckpointState:
+         group.setflags(write=False)
+         object.__setattr__(self, 'pair', tuple(int(i) for i in self.pair))
+         object.__setattr__(self, 'group', group)
++        if self.active_mask is not None:
++            active = np.asarray(self.active_mask)
++            if active.dtype != np.bool_ or active.shape != group.shape:
++                raise ValueError('checkpoint active_mask must be a boolean N-vector')
++            if not np.any(active):
++                raise ValueError('checkpoint active_mask must contain an active atom')
++            active = active.copy()
++            active.setflags(write=False)
++            object.__setattr__(self, 'active_mask', active)
++            self._validate_active_contract(len(group))
++
++    def _validate_active_contract(self, count):
++        if self.active_mask is None:
++            return
++        if self.active_mask.dtype != np.bool_:
++            raise ValueError('checkpoint active_mask must be boolean')
++        if self.active_mask.shape != (count,):
++            raise ValueError('checkpoint active_mask does not match atom count')
++        if not np.any(self.active_mask):
++            raise ValueError('checkpoint active_mask must contain an active atom')
++        if self.pair[0] < 0 or self.pair[0] >= count:
++            raise ValueError('checkpoint pair does not match atom count')
++        if np.any(np.asarray(self.group)[~self.active_mask] != 0):
++            raise ValueError('checkpoint group must be supported on active atoms')
++        if not self.active_mask[self.pair[0]]:
++            raise ValueError('checkpoint pair first endpoint must be active')
++        if self.refresh is not None:
++            raise ValueError('active checkpoint must not contain a native pair refresh')
++        if self.selection is not None:
++            if not np.array_equal(self.selection.group_mask, self.group):
++                raise ValueError('checkpoint selection group must match checkpoint group')
++            if tuple(self.selection.pair) != tuple(self.pair):
++                raise ValueError('checkpoint selection pair must match checkpoint pair')
+ 
+     def validate_for_atom_count(self, count):
+         if (self.group_marker is not None and
+@@ -99,6 +136,8 @@ class RecoveredDirectionCheckpointState:
+             raise ValueError('checkpoint group_marker must be None, -1, or 0')
+         if len(self.group) != count:
+             raise ValueError('checkpoint group does not match atom count')
++        if self.active_mask is not None and self.active_mask.shape != (count,):
++            raise ValueError('checkpoint active_mask does not match atom count')
+         if any(i < 0 or i >= count for i in self.pair):
+             raise ValueError('checkpoint pair does not match atom count')
+         if self.selection is not None:
+@@ -112,15 +151,22 @@ class RecoveredDirectionCheckpointState:
+                                       not isinstance(i, (int, np.integer)) or
+                                       i < 0 or i >= count) for i in self.refresh.pair):
+                 raise ValueError('checkpoint refresh pair is invalid')
++        self._validate_active_contract(count)
+ 
+ 
+ class RecoveredDirectionController:
+     """Own pair/group state across escapes and local state within one escape."""
+ 
+-    def __init__(self, settings):
++    def __init__(self, settings, active_mask=None):
+         if not isinstance(settings, RecoveredDirectionSettings):
+             raise TypeError('settings must be RecoveredDirectionSettings')
+         self.settings = settings
++        self.active_mask = None if active_mask is None else np.asarray(active_mask).copy()
++        if self.active_mask is not None:
++            if self.active_mask.dtype != np.bool_ or self.active_mask.ndim != 1:
++                raise ValueError('active_mask must be a boolean N-vector')
++            if not np.any(self.active_mask):
++                raise ValueError('active_mask must contain at least one active atom')
+         self._pair = None
+         self._group = None
+         self._outer_reference = None
+@@ -135,13 +181,17 @@ class RecoveredDirectionController:
+             raise ValueError('cannot checkpoint an uninitialized recovered direction controller')
+         return RecoveredDirectionCheckpointState(
+             self.settings, self._pair, self._group, self._group_marker,
+-            self._selection, self._refresh)
++            self._selection, self._refresh, self.active_mask)
+ 
+     def restore_checkpoint_state(self, state):
+         if not isinstance(state, RecoveredDirectionCheckpointState):
+             raise TypeError('recovered direction checkpoint state required')
+         if state.settings != self.settings:
+             raise ValueError('recovered direction settings do not match checkpoint')
++        if ((self.active_mask is None) != (state.active_mask is None) or
++                (self.active_mask is not None and
++                 not np.array_equal(self.active_mask, state.active_mask))):
++            raise ValueError('recovered direction active_mask does not match checkpoint')
+         state.validate_for_atom_count(len(state.group))
+         self._pair = state.pair
+         self._group = state.group.copy()
+@@ -160,6 +210,14 @@ class RecoveredDirectionController:
+             raise ValueError(f'{name} requires at least two finite unconstrained nonperiodic atoms')
+         return positions
+ 
++    def _validate_active_mask(self, atom_count):
++        if self.active_mask is None:
++            return
++        if self.active_mask.shape != (atom_count,):
++            raise ValueError('active_mask does not match atom count')
++        if not np.any(self.active_mask):
++            raise ValueError('active_mask must contain at least one active atom')
++
+     @staticmethod
+     def _require_pair(pair):
+         if len(pair) != 2 or pair[1] is None:
+@@ -171,6 +229,14 @@ class RecoveredDirectionController:
+         return tuple(None if value is None else int(order[value]) for value in pair)
+ 
+     def _select_and_refresh(self, reference, atoms, rng):
++        if self.active_mask is not None:
++            selected = _select_active_direction_group(
++                reference, atoms, rng, self.active_mask)
++            self._pair = self._require_pair(selected.pair)
++            self._group = selected.group_mask.copy()
++            self._selection = selected
++            self._refresh = None
++            return
+         selected = select_native_local_group(reference, atoms, rng)
+         refreshed = refresh_native_pair(atoms, selected.pair, rng)
+         pair = self._require_pair(refreshed.pair)
+@@ -183,9 +249,30 @@ class RecoveredDirectionController:
+         """Create the first pair/group using the Python startup reference."""
+         reference = self._positions(input_atoms, 'input_atoms').copy()
+         current = self._positions(initial_quenched, 'initial_quenched')
++        self._validate_active_mask(len(input_atoms))
+         if reference.shape != current.shape or not np.array_equal(input_atoms.numbers,
+                                                                    initial_quenched.numbers):
+             raise ValueError('startup structures require matching atoms')
++        if self.active_mask is not None:
++            if self.settings.startup_order == 'legacy':
++                self._select_and_refresh(reference, initial_quenched, rng)
++                return
++            if not callable(getattr(rng, 'permutation', None)):
++                raise TypeError('randomized startup_order requires an RNG with permutation()')
++            order = np.asarray(rng.permutation(len(initial_quenched)), dtype=int)
++            ordered_atoms = initial_quenched[order]
++            selected = _select_active_direction_group(
++                reference[order], ordered_atoms, rng, self.active_mask[order])
++            mapped = replace(
++                selected,
++                pair=self._map_pair(selected.pair, order),
++                group_mask=np.asarray(selected.group_mask)[np.argsort(order)].copy(),
++            )
++            self._pair = self._require_pair(mapped.pair)
++            self._group = mapped.group_mask.copy()
++            self._selection = mapped
++            self._refresh = None
++            return
+         if self.settings.startup_order == 'legacy':
+             self._select_and_refresh(reference, initial_quenched, rng)
+             return
+@@ -212,6 +299,7 @@ class RecoveredDirectionController:
+         """Start after optional LS prequench while retaining the pre-LS reference."""
+         reference = self._positions(current, 'current').copy()
+         work_positions = self._positions(work, 'work')
++        self._validate_active_mask(len(current))
+         if reference.shape != work_positions.shape or not np.array_equal(current.numbers, work.numbers):
+             raise ValueError('current and work require matching atoms')
+         if self._pair is None or self._group is None:
+@@ -226,7 +314,8 @@ class RecoveredDirectionController:
+         self._outer_reference = reference
+         self._state = LocalDirectionState(self._pair, self._group,
+                                           selected.coefficients, group_marker=marker,
+-                                          c1_radius_policy=self.settings.c1_radius_policy)
++                                          c1_radius_policy=self.settings.c1_radius_policy,
++                                          active_mask=self.active_mask)
+         result = self._state.initial(work, rng)
+         self._group_marker = result.group_marker
+         return result
+@@ -249,6 +338,7 @@ class RecoveredDirectionController:
+         if self._outer_reference is None:
+             raise ValueError('begin_escape must precede landing observation')
+         landing = self._positions(landing_atoms, 'landing_atoms')
++        self._validate_active_mask(len(landing_atoms))
+         if landing.shape != self._outer_reference.shape:
+             raise ValueError('landing atom count changed within escape')
+         self._select_and_refresh(self._outer_reference, landing_atoms, rng)
+@@ -279,7 +369,7 @@ class RecoveredDirectionController:
+                 'forbidden_rejections': int(self._refresh.forbidden_rejections),
+                 'element_rejections': int(self._refresh.element_rejections),
+             }
+-        return {
++        result = {
+             'pair': None if self._pair is None else list(self._pair),
+             'group': None if self._group is None else self._group.tolist(),
+             'coefficients': coefficients,
+@@ -291,3 +381,47 @@ class RecoveredDirectionController:
+             'initialized': self._pair is not None,
+             'escape_active': self._state is not None,
+         }
++        if self.active_mask is not None:
++            result['selection_mode'] = 'active_conditional_selection'
++            result['active_mask'] = self.active_mask.tolist()
++        return result
++
++
++def _select_active_direction_group(reference_positions, atoms, rng, active_mask):
++    """Condition the recovered score band on movable support in one draw.
++
++    The first score endpoint must be active. The second axis endpoint is drawn
++    once from the existing outer score band and may be fixed: it supplies full
++    geometry as a reference, while generated Cartesian components are later
++    projected onto the active atoms. Only active members of that same band are
++    marked in the group mask. An empty band is an explicit selection failure;
++    no retry, replacement scale, or changed geometry threshold is introduced.
++    This conditional policy is intentionally not a native parity claim.
++    """
++    from .native_local_pair import _next_random
++
++    positions = np.asarray(atoms.positions, dtype=float)
++    reference = np.asarray(reference_positions, dtype=float)
++    active_mask = np.asarray(active_mask)
++    if (len(atoms) < 2 or atoms.pbc.any() or atoms.constraints or
++            positions.shape != (len(atoms), 3) or reference.shape != positions.shape or
++            not np.isfinite(positions).all() or not np.isfinite(reference).all()):
++        raise ValueError('active selection requires matching finite nonperiodic full geometry')
++    if active_mask.dtype != np.bool_ or active_mask.shape != (len(atoms),) or not np.any(active_mask):
++        raise ValueError('active selection requires a nonempty boolean N-vector')
++    active = np.flatnonzero(active_mask)
++    movement = np.linalg.norm(positions-reference, axis=1)
++    first = int(active[np.argmin(movement[active])])
++    first_distance = np.linalg.norm(positions-positions[first], axis=1)
++    movement[first_distance < _NEAR_CENTER_A] = 0.
++    second = int(active[np.argmin(movement[active])])
++    score = first_distance + np.linalg.norm(positions-positions[second], axis=1)
++    axis_first = int(active[np.argmax(score[active])])
++    threshold = max(_OUTER_BAND_A, float(score[axis_first])-_OUTER_BAND_A)
++    candidates = np.flatnonzero((score > threshold) & (np.arange(len(atoms)) != axis_first))
++    if not len(candidates):
++        raise ValueError('active score band has no second pair candidate')
++    group = np.zeros(len(atoms), dtype=np.int32)
++    group[active[(score[active] > threshold) & (active != axis_first)]] = 1
++    pair_second = int(candidates[int(_next_random(rng)*len(candidates))])
++    return LocalGroupSelection((axis_first, pair_second), group, 1)

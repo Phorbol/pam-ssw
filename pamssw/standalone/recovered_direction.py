@@ -10,7 +10,10 @@ from dataclasses import dataclass, replace
 import numpy as np
 
 from .native_direction_control import LocalDirectionState, select_local_coefficients
-from .native_local_group import LocalGroupSelection, select_native_local_group
+from .native_local_group import (
+    LocalGroupSelection, _NEAR_CENTER_A, _OUTER_BAND_A,
+    select_native_local_group,
+)
 from .native_pair_selection import PairRefreshResult, refresh_native_pair
 
 
@@ -67,6 +70,7 @@ class RecoveredDirectionCheckpointState:
     group_marker: int | None
     selection: LocalGroupSelection | None = None
     refresh: PairRefreshResult | None = None
+    active_mask: np.ndarray | None = None
 
     def __post_init__(self):
         if not isinstance(self.settings, RecoveredDirectionSettings):
@@ -90,6 +94,39 @@ class RecoveredDirectionCheckpointState:
         group.setflags(write=False)
         object.__setattr__(self, 'pair', tuple(int(i) for i in self.pair))
         object.__setattr__(self, 'group', group)
+        if self.active_mask is not None:
+            active = np.asarray(self.active_mask)
+            if active.dtype != np.bool_ or active.shape != group.shape:
+                raise ValueError('checkpoint active_mask must be a boolean N-vector')
+            if not np.any(active):
+                raise ValueError('checkpoint active_mask must contain an active atom')
+            active = active.copy()
+            active.setflags(write=False)
+            object.__setattr__(self, 'active_mask', active)
+            self._validate_active_contract(len(group))
+
+    def _validate_active_contract(self, count):
+        if self.active_mask is None:
+            return
+        if self.active_mask.dtype != np.bool_:
+            raise ValueError('checkpoint active_mask must be boolean')
+        if self.active_mask.shape != (count,):
+            raise ValueError('checkpoint active_mask does not match atom count')
+        if not np.any(self.active_mask):
+            raise ValueError('checkpoint active_mask must contain an active atom')
+        if self.pair[0] < 0 or self.pair[0] >= count:
+            raise ValueError('checkpoint pair does not match atom count')
+        if np.any(np.asarray(self.group)[~self.active_mask] != 0):
+            raise ValueError('checkpoint group must be supported on active atoms')
+        if not self.active_mask[self.pair[0]]:
+            raise ValueError('checkpoint pair first endpoint must be active')
+        if self.refresh is not None:
+            raise ValueError('active checkpoint must not contain a native pair refresh')
+        if self.selection is not None:
+            if not np.array_equal(self.selection.group_mask, self.group):
+                raise ValueError('checkpoint selection group must match checkpoint group')
+            if tuple(self.selection.pair) != tuple(self.pair):
+                raise ValueError('checkpoint selection pair must match checkpoint pair')
 
     def validate_for_atom_count(self, count):
         if (self.group_marker is not None and
@@ -99,6 +136,8 @@ class RecoveredDirectionCheckpointState:
             raise ValueError('checkpoint group_marker must be None, -1, or 0')
         if len(self.group) != count:
             raise ValueError('checkpoint group does not match atom count')
+        if self.active_mask is not None and self.active_mask.shape != (count,):
+            raise ValueError('checkpoint active_mask does not match atom count')
         if any(i < 0 or i >= count for i in self.pair):
             raise ValueError('checkpoint pair does not match atom count')
         if self.selection is not None:
@@ -112,15 +151,22 @@ class RecoveredDirectionCheckpointState:
                                       not isinstance(i, (int, np.integer)) or
                                       i < 0 or i >= count) for i in self.refresh.pair):
                 raise ValueError('checkpoint refresh pair is invalid')
+        self._validate_active_contract(count)
 
 
 class RecoveredDirectionController:
     """Own pair/group state across escapes and local state within one escape."""
 
-    def __init__(self, settings):
+    def __init__(self, settings, active_mask=None):
         if not isinstance(settings, RecoveredDirectionSettings):
             raise TypeError('settings must be RecoveredDirectionSettings')
         self.settings = settings
+        self.active_mask = None if active_mask is None else np.asarray(active_mask).copy()
+        if self.active_mask is not None:
+            if self.active_mask.dtype != np.bool_ or self.active_mask.ndim != 1:
+                raise ValueError('active_mask must be a boolean N-vector')
+            if not np.any(self.active_mask):
+                raise ValueError('active_mask must contain at least one active atom')
         self._pair = None
         self._group = None
         self._outer_reference = None
@@ -135,13 +181,17 @@ class RecoveredDirectionController:
             raise ValueError('cannot checkpoint an uninitialized recovered direction controller')
         return RecoveredDirectionCheckpointState(
             self.settings, self._pair, self._group, self._group_marker,
-            self._selection, self._refresh)
+            self._selection, self._refresh, self.active_mask)
 
     def restore_checkpoint_state(self, state):
         if not isinstance(state, RecoveredDirectionCheckpointState):
             raise TypeError('recovered direction checkpoint state required')
         if state.settings != self.settings:
             raise ValueError('recovered direction settings do not match checkpoint')
+        if ((self.active_mask is None) != (state.active_mask is None) or
+                (self.active_mask is not None and
+                 not np.array_equal(self.active_mask, state.active_mask))):
+            raise ValueError('recovered direction active_mask does not match checkpoint')
         state.validate_for_atom_count(len(state.group))
         self._pair = state.pair
         self._group = state.group.copy()
@@ -160,6 +210,14 @@ class RecoveredDirectionController:
             raise ValueError(f'{name} requires at least two finite unconstrained nonperiodic atoms')
         return positions
 
+    def _validate_active_mask(self, atom_count):
+        if self.active_mask is None:
+            return
+        if self.active_mask.shape != (atom_count,):
+            raise ValueError('active_mask does not match atom count')
+        if not np.any(self.active_mask):
+            raise ValueError('active_mask must contain at least one active atom')
+
     @staticmethod
     def _require_pair(pair):
         if len(pair) != 2 or pair[1] is None:
@@ -171,6 +229,14 @@ class RecoveredDirectionController:
         return tuple(None if value is None else int(order[value]) for value in pair)
 
     def _select_and_refresh(self, reference, atoms, rng):
+        if self.active_mask is not None:
+            selected = _select_active_direction_group(
+                reference, atoms, rng, self.active_mask)
+            self._pair = self._require_pair(selected.pair)
+            self._group = selected.group_mask.copy()
+            self._selection = selected
+            self._refresh = None
+            return
         selected = select_native_local_group(reference, atoms, rng)
         refreshed = refresh_native_pair(atoms, selected.pair, rng)
         pair = self._require_pair(refreshed.pair)
@@ -183,9 +249,30 @@ class RecoveredDirectionController:
         """Create the first pair/group using the Python startup reference."""
         reference = self._positions(input_atoms, 'input_atoms').copy()
         current = self._positions(initial_quenched, 'initial_quenched')
+        self._validate_active_mask(len(input_atoms))
         if reference.shape != current.shape or not np.array_equal(input_atoms.numbers,
                                                                    initial_quenched.numbers):
             raise ValueError('startup structures require matching atoms')
+        if self.active_mask is not None:
+            if self.settings.startup_order == 'legacy':
+                self._select_and_refresh(reference, initial_quenched, rng)
+                return
+            if not callable(getattr(rng, 'permutation', None)):
+                raise TypeError('randomized startup_order requires an RNG with permutation()')
+            order = np.asarray(rng.permutation(len(initial_quenched)), dtype=int)
+            ordered_atoms = initial_quenched[order]
+            selected = _select_active_direction_group(
+                reference[order], ordered_atoms, rng, self.active_mask[order])
+            mapped = replace(
+                selected,
+                pair=self._map_pair(selected.pair, order),
+                group_mask=np.asarray(selected.group_mask)[np.argsort(order)].copy(),
+            )
+            self._pair = self._require_pair(mapped.pair)
+            self._group = mapped.group_mask.copy()
+            self._selection = mapped
+            self._refresh = None
+            return
         if self.settings.startup_order == 'legacy':
             self._select_and_refresh(reference, initial_quenched, rng)
             return
@@ -212,6 +299,7 @@ class RecoveredDirectionController:
         """Start after optional LS prequench while retaining the pre-LS reference."""
         reference = self._positions(current, 'current').copy()
         work_positions = self._positions(work, 'work')
+        self._validate_active_mask(len(current))
         if reference.shape != work_positions.shape or not np.array_equal(current.numbers, work.numbers):
             raise ValueError('current and work require matching atoms')
         if self._pair is None or self._group is None:
@@ -226,7 +314,8 @@ class RecoveredDirectionController:
         self._outer_reference = reference
         self._state = LocalDirectionState(self._pair, self._group,
                                           selected.coefficients, group_marker=marker,
-                                          c1_radius_policy=self.settings.c1_radius_policy)
+                                          c1_radius_policy=self.settings.c1_radius_policy,
+                                          active_mask=self.active_mask)
         result = self._state.initial(work, rng)
         self._group_marker = result.group_marker
         return result
@@ -249,6 +338,7 @@ class RecoveredDirectionController:
         if self._outer_reference is None:
             raise ValueError('begin_escape must precede landing observation')
         landing = self._positions(landing_atoms, 'landing_atoms')
+        self._validate_active_mask(len(landing_atoms))
         if landing.shape != self._outer_reference.shape:
             raise ValueError('landing atom count changed within escape')
         self._select_and_refresh(self._outer_reference, landing_atoms, rng)
@@ -279,7 +369,7 @@ class RecoveredDirectionController:
                 'forbidden_rejections': int(self._refresh.forbidden_rejections),
                 'element_rejections': int(self._refresh.element_rejections),
             }
-        return {
+        result = {
             'pair': None if self._pair is None else list(self._pair),
             'group': None if self._group is None else self._group.tolist(),
             'coefficients': coefficients,
@@ -291,3 +381,47 @@ class RecoveredDirectionController:
             'initialized': self._pair is not None,
             'escape_active': self._state is not None,
         }
+        if self.active_mask is not None:
+            result['selection_mode'] = 'active_conditional_selection'
+            result['active_mask'] = self.active_mask.tolist()
+        return result
+
+
+def _select_active_direction_group(reference_positions, atoms, rng, active_mask):
+    """Condition the recovered score band on movable support in one draw.
+
+    The first score endpoint must be active. The second axis endpoint is drawn
+    once from the existing outer score band and may be fixed: it supplies full
+    geometry as a reference, while generated Cartesian components are later
+    projected onto the active atoms. Only active members of that same band are
+    marked in the group mask. An empty band is an explicit selection failure;
+    no retry, replacement scale, or changed geometry threshold is introduced.
+    This conditional policy is intentionally not a native parity claim.
+    """
+    from .native_local_pair import _next_random
+
+    positions = np.asarray(atoms.positions, dtype=float)
+    reference = np.asarray(reference_positions, dtype=float)
+    active_mask = np.asarray(active_mask)
+    if (len(atoms) < 2 or atoms.pbc.any() or atoms.constraints or
+            positions.shape != (len(atoms), 3) or reference.shape != positions.shape or
+            not np.isfinite(positions).all() or not np.isfinite(reference).all()):
+        raise ValueError('active selection requires matching finite nonperiodic full geometry')
+    if active_mask.dtype != np.bool_ or active_mask.shape != (len(atoms),) or not np.any(active_mask):
+        raise ValueError('active selection requires a nonempty boolean N-vector')
+    active = np.flatnonzero(active_mask)
+    movement = np.linalg.norm(positions-reference, axis=1)
+    first = int(active[np.argmin(movement[active])])
+    first_distance = np.linalg.norm(positions-positions[first], axis=1)
+    movement[first_distance < _NEAR_CENTER_A] = 0.
+    second = int(active[np.argmin(movement[active])])
+    score = first_distance + np.linalg.norm(positions-positions[second], axis=1)
+    axis_first = int(active[np.argmax(score[active])])
+    threshold = max(_OUTER_BAND_A, float(score[axis_first])-_OUTER_BAND_A)
+    candidates = np.flatnonzero((score > threshold) & (np.arange(len(atoms)) != axis_first))
+    if not len(candidates):
+        raise ValueError('active score band has no second pair candidate')
+    group = np.zeros(len(atoms), dtype=np.int32)
+    group[active[(score[active] > threshold) & (active != axis_first)]] = 1
+    pair_second = int(candidates[int(_next_random(rng)*len(candidates))])
+    return LocalGroupSelection((axis_first, pair_second), group, 1)

@@ -1,0 +1,18 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_one_shot_direction_exclusions_match_rotation_and_checkpoint _______
+
+    def test_one_shot_direction_exclusions_match_rotation_and_checkpoint():
+        r=run_constrained_ssw(atoms(),ASESurface(EMT()),steps=1,config=config(),
+            rng=np.random.default_rng(41),recovered_direction=settings(),
+            direction_fixed_indices=iter([1]))
+>       assert r.checkpoint.direction_fixed_indices==(1,)
+E       assert () == (1,)
+E         
+E         Right contains one more item: 1
+E         Use -v to get more diff
+
+tests/standalone/test_constrained_full_direction.py:94: AssertionError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_constrained_full_direction.py::test_one_shot_direction_exclusions_match_rotation_and_checkpoint
+1 failed, 6 deselected in 0.64s

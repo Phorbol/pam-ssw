@@ -1,0 +1,28 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_in_memory_direction_checkpoint_does_not_copy_every_prefix ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x103163e95f70>
+
+    def test_in_memory_direction_checkpoint_does_not_copy_every_prefix(monkeypatch):
+        import pamssw.standalone.constrained_reference as module
+        from pamssw.standalone.constrained_direction import ConstrainedDirectionLifecycle
+        original=module.ConstrainedCheckpoint
+        snapshots=[]
+        def capture(*args,**kwargs):
+            cp=original(*args,**kwargs);snapshots.append(cp.next_index);return cp
+        monkeypatch.setattr(module,'ConstrainedCheckpoint',capture)
+        monkeypatch.setattr(ConstrainedDirectionLifecycle,'propose',
+            lambda self,current,reduced,work,first,rng: (np.zeros(reduced.dimension),True,{}))
+        monkeypatch.setattr(ConstrainedDirectionLifecycle,'observe',lambda self,landing,rng:None)
+        r=run_constrained_ssw(atoms(),ASESurface(EMT()),steps=3,config=config(),
+            rng=np.random.default_rng(41),recovered_direction=settings())
+        assert r.status=='completed' and r.checkpoint.next_index==3
+>       assert len(snapshots)<=2
+E       assert 4 <= 2
+E        +  where 4 = len([1, 2, 3, 3])
+
+tests/standalone/test_constrained_full_direction.py:117: AssertionError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_constrained_full_direction.py::test_in_memory_direction_checkpoint_does_not_copy_every_prefix
+1 failed, 7 deselected in 0.52s

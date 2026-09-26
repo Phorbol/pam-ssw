@@ -893,3 +893,34 @@ rather than silently falling back. The hook can share the LS and outer
 checkpoint lifecycle when its pure-data state contract is implemented.
 Omitting both new arguments preserves the existing API,
 MC behavior and kernel random stream. MACE descriptors are not required.
+
+
+### Complete direction memory with nonperiodic constraints (experimental)
+
+`run_constrained_ssw(..., recovered_direction=RecoveredDirectionSettings(...))`
+accepts the existing direction settings alongside `ConstrainedSSWConfig` and ASE
+`FixAtoms`/supported Hookean constraints. It retains actual elements and the full
+geometry for pair/group selection while generating and rotating vectors in the
+active Cartesian subspace. It does **not** remove free-cluster rigid modes from
+this constrained problem. `direction_fixed_indices` additionally restricts only
+directions; physically movable atoms remain available to relaxation.
+
+The opt-in path supplies its own recovered CBD rotation settings; separate
+`config.recovered_rotation`, presweep settings and PAM Gaussian policy cannot be
+combined with it. No pool, periodic pair/group selection, or variable-cell support
+is added. Ordinary constrained calls keep their existing defaults and schema 1.
+
+A direction-enabled result includes a schema-2 checkpoint containing the pair,
+group, group marker and active-mask identity. Resume with the same explicit
+`recovered_direction`, constraints, direction exclusions, config and calculator;
+RNG and boundary state are restored. Like existing constrained checkpoints, it
+resumes at completed outer boundaries, not within a Gaussian stage.
+
+Active selection retains the recovered score band but draws one finite eligible
+axis: the first endpoint is movable, the second may be a fixed geometric reference,
+and group motion is restricted to movable atoms. It does not reproduce the native
+pair-refresh rejection sampler. An empty candidate band stops explicitly. If
+selection fails after a qualified landing, that landing remains in `minima` and
+`best` as appropriate; the result is terminal `direction_selection_failed`, not a
+Metropolis rejection or a resumable successful checkpoint. These geometry and
+state guarantees do not establish search-efficiency improvements.

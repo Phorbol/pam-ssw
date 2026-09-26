@@ -69,13 +69,14 @@ class LocalDirectionState:
     """
 
     def __init__(self, pair, group, coefficients, *, group_marker,
-                 c1_radius_policy='restricted'):
+                 c1_radius_policy='restricted', active_mask=None):
         self.pair = tuple(pair)
         self.group = np.asarray(group).copy()
         self.coefficients = np.asarray(coefficients, dtype=float).copy()
         if self.coefficients.shape != (10,):
             raise ValueError('coefficients require ten entries')
         self.group_marker = group_marker
+        self.active_mask = _validated_active_mask(active_mask, len(self.group))
         if c1_radius_policy not in ('restricted', 'per_atom'):
             raise ValueError('c1_radius_policy must be restricted or per_atom')
         self.c1_radius_policy = c1_radius_policy
@@ -96,7 +97,11 @@ class LocalDirectionState:
             raise ValueError('save the actual Gaussian center before updating direction')
         if atoms.positions.shape != self.gaussian_center.shape:
             raise ValueError('atom count changed within escape')
-        seed = _native_normalize(atoms.positions-self.gaussian_center)
+        displacement = atoms.positions-self.gaussian_center
+        if self.active_mask is not None:
+            displacement = displacement.copy()
+            displacement[~self.active_mask] = 0.
+        seed = _native_normalize(displacement)
         coefficients = np.zeros(10)
         coefficients[4:7] = self.coefficients[4:7]
         coefficients[9] = 1.2*np.sum(coefficients[:9])
@@ -106,13 +111,15 @@ class LocalDirectionState:
         self.last_coefficients = np.asarray(coefficients).copy()
         result = generate_local_direction(atoms, seed, coefficients, self.pair,
                                           self.group, rng, group_marker=self.group_marker,
-                                          c1_radius_policy=self.c1_radius_policy)
+                                          c1_radius_policy=self.c1_radius_policy,
+                                          active_mask=self.active_mask)
         self.group_marker = result.group_marker
         return result
 
 
 def generate_local_direction(atoms, seed, coefficients, pair, group, rng, *,
-                             group_marker, c1_radius_policy='restricted'):
+                             group_marker, c1_radius_policy='restricted',
+                             active_mask=None):
     """Recovered free-cluster c1/c4/c6 generator composition (experimental).
 
     ``seed`` is the caller-owned accumulator, normally zero initially and a
@@ -134,11 +141,14 @@ def generate_local_direction(atoms, seed, coefficients, pair, group, rng, *,
     from .native_local_pair import native_local_pair
 
     positions, pair = _coordinates(atoms, pair)
-    frame = ClusterFrame(atoms)
+    active_mask = _validated_active_mask(active_mask, len(atoms))
+    frame = None if active_mask is not None else ClusterFrame(atoms)
     vector = np.asarray(seed, dtype=float).copy()
     coeff = np.asarray(coefficients, dtype=float)
     if vector.shape != positions.shape or not np.isfinite(vector).all():
         raise ValueError('seed requires finite (N,3) coordinates')
+    if active_mask is not None:
+        vector[~active_mask] = 0.
     if coeff.shape != (10,) or not np.isfinite(coeff).all() or np.any(coeff < 0):
         raise ValueError('coefficients require ten finite nonnegative values')
     if c1_radius_policy not in ('restricted', 'per_atom'):
@@ -155,7 +165,7 @@ def generate_local_direction(atoms, seed, coefficients, pair, group, rng, *,
         if c1_radius_policy == 'restricted' and not np.all(near):
             raise NotImplementedError('c1 reference currently requires the all-near radius domain')
         random = native_vmb2(np.zeros_like(positions), near[:, None] * np.ones((1, 3), dtype=bool), uniform)
-        vector += coeff[1]*_native_normalize(frame.project(random))
+        vector += coeff[1]*_native_normalize(_project_direction(random, frame, active_mask))
     route = 'none'
     if coeff[4] > 1e-6:
         if native_pair_allowed(atoms, pair):
@@ -174,12 +184,31 @@ def generate_local_direction(atoms, seed, coefficients, pair, group, rng, *,
             else:
                 local = native_local_pair(atoms,pair,rng).raw_direction
                 route = 'pair'
-            vector += coeff[4]*_native_normalize(frame.project(local))
+            vector += coeff[4]*_native_normalize(_project_direction(local, frame, active_mask))
         else:
             route = 'forbidden'
     if coeff[6] > 1e-6:
         local = native_local_group(atoms,pair,group)
-        vector += coeff[6]*_native_normalize(frame.project(local))
+        vector += coeff[6]*_native_normalize(_project_direction(local, frame, active_mask))
         route = 'torsion'
     direction = _native_normalize(vector)
     return LocalDirectionResult(direction,not np.any(direction),route,group_marker)
+
+
+def _validated_active_mask(active_mask, atom_count):
+    if active_mask is None:
+        return None
+    mask = np.asarray(active_mask)
+    if mask.dtype != np.bool_ or mask.shape != (atom_count,):
+        raise ValueError('active_mask must be a boolean N-vector')
+    if not np.any(mask):
+        raise ValueError('active_mask must contain at least one active atom')
+    return mask.copy()
+
+
+def _project_direction(vector, frame, active_mask):
+    if active_mask is None:
+        return frame.project(vector)
+    result = np.asarray(vector, dtype=float).copy()
+    result[~active_mask] = 0.
+    return result

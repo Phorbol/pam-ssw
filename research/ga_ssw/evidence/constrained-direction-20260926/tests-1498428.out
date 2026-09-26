@@ -1,0 +1,264 @@
+...F.FFFF.......F                                                        [100%]
+=================================== FAILURES ===================================
+______ test_all_active_selection_preserves_existing_score_and_single_draw ______
+
+    def test_all_active_selection_preserves_existing_score_and_single_draw():
+        from pamssw.standalone.native_local_group import select_native_local_group
+        from pamssw.standalone.recovered_direction import _select_active_direction_group
+        atoms = geometry()
+        active = np.ones(len(atoms), dtype=bool)
+        expected = select_native_local_group(atoms.positions, atoms, iter([.37]))
+>       actual = _select_active_direction_group(atoms.positions, atoms, iter([.37]), active)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/standalone/test_active_recovered_direction.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reference_positions = array([[ 0. ,  0. ,  0. ],
+       [ 1.4,  0. ,  0.1],
+       [ 0. ,  2.2,  0.1],
+       [ 2.8,  2.1,  1. ],
+       [-2.5,  1.2,  0.9],
+       [ 8. ,  0. ,  0. ]])
+atoms = Atoms(symbols='C6', pbc=False)
+rng = <list_iterator object at 0xac3edec9480>
+active_mask = array([ True,  True,  True,  True,  True,  True])
+
+    def _select_active_direction_group(reference_positions, atoms, rng, active_mask):
+        """Condition the recovered score band on movable support in one draw.
+    
+        The first score endpoint must be active. The second axis endpoint is drawn
+        once from the existing outer score band and may be fixed: it supplies full
+        geometry as a reference, while generated Cartesian components are later
+        projected onto the active atoms. Only active members of that same band are
+        marked in the group mask. An empty band is an explicit selection failure;
+        no retry, replacement scale, or changed geometry threshold is introduced.
+        This conditional policy is intentionally not a native parity claim.
+        """
+        from .native_local_pair import _next_random
+    
+        positions = np.asarray(atoms.positions, dtype=float)
+        reference = np.asarray(reference_positions, dtype=float)
+        active_mask = np.asarray(active_mask)
+        if (len(atoms) < 2 or atoms.pbc.any() or atoms.constraints or
+                positions.shape != (len(atoms), 3) or reference.shape != positions.shape or
+                not np.isfinite(positions).all() or not np.isfinite(reference).all()):
+            raise ValueError('active selection requires matching finite nonperiodic full geometry')
+        if active_mask.dtype != np.bool_ or active_mask.shape != (len(atoms),) or not np.any(active_mask):
+            raise ValueError('active selection requires a nonempty boolean N-vector')
+        active = np.flatnonzero(active_mask)
+        movement = np.linalg.norm(positions-reference, axis=1)
+        first = int(active[np.argmin(movement[active])])
+        first_distance = np.linalg.norm(positions-positions[first], axis=1)
+        movement[first_distance < _NEAR_CENTER_A] = 0.
+        second = int(active[np.argmin(movement[active])])
+        score = first_distance + np.linalg.norm(positions-positions[second], axis=1)
+        axis_first = int(active[np.argmax(score[active])])
+        threshold = max(_OUTER_BAND_A, float(score[axis_first])-_OUTER_BAND_A)
+        candidates = np.flatnonzero((score > threshold) & (np.arange(len(atoms)) != axis_first))
+        if not len(candidates):
+>           raise ValueError('active score band has no second pair candidate')
+E           ValueError: active score band has no second pair candidate
+
+pamssw/standalone/recovered_direction.py:398: ValueError
+_ test_active_checkpoint_restore_revalidates_corrupt_state[inactive_group-group.*active] _
+
+corruption = 'inactive_group', message = 'group.*active'
+
+    @pytest.mark.parametrize('corruption, message', [
+        ('inactive_group', 'group.*active'),
+        ('fixed_first', 'pair.*active'),
+        ('selection_group', 'selection.*group'),
+        ('selection_pair', 'selection.*pair'),
+    ])
+    def test_active_checkpoint_restore_revalidates_corrupt_state(corruption, message):
+        from dataclasses import replace
+        from pamssw.standalone.native_local_group import LocalGroupSelection
+    
+        atoms = geometry()
+        active = np.array([True, True, True, True, True, False])
+        controller = RecoveredDirectionController(settings(), active_mask=active)
+        controller.initialize(atoms, atoms.copy(), iter([.2] * 100))
+        state = controller.checkpoint_state()
+        forged = object.__new__(RecoveredDirectionCheckpointState)
+        for name in ('settings', 'pair', 'group', 'group_marker', 'selection',
+                     'refresh', 'active_mask'):
+            object.__setattr__(forged, name, getattr(state, name))
+        selection = state.selection
+        if corruption == 'inactive_group':
+            group = state.group.copy()
+            group[np.flatnonzero(~active)[0]] = 1
+            object.__setattr__(forged, 'group', group)
+        elif corruption == 'fixed_first':
+            object.__setattr__(forged, 'pair', (int(np.flatnonzero(~active)[0]), state.pair[1]))
+        elif corruption == 'selection_group':
+            group = selection.group_mask.copy()
+            group[0] = 1 - group[0]
+            object.__setattr__(forged, 'selection', replace(selection, group_mask=group))
+        else:
+            other = (state.pair[1] + 1) % len(atoms)
+            object.__setattr__(forged, 'selection', replace(
+                selection, pair=(state.pair[0], other)))
+>       with pytest.raises(ValueError, match=message):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/standalone/test_active_recovered_direction.py:127: Failed
+_ test_active_checkpoint_restore_revalidates_corrupt_state[fixed_first-pair.*active] _
+
+corruption = 'fixed_first', message = 'pair.*active'
+
+    @pytest.mark.parametrize('corruption, message', [
+        ('inactive_group', 'group.*active'),
+        ('fixed_first', 'pair.*active'),
+        ('selection_group', 'selection.*group'),
+        ('selection_pair', 'selection.*pair'),
+    ])
+    def test_active_checkpoint_restore_revalidates_corrupt_state(corruption, message):
+        from dataclasses import replace
+        from pamssw.standalone.native_local_group import LocalGroupSelection
+    
+        atoms = geometry()
+        active = np.array([True, True, True, True, True, False])
+        controller = RecoveredDirectionController(settings(), active_mask=active)
+        controller.initialize(atoms, atoms.copy(), iter([.2] * 100))
+        state = controller.checkpoint_state()
+        forged = object.__new__(RecoveredDirectionCheckpointState)
+        for name in ('settings', 'pair', 'group', 'group_marker', 'selection',
+                     'refresh', 'active_mask'):
+            object.__setattr__(forged, name, getattr(state, name))
+        selection = state.selection
+        if corruption == 'inactive_group':
+            group = state.group.copy()
+            group[np.flatnonzero(~active)[0]] = 1
+            object.__setattr__(forged, 'group', group)
+        elif corruption == 'fixed_first':
+            object.__setattr__(forged, 'pair', (int(np.flatnonzero(~active)[0]), state.pair[1]))
+        elif corruption == 'selection_group':
+            group = selection.group_mask.copy()
+            group[0] = 1 - group[0]
+            object.__setattr__(forged, 'selection', replace(selection, group_mask=group))
+        else:
+            other = (state.pair[1] + 1) % len(atoms)
+            object.__setattr__(forged, 'selection', replace(
+                selection, pair=(state.pair[0], other)))
+>       with pytest.raises(ValueError, match=message):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/standalone/test_active_recovered_direction.py:127: Failed
+_ test_active_checkpoint_restore_revalidates_corrupt_state[selection_group-selection.*group] _
+
+corruption = 'selection_group', message = 'selection.*group'
+
+    @pytest.mark.parametrize('corruption, message', [
+        ('inactive_group', 'group.*active'),
+        ('fixed_first', 'pair.*active'),
+        ('selection_group', 'selection.*group'),
+        ('selection_pair', 'selection.*pair'),
+    ])
+    def test_active_checkpoint_restore_revalidates_corrupt_state(corruption, message):
+        from dataclasses import replace
+        from pamssw.standalone.native_local_group import LocalGroupSelection
+    
+        atoms = geometry()
+        active = np.array([True, True, True, True, True, False])
+        controller = RecoveredDirectionController(settings(), active_mask=active)
+        controller.initialize(atoms, atoms.copy(), iter([.2] * 100))
+        state = controller.checkpoint_state()
+        forged = object.__new__(RecoveredDirectionCheckpointState)
+        for name in ('settings', 'pair', 'group', 'group_marker', 'selection',
+                     'refresh', 'active_mask'):
+            object.__setattr__(forged, name, getattr(state, name))
+        selection = state.selection
+        if corruption == 'inactive_group':
+            group = state.group.copy()
+            group[np.flatnonzero(~active)[0]] = 1
+            object.__setattr__(forged, 'group', group)
+        elif corruption == 'fixed_first':
+            object.__setattr__(forged, 'pair', (int(np.flatnonzero(~active)[0]), state.pair[1]))
+        elif corruption == 'selection_group':
+            group = selection.group_mask.copy()
+            group[0] = 1 - group[0]
+            object.__setattr__(forged, 'selection', replace(selection, group_mask=group))
+        else:
+            other = (state.pair[1] + 1) % len(atoms)
+            object.__setattr__(forged, 'selection', replace(
+                selection, pair=(state.pair[0], other)))
+>       with pytest.raises(ValueError, match=message):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/standalone/test_active_recovered_direction.py:127: Failed
+_ test_active_checkpoint_restore_revalidates_corrupt_state[selection_pair-selection.*pair] _
+
+corruption = 'selection_pair', message = 'selection.*pair'
+
+    @pytest.mark.parametrize('corruption, message', [
+        ('inactive_group', 'group.*active'),
+        ('fixed_first', 'pair.*active'),
+        ('selection_group', 'selection.*group'),
+        ('selection_pair', 'selection.*pair'),
+    ])
+    def test_active_checkpoint_restore_revalidates_corrupt_state(corruption, message):
+        from dataclasses import replace
+        from pamssw.standalone.native_local_group import LocalGroupSelection
+    
+        atoms = geometry()
+        active = np.array([True, True, True, True, True, False])
+        controller = RecoveredDirectionController(settings(), active_mask=active)
+        controller.initialize(atoms, atoms.copy(), iter([.2] * 100))
+        state = controller.checkpoint_state()
+        forged = object.__new__(RecoveredDirectionCheckpointState)
+        for name in ('settings', 'pair', 'group', 'group_marker', 'selection',
+                     'refresh', 'active_mask'):
+            object.__setattr__(forged, name, getattr(state, name))
+        selection = state.selection
+        if corruption == 'inactive_group':
+            group = state.group.copy()
+            group[np.flatnonzero(~active)[0]] = 1
+            object.__setattr__(forged, 'group', group)
+        elif corruption == 'fixed_first':
+            object.__setattr__(forged, 'pair', (int(np.flatnonzero(~active)[0]), state.pair[1]))
+        elif corruption == 'selection_group':
+            group = selection.group_mask.copy()
+            group[0] = 1 - group[0]
+            object.__setattr__(forged, 'selection', replace(selection, group_mask=group))
+        else:
+            other = (state.pair[1] + 1) % len(atoms)
+            object.__setattr__(forged, 'selection', replace(
+                selection, pair=(state.pair[0], other)))
+>       with pytest.raises(ValueError, match=message):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/standalone/test_active_recovered_direction.py:127: Failed
+______ test_qualified_landing_is_retained_when_next_axis_selection_fails _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xac3edc5b440>
+
+    def test_qualified_landing_is_retained_when_next_axis_selection_fails(monkeypatch):
+        from pamssw.standalone.constrained_direction import ConstrainedDirectionLifecycle
+        def zero(self,current,reduced,work,*,first,rng):
+            return np.zeros(reduced.dimension),True,{'selection_mode':'test_zero_release'}
+        def fail(self,landing,rng):
+            raise ValueError('active score band has no second pair candidate')
+        monkeypatch.setattr(ConstrainedDirectionLifecycle,'propose',zero)
+        monkeypatch.setattr(ConstrainedDirectionLifecycle,'observe',fail)
+        r=run_constrained_ssw(atoms(),ASESurface(EMT()),steps=1,config=config(),
+            rng=np.random.default_rng(41),recovered_direction=settings())
+>       assert r.status=='direction_selection_failed'
+E       AssertionError: assert 'completed_with_failures' == 'direction_selection_failed'
+E         
+E         - direction_selection_failed
+E         + completed_with_failures
+
+tests/standalone/test_constrained_full_direction.py:81: AssertionError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_active_recovered_direction.py::test_all_active_selection_preserves_existing_score_and_single_draw
+FAILED tests/standalone/test_active_recovered_direction.py::test_active_checkpoint_restore_revalidates_corrupt_state[inactive_group-group.*active]
+FAILED tests/standalone/test_active_recovered_direction.py::test_active_checkpoint_restore_revalidates_corrupt_state[fixed_first-pair.*active]
+FAILED tests/standalone/test_active_recovered_direction.py::test_active_checkpoint_restore_revalidates_corrupt_state[selection_group-selection.*group]
+FAILED tests/standalone/test_active_recovered_direction.py::test_active_checkpoint_restore_revalidates_corrupt_state[selection_pair-selection.*pair]
+FAILED tests/standalone/test_constrained_full_direction.py::test_qualified_landing_is_retained_when_next_axis_selection_fails
+6 failed, 11 passed in 0.61s

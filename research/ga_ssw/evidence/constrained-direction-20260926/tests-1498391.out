@@ -1,0 +1,137 @@
+FFFFFFFFFFF                                                              [100%]
+=================================== FAILURES ===================================
+________ test_active_generator_projects_every_component_and_stage_seed _________
+
+    def test_active_generator_projects_every_component_and_stage_seed():
+        atoms = geometry()
+        active = np.array([True, True, True, True, True, False])
+        coefficients = np.zeros(10)
+        coefficients[1] = 1.
+        coefficients[4] = .6
+>       got = generate_local_direction(
+            atoms, np.ones((6, 3)), coefficients, (0, 5), np.ones(6, int),
+            iter([.17]), group_marker=0, active_mask=active)
+E       TypeError: generate_local_direction() got an unexpected keyword argument 'active_mask'
+
+tests/standalone/test_active_recovered_direction.py:36: TypeError
+_______________ test_active_stage_history_has_zero_fixed_support _______________
+
+    def test_active_stage_history_has_zero_fixed_support():
+        atoms = geometry()
+        active = np.array([True, True, True, True, True, False])
+        coefficients = np.zeros(10)
+        coefficients[4] = .6
+>       state = LocalDirectionState((0, 5), np.zeros(6, int), coefficients,
+                                    group_marker=0, active_mask=active)
+E       TypeError: LocalDirectionState.__init__() got an unexpected keyword argument 'active_mask'
+
+tests/standalone/test_active_recovered_direction.py:48: TypeError
+_ test_active_controller_selection_keeps_fixed_axis_reference_but_active_support _
+
+    def test_active_controller_selection_keeps_fixed_axis_reference_but_active_support():
+        atoms = geometry()
+        active = np.array([True, True, True, True, True, False])
+>       controller = RecoveredDirectionController(settings(), active_mask=active)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: RecoveredDirectionController.__init__() got an unexpected keyword argument 'active_mask'
+
+tests/standalone/test_active_recovered_direction.py:60: TypeError
+______ test_active_checkpoint_carries_immutable_mask_and_rejects_mismatch ______
+
+    def test_active_checkpoint_carries_immutable_mask_and_rejects_mismatch():
+        atoms = geometry()
+        active = np.array([True, True, True, True, True, False])
+>       controller = RecoveredDirectionController(settings(), active_mask=active)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: RecoveredDirectionController.__init__() got an unexpected keyword argument 'active_mask'
+
+tests/standalone/test_active_recovered_direction.py:71: TypeError
+________ test_all_fixed_active_controller_rejects_before_selection_draw ________
+
+    def test_all_fixed_active_controller_rejects_before_selection_draw():
+        atoms = geometry()
+        draws = iter([.2] * 100)
+>       controller = RecoveredDirectionController(settings(), active_mask=np.zeros(6, bool))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: RecoveredDirectionController.__init__() got an unexpected keyword argument 'active_mask'
+
+tests/standalone/test_active_recovered_direction.py:84: TypeError
+________ test_explicit_none_preserves_legacy_generator_draw_and_output _________
+
+    def test_explicit_none_preserves_legacy_generator_draw_and_output():
+        atoms = geometry()
+        coefficients = np.zeros(10)
+        coefficients[1] = 1.
+        args = (atoms, np.zeros((6, 3)), coefficients, (0, 2),
+                np.zeros(6, int))
+        without = generate_local_direction(*args, iter([.17]), group_marker=0)
+>       explicit_none = generate_local_direction(*args, iter([.17]), group_marker=0,
+                                                 active_mask=None)
+E       TypeError: generate_local_direction() got an unexpected keyword argument 'active_mask'
+
+tests/standalone/test_active_recovered_direction.py:97: TypeError
+________ test_initial_direction_checkpoint_roundtrip_and_fixed_identity ________
+
+    def test_initial_direction_checkpoint_roundtrip_and_fixed_identity():
+        a=atoms()
+>       r=run_constrained_ssw(a,ASESurface(EMT()),steps=0,config=config(),
+            rng=np.random.default_rng(41),recovered_direction=settings())
+E       TypeError: run_constrained_ssw() got an unexpected keyword argument 'recovered_direction'
+
+tests/standalone/test_constrained_full_direction.py:32: TypeError
+___________ test_periodic_full_direction_rejected_before_pes_or_rng ____________
+
+    def test_periodic_full_direction_rejected_before_pes_or_rng():
+        a=atoms();a.cell=np.eye(3)*20;a.pbc=True
+        s=ASESurface(EMT());rng=np.random.default_rng(41);state=copy.deepcopy(rng.bit_generator.state)
+        with pytest.raises((ValueError,NotImplementedError),match='nonperiodic'):
+>           run_constrained_ssw(a,s,steps=0,config=config(),rng=rng,recovered_direction=settings())
+E           TypeError: run_constrained_ssw() got an unexpected keyword argument 'recovered_direction'
+
+tests/standalone/test_constrained_full_direction.py:50: TypeError
+____ test_direction_checkpoint_rejects_mismatch_before_pes_or_rng[missing] _____
+
+corrupt = 'missing'
+
+    @pytest.mark.parametrize('corrupt', ['missing','mask','settings'])
+    def test_direction_checkpoint_rejects_mismatch_before_pes_or_rng(corrupt):
+>       a=atoms();r=run_constrained_ssw(a,ASESurface(EMT()),steps=0,config=config(),
+            rng=np.random.default_rng(41),recovered_direction=settings())
+E       TypeError: run_constrained_ssw() got an unexpected keyword argument 'recovered_direction'
+
+tests/standalone/test_constrained_full_direction.py:56: TypeError
+______ test_direction_checkpoint_rejects_mismatch_before_pes_or_rng[mask] ______
+
+corrupt = 'mask'
+
+    @pytest.mark.parametrize('corrupt', ['missing','mask','settings'])
+    def test_direction_checkpoint_rejects_mismatch_before_pes_or_rng(corrupt):
+>       a=atoms();r=run_constrained_ssw(a,ASESurface(EMT()),steps=0,config=config(),
+            rng=np.random.default_rng(41),recovered_direction=settings())
+E       TypeError: run_constrained_ssw() got an unexpected keyword argument 'recovered_direction'
+
+tests/standalone/test_constrained_full_direction.py:56: TypeError
+____ test_direction_checkpoint_rejects_mismatch_before_pes_or_rng[settings] ____
+
+corrupt = 'settings'
+
+    @pytest.mark.parametrize('corrupt', ['missing','mask','settings'])
+    def test_direction_checkpoint_rejects_mismatch_before_pes_or_rng(corrupt):
+>       a=atoms();r=run_constrained_ssw(a,ASESurface(EMT()),steps=0,config=config(),
+            rng=np.random.default_rng(41),recovered_direction=settings())
+E       TypeError: run_constrained_ssw() got an unexpected keyword argument 'recovered_direction'
+
+tests/standalone/test_constrained_full_direction.py:56: TypeError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_active_recovered_direction.py::test_active_generator_projects_every_component_and_stage_seed
+FAILED tests/standalone/test_active_recovered_direction.py::test_active_stage_history_has_zero_fixed_support
+FAILED tests/standalone/test_active_recovered_direction.py::test_active_controller_selection_keeps_fixed_axis_reference_but_active_support
+FAILED tests/standalone/test_active_recovered_direction.py::test_active_checkpoint_carries_immutable_mask_and_rejects_mismatch
+FAILED tests/standalone/test_active_recovered_direction.py::test_all_fixed_active_controller_rejects_before_selection_draw
+FAILED tests/standalone/test_active_recovered_direction.py::test_explicit_none_preserves_legacy_generator_draw_and_output
+FAILED tests/standalone/test_constrained_full_direction.py::test_initial_direction_checkpoint_roundtrip_and_fixed_identity
+FAILED tests/standalone/test_constrained_full_direction.py::test_periodic_full_direction_rejected_before_pes_or_rng
+FAILED tests/standalone/test_constrained_full_direction.py::test_direction_checkpoint_rejects_mismatch_before_pes_or_rng[missing]
+FAILED tests/standalone/test_constrained_full_direction.py::test_direction_checkpoint_rejects_mismatch_before_pes_or_rng[mask]
+FAILED tests/standalone/test_constrained_full_direction.py::test_direction_checkpoint_rejects_mismatch_before_pes_or_rng[settings]
+11 failed in 1.01s
