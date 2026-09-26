@@ -1,0 +1,16 @@
+{
+  "source": "research/ga_ssw/evidence/c60-local-defect-20260925",
+  "mapping": "research/ga_ssw/evidence/c60-displacement-spectrum-20260927/selected_mapping.json",
+  "minimum_pair_distances_linear_images_A": [
+    1.35970362,
+    1.1566144806555996,
+    1.0172495283774998,
+    0.9694908831996172,
+    1.0262090263347943,
+    1.1723368894459236,
+    1.3797532469544642
+  ],
+  "edge_changes": 4,
+  "rigid_mapping_pair_distances_verified": true,
+  "rayleigh_verified": true
+}

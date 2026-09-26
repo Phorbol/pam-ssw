@@ -1,0 +1,5 @@
+# 接口预检与证据边界
+
+CPU1504063完成正常EMT路径本体（84次calculate），但根agent复核脚本在将8位小数extxyz坐标与原精度E/F比较时失败；该失败不是物理优化问题。保留原stdout、submission.sbatch和正常运行产物。修正复核为使用同一轨迹最后7帧的完整精度，另检查extxyz坐标序列化误差；同时更新计数字段名以符合started/completed分账。未改NEB算法或科学阈值。
+
+CPU1504094使用修正复核检查EMT结果归属、轨迹帧序列与3000/5次计算上限。实际结果：COMPLETED/8秒，正常路径84次启动/完成，7个终态图像独立EMT能量/力复算通过；5次上限路径按预期抛DiagnosticLimit、保存失败summary并非零退出。EMT预检不证明C60路径或SSW效果。

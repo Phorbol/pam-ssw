@@ -1,0 +1,165 @@
+{
+  "scope": "zero-PES endpoint displacement projection; not a path, TS, barrier, or softening-performance test",
+  "inputs": {
+    "witness": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/witness.json",
+    "isomer1": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-1/final.extxyz",
+    "isomer2": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-2/final.extxyz",
+    "hessian": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/curvature/isomer-2.npz",
+    "cutoff_A": 1.64
+  },
+  "mapping": {
+    "ASE_to_isomer1_graph_isomorphisms_enumerated": 120,
+    "minimum_proper_kabsch_endpoint_rmsd_A": 0.26461422268410373,
+    "second_best_proper_kabsch_rmsd_A": 0.26461422268410517,
+    "second_best_minus_best_rmsd_A": 1.4432899320127035e-15,
+    "minimum_rmsd_tie_count_within_1e-12_A": 2,
+    "rotation_determinant": 0.9999999999999988,
+    "ASE_to_isomer2_mapping_from_one_switch_witness": "composed as stored",
+    "composition_is_bijective": true,
+    "isomer2_extxyz_hessian_positions_max_abs_difference_A": 0.0,
+    "tied_minimum_mappings_projection_fractions": {
+      "(23, 22, 0, 29)": {
+        "1": 0.14555593849948142,
+        "5": 0.25943047223585974,
+        "10": 0.33201254988611567,
+        "20": 0.5212354450053971,
+        "50": 0.6158297051880756,
+        "174": 1.0000000000000002
+      },
+      "(0, 4, 23, 18)": {
+        "1": 0.1455559384994896,
+        "5": 0.25943047223586985,
+        "10": 0.3320125498861262,
+        "20": 0.5212354450054077,
+        "50": 0.6158297051880856,
+        "174": 1.000000000000011
+      }
+    },
+    "isomer2_graph_isomorphic_to_ASE_C60": false,
+    "isomer1_graph_isomorphic_to_ASE_C60": true
+  },
+  "endpoint_displacement": {
+    "cartesian_norm_A": 2.049692955250309,
+    "internal_projected_norm_A": 2.049692955250309,
+    "rigid_body_removed_norm_A": 0.0,
+    "internal_retained_fraction_of_norm": 1.0,
+    "unit_internal_displacement_rayleigh_eV_A2": 36.532584440471275,
+    "rayleigh_from_raw_cartesian_hessian_eV_A2": 36.532584440471304,
+    "cumulative_projection_fraction": {
+      "1": 0.14555593849948142,
+      "5": 0.25943047223585974,
+      "10": 0.33201254988611567,
+      "20": 0.5212354450053971,
+      "50": 0.6158297051880756,
+      "174": 1.0000000000000002
+    },
+    "uniform_internal_direction_expectation": {
+      "1": 0.005747126436781609,
+      "5": 0.028735632183908046,
+      "10": 0.05747126436781609,
+      "20": 0.11494252873563218,
+      "50": 0.28735632183908044,
+      "174": 1.0
+    },
+    "lowest_eigenvalues_eV_A2": [
+      2.7015558708972764,
+      2.7222488309050163,
+      2.932013581501441,
+      3.1579460992761255,
+      3.215327093748907,
+      4.720171413293873,
+      4.757019179355838,
+      5.049068861456913,
+      5.222423969344924,
+      5.260257231197723
+    ],
+    "projection_weights_sum": 1.0000000000000002
+  },
+  "witness_edge_recovery": {
+    "removed_edges_isomer2_to_isomer1": [
+      [
+        1,
+        2
+      ],
+      [
+        12,
+        14
+      ]
+    ],
+    "added_edges_isomer2_to_isomer1": [
+      [
+        1,
+        12
+      ],
+      [
+        2,
+        14
+      ]
+    ],
+    "exactly_four_edge_changes": true,
+    "matches_composed_one_switch_witness": true,
+    "saved_endpoint_edge_set_matches_mapped_isomer1": true,
+    "changed_edge_distance_checks": [
+      {
+        "isomer2_edge_indices": [
+          1,
+          2
+        ],
+        "isomer2_distance_A": 1.4407119913234032,
+        "aligned_isomer1_distance_A": 2.4426207847199835,
+        "isomer2_edge_present": true,
+        "aligned_isomer1_edge_present": false
+      },
+      {
+        "isomer2_edge_indices": [
+          1,
+          12
+        ],
+        "isomer2_distance_A": 2.4318409605826794,
+        "aligned_isomer1_distance_A": 1.4405206246654614,
+        "isomer2_edge_present": false,
+        "aligned_isomer1_edge_present": true
+      },
+      {
+        "isomer2_edge_indices": [
+          2,
+          14
+        ],
+        "isomer2_distance_A": 2.4318409605826794,
+        "aligned_isomer1_distance_A": 1.4405202633378842,
+        "isomer2_edge_present": false,
+        "aligned_isomer1_edge_present": true
+      },
+      {
+        "isomer2_edge_indices": [
+          12,
+          14
+        ],
+        "isomer2_distance_A": 1.4407119913234032,
+        "aligned_isomer1_distance_A": 2.442627459578994,
+        "isomer2_edge_present": true,
+        "aligned_isomer1_edge_present": false
+      }
+    ],
+    "witness_expected_removed_from_isomer2": [
+      [
+        1,
+        2
+      ],
+      [
+        12,
+        14
+      ]
+    ],
+    "witness_expected_added_to_isomer1": [
+      [
+        1,
+        12
+      ],
+      [
+        2,
+        14
+      ]
+    ]
+  }
+}
