@@ -1,0 +1,21 @@
+{
+  "analysis_run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/evidence/vc-sio2-heldout-panel-20260926/analysis-view-1502824/run-0",
+  "expected_arms": [
+    "case0-safe_total-seed71",
+    "case0-ase-seed71",
+    "case0-scipy-seed71",
+    "case0-safe_total-seed83",
+    "case0-ase-seed83",
+    "case0-scipy-seed83"
+  ],
+  "linked_arm_dirs": [
+    "case0-ase-seed71",
+    "case0-ase-seed83",
+    "case0-safe_total-seed71",
+    "case0-safe_total-seed83",
+    "case0-scipy-seed71",
+    "case0-scipy-seed83"
+  ],
+  "calculator_calls": 0
+}
+wrote /home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/evidence/vc-sio2-heldout-panel-20260926/readout-1502824/analysis.json and /home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/evidence/vc-sio2-heldout-panel-20260926/readout-1502824/report.md
