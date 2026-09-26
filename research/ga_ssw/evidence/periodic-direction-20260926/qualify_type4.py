@@ -53,6 +53,10 @@ class Oracle:
         self.positions, self.cell = atoms.positions.copy(), atoms.cell.array.copy()
         self.pbc, self.numbers = atoms.pbc.copy(), atoms.numbers.copy()
 
+    @property
+    def requests(self):
+        return self.live + self.replayed
+
     def evaluate(self, atoms):
         if (not np.array_equal(atoms.positions[FIXED], self.positions[FIXED]) or
                 not np.array_equal(atoms.cell.array, self.cell) or

@@ -1,0 +1,47 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___________ test_type4_complete_runner_with_counted_harmonic_oracle ____________
+
+tmp_path = PosixPath('/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/periodic-direction-20260926/runner-check-v2/test_type4_complete_runner_wit0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7416ac5ff50>
+
+    def test_type4_complete_runner_with_counted_harmonic_oracle(tmp_path, monkeypatch):
+        import mace.calculators
+        from ase.io import read
+        reference = read(runner.SOURCE / 'input.arc', index=0).positions.copy()
+    
+        class Harmonic(Calculator):
+            implemented_properties = ['energy', 'forces']
+            def __init__(self, **kwargs):
+                super().__init__()
+            def calculate(self, atoms=None, properties=None, system_changes=all_changes):
+                super().calculate(atoms, properties, system_changes)
+                delta = atoms.positions - reference
+                self.results = {'energy': .5 * np.vdot(delta, delta), 'forces': -delta}
+    
+        monkeypatch.setattr(mace.calculators, 'MACECalculator', Harmonic)
+        out = tmp_path / 'run'
+        monkeypatch.setattr(sys, 'argv', ['qualify_type4.py', '--output', str(out)])
+        runner.main()
+        import json
+        summary = json.loads((out / 'summary.json').read_text())
+>       assert summary['qualified'], summary
+E       AssertionError: {'rows': [{'arm': 'global_rotation', 'qualified': False, 'status': 'completed_with_failures', 'search_live': 6, ...}, ...atus': 'completed_with_failures', 'search_live': 12, ...}], 'live_total': 18, 'replay_total': 0, 'fresh_total': 2, ...}
+E       assert False
+
+research/ga_ssw/evidence/periodic-direction-20260926/test_type4_runner.py:34: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Error while loading libcue_ops.so: /home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/cuequivariance_ops/lib/libcue_ops.so: undefined symbol: cublasGemmGroupedBatchedEx, version libcublas.so.12
+=============================== warnings summary ===============================
+research/ga_ssw/evidence/periodic-direction-20260926/test_type4_runner.py::test_type4_complete_runner_with_counted_harmonic_oracle
+  /home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/torch/cuda/__init__.py:63: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+research/ga_ssw/evidence/periodic-direction-20260926/test_type4_runner.py::test_type4_complete_runner_with_counted_harmonic_oracle
+  /home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/e3nn/o3/_wigner.py:10: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+    _Jd, _W3j_flat, _W3j_indices = torch.load(os.path.join(os.path.dirname(__file__), 'constants.pt'))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED research/ga_ssw/evidence/periodic-direction-20260926/test_type4_runner.py::test_type4_complete_runner_with_counted_harmonic_oracle
+1 failed, 2 warnings in 6.78s

@@ -1,0 +1,26 @@
+{
+  "rows": [
+    {
+      "arm": "global_rotation",
+      "qualified": false,
+      "error": "AttributeError(\"'Oracle' object has no attribute 'requests'\")",
+      "traceback": "Traceback (most recent call last):\n  File \"/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/periodic-direction-20260926/qualify_type4.py\", line 188, in main\n    result = run_constrained_ssw(atoms, oracle, steps=2, config=config,\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/constrained_reference.py\", line 531, in run_constrained_ssw\n    begin_requests=surface.requests\n                   ^^^^^^^^^^^^^^^^\nAttributeError: 'Oracle' object has no attribute 'requests'\n",
+      "live_requests": 0,
+      "denials": 0,
+      "tape_entries": 0
+    },
+    {
+      "arm": "periodic_local",
+      "qualified": false,
+      "error": "AttributeError(\"'Oracle' object has no attribute 'requests'\")",
+      "traceback": "Traceback (most recent call last):\n  File \"/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/periodic-direction-20260926/qualify_type4.py\", line 188, in main\n    result = run_constrained_ssw(atoms, oracle, steps=2, config=config,\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/constrained_reference.py\", line 531, in run_constrained_ssw\n    begin_requests=surface.requests\n                   ^^^^^^^^^^^^^^^^\nAttributeError: 'Oracle' object has no attribute 'requests'\n",
+      "live_requests": 0,
+      "denials": 0,
+      "tape_entries": 0
+    }
+  ],
+  "live_total": 0,
+  "replay_total": 0,
+  "fresh_total": 0,
+  "qualified": false
+}
