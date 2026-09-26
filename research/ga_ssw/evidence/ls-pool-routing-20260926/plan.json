@@ -1,0 +1,193 @@
+{
+  "status": "prepared_not_submitted",
+  "protocol": "protocol.md",
+  "model": {
+    "path": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+    "sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+    "head": "omol",
+    "device": "cuda",
+    "dtype": "float64",
+    "enable_cueq": false,
+    "enable_oeq": false
+  },
+  "cases": [
+    {
+      "name": "C4H6",
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-model-qualification-20260924-r2/butadiene/input.extxyz",
+      "config": {
+        "width": 0.1,
+        "rotation_bias": 100.0,
+        "max_gaussians": 25,
+        "temperature_K": 150.0,
+        "fmax": 0.05,
+        "relax_steps": 400,
+        "fd_step": 0.001,
+        "rotation_hvp": 100,
+        "rotation_tol": 0.02,
+        "forward_force": 0.1,
+        "direction_sampling": "global",
+        "rotation_solver": "ritz",
+        "cluster_frame": "direction_only",
+        "quench_optimizer": "safe-lbfgs-total",
+        "lbfgs_memory": 500,
+        "bias_stage_steps": null,
+        "bias_fmax": 0.1,
+        "pre_rotation_hvp": null,
+        "rotation_exit_policy": "force_or_budget"
+      },
+      "native_ls": {
+        "bond_energies": {
+          "(1, 1)": 4.526579856872559,
+          "(1, 6)": 4.29817008972168,
+          "(6, 6)": 3.4468400478363037
+        },
+        "bond_lengths": {
+          "(1, 1)": 0.7400000095367432,
+          "(1, 6)": 1.090000033378601,
+          "(6, 6)": 1.5399999618530273
+        },
+        "scale": 5.0,
+        "energy_filter": null,
+        "length_filter": null,
+        "atom_filter": null,
+        "amp_c": 2.0,
+        "length_tolerance": 0.1,
+        "target_mev_per_atom": 700,
+        "eta": 0.005,
+        "max_change": 0.01,
+        "frequency": 10,
+        "presteps": 100,
+        "cycle": 100,
+        "ratio": 1.100000023841858,
+        "lselfadapt": true,
+        "bond_geometry": "native-mic",
+        "prequench": {
+          "fmax": 0.1,
+          "steps": 50,
+          "exit_policy": "force_or_step_limit"
+        }
+      },
+      "recovered_rotation": {
+        "pre_rotmax": 5,
+        "rotmax": 15,
+        "pre_ftol": 0.2,
+        "ftol": 0.02,
+        "metric": "euclidean",
+        "max_force_calls": 40
+      },
+      "recovered_direction": null,
+      "native_mc": null,
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/effective_config.json",
+      "graph_cutoffs_A": {
+        "1,1": 0.8400000095367433,
+        "1,6": 1.190000033378601,
+        "6,6": 1.6399999618530272
+      }
+    },
+    {
+      "name": "C60-isomer2",
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-2/final.extxyz",
+      "config": {
+        "width": 0.6,
+        "rotation_bias": 1.0,
+        "max_gaussians": 12,
+        "temperature_K": 150.0,
+        "fmax": 0.05,
+        "relax_steps": 1000,
+        "fd_step": 0.001,
+        "rotation_hvp": 39,
+        "rotation_tol": 0.02,
+        "forward_force": 0.1,
+        "direction_sampling": "global",
+        "rotation_solver": "broyden-euclidean",
+        "cluster_frame": "direction_only",
+        "quench_optimizer": "safe-lbfgs-total",
+        "lbfgs_memory": 500,
+        "bias_stage_steps": null,
+        "bias_fmax": 0.1,
+        "pre_rotation_hvp": null,
+        "rotation_exit_policy": "force_or_budget"
+      },
+      "native_ls": {
+        "bond_energies": {
+          "6,6": 3.4468400478363037
+        },
+        "bond_lengths": {
+          "6,6": 1.5399999618530273
+        },
+        "scale": 5.0,
+        "amp_c": 2.0,
+        "length_tolerance": 0.1,
+        "target_mev_per_atom": 20.0,
+        "eta": 0.005,
+        "max_change": 0.01,
+        "frequency": 10,
+        "presteps": 100,
+        "cycle": 100,
+        "ratio": 1.100000023841858,
+        "lselfadapt": true,
+        "bond_geometry": "native-mic",
+        "prequench": {
+          "fmax": 0.1,
+          "steps": 50,
+          "exit_policy": "force_or_step_limit"
+        }
+      },
+      "recovered_rotation": null,
+      "recovered_direction": {
+        "ratio_local": 50,
+        "local_probability": 0.5,
+        "group_threshold": 0.5,
+        "pre_rotmax": 5,
+        "rotmax": 15,
+        "pre_ftol": 0.2,
+        "ftol": 0.02,
+        "metric": "euclidean",
+        "max_force_calls": 40,
+        "c1_radius_policy": "restricted"
+      },
+      "native_mc": {
+        "maxtrap": 99999,
+        "energy_tol_eV": 0.1
+      },
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/direction-probe/plan.json",
+      "references": {
+        "ih_graph_input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-1/final.extxyz",
+        "ih_energy_input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-1/result.json",
+        "ih_energy_eV": -62215.393370790625,
+        "energy_window_eV": 0.01,
+        "graph_cutoffs_A": [
+          1.64,
+          1.7,
+          1.8
+        ],
+        "source_defect_reference_input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-2/final.extxyz"
+      }
+    }
+  ],
+  "methods": [
+    "mc",
+    "uniform",
+    "pam"
+  ],
+  "seed": 181,
+  "selector_seed": 193,
+  "steps": 100,
+  "budget": {
+    "search_requests_per_arm": 80000,
+    "fresh_requests_per_arm": 101,
+    "wall_seconds_per_arm": 1700,
+    "process_seconds_per_arm": 1800,
+    "total_search_requests": 480000,
+    "total_fresh_requests": 606,
+    "max_concurrent_gpus": 2,
+    "max_gpu_hours": 3
+  },
+  "pool": {
+    "identity_matcher": "ase_permute_v1",
+    "rmsd_tol": 0.1,
+    "energy_tol": 0.001
+  },
+  "analysis_scope": "one-seed-per-case developer screen; no population success-rate or general controller ranking",
+  "prerequisite": "f756b96 implementation; CPU1500597 adapter panel; CPU1500605 saved-trajectory rearchive complete"
+}

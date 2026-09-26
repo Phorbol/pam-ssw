@@ -35,8 +35,17 @@ adapter performs a find_match before add, which repeats the geometry comparison;
 this existing cost remains, without double bookkeeping. Measure before considering
 an optimization; no core archive refactor is part of this change.
 
-Pending at writing: actual research-adapter replay
-of the saved C4H6/C60 geometry panel. No GPU or new MLIP search was submitted.
+CPU1500597 completed the actual research-adapter replay of the saved C4H6/C60
+geometry panel (17s, zero PES; LS evidence branch ce61954). Root independently
+checked all330 opt-in rows: entry_count1, mapping[0,0], duplicate success credit0,
+representative order preserved, and continuous/restored states equal. Legacy
+v1 restoration and incompatible-mode/version rejection also passed.
+[Reproducible panel](https://github.com/Phorbol/pam-ssw/tree/ce61954/research/ga_ssw/evidence/pool-ase-adapter-20260926).
+No GPU or new MLIP search was submitted.
 Prior ASE geometry qualification was330/330, but approximate matching remains a
 geometric tolerance decision, not proof of common physical basins or globally
 minimal permutation RMSD. No algorithm-performance/default-promotion claim.
+
+Source `git diff --check -- *.py *.md` passed. The original red pytest log
+contains pytest-generated trailing whitespace; it is retained verbatim as raw
+evidence, not represented as a successful whole-artifact whitespace check.

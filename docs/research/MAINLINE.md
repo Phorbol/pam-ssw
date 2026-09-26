@@ -44,9 +44,14 @@ Hungarian在刚体/刚体+置换各仅45/99通过，撤回该候选。LS分支ea
 [待讨论方案](2026-09-26-pool-permutation-identity-proposal.md)：仅研究池适配器可选ASE模式、
 身份与ASE版本纳入checkpoint，保留旧ordered默认/旧恢复；核心SSW、RDF、奖励权重不改。
 用户已批准可选ASE模式并保留旧默认。研究adapter最小实现完成，CPU1500567的34项检查通过，
-含EMT LS+uniform/PAM连续/恢复一致；核心SSW未改。正在做33真实/参考几何的adapter级
-记账与恢复资格，随后零PES重归档旧轨迹，区分理论身份限制是否在历史候选中实际发生。
+含EMT LS+uniform/PAM连续/恢复一致；核心SSW未改。f756b96已push；CPU1500597完成33真实/参考几何的adapter级
+记账与恢复资格（330/330，LS分支ce61954），正在零PES重归档旧轨迹，区分理论身份限制是否在历史候选中实际发生。
+CPU1500605四臂完整重归档完成（LS分支1ff7221）：ordered entries53/49/171/146，
+ASE20/21/38/38，未跨已标注图类合并、最大代表能差6.64meV。
 该离线重归档不等价于使用新池策略重新搜索，不据此宣称搜索效率提高。
+下一步[有界LS外层选点开发对照](../../research/ga_ssw/evidence/ls-pool-routing-20260926/protocol.md)
+已准备：C4H6+C60缺陷各MC/uniform/PAM三臂、每臂100步/80kEFS，单新seed先筛查，
+全局最大480k搜索+606fresh、3GPU小时、两卡并发；尚未提交GPU，worker/离线分析器在独立分支准备。
 协议位于optimizer-panel分支 `research/ga_ssw/evidence/vc-e2e-optimizer-panel-20260926/`。
 
 以下为历史状态与证据，若优先级表述冲突，以本节为准。
