@@ -9,7 +9,7 @@
 set -euo pipefail
 cd /home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926
 export PYTHONPATH="$PWD" PYTHONNOUSERSITE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
-: "${PANEL_JOB:?Set PANEL_JOB to the completed GPU array}"
+PANEL_JOB=${1:?Pass the GPU array job ID as the first argument}
 evidence=research/ga_ssw/evidence/vc-sio2-heldout-panel-20260926
 view="$evidence/analysis-view-$SLURM_JOB_ID"
 py=/home/gengjianrui/.conda/envs/mace_env/bin/python

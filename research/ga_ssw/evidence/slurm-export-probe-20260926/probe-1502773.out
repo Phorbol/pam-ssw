@@ -1,0 +1,7 @@
+batch_body_started job=1502773 node=dpn01 marker=unset
+SLURM_JOB_PARTITION=CPU-MISC
+SLURM_GPUS_ON_NODE=unset
+SLURM_CPUS_ON_NODE=2
+SLURM_CPUS_PER_TASK=unset
+SLURM_EXPORT_ENV=unset
+batch_body_completed

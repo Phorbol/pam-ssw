@@ -13,7 +13,7 @@ set -uo pipefail
 cd /home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926
 export PYTHONPATH="$PWD" PYTHONNOUSERSITE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 export CUBLAS_WORKSPACE_CONFIG=:4096:8
-: "${PLAN_JSON:?Set PLAN_JSON to the reviewed CPU-generated plan.json}"
+PLAN_JSON=${1:?Pass the reviewed CPU-generated plan.json as the first argument}
 if [[ ! -s "$PLAN_JSON" ]]; then
   echo "missing plan: $PLAN_JSON" >&2
   exit 2
