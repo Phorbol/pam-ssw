@@ -1,0 +1,19 @@
+{
+  "execution_status": "completed",
+  "qualification": {
+    "runtime_reported_neb_projected_fmax_eV_A": 0.040494098357954776,
+    "runtime_reported_neb_qualified_at_0.05": true,
+    "reconstructed_neb_projected_fmax_eV_A": 0.040494098357954776,
+    "reconstructed_neb_qualified_at_0.05": true,
+    "difference_eV_A": 0.0,
+    "reconstruction_agrees_with_reported_within_1e-8": true,
+    "threshold_eV_A": 0.05,
+    "endpoint_delta_saved_difference_eV": 0.0,
+    "endpoint_delta_consistent_with_summary_within_1e-8_eV": true
+  }
+}
+Traceback (most recent call last):
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-path-diagnostic-20260927/analyze_frozen_ls.py", line 24, in <module>
+    kwargs = {k: settings[k] for k in ('scale','amp_c','length_tolerance','bond_geometry','atom_filter')}
+                 ~~~~~~~~^^^
+KeyError: 'atom_filter'

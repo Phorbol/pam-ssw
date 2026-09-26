@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-path-diagnostic-20260927/verify_saved.py", line 12, in <module>
+    np.testing.assert_allclose(a.get_potential_energy(),r['energy_eV'],rtol=0,atol=1e-9)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/atoms.py", line 835, in get_potential_energy
+    energy = self._calc.get_potential_energy(self)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/calculators/abc.py", line 26, in get_potential_energy
+    return self.get_property(name, atoms)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/calculators/singlepoint.py", line 55, in get_property
+    raise PropertyNotImplementedError(
+ase.calculators.calculator.PropertyNotImplementedError: The property "energy" is not available.

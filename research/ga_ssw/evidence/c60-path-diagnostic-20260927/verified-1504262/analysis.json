@@ -1,0 +1,282 @@
+{
+  "execution_status": "completed",
+  "qualification": {
+    "runtime_reported_neb_projected_fmax_eV_A": 0.040494098357954776,
+    "runtime_reported_neb_qualified_at_0.05": true,
+    "reconstructed_neb_projected_fmax_eV_A": 0.040494098357954776,
+    "reconstructed_neb_qualified_at_0.05": true,
+    "difference_eV_A": 0.0,
+    "reconstruction_agrees_with_reported_within_1e-8": true,
+    "threshold_eV_A": 0.05,
+    "endpoint_delta_saved_difference_eV": 0.0,
+    "endpoint_delta_consistent_with_summary_within_1e-8_eV": true
+  },
+  "run": {
+    "calculator": "mace",
+    "model": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+    "backend_head": "omol",
+    "dtype": "float64",
+    "device": "cuda",
+    "git_head": "333e5a6d39f892961a6b0858d68f5f570f9e8e50",
+    "n_images": 7,
+    "spring_k_eV_A2": 0.1,
+    "neb_method": "improvedtangent",
+    "interpolation": "idpp",
+    "fmax_eV_A": 0.05,
+    "total_calculator_calls_started": 1596,
+    "total_calculator_calls_completed": 1596,
+    "phases": [
+      {
+        "name": "ordinary",
+        "converged": true,
+        "steps": 48,
+        "step_limit": 50,
+        "elapsed_seconds": 74.9731036098674,
+        "calculator_calls_started_at_end": 1022,
+        "calculator_calls_completed_at_end": 1022
+      },
+      {
+        "name": "climbing",
+        "converged": true,
+        "steps": 26,
+        "step_limit": 150,
+        "elapsed_seconds": 38.569775524549186,
+        "calculator_calls_started_at_end": 1582,
+        "calculator_calls_completed_at_end": 1582
+      }
+    ]
+  },
+  "path": {
+    "endpoint_delta_eV": -1.2231608341389801,
+    "relative_image_energies_eV": [
+      0.0,
+      0.40322307172755245,
+      2.960051342546649,
+      5.639745187567314,
+      1.709787621475698,
+      -0.8221381435869262,
+      -1.2231608341389801
+    ],
+    "highest_image_index": 3,
+    "per_image_physical_fmax_eV_A": [
+      0.028464821692655046,
+      1.3100538536195516,
+      6.577272393347118,
+      0.02661535858685564,
+      7.040132204710245,
+      1.1554254803964434,
+      0.00407539567989364
+    ],
+    "per_image_physical_force_rms_eV_A": [
+      0.009125397350732388,
+      0.19453252257437048,
+      0.7524356801863943,
+      0.004863192298030207,
+      0.8018752807483203,
+      0.18672228942666114,
+      0.0011895832984778433
+    ],
+    "per_image_shortest_C_C_A": [
+      1.35970362,
+      1.334727484929004,
+      1.2846639363314718,
+      1.252134994311945,
+      1.2992837770675405,
+      1.3598860907468227,
+      1.3797532464450493
+    ],
+    "per_image_graphs": [
+      {
+        "1.64": {
+          "cutoff_A": 1.64,
+          "edge_count": 90,
+          "component_count": 1,
+          "connected": true,
+          "degree_counts": {
+            "3": 60
+          }
+        },
+        "1.8": {
+          "cutoff_A": 1.8,
+          "edge_count": 90,
+          "component_count": 1,
+          "connected": true,
+          "degree_counts": {
+            "3": 60
+          }
+        }
+      },
+      {
+        "1.64": {
+          "cutoff_A": 1.64,
+          "edge_count": 90,
+          "component_count": 1,
+          "connected": true,
+          "degree_counts": {
+            "3": 60
+          }
+        },
+        "1.8": {
+          "cutoff_A": 1.8,
+          "edge_count": 90,
+          "component_count": 1,
+          "connected": true,
+          "degree_counts": {
+            "3": 60
+          }
+        }
+      },
+      {
+        "1.64": {
+          "cutoff_A": 1.64,
+          "edge_count": 88,
+          "component_count": 1,
+          "connected": true,
+          "degree_counts": {
+            "2": 4,
+            "3": 56
+          }
+        },
+        "1.8": {
+          "cutoff_A": 1.8,
+          "edge_count": 90,
+          "component_count": 1,
+          "connected": true,
+          "degree_counts": {
+            "3": 60
+          }
+        }
+      },
+      {
+        "1.64": {
+          "cutoff_A": 1.64,
+          "edge_count": 88,
+          "component_count": 1,
+          "connected": true,
+          "degree_counts": {
+            "2": 4,
+            "3": 56
+          }
+        },
+        "1.8": {
+          "cutoff_A": 1.8,
+          "edge_count": 88,
+          "component_count": 1,
+          "connected": true,
+          "degree_counts": {
+            "2": 4,
+            "3": 56
+          }
+        }
+      },
+      {
+        "1.64": {
+          "cutoff_A": 1.64,
+          "edge_count": 88,
+          "component_count": 1,
+          "connected": true,
+          "degree_counts": {
+            "2": 4,
+            "3": 56
+          }
+        },
+        "1.8": {
+          "cutoff_A": 1.8,
+          "edge_count": 90,
+          "component_count": 1,
+          "connected": true,
+          "degree_counts": {
+            "3": 60
+          }
+        }
+      },
+      {
+        "1.64": {
+          "cutoff_A": 1.64,
+          "edge_count": 90,
+          "component_count": 1,
+          "connected": true,
+          "degree_counts": {
+            "3": 60
+          }
+        },
+        "1.8": {
+          "cutoff_A": 1.8,
+          "edge_count": 90,
+          "component_count": 1,
+          "connected": true,
+          "degree_counts": {
+            "3": 60
+          }
+        }
+      },
+      {
+        "1.64": {
+          "cutoff_A": 1.64,
+          "edge_count": 90,
+          "component_count": 1,
+          "connected": true,
+          "degree_counts": {
+            "3": 60
+          }
+        },
+        "1.8": {
+          "cutoff_A": 1.8,
+          "edge_count": 90,
+          "component_count": 1,
+          "connected": true,
+          "degree_counts": {
+            "3": 60
+          }
+        }
+      }
+    ],
+    "graph_note": "1.64 and 1.8 A cutoff graphs are geometric summaries, not chemical truth."
+  },
+  "hessian_projection": {
+    "initial_position_max_abs_difference_A": 0.0,
+    "first_segment_R1_minus_R0": {
+      "cartesian_norm_A": 0.4063839993006135,
+      "internal_projected_norm_A": 0.4063203248349361,
+      "internal_retained_fraction": 0.9998433145355452,
+      "cumulative_squared_projection": {
+        "1": 0.13803195051927444,
+        "5": 0.5534708521984837,
+        "10": 0.7167490932093737,
+        "20": 0.9361436807479172,
+        "50": 0.9875157794359688,
+        "174": 0.9999999999999993
+      },
+      "projection_weight_sum": 0.9999999999999993
+    },
+    "previous_endpoint_displacement_analysis": {
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-displacement-spectrum-20260927/analysis.json",
+      "previous_endpoint_cumulative_squared_projection": {
+        "1": 0.14555593849948142,
+        "5": 0.25943047223585974,
+        "10": 0.33201254988611567,
+        "20": 0.5212354450053971,
+        "50": 0.6158297051880756,
+        "174": 1.0000000000000002
+      },
+      "path_endpoint_Rend_minus_R0_cumulative_squared_projection": {
+        "1": 0.14555593783671392,
+        "5": 0.25943047035962935,
+        "10": 0.33201254828554794,
+        "20": 0.521235444521184,
+        "50": 0.6158297033418972,
+        "174": 0.9999999999999996
+      },
+      "absolute_projection_difference": {
+        "1": 6.62767507542128e-10,
+        "5": 1.8762303932717828e-09,
+        "10": 1.6005677339059332e-09,
+        "20": 4.842131140492256e-10,
+        "50": 1.8461783213297167e-09,
+        "174": 6.661338147750939e-16
+      }
+    },
+    "interpretation": "R1-R0 is a finite first-segment secant, not an exact reaction tangent; endpoint displacement is a separate geometric comparison."
+  },
+  "scope_limit": "Zero new PES evaluations. A converged discretized CI-NEB is not a certified transition state and its image-energy span is not an independently validated DFT barrier."
+}

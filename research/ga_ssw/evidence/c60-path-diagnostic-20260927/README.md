@@ -66,8 +66,8 @@ Use the isolated MACE environment to avoid user-site ASE shadowing:
 ```bash
 PYTHONNOUSERSITE=1 /home/gengjianrui/.conda/envs/mace_env/bin/python \
   research/ga_ssw/evidence/c60-path-diagnostic-20260927/run_neb.py \
-  --initial ../c60-displacement-spectrum-20260927/endpoint-in-isomer2.extxyz \
-  --final ../c60-displacement-spectrum-20260927/target-in-isomer2.extxyz \
+  --initial research/ga_ssw/evidence/c60-path-diagnostic-20260927/inputs/initial.extxyz \
+  --final research/ga_ssw/evidence/c60-path-diagnostic-20260927/inputs/final.extxyz \
   --out research/ga_ssw/evidence/c60-path-diagnostic-20260927/run-001
 ```
 

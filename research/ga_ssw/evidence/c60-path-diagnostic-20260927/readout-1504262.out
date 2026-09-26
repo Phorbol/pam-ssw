@@ -1,0 +1,98 @@
+{
+  "execution_status": "completed",
+  "qualification": {
+    "runtime_reported_neb_projected_fmax_eV_A": 0.040494098357954776,
+    "runtime_reported_neb_qualified_at_0.05": true,
+    "reconstructed_neb_projected_fmax_eV_A": 0.040494098357954776,
+    "reconstructed_neb_qualified_at_0.05": true,
+    "difference_eV_A": 0.0,
+    "reconstruction_agrees_with_reported_within_1e-8": true,
+    "threshold_eV_A": 0.05,
+    "endpoint_delta_saved_difference_eV": 0.0,
+    "endpoint_delta_consistent_with_summary_within_1e-8_eV": true
+  }
+}
+{
+  "scope": "Frozen initial LS on unchanged bare-PES NEB coordinates; NOT a relaxed LS path or LS activation barrier.",
+  "new_physical_calculator_calls": 0,
+  "settings_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-pool-routing-20260926/plan.json",
+  "case": "C60-isomer2",
+  "bond_count": 90,
+  "initialization_kwargs_repr": "{'scale': 5.0, 'amp_c': 2.0, 'length_tolerance': 0.1, 'bond_geometry': 'native-mic', 'atom_filter': None, 'bond_energies': {(6, 6): 3.4468400478363037}, 'bond_lengths': {(6, 6): 1.5399999618530273}, 'energy_filter': None, 'length_filter': None}",
+  "rows": [
+    {
+      "image": 0,
+      "physical_energy_eV": -62214.17020995467,
+      "penalty_eV": 11.999999284744263,
+      "penalty_fmax_eV_A": 0.38203729317522217,
+      "physical_relative_eV": 0.0,
+      "penalty_relative_eV": 0.0,
+      "modified_relative_eV": 0.0
+    },
+    {
+      "image": 1,
+      "physical_energy_eV": -62213.76698688294,
+      "penalty_eV": 11.935727556979215,
+      "penalty_fmax_eV_A": 0.3543564196708858,
+      "physical_relative_eV": 0.40322307172755245,
+      "penalty_relative_eV": -0.06427172776504797,
+      "modified_relative_eV": 0.3389513439625045
+    },
+    {
+      "image": 2,
+      "physical_energy_eV": -62211.21015861212,
+      "penalty_eV": 11.881650821551153,
+      "penalty_fmax_eV_A": 0.4320756180458883,
+      "physical_relative_eV": 2.960051342546649,
+      "penalty_relative_eV": -0.11834846319310977,
+      "modified_relative_eV": 2.841702879353539
+    },
+    {
+      "image": 3,
+      "physical_energy_eV": -62208.5304647671,
+      "penalty_eV": 11.93205775748379,
+      "penalty_fmax_eV_A": 0.49561483401036177,
+      "physical_relative_eV": 5.639745187567314,
+      "penalty_relative_eV": -0.06794152726047287,
+      "modified_relative_eV": 5.571803660306841
+    },
+    {
+      "image": 4,
+      "physical_energy_eV": -62212.46042233319,
+      "penalty_eV": 11.793785569773886,
+      "penalty_fmax_eV_A": 0.49255183261723445,
+      "physical_relative_eV": 1.709787621475698,
+      "penalty_relative_eV": -0.20621371497037622,
+      "modified_relative_eV": 1.5035739065053217
+    },
+    {
+      "image": 5,
+      "physical_energy_eV": -62214.992348098254,
+      "penalty_eV": 11.739901528739532,
+      "penalty_fmax_eV_A": 0.48080863910884,
+      "physical_relative_eV": -0.8221381435869262,
+      "penalty_relative_eV": -0.26009775600473084,
+      "modified_relative_eV": -1.082235899591657
+    },
+    {
+      "image": 6,
+      "physical_energy_eV": -62215.393370788806,
+      "penalty_eV": 11.774643594730474,
+      "penalty_fmax_eV_A": 0.4751991091752848,
+      "physical_relative_eV": -1.2231608341389801,
+      "penalty_relative_eV": -0.22535569001378875,
+      "modified_relative_eV": -1.4485165241527689
+    }
+  ],
+  "first_segment_penalty_curvature_eV_A2": {
+    "radial": 0.11102361815348444,
+    "tangential": -0.185347791997855,
+    "total": -0.07432417384437057
+  },
+  "omissions": [
+    "No soft prequench",
+    "No adaptive amplitude updates",
+    "No LS path reoptimization",
+    "No new SSW search"
+  ]
+}
