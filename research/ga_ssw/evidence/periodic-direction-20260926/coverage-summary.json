@@ -1,0 +1,994 @@
+{
+  "analysis": "pairwise fixed-cell periodic geometry comparison among initial and three true landing minima per arm",
+  "source": "preserved runs/*/result.json; no calculator calls",
+  "protocol_config": {
+    "width": 0.1,
+    "rotation_bias": 100.0,
+    "max_gaussians": 25,
+    "temperature_K": 150.0,
+    "fmax": 0.03,
+    "relax_steps": 400,
+    "fd_step": 0.001,
+    "rotation_hvp": 100,
+    "rotation_tol": 0.02,
+    "forward_force": 0.1,
+    "direction_sampling": "global",
+    "rotation_solver": "ritz",
+    "cluster_frame": "translation_only",
+    "quench_optimizer": "safe-lbfgs-total",
+    "lbfgs_memory": 500,
+    "bias_stage_steps": null,
+    "bias_fmax": 0.1,
+    "pre_rotation_hvp": null,
+    "rotation_exit_policy": "force_or_budget"
+  },
+  "direction_settings": {
+    "ratio_local": 50,
+    "local_probability": 0.5,
+    "group_threshold": 0.5,
+    "pre_rotmax": 5,
+    "rotmax": 15,
+    "pre_ftol": 0.2,
+    "ftol": 0.02,
+    "metric": "euclidean",
+    "max_force_calls": 40,
+    "c1_radius_policy": "restricted",
+    "startup_order": "randomized",
+    "geometry": "periodic_local"
+  },
+  "cases": [
+    "rutile",
+    "anatase",
+    "brookite48"
+  ],
+  "methods": [
+    "global",
+    "local_memory"
+  ],
+  "tolerances": {
+    "tight": {
+      "ltol": 0.05,
+      "stol": 0.1,
+      "angle_tol": 2.0
+    },
+    "broad": {
+      "ltol": 0.2,
+      "stol": 0.3,
+      "angle_tol": 5.0
+    }
+  },
+  "matcher": {
+    "class": "pymatgen StructureMatcher",
+    "scale": false,
+    "primitive_cell": false,
+    "attempt_supercell": false,
+    "comparator": "ElementComparator",
+    "same_ordered_composition_cell_pbc_required": true
+  },
+  "arms": [
+    {
+      "case": "rutile",
+      "method": "global",
+      "status": "completed",
+      "outer_steps": 3,
+      "total_search_requests": 1259,
+      "initial_search_requests": 1,
+      "step_search_requests": [
+        388,
+        438,
+        432
+      ],
+      "request_ledger_rows": 1259,
+      "frame_order": [
+        "initial",
+        "landing_0",
+        "landing_1",
+        "landing_2"
+      ],
+      "geometry": {
+        "tight": {
+          "pairwise_matches": [
+            [
+              true,
+              true,
+              false,
+              false
+            ],
+            [
+              true,
+              true,
+              false,
+              false
+            ],
+            [
+              false,
+              false,
+              true,
+              false
+            ],
+            [
+              false,
+              false,
+              false,
+              true
+            ]
+          ],
+          "greedy_representative_indices": [
+            0,
+            2,
+            3
+          ],
+          "greedy_group_by_frame": [
+            0,
+            0,
+            1,
+            2
+          ],
+          "approximate_group_count": 3,
+          "landing_matches_initial": [
+            true,
+            false,
+            false
+          ],
+          "landing_return_count": 1
+        },
+        "broad": {
+          "pairwise_matches": [
+            [
+              true,
+              true,
+              false,
+              false
+            ],
+            [
+              true,
+              true,
+              false,
+              false
+            ],
+            [
+              false,
+              false,
+              true,
+              false
+            ],
+            [
+              false,
+              false,
+              false,
+              true
+            ]
+          ],
+          "greedy_representative_indices": [
+            0,
+            2,
+            3
+          ],
+          "greedy_group_by_frame": [
+            0,
+            0,
+            1,
+            2
+          ],
+          "approximate_group_count": 3,
+          "landing_matches_initial": [
+            true,
+            false,
+            false
+          ],
+          "landing_return_count": 1
+        }
+      },
+      "fresh_qualified_endpoints": 4,
+      "local_resume_replayed_requests": null,
+      "local_resume_state_equal": null
+    },
+    {
+      "case": "rutile",
+      "method": "local_memory",
+      "status": "completed",
+      "outer_steps": 3,
+      "total_search_requests": 1032,
+      "initial_search_requests": 1,
+      "step_search_requests": [
+        322,
+        365,
+        344
+      ],
+      "request_ledger_rows": 1032,
+      "frame_order": [
+        "initial",
+        "landing_0",
+        "landing_1",
+        "landing_2"
+      ],
+      "geometry": {
+        "tight": {
+          "pairwise_matches": [
+            [
+              true,
+              true,
+              false,
+              true
+            ],
+            [
+              true,
+              true,
+              false,
+              true
+            ],
+            [
+              false,
+              false,
+              true,
+              false
+            ],
+            [
+              true,
+              true,
+              false,
+              true
+            ]
+          ],
+          "greedy_representative_indices": [
+            0,
+            2
+          ],
+          "greedy_group_by_frame": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "approximate_group_count": 2,
+          "landing_matches_initial": [
+            true,
+            false,
+            true
+          ],
+          "landing_return_count": 2
+        },
+        "broad": {
+          "pairwise_matches": [
+            [
+              true,
+              true,
+              false,
+              true
+            ],
+            [
+              true,
+              true,
+              false,
+              true
+            ],
+            [
+              false,
+              false,
+              true,
+              false
+            ],
+            [
+              true,
+              true,
+              false,
+              true
+            ]
+          ],
+          "greedy_representative_indices": [
+            0,
+            2
+          ],
+          "greedy_group_by_frame": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "approximate_group_count": 2,
+          "landing_matches_initial": [
+            true,
+            false,
+            true
+          ],
+          "landing_return_count": 2
+        }
+      },
+      "fresh_qualified_endpoints": 4,
+      "local_resume_replayed_requests": 1032,
+      "local_resume_state_equal": true
+    },
+    {
+      "case": "anatase",
+      "method": "global",
+      "status": "completed",
+      "outer_steps": 3,
+      "total_search_requests": 1405,
+      "initial_search_requests": 1,
+      "step_search_requests": [
+        483,
+        471,
+        450
+      ],
+      "request_ledger_rows": 1405,
+      "frame_order": [
+        "initial",
+        "landing_0",
+        "landing_1",
+        "landing_2"
+      ],
+      "geometry": {
+        "tight": {
+          "pairwise_matches": [
+            [
+              true,
+              false,
+              false,
+              false
+            ],
+            [
+              false,
+              true,
+              false,
+              false
+            ],
+            [
+              false,
+              false,
+              true,
+              false
+            ],
+            [
+              false,
+              false,
+              false,
+              true
+            ]
+          ],
+          "greedy_representative_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "greedy_group_by_frame": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "approximate_group_count": 4,
+          "landing_matches_initial": [
+            false,
+            false,
+            false
+          ],
+          "landing_return_count": 0
+        },
+        "broad": {
+          "pairwise_matches": [
+            [
+              true,
+              false,
+              false,
+              false
+            ],
+            [
+              false,
+              true,
+              false,
+              false
+            ],
+            [
+              false,
+              false,
+              true,
+              false
+            ],
+            [
+              false,
+              false,
+              false,
+              true
+            ]
+          ],
+          "greedy_representative_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "greedy_group_by_frame": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "approximate_group_count": 4,
+          "landing_matches_initial": [
+            false,
+            false,
+            false
+          ],
+          "landing_return_count": 0
+        }
+      },
+      "fresh_qualified_endpoints": 4,
+      "local_resume_replayed_requests": null,
+      "local_resume_state_equal": null
+    },
+    {
+      "case": "anatase",
+      "method": "local_memory",
+      "status": "completed",
+      "outer_steps": 3,
+      "total_search_requests": 1067,
+      "initial_search_requests": 1,
+      "step_search_requests": [
+        377,
+        364,
+        325
+      ],
+      "request_ledger_rows": 1067,
+      "frame_order": [
+        "initial",
+        "landing_0",
+        "landing_1",
+        "landing_2"
+      ],
+      "geometry": {
+        "tight": {
+          "pairwise_matches": [
+            [
+              true,
+              true,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              true,
+              true
+            ]
+          ],
+          "greedy_representative_indices": [
+            0
+          ],
+          "greedy_group_by_frame": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "approximate_group_count": 1,
+          "landing_matches_initial": [
+            true,
+            true,
+            true
+          ],
+          "landing_return_count": 3
+        },
+        "broad": {
+          "pairwise_matches": [
+            [
+              true,
+              true,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              true,
+              true
+            ]
+          ],
+          "greedy_representative_indices": [
+            0
+          ],
+          "greedy_group_by_frame": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "approximate_group_count": 1,
+          "landing_matches_initial": [
+            true,
+            true,
+            true
+          ],
+          "landing_return_count": 3
+        }
+      },
+      "fresh_qualified_endpoints": 4,
+      "local_resume_replayed_requests": 1067,
+      "local_resume_state_equal": true
+    },
+    {
+      "case": "brookite48",
+      "method": "global",
+      "status": "completed",
+      "outer_steps": 3,
+      "total_search_requests": 1251,
+      "initial_search_requests": 4,
+      "step_search_requests": [
+        406,
+        393,
+        448
+      ],
+      "request_ledger_rows": 1251,
+      "frame_order": [
+        "initial",
+        "landing_0",
+        "landing_1",
+        "landing_2"
+      ],
+      "geometry": {
+        "tight": {
+          "pairwise_matches": [
+            [
+              true,
+              true,
+              true,
+              false
+            ],
+            [
+              true,
+              true,
+              true,
+              false
+            ],
+            [
+              true,
+              true,
+              true,
+              false
+            ],
+            [
+              false,
+              false,
+              false,
+              true
+            ]
+          ],
+          "greedy_representative_indices": [
+            0,
+            3
+          ],
+          "greedy_group_by_frame": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "approximate_group_count": 2,
+          "landing_matches_initial": [
+            true,
+            true,
+            false
+          ],
+          "landing_return_count": 2
+        },
+        "broad": {
+          "pairwise_matches": [
+            [
+              true,
+              true,
+              true,
+              false
+            ],
+            [
+              true,
+              true,
+              true,
+              false
+            ],
+            [
+              true,
+              true,
+              true,
+              false
+            ],
+            [
+              false,
+              false,
+              false,
+              true
+            ]
+          ],
+          "greedy_representative_indices": [
+            0,
+            3
+          ],
+          "greedy_group_by_frame": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "approximate_group_count": 2,
+          "landing_matches_initial": [
+            true,
+            true,
+            false
+          ],
+          "landing_return_count": 2
+        }
+      },
+      "fresh_qualified_endpoints": 4,
+      "local_resume_replayed_requests": null,
+      "local_resume_state_equal": null
+    },
+    {
+      "case": "brookite48",
+      "method": "local_memory",
+      "status": "completed",
+      "outer_steps": 3,
+      "total_search_requests": 929,
+      "initial_search_requests": 4,
+      "step_search_requests": [
+        289,
+        332,
+        304
+      ],
+      "request_ledger_rows": 929,
+      "frame_order": [
+        "initial",
+        "landing_0",
+        "landing_1",
+        "landing_2"
+      ],
+      "geometry": {
+        "tight": {
+          "pairwise_matches": [
+            [
+              true,
+              true,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              true,
+              true
+            ]
+          ],
+          "greedy_representative_indices": [
+            0
+          ],
+          "greedy_group_by_frame": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "approximate_group_count": 1,
+          "landing_matches_initial": [
+            true,
+            true,
+            true
+          ],
+          "landing_return_count": 3
+        },
+        "broad": {
+          "pairwise_matches": [
+            [
+              true,
+              true,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              true,
+              true
+            ],
+            [
+              true,
+              true,
+              true,
+              true
+            ]
+          ],
+          "greedy_representative_indices": [
+            0
+          ],
+          "greedy_group_by_frame": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "approximate_group_count": 1,
+          "landing_matches_initial": [
+            true,
+            true,
+            true
+          ],
+          "landing_return_count": 3
+        }
+      },
+      "fresh_qualified_endpoints": 4,
+      "local_resume_replayed_requests": 929,
+      "local_resume_state_equal": true
+    }
+  ],
+  "tight_broad_pairwise_relations_identical": true,
+  "search_request_totals_by_method": {
+    "global": 3915,
+    "local_memory": 3028
+  },
+  "cross_arm_landing_comparisons": [
+    {
+      "case": "rutile",
+      "tolerance": "tight",
+      "global_landing_to_local_landing_matches": [
+        [
+          true,
+          false,
+          true
+        ],
+        [
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          false
+        ]
+      ],
+      "matched_cross_arm_pairs": 2
+    },
+    {
+      "case": "rutile",
+      "tolerance": "broad",
+      "global_landing_to_local_landing_matches": [
+        [
+          true,
+          false,
+          true
+        ],
+        [
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          false
+        ]
+      ],
+      "matched_cross_arm_pairs": 2
+    },
+    {
+      "case": "anatase",
+      "tolerance": "tight",
+      "global_landing_to_local_landing_matches": [
+        [
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          false
+        ]
+      ],
+      "matched_cross_arm_pairs": 0
+    },
+    {
+      "case": "anatase",
+      "tolerance": "broad",
+      "global_landing_to_local_landing_matches": [
+        [
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          false
+        ]
+      ],
+      "matched_cross_arm_pairs": 0
+    },
+    {
+      "case": "brookite48",
+      "tolerance": "tight",
+      "global_landing_to_local_landing_matches": [
+        [
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true
+        ],
+        [
+          false,
+          false,
+          false
+        ]
+      ],
+      "matched_cross_arm_pairs": 6
+    },
+    {
+      "case": "brookite48",
+      "tolerance": "broad",
+      "global_landing_to_local_landing_matches": [
+        [
+          true,
+          true,
+          true
+        ],
+        [
+          true,
+          true,
+          true
+        ],
+        [
+          false,
+          false,
+          false
+        ]
+      ],
+      "matched_cross_arm_pairs": 6
+    }
+  ],
+  "verification": {
+    "rows": [
+      {
+        "case": "anatase-global",
+        "search": 1405,
+        "status": "completed",
+        "landings": 3,
+        "stages": 75,
+        "qualified": true,
+        "best_energy": -107.00100854422963
+      },
+      {
+        "case": "anatase-local_memory",
+        "search": 1067,
+        "status": "completed",
+        "landings": 3,
+        "stages": 75,
+        "qualified": true,
+        "best_energy": -107.00100854422963,
+        "replayed": 1067,
+        "state_equal": true,
+        "routes": {
+          "torsion": 50,
+          "pair": 25
+        },
+        "history_used": true
+      },
+      {
+        "case": "brookite48-global",
+        "search": 1251,
+        "status": "completed",
+        "landings": 3,
+        "stages": 75,
+        "qualified": true,
+        "best_energy": -427.5907654931629
+      },
+      {
+        "case": "brookite48-local_memory",
+        "search": 929,
+        "status": "completed",
+        "landings": 3,
+        "stages": 75,
+        "qualified": true,
+        "best_energy": -427.5911576118281,
+        "replayed": 929,
+        "state_equal": true,
+        "routes": {
+          "forbidden": 6,
+          "pair": 43,
+          "pair_fallback": 1,
+          "torsion": 25
+        },
+        "history_used": true
+      },
+      {
+        "case": "rutile-global",
+        "search": 1259,
+        "status": "completed",
+        "landings": 3,
+        "stages": 75,
+        "qualified": true,
+        "best_energy": -106.6290338893967
+      },
+      {
+        "case": "rutile-local_memory",
+        "search": 1032,
+        "status": "completed",
+        "landings": 3,
+        "stages": 75,
+        "qualified": true,
+        "best_energy": -106.6290338893967,
+        "replayed": 1032,
+        "state_equal": true,
+        "routes": {
+          "torsion": 50,
+          "pair": 25
+        },
+        "history_used": true
+      }
+    ],
+    "fresh": 24
+  },
+  "software": {
+    "python": "3.12.11",
+    "pymatgen": "2026.5.4"
+  },
+  "elapsed_seconds": 3.599,
+  "interpretation_limits": [
+    "A match is approximate geometric similarity for this fixed ordered cell, not basin, phase, or Hessian identity.",
+    "Greedy representative group counts depend on frame order when approximate matching is nontransitive; pairwise matrices are retained.",
+    "Three outer steps per arm are development evidence and do not establish efficiency or generality.",
+    "Fresh endpoint qualification and same-oracle local resume are separate from geometric coverage."
+  ]
+}

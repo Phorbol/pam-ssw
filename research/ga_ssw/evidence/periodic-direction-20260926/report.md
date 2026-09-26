@@ -34,6 +34,14 @@ GPU1498877搜索正常完成，但runner访问result.best.energy（实际best是
 为新周期受限路径补实际route字段（RED1498970），不改旧非周期记录。
 最终相关42项1498990全部通过。早先物理源快照保留，TYPE4用修正后版本另存。
 
+## 结构覆盖读出
+
+CPU1499004零PES分析：包括初态在内，rutile/anatase/brookite的全局近似组数3/4/2，
+局部2/1/1；局部返回初态2/3、3/3、3/3，对照1/3、0/3、2/3。
+两组既有匹配容差给出相同关系。近似几何组不是经Hessian认证的盆地。
+较少调用没有表现为更广覆盖，本pilot不支持切换默认，也不据单seed调参。
+详见[完整覆盖分析](coverage-report.md)、coverage-summary.json及analyze_coverage.py。
+
 ## 下一项
 
 514原子上传TiO2@Au24O4，保留固定1..297和方向排除1..351，两臂相同掩码，
