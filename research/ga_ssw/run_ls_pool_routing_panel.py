@@ -168,25 +168,6 @@ def make_calculator(spec, *, device_override=None):
                           enable_oeq=bool(spec["enable_oeq"]))
 
 
-def mc_archive_summary(result, *, energy_tol, rmsd_tol):
-    from pamssw.state import State
-    from research.ga_ssw.pool_molecular_archive import ASEPermutationArchive
-    archive = ASEPermutationArchive(energy_tol=energy_tol, rmsd_tol=rmsd_tol)
-    mapping = []
-    for minimum in result.minima:
-        atoms = minimum.atoms
-        state = State(atoms.numbers.copy(), atoms.positions.copy(), atoms.cell.array.copy(),
-                      tuple(atoms.pbc))
-        entry = archive.add(state, float(minimum.energy), None)
-        mapping.append(entry.entry_id)
-    return {"identity_matcher": "ase_permute_v1", "runtime_selector": False,
-            "energy_tol_eV": energy_tol, "rmsd_tol_A": rmsd_tol,
-            "mapping_minimum_index_to_entry": mapping,
-            "entries": [{"entry_id": e.entry_id, "energy_eV": e.energy,
-                         "visits": e.visits, "parent_id": e.parent_id}
-                        for e in archive.entries]}
-
-
 def candidate_rows(result):
     rows = [{"candidate_index": 0, "source": "initial", "record_index": -1,
              "minimum_index": 0, "converged": bool(result.initial.converged),
@@ -315,7 +296,7 @@ def run_arm(args):
             "energy_tol_eV": pool_cfg["energy_tol"], "rmsd_tol_A": pool_cfg["rmsd_tol"]})
     else:
         write_json(out / "selector-contract.json", {"mode": "mc", "runtime_selector": False,
-            "offline_identity_only": "ASE permutation archive applied after the run"})
+            "offline_identity_only": "optional CPU analysis; not run on the GPU worker"})
 
     status, error = "not_started", None
     result = None
@@ -403,9 +384,6 @@ def run_arm(args):
         write_json(out / "fresh-checks.json", {"checks": fresh_checks,
             "candidate_count": len(rows), "qualified_count": sum(bool(x.get("certified")) for x in fresh_checks),
             "fresh_requests": fresh_requests, "errors": fresh_errors})
-        if args.mode == "mc":
-            write_json(out / "offline-identity.json", mc_archive_summary(result,
-                energy_tol=float(pool_cfg["energy_tol"]), rmsd_tol=float(pool_cfg["rmsd_tol"])))
         write(out / "minima.extxyz", [minimum.atoms for minimum in result.minima])
         write_json(out / "search-result.json", {"status": result.status,
             "postprocess_status": status, "search_requests": search_requests,
