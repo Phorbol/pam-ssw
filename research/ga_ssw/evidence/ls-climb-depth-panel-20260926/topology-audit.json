@@ -1,0 +1,233 @@
+{
+  "status": "offline_archived_data_only",
+  "pes_evaluations": 0,
+  "question": "Are the previously counted connected, force-qualified landing events mostly repeats of existing element-labeled graph topologies, or distinct topology classes?",
+  "definitions": {
+    "candidate": "stored landing with converged=true and surface=true, saved max_force <= 0.03 eV/A, and one connected component under the frozen graph cutoff",
+    "graph": "nonperiodic direct Cartesian distances; H-H 0.8400000095367432 A, H-C 1.190000033378601 A, C-C 1.6399999618530273 A; nodes labeled by atomic number",
+    "identity": "exact NetworkX graph isomorphism with categorical atomic-number node matching; class IDs are local to each arm and seed",
+    "cost": "initial plus cumulative per-record archived E/F evaluation_requests at first qualified discovery; LS preparation requests are already included in record totals",
+    "accepted_subset": "same candidate qualification, additionally record.accepted is true; classes/first-discovery costs are recomputed within this subset"
+  },
+  "arms": [
+    {
+      "arm": "ssw",
+      "seed": 61,
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/ssw-seed61/result.json",
+      "source_sha256": "1b471f5d3320e8c97901075dfb5b03f535a43225f4dcd823bc9841dd3043c418",
+      "attempts": 400,
+      "landing_records": 400,
+      "qualified_connected_candidates": 393,
+      "candidate_events_not_discovering_a_new_noninitial_class": 389,
+      "accepted_qualified_connected_candidates": 140,
+      "accepted_events_not_discovering_a_new_noninitial_class": 140,
+      "all_candidate_topology_classes_including_initial": 5,
+      "all_candidate_noninitial_topology_classes": 4,
+      "all_candidate_noninitial_first_discoveries": [
+        {
+          "class_id": 1,
+          "first_record": 5,
+          "cumulative_EF_requests": 3965
+        },
+        {
+          "class_id": 2,
+          "first_record": 8,
+          "cumulative_EF_requests": 5877
+        },
+        {
+          "class_id": 3,
+          "first_record": 121,
+          "cumulative_EF_requests": 80292
+        },
+        {
+          "class_id": 4,
+          "first_record": 170,
+          "cumulative_EF_requests": 112143
+        }
+      ],
+      "accepted_topology_classes_including_initial": 1,
+      "accepted_noninitial_topology_classes": 0,
+      "accepted_noninitial_first_discoveries": [],
+      "initial_graph_class_id_within_run": 0,
+      "total_EF_requests_including_initial": 263213
+    },
+    {
+      "arm": "ssw",
+      "seed": 67,
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/ssw-seed67/result.json",
+      "source_sha256": "e6d590dcd63d0370d2dd5a22941fb05b705b0906589760ebde3d55c61ec78e14",
+      "attempts": 400,
+      "landing_records": 399,
+      "qualified_connected_candidates": 390,
+      "candidate_events_not_discovering_a_new_noninitial_class": 386,
+      "accepted_qualified_connected_candidates": 120,
+      "accepted_events_not_discovering_a_new_noninitial_class": 120,
+      "all_candidate_topology_classes_including_initial": 5,
+      "all_candidate_noninitial_topology_classes": 4,
+      "all_candidate_noninitial_first_discoveries": [
+        {
+          "class_id": 1,
+          "first_record": 16,
+          "cumulative_EF_requests": 10508
+        },
+        {
+          "class_id": 2,
+          "first_record": 97,
+          "cumulative_EF_requests": 63810
+        },
+        {
+          "class_id": 3,
+          "first_record": 193,
+          "cumulative_EF_requests": 126844
+        },
+        {
+          "class_id": 4,
+          "first_record": 230,
+          "cumulative_EF_requests": 149682
+        }
+      ],
+      "accepted_topology_classes_including_initial": 1,
+      "accepted_noninitial_topology_classes": 0,
+      "accepted_noninitial_first_discoveries": [],
+      "initial_graph_class_id_within_run": 0,
+      "total_EF_requests_including_initial": 258156
+    },
+    {
+      "arm": "native_ls",
+      "seed": 61,
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json",
+      "source_sha256": "f5081a6865d524820209ac3b084d1ab201779a6695752532a4311eab5433ddb1",
+      "attempts": 400,
+      "landing_records": 400,
+      "qualified_connected_candidates": 386,
+      "candidate_events_not_discovering_a_new_noninitial_class": 376,
+      "accepted_qualified_connected_candidates": 131,
+      "accepted_events_not_discovering_a_new_noninitial_class": 131,
+      "all_candidate_topology_classes_including_initial": 11,
+      "all_candidate_noninitial_topology_classes": 10,
+      "all_candidate_noninitial_first_discoveries": [
+        {
+          "class_id": 1,
+          "first_record": 13,
+          "cumulative_EF_requests": 9427
+        },
+        {
+          "class_id": 2,
+          "first_record": 15,
+          "cumulative_EF_requests": 10871
+        },
+        {
+          "class_id": 3,
+          "first_record": 19,
+          "cumulative_EF_requests": 13675
+        },
+        {
+          "class_id": 4,
+          "first_record": 50,
+          "cumulative_EF_requests": 34911
+        },
+        {
+          "class_id": 5,
+          "first_record": 74,
+          "cumulative_EF_requests": 51134
+        },
+        {
+          "class_id": 6,
+          "first_record": 203,
+          "cumulative_EF_requests": 133654
+        },
+        {
+          "class_id": 7,
+          "first_record": 251,
+          "cumulative_EF_requests": 165020
+        },
+        {
+          "class_id": 8,
+          "first_record": 268,
+          "cumulative_EF_requests": 175873
+        },
+        {
+          "class_id": 9,
+          "first_record": 299,
+          "cumulative_EF_requests": 196068
+        },
+        {
+          "class_id": 10,
+          "first_record": 363,
+          "cumulative_EF_requests": 237427
+        }
+      ],
+      "accepted_topology_classes_including_initial": 1,
+      "accepted_noninitial_topology_classes": 0,
+      "accepted_noninitial_first_discoveries": [],
+      "initial_graph_class_id_within_run": 0,
+      "total_EF_requests_including_initial": 260522
+    },
+    {
+      "arm": "native_ls",
+      "seed": 67,
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json",
+      "source_sha256": "20e4c9ee8cc9e2633eae0616e44aa62510b5c5fc1470f6f38f655043dd5c99af",
+      "attempts": 400,
+      "landing_records": 400,
+      "qualified_connected_candidates": 386,
+      "candidate_events_not_discovering_a_new_noninitial_class": 378,
+      "accepted_qualified_connected_candidates": 122,
+      "accepted_events_not_discovering_a_new_noninitial_class": 122,
+      "all_candidate_topology_classes_including_initial": 9,
+      "all_candidate_noninitial_topology_classes": 8,
+      "all_candidate_noninitial_first_discoveries": [
+        {
+          "class_id": 1,
+          "first_record": 3,
+          "cumulative_EF_requests": 2541
+        },
+        {
+          "class_id": 2,
+          "first_record": 11,
+          "cumulative_EF_requests": 7728
+        },
+        {
+          "class_id": 3,
+          "first_record": 59,
+          "cumulative_EF_requests": 39044
+        },
+        {
+          "class_id": 4,
+          "first_record": 159,
+          "cumulative_EF_requests": 103842
+        },
+        {
+          "class_id": 5,
+          "first_record": 183,
+          "cumulative_EF_requests": 118823
+        },
+        {
+          "class_id": 6,
+          "first_record": 189,
+          "cumulative_EF_requests": 122532
+        },
+        {
+          "class_id": 7,
+          "first_record": 219,
+          "cumulative_EF_requests": 141833
+        },
+        {
+          "class_id": 8,
+          "first_record": 309,
+          "cumulative_EF_requests": 200871
+        }
+      ],
+      "accepted_topology_classes_including_initial": 1,
+      "accepted_noninitial_topology_classes": 0,
+      "accepted_noninitial_first_discoveries": [],
+      "initial_graph_class_id_within_run": 0,
+      "total_EF_requests_including_initial": 259049
+    }
+  ],
+  "limits": [
+    "This is exact topology identity only; distinct geometries with the same bond graph are merged, and same topology does not establish a common geometric minimum.",
+    "The filter uses archived landing convergence and saved force only; no independent fresh evaluation is performed.",
+    "Counts describe these four archived C4H6 trajectories only and do not establish reaction paths, barriers, or general LS efficacy."
+  ]
+}

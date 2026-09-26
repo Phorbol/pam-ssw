@@ -1,3 +1,11 @@
+# Updated topology evidence
+
+Offline CPU1500389/1500417 found SSW4/4 versus NativeLS10/8 noninitial
+permutation-invariant C4H6 graph classes, at similar archived cost. Across seeds,
+LS gained5 classes but missed1 relative to SSW; MC accepted no noninitial class.
+This refines the older index-level event metric without replacing it.
+[Full evidence and limits](../../research/ga_ssw/evidence/ls-climb-depth-panel-20260926/topology-report.md).
+
 # LS mechanism panel: existing toggle evidence, zero PES
 
 **Current outcome.** Existing toggle runs allow a zero-PES check of refined direction support and accepted/rejected graph-changing landings. Refined Gaussian directions differ under LS, but their effective atom support shifts inconsistently by seed and is nearly unchanged in each whole-panel median. Connected, force-qualified graph-change events rise in the C4H6 panel and remain neutral/mixed for C60. The evidence is system-dependent and does not support a universal advantage. The LS-specific force contribution needed to explain *why* is absent from saved records. No new PES experiment is justified by this audit.

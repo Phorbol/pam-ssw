@@ -1,0 +1,4830 @@
+{
+  "status": "offline_geometry_inspection_only",
+  "pes_evaluations": 0,
+  "audit_source": "/home/gengjianrui/bin/pam-ssw-worktrees/ls-mechanism-panel-20260926/research/ga_ssw/evidence/ls-climb-depth-panel-20260926/topology-audit.json",
+  "audit_sha256": "3e85262a81774160b82dcf7a30ebb2db4c2a68b503d2aca9b32d2d11692c346d",
+  "trajectory_source_hashes": {
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/ssw-seed61/result.json": "1b471f5d3320e8c97901075dfb5b03f535a43225f4dcd823bc9841dd3043c418",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/ssw-seed67/result.json": "e6d590dcd63d0370d2dd5a22941fb05b705b0906589760ebde3d55c61ec78e14",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json": "f5081a6865d524820209ac3b084d1ab201779a6695752532a4311eab5433ddb1",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json": "20e4c9ee8cc9e2633eae0616e44aa62510b5c5fc1470f6f38f655043dd5c99af"
+  },
+  "graph_definition": "nonperiodic direct Cartesian distances; H-H 0.8400000095367432 A, H-C 1.190000033378601 A, C-C 1.6399999618530273 A; nodes labeled by atomic number",
+  "reindex_consistency_checks_passed": true,
+  "global_isomorphism_classes": [
+    {
+      "class_id": 0,
+      "members": [
+        {
+          "arm": "ssw",
+          "seed": 61,
+          "local_class_id": 1,
+          "first_record": 5
+        },
+        {
+          "arm": "ssw",
+          "seed": 67,
+          "local_class_id": 1,
+          "first_record": 16
+        },
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 3,
+          "first_record": 19
+        },
+        {
+          "arm": "native_ls",
+          "seed": 67,
+          "local_class_id": 1,
+          "first_record": 3
+        }
+      ],
+      "member_count": 4,
+      "representative_inspections": [
+        {
+          "arm": "ssw",
+          "seed": 61,
+          "local_class_id": 1,
+          "first_record": 5,
+          "cumulative_EF_requests": 3965,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4243.517849621354,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 0.40347738835134805,
+          "saved_max_force_eV_A": 0.01725545289083899,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 10,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              3,
+              3,
+              4
+            ]
+          },
+          "min_pair_distance_A": 1.0813609157118638,
+          "max_pair_distance_A": 3.9124434755328448,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 0,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "ssw",
+              "seed": 61,
+              "local_class_id": 1,
+              "first_record": 5
+            },
+            {
+              "arm": "ssw",
+              "seed": 67,
+              "local_class_id": 1,
+              "first_record": 16
+            },
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 3,
+              "first_record": 19
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 1,
+              "first_record": 3
+            }
+          ],
+          "cross_arm_class_member_count": 4
+        },
+        {
+          "arm": "ssw",
+          "seed": 67,
+          "local_class_id": 1,
+          "first_record": 16,
+          "cumulative_EF_requests": 10508,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4243.5176719266265,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 0.4036550830787746,
+          "saved_max_force_eV_A": 0.01852164749377132,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 10,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              3,
+              3,
+              4
+            ]
+          },
+          "min_pair_distance_A": 1.081431686478147,
+          "max_pair_distance_A": 3.9165275135272033,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 0,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "ssw",
+              "seed": 61,
+              "local_class_id": 1,
+              "first_record": 5
+            },
+            {
+              "arm": "ssw",
+              "seed": 67,
+              "local_class_id": 1,
+              "first_record": 16
+            },
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 3,
+              "first_record": 19
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 1,
+              "first_record": 3
+            }
+          ],
+          "cross_arm_class_member_count": 4
+        },
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 3,
+          "first_record": 19,
+          "cumulative_EF_requests": 13675,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4243.517845484902,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 0.4034815248032828,
+          "saved_max_force_eV_A": 0.02723279645084295,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 10,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              3,
+              3,
+              4
+            ]
+          },
+          "min_pair_distance_A": 1.0816391530359024,
+          "max_pair_distance_A": 3.9104729052167992,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 0,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "ssw",
+              "seed": 61,
+              "local_class_id": 1,
+              "first_record": 5
+            },
+            {
+              "arm": "ssw",
+              "seed": 67,
+              "local_class_id": 1,
+              "first_record": 16
+            },
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 3,
+              "first_record": 19
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 1,
+              "first_record": 3
+            }
+          ],
+          "cross_arm_class_member_count": 4
+        },
+        {
+          "arm": "native_ls",
+          "seed": 67,
+          "local_class_id": 1,
+          "first_record": 3,
+          "cumulative_EF_requests": 2541,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4243.517884326957,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 0.40344268274839123,
+          "saved_max_force_eV_A": 0.014456855642278077,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 10,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              3,
+              3,
+              4
+            ]
+          },
+          "min_pair_distance_A": 1.081513628165468,
+          "max_pair_distance_A": 3.9089653320564834,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 0,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "ssw",
+              "seed": 61,
+              "local_class_id": 1,
+              "first_record": 5
+            },
+            {
+              "arm": "ssw",
+              "seed": 67,
+              "local_class_id": 1,
+              "first_record": 16
+            },
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 3,
+              "first_record": 19
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 1,
+              "first_record": 3
+            }
+          ],
+          "cross_arm_class_member_count": 4
+        }
+      ]
+    },
+    {
+      "class_id": 1,
+      "members": [
+        {
+          "arm": "ssw",
+          "seed": 61,
+          "local_class_id": 2,
+          "first_record": 8
+        },
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 4,
+          "first_record": 50
+        },
+        {
+          "arm": "native_ls",
+          "seed": 67,
+          "local_class_id": 2,
+          "first_record": 11
+        }
+      ],
+      "member_count": 3,
+      "representative_inspections": [
+        {
+          "arm": "ssw",
+          "seed": 61,
+          "local_class_id": 2,
+          "first_record": 8,
+          "cumulative_EF_requests": 5877,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4241.022330620551,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 2.8989963891544903,
+          "saved_max_force_eV_A": 0.013283793358341948,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 9,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              3,
+              3,
+              2
+            ]
+          },
+          "min_pair_distance_A": 1.0852966097112355,
+          "max_pair_distance_A": 4.797657288480541,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 1,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "ssw",
+              "seed": 61,
+              "local_class_id": 2,
+              "first_record": 8
+            },
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 4,
+              "first_record": 50
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 2,
+              "first_record": 11
+            }
+          ],
+          "cross_arm_class_member_count": 3
+        },
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 4,
+          "first_record": 50,
+          "cumulative_EF_requests": 34911,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4240.852546521854,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 3.0687804878516545,
+          "saved_max_force_eV_A": 0.0274133015545237,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 9,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              3,
+              3,
+              2
+            ]
+          },
+          "min_pair_distance_A": 1.0858984747784022,
+          "max_pair_distance_A": 4.141252935088284,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 1,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "ssw",
+              "seed": 61,
+              "local_class_id": 2,
+              "first_record": 8
+            },
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 4,
+              "first_record": 50
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 2,
+              "first_record": 11
+            }
+          ],
+          "cross_arm_class_member_count": 3
+        },
+        {
+          "arm": "native_ls",
+          "seed": 67,
+          "local_class_id": 2,
+          "first_record": 11,
+          "cumulative_EF_requests": 7728,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4241.024376271313,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 2.896950738392661,
+          "saved_max_force_eV_A": 0.011509849051557651,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 9,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              2,
+              3,
+              3,
+              4
+            ]
+          },
+          "min_pair_distance_A": 1.0850618901148794,
+          "max_pair_distance_A": 4.707012061904161,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 1,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "ssw",
+              "seed": 61,
+              "local_class_id": 2,
+              "first_record": 8
+            },
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 4,
+              "first_record": 50
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 2,
+              "first_record": 11
+            }
+          ],
+          "cross_arm_class_member_count": 3
+        }
+      ]
+    },
+    {
+      "class_id": 2,
+      "members": [
+        {
+          "arm": "ssw",
+          "seed": 61,
+          "local_class_id": 3,
+          "first_record": 121
+        },
+        {
+          "arm": "ssw",
+          "seed": 67,
+          "local_class_id": 2,
+          "first_record": 97
+        },
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 2,
+          "first_record": 15
+        },
+        {
+          "arm": "native_ls",
+          "seed": 67,
+          "local_class_id": 3,
+          "first_record": 59
+        }
+      ],
+      "member_count": 4,
+      "representative_inspections": [
+        {
+          "arm": "ssw",
+          "seed": 61,
+          "local_class_id": 3,
+          "first_record": 121,
+          "cumulative_EF_requests": 80292,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4242.875469317818,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 1.0458576918872495,
+          "saved_max_force_eV_A": 0.024926813198201704,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 11,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              4,
+              4,
+              4
+            ]
+          },
+          "min_pair_distance_A": 1.0739022528195656,
+          "max_pair_distance_A": 4.15888181654971,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 2,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "ssw",
+              "seed": 61,
+              "local_class_id": 3,
+              "first_record": 121
+            },
+            {
+              "arm": "ssw",
+              "seed": 67,
+              "local_class_id": 2,
+              "first_record": 97
+            },
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 2,
+              "first_record": 15
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 3,
+              "first_record": 59
+            }
+          ],
+          "cross_arm_class_member_count": 4
+        },
+        {
+          "arm": "ssw",
+          "seed": 67,
+          "local_class_id": 2,
+          "first_record": 97,
+          "cumulative_EF_requests": 63810,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4242.875689011724,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 1.04563799798143,
+          "saved_max_force_eV_A": 0.020254390288279994,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 11,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              4,
+              4,
+              4
+            ]
+          },
+          "min_pair_distance_A": 1.0743129761260628,
+          "max_pair_distance_A": 4.154413772796439,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 2,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "ssw",
+              "seed": 61,
+              "local_class_id": 3,
+              "first_record": 121
+            },
+            {
+              "arm": "ssw",
+              "seed": 67,
+              "local_class_id": 2,
+              "first_record": 97
+            },
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 2,
+              "first_record": 15
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 3,
+              "first_record": 59
+            }
+          ],
+          "cross_arm_class_member_count": 4
+        },
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 2,
+          "first_record": 15,
+          "cumulative_EF_requests": 10871,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4242.87556653843,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 1.045760471275571,
+          "saved_max_force_eV_A": 0.026149385147464246,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 11,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              4,
+              4,
+              4
+            ]
+          },
+          "min_pair_distance_A": 1.074303974031917,
+          "max_pair_distance_A": 4.15289848776228,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 2,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "ssw",
+              "seed": 61,
+              "local_class_id": 3,
+              "first_record": 121
+            },
+            {
+              "arm": "ssw",
+              "seed": 67,
+              "local_class_id": 2,
+              "first_record": 97
+            },
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 2,
+              "first_record": 15
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 3,
+              "first_record": 59
+            }
+          ],
+          "cross_arm_class_member_count": 4
+        },
+        {
+          "arm": "native_ls",
+          "seed": 67,
+          "local_class_id": 3,
+          "first_record": 59,
+          "cumulative_EF_requests": 39044,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4242.875626553038,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 1.0457004566669639,
+          "saved_max_force_eV_A": 0.023082511449772868,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 11,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              4,
+              4,
+              4
+            ]
+          },
+          "min_pair_distance_A": 1.0739981105806817,
+          "max_pair_distance_A": 4.156499385877776,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 2,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "ssw",
+              "seed": 61,
+              "local_class_id": 3,
+              "first_record": 121
+            },
+            {
+              "arm": "ssw",
+              "seed": 67,
+              "local_class_id": 2,
+              "first_record": 97
+            },
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 2,
+              "first_record": 15
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 3,
+              "first_record": 59
+            }
+          ],
+          "cross_arm_class_member_count": 4
+        }
+      ]
+    },
+    {
+      "class_id": 3,
+      "members": [
+        {
+          "arm": "ssw",
+          "seed": 61,
+          "local_class_id": 4,
+          "first_record": 170
+        },
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 8,
+          "first_record": 268
+        }
+      ],
+      "member_count": 2,
+      "representative_inspections": [
+        {
+          "arm": "ssw",
+          "seed": 61,
+          "local_class_id": 4,
+          "first_record": 170,
+          "cumulative_EF_requests": 112143,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4241.112416859861,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 2.8089101498444506,
+          "saved_max_force_eV_A": 0.0240700011198753,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 9,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              2,
+              3,
+              3
+            ]
+          },
+          "min_pair_distance_A": 1.0822750564731989,
+          "max_pair_distance_A": 4.92315249174174,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 3,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "ssw",
+              "seed": 61,
+              "local_class_id": 4,
+              "first_record": 170
+            },
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 8,
+              "first_record": 268
+            }
+          ],
+          "cross_arm_class_member_count": 2
+        },
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 8,
+          "first_record": 268,
+          "cumulative_EF_requests": 175873,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4241.181372600752,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 2.7399544089530536,
+          "saved_max_force_eV_A": 0.02806849664913111,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 9,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              3,
+              3,
+              4,
+              2
+            ]
+          },
+          "min_pair_distance_A": 1.0833345673839472,
+          "max_pair_distance_A": 5.4163733187496765,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 3,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "ssw",
+              "seed": 61,
+              "local_class_id": 4,
+              "first_record": 170
+            },
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 8,
+              "first_record": 268
+            }
+          ],
+          "cross_arm_class_member_count": 2
+        }
+      ]
+    },
+    {
+      "class_id": 4,
+      "members": [
+        {
+          "arm": "ssw",
+          "seed": 67,
+          "local_class_id": 3,
+          "first_record": 193
+        }
+      ],
+      "member_count": 1,
+      "representative_inspections": [
+        {
+          "arm": "ssw",
+          "seed": 67,
+          "local_class_id": 3,
+          "first_record": 193,
+          "cumulative_EF_requests": 126844,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4243.159661667532,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 0.7616653421728188,
+          "saved_max_force_eV_A": 0.028357208218824263,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 10,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              4,
+              3,
+              3
+            ]
+          },
+          "min_pair_distance_A": 1.081631475688805,
+          "max_pair_distance_A": 4.16400528573869,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 4,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "ssw",
+              "seed": 67,
+              "local_class_id": 3,
+              "first_record": 193
+            }
+          ],
+          "cross_arm_class_member_count": 1
+        }
+      ]
+    },
+    {
+      "class_id": 5,
+      "members": [
+        {
+          "arm": "ssw",
+          "seed": 67,
+          "local_class_id": 4,
+          "first_record": 230
+        },
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 7,
+          "first_record": 251
+        },
+        {
+          "arm": "native_ls",
+          "seed": 67,
+          "local_class_id": 6,
+          "first_record": 189
+        }
+      ],
+      "member_count": 3,
+      "representative_inspections": [
+        {
+          "arm": "ssw",
+          "seed": 67,
+          "local_class_id": 4,
+          "first_record": 230,
+          "cumulative_EF_requests": 149682,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4243.357073841607,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 0.5642531680978209,
+          "saved_max_force_eV_A": 0.024819870342947727,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 9,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              3,
+              2,
+              3,
+              4
+            ]
+          },
+          "min_pair_distance_A": 1.0830443082322092,
+          "max_pair_distance_A": 5.177672159059288,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 5,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "ssw",
+              "seed": 67,
+              "local_class_id": 4,
+              "first_record": 230
+            },
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 7,
+              "first_record": 251
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 6,
+              "first_record": 189
+            }
+          ],
+          "cross_arm_class_member_count": 3
+        },
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 7,
+          "first_record": 251,
+          "cumulative_EF_requests": 165020,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4243.357694733668,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 0.5636322760374242,
+          "saved_max_force_eV_A": 0.022069439285864117,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 9,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              3,
+              3,
+              2
+            ]
+          },
+          "min_pair_distance_A": 1.0830233527402424,
+          "max_pair_distance_A": 5.140209720196581,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 5,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "ssw",
+              "seed": 67,
+              "local_class_id": 4,
+              "first_record": 230
+            },
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 7,
+              "first_record": 251
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 6,
+              "first_record": 189
+            }
+          ],
+          "cross_arm_class_member_count": 3
+        },
+        {
+          "arm": "native_ls",
+          "seed": 67,
+          "local_class_id": 6,
+          "first_record": 189,
+          "cumulative_EF_requests": 122532,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4243.358706376224,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 0.5626206334809467,
+          "saved_max_force_eV_A": 0.018718756870955203,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 9,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              3,
+              3,
+              2
+            ]
+          },
+          "min_pair_distance_A": 1.0831307746700756,
+          "max_pair_distance_A": 5.149503873527058,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 5,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "ssw",
+              "seed": 67,
+              "local_class_id": 4,
+              "first_record": 230
+            },
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 7,
+              "first_record": 251
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 6,
+              "first_record": 189
+            }
+          ],
+          "cross_arm_class_member_count": 3
+        }
+      ]
+    },
+    {
+      "class_id": 6,
+      "members": [
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 1,
+          "first_record": 13
+        },
+        {
+          "arm": "native_ls",
+          "seed": 67,
+          "local_class_id": 7,
+          "first_record": 219
+        }
+      ],
+      "member_count": 2,
+      "representative_inspections": [
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 1,
+          "first_record": 13,
+          "cumulative_EF_requests": 9427,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4240.721905331934,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 3.19942167777117,
+          "saved_max_force_eV_A": 0.028825068965407066,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 9,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              2,
+              3,
+              3
+            ]
+          },
+          "min_pair_distance_A": 1.0795298506402082,
+          "max_pair_distance_A": 4.283654092698394,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 6,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 1,
+              "first_record": 13
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 7,
+              "first_record": 219
+            }
+          ],
+          "cross_arm_class_member_count": 2
+        },
+        {
+          "arm": "native_ls",
+          "seed": 67,
+          "local_class_id": 7,
+          "first_record": 219,
+          "cumulative_EF_requests": 141833,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4240.721983880214,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 3.1993431294913535,
+          "saved_max_force_eV_A": 0.029387620923661057,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 9,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              2,
+              3,
+              3
+            ]
+          },
+          "min_pair_distance_A": 1.0791584476430154,
+          "max_pair_distance_A": 4.2851426575639815,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 6,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 1,
+              "first_record": 13
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 7,
+              "first_record": 219
+            }
+          ],
+          "cross_arm_class_member_count": 2
+        }
+      ]
+    },
+    {
+      "class_id": 7,
+      "members": [
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 5,
+          "first_record": 74
+        },
+        {
+          "arm": "native_ls",
+          "seed": 67,
+          "local_class_id": 5,
+          "first_record": 183
+        }
+      ],
+      "member_count": 2,
+      "representative_inspections": [
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 5,
+          "first_record": 74,
+          "cumulative_EF_requests": 51134,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4242.567064119115,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 1.3542628905906895,
+          "saved_max_force_eV_A": 0.022155104313497497,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 10,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              3,
+              3,
+              4,
+              4
+            ]
+          },
+          "min_pair_distance_A": 1.0747258817824898,
+          "max_pair_distance_A": 4.407226175602013,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 7,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 5,
+              "first_record": 74
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 5,
+              "first_record": 183
+            }
+          ],
+          "cross_arm_class_member_count": 2
+        },
+        {
+          "arm": "native_ls",
+          "seed": 67,
+          "local_class_id": 5,
+          "first_record": 183,
+          "cumulative_EF_requests": 118823,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4242.56567573153,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 1.3556512781751735,
+          "saved_max_force_eV_A": 0.018880440013052696,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 10,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              3,
+              3,
+              4,
+              4
+            ]
+          },
+          "min_pair_distance_A": 1.0748349022587684,
+          "max_pair_distance_A": 4.40344872187339,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 7,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 5,
+              "first_record": 74
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 5,
+              "first_record": 183
+            }
+          ],
+          "cross_arm_class_member_count": 2
+        }
+      ]
+    },
+    {
+      "class_id": 8,
+      "members": [
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 6,
+          "first_record": 203
+        },
+        {
+          "arm": "native_ls",
+          "seed": 67,
+          "local_class_id": 8,
+          "first_record": 309
+        }
+      ],
+      "member_count": 2,
+      "representative_inspections": [
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 6,
+          "first_record": 203,
+          "cumulative_EF_requests": 133654,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4240.80391460274,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 3.1174124069648315,
+          "saved_max_force_eV_A": 0.027368498867597842,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 9,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              2,
+              3,
+              3
+            ]
+          },
+          "min_pair_distance_A": 1.0837971961174855,
+          "max_pair_distance_A": 4.150969350580151,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 8,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 6,
+              "first_record": 203
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 8,
+              "first_record": 309
+            }
+          ],
+          "cross_arm_class_member_count": 2
+        },
+        {
+          "arm": "native_ls",
+          "seed": 67,
+          "local_class_id": 8,
+          "first_record": 309,
+          "cumulative_EF_requests": 200871,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4240.861870293905,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 3.0594567158004793,
+          "saved_max_force_eV_A": 0.02709846002976739,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 9,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              3,
+              3,
+              2
+            ]
+          },
+          "min_pair_distance_A": 1.0830445066917265,
+          "max_pair_distance_A": 4.245270960423813,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 8,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 6,
+              "first_record": 203
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 8,
+              "first_record": 309
+            }
+          ],
+          "cross_arm_class_member_count": 2
+        }
+      ]
+    },
+    {
+      "class_id": 9,
+      "members": [
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 9,
+          "first_record": 299
+        },
+        {
+          "arm": "native_ls",
+          "seed": 67,
+          "local_class_id": 4,
+          "first_record": 159
+        }
+      ],
+      "member_count": 2,
+      "representative_inspections": [
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 9,
+          "first_record": 299,
+          "cumulative_EF_requests": 196068,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4240.90773551985,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 3.013591489855571,
+          "saved_max_force_eV_A": 0.02780600337282623,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 10,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              4,
+              4,
+              2
+            ]
+          },
+          "min_pair_distance_A": 1.0817063204798927,
+          "max_pair_distance_A": 4.373713122419467,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 9,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 9,
+              "first_record": 299
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 4,
+              "first_record": 159
+            }
+          ],
+          "cross_arm_class_member_count": 2
+        },
+        {
+          "arm": "native_ls",
+          "seed": 67,
+          "local_class_id": 4,
+          "first_record": 159,
+          "cumulative_EF_requests": 103842,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4240.908390514896,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 3.012936494808855,
+          "saved_max_force_eV_A": 0.013437770221322094,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 10,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                1
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              4,
+              4,
+              2,
+              4
+            ]
+          },
+          "min_pair_distance_A": 1.0817881659618802,
+          "max_pair_distance_A": 4.372678934902356,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 9,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 9,
+              "first_record": 299
+            },
+            {
+              "arm": "native_ls",
+              "seed": 67,
+              "local_class_id": 4,
+              "first_record": 159
+            }
+          ],
+          "cross_arm_class_member_count": 2
+        }
+      ]
+    },
+    {
+      "class_id": 10,
+      "members": [
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 10,
+          "first_record": 363
+        }
+      ],
+      "member_count": 1,
+      "representative_inspections": [
+        {
+          "arm": "native_ls",
+          "seed": 61,
+          "local_class_id": 10,
+          "first_record": 363,
+          "cumulative_EF_requests": 237427,
+          "accepted_by_original_MC": false,
+          "energy_eV": -4240.729697844486,
+          "initial_energy_eV": -4243.921327009705,
+          "delta_energy_from_initial_eV": 3.191629165219638,
+          "saved_max_force_eV_A": 0.028617517518082784,
+          "landing_converged": true,
+          "landing_surface": "true",
+          "atom_count": 10,
+          "element_counts": {
+            "H": 6,
+            "C": 4
+          },
+          "bond_graph_edge_count": 10,
+          "edges_by_atom_index": [
+            {
+              "atoms": [
+                0,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                0,
+                5
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                2
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                4
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                1,
+                6
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                3
+              ],
+              "elements": [
+                "C",
+                "C"
+              ]
+            },
+            {
+              "atoms": [
+                2,
+                8
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                7
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            },
+            {
+              "atoms": [
+                3,
+                9
+              ],
+              "elements": [
+                "C",
+                "H"
+              ]
+            }
+          ],
+          "degree_by_element": {
+            "H": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "C": [
+              2,
+              4,
+              4,
+              4
+            ]
+          },
+          "min_pair_distance_A": 1.0790598354556264,
+          "max_pair_distance_A": 3.6291077617602556,
+          "degree_anomaly_flags_for_review_only": [],
+          "reindex_consistency": {
+            "permutation_new_index_to_old_index": [
+              3,
+              0,
+              1,
+              2,
+              9,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "species_preserving": true,
+            "graph_isomorphic_after_reindex": true
+          },
+          "source_record_status": "gaussian_limit",
+          "cross_arm_permutation_invariant_class_id": 10,
+          "cross_arm_members_sharing_class": [
+            {
+              "arm": "native_ls",
+              "seed": 61,
+              "local_class_id": 10,
+              "first_record": 363
+            }
+          ],
+          "cross_arm_class_member_count": 1
+        }
+      ]
+    }
+  ],
+  "interpretation_limits": [
+    "Degree flags identify structures for review only; they do not silently exclude a graph or prove it is unphysical.",
+    "The distance graph has no bond order, valence model, geometry optimization, or independent force validation.",
+    "Energy and saved force are archived landing diagnostics, not certificates of a minimum or chemical stability.",
+    "Cross-arm classes denote shared element-labeled graph topology, not shared geometrical minima."
+  ]
+}
