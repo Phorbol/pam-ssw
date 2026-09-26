@@ -51,7 +51,10 @@ ASE20/21/38/38，未跨已标注图类合并、最大代表能差6.64meV。
 该离线重归档不等价于使用新池策略重新搜索，不据此宣称搜索效率提高。
 下一步[有界LS外层选点开发对照](../../research/ga_ssw/evidence/ls-pool-routing-20260926/protocol.md)
 已准备：C4H6+C60缺陷各MC/uniform/PAM三臂、每臂100步/80kEFS，单新seed先筛查，
-全局最大480k搜索+606fresh、3GPU小时、两卡并发；尚未提交GPU，worker/离线分析器在独立分支准备。
+全局最大480k搜索+606fresh、3GPU小时、两卡并发。CPU1500664完整EMT三臂预检通过；
+CPU1500671验证分析器和实际产物成本闭合。运行器6703f35、分析器59c85f7、执行协议9b63ba3均已push。
+GPU数组1500677已提交；其afterany依赖CPU1500680只做离线分析，不重复搜索。
+本轮输入与方法仍为开发筛查，未获得新科学结果；不因提交成功声称算法收益。
 上述已完成VC优化器实验的协议位于optimizer-panel分支
 `research/ga_ssw/evidence/vc-e2e-optimizer-panel-20260926/`。
 
