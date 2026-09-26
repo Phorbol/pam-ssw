@@ -1,0 +1,10 @@
+JobID|State|Reason|NodeList|Submit|Start|End|Account|QOS|ReqTRES|AllocTRES
+1501259|COMPLETED|None|8v100v0n01|2026-09-26T21:12:55|2026-09-26T21:12:55|2026-09-26T21:13:33|sjtu-caoxiaoming|rush-1o2gpu|billing=180,cpu=1,gres/gpu=1,mem=46G,node=1|billing=180,cpu=6,gres/gpu=1,mem=46G,node=1
+1501315|COMPLETED|None|dpn01|2026-09-26T21:27:47|2026-09-26T21:28:16|2026-09-26T21:28:18|sjtu-caoxiaoming|rush-cpu|billing=10,cpu=1,mem=4000M,node=1|billing=20,cpu=2,mem=8000M,node=1
+1501316_0|CANCELLED by 0|None|8v100v0n01|2026-09-26T21:29:09|2026-09-26T21:29:09|2026-09-26T21:29:11|sjtu-caoxiaoming|rush-1o2gpu|billing=180,cpu=1,gres/gpu=1,mem=46G,node=1|billing=180,cpu=6,gres/gpu=1,mem=46G,node=1
+1501316_1|CANCELLED by 0|None|8v100v0n01|2026-09-26T21:29:09|2026-09-26T21:29:10|2026-09-26T21:29:11|sjtu-caoxiaoming|rush-1o2gpu|billing=180,cpu=1,gres/gpu=1,mem=46G,node=1|billing=180,cpu=6,gres/gpu=1,mem=46G,node=1
+1501316_2|CANCELLED by 0|JobArrayTaskLimit|8v100v0n02|2026-09-26T21:29:09|2026-09-26T21:29:11|2026-09-26T21:29:12|sjtu-caoxiaoming|rush-1o2gpu|billing=180,cpu=1,gres/gpu=1,mem=46G,node=1|billing=180,cpu=6,gres/gpu=1,mem=46G,node=1
+1501316_3|CANCELLED by 0|JobArrayTaskLimit|8v100v0n02|2026-09-26T21:29:09|2026-09-26T21:29:11|2026-09-26T21:29:12|sjtu-caoxiaoming|rush-1o2gpu|billing=180,cpu=1,gres/gpu=1,mem=46G,node=1|billing=180,cpu=6,gres/gpu=1,mem=46G,node=1
+1501316_4|CANCELLED by 0|JobArrayTaskLimit|8v100v0n01|2026-09-26T21:29:09|2026-09-26T21:29:12|2026-09-26T21:29:13|sjtu-caoxiaoming|rush-1o2gpu|billing=180,cpu=1,gres/gpu=1,mem=46G,node=1|billing=180,cpu=6,gres/gpu=1,mem=46G,node=1
+1501316_5|CANCELLED by 0|JobArrayTaskLimit|8v100v0n01|2026-09-26T21:29:09|2026-09-26T21:29:12|2026-09-26T21:29:13|sjtu-caoxiaoming|rush-1o2gpu|billing=180,cpu=1,gres/gpu=1,mem=46G,node=1|billing=180,cpu=6,gres/gpu=1,mem=46G,node=1
+1501323|CANCELLED by 0|None|dpn01|2026-09-26T21:29:51|2026-09-26T21:30:16|2026-09-26T21:30:17|sjtu-caoxiaoming|rush-cpu|billing=10,cpu=1,mem=4000M,node=1|billing=20,cpu=2,mem=8000M,node=1
