@@ -60,6 +60,31 @@ def temporary_lbfgs_baseline(kind, records=None, *, native_gradient_tol=None):
                     certificate=result.certificate, metadata=result.metadata,
                     norm_conversion=conversion)
         if records is not None:
+            # Observe accepted points without changing native termination.
+            # Index zero is the initial point; a transient pass does not
+            # override the terminal status or its physical certificate.
+            convergence_norm = kwargs.get("convergence_norm")
+            if convergence_norm is None:
+                convergence_norm = kwargs["gradient_norm"]
+                criterion = lambda point: convergence_norm(point["gradient"].copy())
+            else:
+                criterion = lambda point: convergence_norm(
+                    point["q"].copy(), point["gradient"].copy())
+            first_passage = None
+            for accepted_index, point in enumerate(result.accepted_trace):
+                value = float(criterion(point))
+                if value <= float(kwargs["gtol"]):
+                    first_passage = (accepted_index, int(point["requests"]), value)
+                    break
+            call.update(
+                first_common_qualified_accepted_index=(
+                    None if first_passage is None else first_passage[0]),
+                first_common_qualified_request=(
+                    None if first_passage is None else first_passage[1]),
+                first_common_qualified_criterion=(
+                    None if first_passage is None else first_passage[2]),
+                requests_after_first_common_qualified=(
+                    None if first_passage is None else result.requests - first_passage[1]))
             records.append(call)
         return _CompatRelax(result)
       return bridge

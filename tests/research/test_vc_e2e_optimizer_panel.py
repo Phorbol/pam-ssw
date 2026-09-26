@@ -3,6 +3,7 @@ import json
 import tempfile
 import time
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -12,6 +13,28 @@ from ase.calculators.emt import EMT
 from pamssw.standalone import vc_reference, cell_relax
 from pamssw.standalone.vc_reference import VCSSWConfig
 from research.ga_ssw.run_vc_e2e_optimizer_panel import run_arm
+
+
+def assert_first_passage_record(test, call):
+    fields = (
+        "first_common_qualified_accepted_index",
+        "first_common_qualified_request",
+        "first_common_qualified_criterion",
+        "requests_after_first_common_qualified",
+    )
+    for field in fields:
+        test.assertIn(field, call)
+    request = call["first_common_qualified_request"]
+    if request is None:
+        test.assertTrue(all(call[field] is None for field in fields))
+        return
+    test.assertGreaterEqual(call["first_common_qualified_accepted_index"], 0)
+    test.assertGreaterEqual(request, 1)
+    test.assertLessEqual(request, call["requests"])
+    test.assertLessEqual(call["first_common_qualified_criterion"], call["common_gtol"])
+    remaining = call["requests"] - request
+    test.assertEqual(call["requests_after_first_common_qualified"], remaining)
+    test.assertGreaterEqual(remaining, 0)
 
 
 def config():
@@ -54,6 +77,10 @@ class VCE2EOptimizerPanelTest(unittest.TestCase):
                 self.assertTrue(any(row.get("index") == 0 for row in
                                     search_result["result"]["records"]),
                     "full-path smoke must enter outer attempt 0; initial-only failure is insufficient")
+                if method != "safe_total":
+                    adapter_calls = search_result["adapter_calls"]
+                    for call in adapter_calls:
+                        assert_first_passage_record(self, call)
                 expected = [("initial", -1)] if search_result["result"]["initial"] is not None else []
                 expected += [("landing", row["index"]) for row in search_result["result"]["records"]
                              if isinstance(row, dict) and row.get("landing") is not None]
@@ -77,6 +104,27 @@ class VCE2EOptimizerPanelTest(unittest.TestCase):
                                          certificate["fmax_eV_A"] <= config().fmax)
                         self.assertEqual(certificate["stress_pass"],
                                          certificate["stress_residual_max_eV_A3"] <= config().stress_tol)
+
+    def test_observer_records_gaussian_biased_vc_call(self):
+        observer_config = replace(config(), rotation_hvp=100)
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "ase"
+            run_arm(self.atoms(), self.calculator, observer_config,
+                method="ase", seed=7, steps=1, request_cap=240,
+                search_seconds=60, output_dir=out,
+                case_name="Cu4-EMT-observer-test")
+            search_result = json.loads((out / "search-result.json").read_text())
+            adapter_calls = search_result["adapter_calls"]
+            self.assertTrue(any(call["source"] == "vc_reference"
+                                for call in adapter_calls),
+                f"no biased VC call: {[(call['source'], call['status']) for call in adapter_calls]}")
+            self.assertTrue(any(
+                event.get("biased_quench_requests", 0) > 0
+                for record in search_result["result"]["records"]
+                if isinstance(record, dict)
+                for event in record.get("climb", ())))
+            for call in adapter_calls:
+                assert_first_passage_record(self, call)
 
     def test_global_cap_is_reported_as_censor_with_paid_cost(self):
         with tempfile.TemporaryDirectory() as tmp:

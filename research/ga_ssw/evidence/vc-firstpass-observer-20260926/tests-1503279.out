@@ -1,0 +1,49 @@
+.......F                                                                 [100%]
+=================================== FAILURES ===================================
+_ VCE2EOptimizerPanelTest.test_three_methods_preserve_context_ledger_cost_and_record_backed_fresh _
+
+self = <test_vc_e2e_optimizer_panel.VCE2EOptimizerPanelTest testMethod=test_three_methods_preserve_context_ledger_cost_and_record_backed_fresh>
+
+    def test_three_methods_preserve_context_ledger_cost_and_record_backed_fresh(self):
+        methods = ("safe_total", "ase", "scipy")
+        original_vc = vc_reference.safe_lbfgs
+        original_cell = cell_relax.safe_lbfgs
+        with tempfile.TemporaryDirectory() as tmp:
+            for method in methods:
+                out = Path(tmp) / method
+                result = run_arm(self.atoms(), self.calculator, config(),
+                    method=method, seed=7, steps=1, request_cap=240,
+                    search_seconds=60, output_dir=out,
+                    case_name="Cu4-EMT-test")
+                self.assertIs(vc_reference.safe_lbfgs, original_vc)
+                self.assertIs(cell_relax.safe_lbfgs, original_cell)
+                self.assertLessEqual(result["search_requests"], 240)
+                with (out / "search-ledger.jsonl").open() as stream:
+                    ledger = [json.loads(line) for line in stream if line.strip()]
+                starts = [row for row in ledger if row["event"] == "attempt_started"]
+                completions = [row for row in ledger if row["event"] in
+                               ("attempt_completed", "attempt_error", "budget_censor")]
+                self.assertEqual(len(starts), len(completions))
+                self.assertEqual(sum(row.get("charged", False) for row in completions),
+                                 result["search_requests"])
+                search_result = json.loads((out / "search-result.json").read_text())
+                self.assertTrue(any(row.get("index") == 0 for row in
+                                    search_result["result"]["records"]),
+                    "full-path smoke must enter outer attempt 0; initial-only failure is insufficient")
+                if method != "safe_total":
+                    adapter_calls = search_result["adapter_calls"]
+>                   self.assertTrue(any(call["source"] == "vc_reference"
+                                        for call in adapter_calls),
+                        "the full-path check must include a Gaussian-biased VC relaxation")
+E                   AssertionError: False is not true : the full-path check must include a Gaussian-biased VC relaxation
+
+tests/research/test_vc_e2e_optimizer_panel.py:59: AssertionError
+=============================== warnings summary ===============================
+tests/research/test_vc_e2e_optimizer_panel.py::VCE2EOptimizerPanelTest::test_three_methods_preserve_context_ledger_cost_and_record_backed_fresh
+  /home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/torch/cuda/__init__.py:63: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/research/test_vc_e2e_optimizer_panel.py::VCE2EOptimizerPanelTest::test_three_methods_preserve_context_ledger_cost_and_record_backed_fresh
+1 failed, 7 passed, 1 warning in 5.85s

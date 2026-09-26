@@ -1,0 +1,51 @@
+.......F                                                                 [100%]
+=================================== FAILURES ===================================
+_ VCE2EOptimizerPanelTest.test_three_methods_preserve_context_ledger_cost_and_record_backed_fresh _
+
+self = <test_vc_e2e_optimizer_panel.VCE2EOptimizerPanelTest testMethod=test_three_methods_preserve_context_ledger_cost_and_record_backed_fresh>
+
+    def test_three_methods_preserve_context_ledger_cost_and_record_backed_fresh(self):
+        methods = ("safe_total", "ase", "scipy")
+        original_vc = vc_reference.safe_lbfgs
+        original_cell = cell_relax.safe_lbfgs
+        with tempfile.TemporaryDirectory() as tmp:
+            for method in methods:
+                out = Path(tmp) / method
+                result = run_arm(self.atoms(), self.calculator, config(),
+                    method=method, seed=7, steps=1, request_cap=240,
+                    search_seconds=60, output_dir=out,
+                    case_name="Cu4-EMT-test")
+                self.assertIs(vc_reference.safe_lbfgs, original_vc)
+                self.assertIs(cell_relax.safe_lbfgs, original_cell)
+                self.assertLessEqual(result["search_requests"], 240)
+                with (out / "search-ledger.jsonl").open() as stream:
+                    ledger = [json.loads(line) for line in stream if line.strip()]
+                starts = [row for row in ledger if row["event"] == "attempt_started"]
+                completions = [row for row in ledger if row["event"] in
+                               ("attempt_completed", "attempt_error", "budget_censor")]
+                self.assertEqual(len(starts), len(completions))
+                self.assertEqual(sum(row.get("charged", False) for row in completions),
+                                 result["search_requests"])
+                search_result = json.loads((out / "search-result.json").read_text())
+                self.assertTrue(any(row.get("index") == 0 for row in
+                                    search_result["result"]["records"]),
+                    "full-path smoke must enter outer attempt 0; initial-only failure is insufficient")
+                if method != "safe_total":
+                    adapter_calls = search_result["adapter_calls"]
+>                   self.assertTrue(any(call["source"] == "vc_reference"
+                                        for call in adapter_calls),
+                        f"{method} must include a Gaussian-biased VC relaxation; "
+                        f"calls={[(call['source'], call['status']) for call in adapter_calls]}, "
+                        f"outer={search_result['result']['records']}")
+E                   AssertionError: False is not true : ase must include a Gaussian-biased VC relaxation; calls=[('cell_relax', 'converged')], outer=[{'stage': 'initial', 'status': 'converged', 'certificate': {'fmax': 4.185077632469027e-14, 'stress_max': 0.00015591642966175117, 'certified': True}, 'objective': -0.02814529871052507, 'requests': 5}, {'index': 0, 'status': 'rotation_failed', 'accepted': False, 'climb': [{'index': 0, 'status': 'rotation_failed', 'rotation_requests': 10, 'height_requests': 0, 'biased_quench_requests': 0, 'true_check_requests': 0, 'residual': 1.6702527124094095, 'requests': 10}], 'landing': None, 'certificate': None, 'chart_reference': {'numbers': [29, 29, 29, 29], 'positions': [[-2.99209587826758e-17, -2.557537994178527e-16, -4.578193953824821e-16], [-1.5385002729462868e-15, 1.7948017026769973, 1.7948017026769976], [1.7948017026769976, -4.6554612574189775e-17, 1.7948017026769978], [1.7948017026769982, 1.794801702676997, -2.319822672950294e-16]], 'cell': [[3.5896034053539934, -9.100497827192851e-17, -1.21091333167489e-16], [-9.100497827192853e-17, 3.5896034053539934, 1.570901747173539e-16], [-1.21091333167489e-16, 1.570901747173539e-16, 3.589603405353994]], 'pbc': [True, True, True]}, 'last_work': {'numbers': [29, 29, 29, 29], 'positions': [[-2.99209587826758e-17, -2.557537994178527e-16, -4.578193953824821e-16], [-1.5385002729462868e-15, 1.7948017026769973, 1.7948017026769976], [1.7948017026769976, -4.6554612574189775e-17, 1.7948017026769978], [1.7948017026769982, 1.794801702676997, -2.319822672950294e-16]], 'cell': [[3.5896034053539934, -9.100497827192851e-17, -1.21091333167489e-16], [-9.100497827192853e-17, 3.5896034053539934, 1.570901747173539e-16], [-1.21091333167489e-16, 1.570901747173539e-16, 3.589603405353994]], 'pbc': [True, True, True]}, 'frozen_gaussians': [], 'frozen_softening': None, 'landing_optimizer': None, 'requests': 10}]
+
+tests/research/test_vc_e2e_optimizer_panel.py:59: AssertionError
+=============================== warnings summary ===============================
+tests/research/test_vc_e2e_optimizer_panel.py::VCE2EOptimizerPanelTest::test_three_methods_preserve_context_ledger_cost_and_record_backed_fresh
+  /home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/torch/cuda/__init__.py:63: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/research/test_vc_e2e_optimizer_panel.py::VCE2EOptimizerPanelTest::test_three_methods_preserve_context_ledger_cost_and_record_backed_fresh
+1 failed, 7 passed, 1 warning in 2.29s
