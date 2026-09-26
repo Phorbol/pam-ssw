@@ -1,0 +1,195 @@
+{
+  "status": "offline_existing_data_only",
+  "pes_evaluations": 0,
+  "question": "Do existing NativeLS toggles measurably concentrate the initial escape direction and produce more connected, force-qualified bond-graph changes per paid request?",
+  "definitions": {
+    "random anchor locality": "inverse participation ratio of per-atom squared initial_direction magnitudes; this is the sampled anchor before mode refinement",
+    "refined Gaussian-mode locality": "same metric on climb[i].direction, the solver-refined direction at each Gaussian stage",
+    "graph": "same-atom-order edge changes using archived C4H6 HC length+0.10 A cutoffs and C60 1.64 A cutoff; diagnostic proxy, not a minimum identity",
+    "request accounting": "initial plus all per-record E/F requests; LS preparation requests shown as a subset, not double-counted",
+    "qualification": "saved landing force <= 0.03 eV/A; no new freshness evaluations"
+  },
+  "source_hashes": {
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/ssw-seed61/result.json": "1b471f5d3320e8c97901075dfb5b03f535a43225f4dcd823bc9841dd3043c418",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/ssw-seed67/result.json": "e6d590dcd63d0370d2dd5a22941fb05b705b0906589760ebde3d55c61ec78e14",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/result.json": "f5081a6865d524820209ac3b084d1ab201779a6695752532a4311eab5433ddb1",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed67/result.json": "20e4c9ee8cc9e2633eae0616e44aa62510b5c5fc1470f6f38f655043dd5c99af",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/mh1-equal-budget-rotation-20260920/c60_17093-first-baseline/result.json": "b0e2418004fd4880e7237f5fe1835c668bd3e94659ebc67bea0a7bdfc24b8fb7",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/mh1-equal-budget-rotation-20260920/c60_17094-first-baseline/result.json": "78896702a6787b96e4dba8dd2fdf219e501a593314777637fbded80a0279d99f",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/mh1-native-ls-equal-budget-20260920/c60_17093-first-native_ls/result.json": "d78c0301b86185770b78c8eeeddddb041985e15422e166e7df472400b4149034",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/mh1-native-ls-equal-budget-20260920/c60_17094-first-native_ls/result.json": "544bbeae472a52dd14bb4eb42fedc5cdb4818741b81375a93b02a0d4300ccfbb"
+  },
+  "toggle_pairs": [
+    {
+      "environment": "c4h6_mh1_omol",
+      "seed": 61,
+      "off_arm": "ssw",
+      "on_arm": "native_ls",
+      "first_attempt_random_anchor_exactly_equal": true,
+      "first_attempt_random_anchor_effective_atoms_off": 3.5536861306368106,
+      "first_attempt_random_anchor_effective_atoms_on": 3.5536861306368106,
+      "first_attempt_refined_mode_exactly_equal": false,
+      "first_attempt_refined_mode_effective_atoms_off": 6.188779679072176,
+      "first_attempt_refined_mode_effective_atoms_on": 6.160921918850757,
+      "full_run_all_connected_qualified_graph_changes_off": 39,
+      "full_run_all_connected_qualified_graph_changes_on": 73,
+      "full_run_accepted_connected_qualified_graph_change_off": 1,
+      "full_run_accepted_connected_qualified_graph_change_on": 8,
+      "full_run_search_requests_off": 263213,
+      "full_run_search_requests_on": 260522,
+      "full_run_preparation_requests_on": 6766,
+      "full_run_preparation_fraction_on": 0.025970935276099522
+    },
+    {
+      "environment": "c4h6_mh1_omol",
+      "seed": 67,
+      "off_arm": "ssw",
+      "on_arm": "native_ls",
+      "first_attempt_random_anchor_exactly_equal": true,
+      "first_attempt_random_anchor_effective_atoms_off": 4.770815466117604,
+      "first_attempt_random_anchor_effective_atoms_on": 4.770815466117604,
+      "first_attempt_refined_mode_exactly_equal": false,
+      "first_attempt_refined_mode_effective_atoms_off": 6.233232316376189,
+      "first_attempt_refined_mode_effective_atoms_on": 6.262546022338291,
+      "full_run_all_connected_qualified_graph_changes_off": 50,
+      "full_run_all_connected_qualified_graph_changes_on": 85,
+      "full_run_accepted_connected_qualified_graph_change_off": 0,
+      "full_run_accepted_connected_qualified_graph_change_on": 7,
+      "full_run_search_requests_off": 258156,
+      "full_run_search_requests_on": 259049,
+      "full_run_preparation_requests_on": 6737,
+      "full_run_preparation_fraction_on": 0.026006662832128286
+    },
+    {
+      "environment": "c60_mh1_omol",
+      "seed": 17093,
+      "off_arm": "baseline",
+      "on_arm": "native_ls",
+      "first_attempt_random_anchor_exactly_equal": true,
+      "first_attempt_random_anchor_effective_atoms_off": 39.040944533261374,
+      "first_attempt_random_anchor_effective_atoms_on": 39.040944533261374,
+      "first_attempt_refined_mode_exactly_equal": false,
+      "first_attempt_refined_mode_effective_atoms_off": 20.254260937987542,
+      "first_attempt_refined_mode_effective_atoms_on": 25.45934557820705,
+      "full_run_all_connected_qualified_graph_changes_off": 11,
+      "full_run_all_connected_qualified_graph_changes_on": 10,
+      "full_run_accepted_connected_qualified_graph_change_off": 8,
+      "full_run_accepted_connected_qualified_graph_change_on": 8,
+      "full_run_search_requests_off": 12000,
+      "full_run_search_requests_on": 12000,
+      "full_run_preparation_requests_on": 197,
+      "full_run_preparation_fraction_on": 0.016416666666666666
+    },
+    {
+      "environment": "c60_mh1_omol",
+      "seed": 17094,
+      "off_arm": "baseline",
+      "on_arm": "native_ls",
+      "first_attempt_random_anchor_exactly_equal": true,
+      "first_attempt_random_anchor_effective_atoms_off": 36.65444286154178,
+      "first_attempt_random_anchor_effective_atoms_on": 36.65444286154178,
+      "first_attempt_refined_mode_exactly_equal": false,
+      "first_attempt_refined_mode_effective_atoms_off": 31.63438609796136,
+      "first_attempt_refined_mode_effective_atoms_on": 21.301777169248748,
+      "full_run_all_connected_qualified_graph_changes_off": 11,
+      "full_run_all_connected_qualified_graph_changes_on": 9,
+      "full_run_accepted_connected_qualified_graph_change_off": 7,
+      "full_run_accepted_connected_qualified_graph_change_on": 6,
+      "full_run_search_requests_off": 12000,
+      "full_run_search_requests_on": 12000,
+      "full_run_preparation_requests_on": 154,
+      "full_run_preparation_fraction_on": 0.012833333333333334
+    }
+  ],
+  "limits": [
+    "C4H6 and C60 use same MH-1/omol head but different size and physical objective; interpret paired seed arms only within each system.",
+    "Only the first attempt starts from an identical saved geometry across each method toggle. Later same-index events are not paired states after trajectories diverge.",
+    "Per-pair LS force/Hessian contributions are not saved. Direction locality and graph changes cannot establish that LS altered local stiffness as the cause.",
+    "TiO2/OMAT and AlOH have no matching LS-off trajectory in this evidence set; they are not added as pseudo-controls.",
+    "Connected graph change is a proxy. It is not a stable-minimum, phase, reaction-path, or chemical-accuracy certificate."
+  ],
+  "arm_summaries": [
+    {
+      "environment": "c4h6_mh1_omol",
+      "arm": "native_ls",
+      "seed_count": 2,
+      "record_count": 800,
+      "random_anchor_effective_atom_count_median": 4.716258199887319,
+      "random_anchor_effective_atom_count_range": [
+        2.2251492830973225,
+        7.444832299118553
+      ],
+      "refined_mode_effective_atom_count_median": 5.2361419835964025,
+      "refined_mode_effective_atom_count_range": [
+        1.2928095483043731,
+        9.062429848360885
+      ],
+      "total_search_requests": 519571,
+      "ls_preparation_requests": 13503,
+      "connected_qualified_graph_change_events": 158,
+      "accepted_connected_qualified_graph_change_events": 15
+    },
+    {
+      "environment": "c4h6_mh1_omol",
+      "arm": "ssw",
+      "seed_count": 2,
+      "record_count": 800,
+      "random_anchor_effective_atom_count_median": 4.670845163479838,
+      "random_anchor_effective_atom_count_range": [
+        2.0024686705054613,
+        7.444832299118553
+      ],
+      "refined_mode_effective_atom_count_median": 5.107990539836813,
+      "refined_mode_effective_atom_count_range": [
+        1.349985221445472,
+        9.424114166859951
+      ],
+      "total_search_requests": 521369,
+      "ls_preparation_requests": 0,
+      "connected_qualified_graph_change_events": 89,
+      "accepted_connected_qualified_graph_change_events": 1
+    },
+    {
+      "environment": "c60_mh1_omol",
+      "arm": "baseline",
+      "seed_count": 2,
+      "record_count": 24,
+      "random_anchor_effective_atom_count_median": 36.506640493427696,
+      "random_anchor_effective_atom_count_range": [
+        30.576304999749713,
+        43.56654776890892
+      ],
+      "refined_mode_effective_atom_count_median": 28.488989266342198,
+      "refined_mode_effective_atom_count_range": [
+        14.053977430814072,
+        41.97066677495136
+      ],
+      "total_search_requests": 24000,
+      "ls_preparation_requests": 0,
+      "connected_qualified_graph_change_events": 22,
+      "accepted_connected_qualified_graph_change_events": 15
+    },
+    {
+      "environment": "c60_mh1_omol",
+      "arm": "native_ls",
+      "seed_count": 2,
+      "record_count": 22,
+      "random_anchor_effective_atom_count_median": 36.35250805524751,
+      "random_anchor_effective_atom_count_range": [
+        30.576304999749713,
+        43.56654776890892
+      ],
+      "refined_mode_effective_atom_count_median": 28.28486487674153,
+      "refined_mode_effective_atom_count_range": [
+        8.749045947871913,
+        39.20900857372913
+      ],
+      "total_search_requests": 24000,
+      "ls_preparation_requests": 351,
+      "connected_qualified_graph_change_events": 19,
+      "accepted_connected_qualified_graph_change_events": 14
+    }
+  ],
+  "detailed_readout_local_path": "/home/gengjianrui/bin/pam-ssw-worktrees/ls-mechanism-panel-20260926/research/ga_ssw/evidence/ls-climb-depth-panel-20260926/audit.json",
+  "reproduce": "python research/ga_ssw/evidence/ls-climb-depth-panel-20260926/audit_existing.py --output NEW_OUTPUT.json"
+}

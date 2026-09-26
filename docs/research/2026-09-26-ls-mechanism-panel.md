@@ -2,7 +2,7 @@
 
 **Current outcome.** Existing toggle runs allow a zero-PES check of refined direction support and accepted/rejected graph-changing landings. Refined Gaussian directions differ under LS, but their effective atom support shifts inconsistently by seed and is nearly unchanged in each whole-panel median. Connected, force-qualified graph-change events rise in the C4H6 panel and remain neutral/mixed for C60. The evidence is system-dependent and does not support a universal advantage. The LS-specific force contribution needed to explain *why* is absent from saved records. No new PES experiment is justified by this audit.
 
-The offline reader is [audit_existing.py](../../research/ga_ssw/evidence/ls-climb-depth-panel-20260926/audit_existing.py), and its machine-readable readout is [audit.json](../../research/ga_ssw/evidence/ls-climb-depth-panel-20260926/audit.json). It used only archived JSON, made zero calculator/PES calls, and verified `initial + records == result.evaluation_requests` for each of eight arms.
+The offline reader is [audit_existing.py](../../research/ga_ssw/evidence/ls-climb-depth-panel-20260926/audit_existing.py), and its machine-readable readout is [audit-summary.json](../../research/ga_ssw/evidence/ls-climb-depth-panel-20260926/audit-summary.json). The per-attempt readout stays at the local path recorded in the summary; Git retains the compact readout and its reproduction script. It used only archived JSON, made zero calculator/PES calls, and verified `initial + records == result.evaluation_requests` for each of eight arms.
 
 ## Evidence
 
