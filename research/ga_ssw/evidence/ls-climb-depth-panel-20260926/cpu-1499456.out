@@ -1,0 +1,9 @@
+wrote research/ga_ssw/evidence/ls-climb-depth-panel-20260926/audit-root-check.json; PES evaluations=0; arms=8
+c4h6_mh1_omol ssw 61 records 400 search_EF 263213 prep_EF 0 qual_graph_changes 39 first_anchor_neff 3.5536861306368106 first_refined_mode_neff 6.188779679072176
+c4h6_mh1_omol ssw 67 records 400 search_EF 258156 prep_EF 0 qual_graph_changes 50 first_anchor_neff 4.770815466117604 first_refined_mode_neff 6.233232316376189
+c4h6_mh1_omol native_ls 61 records 400 search_EF 260522 prep_EF 6766 qual_graph_changes 73 first_anchor_neff 3.5536861306368106 first_refined_mode_neff 6.160921918850757
+c4h6_mh1_omol native_ls 67 records 400 search_EF 259049 prep_EF 6737 qual_graph_changes 85 first_anchor_neff 4.770815466117604 first_refined_mode_neff 6.262546022338291
+c60_mh1_omol baseline 17093 records 12 search_EF 12000 prep_EF 0 qual_graph_changes 11 first_anchor_neff 39.040944533261374 first_refined_mode_neff 20.254260937987542
+c60_mh1_omol baseline 17094 records 12 search_EF 12000 prep_EF 0 qual_graph_changes 11 first_anchor_neff 36.65444286154178 first_refined_mode_neff 31.63438609796136
+c60_mh1_omol native_ls 17093 records 12 search_EF 12000 prep_EF 197 qual_graph_changes 10 first_anchor_neff 39.040944533261374 first_refined_mode_neff 25.45934557820705
+c60_mh1_omol native_ls 17094 records 10 search_EF 12000 prep_EF 154 qual_graph_changes 9 first_anchor_neff 36.65444286154178 first_refined_mode_neff 21.301777169248748
