@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Numerically qualify one Ag30Au30 source geometry and one native exchange."""
+"""Numerically qualify one Ag30Au30 or Cu30Au30 source geometry and one native exchange."""
 
 from __future__ import annotations
 
@@ -40,6 +40,7 @@ def parse_args():
                         help="read-only Ag30Au30 source extxyz")
     parser.add_argument("--out", required=True, type=Path,
                         help="new, exclusive output directory")
+    parser.add_argument("--system", choices=("Ag30Au30", "Cu30Au30"), default="Ag30Au30")
     return parser.parse_args()
 
 
@@ -148,6 +149,7 @@ def main():
         "purpose": "numerical and geometric qualification on MACE-OMAT-0-small; not a Gupta-GM reproduction",
         "started_unix": time.time(),
         "source_path": str(args.initial.resolve()),
+        "system": args.system,
         "output_path": str(out),
         "model": MODEL,
         "head": HEAD,
@@ -202,8 +204,9 @@ def main():
             raise ValueError(f"expected 60 atoms, got {len(source)}")
         source_counts = {symbol: source.get_chemical_symbols().count(symbol)
                          for symbol in sorted(set(source.get_chemical_symbols()))}
-        if source_counts != {"Ag": 30, "Au": 30}:
-            raise ValueError(f"expected Ag30Au30, got {source_counts}")
+        expected_counts = {"Au": 30, "Ag" if args.system == "Ag30Au30" else "Cu": 30}
+        if source_counts != expected_counts:
+            raise ValueError(f"expected {args.system}, got {source_counts}")
         if not np.isfinite(source.positions).all():
             raise ValueError("source coordinates contain non-finite values")
         if source.constraints or np.any(source.pbc):

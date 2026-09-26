@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Extract the Ag30Au30, 60-atom block from the archived CC-BY SI.
+"""Extract a composition-selected 60-atom block from the archived CC-BY SI.
 
 This is input preparation only.  The source energy is a Gupta-potential label
 from the paper and must not be interpreted as an OMAT energy or target.
@@ -33,8 +33,17 @@ DATASET_URL = (
 LICENSE = "CC BY 4.0"
 
 
-def read_target_block(lines: list[str]):
-    """Return the unique N=60, Ag30Au30 data block and its 1-based source lines."""
+def read_target_block(lines: list[str], target_composition: dict[str, int] | None = None):
+    """Return a unique exact-composition block and its 1-based source lines.
+
+    The no-argument behavior intentionally remains the original Ag30Au30 block.
+    """
+    target_composition = target_composition or {"Ag": 30, "Au": 30}
+    target_composition = {str(k): int(v) for k, v in target_composition.items()}
+    if (not target_composition or any(v <= 0 for v in target_composition.values())
+            or set(target_composition) - {"Ag", "Au", "Cu"}):
+        raise ValueError("target_composition must contain positive Ag/Au/Cu counts")
+    target_size = sum(target_composition.values())
     matches = []
     i = 0
     while i < len(lines) - 1:
@@ -72,7 +81,7 @@ def read_target_block(lines: list[str]):
             )
 
         composition = Counter(symbol for symbol, _, _ in atoms_rows)
-        if n_atoms == 60 and composition == Counter({"Ag": 30, "Au": 30}):
+        if n_atoms == target_size and composition == Counter(target_composition):
             matches.append(
                 {
                     "header_line": i + 1,
@@ -94,19 +103,30 @@ def read_target_block(lines: list[str]):
         i = j
 
     if len(matches) != 1:
-        raise ValueError(f"expected exactly one Ag30Au30, N=60 block; found {len(matches)}")
+        raise ValueError(
+            f"expected exactly one N={target_size} block with composition "
+            f"{dict(sorted(target_composition.items()))}; found {len(matches)}"
+        )
     return matches[0]
 
 
-def main() -> None:
+def prepare_target(
+    target_composition: dict[str, int] | None = None,
+    formula: str = "Ag30Au30",
+    output: Path = OUTPUT,
+    metadata_path: Path = METADATA,
+) -> dict:
     if not SOURCE.is_file() or not FIGSHARE_METADATA.is_file():
         raise FileNotFoundError("expected archived SI and Figshare metadata beside script")
-    if OUTPUT.exists() or METADATA.exists():
+    output = Path(output)
+    metadata_path = Path(metadata_path)
+    if output.exists() or metadata_path.exists():
         raise FileExistsError("refusing to overwrite existing prepared input or metadata")
 
     source_bytes = SOURCE.read_bytes()
     lines = source_bytes.decode("utf-8").splitlines()
-    block = read_target_block(lines)
+    target_composition = target_composition or {"Ag": 30, "Au": 30}
+    block = read_target_block(lines, target_composition)
     positions = np.asarray(block["positions_A"], dtype=float)
     atoms = Atoms(
         symbols=block["symbols"],
@@ -125,7 +145,7 @@ def main() -> None:
         source_energy_eV_gupta=block["source_energy_eV"],
         source_license=LICENSE,
     )
-    write(OUTPUT, atoms, format="extxyz")
+    write(output, atoms, format="extxyz")
 
     figshare = json.loads(FIGSHARE_METADATA.read_text(encoding="utf-8"))
     metadata = {
@@ -158,7 +178,7 @@ def main() -> None:
             "source_Rsuc_over_100_runs": block["rsuc"],
         },
         "structure": {
-            "formula": "Ag30Au30",
+            "formula": formula,
             "n_atoms": len(atoms),
             "element_counts": dict(sorted(Counter(atoms.get_chemical_symbols()).items())),
             "pbc": [False, False, False],
@@ -172,15 +192,27 @@ def main() -> None:
             "reported Gupta search. They are not an OMAT energy, OMAT minimum certificate, "
             "or target label for a changed-potential qualification."
         ),
-        "output_extxyz": OUTPUT.name,
+        "output_extxyz": output.name,
     }
-    METADATA.write_text(json.dumps(metadata, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print(json.dumps({"structure": OUTPUT.name, "metadata": METADATA.name,
-                      "n_atoms": len(atoms), "composition": metadata["structure"]["element_counts"],
-                      "source_lines": metadata["source"]["block_source_lines_1_based"],
-                      "source_energy_eV_gupta": block["source_energy_eV"],
-                      "minimum_pair_distance_A": metadata["structure"]["minimum_pair_distance_A"],
-                      "bounding_box_extent_A": bbox.tolist()}, ensure_ascii=False))
+    metadata_path.write_text(
+        json.dumps(metadata, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    result = {
+        "structure": output.name,
+        "metadata": metadata_path.name,
+        "n_atoms": len(atoms),
+        "composition": metadata["structure"]["element_counts"],
+        "source_lines": metadata["source"]["block_source_lines_1_based"],
+        "source_energy_eV_gupta": block["source_energy_eV"],
+        "minimum_pair_distance_A": metadata["structure"]["minimum_pair_distance_A"],
+        "bounding_box_extent_A": bbox.tolist(),
+    }
+    print(json.dumps(result, ensure_ascii=False))
+    return metadata
+
+
+def main() -> None:
+    prepare_target()
 
 
 if __name__ == "__main__":
