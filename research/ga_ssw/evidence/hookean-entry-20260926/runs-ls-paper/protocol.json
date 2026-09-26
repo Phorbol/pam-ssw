@@ -1,0 +1,60 @@
+{
+  "config": {
+    "width": 0.6,
+    "rotation_bias": 1.0,
+    "max_gaussians": 6,
+    "temperature_K": 300.0,
+    "fmax": 0.03,
+    "relax_steps": 1000,
+    "fd_step": 0.001,
+    "rotation_hvp": 39,
+    "rotation_tol": 0.02,
+    "forward_force": 0.1,
+    "direction_sampling": "global",
+    "rotation_solver": "broyden-euclidean",
+    "cluster_frame": "direction_only",
+    "quench_optimizer": "safe-lbfgs-total",
+    "lbfgs_memory": 500,
+    "bias_stage_steps": null,
+    "bias_fmax": 0.1,
+    "pre_rotation_hvp": null,
+    "rotation_exit_policy": "force_or_budget"
+  },
+  "direction": {
+    "ratio_local": 50,
+    "local_probability": 0.5,
+    "group_threshold": 0.5,
+    "pre_rotmax": 5,
+    "rotmax": 15,
+    "pre_ftol": 0.2,
+    "ftol": 0.02,
+    "metric": "euclidean",
+    "max_force_calls": 40,
+    "c1_radius_policy": "restricted",
+    "startup_order": "randomized"
+  },
+  "ls": {
+    "bond_energies": {
+      "(29, 29)": 1.0
+    },
+    "bond_lengths": {
+      "(29, 29)": 3.0
+    },
+    "target_per_atom": 0.001,
+    "initial_fraction": 0.03,
+    "xi": 0.2,
+    "learning_rate": 1.8,
+    "energy_filter": [],
+    "prequench": null
+  },
+  "ls_mode": "paper",
+  "specs": [
+    "{\"kwargs\":{\"a1\":0,\"a2\":1,\"k\":1.0,\"rt\":2.3440516125905306},\"name\":\"Hookean\"}"
+  ],
+  "seed": 25092531,
+  "selector_seed": 31,
+  "search_cap": 6000,
+  "fresh_cap": 4,
+  "wall_seconds": 270,
+  "source_head": "a108defa6404f82a355806f558e56e8afcb4e6c2"
+}

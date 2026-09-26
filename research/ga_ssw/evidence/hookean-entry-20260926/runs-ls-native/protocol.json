@@ -1,0 +1,70 @@
+{
+  "config": {
+    "width": 0.6,
+    "rotation_bias": 1.0,
+    "max_gaussians": 6,
+    "temperature_K": 300.0,
+    "fmax": 0.03,
+    "relax_steps": 1000,
+    "fd_step": 0.001,
+    "rotation_hvp": 39,
+    "rotation_tol": 0.02,
+    "forward_force": 0.1,
+    "direction_sampling": "global",
+    "rotation_solver": "broyden-euclidean",
+    "cluster_frame": "direction_only",
+    "quench_optimizer": "safe-lbfgs-total",
+    "lbfgs_memory": 500,
+    "bias_stage_steps": null,
+    "bias_fmax": 0.1,
+    "pre_rotation_hvp": null,
+    "rotation_exit_policy": "force_or_budget"
+  },
+  "direction": {
+    "ratio_local": 50,
+    "local_probability": 0.5,
+    "group_threshold": 0.5,
+    "pre_rotmax": 5,
+    "rotmax": 15,
+    "pre_ftol": 0.2,
+    "ftol": 0.02,
+    "metric": "euclidean",
+    "max_force_calls": 40,
+    "c1_radius_policy": "restricted",
+    "startup_order": "randomized"
+  },
+  "ls": {
+    "bond_energies": {
+      "(29, 29)": 3.0
+    },
+    "bond_lengths": {
+      "(29, 29)": 2.8
+    },
+    "scale": 0.1,
+    "energy_filter": null,
+    "length_filter": null,
+    "atom_filter": null,
+    "amp_c": 2.0,
+    "length_tolerance": 0.1,
+    "target_mev_per_atom": 20.0,
+    "eta": 0.005,
+    "max_change": 0.01,
+    "frequency": 10,
+    "presteps": 100,
+    "cycle": 100,
+    "ratio": 1.100000023841858,
+    "lselfadapt": true,
+    "bond_geometry": "native-mic",
+    "prequench": null
+  },
+  "ls_mode": "native",
+  "specs": [
+    "{\"kwargs\":{\"a1\":0,\"a2\":1,\"k\":1.0,\"rt\":2.3440516125905306},\"name\":\"Hookean\"}"
+  ],
+  "seed": 25092531,
+  "selector_seed": 31,
+  "search_cap": 5000,
+  "fresh_cap": 4,
+  "wall_seconds": 270,
+  "source_head": "a108defa6404f82a355806f558e56e8afcb4e6c2"
+}

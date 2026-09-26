@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/hookean-entry-20260926/qualify.py", line 127, in <module>
+    if __name__=='__main__': main()
+                             ^^^^^^
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/hookean-entry-20260926/qualify.py", line 85, in main
+    result=run_ssw(atoms,Counted(EMT()),steps=2-cp.next_index,config=cfg,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/paper_reference.py", line 705, in run_ssw
+    raise ValueError('checkpoint LS settings do not match requested settings')
+ValueError: checkpoint LS settings do not match requested settings

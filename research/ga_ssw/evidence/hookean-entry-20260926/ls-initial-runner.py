@@ -24,7 +24,7 @@ def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("output", nargs="?", default="runs")
-    parser.add_argument("--ls", choices=("none", "paper", "native", "native-default"), default="none")
+    parser.add_argument("--ls", choices=("none", "paper", "native"), default="none")
     args = parser.parse_args()
     from ase.calculators.emt import EMT
     from ase.constraints import Hookean
@@ -52,8 +52,8 @@ def main():
     # Existing interface-test settings, not fitted Cu search parameters.
     from pamssw.standalone.paper_reference import LSSettings
     from pamssw.standalone.ls_native_reference import NativeLSSettings
-    ls = (NativeLSSettings({(29, 29): 3.}, {(29, 29): 2.8}, scale=5. if args.ls == "native-default" else .1)
-          if args.ls in ("native", "native-default") else
+    ls = (NativeLSSettings({(29, 29): 3.}, {(29, 29): 2.8}, scale=.1)
+          if args.ls == 'native' else
           LSSettings({(29, 29): 1.}, {(29, 29): 3.}, target_per_atom=.001)
           if args.ls == 'paper' else None)
     started = time.monotonic()
@@ -105,7 +105,7 @@ def main():
                 if ls is not None:
                     assert all(r.ls_preparation is not None for r in result.records)
                     assert all(r.energy_response is not None for r in result.records)
-                    if args.ls in ("native", "native-default"):
+                    if args.ls == "native":
                         assert all(r.ls_update is not None for r in result.records)
                 fresh=constraints.attach(result.best)
                 fresh.calc=EMT()

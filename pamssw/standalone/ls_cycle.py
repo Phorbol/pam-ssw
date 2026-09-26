@@ -32,7 +32,9 @@ class PreparedLSStep:
     """Softened geometry and true-energy response, with no attached calculator.
 
     `energy_response` = (energy_after - energy_before)/N in eV/atom, evaluated
-    on the original ASESurface, not the energy of E+V_LS. `soft_quench.energy`
+    on the supplied base surface, not the energy including V_LS. A base
+    surface wrapping Hookean terms represents V+U, so those terms remain in
+    the response while transient LS/Gaussian terms do not. `soft_quench.energy`
     is instead on the modified surface. Keep `softening` frozen throughout
     the ensuing walk. `atoms` is an owned, mutable ASE geometry snapshot.
     """
@@ -69,8 +71,9 @@ def prepare_ls_step(atoms: Atoms, surface: ASESurface, *,
     an explicit iteration budget, which is not a bound on backend SCF work.
 
     This function accepts no Gaussian terms; any calculator attached to atoms
-    is ignored. The supplied `surface` must represent the physical objective.
-    All constraints are currently rejected by ASESurface. Small forces do not
+    is ignored. The supplied `surface` defines the base objective (V+U when Hookean
+    restraints are bound by the driver). Input atoms are constraint-free;
+    any supported restraints must already be represented by that surface. Small forces do not
     prove a positive Hessian, chemical stability or calculator applicability.
     """
     from pamssw.relax import _validate_lbfgs_memory

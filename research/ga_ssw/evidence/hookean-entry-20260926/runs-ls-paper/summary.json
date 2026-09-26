@@ -1,0 +1,15 @@
+{
+  "rows": [
+    {
+      "name": "poolFalse-pauseFalse",
+      "search": 434,
+      "fresh": 1,
+      "exact_state": true,
+      "restarted": false,
+      "energy": 9.363538338435264,
+      "fmax": 0.01771019394994255
+    }
+  ],
+  "search": 434,
+  "complete": false
+}
