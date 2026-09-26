@@ -1,0 +1,1537 @@
+{
+  "scope": "saved-trajectory coordinate comparison only; no PES or model calls",
+  "reference": {
+    "run": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-path-diagnostic-20260927/run-1504112",
+    "vector": "CI-NEB image 1 minus image 0, projected into the saved 174D internal basis",
+    "initial_position_max_abs_difference_A": 0.0,
+    "internal_norm_A": 0.4063203205224397
+  },
+  "cases": [
+    {
+      "arm": "ssw_without_ls-1101",
+      "outer_index": 0,
+      "current_matches_hessian_R0_in_same_atom_order": true,
+      "post_prequench_center_matches_R0_in_same_atom_order": true,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "same R0 and orientation/order",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.0028525285034603043,
+        "unsigned_cosine": 0.0028525285034603043,
+        "internal_vector_norm": 1.0
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.017344868657479254,
+        "unsigned_cosine": 0.017344868657479254,
+        "internal_vector_norm": 1.0
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.9737497437038275,
+        "signed_cosine": 0.012066915306381727,
+        "unsigned_cosine": 0.012066915306381727,
+        "internal_vector_norm": 0.9737449074617055
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 28.972676456221162,
+        "signed_cosine": -0.29635128258202775,
+        "unsigned_cosine": 0.29635128258202775,
+        "internal_vector_norm": 20.44986975169866
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1101",
+      "outer_index": 1,
+      "current_matches_hessian_R0_in_same_atom_order": true,
+      "post_prequench_center_matches_R0_in_same_atom_order": true,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "same R0 and orientation/order",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.3684892808433579,
+        "unsigned_cosine": 0.3684892808433579,
+        "internal_vector_norm": 1.0
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.5734321059003543,
+        "unsigned_cosine": 0.5734321059003543,
+        "internal_vector_norm": 1.0
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.8285630587141927,
+        "signed_cosine": -0.6172649643229398,
+        "unsigned_cosine": 0.6172649643229398,
+        "internal_vector_norm": 0.8285624651561755
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 8.057055903298023,
+        "signed_cosine": 0.1002159082767186,
+        "unsigned_cosine": 0.1002159082767186,
+        "internal_vector_norm": 3.4438254344318953
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1101",
+      "outer_index": 2,
+      "current_matches_hessian_R0_in_same_atom_order": true,
+      "post_prequench_center_matches_R0_in_same_atom_order": true,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": true,
+      "ih_graph_match": false,
+      "comparison_note": "same R0 and orientation/order",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.26315366481089897,
+        "unsigned_cosine": 0.26315366481089897,
+        "internal_vector_norm": 1.0
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.3226024526320656,
+        "unsigned_cosine": 0.3226024526320656,
+        "internal_vector_norm": 1.0
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.9581899663656734,
+        "signed_cosine": -0.37138739121806047,
+        "unsigned_cosine": 0.37138739121806047,
+        "internal_vector_norm": 0.9581894595824412
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 24.797134699411043,
+        "signed_cosine": -0.041220241837278036,
+        "unsigned_cosine": 0.041220241837278036,
+        "internal_vector_norm": 13.85848762683485
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1101",
+      "outer_index": 3,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.04335372031074386,
+        "unsigned_cosine": 0.04335372031074386,
+        "internal_vector_norm": 0.9976366507863004
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.10360101402837728,
+        "unsigned_cosine": 0.10360101402837728,
+        "internal_vector_norm": 0.9888268228744748
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.8479805900107656,
+        "signed_cosine": -0.12449744168351219,
+        "unsigned_cosine": 0.12449744168351219,
+        "internal_vector_norm": 0.8019793738816577
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 7.688633811134827,
+        "signed_cosine": -0.0063083655030910625,
+        "unsigned_cosine": 0.0063083655030910625,
+        "internal_vector_norm": 5.002223910676755
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1101",
+      "outer_index": 4,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.13276044284563845,
+        "unsigned_cosine": 0.13276044284563845,
+        "internal_vector_norm": 0.9654485216412625
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.10440285571176534,
+        "unsigned_cosine": 0.10440285571176534,
+        "internal_vector_norm": 0.9474962554769366
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.8695860774788992,
+        "signed_cosine": -0.08044354866845466,
+        "unsigned_cosine": 0.08044354866845466,
+        "internal_vector_norm": 0.8229670751212381
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 27.587620491943888,
+        "signed_cosine": -0.25385682719732516,
+        "unsigned_cosine": 0.25385682719732516,
+        "internal_vector_norm": 13.560895546233578
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1101",
+      "outer_index": 5,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.08571473615237907,
+        "unsigned_cosine": 0.08571473615237907,
+        "internal_vector_norm": 0.9805990026303968
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.16467446761603524,
+        "unsigned_cosine": 0.16467446761603524,
+        "internal_vector_norm": 0.9471710719240678
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.851876519101659,
+        "signed_cosine": 0.20755095745915153,
+        "unsigned_cosine": 0.20755095745915153,
+        "internal_vector_norm": 0.7910514402675665
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 25.335248751122343,
+        "signed_cosine": -0.011689650792751917,
+        "unsigned_cosine": 0.011689650792751917,
+        "internal_vector_norm": 24.61687358926389
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1101",
+      "outer_index": 6,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.15083668649673265,
+        "unsigned_cosine": 0.15083668649673265,
+        "internal_vector_norm": 0.98140740313501
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.26028722884310085,
+        "unsigned_cosine": 0.26028722884310085,
+        "internal_vector_norm": 0.9389164587901305
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.9052843196553167,
+        "signed_cosine": 0.32550282311907935,
+        "unsigned_cosine": 0.32550282311907935,
+        "internal_vector_norm": 0.8034818548041198
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 33.99704507306821,
+        "signed_cosine": 0.2719806072300135,
+        "unsigned_cosine": 0.2719806072300135,
+        "internal_vector_norm": 28.877277070783972
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1101",
+      "outer_index": 7,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.09967450336581718,
+        "unsigned_cosine": 0.09967450336581718,
+        "internal_vector_norm": 0.9485743257719887
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.056865402559757444,
+        "unsigned_cosine": 0.056865402559757444,
+        "internal_vector_norm": 0.9406842064613575
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.8685462243055413,
+        "signed_cosine": -0.02731840574754787,
+        "unsigned_cosine": 0.02731840574754787,
+        "internal_vector_norm": 0.812606525363871
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 6.887851411409469,
+        "signed_cosine": -0.05660713634399627,
+        "unsigned_cosine": 0.05660713634399627,
+        "internal_vector_norm": 6.30184127704284
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1101",
+      "outer_index": 8,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": true,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.1996516475710799,
+        "unsigned_cosine": 0.1996516475710799,
+        "internal_vector_norm": 0.9730088141758937
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.2433195985886451,
+        "unsigned_cosine": 0.2433195985886451,
+        "internal_vector_norm": 0.9399826238157449
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.9263900013609019,
+        "signed_cosine": 0.25021688942274967,
+        "unsigned_cosine": 0.25021688942274967,
+        "internal_vector_norm": 0.8673906524412662
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 31.937226940708705,
+        "signed_cosine": -0.23002393025697884,
+        "unsigned_cosine": 0.23002393025697884,
+        "internal_vector_norm": 29.69928340068952
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1101",
+      "outer_index": 9,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.12202618303763199,
+        "unsigned_cosine": 0.12202618303763199,
+        "internal_vector_norm": 0.9842881902163894
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.17127453437563261,
+        "unsigned_cosine": 0.17127453437563261,
+        "internal_vector_norm": 0.9527369807820598
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.9364129193431557,
+        "signed_cosine": 0.13950096351478564,
+        "unsigned_cosine": 0.13950096351478564,
+        "internal_vector_norm": 0.8600578218847122
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 17.21484754413426,
+        "signed_cosine": 0.3564079717832592,
+        "unsigned_cosine": 0.3564079717832592,
+        "internal_vector_norm": 15.869036951529683
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1102",
+      "outer_index": 0,
+      "current_matches_hessian_R0_in_same_atom_order": true,
+      "post_prequench_center_matches_R0_in_same_atom_order": true,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "same R0 and orientation/order",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.15596079658707432,
+        "unsigned_cosine": 0.15596079658707432,
+        "internal_vector_norm": 1.0
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.23728935361463577,
+        "unsigned_cosine": 0.23728935361463577,
+        "internal_vector_norm": 1.0
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.902507298307848,
+        "signed_cosine": -0.3280232948582698,
+        "unsigned_cosine": 0.3280232948582698,
+        "internal_vector_norm": 0.9025038068453743
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 31.981117188623344,
+        "signed_cosine": 0.041329710515197605,
+        "unsigned_cosine": 0.041329710515197605,
+        "internal_vector_norm": 23.983760119107878
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1102",
+      "outer_index": 1,
+      "current_matches_hessian_R0_in_same_atom_order": true,
+      "post_prequench_center_matches_R0_in_same_atom_order": true,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "same R0 and orientation/order",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.07933436099251691,
+        "unsigned_cosine": 0.07933436099251691,
+        "internal_vector_norm": 0.9999999999999999
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.17017763491107257,
+        "unsigned_cosine": 0.17017763491107257,
+        "internal_vector_norm": 1.0
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.8711317609655153,
+        "signed_cosine": 0.31836905549414757,
+        "unsigned_cosine": 0.31836905549414757,
+        "internal_vector_norm": 0.8711303017114381
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 17.391150208145884,
+        "signed_cosine": 0.13113523029866944,
+        "unsigned_cosine": 0.13113523029866944,
+        "internal_vector_norm": 8.117561940827205
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1102",
+      "outer_index": 2,
+      "current_matches_hessian_R0_in_same_atom_order": true,
+      "post_prequench_center_matches_R0_in_same_atom_order": true,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "same R0 and orientation/order",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.09468400292681112,
+        "unsigned_cosine": 0.09468400292681112,
+        "internal_vector_norm": 0.9999999999999999
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.1390284058099606,
+        "unsigned_cosine": 0.1390284058099606,
+        "internal_vector_norm": 0.9999999999999999
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.9113122917164025,
+        "signed_cosine": 0.19753469877924032,
+        "unsigned_cosine": 0.19753469877924032,
+        "internal_vector_norm": 0.9113110504274742
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 21.702050137692037,
+        "signed_cosine": -0.1576089144732122,
+        "unsigned_cosine": 0.1576089144732122,
+        "internal_vector_norm": 11.827388276488117
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1102",
+      "outer_index": 3,
+      "current_matches_hessian_R0_in_same_atom_order": true,
+      "post_prequench_center_matches_R0_in_same_atom_order": true,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "lower_true_energy",
+      "accepted": true,
+      "ih_graph_match": true,
+      "comparison_note": "same R0 and orientation/order",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.2773512204012366,
+        "unsigned_cosine": 0.2773512204012366,
+        "internal_vector_norm": 0.9999999999999998
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.4192670255693404,
+        "unsigned_cosine": 0.4192670255693404,
+        "internal_vector_norm": 0.9999999999999999
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 1.0144055533534289,
+        "signed_cosine": 0.5555953802629482,
+        "unsigned_cosine": 0.5555953802629482,
+        "internal_vector_norm": 1.0143925361116424
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 23.29481060463405,
+        "signed_cosine": 0.21907813424934844,
+        "unsigned_cosine": 0.21907813424934844,
+        "internal_vector_norm": 12.484204935357255
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1102",
+      "outer_index": 4,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.10648718884970727,
+        "unsigned_cosine": 0.10648718884970727,
+        "internal_vector_norm": 0.9825618997103411
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.16632879381964302,
+        "unsigned_cosine": 0.16632879381964302,
+        "internal_vector_norm": 0.955077803416329
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.8976052055143542,
+        "signed_cosine": -0.18648622995879444,
+        "unsigned_cosine": 0.18648622995879444,
+        "internal_vector_norm": 0.8210685020647494
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 37.17835752328157,
+        "signed_cosine": -0.17439510746900752,
+        "unsigned_cosine": 0.17439510746900752,
+        "internal_vector_norm": 33.75039069722678
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1102",
+      "outer_index": 5,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.06253291298344234,
+        "unsigned_cosine": 0.06253291298344234,
+        "internal_vector_norm": 0.98812796766657
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.02809173959779061,
+        "unsigned_cosine": 0.02809173959779061,
+        "internal_vector_norm": 0.9661305256880796
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.9674831650355585,
+        "signed_cosine": -0.06854926502953837,
+        "unsigned_cosine": 0.06854926502953837,
+        "internal_vector_norm": 0.9132850284439193
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 13.792566960146306,
+        "signed_cosine": -0.15300212236458102,
+        "unsigned_cosine": 0.15300212236458102,
+        "internal_vector_norm": 9.766258497919198
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1102",
+      "outer_index": 6,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": true,
+      "ih_graph_match": true,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.08144429288881179,
+        "unsigned_cosine": 0.08144429288881179,
+        "internal_vector_norm": 0.970871614760932
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.1740637624295618,
+        "unsigned_cosine": 0.1740637624295618,
+        "internal_vector_norm": 0.9480417034361862
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.8885953906778251,
+        "signed_cosine": -0.2532176415382309,
+        "unsigned_cosine": 0.2532176415382309,
+        "internal_vector_norm": 0.8326605231957873
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 24.580671517195153,
+        "signed_cosine": -0.19193988506933088,
+        "unsigned_cosine": 0.19193988506933088,
+        "internal_vector_norm": 10.303924269967181
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1102",
+      "outer_index": 7,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": true,
+      "ih_graph_match": true,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.14263467183646425,
+        "unsigned_cosine": 0.14263467183646425,
+        "internal_vector_norm": 0.9863148089087933
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.23838376160837857,
+        "unsigned_cosine": 0.23838376160837857,
+        "internal_vector_norm": 0.9805420633858738
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.9017548072151598,
+        "signed_cosine": 0.42960821468069904,
+        "unsigned_cosine": 0.42960821468069904,
+        "internal_vector_norm": 0.8787276875539034
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 41.79606447526166,
+        "signed_cosine": -0.006449296291413148,
+        "unsigned_cosine": 0.006449296291413148,
+        "internal_vector_norm": 39.03437521565015
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1102",
+      "outer_index": 8,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.12143642529768697,
+        "unsigned_cosine": 0.12143642529768697,
+        "internal_vector_norm": 0.9902037789749415
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.11372306927345162,
+        "unsigned_cosine": 0.11372306927345162,
+        "internal_vector_norm": 0.9832915913592766
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.7719709318307284,
+        "signed_cosine": 0.12566145701143758,
+        "unsigned_cosine": 0.12566145701143758,
+        "internal_vector_norm": 0.7287480497720291
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 31.313952458518802,
+        "signed_cosine": 0.26475708654619856,
+        "unsigned_cosine": 0.26475708654619856,
+        "internal_vector_norm": 15.94257243617713
+      }
+    },
+    {
+      "arm": "ssw_without_ls-1102",
+      "outer_index": 9,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.0,
+      "prequench_shift_projection": {
+        "signed_cosine": null,
+        "unsigned_cosine": null,
+        "internal_vector_norm": 0.0
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.21475986041092174,
+        "unsigned_cosine": 0.21475986041092174,
+        "internal_vector_norm": 0.98818056650409
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.2873818512342096,
+        "unsigned_cosine": 0.2873818512342096,
+        "internal_vector_norm": 0.9841855061830702
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.805133719432596,
+        "signed_cosine": 0.36497291524215575,
+        "unsigned_cosine": 0.36497291524215575,
+        "internal_vector_norm": 0.7662650082913331
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 39.2993711883872,
+        "signed_cosine": 0.11422082746961303,
+        "unsigned_cosine": 0.11422082746961303,
+        "internal_vector_norm": 33.87601239271879
+      }
+    },
+    {
+      "arm": "native_ls-1101",
+      "outer_index": 0,
+      "current_matches_hessian_R0_in_same_atom_order": true,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.1937926728373831,
+      "prequench_shift_projection": {
+        "signed_cosine": 0.06374226549998666,
+        "unsigned_cosine": 0.06374226549998666,
+        "internal_vector_norm": 0.19379267283738313
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.0028342169537824823,
+        "unsigned_cosine": 0.0028342169537824823,
+        "internal_vector_norm": 0.9999999990806991
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.017211154261882244,
+        "unsigned_cosine": 0.017211154261882244,
+        "internal_vector_norm": 0.9999999995725248
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.9759291324939128,
+        "signed_cosine": 0.012161066702766342,
+        "unsigned_cosine": 0.012161066702766342,
+        "internal_vector_norm": 0.9759236820306028
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 34.660279676586455,
+        "signed_cosine": -0.30475990165709194,
+        "unsigned_cosine": 0.30475990165709194,
+        "internal_vector_norm": 28.341389893136448
+      }
+    },
+    {
+      "arm": "native_ls-1101",
+      "outer_index": 1,
+      "current_matches_hessian_R0_in_same_atom_order": true,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.20444325990795634,
+      "prequench_shift_projection": {
+        "signed_cosine": 0.06376798310342179,
+        "unsigned_cosine": 0.06376798310342179,
+        "internal_vector_norm": 0.20444325990795628
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.35824818659281377,
+        "unsigned_cosine": 0.35824818659281377,
+        "internal_vector_norm": 0.9999999998725743
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.527109154141957,
+        "unsigned_cosine": 0.527109154141957,
+        "internal_vector_norm": 0.9999999998251976
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.8591979257076255,
+        "signed_cosine": -0.5801878930663763,
+        "unsigned_cosine": 0.5801878930663763,
+        "internal_vector_norm": 0.8591972429163913
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 37.22295980107761,
+        "signed_cosine": -0.1266440207194004,
+        "unsigned_cosine": 0.1266440207194004,
+        "internal_vector_norm": 31.452092794779016
+      }
+    },
+    {
+      "arm": "native_ls-1101",
+      "outer_index": 2,
+      "current_matches_hessian_R0_in_same_atom_order": true,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.2154201050227649,
+      "prequench_shift_projection": {
+        "signed_cosine": 0.06379002830294438,
+        "unsigned_cosine": 0.06379002830294438,
+        "internal_vector_norm": 0.21542010502276493
+      },
+      "status": "gaussian_limit",
+      "accepted": true,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.26313655141700454,
+        "unsigned_cosine": 0.26313655141700454,
+        "internal_vector_norm": 0.9999999978585189
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.32191455119584617,
+        "unsigned_cosine": 0.32191455119584617,
+        "internal_vector_norm": 0.9999999973828584
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.9523208219229219,
+        "signed_cosine": -0.3717778293217864,
+        "unsigned_cosine": 0.3717778293217864,
+        "internal_vector_norm": 0.9523205675833503
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 24.542993001327446,
+        "signed_cosine": -0.08637194359040763,
+        "unsigned_cosine": 0.08637194359040763,
+        "internal_vector_norm": 13.659596235384086
+      }
+    },
+    {
+      "arm": "native_ls-1101",
+      "outer_index": 3,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.22765733020616946,
+      "prequench_shift_projection": {
+        "signed_cosine": 0.030046902556161145,
+        "unsigned_cosine": 0.030046902556161145,
+        "internal_vector_norm": 0.1534036511309329
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.0732188293640425,
+        "unsigned_cosine": 0.0732188293640425,
+        "internal_vector_norm": 0.9950731873396953
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.1410903077010271,
+        "unsigned_cosine": 0.1410903077010271,
+        "internal_vector_norm": 0.9908934311647871
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.8146149861096481,
+        "signed_cosine": 0.20657398871181148,
+        "unsigned_cosine": 0.20657398871181148,
+        "internal_vector_norm": 0.7996134037506935
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 14.163539862264493,
+        "signed_cosine": -0.09219045823260927,
+        "unsigned_cosine": 0.09219045823260927,
+        "internal_vector_norm": 8.894365742800469
+      }
+    },
+    {
+      "arm": "native_ls-1101",
+      "outer_index": 4,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.23917985620733434,
+      "prequench_shift_projection": {
+        "signed_cosine": 0.029912019410530385,
+        "unsigned_cosine": 0.029912019410530385,
+        "internal_vector_norm": 0.1610359758277908
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.11892195597234592,
+        "unsigned_cosine": 0.11892195597234592,
+        "internal_vector_norm": 0.9651295732365011
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.07963093403734958,
+        "unsigned_cosine": 0.07963093403734958,
+        "internal_vector_norm": 0.9498721196341
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.8718088486792706,
+        "signed_cosine": -0.052046826327531666,
+        "unsigned_cosine": 0.052046826327531666,
+        "internal_vector_norm": 0.8253286080960722
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 10.668774067944597,
+        "signed_cosine": -0.21236596416815226,
+        "unsigned_cosine": 0.21236596416815226,
+        "internal_vector_norm": 10.469004824773485
+      }
+    },
+    {
+      "arm": "native_ls-1101",
+      "outer_index": 5,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.25090129882864015,
+      "prequench_shift_projection": {
+        "signed_cosine": 0.029784623798536445,
+        "unsigned_cosine": 0.029784623798536445,
+        "internal_vector_norm": 0.16880016934460776
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.05666706184115139,
+        "unsigned_cosine": 0.05666706184115139,
+        "internal_vector_norm": 0.9921715912640526
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.11399539443190838,
+        "unsigned_cosine": 0.11399539443190838,
+        "internal_vector_norm": 0.9860656499135549
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.8087510822579035,
+        "signed_cosine": 0.26586098970843175,
+        "unsigned_cosine": 0.26586098970843175,
+        "internal_vector_norm": 0.7964246702668993
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 3.401792568447812,
+        "signed_cosine": 0.17189873019674007,
+        "unsigned_cosine": 0.17189873019674007,
+        "internal_vector_norm": 3.2646767719039533
+      }
+    },
+    {
+      "arm": "native_ls-1101",
+      "outer_index": 6,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.26276611343312684,
+      "prequench_shift_projection": {
+        "signed_cosine": 0.029664465333372646,
+        "unsigned_cosine": 0.029664465333372646,
+        "internal_vector_norm": 0.17665942205908763
+      },
+      "status": "lower_true_energy",
+      "accepted": true,
+      "ih_graph_match": true,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.2258979898777321,
+        "unsigned_cosine": 0.2258979898777321,
+        "internal_vector_norm": 0.9927018467822706
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.33719962831422,
+        "unsigned_cosine": 0.33719962831422,
+        "internal_vector_norm": 0.9942087203408884
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 1.0815264407931402,
+        "signed_cosine": 0.44103069840856535,
+        "unsigned_cosine": 0.44103069840856535,
+        "internal_vector_norm": 1.0649051044376219
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 19.50440125303129,
+        "signed_cosine": -0.005633525180557008,
+        "unsigned_cosine": 0.005633525180557008,
+        "internal_vector_norm": 10.423653113998803
+      }
+    },
+    {
+      "arm": "native_ls-1101",
+      "outer_index": 7,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.27148205193786856,
+      "prequench_shift_projection": {
+        "signed_cosine": 0.037575205153977574,
+        "unsigned_cosine": 0.037575205153977574,
+        "internal_vector_norm": 0.17986997732793208
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.014299964154802282,
+        "unsigned_cosine": 0.014299964154802282,
+        "internal_vector_norm": 0.9984125980082015
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.07412685243288651,
+        "unsigned_cosine": 0.07412685243288651,
+        "internal_vector_norm": 0.9929788455802233
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.9499984706333409,
+        "signed_cosine": 0.14917820173016147,
+        "unsigned_cosine": 0.14917820173016147,
+        "internal_vector_norm": 0.9318763888656637
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 2.9274036394840572,
+        "signed_cosine": -0.11089539791717565,
+        "unsigned_cosine": 0.11089539791717565,
+        "internal_vector_norm": 2.78900899448246
+      }
+    },
+    {
+      "arm": "native_ls-1101",
+      "outer_index": 8,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.28325489262921005,
+      "prequench_shift_projection": {
+        "signed_cosine": 0.03687159533469443,
+        "unsigned_cosine": 0.03687159533469443,
+        "internal_vector_norm": 0.18775457668414228
+      },
+      "status": "gaussian_limit",
+      "accepted": true,
+      "ih_graph_match": true,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.014911986697722687,
+        "unsigned_cosine": 0.014911986697722687,
+        "internal_vector_norm": 0.9962187284231474
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.014968749104444293,
+        "unsigned_cosine": 0.014968749104444293,
+        "internal_vector_norm": 0.963039436031298
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.9903894282022204,
+        "signed_cosine": -0.02236620477767426,
+        "unsigned_cosine": 0.02236620477767426,
+        "internal_vector_norm": 0.9240970687647372
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 26.94974875505276,
+        "signed_cosine": 0.21365214237328603,
+        "unsigned_cosine": 0.21365214237328603,
+        "internal_vector_norm": 11.620018401255717
+      }
+    },
+    {
+      "arm": "native_ls-1101",
+      "outer_index": 9,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.29890597364305294,
+      "prequench_shift_projection": {
+        "signed_cosine": 0.1276814952257425,
+        "unsigned_cosine": 0.1276814952257425,
+        "internal_vector_norm": 0.24654318992762736
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.02449698730375553,
+        "unsigned_cosine": 0.02449698730375553,
+        "internal_vector_norm": 0.9786561147959532
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.017195966131310286,
+        "unsigned_cosine": 0.017195966131310286,
+        "internal_vector_norm": 0.9673903638687997
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.8827523498865916,
+        "signed_cosine": 0.04396331969824291,
+        "unsigned_cosine": 0.04396331969824291,
+        "internal_vector_norm": 0.84789018634922
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 35.689744835406344,
+        "signed_cosine": -0.08979177663536145,
+        "unsigned_cosine": 0.08979177663536145,
+        "internal_vector_norm": 27.993709136151775
+      }
+    },
+    {
+      "arm": "native_ls-1102",
+      "outer_index": 0,
+      "current_matches_hessian_R0_in_same_atom_order": true,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.1937926728373831,
+      "prequench_shift_projection": {
+        "signed_cosine": 0.06374226549998666,
+        "unsigned_cosine": 0.06374226549998666,
+        "internal_vector_norm": 0.19379267283738313
+      },
+      "status": "gaussian_limit",
+      "accepted": true,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.15599479270990033,
+        "unsigned_cosine": 0.15599479270990033,
+        "internal_vector_norm": 0.9999999983435436
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.23619720834020302,
+        "unsigned_cosine": 0.23619720834020302,
+        "internal_vector_norm": 0.9999999979746486
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.903745929613436,
+        "signed_cosine": -0.32756900708896947,
+        "unsigned_cosine": 0.32756900708896947,
+        "internal_vector_norm": 0.9037424896004831
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 30.145914317196553,
+        "signed_cosine": -0.3905560297368721,
+        "unsigned_cosine": 0.3905560297368721,
+        "internal_vector_norm": 20.831657189345304
+      }
+    },
+    {
+      "arm": "native_ls-1102",
+      "outer_index": 1,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.2071779097988482,
+      "prequench_shift_projection": {
+        "signed_cosine": -0.4040839851397459,
+        "unsigned_cosine": 0.4040839851397459,
+        "internal_vector_norm": 0.12217106944333392
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.14314389663784743,
+        "unsigned_cosine": 0.14314389663784743,
+        "internal_vector_norm": 0.9987335592458355
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.2511080590528078,
+        "unsigned_cosine": 0.2511080590528078,
+        "internal_vector_norm": 0.9914916510842782
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.9736750452418776,
+        "signed_cosine": 0.3045423519289256,
+        "unsigned_cosine": 0.3045423519289256,
+        "internal_vector_norm": 0.8910870289155534
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 4.861880283106525,
+        "signed_cosine": 0.10970731144453717,
+        "unsigned_cosine": 0.10970731144453717,
+        "internal_vector_norm": 4.675357398517816
+      }
+    },
+    {
+      "arm": "native_ls-1102",
+      "outer_index": 2,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.21816165263012657,
+      "prequench_shift_projection": {
+        "signed_cosine": -0.4037242944682549,
+        "unsigned_cosine": 0.4037242944682549,
+        "internal_vector_norm": 0.1286636758589503
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.11368783496159081,
+        "unsigned_cosine": 0.11368783496159081,
+        "internal_vector_norm": 0.9807359892232563
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.1496237666193412,
+        "unsigned_cosine": 0.1496237666193412,
+        "internal_vector_norm": 0.9709350012737137
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.9297839066479696,
+        "signed_cosine": 0.12345952656734875,
+        "unsigned_cosine": 0.12345952656734875,
+        "internal_vector_norm": 0.8521015005890376
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 17.964115140215508,
+        "signed_cosine": 0.5497041099536056,
+        "unsigned_cosine": 0.5497041099536056,
+        "internal_vector_norm": 12.42077896899539
+      }
+    },
+    {
+      "arm": "native_ls-1102",
+      "outer_index": 3,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.2294351463938102,
+      "prequench_shift_projection": {
+        "signed_cosine": -0.4033891269036647,
+        "unsigned_cosine": 0.4033891269036647,
+        "internal_vector_norm": 0.13532819399204046
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.1530260960350271,
+        "unsigned_cosine": 0.1530260960350271,
+        "internal_vector_norm": 0.9874551914506435
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.2585583853193513,
+        "unsigned_cosine": 0.2585583853193513,
+        "internal_vector_norm": 0.9769417743977407
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.8424184449878301,
+        "signed_cosine": -0.373931583772426,
+        "unsigned_cosine": 0.373931583772426,
+        "internal_vector_norm": 0.781321367475564
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 9.560078917687566,
+        "signed_cosine": -0.07100372148837156,
+        "unsigned_cosine": 0.07100372148837156,
+        "internal_vector_norm": 8.096342088668298
+      }
+    },
+    {
+      "arm": "native_ls-1102",
+      "outer_index": 4,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.24095661947493252,
+      "prequench_shift_projection": {
+        "signed_cosine": -0.4030776990416059,
+        "unsigned_cosine": 0.4030776990416059,
+        "internal_vector_norm": 0.1421398844477259
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.08497894611607876,
+        "unsigned_cosine": 0.08497894611607876,
+        "internal_vector_norm": 0.9962897658169976
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.12067904981326316,
+        "unsigned_cosine": 0.12067904981326316,
+        "internal_vector_norm": 0.985021716099728
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.8845768024433001,
+        "signed_cosine": -0.11365220550374737,
+        "unsigned_cosine": 0.11365220550374737,
+        "internal_vector_norm": 0.8312302222846752
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 19.635710465496512,
+        "signed_cosine": -0.2446177007135597,
+        "unsigned_cosine": 0.2446177007135597,
+        "internal_vector_norm": 17.797779920831147
+      }
+    },
+    {
+      "arm": "native_ls-1102",
+      "outer_index": 5,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.2526772615719113,
+      "prequench_shift_projection": {
+        "signed_cosine": -0.4027891590744952,
+        "unsigned_cosine": 0.4027891590744952,
+        "internal_vector_norm": 0.14906984577023516
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.0296404028174969,
+        "unsigned_cosine": 0.0296404028174969,
+        "internal_vector_norm": 0.9559159957175106
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.05910836483325217,
+        "unsigned_cosine": 0.05910836483325217,
+        "internal_vector_norm": 0.9311649234953489
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 1.0037191651104564,
+        "signed_cosine": 0.08631200200590233,
+        "unsigned_cosine": 0.08631200200590233,
+        "internal_vector_norm": 0.9257007786463032
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 7.58874384788121,
+        "signed_cosine": -0.0704584711366752,
+        "unsigned_cosine": 0.0704584711366752,
+        "internal_vector_norm": 6.938822846357469
+      }
+    },
+    {
+      "arm": "native_ls-1102",
+      "outer_index": 6,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.2645415579155829,
+      "prequench_shift_projection": {
+        "signed_cosine": -0.4025225931957523,
+        "unsigned_cosine": 0.4025225931957523,
+        "internal_vector_norm": 0.156085210351284
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.03302782911366316,
+        "unsigned_cosine": 0.03302782911366316,
+        "internal_vector_norm": 0.9624373164192392
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.0755793760462412,
+        "unsigned_cosine": 0.0755793760462412,
+        "internal_vector_norm": 0.9614876445377363
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 1.0356286508866457,
+        "signed_cosine": -0.15059238947161846,
+        "unsigned_cosine": 0.15059238947161846,
+        "internal_vector_norm": 1.0076619457961196
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 35.874934452278595,
+        "signed_cosine": 0.5593792926921934,
+        "unsigned_cosine": 0.5593792926921934,
+        "internal_vector_norm": 24.32451492440286
+      }
+    },
+    {
+      "arm": "native_ls-1102",
+      "outer_index": 7,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.27648790683402186,
+      "prequench_shift_projection": {
+        "signed_cosine": -0.40227704439556544,
+        "unsigned_cosine": 0.40227704439556544,
+        "internal_vector_norm": 0.16314951169507907
+      },
+      "status": "gaussian_limit",
+      "accepted": false,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.013330066031714938,
+        "unsigned_cosine": 0.013330066031714938,
+        "internal_vector_norm": 0.9667340465003518
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.05156490182011174,
+        "unsigned_cosine": 0.05156490182011174,
+        "internal_vector_norm": 0.9441668825618409
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.9527079315010043,
+        "signed_cosine": -0.12154340396904194,
+        "unsigned_cosine": 0.12154340396904194,
+        "internal_vector_norm": 0.9023419204546238
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 21.219781467267236,
+        "signed_cosine": 0.4722532591775676,
+        "unsigned_cosine": 0.4722532591775676,
+        "internal_vector_norm": 15.80294818841173
+      }
+    },
+    {
+      "arm": "native_ls-1102",
+      "outer_index": 8,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.2884496028913006,
+      "prequench_shift_projection": {
+        "signed_cosine": -0.40205152069121086,
+        "unsigned_cosine": 0.40205152069121086,
+        "internal_vector_norm": 0.170223265820888
+      },
+      "status": "gaussian_limit",
+      "accepted": true,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.09468031256670367,
+        "unsigned_cosine": 0.09468031256670367,
+        "internal_vector_norm": 0.9773966232913344
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": 0.12694475093748467,
+        "unsigned_cosine": 0.12694475093748467,
+        "internal_vector_norm": 0.9295343690181604
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.9389303339705064,
+        "signed_cosine": 0.20299917076288887,
+        "unsigned_cosine": 0.20299917076288887,
+        "internal_vector_norm": 0.7979010336717077
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 23.26699934851368,
+        "signed_cosine": 0.43965685642991037,
+        "unsigned_cosine": 0.43965685642991037,
+        "internal_vector_norm": 16.98916887405303
+      }
+    },
+    {
+      "arm": "native_ls-1102",
+      "outer_index": 9,
+      "current_matches_hessian_R0_in_same_atom_order": false,
+      "post_prequench_center_matches_R0_in_same_atom_order": false,
+      "prequench_shift_norm_A": 0.29540871231004195,
+      "prequench_shift_projection": {
+        "signed_cosine": 0.057375625992113384,
+        "unsigned_cosine": 0.057375625992113384,
+        "internal_vector_norm": 0.17760661972737288
+      },
+      "status": "gaussian_limit",
+      "accepted": true,
+      "ih_graph_match": false,
+      "comparison_note": "softened or changed starting geometry; direction cosine is descriptive, not matched-state evidence",
+      "pre_CBD_proposal_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.25343885672602456,
+        "unsigned_cosine": 0.25343885672602456,
+        "internal_vector_norm": 0.9478955999723094
+      },
+      "post_CBD_direction_vs_NEb_R1_minus_R0": {
+        "signed_cosine": -0.3339827431047604,
+        "unsigned_cosine": 0.3339827431047604,
+        "internal_vector_norm": 0.9125093672241996
+      },
+      "after_first_biased_quench_displacement": {
+        "norm_A": 0.9739189433573571,
+        "signed_cosine": -0.42656498555705025,
+        "unsigned_cosine": 0.42656498555705025,
+        "internal_vector_norm": 0.8047404241698182
+      },
+      "true_landing_net_displacement": {
+        "norm_A": 25.256321865555503,
+        "signed_cosine": 0.2862891408991297,
+        "unsigned_cosine": 0.2862891408991297,
+        "internal_vector_norm": 20.480291997645214
+      }
+    }
+  ],
+  "interpretation_limits": [
+    "R1-R0 is a finite CI-NEB segment, not an exact reaction tangent or a known SSW target direction.",
+    "Direction cosines are unsigned only when explicitly labeled; actual coordinate displacements retain sign.",
+    "Post-LS CBD directions are evaluated after a shifted geometry and are not directly matched to the unsoftened Hessian state.",
+    "The full-direction runs vary selection, local/global mixture, within-climb continuation, CBD rotation, and (in LS arms) softening together; these records do not isolate one mechanism."
+  ]
+}
