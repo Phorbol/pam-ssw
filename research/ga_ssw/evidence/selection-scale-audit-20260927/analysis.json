@@ -1,0 +1,980 @@
+{
+  "scope": "Conditional decision audit on fixed observed (current, candidate) pairs; no alternative trajectory, success rate, or efficiency prediction.",
+  "pes_requests": 0,
+  "cases": [
+    {
+      "groups": {
+        "connected_changed": {
+          "count": 5,
+          "actual_accepts": 0,
+          "ordinary_conditional_sum": 8.104185850160994e-14,
+          "native_conditional_sum": 0.6290264075575567
+        },
+        "connected_same": {
+          "count": 43,
+          "actual_accepts": 15,
+          "ordinary_conditional_sum": 15.238666917700733,
+          "native_conditional_sum": 34.97367052771787
+        },
+        "disconnected": {
+          "count": 2,
+          "actual_accepts": 0,
+          "ordinary_conditional_sum": 3.278952892725227e-189,
+          "native_conditional_sum": 3.8096225815361524e-10
+        }
+      },
+      "case": "C4H6",
+      "source": "ls-pool-routing-20260926/run-1500677-0",
+      "temperature_K": 150.0,
+      "actual_policy": "ordinary",
+      "search_requests": 33031,
+      "outer_attempts": 51,
+      "qualified_landings": 50,
+      "missing_or_failed_landings": 1,
+      "actual_accepts": 15,
+      "uphill": 43,
+      "downhill_or_equal": 7,
+      "uphill_delta_quantiles_eV": [
+        8.158349373843521e-08,
+        0.08281505891636698,
+        0.08462602688450716,
+        0.0917549332634735,
+        6.733724679151237
+      ],
+      "ordinary_expected_uphill_accepts_on_fixed_pairs": 8.238666917700815,
+      "native_expected_uphill_accepts_on_fixed_pairs": 28.602696935656393,
+      "rows": [
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 0,
+          "delta_eV": 0.08613370218790806,
+          "accepted": false,
+          "ordinary_probability": 0.001276538729672592,
+          "native_fixed_probability": 0.716628697433374
+        },
+        {
+          "connected": true,
+          "graph_changed": true,
+          "index": 1,
+          "delta_eV": 3.1991634278629135,
+          "accepted": false,
+          "ordinary_probability": 3.256890438450307e-108,
+          "native_fixed_probability": 4.2204760052867975e-06
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 2,
+          "delta_eV": 0.09164151673485321,
+          "accepted": false,
+          "ordinary_probability": 0.0008336418502521976,
+          "native_fixed_probability": 0.701521509110085
+        },
+        {
+          "connected": false,
+          "graph_changed": true,
+          "index": 3,
+          "delta_eV": 6.733724679151237,
+          "accepted": false,
+          "ordinary_probability": 5.711255387071466e-227,
+          "native_fixed_probability": 4.866871885880271e-12
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 4,
+          "delta_eV": 0.0840519338626109,
+          "accepted": false,
+          "ordinary_probability": 0.0014996100997134744,
+          "native_fixed_probability": 0.722423050992391
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 5,
+          "delta_eV": 0.08433703555874672,
+          "accepted": false,
+          "ordinary_probability": 0.0014668961138964362,
+          "native_fixed_probability": 0.7216267441327415
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 6,
+          "delta_eV": 0.08942228590422019,
+          "accepted": false,
+          "ordinary_probability": 0.000989788510797978,
+          "native_fixed_probability": 0.7075698672302293
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 7,
+          "delta_eV": 0.08408763488932891,
+          "accepted": false,
+          "ordinary_probability": 0.0014954739576294113,
+          "native_fixed_probability": 0.7223232876850132
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 8,
+          "delta_eV": 0.09109246303523832,
+          "accepted": false,
+          "ordinary_probability": 0.0008698150293543162,
+          "native_fixed_probability": 0.7030130859466559
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 9,
+          "delta_eV": 8.158349373843521e-08,
+          "accepted": true,
+          "ordinary_probability": 0.999993688436899,
+          "native_fixed_probability": 0.9999996844045325
+        },
+        {
+          "connected": true,
+          "graph_changed": true,
+          "index": 10,
+          "delta_eV": 0.40359234875995753,
+          "accepted": false,
+          "ordinary_probability": 2.7535267317585343e-14,
+          "native_fixed_probability": 0.2098743202425355
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 11,
+          "delta_eV": 0.0888481246174706,
+          "accepted": false,
+          "ordinary_probability": 0.001034745115657783,
+          "native_fixed_probability": 0.7091431766799315
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 12,
+          "delta_eV": 0.08390200077064947,
+          "accepted": false,
+          "ordinary_probability": 0.0015171058694361042,
+          "native_fixed_probability": 0.7228421759952303
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 13,
+          "delta_eV": 0.08375519151195476,
+          "accepted": false,
+          "ordinary_probability": 0.0015344348875550775,
+          "native_fixed_probability": 0.7232528042064778
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 14,
+          "delta_eV": 0.0018481953602531576,
+          "accepted": true,
+          "ordinary_probability": 0.8667689550622502,
+          "native_fixed_probability": 0.9928759849201213
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 15,
+          "delta_eV": 0.08196389665590686,
+          "accepted": false,
+          "ordinary_probability": 0.0017625171150364898,
+          "native_fixed_probability": 0.728281916119758
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 16,
+          "delta_eV": 0.08223224168705201,
+          "accepted": false,
+          "ordinary_probability": 0.001726304265550361,
+          "native_fixed_probability": 0.7275263086922742
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 17,
+          "delta_eV": -0.0017399917296643252,
+          "accepted": true,
+          "ordinary_probability": 1.0,
+          "native_fixed_probability": 1.0
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 18,
+          "delta_eV": 0.2221402065251823,
+          "accepted": false,
+          "ordinary_probability": 3.4388641564931376e-08,
+          "native_fixed_probability": 0.4234492786877041
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 19,
+          "delta_eV": 0.00045712066184933065,
+          "accepted": true,
+          "ordinary_probability": 0.9652535699578132,
+          "native_fixed_probability": 0.9982332485752364
+        },
+        {
+          "connected": true,
+          "graph_changed": true,
+          "index": 20,
+          "delta_eV": 0.4040864107537345,
+          "accepted": false,
+          "ordinary_probability": 2.6502664512457796e-14,
+          "native_fixed_probability": 0.20947358796372978
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 21,
+          "delta_eV": 0.0879135749910347,
+          "accepted": false,
+          "ordinary_probability": 0.001112328029666274,
+          "native_fixed_probability": 0.7117115023211977
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 22,
+          "delta_eV": -0.00028936760736542055,
+          "accepted": true,
+          "ordinary_probability": 1.0,
+          "native_fixed_probability": 1.0
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 23,
+          "delta_eV": -0.00028227283837622963,
+          "accepted": true,
+          "ordinary_probability": 1.0,
+          "native_fixed_probability": 1.0
+        },
+        {
+          "connected": true,
+          "graph_changed": true,
+          "index": 24,
+          "delta_eV": 3.19174709807794,
+          "accepted": false,
+          "ordinary_probability": 5.780706869191189e-108,
+          "native_fixed_probability": 4.343311437172684e-06
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 25,
+          "delta_eV": 0.08408909050467628,
+          "accepted": false,
+          "ordinary_probability": 0.0014953055595915462,
+          "native_fixed_probability": 0.7223192203911988
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 26,
+          "delta_eV": 0.09360169006686192,
+          "accepted": false,
+          "ordinary_probability": 0.0007163422408827503,
+          "native_fixed_probability": 0.6962222094862169
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 27,
+          "delta_eV": 0.08462602688450716,
+          "accepted": false,
+          "ordinary_probability": 0.00143446406637881,
+          "native_fixed_probability": 0.7208204690811193
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 28,
+          "delta_eV": 0.0894025695797609,
+          "accepted": false,
+          "ordinary_probability": 0.0009912994104670741,
+          "native_fixed_probability": 0.7076238357335708
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 29,
+          "delta_eV": 0.0903190875724249,
+          "accepted": false,
+          "ordinary_probability": 0.0009234453275817296,
+          "native_fixed_probability": 0.7051194436578978
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 30,
+          "delta_eV": 7.098881087586051e-05,
+          "accepted": true,
+          "ordinary_probability": 0.9945231116620037,
+          "native_fixed_probability": 0.9997254263872909
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 31,
+          "delta_eV": 0.0839804986380841,
+          "accepted": false,
+          "ordinary_probability": 0.0015079206040839038,
+          "native_fixed_probability": 0.7226227116709663
+        },
+        {
+          "connected": false,
+          "graph_changed": true,
+          "index": 32,
+          "delta_eV": 5.609895730976859,
+          "accepted": false,
+          "ordinary_probability": 3.278952892725227e-189,
+          "native_fixed_probability": 3.76095386267735e-10
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 33,
+          "delta_eV": 0.08382091627117916,
+          "accepted": false,
+          "ordinary_probability": 0.001526652554598736,
+          "native_fixed_probability": 0.7230689420082458
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 34,
+          "delta_eV": 0.0038975339539319975,
+          "accepted": true,
+          "ordinary_probability": 0.7396880086167424,
+          "native_fixed_probability": 0.9850359692579796
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 35,
+          "delta_eV": -0.00271515941767575,
+          "accepted": true,
+          "ordinary_probability": 1.0,
+          "native_fixed_probability": 1.0
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 36,
+          "delta_eV": -0.0015659460941606085,
+          "accepted": true,
+          "ordinary_probability": 1.0,
+          "native_fixed_probability": 1.0
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 37,
+          "delta_eV": 0.002490563138962898,
+          "accepted": true,
+          "ordinary_probability": 0.8247469783530174,
+          "native_fixed_probability": 0.9904118311838267
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 38,
+          "delta_eV": -0.002500256770872511,
+          "accepted": true,
+          "ordinary_probability": 1.0,
+          "native_fixed_probability": 1.0
+        },
+        {
+          "connected": true,
+          "graph_changed": true,
+          "index": 39,
+          "delta_eV": 0.40384421621911315,
+          "accepted": false,
+          "ordinary_probability": 2.7003926671566794e-14,
+          "native_fixed_probability": 0.20966993556384894
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 40,
+          "delta_eV": 0.0013971608041174477,
+          "accepted": false,
+          "ordinary_probability": 0.8975475114350788,
+          "native_fixed_probability": 0.9946098379296898
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 41,
+          "delta_eV": 0.0921230105759605,
+          "accepted": false,
+          "ordinary_probability": 0.0008031599098333518,
+          "native_fixed_probability": 0.7002160722878723
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 42,
+          "delta_eV": 0.08532871731677005,
+          "accepted": false,
+          "ordinary_probability": 0.0013585646378492084,
+          "native_fixed_probability": 0.7188637451963537
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 43,
+          "delta_eV": 0.0010061043703899486,
+          "accepted": true,
+          "ordinary_probability": 0.9251163776187367,
+          "native_fixed_probability": 0.9961155753508832
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 44,
+          "delta_eV": 0.08339787614568195,
+          "accepted": false,
+          "ordinary_probability": 0.0015774432216350228,
+          "native_fixed_probability": 0.7242531969382418
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 45,
+          "delta_eV": 0.0918683497920938,
+          "accepted": false,
+          "ordinary_probability": 0.000819140220989486,
+          "native_fixed_probability": 0.7009062113466893
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 46,
+          "delta_eV": -0.0008199348594644107,
+          "accepted": true,
+          "ordinary_probability": 1.0,
+          "native_fixed_probability": 1.0
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 47,
+          "delta_eV": 0.00010178550746786641,
+          "accepted": true,
+          "ordinary_probability": 0.9921564413946612,
+          "native_fixed_probability": 0.9996063330324799
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 48,
+          "delta_eV": 0.08809091362581967,
+          "accepted": false,
+          "ordinary_probability": 0.0010971716146578499,
+          "native_fixed_probability": 0.7112234269259397
+        },
+        {
+          "connected": true,
+          "graph_changed": false,
+          "index": 49,
+          "delta_eV": 0.08403021586673276,
+          "accepted": false,
+          "ordinary_probability": 0.0015021318321222883,
+          "native_fixed_probability": 0.7224837467184584
+        }
+      ]
+    },
+    {
+      "groups": {},
+      "case": "C60-isomer2",
+      "source": "ls-pool-routing-20260926/run-1500677-3",
+      "temperature_K": 150.0,
+      "actual_policy": "native_no_heating",
+      "search_requests": 28338,
+      "outer_attempts": 66,
+      "qualified_landings": 65,
+      "missing_or_failed_landings": 1,
+      "actual_accepts": 12,
+      "uphill": 59,
+      "downhill_or_equal": 6,
+      "uphill_delta_quantiles_eV": [
+        0.00016902032803045586,
+        7.820433386124932,
+        9.521579675609246,
+        12.714196898752562,
+        23.206623687809042
+      ],
+      "ordinary_expected_uphill_accepts_on_fixed_pairs": 5.555442185803566,
+      "native_expected_uphill_accepts_on_fixed_pairs": 5.976291252158775,
+      "rows": [
+        {
+          "index": 0,
+          "delta_eV": 8.414201255327498,
+          "accepted": false,
+          "ordinary_probability": 1.9732607878461767e-283,
+          "native_fixed_probability": 7.311831096032889e-15
+        },
+        {
+          "index": 1,
+          "delta_eV": -0.0001774278498487547,
+          "accepted": true,
+          "ordinary_probability": 1.0,
+          "native_fixed_probability": 1.0
+        },
+        {
+          "index": 2,
+          "delta_eV": 8.898211956257,
+          "accepted": false,
+          "ordinary_probability": 1.0792825431631113e-299,
+          "native_fixed_probability": 1.1242981998238218e-15
+        },
+        {
+          "index": 3,
+          "delta_eV": 2.4849882312555565,
+          "accepted": false,
+          "ordinary_probability": 3.2213788490405126e-84,
+          "native_fixed_probability": 6.686295858521064e-05
+        },
+        {
+          "index": 4,
+          "delta_eV": 17.52401282254141,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 3.6259132455519274e-30
+        },
+        {
+          "index": 5,
+          "delta_eV": 7.526031695364509,
+          "accepted": false,
+          "ordinary_probability": 1.3689211573937215e-253,
+          "native_fixed_probability": 2.2707181349564674e-13
+        },
+        {
+          "index": 6,
+          "delta_eV": 14.095361788997252,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 2.0873645695088926e-24
+        },
+        {
+          "index": 7,
+          "delta_eV": 15.1880043609126,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 3.0475003000444647e-26
+        },
+        {
+          "index": 8,
+          "delta_eV": 0.00016902032803045586,
+          "accepted": true,
+          "ordinary_probability": 0.9870091186522657,
+          "native_fixed_probability": 0.9993463797540765
+        },
+        {
+          "index": 9,
+          "delta_eV": 18.604551085176354,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 5.54751217986556e-32
+        },
+        {
+          "index": 10,
+          "delta_eV": 0.0014698309969389811,
+          "accepted": true,
+          "ordinary_probability": 0.8925156401297972,
+          "native_fixed_probability": 0.9943302769540595
+        },
+        {
+          "index": 11,
+          "delta_eV": 6.5812937997761765,
+          "accepted": false,
+          "ordinary_probability": 7.554147434124592e-222,
+          "native_fixed_probability": 8.776793658232979e-12
+        },
+        {
+          "index": 12,
+          "delta_eV": 8.114835076885356,
+          "accepted": false,
+          "ordinary_probability": 2.25656996509184e-273,
+          "native_fixed_probability": 2.3279060460787897e-14
+        },
+        {
+          "index": 13,
+          "delta_eV": 5.660225600324338,
+          "accepted": false,
+          "ordinary_probability": 6.679214938468058e-191,
+          "native_fixed_probability": 3.0955878467760597e-10
+        },
+        {
+          "index": 14,
+          "delta_eV": -0.0019132745001115836,
+          "accepted": true,
+          "ordinary_probability": 1.0,
+          "native_fixed_probability": 1.0
+        },
+        {
+          "index": 15,
+          "delta_eV": 23.206623687809042,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 1.0293261088413654e-39
+        },
+        {
+          "index": 16,
+          "delta_eV": 6.500949028501054,
+          "accepted": false,
+          "ordinary_probability": 3.781393530198098e-219,
+          "native_fixed_probability": 1.1976121935797504e-11
+        },
+        {
+          "index": 17,
+          "delta_eV": 9.168187993142055,
+          "accepted": false,
+          "ordinary_probability": 9.16930598033448e-309,
+          "native_fixed_probability": 3.956562766352742e-16
+        },
+        {
+          "index": 18,
+          "delta_eV": 11.899205441637605,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 1.0213419731552204e-20
+        },
+        {
+          "index": 19,
+          "delta_eV": 0.00032260309671983123,
+          "accepted": true,
+          "ordinary_probability": 0.9753511701186057,
+          "native_fixed_probability": 0.9987528287306918
+        },
+        {
+          "index": 20,
+          "delta_eV": 17.471558060678944,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 4.44162746898739e-30
+        },
+        {
+          "index": 21,
+          "delta_eV": 16.50137542275479,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 1.894359094346627e-28
+        },
+        {
+          "index": 22,
+          "delta_eV": 8.711136933554371,
+          "accepted": false,
+          "ordinary_probability": 2.0824827323119267e-293,
+          "native_fixed_probability": 2.318302623689474e-15
+        },
+        {
+          "index": 23,
+          "delta_eV": 9.75489546132303,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 4.0892291009238337e-17
+        },
+        {
+          "index": 24,
+          "delta_eV": 8.710984993522288,
+          "accepted": false,
+          "ordinary_probability": 2.1071059385985264e-293,
+          "native_fixed_probability": 2.31966563199964e-15
+        },
+        {
+          "index": 25,
+          "delta_eV": 18.19952780953463,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 2.6579263260452964e-31
+        },
+        {
+          "index": 26,
+          "delta_eV": 17.268095899424225,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 9.75801227113603e-30
+        },
+        {
+          "index": 27,
+          "delta_eV": -0.00017008601571433246,
+          "accepted": true,
+          "ordinary_probability": 1.0,
+          "native_fixed_probability": 1.0
+        },
+        {
+          "index": 28,
+          "delta_eV": 7.010189412947511,
+          "accepted": false,
+          "ordinary_probability": 2.9371234352616738e-236,
+          "native_fixed_probability": 1.6702649147241301e-12
+        },
+        {
+          "index": 29,
+          "delta_eV": -5.873647751286626e-05,
+          "accepted": true,
+          "ordinary_probability": 1.0,
+          "native_fixed_probability": 1.0
+        },
+        {
+          "index": 30,
+          "delta_eV": 9.090757027362997,
+          "accepted": false,
+          "ordinary_probability": 3.663559897606779e-306,
+          "native_fixed_probability": 5.338302099840698e-16
+        },
+        {
+          "index": 31,
+          "delta_eV": 9.348464110691566,
+          "accepted": false,
+          "ordinary_probability": 8.041247804e-315,
+          "native_fixed_probability": 1.9699341202304908e-16
+        },
+        {
+          "index": 32,
+          "delta_eV": 13.206106759949762,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 6.50967022961551e-23
+        },
+        {
+          "index": 33,
+          "delta_eV": 0.0003870791260851547,
+          "accepted": true,
+          "ordinary_probability": 0.9704981443940303,
+          "native_fixed_probability": 0.9985037534239213
+        },
+        {
+          "index": 34,
+          "delta_eV": 10.468322496461042,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 2.588655215181894e-18
+        },
+        {
+          "index": 35,
+          "delta_eV": 15.981341123057064,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 1.4162081326146249e-27
+        },
+        {
+          "index": 36,
+          "delta_eV": 10.114209730163566,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 1.0185644835332797e-17
+        },
+        {
+          "index": 37,
+          "delta_eV": 10.59050121709879,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 1.6136609115449548e-18
+        },
+        {
+          "index": 38,
+          "delta_eV": 12.222287037555361,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 2.926777143848186e-21
+        },
+        {
+          "index": 39,
+          "delta_eV": 0.0009227870250470005,
+          "accepted": true,
+          "ordinary_probability": 0.931098677987531,
+          "native_fixed_probability": 0.9964366778385243
+        },
+        {
+          "index": 40,
+          "delta_eV": 10.467636079818476,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 2.595538048677728e-18
+        },
+        {
+          "index": 41,
+          "delta_eV": 5.08924570846284,
+          "accepted": false,
+          "ordinary_probability": 1.020497517799523e-171,
+          "native_fixed_probability": 2.8183647950958017e-09
+        },
+        {
+          "index": 42,
+          "delta_eV": -0.0010750459987320937,
+          "accepted": true,
+          "ordinary_probability": 1.0,
+          "native_fixed_probability": 1.0
+        },
+        {
+          "index": 43,
+          "delta_eV": 8.387980330160644,
+          "accepted": false,
+          "ordinary_probability": 1.5002688628226825e-282,
+          "native_fixed_probability": 8.092406039959919e-15
+        },
+        {
+          "index": 44,
+          "delta_eV": 8.899668906306033,
+          "accepted": false,
+          "ordinary_probability": 9.642369478316324e-300,
+          "native_fixed_probability": 1.1179794460729985e-15
+        },
+        {
+          "index": 45,
+          "delta_eV": 15.514543265242537,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 8.616956610314426e-27
+        },
+        {
+          "index": 46,
+          "delta_eV": 17.80225863873784,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 1.235835340309423e-30
+        },
+        {
+          "index": 47,
+          "delta_eV": 0.002901014631788712,
+          "accepted": true,
+          "ordinary_probability": 0.7989694345213355,
+          "native_fixed_probability": 0.9888405227228219
+        },
+        {
+          "index": 48,
+          "delta_eV": 17.50302936067601,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 3.932510704068847e-30
+        },
+        {
+          "index": 49,
+          "delta_eV": 11.971138289904047,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 7.732554782724909e-21
+        },
+        {
+          "index": 50,
+          "delta_eV": 11.239831571401737,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 1.308965957732969e-19
+        },
+        {
+          "index": 51,
+          "delta_eV": 16.310094135958934,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 3.970246761875318e-28
+        },
+        {
+          "index": 52,
+          "delta_eV": 9.105110517331923,
+          "accepted": false,
+          "ordinary_probability": 1.206832772416464e-306,
+          "native_fixed_probability": 5.049973355555622e-16
+        },
+        {
+          "index": 53,
+          "delta_eV": 10.62627081565006,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 1.4051376201386694e-18
+        },
+        {
+          "index": 54,
+          "delta_eV": 9.08437392464839,
+          "accepted": false,
+          "ordinary_probability": 6.002970116033383e-306,
+          "native_fixed_probability": 5.471757573101356e-16
+        },
+        {
+          "index": 55,
+          "delta_eV": 10.5415245219192,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 1.9502657802412333e-18
+        },
+        {
+          "index": 56,
+          "delta_eV": 8.516659583452565,
+          "accepted": false,
+          "ordinary_probability": 7.124181972014916e-287,
+          "native_fixed_probability": 4.919203057810054e-15
+        },
+        {
+          "index": 57,
+          "delta_eV": 9.521579675609246,
+          "accepted": false,
+          "ordinary_probability": 1.2273e-320,
+          "native_fixed_probability": 1.0083589842801251e-16
+        },
+        {
+          "index": 58,
+          "delta_eV": 6.198322361065948,
+          "accepted": false,
+          "ordinary_probability": 5.564982978084426e-209,
+          "native_fixed_probability": 3.861296694021994e-11
+        },
+        {
+          "index": 59,
+          "delta_eV": -0.0021560728855547495,
+          "accepted": true,
+          "ordinary_probability": 1.0,
+          "native_fixed_probability": 1.0
+        },
+        {
+          "index": 60,
+          "delta_eV": 8.466644937601814,
+          "accepted": false,
+          "ordinary_probability": 3.413136955607474e-285,
+          "native_fixed_probability": 5.969253778456655e-15
+        },
+        {
+          "index": 61,
+          "delta_eV": 11.272649887374428,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 1.1529039569180499e-19
+        },
+        {
+          "index": 62,
+          "delta_eV": 10.918583219783613,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 4.535550445262062e-19
+        },
+        {
+          "index": 63,
+          "delta_eV": 2.890173993415374,
+          "accepted": false,
+          "ordinary_probability": 7.841420573202556e-98,
+          "native_fixed_probability": 1.3946586849404781e-05
+        },
+        {
+          "index": 64,
+          "delta_eV": 12.154921726832981,
+          "accepted": false,
+          "ordinary_probability": 0.0,
+          "native_fixed_probability": 3.798081708112835e-21
+        }
+      ]
+    }
+  ]
+}

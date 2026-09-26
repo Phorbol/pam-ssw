@@ -2,7 +2,10 @@
 
 This is an independent Python translation of a bounded native acceptance domain,
 not an equilibrium sampling method, a default policy change, or a complete SSW
-reproduction. It is **not wired into the paper-reference driver**. It requires
+reproduction. The original 2026-09-09 implementation was not wired into the
+paper-reference driver; the later opt-in integration is documented in
+[the integration report](2026-09-18-native-mc-integration.md). The current driver
+uses ordinary Metropolis by default and accepts explicit NativeMCSettings. It requires
 explicit `energy_tol`, `maxtrap`, current state and one uniform variate per call.
 There are no newly fitted search parameters.
 
