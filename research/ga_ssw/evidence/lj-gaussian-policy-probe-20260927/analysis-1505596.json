@@ -1,0 +1,89 @@
+{
+  "scope": "Development follow-up; no long-search or pure-height universal claim",
+  "followup": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/lj-gaussian-policy-probe-20260927/run-1505596",
+  "controls": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/lj-gaussian-policy-probe-20260927/run-1505559",
+  "search": 4027,
+  "fresh": 8,
+  "rows": [
+    {
+      "n": 38,
+      "seed": 25092501,
+      "status": "gaussian_limit",
+      "accepted": false,
+      "search": 1429,
+      "fresh": 2,
+      "boundary": null,
+      "force_qualified": true,
+      "delta_energy_eV": 4.133703188213673,
+      "connected": false,
+      "first_height": 5.735589505707516,
+      "first_width": 0.6,
+      "stages": 14,
+      "clipping": {
+        "width_clamped": 0,
+        "weight_clamped": 0
+      },
+      "paired_with_controls": true
+    },
+    {
+      "n": 38,
+      "seed": 25092502,
+      "status": "lower_true_energy",
+      "accepted": true,
+      "search": 990,
+      "fresh": 2,
+      "boundary": null,
+      "force_qualified": true,
+      "delta_energy_eV": -11.752633195933697,
+      "connected": true,
+      "first_height": 2.1553048062639,
+      "first_width": 0.6,
+      "stages": 2,
+      "clipping": {
+        "width_clamped": 0,
+        "weight_clamped": 0
+      },
+      "paired_with_controls": true
+    },
+    {
+      "n": 55,
+      "seed": 25092501,
+      "status": "lower_true_energy",
+      "accepted": true,
+      "search": 779,
+      "fresh": 2,
+      "boundary": null,
+      "force_qualified": true,
+      "delta_energy_eV": -6.657482293761063,
+      "connected": true,
+      "first_height": 2.6075500521069186,
+      "first_width": 0.6,
+      "stages": 2,
+      "clipping": {
+        "width_clamped": 0,
+        "weight_clamped": 0
+      },
+      "paired_with_controls": true
+    },
+    {
+      "n": 55,
+      "seed": 25092502,
+      "status": "lower_true_energy",
+      "accepted": true,
+      "search": 829,
+      "fresh": 2,
+      "boundary": null,
+      "force_qualified": true,
+      "delta_energy_eV": -1.0063075536750148,
+      "connected": true,
+      "first_height": 3.377985102240046,
+      "first_width": 0.6,
+      "stages": 2,
+      "clipping": {
+        "width_clamped": 0,
+        "weight_clamped": 0
+      },
+      "paired_with_controls": true
+    }
+  ]
+}

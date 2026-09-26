@@ -40,3 +40,33 @@ PAM各臂未发生宽度/高度clipping。该整策略纠正了一条碎裂轨�
 - 复核命令：`python readout.py --run run-1505559 --previous ../cluster-paper-reproduction-20260925/stage-probe-repaired-runs --output NEW_ANALYSIS.json`（在本目录，仓库根加入PYTHONPATH）。
 - 主agent检查metadata序列化、有效参数、预算与已付费失败计数。首次计数mock错误地用None当calculator，初始化阶段即失败、0PES；改为合法但不执行的FullPairLJ后，注入失败/拒绝计数检查通过。没有放松预算或物理标准。
 - runner审查修复了未执行前的预检JSON返回问题和报告异常可能把已付费调用记0的问题；实际8臂没有触发这两类错误。
+
+## Height-only跟进完成：降低高度本身不足以修复该失败
+
+源码af7867c，CPU1505596，dpn01，COMPLETED/0:0，6秒；4027搜索+8fresh。
+四臂初态、首中心/方向、旋转/优化设置及RNG来源与原控制逐项匹配。
+8/8独立force资格通过、无预算截断、无PAM width/weight clipping。
+
+| 体系/seed尾号 | height_only搜索 | ΔE/eV | 完整簇 | 首W/eV | Gaussian数 |
+|---|---:|---:|---|---:|---:|
+|LJ38/501|1429|+4.1337|否|5.7356|14|
+|LJ38/502|990|−11.7526|是|2.1553|2|
+|LJ55/501|779|−6.6575|是|2.6076|2|
+|LJ55/502|829|−1.0063|是|3.3780|2|
+
+所有width保持0.6Å。故LJ38/501中，仅从forward规则换成曲率高度，虽然将首W从114.18
+降为5.74，仍未避免碎裂；height_width的联动调整则在该次逃逸有效。不能把结论说成
+“114eV本身就是碎裂原因”，也不能把height_width当成独立只改位移的实验。
+这支持有限幅度与Gaussian形状的耦合是一个真实设计因素；没有证明通用最优规则。
+
+**本面板按预定规则收口：不再加臂、种子、目标能量或高度上限，不改默认。**
+全组两作业合计11828搜索+24fresh=11852次调用；此前高度来源诊断164次另计，
+本轮总12016次E/F。两CPU作业17秒，未用GPU。原C60/Cu55/water15反证仍保留。
+下一步限于原版moveds的有限位移比较量语义核查，不复制未解释的距离/类别阈值；
+若要新增核心试位移阶段或改变持久化身份，先提出具体设计与用户讨论。
+
+证据：[跟进协议](height-only-followup.md)、[跟进预检](height-only-preflight.json)、
+[跟进读出](analysis-1505596.json)。原始`run-1505596/`保存有效配置、输入/初态/落点、
+climb记录与冻结runner/生成器。复核命令为
+`python readout_height_only.py --followup run-1505596 --controls run-1505559 --output NEW_READOUT.json`，
+不增加PES。该脚本验证四组精确初始/首mode配对及原成本闭合。

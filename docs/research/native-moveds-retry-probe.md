@@ -20,10 +20,7 @@ and `0x5c74d1` (retry exhausted by either `ds_n < 0.1` or retry count > 50).
 The probe has a PC guard: any instruction outside `0x5c7452–0x5c74cb` or the
 three declared stop targets fails, rather than being reported as a normal row.
 The JSON records every executed address and labels all synthetic dependencies.
-The three scalar locals are deliberately distinct: `rbp-0x40` is the preceding
-candidate scalar, `rbp-0xd8` is the local used in the `disp*(1-bonddisp)`
-expression, and `rbp-0xd0` is the scalar returned by `present_tooshort`.
-Their exact physical meanings are not inferred here. These results close only
+The three scalar locals are deliberately distinct. The 2026-09-27 producer audit identifies `rbp-0x40` as maximum single-atom displacement, `rbp-0xd8` as the pre-move minimum distance and `rbp-0xd0` as the post-move minimum distance. The relative expression is `d_before*(1-bonddisp)`, not `disp_perstep*(1-bonddisp)`. See [correction and native default checks](2026-09-27-native-moveds-guard-semantics.md). These results close only
 the local branch arithmetic and retry routing. They do not close `present_tooshort` semantics,
 the full move record, width write, or post-`Allopt` state.
 

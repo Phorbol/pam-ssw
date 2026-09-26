@@ -1,0 +1,193 @@
+{
+  "elf": "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_program/lasp",
+  "elf_sha256": "bba43b391619ae03cf7e9c455d8fe3a7c7bb7d434a56c7ef297bee38aa9b6704",
+  "keys": [
+    "SSW.disp_perstep",
+    "SSW.bonddisp_perstep"
+  ],
+  "defaults": [
+    2.0,
+    0.25
+  ],
+  "scope": "Conditional retry block only; present_tooshort flag is synthetic false, distances supplied, no full native move/PES",
+  "default_producer": "get_real calls 0x68d2b7/0x68d32b, rcx rodata defaults copied at 0x60f390-0x60f3a5",
+  "rows": [
+    {
+      "name": "actual_extreme_first",
+      "synthetic_inputs": {
+        "present_tooshort_flag": false,
+        "candidate_scalar": 0.39366449838960915,
+        "retry_local_scalar": 2.7810127247603726,
+        "returned_scalar": 2.3352195774841715,
+        "ds_initial": 0.6,
+        "retry_count": 1,
+        "disp_perstep": 2.0,
+        "bonddisp_perstep": 0.25
+      },
+      "status": "ok",
+      "trace": [
+        "0x5c7452",
+        "0x5c7459",
+        "0x5c745b",
+        "0x5c745f",
+        "0x5c7464",
+        "0x5c746c",
+        "0x5c746e",
+        "0x5c7476",
+        "0x5c747e",
+        "0x5c7482",
+        "0x5c7486",
+        "0x5c748e",
+        "0x5ca780"
+      ],
+      "ds_final": 0.6,
+      "retry_final": 1,
+      "branch_target": "0x5ca780",
+      "executed_elf_range": "0x5c7452-0x5c74cb"
+    },
+    {
+      "name": "relative_equality",
+      "synthetic_inputs": {
+        "present_tooshort_flag": false,
+        "candidate_scalar": 0.4,
+        "retry_local_scalar": 3.0,
+        "returned_scalar": 2.25,
+        "ds_initial": 0.6,
+        "retry_count": 1,
+        "disp_perstep": 2.0,
+        "bonddisp_perstep": 0.25
+      },
+      "status": "ok",
+      "trace": [
+        "0x5c7452",
+        "0x5c7459",
+        "0x5c745b",
+        "0x5c745f",
+        "0x5c7464",
+        "0x5c746c",
+        "0x5c746e",
+        "0x5c7476",
+        "0x5c747e",
+        "0x5c7482",
+        "0x5c7486",
+        "0x5c748e",
+        "0x5ca780"
+      ],
+      "ds_final": 0.6,
+      "retry_final": 1,
+      "branch_target": "0x5ca780",
+      "executed_elf_range": "0x5c7452-0x5c74cb"
+    },
+    {
+      "name": "relative_reject",
+      "synthetic_inputs": {
+        "present_tooshort_flag": false,
+        "candidate_scalar": 0.4,
+        "retry_local_scalar": 3.0,
+        "returned_scalar": 2.249,
+        "ds_initial": 0.6,
+        "retry_count": 1,
+        "disp_perstep": 2.0,
+        "bonddisp_perstep": 0.25
+      },
+      "status": "ok",
+      "trace": [
+        "0x5c7452",
+        "0x5c7459",
+        "0x5c745b",
+        "0x5c745f",
+        "0x5c7464",
+        "0x5c746c",
+        "0x5c746e",
+        "0x5c7476",
+        "0x5c747e",
+        "0x5c7482",
+        "0x5c7486",
+        "0x5c748e",
+        "0x5c7494",
+        "0x5c749c",
+        "0x5c74a4",
+        "0x5c74ac",
+        "0x5c74b4",
+        "0x5c74be",
+        "0x5c74c2",
+        "0x5c74c4",
+        "0x5c74cb",
+        "0x5c6ddc"
+      ],
+      "ds_final": 0.57,
+      "retry_final": 1,
+      "branch_target": "0x5c6ddc",
+      "executed_elf_range": "0x5c7452-0x5c74cb"
+    },
+    {
+      "name": "max_atom_equality",
+      "synthetic_inputs": {
+        "present_tooshort_flag": false,
+        "candidate_scalar": 2.0,
+        "retry_local_scalar": 3.0,
+        "returned_scalar": 3.0,
+        "ds_initial": 0.6,
+        "retry_count": 1,
+        "disp_perstep": 2.0,
+        "bonddisp_perstep": 0.25
+      },
+      "status": "ok",
+      "trace": [
+        "0x5c7452",
+        "0x5c7459",
+        "0x5c745b",
+        "0x5c745f",
+        "0x5c7464",
+        "0x5c746c",
+        "0x5c746e",
+        "0x5c7476",
+        "0x5c747e",
+        "0x5c7482",
+        "0x5c7486",
+        "0x5c748e",
+        "0x5ca780"
+      ],
+      "ds_final": 0.6,
+      "retry_final": 1,
+      "branch_target": "0x5ca780",
+      "executed_elf_range": "0x5c7452-0x5c74cb"
+    },
+    {
+      "name": "max_atom_reject",
+      "synthetic_inputs": {
+        "present_tooshort_flag": false,
+        "candidate_scalar": 2.001,
+        "retry_local_scalar": 3.0,
+        "returned_scalar": 3.0,
+        "ds_initial": 0.6,
+        "retry_count": 1,
+        "disp_perstep": 2.0,
+        "bonddisp_perstep": 0.25
+      },
+      "status": "ok",
+      "trace": [
+        "0x5c7452",
+        "0x5c7459",
+        "0x5c745b",
+        "0x5c745f",
+        "0x5c7464",
+        "0x5c746c",
+        "0x5c7494",
+        "0x5c749c",
+        "0x5c74a4",
+        "0x5c74ac",
+        "0x5c74b4",
+        "0x5c74be",
+        "0x5c74c2",
+        "0x5c74c4",
+        "0x5c74cb",
+        "0x5c6ddc"
+      ],
+      "ds_final": 0.57,
+      "retry_final": 1,
+      "branch_target": "0x5c6ddc",
+      "executed_elf_range": "0x5c7452-0x5c74cb"
+    }
+  ]
+}

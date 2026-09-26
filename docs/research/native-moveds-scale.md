@@ -33,15 +33,15 @@ The exact excerpts are preserved in `docs/research/native-moveds-evidence/moveds
 After the direct trial, `present_tooshort` returns its logical result through
 `rbp-0xdc` at `0x5c7449–0x5c7459`. If that guard is clear, the scalar
 `disp_perstep` test is at `0x5c745b–0x5c746c`; the following
-`bonddisp_perstep` comparison computes `disp_perstep*(1-bonddisp_perstep)` at
+`bonddisp_perstep` comparison computes `d_before*(1-bonddisp_perstep)` at
 `0x5c746e–0x5c748e`. Only the `jbe 0x5ca780` branch reaches the normal
 post-trial path. Otherwise `ds_n *= 0.95` at `0x5c7494–0x5c74a3`, resets the
 short flag, and retries while `ds_n >= 0.1` and the counter is at most 50
 (`0x5c74be–0x5c74cb`). The detailed class predicate inside `present_tooshort` is only partially resolved below; the fallback after the retry limit remains unresolved.
 
-The complete callee disassembly is preserved in `native-moveds-evidence/present-tooshort.asm`; its core pair/image loop is in `present-tooshort-core.asm`. The call at `0x5c7425–0x5c7449` passes the object in `rdi`, coordinate descriptor in `rsi`, cell descriptor `object+0xe0` in `rdx`, and receives a logical flag/scalar through `[rbp-0xdc]` and `[rbp-0xd0]`. The callee calls `ssw_commsub_mp_reci_latt_`, then evaluates periodic-image Cartesian pair distances: squared differences are summed, square-rooted, and multiplied by `short_pres_factor` (`para+0x2db40`, `0x6dab02–0x6dab45`). The current scalar is replaced only for strict `d < current` (`comisd current,new; jbe skip` at `0x6dab4b–0x6dab50`), so equality does not replace the selected pair. Pair indices are written at `0x6dab71–0x6dab79`. `$XACNA` class tests (including values 1 and 20) and an MPI reduction of the logical classification flag are also present. This establishes a PBC-aware, class-filtered minimum candidate test, not a single unqualified cutoff. The parser provenance identifies `short_pres_factor` as pressure-derived; the units of `externaltp` and the `reci_latt_` descriptor contract remain unresolved. No chemical radius or Angstrom threshold is inferred.
+The complete callee disassembly is preserved in `native-moveds-evidence/present-tooshort.asm`; its core pair/image loop is in `present-tooshort-core.asm`. **2026-09-27 correction:** the second argument is the `iza` array (structure field +0x8); coordinates are passed separately in rcx. The callee computes periodic-image distances multiplied by `short_pres_factor` and returns a minimum-distance scalar and a separate logical short-distance flag. The two integers saved at `0x6dab6e/0x6dab75` are sorted `iza` values, not atom indices. `$XACNA` is a coordinate buffer, not the species/class array. See the [corrected operand audit](2026-09-27-native-moveds-guard-semantics.md) for limits and provenance.
 
-The caller predicates are exact: a true returned flag retries; with a clear flag it retries when the returned scalar exceeds `disp_perstep` (`object+0x2e1f0`), or when `disp_perstep*(1-bonddisp_perstep)` exceeds that scalar. The retry loop continues at equality for both `ds_n >= 0.1` and trial counter `<= 50` (`0x5c74be–0x5c74cb`). These are control-flow facts, not proof that the returned scalar is a bond length.
+The caller retries for a true short flag, maximum single-atom displacement greater than `disp_perstep`, or `d_before*(1-bonddisp_perstep) > d_after`. Three distinct operands are involved. Equality passes these two scalar tests. The retry loop continues while `ds_n >= 0.1` and counter `<=50`. Earlier text incorrectly substituted `disp_perstep` for `d_before` and conflated the displacement with the returned distance; that interpretation is withdrawn.
 
 On the normal post-trial path, the saved direction record is overwritten by the Cartesian difference between selected trial coordinates and the stored center (`0x5c7b38–0x5c7b69`), then passed in-place to all-3N `n_normal` at `0x5c7c6a`; that callee explicitly sums all components and scales by the reciprocal Euclidean norm. The subsequent width loops use the persistent coordinate, center, and direction records identified above; their weighted difference is accumulated and stored at `0x5c80c4`. Therefore the direct unclipped path supports `n_out = delta_R/||delta_R||` and `width = delta_R·n_out = ||delta_R||` when the selected record/index matches. This remains conditional for retries, clipping, and alternate branches.
 
@@ -73,13 +73,7 @@ at `0x687e92–0x687e96`; the `0.005` and `1.0` constants are loaded at
 are source-backed; this audit does not assign a physical unit to `externaltp`
 or to the resulting scaled distance.
 
-`$XACNA` is a private allocatable/static array descriptor of
-`present_tooshort_` (`lasp-symbols.txt` entries at `0x5520de0–0x5520e38`),
-initialized and populated inside the callee. Its values are consumed by the
-pair-class branches, including comparisons with 1 and 20, but no stable
-external setter or semantic name for those codes was found in the bounded
-caller/parser search. It remains an atom/classification input, not an image
-flag by evidence available here.
+`$XACNA` is a private coordinate buffer in `present_tooshort_`. The comparisons to 1 and 20 read the second argument (`iza`) through r13, not this buffer. The prior classification-array interpretation is withdrawn by the 2026-09-27 pointer audit.
 
 The width write has now been followed to its immediate operands. At
 `0x5c7c73` the accumulator `xmm1` is zeroed; the loops beginning

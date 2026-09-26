@@ -46,8 +46,8 @@ def run(segments, name, flag, candidate_scalar, retry_local_scalar,
     putd(u, para + 0x2E1F8, bonddisp_perstep)
     u.mem_write(rbp - 0xDC, struct.pack("<i", int(flag)))
     # Distinct operands in the original slice: -0x40 is the preceding
-    # distance reduction; -0xd8 is a pre-existing local used for the
-    # bonddisp expression; -0xd0 is present_tooshort's returned scalar.
+    # maximum atom displacement; -0xd8 is the pre-move minimum distance;
+    # -0xd0 is the post-move minimum distance (producer audit 2026-09-27).
     putd(u, rbp - 0xD8, retry_local_scalar)
     putd(u, rbp - 0xD0, returned_scalar)
     putd(u, rbp - 0x40, candidate_scalar)
