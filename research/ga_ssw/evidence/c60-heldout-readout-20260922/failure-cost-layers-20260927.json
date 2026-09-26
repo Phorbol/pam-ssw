@@ -1,0 +1,119 @@
+{
+  "scope": "Post-hoc failure-layer audit of existing held-out study; no new independent trials",
+  "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-heldout-readout-20260922/analysis-1440586.json",
+  "extra_pes_calls": 0,
+  "rows": [
+    {
+      "case": "c60_17095",
+      "method": "baseline_broyden",
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/vc-qualification-audit/research/ga_ssw/evidence/c60-rotation-heldout-20260921/baseline_broyden/c60_17095-seed17095",
+      "boundary": "request_cap",
+      "requests": 60000,
+      "counts": {
+        "qualified_landings": 60,
+        "connected_landings": 55,
+        "accepted_landings": 23,
+        "fragmented_landings": 5,
+        "without_qualified_landing": 1
+      },
+      "statuses": {
+        "gaussian_limit": 44,
+        "lower_true_energy": 16,
+        "evaluation_failed": 1
+      },
+      "costs": {
+        "initial": 376,
+        "connected_landings": 53873,
+        "fragmented_landings": 5261,
+        "without_qualified_landing": 490
+      },
+      "accepted_fragment_transitions": 0,
+      "best_improvement_second_half_eV": 21.341127776759095,
+      "any_target_cage": false
+    },
+    {
+      "case": "c60_17095",
+      "method": "recovered_rotation",
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/vc-qualification-audit/research/ga_ssw/evidence/c60-rotation-heldout-20260921/recovered_rotation/c60_17095-seed17095",
+      "boundary": "request_cap",
+      "requests": 60000,
+      "counts": {
+        "qualified_landings": 86,
+        "connected_landings": 82,
+        "accepted_landings": 19,
+        "fragmented_landings": 4,
+        "without_qualified_landing": 1
+      },
+      "statuses": {
+        "lower_true_energy": 12,
+        "gaussian_limit": 74,
+        "evaluation_failed": 1
+      },
+      "costs": {
+        "initial": 376,
+        "connected_landings": 56480,
+        "fragmented_landings": 2517,
+        "without_qualified_landing": 627
+      },
+      "accepted_fragment_transitions": 0,
+      "best_improvement_second_half_eV": 4.439881646772847,
+      "any_target_cage": false
+    },
+    {
+      "case": "c60_17096",
+      "method": "baseline_broyden",
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/vc-qualification-audit/research/ga_ssw/evidence/c60-rotation-heldout-20260921/baseline_broyden/c60_17096-seed17096",
+      "boundary": "request_cap",
+      "requests": 60000,
+      "counts": {
+        "qualified_landings": 62,
+        "connected_landings": 57,
+        "accepted_landings": 24,
+        "fragmented_landings": 5,
+        "without_qualified_landing": 1
+      },
+      "statuses": {
+        "lower_true_energy": 19,
+        "gaussian_limit": 43,
+        "evaluation_failed": 1
+      },
+      "costs": {
+        "initial": 181,
+        "connected_landings": 53460,
+        "fragmented_landings": 5628,
+        "without_qualified_landing": 731
+      },
+      "accepted_fragment_transitions": 0,
+      "best_improvement_second_half_eV": 10.241159522985981,
+      "any_target_cage": false
+    },
+    {
+      "case": "c60_17096",
+      "method": "recovered_rotation",
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/vc-qualification-audit/research/ga_ssw/evidence/c60-rotation-heldout-20260921/recovered_rotation/c60_17096-seed17096",
+      "boundary": "request_cap",
+      "requests": 60000,
+      "counts": {
+        "qualified_landings": 83,
+        "connected_landings": 70,
+        "accepted_landings": 15,
+        "fragmented_landings": 13,
+        "without_qualified_landing": 1
+      },
+      "statuses": {
+        "lower_true_energy": 13,
+        "gaussian_limit": 70,
+        "evaluation_failed": 1
+      },
+      "costs": {
+        "initial": 181,
+        "connected_landings": 50016,
+        "fragmented_landings": 9415,
+        "without_qualified_landing": 388
+      },
+      "accepted_fragment_transitions": 0,
+      "best_improvement_second_half_eV": 0.0,
+      "any_target_cage": false
+    }
+  ]
+}
