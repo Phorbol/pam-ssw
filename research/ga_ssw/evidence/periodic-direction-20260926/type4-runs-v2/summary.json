@@ -1,0 +1,159 @@
+{
+  "rows": [
+    {
+      "arm": "global_rotation",
+      "qualified": true,
+      "status": "completed",
+      "search_live": 496,
+      "denials": 0,
+      "minima_available": 3,
+      "direction_records_checked": 0,
+      "direction_mask_support_ok": true,
+      "multi_gaussian_attempts": 1,
+      "attempts": [
+        {
+          "index": null,
+          "gaussian_count": 0
+        },
+        {
+          "index": 0,
+          "gaussian_count": 2
+        },
+        {
+          "index": 1,
+          "gaussian_count": 1
+        }
+      ],
+      "route_counts": {
+        "unreported": 3
+      },
+      "route_status": "unreported",
+      "c4_coefficient_stage_count": 0,
+      "c6_coefficient_stage_count": 0,
+      "fresh_endpoints": [
+        {
+          "index": 0,
+          "energy": -4343.445512105129,
+          "stored_energy": -4343.445512105129,
+          "energy_delta": 0.0,
+          "physical_mobile_fmax": 0.03668199656314303,
+          "force_ok": true,
+          "energy_ok": true,
+          "fixed_positions_exact": true,
+          "cell_exact": true,
+          "pbc_exact": true
+        },
+        {
+          "index": 1,
+          "energy": -4346.761653759076,
+          "stored_energy": -4346.761653759076,
+          "energy_delta": 0.0,
+          "physical_mobile_fmax": 0.04962835059265197,
+          "force_ok": true,
+          "energy_ok": true,
+          "fixed_positions_exact": true,
+          "cell_exact": true,
+          "pbc_exact": true
+        },
+        {
+          "index": 2,
+          "energy": -4347.291555783465,
+          "stored_energy": -4347.291555783465,
+          "energy_delta": 0.0,
+          "physical_mobile_fmax": 0.04091568762049846,
+          "force_ok": true,
+          "energy_ok": true,
+          "fixed_positions_exact": true,
+          "cell_exact": true,
+          "pbc_exact": true
+        }
+      ],
+      "physical_ok": true,
+      "live_requests": 496,
+      "tape_entries": 0
+    },
+    {
+      "arm": "periodic_local",
+      "qualified": true,
+      "status": "completed",
+      "search_live": 578,
+      "denials": 0,
+      "minima_available": 3,
+      "direction_records_checked": 6,
+      "direction_mask_support_ok": true,
+      "multi_gaussian_attempts": 2,
+      "attempts": [
+        {
+          "index": null,
+          "gaussian_count": 0
+        },
+        {
+          "index": 0,
+          "gaussian_count": 3
+        },
+        {
+          "index": 1,
+          "gaussian_count": 3
+        }
+      ],
+      "route_counts": {
+        "pair_fallback": 1,
+        "pair": 4,
+        "forbidden": 1
+      },
+      "route_status": "reported",
+      "c4_coefficient_stage_count": 6,
+      "c6_coefficient_stage_count": 0,
+      "direction_state_cell_exact": true,
+      "direction_state_pbc_exact": true,
+      "fresh_endpoints": [
+        {
+          "index": 0,
+          "energy": -4343.445512105129,
+          "stored_energy": -4343.445512105129,
+          "energy_delta": 0.0,
+          "physical_mobile_fmax": 0.03668199656303126,
+          "force_ok": true,
+          "energy_ok": true,
+          "fixed_positions_exact": true,
+          "cell_exact": true,
+          "pbc_exact": true
+        },
+        {
+          "index": 1,
+          "energy": -4343.626694520501,
+          "stored_energy": -4343.626694520501,
+          "energy_delta": 0.0,
+          "physical_mobile_fmax": 0.04604790377471956,
+          "force_ok": true,
+          "energy_ok": true,
+          "fixed_positions_exact": true,
+          "cell_exact": true,
+          "pbc_exact": true
+        },
+        {
+          "index": 2,
+          "energy": -4346.240083571482,
+          "stored_energy": -4346.240083571482,
+          "energy_delta": 0.0,
+          "physical_mobile_fmax": 0.04013756887049965,
+          "force_ok": true,
+          "energy_ok": true,
+          "fixed_positions_exact": true,
+          "cell_exact": true,
+          "pbc_exact": true
+        }
+      ],
+      "physical_ok": true,
+      "replay_requests": 578,
+      "replay_stream_exact": true,
+      "continuous_split_checkpoint_equal": true,
+      "live_requests": 578,
+      "tape_entries": 578
+    }
+  ],
+  "live_total": 1074,
+  "replay_total": 578,
+  "fresh_total": 6,
+  "qualified": true
+}
