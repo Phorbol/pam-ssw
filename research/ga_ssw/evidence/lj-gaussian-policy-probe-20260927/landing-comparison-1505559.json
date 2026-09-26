@@ -1,0 +1,22 @@
+[
+  {
+    "n": 38,
+    "seed": 25092501,
+    "same_label_proper_rms_A": 4.055595238110621
+  },
+  {
+    "n": 38,
+    "seed": 25092502,
+    "same_label_proper_rms_A": 1.3352657722146308
+  },
+  {
+    "n": 55,
+    "seed": 25092501,
+    "same_label_proper_rms_A": 0.4629493756171398
+  },
+  {
+    "n": 55,
+    "seed": 25092502,
+    "same_label_proper_rms_A": 0.00807947060622687
+  }
+]

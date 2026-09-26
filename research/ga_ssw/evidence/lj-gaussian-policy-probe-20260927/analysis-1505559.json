@@ -1,0 +1,229 @@
+{
+  "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/lj-gaussian-policy-probe-20260927/run-1505559",
+  "scope": "Single-escape developer probe; no global-search ranking",
+  "search": 7801,
+  "fresh": 16,
+  "pairing_or_replay_errors": [],
+  "replay": [
+    {
+      "seed": 25092501,
+      "checks": {
+        "status": true,
+        "accepted": true,
+        "cost": true,
+        "energy": true
+      }
+    },
+    {
+      "seed": 25092502,
+      "checks": {
+        "status": true,
+        "accepted": true,
+        "cost": true,
+        "energy": true
+      }
+    }
+  ],
+  "rows": [
+    {
+      "n": 38,
+      "seed": 25092501,
+      "policy": "forward_default",
+      "status": "completed",
+      "outer_status": "gaussian_limit",
+      "accepted": false,
+      "boundary": null,
+      "search": 1399,
+      "fresh": 2,
+      "force_qualified": true,
+      "connected": false,
+      "delta_energy_eV": 6.198224837616607,
+      "same_label_proper_rms_A": 4.109539476501981,
+      "rms_interpretation": "Small RMS supports same geometry; large RMS does not exclude a permutation",
+      "first_height": 114.17966771183696,
+      "first_width": 0.6,
+      "max_height": 114.17966771183696,
+      "min_width": 0.6,
+      "stages": 14,
+      "clipping": {
+        "width_clamped": 0,
+        "weight_clamped": 0
+      }
+    },
+    {
+      "n": 38,
+      "seed": 25092501,
+      "policy": "pam_curvature_height_width",
+      "status": "completed",
+      "outer_status": "lower_true_energy",
+      "accepted": true,
+      "boundary": null,
+      "search": 1186,
+      "fresh": 2,
+      "force_qualified": true,
+      "connected": true,
+      "delta_energy_eV": -1.8923734219417554,
+      "same_label_proper_rms_A": 1.9374797409058706,
+      "rms_interpretation": "Small RMS supports same geometry; large RMS does not exclude a permutation",
+      "first_height": 1.2037778158047967,
+      "first_width": 0.2748750918070395,
+      "max_height": 2.5883361958956543,
+      "min_width": 0.25213946215028504,
+      "stages": 6,
+      "clipping": {
+        "width_clamped": 0,
+        "weight_clamped": 0
+      }
+    },
+    {
+      "n": 38,
+      "seed": 25092502,
+      "policy": "pam_curvature_height_width",
+      "status": "completed",
+      "outer_status": "lower_true_energy",
+      "accepted": true,
+      "boundary": null,
+      "search": 1024,
+      "fresh": 2,
+      "force_qualified": true,
+      "connected": true,
+      "delta_energy_eV": -12.369705397180581,
+      "same_label_proper_rms_A": 2.017656389361684,
+      "rms_interpretation": "Small RMS supports same geometry; large RMS does not exclude a permutation",
+      "first_height": 1.2101061860417364,
+      "first_width": 0.4495817176384342,
+      "max_height": 2.322334235651538,
+      "min_width": 0.4495817176384342,
+      "stages": 2,
+      "clipping": {
+        "width_clamped": 0,
+        "weight_clamped": 0
+      }
+    },
+    {
+      "n": 38,
+      "seed": 25092502,
+      "policy": "forward_default",
+      "status": "completed",
+      "outer_status": "lower_true_energy",
+      "accepted": true,
+      "boundary": null,
+      "search": 955,
+      "fresh": 2,
+      "force_qualified": true,
+      "connected": true,
+      "delta_energy_eV": -9.354105637477886,
+      "same_label_proper_rms_A": 1.5440532220743368,
+      "rms_interpretation": "Small RMS supports same geometry; large RMS does not exclude a permutation",
+      "first_height": 5.371747967294446,
+      "first_width": 0.6,
+      "max_height": 5.371747967294446,
+      "min_width": 0.6,
+      "stages": 1,
+      "clipping": {
+        "width_clamped": 0,
+        "weight_clamped": 0
+      }
+    },
+    {
+      "n": 55,
+      "seed": 25092501,
+      "policy": "forward_default",
+      "status": "completed",
+      "outer_status": "lower_true_energy",
+      "accepted": true,
+      "boundary": null,
+      "search": 782,
+      "fresh": 2,
+      "force_qualified": true,
+      "connected": true,
+      "delta_energy_eV": -6.657859492427974,
+      "same_label_proper_rms_A": 1.0325264784893151,
+      "rms_interpretation": "Small RMS supports same geometry; large RMS does not exclude a permutation",
+      "first_height": 6.189839152995736,
+      "first_width": 0.6,
+      "max_height": 6.189839152995736,
+      "min_width": 0.6,
+      "stages": 2,
+      "clipping": {
+        "width_clamped": 0,
+        "weight_clamped": 0
+      }
+    },
+    {
+      "n": 55,
+      "seed": 25092501,
+      "policy": "pam_curvature_height_width",
+      "status": "completed",
+      "outer_status": "lower_true_energy",
+      "accepted": true,
+      "boundary": null,
+      "search": 815,
+      "fresh": 2,
+      "force_qualified": true,
+      "connected": true,
+      "delta_energy_eV": -6.89871984931267,
+      "same_label_proper_rms_A": 1.0335841374844679,
+      "rms_interpretation": "Small RMS supports same geometry; large RMS does not exclude a permutation",
+      "first_height": 1.208341217418225,
+      "first_width": 0.40844136465899533,
+      "max_height": 1.5135378509276338,
+      "min_width": 0.3599724128666446,
+      "stages": 3,
+      "clipping": {
+        "width_clamped": 0,
+        "weight_clamped": 0
+      }
+    },
+    {
+      "n": 55,
+      "seed": 25092502,
+      "policy": "pam_curvature_height_width",
+      "status": "completed",
+      "outer_status": "lower_true_energy",
+      "accepted": true,
+      "boundary": null,
+      "search": 829,
+      "fresh": 2,
+      "force_qualified": true,
+      "connected": true,
+      "delta_energy_eV": -1.006151798655253,
+      "same_label_proper_rms_A": 0.5437825919832283,
+      "rms_interpretation": "Small RMS supports same geometry; large RMS does not exclude a permutation",
+      "first_height": 1.2064285999320654,
+      "first_width": 0.35856937772389513,
+      "max_height": 1.4055410304908613,
+      "min_width": 0.3574293842221364,
+      "stages": 2,
+      "clipping": {
+        "width_clamped": 0,
+        "weight_clamped": 0
+      }
+    },
+    {
+      "n": 55,
+      "seed": 25092502,
+      "policy": "forward_default",
+      "status": "completed",
+      "outer_status": "lower_true_energy",
+      "accepted": true,
+      "boundary": null,
+      "search": 811,
+      "fresh": 2,
+      "force_qualified": true,
+      "connected": true,
+      "delta_energy_eV": -1.0062930951038993,
+      "same_label_proper_rms_A": 0.5438715236734736,
+      "rms_interpretation": "Small RMS supports same geometry; large RMS does not exclude a permutation",
+      "first_height": 8.897221768584318,
+      "first_width": 0.6,
+      "max_height": 8.897221768584318,
+      "min_width": 0.6,
+      "stages": 1,
+      "clipping": {
+        "width_clamped": 0,
+        "weight_clamped": 0
+      }
+    }
+  ]
+}

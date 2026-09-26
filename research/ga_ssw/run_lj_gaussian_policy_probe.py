@@ -6,6 +6,7 @@ import argparse
 from dataclasses import asdict, replace
 import hashlib
 import importlib.util
+from itertools import combinations
 import json
 import os
 from pathlib import Path
@@ -24,13 +25,26 @@ from pamssw.standalone import ASESurface
 EVIDENCE = ROOT / 'research/ga_ssw/evidence/cluster-paper-reproduction-20260925'
 GENERATOR = EVIDENCE / 'runs/run_lj_pilot.py'
 REFERENCE_QUALIFICATION = EVIDENCE / 'lj-reference-qualification.json'
-POLICIES = ('forward_default', 'pam_curvature_height_width')
+DEFAULT_POLICIES = ('forward_default', 'pam_curvature_height_width')
+POLICY_CHOICES = (*DEFAULT_POLICIES, 'pam_curvature_height_only')
 SIZES = (38, 55)
 SEEDS = (25092501, 25092502)
 ARM_REQUEST_CAP = 2500
 CAMPAIGN_WALL_SECONDS = 240
 FRESH_REQUEST_CAP_TOTAL = 16
 EPSILON_EV, SIGMA_A = 1.0, 2.7
+
+
+def _gaussian_policy(name):
+    if name == 'forward_default':
+        return None
+    if name == 'pam_curvature_height_width':
+        from pamssw.standalone.pam_gaussian import PAMCurvatureGaussian
+        return PAMCurvatureGaussian(mode='height_width')
+    if name == 'pam_curvature_height_only':
+        from pamssw.standalone.pam_gaussian import PAMCurvatureGaussian
+        return PAMCurvatureGaussian(mode='height_only')
+    raise ValueError(f'unknown Gaussian policy: {name}')
 
 
 def _load_generator():
@@ -102,12 +116,14 @@ def _check_connectivity(atoms):
 
 class CountedASESurface(ASESurface):
     """ASE surface that denies calls past arm, campaign-time, or fresh caps."""
-    def __init__(self, calculator, *, cap, deadline, fresh_total=None, case_cost=None):
+    def __init__(self, calculator, *, cap, deadline, fresh_total=None, case_cost=None,
+                 fresh_total_limit=FRESH_REQUEST_CAP_TOTAL):
         super().__init__(calculator)
         self.cap = int(cap)
         self.deadline = float(deadline)
         self.fresh_total = fresh_total
         self.case_cost = case_cost
+        self.fresh_total_limit = int(fresh_total_limit)
         self.denials = 0
         self.boundary = None
 
@@ -115,7 +131,7 @@ class CountedASESurface(ASESurface):
         boundary = None
         if self.requests >= self.cap:
             boundary = 'request_cap'
-        elif self.fresh_total is not None and self.fresh_total[0] >= FRESH_REQUEST_CAP_TOTAL:
+        elif self.fresh_total is not None and self.fresh_total[0] >= self.fresh_total_limit:
             boundary = 'campaign_fresh_cap'
         elif time.monotonic() >= self.deadline:
             boundary = 'campaign_wall_cap'
@@ -139,12 +155,12 @@ class CountedASESurface(ASESurface):
                 self.fresh_total[0] += delta
 
 
-def _fresh_check(atoms, *, label, deadline, fresh_total, case_cost):
-    from pamssw.standalone import ASESurface
+def _fresh_check(atoms, *, label, deadline, fresh_total, fresh_total_limit, case_cost):
     from research.ga_ssw.full_pair_lj import FullPairLJ
 
     surface = CountedASESurface(FullPairLJ(epsilon=EPSILON_EV, sigma=SIGMA_A),
-        cap=1, deadline=deadline, fresh_total=fresh_total, case_cost=case_cost)
+        cap=1, deadline=deadline, fresh_total=fresh_total, case_cost=case_cost,
+        fresh_total_limit=fresh_total_limit)
     row = {'label': label}
     try:
         energy, forces = surface.evaluate(atoms)
@@ -182,18 +198,17 @@ def _first_mode_atoms(input_atoms, mode_record):
 
 
 def _run_case(generator, *, n, seed, policy_name, output_dir, deadline,
-              fresh_total, case_cost, config, rotation):
+              fresh_total, fresh_total_limit, case_cost, config, rotation):
     from ase.io import write
     from pamssw.standalone import run_ssw
     from pamssw.standalone.paper_reference import InitialQuenchError
-    from pamssw.standalone.pam_gaussian import PAMCurvatureGaussian
     from research.ga_ssw.full_pair_lj import FullPairLJ
 
     folder = output_dir / f'lj{n}-seed{seed}' / policy_name
     folder.mkdir(parents=True)
     atoms, search_seed = generator.uniform_volume_cluster(n, seed)
     write(folder / 'input.extxyz', atoms)
-    policy = None if policy_name == 'forward_default' else PAMCurvatureGaussian()
+    policy = _gaussian_policy(policy_name)
     effective = {
         'n': n, 'seed': seed, 'policy': policy_name,
         'ssw_config': asdict(config), 'recovered_rotation': asdict(rotation),
@@ -254,10 +269,12 @@ def _run_case(generator, *, n, seed, policy_name, output_dir, deadline,
     fresh_checks = []
     if initial_atoms is not None:
         fresh_checks.append(_fresh_check(initial_atoms, label='initial',
-            deadline=deadline, fresh_total=fresh_total, case_cost=case_cost))
+            deadline=deadline, fresh_total=fresh_total,
+            fresh_total_limit=fresh_total_limit, case_cost=case_cost))
     if landing_atoms is not None:
         fresh_checks.append(_fresh_check(landing_atoms, label='landing',
-            deadline=deadline, fresh_total=fresh_total, case_cost=case_cost))
+            deadline=deadline, fresh_total=fresh_total,
+            fresh_total_limit=fresh_total_limit, case_cost=case_cost))
 
     climbs = () if row_record is None else row_record.climb
     clipping = {
@@ -297,20 +314,22 @@ def _run_case(generator, *, n, seed, policy_name, output_dir, deadline,
     return summary
 
 
-def prepare(output_dir: Path):
+def prepare(output_dir: Path, policies):
     generator = _load_generator()
     config, rotation = _settings(generator)
-    payload = _prepare_payload(output_dir, generator, config, rotation)
+    payload = _prepare_payload(output_dir, generator, config, rotation, policies)
     payload['status'] = 'prepare_only_passed_zero_PES'
     print(json.dumps(payload, indent=2, allow_nan=False))
 
 
-def execute(output_dir: Path):
+def execute(output_dir: Path, policies):
     if output_dir.exists():
         raise FileExistsError(output_dir)
     generator = _load_generator()
     config, rotation = _settings(generator)
-    prepare_info = _prepare_payload(output_dir, generator, config, rotation)
+    policies = tuple(policies)
+    fresh_cap_total = len(policies) * len(SIZES) * len(SEEDS) * 2
+    prepare_info = _prepare_payload(output_dir, generator, config, rotation, policies)
     output_dir.mkdir(parents=True)
     import shutil
     shutil.copy2(Path(__file__).resolve(), output_dir / Path(__file__).name)
@@ -322,10 +341,13 @@ def execute(output_dir: Path):
         'git_head': git_head, 'tracked_worktree_diff_present': tracked_diff,
         'python': sys.executable, 'ase_version': ase.__version__, 'numpy_version': np.__version__,
         'runner_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-        'protocol': 'research/ga_ssw/evidence/lj-gaussian-policy-probe-20260927/protocol.md',
+        'protocol': ('research/ga_ssw/evidence/lj-gaussian-policy-probe-20260927/' +
+                     ('height-only-followup.md' if policies == ('pam_curvature_height_only',)
+                      else 'protocol.md')),
         'campaign_wall_seconds': CAMPAIGN_WALL_SECONDS,
         'search_request_cap_per_arm': ARM_REQUEST_CAP,
-        'fresh_request_cap_total': FRESH_REQUEST_CAP_TOTAL,
+        'fresh_request_cap_total': fresh_cap_total,
+        'policies': list(policies),
         'source': str(GENERATOR), 'source_sha256': hashlib.sha256(GENERATOR.read_bytes()).hexdigest(),
         'prepare': prepare_info,
     })
@@ -335,7 +357,7 @@ def execute(output_dir: Path):
     rows = []
     pairs = [(n, seed) for n in SIZES for seed in SEEDS]
     for pair_index, (n, seed) in enumerate(pairs):
-        order = POLICIES if pair_index % 2 == 0 else tuple(reversed(POLICIES))
+        order = policies if pair_index % 2 == 0 else tuple(reversed(policies))
         for policy_name in order:
             case_dir = output_dir / f'lj{n}-seed{seed}' / policy_name
             case_cost = {'search_requests': 0, 'fresh_requests': 0,
@@ -351,7 +373,8 @@ def execute(output_dir: Path):
                 try:
                     summary = _run_case(generator, n=n, seed=seed,
                         policy_name=policy_name, output_dir=output_dir,
-                        deadline=deadline, fresh_total=fresh_total, case_cost=case_cost,
+                        deadline=deadline, fresh_total=fresh_total,
+                        fresh_total_limit=fresh_cap_total, case_cost=case_cost,
                         config=config, rotation=rotation)
                 except Exception as error:
                     case_dir.mkdir(parents=True, exist_ok=True)
@@ -369,16 +392,18 @@ def execute(output_dir: Path):
             })
     pair_checks = []
     index = {(row.get('n'), row.get('seed'), row.get('policy')): row for row in rows}
-    for n, seed in pairs:
-        baseline = index.get((n, seed, POLICIES[0]), {})
-        adaptive = index.get((n, seed, POLICIES[1]), {})
-        a, b = baseline.get('first_gaussian'), adaptive.get('first_gaussian')
-        same = False
-        if (isinstance(a, dict) and isinstance(b, dict) and
-                all(x.get(key) is not None for x in (a, b) for key in ('center', 'direction'))):
-            same = (np.allclose(a.get('center'), b.get('center'), atol=1e-12, rtol=0) and
-                    np.allclose(a.get('direction'), b.get('direction'), atol=1e-12, rtol=0))
-        pair_checks.append({'n': n, 'seed': seed, 'first_center_direction_match': bool(same)})
+    if len(policies) > 1:
+        for n, seed in pairs:
+            for policy_a, policy_b in combinations(policies, 2):
+                a = index.get((n, seed, policy_a), {}).get('first_gaussian')
+                b = index.get((n, seed, policy_b), {}).get('first_gaussian')
+                same = False
+                if (isinstance(a, dict) and isinstance(b, dict) and
+                        all(x.get(key) is not None for x in (a, b) for key in ('center', 'direction'))):
+                    same = (np.allclose(a['center'], b['center'], atol=1e-12, rtol=0) and
+                            np.allclose(a['direction'], b['direction'], atol=1e-12, rtol=0))
+                pair_checks.append({'n': n, 'seed': seed, 'policy_a': policy_a,
+                    'policy_b': policy_b, 'first_center_direction_match': bool(same)})
     _dump(output_dir / 'summary.json', {
         'status': 'completed_with_censoring' if time.monotonic() >= deadline else 'completed',
         'campaign_wall_seconds': time.monotonic() - started,
@@ -389,7 +414,7 @@ def execute(output_dir: Path):
     })
 
 
-def _prepare_payload(output_dir, generator, config, rotation):
+def _prepare_payload(output_dir, generator, config, rotation, policies):
     # Execute-mode validation is silent; no calculator is constructed or called.
     if output_dir.exists():
         raise FileExistsError(output_dir)
@@ -397,7 +422,10 @@ def _prepare_payload(output_dir, generator, config, rotation):
     qualified = {row['n']: bool(row.get('qualified')) for row in qualifications}
     if not all(qualified.get(n, False) for n in SIZES):
         raise ValueError(f'reference qualification missing for requested sizes: {qualified}')
-    from pamssw.standalone.pam_gaussian import PAMCurvatureGaussian
+    policies = tuple(policies)
+    if (not policies or len(set(policies)) != len(policies) or
+            any(name not in POLICY_CHOICES for name in policies)):
+        raise ValueError(f'policies must be selected from {POLICY_CHOICES}')
     inputs = []
     for n in SIZES:
         for seed in SEEDS:
@@ -407,19 +435,21 @@ def _prepare_payload(output_dir, generator, config, rotation):
                     np.asarray(atoms.positions, dtype='<f8').tobytes()).hexdigest(),
                 'search_rng_seed_sequence': {'entropy': child.entropy,
                     'spawn_key': list(child.spawn_key), 'pool_size': child.pool_size}})
+    arms = []
+    for name in policies:
+        policy = _gaussian_policy(name)
+        arms.append({'name': name,
+            'gaussian_policy': None if policy is None else policy.parameters()})
     return {
         'output_available': str(output_dir), 'input_source': str(GENERATOR),
         'reference_qualification': str(REFERENCE_QUALIFICATION),
         'sizes': SIZES, 'seeds': SEEDS, 'steps_per_arm': 1,
         'search_request_cap_per_arm_including_initial': ARM_REQUEST_CAP,
-        'search_request_cap_total': 8 * ARM_REQUEST_CAP,
-        'fresh_request_cap_total': FRESH_REQUEST_CAP_TOTAL,
+        'search_request_cap_total': len(policies) * len(SIZES) * len(SEEDS) * ARM_REQUEST_CAP,
+        'fresh_request_cap_total': len(policies) * len(SIZES) * len(SEEDS) * 2,
         'campaign_wall_seconds': CAMPAIGN_WALL_SECONDS,
         'ssw_config': asdict(config), 'recovered_rotation': asdict(rotation),
-        'arms': [
-            {'name': POLICIES[0], 'gaussian_policy': None},
-            {'name': POLICIES[1], 'gaussian_policy': PAMCurvatureGaussian().parameters()},
-        ],
+        'arms': arms,
         'inputs': inputs, 'PES_requests': 0,
     }
 
@@ -428,16 +458,19 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True, type=Path,
         help='new directory for all raw inputs, records, and summaries')
+    parser.add_argument('--policies', nargs='+', choices=POLICY_CHOICES,
+        default=list(DEFAULT_POLICIES),
+        help='Gaussian policy arms; defaults to the original matched two-arm probe')
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument('--prepare-only', action='store_true',
         help='qualify inputs/settings and report zero PES calls')
     mode.add_argument('--execute', action='store_true',
-        help='run the eight explicitly budgeted one-step trajectories')
+        help='run the selected explicitly budgeted one-step trajectories')
     args = parser.parse_args()
     if args.prepare_only:
-        prepare(args.output.resolve())
+        prepare(args.output.resolve(), args.policies)
     else:
-        execute(args.output.resolve())
+        execute(args.output.resolve(), args.policies)
 
 
 if __name__ == '__main__':
