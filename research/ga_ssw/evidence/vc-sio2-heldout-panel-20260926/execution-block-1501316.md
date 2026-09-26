@@ -1,5 +1,12 @@
 # Execution blocked before scientific results
 
+**Superseded by startup recovery:** the user's `--export` hypothesis was tested
+in CPU jobs 1502773/1502774. Only the explicit-export arm was cancelled. Passing
+inputs as script arguments restored actual GPU execution in 1502803. See
+`../slurm-export-probe-20260926/decision.md` and `startup-recovery.md`.
+The original diagnosis below is retained as history; administrator logs are
+no longer a prerequisite for this experiment.
+
 2026-09-26, first scheduled status review at 21:56 Asia/Shanghai.
 
 GPU array 1501316 (six arms) and its dependent CPU analysis 1501323 were
