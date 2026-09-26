@@ -1,0 +1,27 @@
+{
+  "status": "completed",
+  "algorithm_status": "converged",
+  "search_requests": 16,
+  "fresh_requests": 2,
+  "total_requests": 18,
+  "budget_censor": false,
+  "censor_reason": null,
+  "initial_certificate": {
+    "energy_eV": -70.9176289338499,
+    "volume_A3": 112.96385386559709,
+    "fmax_eV_A": 0.35135236319085666,
+    "stress_residual_max_eV_A3": 0.032475096347793685,
+    "force_pass": false,
+    "stress_pass": false,
+    "certified": false
+  },
+  "quench_certificate": {
+    "fmax": 0.010716366614730253,
+    "stress_max": 0.0008550936530347086,
+    "certified": true
+  },
+  "fresh_candidate_count": 2,
+  "fresh_qualified_count": 1,
+  "run_error": null,
+  "wall_seconds": 10.313105241395533
+}
