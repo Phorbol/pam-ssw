@@ -1,0 +1,19 @@
+{
+  "doi": "10.1039/C8SC03427C",
+  "title": "Atomic structure of boron resolved using machine learning and global sampling",
+  "pmcid": "PMC6289100",
+  "retrieved": "2026-09-26",
+  "xml_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6289100/fullTextXML",
+  "images_source": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6289100/supplementaryFiles",
+  "method": "urllib.request.urlopen; selected original equation images extracted from ZIP",
+  "formula_mapping": {
+    "c8sc03427c-t5.jpg": "S1, paper equation 6",
+    "c8sc03427c-t6.jpg": "S2, paper equation 7",
+    "c8sc03427c-t7.jpg": "S3, paper equation 8",
+    "c8sc03427c-t8.jpg": "S4, paper equation 9",
+    "c8sc03427c-t9.jpg": "S5, paper equation 10",
+    "c8sc03427c-t10.jpg": "S6, paper equation 11"
+  },
+  "scope": "primary descriptor formula source; does not establish Q selector or search benefit",
+  "not_archived": "whole supplementary ZIP kept at /tmp/pam-ptsd-files.zip; irrelevant images/SI not copied into repository"
+}

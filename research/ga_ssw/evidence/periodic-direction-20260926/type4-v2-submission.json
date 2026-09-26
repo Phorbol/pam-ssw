@@ -1,0 +1,16 @@
+{
+  "job_id": 1499137,
+  "command": "sbatch --wait --parsable research/ga_ssw/evidence/periodic-direction-20260926/type4-v2.sbatch",
+  "code_commit": "11bfbd3053e1dcd1b0438bf1865690a462a23802",
+  "tracked_source_dirty": false,
+  "account": "sjtu-caoxiaoming",
+  "gpu": "1 V100",
+  "wall_minutes": 20,
+  "status_at_submission": "submitted",
+  "output_directory": "type4-runs-v2",
+  "baseline": "global_rotation",
+  "candidate": "periodic_local",
+  "scope": "bounded fixed-substrate function qualification, not performance ranking",
+  "parent_job": 1499057,
+  "correction": "counted Oracle requests property; unchanged physical protocol; no previous PES calls"
+}
