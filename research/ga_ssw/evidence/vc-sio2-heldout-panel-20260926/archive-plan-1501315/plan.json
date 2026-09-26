@@ -1,0 +1,556 @@
+{
+  "question": "Does the frozen Safe-total cost candidate remain operationally robust on a held-out 72-atom alpha-quartz-derived SiO2 supercell?",
+  "purpose": "short held-out operational optimizer comparison; not paper BKS reproduction, phase-ordering study, or global-search validation",
+  "model": "/home/gengjianrui/.cache/mace/mace-omat-0-small.model",
+  "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+  "device": "cuda",
+  "dtype": "float64",
+  "calculator": {
+    "head": "omat_pbe",
+    "enable_cueq": false,
+    "enable_oeq": false,
+    "torch_num_threads": 1,
+    "torch_num_interop_threads": 1
+  },
+  "methods": [
+    "safe_total",
+    "ase",
+    "scipy"
+  ],
+  "seeds": [
+    71,
+    83
+  ],
+  "steps": 3,
+  "budget": {
+    "search_requests_per_arm": 6000,
+    "search_seconds_per_arm": 1650,
+    "external_seconds_per_arm": 1740,
+    "fresh_requests_per_arm": 4,
+    "total_search_requests": 36000,
+    "total_fresh_requests": 24,
+    "max_parallel_gpus": 2,
+    "gpu_minutes_per_arm": 30,
+    "max_gpu_hours": 3
+  },
+  "metrics": {
+    "primary": "paid search E/F/stress requests per attempted outer record",
+    "qualification": "fresh-valid physical landings per attempted outer record",
+    "physical_certificate": {
+      "fmax_eV_A": 0.05,
+      "stress_residual_eV_A3": 0.001,
+      "pressure_eV_A3": 0.0
+    },
+    "denominators": "18 planned outer slots; report actual attempted outer records separately. Slots unattempted after censor/early termination are unobserved, not optimizer failures. All six planned arms remain in the arm denominator.",
+    "censoring": "failed or censored attempted proposals retain their paid cost and status; do not treat absent/unattempted slots as zero-cost successes or failures"
+  },
+  "cases": [
+    {
+      "name": "SiO2-COD1011097-qualified-2x2x2-72",
+      "source_result": "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/evidence/vc-sio2-qualification-20260926/archive-1501259/qualified-start.extxyz",
+      "source_field": "single COD alpha-quartz cell after job 1501259 Safe cell_quench and independent fresh physical qualification",
+      "input_transform": {
+        "repeat": [
+          2,
+          2,
+          2
+        ],
+        "atoms_before": 9,
+        "atoms_after": 72
+      },
+      "input_sha256": "8fadefd0c3cda66f5ad38e19107a2fe770d03d68355e5257bc429081bb064760",
+      "input": {
+        "numbers": [
+          14,
+          14,
+          14,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          14,
+          14,
+          14,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          14,
+          14,
+          14,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          14,
+          14,
+          14,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          14,
+          14,
+          14,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          14,
+          14,
+          14,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          14,
+          14,
+          14,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          14,
+          14,
+          14,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8
+        ],
+        "positions": [
+          [
+            2.3964807,
+            4.737e-05,
+            1.82594685
+          ],
+          [
+            -1.19828137,
+            2.07538949,
+            3.65202744
+          ],
+          [
+            1.32192833,
+            2.2895523,
+            5.47810804
+          ],
+          [
+            1.44633699,
+            1.12207978,
+            1.13033648
+          ],
+          [
+            3.34533724,
+            0.69152468,
+            2.95641708
+          ],
+          [
+            2.76870877,
+            2.55138469,
+            4.78249767
+          ],
+          [
+            0.24869012,
+            1.8136011,
+            4.34785645
+          ],
+          [
+            0.82515798,
+            3.67356057,
+            0.69569526
+          ],
+          [
+            -1.07384811,
+            3.24281665,
+            2.52177585
+          ],
+          [
+            2.3964807000001485,
+            4.7370000125498254e-05,
+            7.304188637537751
+          ],
+          [
+            -1.1982813699998516,
+            2.0753894900001257,
+            9.13026922753775
+          ],
+          [
+            1.3219283300001483,
+            2.2895523000001257,
+            10.956349827537752
+          ],
+          [
+            1.4463369900001484,
+            1.1220797800001254,
+            6.608578267537752
+          ],
+          [
+            3.3453372400001484,
+            0.6915246800001255,
+            8.43465886753775
+          ],
+          [
+            2.7687087700001483,
+            2.5513846900001256,
+            10.26073945753775
+          ],
+          [
+            0.24869012000014834,
+            1.8136011000001255,
+            9.826098237537751
+          ],
+          [
+            0.8251579800001483,
+            3.6735605700001255,
+            6.173937047537751
+          ],
+          [
+            -1.0738481099998516,
+            3.2428166500001256,
+            8.000017637537752
+          ],
+          [
+            -0.1236469653440766,
+            4.3650365279361,
+            1.8259468500000313
+          ],
+          [
+            -3.7184090353440764,
+            6.4403786479361,
+            3.6520274400000314
+          ],
+          [
+            -1.1981993353440767,
+            6.6545414579361,
+            5.4781080400000315
+          ],
+          [
+            -1.0737906753440767,
+            5.4870689379361,
+            1.1303364800000313
+          ],
+          [
+            0.8252095746559234,
+            5.0565138379361,
+            2.9564170800000316
+          ],
+          [
+            0.2485811046559232,
+            6.9163738479361,
+            4.782497670000031
+          ],
+          [
+            -2.2714375453440767,
+            6.178590257936101,
+            4.347856450000031
+          ],
+          [
+            -1.6949696853440768,
+            8.0385497279361,
+            0.6956952600000315
+          ],
+          [
+            -3.5939757753440764,
+            7.6078058079361,
+            2.5217758500000316
+          ],
+          [
+            -0.12364696534392827,
+            4.365036527936225,
+            7.3041886375377825
+          ],
+          [
+            -3.718409035343928,
+            6.4403786479362255,
+            9.130269227537783
+          ],
+          [
+            -1.1981993353439284,
+            6.654541457936226,
+            10.956349827537782
+          ],
+          [
+            -1.0737906753439284,
+            5.487068937936225,
+            6.608578267537782
+          ],
+          [
+            0.8252095746560717,
+            5.056513837936225,
+            8.434658867537783
+          ],
+          [
+            0.24858110465607153,
+            6.916373847936225,
+            10.260739457537781
+          ],
+          [
+            -2.2714375453439284,
+            6.178590257936225,
+            9.826098237537781
+          ],
+          [
+            -1.6949696853439284,
+            8.038549727936225,
+            6.173937047537782
+          ],
+          [
+            -3.593975775343928,
+            7.607805807936225,
+            8.000017637537782
+          ],
+          [
+            7.436736030689673,
+            4.737000087646955e-05,
+            1.8259468500001348
+          ],
+          [
+            3.841973960689673,
+            2.0753894900008767,
+            3.652027440000135
+          ],
+          [
+            6.362183660689674,
+            2.2895523000008766,
+            5.478108040000135
+          ],
+          [
+            6.486592320689673,
+            1.1220797800008764,
+            1.1303364800001348
+          ],
+          [
+            8.385592570689674,
+            0.6915246800008765,
+            2.956417080000135
+          ],
+          [
+            7.808964100689673,
+            2.5513846900008765,
+            4.782497670000135
+          ],
+          [
+            5.288945450689673,
+            1.8136011000008765,
+            4.347856450000135
+          ],
+          [
+            5.865413310689673,
+            3.6735605700008764,
+            0.6956952600001349
+          ],
+          [
+            3.966407220689673,
+            3.2428166500008766,
+            2.521775850000135
+          ],
+          [
+            7.436736030689822,
+            4.73700010019678e-05,
+            7.304188637537886
+          ],
+          [
+            3.8419739606898213,
+            2.075389490001002,
+            9.130269227537886
+          ],
+          [
+            6.362183660689821,
+            2.289552300001002,
+            10.956349827537887
+          ],
+          [
+            6.486592320689821,
+            1.1220797800010018,
+            6.608578267537887
+          ],
+          [
+            8.385592570689822,
+            0.691524680001002,
+            8.434658867537886
+          ],
+          [
+            7.808964100689821,
+            2.5513846900010018,
+            10.260739457537886
+          ],
+          [
+            5.2889454506898215,
+            1.813601100001002,
+            9.826098237537886
+          ],
+          [
+            5.865413310689822,
+            3.6735605700010017,
+            6.173937047537886
+          ],
+          [
+            3.9664072206898213,
+            3.242816650001002,
+            8.000017637537887
+          ],
+          [
+            4.9166083653455965,
+            4.365036527936977,
+            1.8259468500001663
+          ],
+          [
+            1.3218462953455965,
+            6.440378647936977,
+            3.652027440000166
+          ],
+          [
+            3.8420559953455964,
+            6.654541457936977,
+            5.4781080400001665
+          ],
+          [
+            3.9664646553455967,
+            5.487068937936977,
+            1.1303364800001663
+          ],
+          [
+            5.865464905345597,
+            5.0565138379369765,
+            2.956417080000166
+          ],
+          [
+            5.288836435345596,
+            6.916373847936977,
+            4.782497670000166
+          ],
+          [
+            2.7688177853455964,
+            6.1785902579369765,
+            4.347856450000166
+          ],
+          [
+            3.345285645345596,
+            8.038549727936976,
+            0.6956952600001662
+          ],
+          [
+            1.4462795553455965,
+            7.607805807936977,
+            2.521775850000166
+          ],
+          [
+            4.916608365345745,
+            4.365036527937102,
+            7.3041886375379175
+          ],
+          [
+            1.3218462953457448,
+            6.440378647937102,
+            9.130269227537918
+          ],
+          [
+            3.8420559953457447,
+            6.654541457937102,
+            10.956349827537917
+          ],
+          [
+            3.966464655345745,
+            5.487068937937102,
+            6.608578267537917
+          ],
+          [
+            5.865464905345744,
+            5.056513837937102,
+            8.434658867537918
+          ],
+          [
+            5.288836435345745,
+            6.916373847937102,
+            10.260739457537916
+          ],
+          [
+            2.7688177853457447,
+            6.178590257937103,
+            9.826098237537916
+          ],
+          [
+            3.3452856453457445,
+            8.038549727937102,
+            6.173937047537917
+          ],
+          [
+            1.4462795553457448,
+            7.607805807937102,
+            8.000017637537917
+          ]
+        ],
+        "cell": [
+          [
+            10.080510661379346,
+            1.7529390908800622e-12,
+            2.6974587622850657e-13
+          ],
+          [
+            -5.0402553306881535,
+            8.7299783158722,
+            6.274653077028754e-14
+          ],
+          [
+            2.967039924972215e-13,
+            2.5099650389793323e-13,
+            10.956483575075502
+          ]
+        ],
+        "pbc": [
+          true,
+          true,
+          true
+        ]
+      },
+      "config": {
+        "strain_length": 5.0,
+        "width": 0.6,
+        "rotation_bias": 100.0,
+        "pressure": 0.0,
+        "temperature_K": 300.0,
+        "forward_force": 0.1,
+        "max_gaussians": 10,
+        "gradient_tol": 0.05,
+        "fmax": 0.05,
+        "stress_tol": 0.001,
+        "max_step": 0.2,
+        "relax_steps": 300,
+        "fd_step": 0.0001,
+        "rotation_hvp": 100,
+        "rotation_tol": 0.02,
+        "lbfgs_memory": 500,
+        "bias_release": "strict"
+      },
+      "config_source": "existing frozen VC e2e plan TiO2-phase87 case (research/ga_ssw/evidence/vc-e2e-optimizer-panel-20260926/plan.json); AlOH26 uses width=0.2/max_gaussians=14 and is not the source preset"
+    }
+  ],
+  "protocol_limits": {
+    "method_variation": "only optimizer adapter (Safe-total, ASE LBFGSLineSearch, SciPy L-BFGS-B); same input, model, full VC chart, pressure, config, seeds, proposal count, request and time budgets",
+    "stopping_fairness": "operational optimizer comparison, not an isolated line-search/cost comparison: native stopping criteria differ; existing norm conversions are retained, and ASE/SciPy step-cap behavior is not fully equivalent",
+    "metric_size_dependence": "strain_length=5.0 is held fixed as operational transfer, not a size-invariant cell metric; at fixed stress the log-strain cell gradient scales with replicated volume",
+    "claim_ceiling": "three steps, two seeds and a replicated starting basin cannot establish stable optimizer superiority, global search ranking, alpha-quartz phase stability, or paper/BKS reproduction"
+  },
+  "provenance": {
+    "starting_geometry": "COD 1011097 qualified endpoint archived under vc-sio2-qualification-20260926/archive-1501259",
+    "qualification_job": 1501259,
+    "plan_builder_sha256": "8ed15c11a53fbb89e2fae3797ef1fe9eac6f83eaac825f6e3a2bfc3e5f9539fa",
+    "builder_git_head": "30d8939d33db24a10ade4f692f67beeaad903400"
+  }
+}
