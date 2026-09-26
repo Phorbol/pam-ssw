@@ -1,3 +1,11 @@
+# Completed panel
+
+GPU1499633 plus startup-only recovery1499684 completed. Twelve numerical tasks
+qualified; one initial import-stage timeout remains recorded. Total1092 EFS.
+Safe common-first-passage costs were26/45/102/62, ASE55/80/179/117,
+SciPy26/50/103/64. No defaults changed or end-to-end advantage claimed.
+[Full result and limits](../../research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/report.md).
+
 # 当前执行：0.05阈值下的变胞冻结任务
 
 主对照为AlOH26和TiO2-phase87(48原子)，每个材料两项独立固定起点任务

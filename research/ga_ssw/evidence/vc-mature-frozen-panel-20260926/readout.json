@@ -1,0 +1,497 @@
+{
+  "rows": [
+    {
+      "run": "research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/run-1499633",
+      "task": "case0-safe-lbfgs-total-biased",
+      "process_exit": 124,
+      "status": "missing_result",
+      "task_prepared": false,
+      "completed_ledger_requests": 0,
+      "attempt_records": 0
+    },
+    {
+      "run": "research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/run-1499633",
+      "task": "case0-safe-lbfgs-total-unbiased",
+      "process_exit": 0,
+      "status": "converged",
+      "search_requests": 45,
+      "first_common_qualified_request": 45,
+      "stage_and_fresh_wall_seconds": 9.554015629924834,
+      "source_validation": {
+        "requests": 1,
+        "status": "pass",
+        "source_physical_objective_eV": -175.28555755010524,
+        "recomputed_physical_objective_eV": -175.28555755010518,
+        "difference_eV": 5.684341886080802e-14,
+        "absolute_tolerance_eV": 1e-05
+      },
+      "fresh": {
+        "requests": 1,
+        "physical_certificate": true,
+        "fmax_eV_A": 0.04696198291310813,
+        "pressure_residual_stress_max_eV_A3": 0.0004699744589810525,
+        "biased_common_gradient_norm_eV_A": null
+      },
+      "native_termination": {
+        "status": "converged",
+        "steps": 42,
+        "oracle_requests": 45,
+        "rejected_trials": 2,
+        "accepted_secants": 42,
+        "rejected_secants": 0,
+        "error": null
+      },
+      "total_recorded_requests": 47
+    },
+    {
+      "run": "research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/run-1499633",
+      "task": "case0-ase-lbfgs-linesearch-biased",
+      "process_exit": 0,
+      "status": "converged",
+      "search_requests": 63,
+      "first_common_qualified_request": 55,
+      "stage_and_fresh_wall_seconds": 12.171983967535198,
+      "source_validation": {
+        "requests": 1,
+        "status": "pass",
+        "source_physical_objective_eV": -175.28555755010524,
+        "recomputed_physical_objective_eV": -175.28555755010518,
+        "difference_eV": 5.684341886080802e-14,
+        "absolute_tolerance_eV": 1e-05
+      },
+      "fresh": {
+        "requests": 1,
+        "physical_certificate": false,
+        "fmax_eV_A": 0.8019232470151962,
+        "pressure_residual_stress_max_eV_A3": 0.007357863457595373,
+        "biased_common_gradient_norm_eV_A": 0.029907688294871275
+      },
+      "native_termination": {
+        "status": "converged",
+        "native_success": true,
+        "native_message": "ASE native fmax stop",
+        "steps": 42,
+        "oracle_requests": 63,
+        "distinct_rejected_trials": 20,
+        "ase_parameters": {
+          "fmax": 0.035355339059327376,
+          "common_gtol": 0.05,
+          "maxstep": 0.2,
+          "memory": 500,
+          "pseudo_symbols": "H per 3 q coordinates",
+          "pseudopbc": false
+        }
+      },
+      "total_recorded_requests": 65
+    },
+    {
+      "run": "research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/run-1499633",
+      "task": "case0-ase-lbfgs-linesearch-unbiased",
+      "process_exit": 0,
+      "status": "converged",
+      "search_requests": 96,
+      "first_common_qualified_request": 80,
+      "stage_and_fresh_wall_seconds": 8.222237554378808,
+      "source_validation": {
+        "requests": 1,
+        "status": "pass",
+        "source_physical_objective_eV": -175.28555755010524,
+        "recomputed_physical_objective_eV": -175.28555755010518,
+        "difference_eV": 5.684341886080802e-14,
+        "absolute_tolerance_eV": 1e-05
+      },
+      "fresh": {
+        "requests": 1,
+        "physical_certificate": true,
+        "fmax_eV_A": 0.03718934819054995,
+        "pressure_residual_stress_max_eV_A3": 0.0003616093111498305,
+        "biased_common_gradient_norm_eV_A": null
+      },
+      "native_termination": {
+        "status": "converged",
+        "native_success": true,
+        "native_message": "ASE native fmax stop",
+        "steps": 57,
+        "oracle_requests": 96,
+        "distinct_rejected_trials": 38,
+        "ase_parameters": {
+          "fmax": 0.035355339059327376,
+          "common_gtol": 1.0,
+          "maxstep": 0.2,
+          "memory": 500,
+          "pseudo_symbols": "H per 3 q coordinates",
+          "pseudopbc": false
+        }
+      },
+      "total_recorded_requests": 98
+    },
+    {
+      "run": "research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/run-1499633",
+      "task": "case0-scipy-lbfgsb-biased",
+      "process_exit": 0,
+      "status": "converged",
+      "search_requests": 38,
+      "first_common_qualified_request": 26,
+      "stage_and_fresh_wall_seconds": 7.783742289990187,
+      "source_validation": {
+        "requests": 1,
+        "status": "pass",
+        "source_physical_objective_eV": -175.28555755010524,
+        "recomputed_physical_objective_eV": -175.28555755010518,
+        "difference_eV": 5.684341886080802e-14,
+        "absolute_tolerance_eV": 1e-05
+      },
+      "fresh": {
+        "requests": 1,
+        "physical_certificate": false,
+        "fmax_eV_A": 0.809437462899072,
+        "pressure_residual_stress_max_eV_A3": 0.007342738309467153,
+        "biased_common_gradient_norm_eV_A": 0.01923600513712899
+      },
+      "native_termination": {
+        "status": "converged",
+        "native_success": true,
+        "native_message": "CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL",
+        "steps": 35,
+        "oracle_requests": 38,
+        "api_calls": 39,
+        "cache_hits": 1,
+        "denied_requests": 0,
+        "distinct_rejected_trials": 2,
+        "scipy_options": {
+          "gtol": 0.020412414523193152,
+          "common_gtol": 0.05,
+          "ftol": "scipy_default",
+          "maxiter": 300,
+          "maxcor": 500,
+          "maxls": 20,
+          "native_status": 0,
+          "native_nit": 35
+        }
+      },
+      "total_recorded_requests": 40
+    },
+    {
+      "run": "research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/run-1499633",
+      "task": "case0-scipy-lbfgsb-unbiased",
+      "process_exit": 0,
+      "status": "converged",
+      "search_requests": 58,
+      "first_common_qualified_request": 50,
+      "stage_and_fresh_wall_seconds": 12.329280720092356,
+      "source_validation": {
+        "requests": 1,
+        "status": "pass",
+        "source_physical_objective_eV": -175.28555755010524,
+        "recomputed_physical_objective_eV": -175.28555755010518,
+        "difference_eV": 5.684341886080802e-14,
+        "absolute_tolerance_eV": 1e-05
+      },
+      "fresh": {
+        "requests": 1,
+        "physical_certificate": true,
+        "fmax_eV_A": 0.02148816989146429,
+        "pressure_residual_stress_max_eV_A3": 9.782506881301088e-05,
+        "biased_common_gradient_norm_eV_A": null
+      },
+      "native_termination": {
+        "status": "converged",
+        "native_success": true,
+        "native_message": "CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL",
+        "steps": 55,
+        "oracle_requests": 58,
+        "api_calls": 59,
+        "cache_hits": 1,
+        "denied_requests": 0,
+        "distinct_rejected_trials": 2,
+        "scipy_options": {
+          "gtol": 0.020412414523193152,
+          "common_gtol": 1.0,
+          "ftol": "scipy_default",
+          "maxiter": 300,
+          "maxcor": 500,
+          "maxls": 20,
+          "native_status": 0,
+          "native_nit": 55
+        }
+      },
+      "total_recorded_requests": 60
+    },
+    {
+      "run": "research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/run-1499633",
+      "task": "case1-safe-lbfgs-total-biased",
+      "process_exit": 0,
+      "status": "converged",
+      "search_requests": 102,
+      "first_common_qualified_request": 102,
+      "stage_and_fresh_wall_seconds": 11.22644037567079,
+      "source_validation": {
+        "requests": 1,
+        "status": "pass",
+        "source_physical_objective_eV": -423.12100473945407,
+        "recomputed_physical_objective_eV": -423.1210047394543,
+        "difference_eV": -2.2737367544323206e-13,
+        "absolute_tolerance_eV": 1e-05
+      },
+      "fresh": {
+        "requests": 1,
+        "physical_certificate": false,
+        "fmax_eV_A": 0.37692742969081006,
+        "pressure_residual_stress_max_eV_A3": 0.00034874612980269836,
+        "biased_common_gradient_norm_eV_A": 0.049627743628044785
+      },
+      "native_termination": {
+        "status": "converged",
+        "steps": 101,
+        "oracle_requests": 102,
+        "rejected_trials": 0,
+        "accepted_secants": 101,
+        "rejected_secants": 0,
+        "error": null
+      },
+      "total_recorded_requests": 104
+    },
+    {
+      "run": "research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/run-1499633",
+      "task": "case1-safe-lbfgs-total-unbiased",
+      "process_exit": 0,
+      "status": "converged",
+      "search_requests": 62,
+      "first_common_qualified_request": 62,
+      "stage_and_fresh_wall_seconds": 11.288752960972488,
+      "source_validation": {
+        "requests": 1,
+        "status": "pass",
+        "source_physical_objective_eV": -423.12100473945407,
+        "recomputed_physical_objective_eV": -423.1210047394543,
+        "difference_eV": -2.2737367544323206e-13,
+        "absolute_tolerance_eV": 1e-05
+      },
+      "fresh": {
+        "requests": 1,
+        "physical_certificate": true,
+        "fmax_eV_A": 0.04946851646057045,
+        "pressure_residual_stress_max_eV_A3": 0.000181737631819965,
+        "biased_common_gradient_norm_eV_A": null
+      },
+      "native_termination": {
+        "status": "converged",
+        "steps": 59,
+        "oracle_requests": 62,
+        "rejected_trials": 2,
+        "accepted_secants": 59,
+        "rejected_secants": 0,
+        "error": null
+      },
+      "total_recorded_requests": 64
+    },
+    {
+      "run": "research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/run-1499633",
+      "task": "case1-ase-lbfgs-linesearch-biased",
+      "process_exit": 0,
+      "status": "converged",
+      "search_requests": 221,
+      "first_common_qualified_request": 179,
+      "stage_and_fresh_wall_seconds": 17.635810241103172,
+      "source_validation": {
+        "requests": 1,
+        "status": "pass",
+        "source_physical_objective_eV": -423.12100473945407,
+        "recomputed_physical_objective_eV": -423.1210047394543,
+        "difference_eV": -2.2737367544323206e-13,
+        "absolute_tolerance_eV": 1e-05
+      },
+      "fresh": {
+        "requests": 1,
+        "physical_certificate": false,
+        "fmax_eV_A": 0.40210675081951525,
+        "pressure_residual_stress_max_eV_A3": 0.0004142542637305642,
+        "biased_common_gradient_norm_eV_A": 0.029847336493124783
+      },
+      "native_termination": {
+        "status": "converged",
+        "native_success": true,
+        "native_message": "ASE native fmax stop",
+        "steps": 149,
+        "oracle_requests": 221,
+        "distinct_rejected_trials": 71,
+        "ase_parameters": {
+          "fmax": 0.035355339059327376,
+          "common_gtol": 0.05,
+          "maxstep": 0.2,
+          "memory": 500,
+          "pseudo_symbols": "H per 3 q coordinates",
+          "pseudopbc": false
+        }
+      },
+      "total_recorded_requests": 223
+    },
+    {
+      "run": "research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/run-1499633",
+      "task": "case1-ase-lbfgs-linesearch-unbiased",
+      "process_exit": 0,
+      "status": "converged",
+      "search_requests": 153,
+      "first_common_qualified_request": 117,
+      "stage_and_fresh_wall_seconds": 11.713434816338122,
+      "source_validation": {
+        "requests": 1,
+        "status": "pass",
+        "source_physical_objective_eV": -423.12100473945407,
+        "recomputed_physical_objective_eV": -423.1210047394543,
+        "difference_eV": -2.2737367544323206e-13,
+        "absolute_tolerance_eV": 1e-05
+      },
+      "fresh": {
+        "requests": 1,
+        "physical_certificate": true,
+        "fmax_eV_A": 0.03780564820769394,
+        "pressure_residual_stress_max_eV_A3": 0.0001283060749011201,
+        "biased_common_gradient_norm_eV_A": null
+      },
+      "native_termination": {
+        "status": "converged",
+        "native_success": true,
+        "native_message": "ASE native fmax stop",
+        "steps": 76,
+        "oracle_requests": 153,
+        "distinct_rejected_trials": 76,
+        "ase_parameters": {
+          "fmax": 0.035355339059327376,
+          "common_gtol": 1.0,
+          "maxstep": 0.2,
+          "memory": 500,
+          "pseudo_symbols": "H per 3 q coordinates",
+          "pseudopbc": false
+        }
+      },
+      "total_recorded_requests": 155
+    },
+    {
+      "run": "research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/run-1499633",
+      "task": "case1-scipy-lbfgsb-biased",
+      "process_exit": 0,
+      "status": "converged",
+      "search_requests": 121,
+      "first_common_qualified_request": 103,
+      "stage_and_fresh_wall_seconds": 10.984601183794439,
+      "source_validation": {
+        "requests": 1,
+        "status": "pass",
+        "source_physical_objective_eV": -423.12100473945407,
+        "recomputed_physical_objective_eV": -423.12100473945424,
+        "difference_eV": -1.7053025658242404e-13,
+        "absolute_tolerance_eV": 1e-05
+      },
+      "fresh": {
+        "requests": 1,
+        "physical_certificate": false,
+        "fmax_eV_A": 0.4025816798462973,
+        "pressure_residual_stress_max_eV_A3": 0.00044343097620322327,
+        "biased_common_gradient_norm_eV_A": 0.02058069835325737
+      },
+      "native_termination": {
+        "status": "converged",
+        "native_success": true,
+        "native_message": "CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL",
+        "steps": 119,
+        "oracle_requests": 121,
+        "api_calls": 122,
+        "cache_hits": 1,
+        "denied_requests": 0,
+        "distinct_rejected_trials": 1,
+        "scipy_options": {
+          "gtol": 0.020412414523193152,
+          "common_gtol": 0.05,
+          "ftol": "scipy_default",
+          "maxiter": 300,
+          "maxcor": 500,
+          "maxls": 20,
+          "native_status": 0,
+          "native_nit": 119
+        }
+      },
+      "total_recorded_requests": 123
+    },
+    {
+      "run": "research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/run-1499633",
+      "task": "case1-scipy-lbfgsb-unbiased",
+      "process_exit": 0,
+      "status": "converged",
+      "search_requests": 83,
+      "first_common_qualified_request": 64,
+      "stage_and_fresh_wall_seconds": 13.3711624937132,
+      "source_validation": {
+        "requests": 1,
+        "status": "pass",
+        "source_physical_objective_eV": -423.12100473945407,
+        "recomputed_physical_objective_eV": -423.1210047394543,
+        "difference_eV": -2.2737367544323206e-13,
+        "absolute_tolerance_eV": 1e-05
+      },
+      "fresh": {
+        "requests": 1,
+        "physical_certificate": true,
+        "fmax_eV_A": 0.02224071044528006,
+        "pressure_residual_stress_max_eV_A3": 4.2235784937940056e-05,
+        "biased_common_gradient_norm_eV_A": null
+      },
+      "native_termination": {
+        "status": "converged",
+        "native_success": true,
+        "native_message": "CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL",
+        "steps": 80,
+        "oracle_requests": 83,
+        "api_calls": 84,
+        "cache_hits": 1,
+        "denied_requests": 0,
+        "distinct_rejected_trials": 2,
+        "scipy_options": {
+          "gtol": 0.020412414523193152,
+          "common_gtol": 1.0,
+          "ftol": "scipy_default",
+          "maxiter": 300,
+          "maxcor": 500,
+          "maxls": 20,
+          "native_status": 0,
+          "native_nit": 80
+        }
+      },
+      "total_recorded_requests": 85
+    },
+    {
+      "run": "research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/startup-recovery-1499684",
+      "task": "case0-safe-lbfgs-total-biased",
+      "process_exit": 0,
+      "status": "converged",
+      "search_requests": 26,
+      "first_common_qualified_request": 26,
+      "stage_and_fresh_wall_seconds": 5.971770350821316,
+      "source_validation": {
+        "requests": 1,
+        "status": "pass",
+        "source_physical_objective_eV": -175.28555755010524,
+        "recomputed_physical_objective_eV": -175.28555755010518,
+        "difference_eV": 5.684341886080802e-14,
+        "absolute_tolerance_eV": 1e-05
+      },
+      "fresh": {
+        "requests": 1,
+        "physical_certificate": false,
+        "fmax_eV_A": 0.8217215236378196,
+        "pressure_residual_stress_max_eV_A3": 0.007817591628859496,
+        "biased_common_gradient_norm_eV_A": 0.04805073041888393
+      },
+      "native_termination": {
+        "status": "converged",
+        "steps": 23,
+        "oracle_requests": 26,
+        "rejected_trials": 2,
+        "accepted_secants": 23,
+        "rejected_secants": 0,
+        "error": null
+      },
+      "total_recorded_requests": 28
+    }
+  ]
+}
