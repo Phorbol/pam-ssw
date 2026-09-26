@@ -1,0 +1,38 @@
+{
+  "status": "inputs located; not yet executed",
+  "model": "MACE-OMAT-0-small/omat_pbe",
+  "cases": [
+    {
+      "case": "rutile",
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/tio2-fixed-ritz-staged-holdout-20260912/rutile-seed11-fixed_ritz_a100/result.json",
+      "source_field": "initial.atoms",
+      "source_doi": "10.1039/c7sc01459g",
+      "natoms": 12,
+      "pbc": [
+        true,
+        true,
+        true
+      ],
+      "role": "literature-material geometry and lifecycle qualification; not full phase prediction"
+    },
+    {
+      "case": "anatase",
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/tio2-fixed-ritz-staged-holdout-20260912/anatase-seed11-fixed_ritz_a100/result.json",
+      "source_field": "initial.atoms",
+      "source_doi": "10.1039/c7sc01459g",
+      "natoms": 12,
+      "pbc": [
+        true,
+        true,
+        true
+      ],
+      "role": "literature-material geometry and lifecycle qualification; not full phase prediction"
+    },
+    {
+      "case": "brookite48",
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/fixed-cell-ssw-bh-20260921/inputs/brookite48.extxyz",
+      "natoms": 48,
+      "role": "larger periodic development comparison; source lineage in existing fixed-cell case manifest"
+    }
+  ]
+}

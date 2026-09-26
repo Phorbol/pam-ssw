@@ -69,7 +69,8 @@ class LocalDirectionState:
     """
 
     def __init__(self, pair, group, coefficients, *, group_marker,
-                 c1_radius_policy='restricted', active_mask=None):
+                 c1_radius_policy='restricted', active_mask=None, geometry='nonperiodic'):
+        self.geometry = geometry
         self.pair = tuple(pair)
         self.group = np.asarray(group).copy()
         self.coefficients = np.asarray(coefficients, dtype=float).copy()
@@ -109,10 +110,16 @@ class LocalDirectionState:
 
     def _generate(self, atoms, seed, coefficients, rng):
         self.last_coefficients = np.asarray(coefficients).copy()
-        result = generate_local_direction(atoms, seed, coefficients, self.pair,
-                                          self.group, rng, group_marker=self.group_marker,
-                                          c1_radius_policy=self.c1_radius_policy,
-                                          active_mask=self.active_mask)
+        generator = generate_local_direction
+        if self.geometry == 'periodic_local':
+            from .periodic_direction import generate_periodic_direction
+            generator = generate_periodic_direction
+        elif self.geometry != 'nonperiodic':
+            raise ValueError('unknown direction geometry')
+        result = generator(atoms, seed, coefficients, self.pair,
+                           self.group, rng, group_marker=self.group_marker,
+                           c1_radius_policy=self.c1_radius_policy,
+                           active_mask=self.active_mask)
         self.group_marker = result.group_marker
         return result
 

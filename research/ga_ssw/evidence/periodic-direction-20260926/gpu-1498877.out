@@ -1,0 +1,22 @@
+/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/torch/cuda/__init__.py:63: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/e3nn/o3/_wigner.py:10: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+  _Jd, _W3j_flat, _W3j_indices = torch.load(os.path.join(os.path.dirname(__file__), 'constants.pt'))
+/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/mace/calculators/mace.py:226: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+  torch.load(f=model_path, map_location=device)
+/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/mace/calculators/mace.py:226: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+  torch.load(f=model_path, map_location=device)
+{"case": "rutile", "method": "global", "qualified": false, "error": "AttributeError(\"'Atoms' object has no attribute 'energy'\")", "live_requests": 1259, "replayed": 0}
+{"case": "rutile", "method": "local_memory", "qualified": false, "error": "AttributeError(\"'Atoms' object has no attribute 'energy'\")", "live_requests": 1032, "replayed": 0}
+{"case": "anatase", "method": "global", "qualified": false, "error": "AttributeError(\"'Atoms' object has no attribute 'energy'\")", "live_requests": 1405, "replayed": 0}
+{"case": "anatase", "method": "local_memory", "qualified": false, "error": "AttributeError(\"'Atoms' object has no attribute 'energy'\")", "live_requests": 1067, "replayed": 0}
+{"case": "brookite48", "method": "global", "qualified": false, "error": "AttributeError(\"'Atoms' object has no attribute 'energy'\")", "live_requests": 1251, "replayed": 0}
+{"case": "brookite48", "method": "local_memory", "qualified": false, "error": "AttributeError(\"'Atoms' object has no attribute 'energy'\")", "live_requests": 929, "replayed": 0}
+Traceback (most recent call last):
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/periodic-direction-20260926/qualify.py", line 113, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/periodic-direction-20260926/qualify.py", line 111, in main
+    assert all(row['qualified'] for row in rows),'qualification failure; inspect preserved rows'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: qualification failure; inspect preserved rows

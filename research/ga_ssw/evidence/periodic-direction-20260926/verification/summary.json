@@ -1,0 +1,82 @@
+{
+  "rows": [
+    {
+      "case": "anatase-global",
+      "search": 1405,
+      "status": "completed",
+      "landings": 3,
+      "stages": 75,
+      "qualified": true,
+      "best_energy": -107.00100854422963
+    },
+    {
+      "case": "anatase-local_memory",
+      "search": 1067,
+      "status": "completed",
+      "landings": 3,
+      "stages": 75,
+      "qualified": true,
+      "best_energy": -107.00100854422963,
+      "replayed": 1067,
+      "state_equal": true,
+      "routes": {
+        "torsion": 50,
+        "pair": 25
+      },
+      "history_used": true
+    },
+    {
+      "case": "brookite48-global",
+      "search": 1251,
+      "status": "completed",
+      "landings": 3,
+      "stages": 75,
+      "qualified": true,
+      "best_energy": -427.5907654931629
+    },
+    {
+      "case": "brookite48-local_memory",
+      "search": 929,
+      "status": "completed",
+      "landings": 3,
+      "stages": 75,
+      "qualified": true,
+      "best_energy": -427.5911576118281,
+      "replayed": 929,
+      "state_equal": true,
+      "routes": {
+        "forbidden": 6,
+        "pair": 43,
+        "pair_fallback": 1,
+        "torsion": 25
+      },
+      "history_used": true
+    },
+    {
+      "case": "rutile-global",
+      "search": 1259,
+      "status": "completed",
+      "landings": 3,
+      "stages": 75,
+      "qualified": true,
+      "best_energy": -106.6290338893967
+    },
+    {
+      "case": "rutile-local_memory",
+      "search": 1032,
+      "status": "completed",
+      "landings": 3,
+      "stages": 75,
+      "qualified": true,
+      "best_energy": -106.6290338893967,
+      "replayed": 1032,
+      "state_equal": true,
+      "routes": {
+        "torsion": 50,
+        "pair": 25
+      },
+      "history_used": true
+    }
+  ],
+  "fresh": 24
+}

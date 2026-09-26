@@ -621,11 +621,18 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
             # Pickle bypasses dataclass construction; validate the saved values
             # before restoring RNG or entering the PES, including zero-step resumes.
             _checkpoint_copy(saved_direction).validate_for_atom_count(len(atoms))
-        if atoms.pbc.any() or atoms.constraints or config.cluster_frame != 'direction_only':
+        periodic_direction = getattr(recovered_direction, 'geometry', 'nonperiodic') == 'periodic_local'
+        if periodic_direction:
+            if not atoms.pbc.any() or atoms.constraints or config.cluster_frame != 'translation_only':
+                raise ValueError('periodic recovered direction requires periodic atoms and translation_only frame')
+            if checkpoint is not None:
+                saved_direction.validate_geometry(atoms)
+        elif atoms.pbc.any() or atoms.constraints or config.cluster_frame != 'direction_only':
             raise ValueError('recovered direction requires a free nonperiodic cluster and direction_only frame')
         if config.pre_rotation_hvp is not None:
             raise ValueError('recovered direction owns its PreRot stages; do not combine pre_rotation_hvp')
         direction_controller = RecoveredDirectionController(recovered_direction)
+        direction_controller.validate_geometry(atoms)
     if recovered_rotation is not None:
         from .recovered_rotation import RecoveredRotationSettings
         if not isinstance(recovered_rotation, RecoveredRotationSettings):
@@ -660,7 +667,8 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
     if atoms.constraints:
         raise NotImplementedError('standalone SSW currently requires unconstrained atoms')
     if atoms.pbc.any():
-        if not atoms.pbc.all():
+        if not atoms.pbc.all() and not (recovered_direction is not None and
+                getattr(recovered_direction, 'geometry', 'nonperiodic') == 'periodic_local'):
             raise NotImplementedError('periodic SSW currently requires three-dimensional PBC')
         if (config.cluster_frame != 'translation_only' or
                 config.direction_sampling not in ('global', 'isotropic')):

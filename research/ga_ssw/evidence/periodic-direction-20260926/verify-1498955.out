@@ -1,0 +1,12 @@
+/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/torch/cuda/__init__.py:63: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/e3nn/o3/_wigner.py:10: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+  _Jd, _W3j_flat, _W3j_indices = torch.load(os.path.join(os.path.dirname(__file__), 'constants.pt'))
+/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/mace/calculators/mace.py:226: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+  torch.load(f=model_path, map_location=device)
+{"case": "anatase-global", "search": 1405, "status": "completed", "landings": 3, "stages": 75, "qualified": true, "best_energy": -107.00100854422963}
+{"case": "anatase-local_memory", "search": 1067, "status": "completed", "landings": 3, "stages": 75, "qualified": true, "best_energy": -107.00100854422963, "replayed": 1067, "state_equal": true, "routes": {"torsion": 50, "pair": 25}, "history_used": true}
+{"case": "brookite48-global", "search": 1251, "status": "completed", "landings": 3, "stages": 75, "qualified": true, "best_energy": -427.5907654931629}
+{"case": "brookite48-local_memory", "search": 929, "status": "completed", "landings": 3, "stages": 75, "qualified": true, "best_energy": -427.5911576118281, "replayed": 929, "state_equal": true, "routes": {"forbidden": 6, "pair": 43, "pair_fallback": 1, "torsion": 25}, "history_used": true}
+{"case": "rutile-global", "search": 1259, "status": "completed", "landings": 3, "stages": 75, "qualified": true, "best_energy": -106.6290338893967}
+{"case": "rutile-local_memory", "search": 1032, "status": "completed", "landings": 3, "stages": 75, "qualified": true, "best_energy": -106.6290338893967, "replayed": 1032, "state_equal": true, "routes": {"torsion": 50, "pair": 25}, "history_used": true}

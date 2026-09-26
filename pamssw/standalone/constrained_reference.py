@@ -289,12 +289,14 @@ def _validate_constrained_checkpoint(checkpoint):
         from .recovered_direction import RecoveredDirectionSettings, RecoveredDirectionCheckpointState
         if not isinstance(direction, RecoveredDirectionSettings):
             raise ValueError('schema 2 requires recovered direction settings')
-        if checkpoint.chart_reference.pbc.any():
+        if (checkpoint.chart_reference.pbc.any() and
+                getattr(direction, 'geometry', 'nonperiodic') != 'periodic_local'):
             raise ValueError('recovered direction checkpoint requires nonperiodic geometry')
         if checkpoint.status in ('completed', 'completed_with_failures') or state is not None:
             if not isinstance(state, RecoveredDirectionCheckpointState):
                 raise ValueError('schema 2 requires recovered direction state')
             state.validate_for_atom_count(len(checkpoint.chart_reference))
+            state.validate_geometry(checkpoint.chart_reference)
             mask = np.ones(len(checkpoint.chart_reference), dtype=bool)
             mask[list(checkpoint.fixed_indices)] = False
             mask[list(checkpoint.direction_fixed_indices)] = False
@@ -379,8 +381,11 @@ def run_constrained_ssw(atoms,surface,*,steps,config,rng,fixed_indices=None,dire
         from .recovered_direction import RecoveredDirectionSettings
         if not isinstance(recovered_direction, RecoveredDirectionSettings):
             raise TypeError('recovered_direction must be RecoveredDirectionSettings')
-        if atoms.pbc.any():
+        periodic_direction = getattr(recovered_direction, 'geometry', 'nonperiodic') == 'periodic_local'
+        if atoms.pbc.any() and not periodic_direction:
             raise NotImplementedError('complete constrained directions require nonperiodic atoms')
+        if periodic_direction and not atoms.pbc.any():
+            raise ValueError('periodic direction requires periodic atoms')
         if (config.recovered_rotation is not None or config.pre_rotation_hvp is not None
                 or gaussian_policy is not None):
             raise ValueError('recovered_direction supplies rotation settings and excludes separate rotation/PAM policy')
@@ -402,6 +407,7 @@ def run_constrained_ssw(atoms,surface,*,steps,config,rng,fixed_indices=None,dire
         if not np.any(active_mask):
             raise ValueError('direction subspace must contain a mobile atom')
         direction_lifecycle = ConstrainedDirectionLifecycle(recovered_direction, active_mask)
+        direction_lifecycle.controller.validate_geometry(atoms)
     if checkpoint is not None:
         _validate_constrained_checkpoint(checkpoint)
         if getattr(checkpoint, 'recovered_direction', None) != recovered_direction:

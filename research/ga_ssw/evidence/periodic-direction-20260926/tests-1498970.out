@@ -1,0 +1,20 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____________ test_constrained_periodic_stage_reports_actual_route _____________
+
+    def test_constrained_periodic_stage_reports_actual_route():
+        a=atoms();a.set_constraint(FixAtoms(indices=[0]))
+        cfg=ConstrainedSSWConfig(width=.1,rotation_bias=1.,max_gaussians=1,
+            fmax=.03,gradient_tol=10.,relax_steps=2,fd_step=.001,
+            rotation_exit_policy='force_or_budget')
+        result=run_constrained_ssw(a,Flat(),steps=1,config=cfg,rng=np.random.default_rng(41),
+                                  recovered_direction=settings())
+        stage=result.records[1]['climb'][0]
+>       assert stage['recovered_direction']['route'] in {'pair','pair_fallback','pair_group','torsion','forbidden','none'}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'route'
+
+tests/standalone/test_periodic_direction_entry.py:83: KeyError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_periodic_direction_entry.py::test_constrained_periodic_stage_reports_actual_route
+1 failed, 4 deselected in 0.43s

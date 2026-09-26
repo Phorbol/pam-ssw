@@ -40,7 +40,10 @@ class ConstrainedDirectionLifecycle:
                   if first else self.controller.update_direction(atoms, rng))
         active = reduced.chart.active_indices
         vector = np.asarray(result.direction)[active].ravel().copy()
-        return vector, result.release_all, self.controller.diagnostics
+        diagnostic = self.controller.diagnostics
+        if getattr(self.rotation_settings, 'geometry', 'nonperiodic') == 'periodic_local':
+            diagnostic['route'] = result.local_route
+        return vector, result.release_all, diagnostic
 
     def save_center(self, reduced, work):
         self.controller.save_gaussian_center(reduced.atoms(work))

@@ -30,6 +30,7 @@ class RecoveredDirectionSettings:
     max_force_calls: int
     c1_radius_policy: str = 'restricted'
     startup_order: str = 'legacy'
+    geometry: str = 'nonperiodic'
 
     def __post_init__(self):
         if (isinstance(self.ratio_local, (bool, np.bool_)) or
@@ -59,6 +60,8 @@ class RecoveredDirectionSettings:
             raise ValueError('c1_radius_policy must be restricted or per_atom')
         if self.startup_order not in ('legacy', 'randomized'):
             raise ValueError('startup_order must be legacy or randomized')
+        if getattr(self, 'geometry', 'nonperiodic') not in ('nonperiodic', 'periodic_local'):
+            raise ValueError('geometry must be nonperiodic or periodic_local')
 
 
 @dataclass(frozen=True)
@@ -71,6 +74,8 @@ class RecoveredDirectionCheckpointState:
     selection: LocalGroupSelection | None = None
     refresh: PairRefreshResult | None = None
     active_mask: np.ndarray | None = None
+    geometry_cell: tuple | None = None
+    geometry_pbc: tuple | None = None
 
     def __post_init__(self):
         if not isinstance(self.settings, RecoveredDirectionSettings):
@@ -90,6 +95,21 @@ class RecoveredDirectionCheckpointState:
             raise TypeError('checkpoint selection must be LocalGroupSelection or None')
         if self.refresh is not None and not isinstance(self.refresh, PairRefreshResult):
             raise TypeError('checkpoint refresh must be PairRefreshResult or None')
+        geometry = getattr(self.settings, 'geometry', 'nonperiodic')
+        if geometry == 'periodic_local':
+            if self.geometry_cell is None or self.geometry_pbc is None:
+                raise ValueError('periodic checkpoint requires cell and PBC identity')
+            cell = np.asarray(self.geometry_cell, dtype=float)
+            pbc = np.asarray(self.geometry_pbc)
+            if (cell.shape != (3, 3) or not np.isfinite(cell).all() or
+                    not np.isfinite(np.linalg.det(cell)) or np.linalg.det(cell) == 0):
+                raise ValueError('checkpoint cell must be finite and full-rank')
+            if pbc.dtype != np.bool_ or pbc.shape != (3,) or not np.any(pbc):
+                raise ValueError('checkpoint PBC must be a nonempty boolean 3-vector')
+            object.__setattr__(self, 'geometry_cell', tuple(tuple(float(v) for v in row) for row in cell))
+            object.__setattr__(self, 'geometry_pbc', tuple(bool(v) for v in pbc))
+        elif self.geometry_cell is not None or self.geometry_pbc is not None:
+            raise ValueError('nonperiodic checkpoint must not contain cell/PBC identity')
         group = group.copy()
         group.setflags(write=False)
         object.__setattr__(self, 'pair', tuple(int(i) for i in self.pair))
@@ -129,6 +149,7 @@ class RecoveredDirectionCheckpointState:
                 raise ValueError('checkpoint selection pair must match checkpoint pair')
 
     def validate_for_atom_count(self, count):
+        self._validate_geometry_contract()
         if (self.group_marker is not None and
                 (isinstance(self.group_marker, (bool, np.bool_)) or
                  not isinstance(self.group_marker, (int, np.integer)) or
@@ -153,6 +174,37 @@ class RecoveredDirectionCheckpointState:
                 raise ValueError('checkpoint refresh pair is invalid')
         self._validate_active_contract(count)
 
+    def _validate_geometry_contract(self):
+        geometry = getattr(self.settings, 'geometry', 'nonperiodic')
+        cell_value = getattr(self, 'geometry_cell', None)
+        pbc_value = getattr(self, 'geometry_pbc', None)
+        if geometry == 'periodic_local':
+            if cell_value is None or pbc_value is None:
+                raise ValueError('periodic checkpoint requires cell and PBC identity')
+            cell = np.asarray(cell_value, dtype=float)
+            pbc = np.asarray(pbc_value)
+            if (cell.shape != (3, 3) or not np.isfinite(cell).all() or
+                    not np.isfinite(np.linalg.det(cell)) or np.linalg.det(cell) == 0):
+                raise ValueError('checkpoint cell must be finite and full-rank')
+            if pbc.dtype != np.bool_ or pbc.shape != (3,) or not np.any(pbc):
+                raise ValueError('checkpoint PBC must be a nonempty boolean 3-vector')
+        elif cell_value is not None or pbc_value is not None:
+            raise ValueError('nonperiodic checkpoint must not contain cell/PBC identity')
+
+    def validate_geometry(self, atoms):
+        """Check the saved geometry mode and fixed-cell identity before work begins."""
+        self._validate_geometry_contract()
+        if getattr(self.settings, 'geometry', 'nonperiodic') == 'periodic_local':
+            _validate_periodic_atoms(atoms, 'checkpoint geometry')
+            if (not np.array_equal(np.asarray(atoms.cell.array), np.asarray(self.geometry_cell)) or
+                    not np.array_equal(np.asarray(atoms.pbc, dtype=bool), np.asarray(self.geometry_pbc))):
+                raise ValueError('checkpoint cell/PBC identity does not match atoms')
+        else:
+            positions = np.asarray(atoms.positions, dtype=float)
+            if (len(atoms) < 2 or atoms.pbc.any() or atoms.constraints or
+                    positions.shape != (len(atoms), 3) or not np.isfinite(positions).all()):
+                raise ValueError('nonperiodic checkpoint requires finite unconstrained nonperiodic atoms')
+
 
 class RecoveredDirectionController:
     """Own pair/group state across escapes and local state within one escape."""
@@ -175,13 +227,16 @@ class RecoveredDirectionController:
         self._refresh = None
         self._coefficients = None
         self._group_marker = None
+        self._geometry_cell = None
+        self._geometry_pbc = None
 
     def checkpoint_state(self):
         if self._pair is None or self._group is None:
             raise ValueError('cannot checkpoint an uninitialized recovered direction controller')
         return RecoveredDirectionCheckpointState(
             self.settings, self._pair, self._group, self._group_marker,
-            self._selection, self._refresh, self.active_mask)
+            self._selection, self._refresh, self.active_mask,
+            self._geometry_cell, self._geometry_pbc)
 
     def restore_checkpoint_state(self, state):
         if not isinstance(state, RecoveredDirectionCheckpointState):
@@ -201,6 +256,25 @@ class RecoveredDirectionController:
         self._selection = state.selection
         self._refresh = state.refresh
         self._coefficients = None
+        self._geometry_cell = getattr(state, 'geometry_cell', None)
+        self._geometry_pbc = getattr(state, 'geometry_pbc', None)
+
+    def validate_geometry(self, atoms):
+        """Validate controller geometry without consuming RNG or calculator calls."""
+        if getattr(self.settings, 'geometry', 'nonperiodic') == 'periodic_local':
+            _validate_periodic_atoms(atoms, 'periodic direction')
+            if self._geometry_cell is not None and (
+                    not np.array_equal(atoms.cell.array, np.asarray(self._geometry_cell)) or
+                    not np.array_equal(np.asarray(atoms.pbc, dtype=bool), np.asarray(self._geometry_pbc))):
+                raise ValueError('periodic direction cell/PBC changed')
+        else:
+            self._positions(atoms, 'periodic direction')
+
+    def _capture_geometry(self, atoms):
+        self.validate_geometry(atoms)
+        if getattr(self.settings, 'geometry', 'nonperiodic') == 'periodic_local' and self._geometry_cell is None:
+            self._geometry_cell = tuple(tuple(float(v) for v in row) for row in atoms.cell.array)
+            self._geometry_pbc = tuple(bool(v) for v in atoms.pbc)
 
     @staticmethod
     def _positions(atoms, name):
@@ -209,6 +283,13 @@ class RecoveredDirectionController:
                 positions.shape != (len(atoms), 3) or not np.isfinite(positions).all()):
             raise ValueError(f'{name} requires at least two finite unconstrained nonperiodic atoms')
         return positions
+
+    def _geometry_positions(self, atoms, name):
+        if getattr(self.settings, 'geometry', 'nonperiodic') == 'periodic_local':
+            _validate_periodic_atoms(atoms, name)
+            self.validate_geometry(atoms)
+            return np.asarray(atoms.positions, dtype=float)
+        return self._positions(atoms, name)
 
     def _validate_active_mask(self, atom_count):
         if self.active_mask is None:
@@ -229,6 +310,15 @@ class RecoveredDirectionController:
         return tuple(None if value is None else int(order[value]) for value in pair)
 
     def _select_and_refresh(self, reference, atoms, rng):
+        if getattr(self.settings, 'geometry', 'nonperiodic') == 'periodic_local':
+            from .periodic_direction import select_periodic_direction_group
+            selected = select_periodic_direction_group(
+                reference, atoms, rng, active_mask=self.active_mask)
+            self._pair = self._require_pair(selected.pair)
+            self._group = selected.group_mask.copy()
+            self._selection = selected
+            self._refresh = None
+            return
         if self.active_mask is not None:
             selected = _select_active_direction_group(
                 reference, atoms, rng, self.active_mask)
@@ -247,8 +337,10 @@ class RecoveredDirectionController:
 
     def initialize(self, input_atoms, initial_quenched, rng):
         """Create the first pair/group using the Python startup reference."""
-        reference = self._positions(input_atoms, 'input_atoms').copy()
-        current = self._positions(initial_quenched, 'initial_quenched')
+        self._capture_geometry(input_atoms)
+        self.validate_geometry(initial_quenched)
+        reference = self._geometry_positions(input_atoms, 'input_atoms').copy()
+        current = self._geometry_positions(initial_quenched, 'initial_quenched')
         self._validate_active_mask(len(input_atoms))
         if reference.shape != current.shape or not np.array_equal(input_atoms.numbers,
                                                                    initial_quenched.numbers):
@@ -261,8 +353,13 @@ class RecoveredDirectionController:
                 raise TypeError('randomized startup_order requires an RNG with permutation()')
             order = np.asarray(rng.permutation(len(initial_quenched)), dtype=int)
             ordered_atoms = initial_quenched[order]
-            selected = _select_active_direction_group(
-                reference[order], ordered_atoms, rng, self.active_mask[order])
+            if getattr(self.settings, 'geometry', 'nonperiodic') == 'periodic_local':
+                from .periodic_direction import select_periodic_direction_group
+                selected = select_periodic_direction_group(
+                    reference[order], ordered_atoms, rng, active_mask=self.active_mask[order])
+            else:
+                selected = _select_active_direction_group(
+                    reference[order], ordered_atoms, rng, self.active_mask[order])
             mapped = replace(
                 selected,
                 pair=self._map_pair(selected.pair, order),
@@ -280,25 +377,31 @@ class RecoveredDirectionController:
             raise TypeError('randomized startup_order requires an RNG with permutation()')
         order = np.asarray(rng.permutation(len(initial_quenched)), dtype=int)
         ordered_atoms = initial_quenched[order]
-        selected = select_native_local_group(reference[order], ordered_atoms, rng)
-        refreshed = refresh_native_pair(
-            ordered_atoms, selected.pair, rng)
+        if getattr(self.settings, 'geometry', 'nonperiodic') == 'periodic_local':
+            from .periodic_direction import select_periodic_direction_group
+            selected = select_periodic_direction_group(reference[order], ordered_atoms, rng)
+            refreshed = None
+        else:
+            selected = select_native_local_group(reference[order], ordered_atoms, rng)
+            refreshed = refresh_native_pair(ordered_atoms, selected.pair, rng)
         selected = replace(
             selected,
             pair=self._map_pair(selected.pair, order),
             group_mask=np.asarray(selected.group_mask)[np.argsort(order)].copy(),
         )
-        refreshed = replace(
-            refreshed, pair=self._map_pair(refreshed.pair, order))
-        self._pair = self._require_pair(refreshed.pair)
+        if refreshed is not None:
+            refreshed = replace(refreshed, pair=self._map_pair(refreshed.pair, order))
+        self._pair = self._require_pair(selected.pair if refreshed is None else refreshed.pair)
         self._group = selected.group_mask.copy()
         self._selection = selected
         self._refresh = refreshed
 
     def begin_escape(self, current, work, rng):
         """Start after optional LS prequench while retaining the pre-LS reference."""
-        reference = self._positions(current, 'current').copy()
-        work_positions = self._positions(work, 'work')
+        self._capture_geometry(current)
+        self.validate_geometry(work)
+        reference = self._geometry_positions(current, 'current').copy()
+        work_positions = self._geometry_positions(work, 'work')
         self._validate_active_mask(len(current))
         if reference.shape != work_positions.shape or not np.array_equal(current.numbers, work.numbers):
             raise ValueError('current and work require matching atoms')
@@ -315,7 +418,8 @@ class RecoveredDirectionController:
         self._state = LocalDirectionState(self._pair, self._group,
                                           selected.coefficients, group_marker=marker,
                                           c1_radius_policy=self.settings.c1_radius_policy,
-                                          active_mask=self.active_mask)
+                                          active_mask=self.active_mask,
+                                          geometry=getattr(self.settings, 'geometry', 'nonperiodic'))
         result = self._state.initial(work, rng)
         self._group_marker = result.group_marker
         return result
@@ -337,7 +441,8 @@ class RecoveredDirectionController:
         """Select the next pair/group before any caller-owned MC decision."""
         if self._outer_reference is None:
             raise ValueError('begin_escape must precede landing observation')
-        landing = self._positions(landing_atoms, 'landing_atoms')
+        self.validate_geometry(landing_atoms)
+        landing = self._geometry_positions(landing_atoms, 'landing_atoms')
         self._validate_active_mask(len(landing_atoms))
         if landing.shape != self._outer_reference.shape:
             raise ValueError('landing atom count changed within escape')
@@ -425,3 +530,14 @@ def _select_active_direction_group(reference_positions, atoms, rng, active_mask)
     group[active[(score[active] > threshold) & (active != axis_first)]] = 1
     pair_second = int(candidates[int(_next_random(rng)*len(candidates))])
     return LocalGroupSelection((axis_first, pair_second), group, 1)
+
+
+def _validate_periodic_atoms(atoms, name):
+    positions = np.asarray(atoms.positions, dtype=float)
+    cell = np.asarray(atoms.cell.array, dtype=float)
+    pbc = np.asarray(atoms.pbc, dtype=bool)
+    if (len(atoms) < 2 or positions.shape != (len(atoms), 3) or
+            not np.isfinite(positions).all() or cell.shape != (3, 3) or
+            not np.isfinite(cell).all() or not np.isfinite(np.linalg.det(cell)) or np.linalg.det(cell) == 0 or
+            pbc.shape != (3,) or not np.any(pbc) or atoms.constraints):
+        raise ValueError(f'{name} requires finite atoms, full-rank fixed cell, PBC, and no constraints')

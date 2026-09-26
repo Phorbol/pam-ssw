@@ -1,0 +1,53 @@
+{
+  "rows": [
+    {
+      "case": "rutile",
+      "method": "global",
+      "qualified": false,
+      "error": "AttributeError(\"'Atoms' object has no attribute 'energy'\")",
+      "live_requests": 1259,
+      "replayed": 0
+    },
+    {
+      "case": "rutile",
+      "method": "local_memory",
+      "qualified": false,
+      "error": "AttributeError(\"'Atoms' object has no attribute 'energy'\")",
+      "live_requests": 1032,
+      "replayed": 0
+    },
+    {
+      "case": "anatase",
+      "method": "global",
+      "qualified": false,
+      "error": "AttributeError(\"'Atoms' object has no attribute 'energy'\")",
+      "live_requests": 1405,
+      "replayed": 0
+    },
+    {
+      "case": "anatase",
+      "method": "local_memory",
+      "qualified": false,
+      "error": "AttributeError(\"'Atoms' object has no attribute 'energy'\")",
+      "live_requests": 1067,
+      "replayed": 0
+    },
+    {
+      "case": "brookite48",
+      "method": "global",
+      "qualified": false,
+      "error": "AttributeError(\"'Atoms' object has no attribute 'energy'\")",
+      "live_requests": 1251,
+      "replayed": 0
+    },
+    {
+      "case": "brookite48",
+      "method": "local_memory",
+      "qualified": false,
+      "error": "AttributeError(\"'Atoms' object has no attribute 'energy'\")",
+      "live_requests": 929,
+      "replayed": 0
+    }
+  ],
+  "fresh": 0
+}

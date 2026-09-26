@@ -1,0 +1,20 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_fixed_reference_pair_still_reports_consumed_selection_draw ________
+
+    def test_fixed_reference_pair_still_reports_consumed_selection_draw():
+        from ase import Atoms
+        from pamssw.standalone.periodic_direction import select_periodic_direction_group
+        a=Atoms('Cu2',positions=[[0,0,0],[4,0,0]],cell=[12,12,12],pbc=True)
+        rng=iter([.4,.7])
+        selected=select_periodic_direction_group(a.positions,a,rng,active_mask=np.array([True,False]))
+        assert selected.pair==(0,1)
+        assert not selected.group_mask.any()
+>       assert selected.draw_count==1
+E       assert 0 == 1
+E        +  where 0 = LocalGroupSelection(pair=(0, 1), group_mask=array([0, 0], dtype=int32), draw_count=0).draw_count
+
+tests/standalone/test_periodic_direction_entry.py:71: AssertionError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_periodic_direction_entry.py::test_fixed_reference_pair_still_reports_consumed_selection_draw
+1 failed, 3 deselected in 0.43s

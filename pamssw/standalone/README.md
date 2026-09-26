@@ -924,3 +924,33 @@ selection fails after a qualified landing, that landing remains in `minima` and
 `best` as appropriate; the result is terminal `direction_selection_failed`, not a
 Metropolis rejection or a resumable successful checkpoint. These geometry and
 state guarantees do not establish search-efficiency improvements.
+
+### Opt-in periodic local direction memory
+
+`RecoveredDirectionSettings(..., geometry='periodic_local')` selects the
+independent fixed-cell periodic adaptation. Use `run_ssw` with the existing
+`translation_only` frame for a translation-invariant unconstrained objective,
+or `run_constrained_ssw` with explicit `FixAtoms` / direction exclusions. The
+constrained path projects onto active coordinates and does not remove rigid
+motion. Both 3D and partial PBC require a full-rank fixed cell (a slab's vacuum
+cell vector remains present). The nonperiodic default is unchanged.
+
+Local distances and bond connectivity use periodic images; local torsion uses
+one chart rooted at the selected first endpoint. Stage history and Gaussian
+centers retain continuous unwrapped coordinates: **do not wrap atoms between
+optimizer steps**. The second selected endpoint may be fixed as a geometry
+reference; generated components still have zero support on inactive atoms.
+The ordinary shared-driver pool restart rebuilds direction memory; this does
+not add a pool API to the constrained driver.
+
+Checkpoint direction state explicitly stores the geometry mode, cell and PBC;
+restoring with a different geometry is rejected. The existing outer checkpoint
+capability schemas and older nonperiodic checkpoints remain supported. Use
+`c1_radius_policy='per_atom'` when a structure exceeds the inherited 12 Angstrom
+all-near domain; this is an explicit existing policy, not an automatic fallback.
+
+This option implements c1/c4/c6 and stage-displacement mixing. It does not
+implement the complete Q/descriptor-gradient library, variable-cell direction
+lifecycle or native LASP periodic parity. Paper-derived material end-to-end
+qualification and search-effect evidence are tracked separately in
+`docs/research/2026-09-26-gap-driven-development.md`.
