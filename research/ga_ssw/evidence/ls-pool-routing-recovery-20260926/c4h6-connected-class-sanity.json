@@ -1,0 +1,126 @@
+{
+  "method": "same frozen C4H6 cutoffs and common E/F prefix as analyzer; no PES evaluation",
+  "arms": [
+    {
+      "mode": "mc",
+      "common_prefix_requests": 33031,
+      "connected_class_count_including_initial": 4,
+      "new_connected_classes": 3,
+      "new_connected_class_representatives": [
+        {
+          "connected_class_id": 1,
+          "candidate_index": 2,
+          "minimum_index": 2,
+          "record_index": 1,
+          "first_observation_search_cost": 1194,
+          "fresh_energy_eV": -4240.722163581842,
+          "delta_vs_lowest_connected_fresh_energy_eV": 3.1994919388116614,
+          "fresh_fmax_eV_A": 0.02611808081354431,
+          "hydrogen_degree_gt1_count": 0,
+          "carbon_degree_gt4_count": 0,
+          "minimum_interatomic_distance_A": 1.078856260539178
+        },
+        {
+          "connected_class_id": 2,
+          "candidate_index": 11,
+          "minimum_index": 11,
+          "record_index": 10,
+          "first_observation_search_cost": 7282,
+          "fresh_energy_eV": -4243.517734579362,
+          "delta_vs_lowest_connected_fresh_energy_eV": 0.40392094129219913,
+          "fresh_fmax_eV_A": 0.028833614725557156,
+          "hydrogen_degree_gt1_count": 0,
+          "carbon_degree_gt4_count": 0,
+          "minimum_interatomic_distance_A": 1.0810168181914719
+        },
+        {
+          "connected_class_id": 3,
+          "candidate_index": 25,
+          "minimum_index": 25,
+          "record_index": 24,
+          "first_observation_search_cost": 16532,
+          "fresh_energy_eV": -4240.729586146197,
+          "delta_vs_lowest_connected_fresh_energy_eV": 3.192069374456878,
+          "fresh_fmax_eV_A": 0.038926822157313384,
+          "hydrogen_degree_gt1_count": 0,
+          "carbon_degree_gt4_count": 0,
+          "minimum_interatomic_distance_A": 1.0784572676601625
+        }
+      ],
+      "max_representative_delta_vs_lowest_connected_fresh_energy_eV": 3.1994919388116614,
+      "interpretation": "Geometry sanity diagnostics only. Graph connectedness/class and these counts do not establish chemically valid isomers."
+    },
+    {
+      "mode": "uniform",
+      "common_prefix_requests": 33031,
+      "connected_class_count_including_initial": 3,
+      "new_connected_classes": 2,
+      "new_connected_class_representatives": [
+        {
+          "connected_class_id": 1,
+          "candidate_index": 9,
+          "minimum_index": 9,
+          "record_index": 8,
+          "first_observation_search_cost": 5647,
+          "fresh_energy_eV": -4243.514240997056,
+          "delta_vs_lowest_connected_fresh_energy_eV": 0.4073696621999261,
+          "fresh_fmax_eV_A": 0.04959502061139667,
+          "hydrogen_degree_gt1_count": 0,
+          "carbon_degree_gt4_count": 0,
+          "minimum_interatomic_distance_A": 1.081723569998432
+        },
+        {
+          "connected_class_id": 2,
+          "candidate_index": 29,
+          "minimum_index": 29,
+          "record_index": 28,
+          "first_observation_search_cost": 16032,
+          "fresh_energy_eV": -4240.721755643193,
+          "delta_vs_lowest_connected_fresh_energy_eV": 3.199855016062429,
+          "fresh_fmax_eV_A": 0.031867777587230924,
+          "hydrogen_degree_gt1_count": 0,
+          "carbon_degree_gt4_count": 0,
+          "minimum_interatomic_distance_A": 1.07950321354119
+        }
+      ],
+      "max_representative_delta_vs_lowest_connected_fresh_energy_eV": 3.199855016062429,
+      "interpretation": "Geometry sanity diagnostics only. Graph connectedness/class and these counts do not establish chemically valid isomers."
+    },
+    {
+      "mode": "pam",
+      "common_prefix_requests": 33031,
+      "connected_class_count_including_initial": 3,
+      "new_connected_classes": 2,
+      "new_connected_class_representatives": [
+        {
+          "connected_class_id": 1,
+          "candidate_index": 2,
+          "minimum_index": 2,
+          "record_index": 1,
+          "first_observation_search_cost": 1231,
+          "fresh_energy_eV": -4242.875136881759,
+          "delta_vs_lowest_connected_fresh_energy_eV": 1.0465465100896836,
+          "fresh_fmax_eV_A": 0.03551571786126889,
+          "hydrogen_degree_gt1_count": 0,
+          "carbon_degree_gt4_count": 0,
+          "minimum_interatomic_distance_A": 1.074238670526166
+        },
+        {
+          "connected_class_id": 2,
+          "candidate_index": 3,
+          "minimum_index": 3,
+          "record_index": 2,
+          "first_observation_search_cost": 1779,
+          "fresh_energy_eV": -4243.516647140281,
+          "delta_vs_lowest_connected_fresh_energy_eV": 0.4050362515681627,
+          "fresh_fmax_eV_A": 0.04849854209068779,
+          "hydrogen_degree_gt1_count": 0,
+          "carbon_degree_gt4_count": 0,
+          "minimum_interatomic_distance_A": 1.0811605121563046
+        }
+      ],
+      "max_representative_delta_vs_lowest_connected_fresh_energy_eV": 1.0465465100896836,
+      "interpretation": "Geometry sanity diagnostics only. Graph connectedness/class and these counts do not establish chemically valid isomers."
+    }
+  ]
+}

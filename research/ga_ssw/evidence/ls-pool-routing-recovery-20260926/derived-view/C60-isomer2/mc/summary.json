@@ -1,0 +1,30 @@
+{
+  "case": "C60-isomer2",
+  "mode": "mc",
+  "seed": 181,
+  "status": "recovered_from_raw_artifacts_postprocess_incomplete",
+  "algorithm_status": "evaluation_failed",
+  "budget_censor": true,
+  "censor_reason": "wall_deadline",
+  "search_requests": 28338,
+  "fresh_requests": 66,
+  "total_requests": 28404,
+  "outer_attempt_records": 66,
+  "returned_landings": 65,
+  "successful_minima_in_core_result": 66,
+  "fresh_candidate_count": 66,
+  "fresh_checks_recorded": 66,
+  "fresh_qualified_count": 66,
+  "adapter_call_count": null,
+  "derivation": "recovery-summary; synthesized solely from search-result.json, fresh-checks.json and closed request ledgers; raw summary.json absent",
+  "derivation_checks": {
+    "initial_plus_record_cost_equals_result_and_wrapper": true,
+    "search_request_ids_contiguous": true,
+    "fresh_ledger_closed": true,
+    "fresh_request_ids_contiguous": true,
+    "candidate_mapping_matches_records": true,
+    "all_fresh_rows_recorded": true,
+    "all_fresh_rows_certified": true,
+    "all_fresh_rows_completed": true
+  }
+}

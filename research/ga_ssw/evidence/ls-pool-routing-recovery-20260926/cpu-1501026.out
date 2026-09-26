@@ -1,0 +1,6 @@
+{
+  "status": "offline_analysis_with_issues",
+  "arms": 6,
+  "issues": 19,
+  "output_dir": "research/ga_ssw/evidence/ls-pool-routing-recovery-20260926/readout-cpu-1501026"
+}

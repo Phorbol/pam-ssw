@@ -1,0 +1,38 @@
+{
+  "case": "C60-isomer2",
+  "mode": "pam",
+  "common_prefix_requests": 23877,
+  "candidate_index": 54,
+  "minimum_index": 54,
+  "record_index": 53,
+  "cumulative_search_requests": 21055,
+  "accepted": true,
+  "landing_converged": true,
+  "fresh_status": "fresh_completed",
+  "fresh_certified": true,
+  "fresh_energy_eV": -62215.39289098097,
+  "fresh_fmax_eV_A": 0.03391362727387857,
+  "graph_at_cutoffs": {
+    "1.64": {
+      "ih_graph_match": true,
+      "source_defect_graph_match": false,
+      "fullerene_cage_candidate": true,
+      "edges": 90
+    },
+    "1.7": {
+      "ih_graph_match": true,
+      "source_defect_graph_match": false,
+      "fullerene_cage_candidate": true,
+      "edges": 90
+    },
+    "1.8": {
+      "ih_graph_match": true,
+      "source_defect_graph_match": false,
+      "fullerene_cage_candidate": true,
+      "edges": 90
+    }
+  },
+  "restarted_this_outer_record": false,
+  "committed_restart_in_immediately_previous_record": false,
+  "interpretation": "One graph/energy-window observation in a single-seed, common-cost censored panel; not a controller ranking or stability/DFT conclusion."
+}
