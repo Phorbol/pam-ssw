@@ -16,7 +16,8 @@ C60 MC的28338搜索+66fresh从原始账本/结果完整闭合；CPU1501026零PE
 
 下一项：基于C60正例与C4H6阴性，冻结全部策略/数值参数，用新seed197/selector199
 做同一缺陷的MC/uniform/PAM三臂确认；上限240k搜索+303fresh、1.5GPU小时，
-没有自动第三seed/生产扩展。此刻协议已准备，提交状态见本轮submission记录。
+没有自动第三seed/生产扩展。GPU1501032已提交，afterany离线分析1501037已排队；
+[冻结协议与执行记录](../../research/ga_ssw/evidence/c60-pool-seed-confirmation-20260926/submission.md)。
 MC无用的离线身份重归档已从GPU完成路径移除，CPU1501023证实搜索/fresh结果完全不变。
 SiO2已获取可追溯COD石英CIF，尚未PES资格检查；用于后续Safe-total跨材料变胞检验，
 此前AlOH/TiO2成本优势仅支持保留候选，不等于全局搜索胜出。GA/RC/Q入口扩建暂缓。
