@@ -1,0 +1,100 @@
+{
+  "status": "prepared_not_executed",
+  "question": "On identical saved joint variable-cell frozen-bias objectives and, separately, on identical saved structures for unbiased cell relaxation, do Safe-total, ASE LBFGSLineSearch, or SciPy L-BFGS-B reach the relevant common certificate at lower paid E/F/stress cost?",
+  "model": "/home/gengjianrui/.cache/mace/mace-omat-0-small.model",
+  "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+  "device": "cuda",
+  "dtype": "float64",
+  "calculator": {
+    "head": "omat_pbe",
+    "enable_cueq": false,
+    "enable_oeq": false,
+    "torch_num_threads": 1,
+    "torch_num_interop_threads": 1
+  },
+  "optimizers": [
+    "safe-lbfgs-total",
+    "ase-lbfgs-linesearch",
+    "scipy-lbfgsb"
+  ],
+  "lbfgs_history_pairs": 500,
+  "cases": [
+    {
+      "name": "AlOH26",
+      "source_result": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/joint-vc-aloh26-l5-clean/result.json",
+      "source_chart_input": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/joint-vc-aloh26-l5-clean/input.extxyz",
+      "source_provenance": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/joint-vc-aloh26-l5-clean/provenance.json",
+      "record_index": 0,
+      "climb_index": 13,
+      "strain_length_A": 5.0,
+      "pressure_eV_A3": 0.0,
+      "source_gradient_tol_eV_A": 0.005,
+      "gradient_tol_eV_A": 0.05,
+      "fmax_eV_A": 0.05,
+      "stress_tol_eV_A3": 0.001,
+      "width_A": 0.2,
+      "max_step_A": 0.2
+    },
+    {
+      "name": "TiO2-phase87",
+      "source_result": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/tio2-phase87-vc-pqc-single-step/joint-memory400-whole-step/result.json",
+      "source_provenance": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/tio2-phase87-vc-pqc-single-step/joint-memory400-whole-step/plan.json",
+      "record_index": 0,
+      "climb_index": 8,
+      "strain_length_A": 5.0,
+      "pressure_eV_A3": 0.0,
+      "source_gradient_tol_eV_A": 0.005,
+      "gradient_tol_eV_A": 0.05,
+      "fmax_eV_A": 0.05,
+      "stress_tol_eV_A3": 0.001,
+      "width_A": 0.6,
+      "max_step_A": 0.2
+    }
+  ],
+  "budget": {
+    "maxiter_per_stage": 300,
+    "request_cap_per_stage": 600,
+    "fresh_endpoint_requests_per_stage": 1,
+    "source_physical_objective_validation_requests_per_case": 1,
+    "source_physical_objective_validation_total_requests": 12,
+    "wall_seconds_per_arm": 900,
+    "total_optimizer_stages": 12,
+    "max_search_efs": 7200,
+    "max_fresh_efs": 12,
+    "max_total_endpoint_and_source_validation_efs": 24,
+    "max_total_efs_including_optimizer_stages": 7224,
+    "stop": "No retries. Preserve backend/SCF failures, request/wall-censored endpoints, and all request costs. This first panel is frozen-objective and numerical-certificate qualification, not an independent optimizer ranking.",
+    "worker_timeout_seconds": 120,
+    "worker_kill_grace_seconds": 5,
+    "gpu_job_limit_minutes": 30,
+    "execution": "12 independent processes: 2 materials x 3 optimizers x 2 fixed tasks; one shared V100 allocation, sequential. Each process validates its saved physical objective once, then at most 600 search and one fresh endpoint request. An in-flight killed evaluation is reported separately from completed ledger entries."
+  },
+  "common_contract": {
+    "max_step_A": 0.2,
+    "same_within_case": [
+      "atoms",
+      "reference cell",
+      "symmetric log-strain chart",
+      "strain_length",
+      "pressure",
+      "frozen Gaussian terms",
+      "biased objective",
+      "gradient projection",
+      "physical force/stress limits"
+    ],
+    "biased_stop": "max(max_i ||g_atom_i||_2, ||g_cell_6||_2) <= 0.05 eV/A on an accepted iterate; this is the new panel threshold, not the source run's 0.005 threshold",
+    "unbiased_physical_certificate": "max(fmax/fmax_limit, max_abs(stress + pressure I)/stress_limit) <= 1 on an accepted iterate",
+    "accepted_telemetry": "Record paid request index, volume, raw physical fmax and pressure-residual stress, biased common gradient norm, and unbiased physical certificate at every accepted iterate; report first qualifying accepted request and complete native termination cost separately. From the biased accepted trace, report first passages at 0.1 and 0.05 eV/A; Safe uses the common biased criterion to stop, while SciPy/ASE retain native stops and are read offline. No added PES evaluations for trace observation.",
+    "unbiased_stop_and_readout": "Safe-total stops on the common physical certificate with fmax=0.05 eV/A and stress_tol=0.001 eV/A^3. SciPy and ASE retain native q-gradient/force stopping (native scale derived from the new panel 0.05 eV/A tolerance using the VC norm-contract conversions), and their first accepted physical certificate crossing is reported offline alongside full native termination cost. The physical certificate value 1 is never passed as a gradient tolerance.",
+    "unbiased_task_start": "For each material, every optimizer starts unbiased cell relaxation from the exact same archived post-bias q_saved. It is an independent fixed task and does not start from each method's biased endpoint, so this panel isolates the no-bias cell-relax comparison. Chained biased-endpoint quenches are deferred.",
+    "implementation_scope": "Full numerical implementation comparison, not an isolated line-search ablation. Reuse existing Safe-total and research ASE/SciPy adapters. Retain Safe joint step cap, ASE triplet step cap, SciPy defaults, and each backend native termination; report native stop and common certificate independently. Accepted trace points must be cache hits; cache misses are errors and never trigger hidden evaluations.",
+    "phase_labels": [
+      "frozen_biased_joint_vc_quench",
+      "unbiased_terminal_cell_relax"
+    ]
+  },
+  "commands_for_root_review_only": {
+    "cpu_zero_pes_preflight": "python research/ga_ssw/run_vc_frozen_optimizer_panel.py --plan research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/plan.json --out /tmp/vc-frozen-panel-preflight --preflight-only",
+    "gpu_run": "sbatch --wait research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/run.sbatch"
+  }
+}

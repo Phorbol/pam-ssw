@@ -1,0 +1,29 @@
+{
+  "status": "preflight_ok_no_PES",
+  "cases": [
+    {
+      "case": "AlOH26",
+      "natoms": 26,
+      "ndof": 84,
+      "terms_retained": 14,
+      "selected_climb_index": 13,
+      "q_start_size": 84,
+      "q_saved_size": 84,
+      "start_volume_A3": 265.27601702511765,
+      "source_chart_reference_present": false,
+      "source_frozen_objective_gradient_reconstruction_check": "not_available: selected source stores physical climb objective, not frozen biased objective/gradient"
+    },
+    {
+      "case": "TiO2-phase87",
+      "natoms": 48,
+      "ndof": 150,
+      "terms_retained": 9,
+      "selected_climb_index": 8,
+      "q_start_size": 150,
+      "q_saved_size": 150,
+      "start_volume_A3": 828.1438891088244,
+      "source_chart_reference_present": true,
+      "source_frozen_objective_gradient_reconstruction_check": "not_available: selected source stores physical climb objective, not frozen biased objective/gradient"
+    }
+  ]
+}

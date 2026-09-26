@@ -1,0 +1,82 @@
+{"event": "stage_start", "method": "safe-lbfgs-total", "phase": "biased"}
+{"event": "before_emt", "volume": 46.656, "cell": [[3.6027781350206625, 0.14145773284965, 0.0], [0.14145773284965002, 3.6027781350206625, 0.0], [0.0, 0.0, 3.6]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 46.40399287531546, "cell": [[3.5962902366981715, 0.14105323171775133, 6.322448084413785e-23], [0.1410532317177513, 3.5962902366981715, 5.0037717803684575e-22], [6.322448084413786e-23, 5.0037717803684575e-22, 3.593473918204127]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 46.15202656463793, "cell": [[3.589781307181504, 0.14065080326283144, -1.8735189435374414e-22], [0.14065080326283144, 3.589781307181504, -1.9948899766943766e-22], [-1.8735189435374414e-22, -1.9948899766943766e-22, 3.586922623201013]]}
+{"event": "after_emt"}
+{"event": "stage_end", "status": "maxiter", "requests": 3}
+{"event": "stage_start", "method": "safe-lbfgs-total", "phase": "unbiased"}
+{"event": "before_emt", "volume": 46.656, "cell": [[3.6, 0.0, 0.0], [0.0, 3.6, 0.0], [0.0, 0.0, 3.6]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 46.404136848080064, "cell": [[3.5935103465249925, 1.2580932768057559e-21, 1.2580932768057559e-21], [1.2580932768057559e-21, 3.5935103465249925, 1.2580932768057559e-21], [1.2580932768057559e-21, 1.2580932768057559e-21, 3.5935103465249925]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 46.152221556202136, "cell": [[3.586995817403844, -1.4993927073484871e-22, -1.4995989597181532e-22], [-1.4993927073484874e-22, 3.586995817403844, -1.4998052120878142e-22], [-1.4995989597181532e-22, -1.499805212087814e-22, 3.586995817403844]]}
+{"event": "after_emt"}
+{"event": "stage_end", "status": "maxiter", "requests": 3}
+{"event": "stage_start", "method": "ase-lbfgs-linesearch", "phase": "biased"}
+{"event": "before_emt", "volume": 46.656, "cell": [[3.6027781350206625, 0.14145773284965, 0.0], [0.14145773284965002, 3.6027781350206625, 0.0], [0.0, 0.0, 3.6]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 46.40399287531546, "cell": [[3.5962902366981715, 0.14105323171775133, 6.322448084413785e-23], [0.1410532317177513, 3.5962902366981715, 5.0037717803684575e-22], [6.322448084413786e-23, 5.0037717803684575e-22, 3.593473918204127]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 45.409502932650454, "cell": [[3.570455329568184, 0.1394451831668518, 3.136380106066977e-22], [0.1394451831668518, 3.570455329568184, 2.483833846028526e-21], [3.136380106066977e-22, 2.4838338460285264e-21, 3.5674876815952246]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 41.64015469078489, "cell": [[3.468959299681479, 0.13316975780740592, 1.2763498658037297e-21], [0.13316975780740592, 3.468959299681479, 1.0134260008177151e-20], [1.2763498658037297e-21, 1.0134260008177151e-20, 3.465408391664374]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 37.82009312144208, "cell": [[3.3596356057061576, 0.1264870045871104, 2.2750075687490884e-21], [0.12648700458711043, 3.3596356057061576, 1.8115980983011667e-20], [2.2750075687490884e-21, 1.8115980983011664e-20, 3.3554770304180646]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 35.58770314576858, "cell": [[3.2922986395231026, 0.12241147370261127, 2.8698979913041325e-21], [0.12241147370261127, 3.2922986395231026, 2.2895073820783277e-20], [2.8698979913041325e-21, 2.2895073820783277e-20, 3.2877767121388595]]}
+{"event": "after_emt"}
+{"event": "stage_end", "status": "evaluation_failed", "requests": 6}
+{"event": "stage_start", "method": "ase-lbfgs-linesearch", "phase": "unbiased"}
+{"event": "before_emt", "volume": 46.656, "cell": [[3.6, 0.0, 0.0], [0.0, 3.6, 0.0], [0.0, 0.0, 3.6]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 46.404136848080064, "cell": [[3.5935103465249925, 1.2580932768057559e-21, 1.2580932768057559e-21], [1.2580932768057559e-21, 3.5935103465249925, 1.2580932768057559e-21], [1.2580932768057559e-21, 1.2580932768057559e-21, 3.5935103465249925]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 45.410207373350396, "cell": [[3.5676685097072243, 6.245230057949762e-21, 6.245230057949762e-21], [6.245230057949762e-21, 3.5676685097072243, 6.245230057949762e-21], [6.245230057949762e-21, 6.245230057949762e-21, 3.5676685097072243]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 41.6428678176149, "cell": [[3.466146198033953, 2.548356090867385e-20, 2.548356090867385e-20], [2.548356090867385e-20, 3.466146198033953, 2.548356090867385e-20], [2.548356090867385e-20, 2.548356090867385e-20, 3.466146198033953]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 37.8225342132685, "cell": [[3.35673359258053, 4.557051581936744e-20, 4.557051581936744e-20], [4.557051581936744e-20, 3.35673359258053, 4.557051581936744e-20], [4.557051581936744e-20, 4.557051581936744e-20, 3.35673359258053]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 35.59322427571559, "cell": [[3.289443594086616, 5.758195289675578e-20, 5.758195289675578e-20], [5.758195289675579e-20, 3.289443594086616, 5.758195289675578e-20], [5.758195289675579e-20, 5.758195289675579e-20, 3.289443594086616]]}
+{"event": "after_emt"}
+{"event": "stage_end", "status": "evaluation_failed", "requests": 6}
+{"event": "stage_start", "method": "scipy-lbfgsb", "phase": "biased"}
+{"event": "before_emt", "volume": 46.656, "cell": [[3.6027781350206625, 0.14145773284965, 0.0], [0.14145773284965002, 3.6027781350206625, 0.0], [0.0, 0.0, 3.6]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 28.84004701719513, "cell": [[3.0698398093258454, 0.10917672372898356, 4.721827813804991e-21], [0.10917672372898356, 3.0698398093258454, 3.790969633011184e-20], [4.721827813804992e-21, 3.790969633011184e-20, 3.0641794010340266]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 4.210656475321227, "cell": [[1.6184080491208672, 0.03359610717004786, 1.1683440819524083e-20], [0.03359610717004785, 1.6184080491208677, 9.963623710154511e-20], [1.1683440819524082e-20, 9.963623710154509e-20, 1.6082773307053166]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 17.554119442821616, "cell": [[2.6023681093795235, 0.0826130719601914, 8.005362917743674e-21], [0.08261307196019142, 2.6023681093795235, 6.525664333987708e-20], [8.005362917743674e-21, 6.525664333987709e-20, 2.5946541699771632]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 0.13505389556363562, "cell": [[0.5804575997763504, 0.3202012497473099, -8.36500949633046e-17], [0.32020124974730985, 0.5804575997763591, -1.8759327265015688e-17], [-8.365009496330447e-17, -1.875932726501569e-17, 0.5761631261235776]]}
+{"event": "after_emt"}
+{"event": "before_emt", "volume": 4.731723758281662e-10, "cell": [[0.005716539271928414, 0.0056869200677735115, -1.8267864294048975e-18], [0.00568692006777351, 0.005716539271928572, -1.5365825549521923e-18], [-1.8267864294049e-18, -1.5365825549521944e-18, 0.0014009072365257192]]}
+Timeout (0:00:45)!
+Thread 0x00000e0b24029740 (most recent call first):
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/neighborlist.py", line 988 in build
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/neighborlist.py", line 935 in update
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/neighborlist.py", line 1145 in update
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/calculators/emt.py", line 181 in calculate
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/diagnose_preflight.py", line 19 in calculate
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/calculators/calculator.py", line 519 in get_property
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/calculators/abc.py", line 26 in get_potential_energy
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/atoms.py", line 835 in get_potential_energy
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/pamssw/standalone/vc_geometry.py", line 60 in evaluate
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/pamssw/standalone/vc_geometry.py", line 152 in evaluate
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/run_vc_frozen_optimizer_panel.py", line 150 in evaluate
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/run_vc_frozen_optimizer_panel.py", line 216 in evaluate
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/lbfgs_baselines.py", line 103 in _oracle
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/lbfgs_baselines.py", line 186 in fun
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/scipy/optimize/_optimize.py", line 74 in _compute_if_needed
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/scipy/optimize/_optimize.py", line 80 in __call__
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/scipy/_lib/_util.py", line 583 in __call__
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/scipy/optimize/_differentiable_functions.py", line 353 in _update_fun
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/scipy/optimize/_differentiable_functions.py", line 403 in fun_and_grad
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/scipy/optimize/_lbfgsb_py.py", line 469 in _minimize_lbfgsb
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/scipy/optimize/_minimize.py", line 785 in minimize
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/lbfgs_baselines.py", line 211 in scipy_lbfgsb
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/run_vc_frozen_optimizer_panel.py", line 244 in run_stage
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/evidence/vc-mature-frozen-panel-20260926/diagnose_preflight.py", line 25 in <module>
