@@ -1,0 +1,34 @@
+{
+  "purpose": "single-input joint variable-cell quench qualification; not an SSW search or optimizer comparison",
+  "input_source": "research/ga_ssw/evidence/vc-sio2-source-20260926/alpha-quartz-cod-1011097.cif",
+  "input_source_sha256": "e7014ed2bf991b90c21c0013f261e7f4112b9b51487da043024a96e7cfe62c2a",
+  "cod_id": "1011097",
+  "model": "/home/gengjianrui/.cache/mace/mace-omat-0-small.model",
+  "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+  "device": "cuda",
+  "dtype": "float64",
+  "calculator": {
+    "head": "omat_pbe",
+    "enable_cueq": false,
+    "enable_oeq": false,
+    "torch_num_threads": 1,
+    "torch_num_interop_threads": 1
+  },
+  "quench": {
+    "solver": "existing Safe-total cell_quench",
+    "strain_length_A": 5.0,
+    "pressure_eV_A3": 0.0,
+    "fmax_eV_A": 0.05,
+    "stress_tol_eV_A3": 0.001,
+    "max_step_A": 0.2,
+    "maxiter": 300,
+    "lbfgs_memory": 500
+  },
+  "budget": {
+    "initial_plus_quench_search_efs": 3000,
+    "independent_fresh_efs_max": 2,
+    "search_wall_limit_seconds": 780,
+    "allocation_wall_minutes": 15
+  },
+  "claim_boundary": "CIF is not yet PES-qualified. This run tests numerical model/geometry qualification under the frozen certificate only; not SiO2 phase ordering, paper BKS reproduction, production ranking, or SSW search quality."
+}
