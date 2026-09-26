@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/evidence/vc-e2e-optimizer-panel-20260926/analyze.py", line 465, in <module>
+    main()
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/evidence/vc-e2e-optimizer-panel-20260926/analyze.py", line 460, in main
+    (out / "report.md").write_text(render(report))
+                                   ^^^^^^^^^^^^^^
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/evidence/vc-e2e-optimizer-panel-20260926/analyze.py", line 348, in render
+    "No-landing outer records: " + ("; ".join(f"{r['case']} seed{r['seed']} {r['method']} step{d['index']}={d['status']}" for r in report['arms'] for d in r.get('outer_steps_without_landing_detail', [])) or "none") + ".", "",
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/evidence/vc-e2e-optimizer-panel-20260926/analyze.py", line 348, in <genexpr>
+    "No-landing outer records: " + ("; ".join(f"{r['case']} seed{r['seed']} {r['method']} step{d['index']}={d['status']}" for r in report['arms'] for d in r.get('outer_steps_without_landing_detail', [])) or "none") + ".", "",
+                                                 ~^^^^^^^^
+KeyError: 'case'

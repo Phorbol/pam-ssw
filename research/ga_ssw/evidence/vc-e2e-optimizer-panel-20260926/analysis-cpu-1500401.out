@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/evidence/vc-e2e-optimizer-panel-20260926/analyze.py", line 465, in <module>
+    main()
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/evidence/vc-e2e-optimizer-panel-20260926/analyze.py", line 452, in main
+    raise ValueError(f"panel denominator regression: {key}={observed[key]}, expected {value}")
+ValueError: panel denominator regression: outer_steps_without_landing=36, expected 3
