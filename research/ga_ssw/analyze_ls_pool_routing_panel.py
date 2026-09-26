@@ -250,13 +250,19 @@ def load_arm(folder: Path, case: dict, mode: str, plan: dict):
     row = {"case": case["name"], "mode": mode, "path": str(folder),
            "present": folder.is_dir(), "issues": []}
     identity_file = "offline-identity.json" if mode == "mc" else "pool-report.json"
-    needed = ("summary.json", "search-result.json", "fresh-checks.json",
-              "search-ledger.jsonl", "fresh-ledger.jsonl", identity_file,
-              "selector-contract.json")
+    needed = ["summary.json", "search-result.json", "fresh-checks.json",
+              "search-ledger.jsonl", "fresh-ledger.jsonl", "selector-contract.json"]
+    if mode != "mc":
+        needed.append(identity_file)
     missing = [name for name in needed if not (folder / name).is_file()]
     if missing:
         row["missing_artifacts"] = missing
         row["issues"].append("missing artifacts: " + ", ".join(missing))
+    identity_present = (folder / identity_file).is_file()
+    identity_status = (
+        "not_applicable" if mode != "mc" else
+        "present" if identity_present else "missing_optional"
+    )
     if not (folder / "summary.json").is_file():
         ledger = charged_ledger(folder / "search-ledger.jsonl", stage="search") \
             if (folder / "search-ledger.jsonl").is_file() else None
@@ -281,6 +287,8 @@ def load_arm(folder: Path, case: dict, mode: str, plan: dict):
                                                else (search_lb or 0) + (fresh_lb or 0)),
                    outer_records=record_count, search_ledger=ledger, fresh_ledger=fresh_ledger,
                    progress_last=progress_tail(folder / "progress.jsonl"),
+                   offline_identity_diagnostic=identity_status,
+                   pool_report_entries=None,
                    scientific_prefix_eligible=False)
         if ledger is not None:
             row["issues"].extend(ledger["errors"])
@@ -331,7 +339,9 @@ def load_arm(folder: Path, case: dict, mode: str, plan: dict):
                         "fresh_failed_or_uncertified": None,
                         "fresh_missing": None,
                         "committed_pool_restarts": [],
-                        "pool_report_entries": len(pool.get("entries", [])),
+                        "offline_identity_diagnostic": identity_status,
+                        "pool_report_entries": (None if mode == "mc" and not identity_present
+                                                 else len(pool.get("entries", []))),
                         "pool_report_cost_closed": pool.get("cost_closed"),
                         "selector_contract": contract,
                         "scientific_prefix_eligible": False})
@@ -478,7 +488,9 @@ def load_arm(folder: Path, case: dict, mode: str, plan: dict):
             "fresh_missing": missing_fresh,
             "fresh_failure_indices": [i for i, _ in failed],
             "committed_pool_restarts": committed,
-            "pool_report_entries": len(pool.get("entries", [])),
+            "offline_identity_diagnostic": identity_status,
+            "pool_report_entries": (None if mode == "mc" and not identity_present
+                                     else len(pool.get("entries", []))),
             "pool_report_cost_closed": pool.get("cost_closed"),
             "selector_contract": contract,
             "search_accounting_valid": search_accounting_valid,
