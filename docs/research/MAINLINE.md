@@ -23,6 +23,16 @@ proposal/CBD后/首段位移对参考首段的余弦0.277/0.419/0.556。仅为�
 方向、不扩大生产预算或改默认；下一项核对方向组件的跨体系证据覆盖。
 [证据、失败保留与决定](../../research/ga_ssw/evidence/c60-path-diagnostic-20260927/decision.md)。
 
+阶段决定：停止重复方向/GA及VC优化器面板。复核旧AlOH/TiO2共同保存态，
+Safe/SciPy偏置首次达标合计128/129请求，而最终停止128/159；已有材料足以限制
+“Safe明显优于SciPy”的说法，不启动刚考虑的重复first-pass实验。
+旧完整方向与GA在随机C60/Cu55/Cu13也有结果，不能写成“只测过缺陷笼”。
+下一项只准备公开Ag30Au30合金的新案例资格：2019 CC-BY Gupta源坐标已取得，
+在既有OMAT-small上对源占位与一次既有种类交换各做有限淬火；最多1000次实际E/F、
+单V10015分钟，不执行完整GA搜索，不将源Gupta最低点当OMAT目标。
+它检验候选体系是否适合研究连续坐标/非局部占位机制，不承诺算子效果。
+[固定问题、来源与停止条件](../../research/ga_ssw/evidence/alloy-input-qualification-20260927/protocol.md)。
+
 ## 2026-09-26 当前决定：收口池策略，推进独立材料的变胞数值验证
 
 目标：独立ASE SSW-like方法的有效性和效率。SSW/LS/VC/RC/GA已有研究实现，

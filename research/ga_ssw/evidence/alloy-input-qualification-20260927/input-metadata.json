@@ -1,0 +1,71 @@
+{
+  "purpose": "input preparation and geometric audit only; no PES calls",
+  "source": {
+    "article_title": "Theoretical study of the structures of bimetallic Ag-Au and Cu-Au clusters up to 108 atoms",
+    "authors": [
+      "Rongbin Du",
+      "Sai Tang",
+      "Xia Wu",
+      "Yiqing Xu",
+      "Run Chen",
+      "Tao Liu"
+    ],
+    "article_doi": "10.1098/rsos.190342",
+    "dataset_doi": "10.6084/m9.figshare.9164993.v2",
+    "dataset_url": "https://rs.figshare.com/articles/dataset/Structures_of_Ag-Au_and_Cu-Au_clusters_from_Theoretical_study_of_the_structures_of_bimetallic_Ag_Au_and_Cu_Au_clusters_up_to_108_atoms/9164993",
+    "dataset_file": "rsos190342_si_001.txt",
+    "dataset_file_bytes": 373973,
+    "dataset_file_sha256": "4ea77ed916249e45f1938a94a5ff92308ac6da7acf7e423a8ad27c2d7e01cb30",
+    "figshare_metadata_license": "CC BY 4.0",
+    "license": "CC BY 4.0",
+    "method_as_reported": "modified adaptive immune optimization algorithm with Gupta potential",
+    "block_source_lines_1_based": {
+      "header": 4,
+      "energy": 5,
+      "first_atom": 6,
+      "last_atom": 65
+    },
+    "source_energy_eV": -188.373819,
+    "source_energy_model": "Gupta potential; source label only, not OMAT energy/target",
+    "source_Rsuc_over_100_runs": 12
+  },
+  "structure": {
+    "formula": "Ag30Au30",
+    "n_atoms": 60,
+    "element_counts": {
+      "Ag": 30,
+      "Au": 30
+    },
+    "pbc": [
+      false,
+      false,
+      false
+    ],
+    "cell_A": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "minimum_pair_distance_A": 2.668424798378624,
+    "bounding_box_extent_A": [
+      11.186311,
+      9.974754,
+      10.034562999999999
+    ],
+    "coordinates_transformed": false
+  },
+  "interpretation_boundary": "The paper's Gupta energy and putative-global-minimum designation apply to its reported Gupta search. They are not an OMAT energy, OMAT minimum certificate, or target label for a changed-potential qualification.",
+  "output_extxyz": "Ag30Au30_gupta_source.extxyz"
+}
