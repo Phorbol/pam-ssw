@@ -1,0 +1,1 @@
+{"status": "completed", "gate_requests_including_fresh": 6, "arms": {"cell_on": {"status": "completed", "requests": 1920, "completed_steps": 2, "valid_landings": 2, "censor_reason": null}, "cell_off": {"status": "completed", "requests": 1319, "completed_steps": 2, "valid_landings": 2, "censor_reason": null}}}

@@ -1,0 +1,359 @@
+{
+  "analysis": "post-run variable-cell mechanism screen cost and approximate geometry readout",
+  "run": "/home/gengjianrui/bin/pam-ssw-worktrees/vc-paper-panel-20260926/research/ga_ssw/evidence/vc-paper-panel-20260926/run-1499436/result.json",
+  "run_status": "completed",
+  "scientific_status": "bounded_development_mechanism_screen_not_validation",
+  "input_and_pairing": "paired per-step atomic RNG initial state and MC draw; physical atomic directions may differ after geometry changes",
+  "reference_gate": {
+    "requests_separate_from_arm_caps": 6,
+    "fresh_certificate": {
+      "energy_eV": -106.6343103707912,
+      "fmax_eV_per_angstrom": 0.02490999067119284,
+      "max_abs_stress_eV_per_angstrom3": 0.0005745272583288788,
+      "certified": true,
+      "error": null
+    }
+  },
+  "gate_requests": 6,
+  "arms": [
+    {
+      "arm": "cell_on",
+      "status": "completed",
+      "wall_seconds": 61.91029323730618,
+      "cost": {
+        "cell_rotation": 20,
+        "partial_fixed_cell_relax": 265,
+        "atomic_climb": 1526,
+        "full_cell_true_quench": 108,
+        "arm_start_fresh_certificate": 1,
+        "fresh_endpoint_checks": 2,
+        "arm_search_requests": 1920,
+        "arm_total_including_fresh_endpoints": 1922,
+        "ledger_stage_counts": {
+          "arm_start_fresh_certificate": 1,
+          "cell_cycle_0_rotation": 4,
+          "cell_cycle_0_partial_fixed_cell_relax": 56,
+          "cell_cycle_1_rotation": 4,
+          "cell_cycle_1_partial_fixed_cell_relax": 53,
+          "cell_cycle_2_rotation": 4,
+          "cell_cycle_2_partial_fixed_cell_relax": 52,
+          "cell_cycle_3_rotation": 4,
+          "cell_cycle_3_partial_fixed_cell_relax": 52,
+          "cell_cycle_4_rotation": 4,
+          "cell_cycle_4_partial_fixed_cell_relax": 52,
+          "fixed_cell_atomic_climb": 1526,
+          "full_cell_true_quench": 108
+        }
+      },
+      "steps": [
+        {
+          "step": 0,
+          "status": "valid_landing",
+          "requests": 905,
+          "delta_enthalpy_eV": 0.6595054780553653,
+          "accepted": false,
+          "cell_cycle_request_totals": [
+            30,
+            29,
+            28,
+            28,
+            28
+          ],
+          "cell_cycle_rotation_force_calls": [
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "partial_relax_steps": [
+            25,
+            25,
+            25,
+            25,
+            25
+          ]
+        },
+        {
+          "step": 1,
+          "status": "valid_landing",
+          "requests": 1014,
+          "delta_enthalpy_eV": 0.7632557671302891,
+          "accepted": false,
+          "cell_cycle_request_totals": [
+            30,
+            28,
+            28,
+            28,
+            28
+          ],
+          "cell_cycle_rotation_force_calls": [
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "partial_relax_steps": [
+            25,
+            25,
+            25,
+            25,
+            25
+          ]
+        }
+      ],
+      "fresh_endpoint_checks": [
+        {
+          "energy_eV": -105.97480489273582,
+          "energy_delta_eV": 1.4210854715202004e-14,
+          "fmax_eV_per_angstrom": 0.02891526540707016,
+          "max_abs_stress_eV_per_angstrom3": 0.0005514204651179818,
+          "certified": true
+        },
+        {
+          "energy_eV": -105.8710546036609,
+          "energy_delta_eV": 1.4210854715202004e-14,
+          "fmax_eV_per_angstrom": 0.027647266510925673,
+          "max_abs_stress_eV_per_angstrom3": 0.0002996663673001318,
+          "certified": true
+        }
+      ]
+    },
+    {
+      "arm": "cell_off",
+      "status": "completed",
+      "wall_seconds": 41.670930108986795,
+      "cost": {
+        "cell_rotation": 0,
+        "partial_fixed_cell_relax": 0,
+        "atomic_climb": 1275,
+        "full_cell_true_quench": 43,
+        "arm_start_fresh_certificate": 1,
+        "fresh_endpoint_checks": 2,
+        "arm_search_requests": 1319,
+        "arm_total_including_fresh_endpoints": 1321,
+        "ledger_stage_counts": {
+          "arm_start_fresh_certificate": 1,
+          "fixed_cell_atomic_climb": 1275,
+          "full_cell_true_quench": 43
+        }
+      },
+      "steps": [
+        {
+          "step": 0,
+          "status": "valid_landing",
+          "requests": 673,
+          "delta_enthalpy_eV": 0.23470919523606426,
+          "accepted": false,
+          "cell_cycle_request_totals": [],
+          "cell_cycle_rotation_force_calls": [],
+          "partial_relax_steps": []
+        },
+        {
+          "step": 1,
+          "status": "valid_landing",
+          "requests": 645,
+          "delta_enthalpy_eV": 0.000978358643521915,
+          "accepted": true,
+          "cell_cycle_request_totals": [],
+          "cell_cycle_rotation_force_calls": [],
+          "partial_relax_steps": []
+        }
+      ],
+      "fresh_endpoint_checks": [
+        {
+          "energy_eV": -106.39960117555513,
+          "energy_delta_eV": 0.0,
+          "fmax_eV_per_angstrom": 0.0213018004200779,
+          "max_abs_stress_eV_per_angstrom3": 0.000247823916453987,
+          "certified": true
+        },
+        {
+          "energy_eV": -106.63333201214768,
+          "energy_delta_eV": 0.0,
+          "fmax_eV_per_angstrom": 0.026085601062794728,
+          "max_abs_stress_eV_per_angstrom3": 0.000775605416856662,
+          "certified": true
+        }
+      ]
+    }
+  ],
+  "whole_run_paid_requests_including_gate_and_fresh_endpoints": 3249,
+  "frame_order": [
+    "initial",
+    "cell_on_landing_0",
+    "cell_on_landing_1",
+    "cell_off_landing_0",
+    "cell_off_landing_1"
+  ],
+  "geometry": {
+    "tight": {
+      "pairwise_matches": [
+        [
+          true,
+          false,
+          false,
+          false,
+          true
+        ],
+        [
+          false,
+          true,
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          false,
+          true,
+          false
+        ],
+        [
+          true,
+          false,
+          false,
+          false,
+          true
+        ]
+      ],
+      "greedy_representative_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "greedy_group_by_frame": [
+        0,
+        1,
+        2,
+        3,
+        0
+      ],
+      "approximate_group_count": 4,
+      "initial_matches_candidates": [
+        false,
+        false,
+        false,
+        true
+      ],
+      "candidate_matches_between_arms": [
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    "broad": {
+      "pairwise_matches": [
+        [
+          true,
+          false,
+          false,
+          false,
+          true
+        ],
+        [
+          false,
+          true,
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          false,
+          false,
+          true,
+          false
+        ],
+        [
+          true,
+          false,
+          false,
+          false,
+          true
+        ]
+      ],
+      "greedy_representative_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "greedy_group_by_frame": [
+        0,
+        1,
+        2,
+        3,
+        0
+      ],
+      "approximate_group_count": 4,
+      "initial_matches_candidates": [
+        false,
+        false,
+        false,
+        true
+      ],
+      "candidate_matches_between_arms": [
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "matcher": {
+    "class": "pymatgen StructureMatcher",
+    "tolerances": {
+      "tight": {
+        "ltol": 0.05,
+        "stol": 0.1,
+        "angle_tol": 2.0
+      },
+      "broad": {
+        "ltol": 0.2,
+        "stol": 0.3,
+        "angle_tol": 5.0
+      }
+    },
+    "scale": false,
+    "primitive_cell": false,
+    "attempt_supercell": false,
+    "comparator": "ElementComparator"
+  },
+  "software": {
+    "python": "3.12.11"
+  },
+  "analysis_execution": {
+    "slurm_job_id": "1499552",
+    "partition": "CPU-MISC",
+    "qos": "rush-cpu",
+    "command": "sbatch --wait research/ga_ssw/evidence/vc-paper-panel-20260926/analyze.sbatch"
+  },
+  "analysis_elapsed_seconds": 0.117,
+  "calculator_calls_for_analysis": 0,
+  "interpretation_limits": [
+    "This is one seed and two outer steps per arm; no efficiency ranking or general VC claim follows.",
+    "Candidates are true-quenched and freshly endpoint-qualified, but approximate structural matching does not establish basin identity, Hessian stability, or a distinct phase.",
+    "The geometry matcher uses the established tight/broad numerical tolerances; because cells are allowed to differ, the fixed-cell exact-cell precondition in the earlier helper is intentionally omitted.",
+    "The cell-on arm performs cell cycles and an atomic climb on every outer step to match the atomic stage; this is not the paper's lambda=2 interleaving schedule.",
+    "A request cap of 6000 per arm was not reached; no budget-censored steps or failed steps occurred in this run."
+  ]
+}

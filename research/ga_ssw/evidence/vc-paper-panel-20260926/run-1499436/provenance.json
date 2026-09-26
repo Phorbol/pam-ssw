@@ -1,0 +1,36 @@
+{
+  "arguments": {
+    "input": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/literature/benchmark-sources/coordinates/rutile.extxyz",
+    "backend": "mace",
+    "model": "/home/gengjianrui/.cache/mace/mace-omat-0-small.model",
+    "device": "cuda",
+    "out": "research/ga_ssw/evidence/vc-paper-panel-20260926/run-1499436",
+    "seed": 17,
+    "steps": 2,
+    "cell_cycles": 5,
+    "request_cap_per_arm": 6000,
+    "seconds_per_arm": 600.0,
+    "gate_request_cap": 300,
+    "gate_seconds": 300.0,
+    "atomic_gaussians": 10,
+    "rotation_hvp": 100,
+    "cell_rotation_requests": 6
+  },
+  "git_head": "c77f89923823ce5222b4c7f672b111893e86e3d6",
+  "git_dirty": "?? research/ga_ssw/evidence/vc-paper-panel-20260926/run-1499436/\n?? research/ga_ssw/evidence/vc-paper-panel-20260926/slurm-1499436.err\n?? research/ga_ssw/evidence/vc-paper-panel-20260926/slurm-1499436.out",
+  "input_path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/literature/benchmark-sources/coordinates/rutile.extxyz",
+  "input_sha256": "8a23e687de1d91e5ed44687be1003c1851990264a1837ce46e9a0c8bed49840b",
+  "model_path": "/home/gengjianrui/.cache/mace/mace-omat-0-small.model",
+  "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+  "packages": {
+    "ase": "3.26.0",
+    "mace-torch": "0.3.16",
+    "torch": "2.8.0",
+    "numpy": "2.0.2",
+    "scipy": "1.16.0"
+  },
+  "python": "3.12.11",
+  "platform": "Linux-5.15.0-100-generic-x86_64-with-glibc2.39",
+  "cuda_visible_devices": "0",
+  "calculator_class": "MACECalculator"
+}
