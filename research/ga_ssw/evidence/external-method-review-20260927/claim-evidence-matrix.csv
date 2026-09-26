@@ -1,0 +1,13 @@
+claim_id,section,claim,source_ids,evidence_location,status,notes
+C1,fragmentation,GOCIA optional cleanup deletes atoms or fragments,gocia,surface-review.md,source-verified,Not transferable as fixed-N preservation
+C2,baseline,ASE MH adapts kinetic escape and acceptance window,ase326,ase-review.md,source-verified,Not a single dynamic Metropolis ablation
+C3,batch,HASGO batches independent graphs but cached current force cannot serve new line-search trials,hasgo,search-engines-review.md,source-verified,No runtime performance measured
+C4,batch,TorchSim inspected LBFGS uses capped fixed steps,torch-sim,parallel-theory.md,source-verified,Not Safe-total equivalence
+C5,batch,MACE graph batching is possible but current ASE SSW path remains single-configuration,mace,parallel-theory.md,source-verified,Throughput needs matched runtime qualification
+C6,surface,VSSR separates canonical site exchanges from composition-changing moves,surface-sampling,surface-review.md,source-verified,Not arbitrary oxide reconstruction
+C7,oracle,GOFEE uses surrogate candidate relaxations and selected expensive evaluations,gofee,search-engines-review.md,source-verified,Current cheap-MLIP benefit unverified
+C8,parallel,EON event seeds require transition validation,eon,search-engines-review.md,source-verified,No SSW physical rate implied
+C9,replicas,SSW literature contains parallel replica exploration,ssw-fullerene;vc2014,parallel-theory.md,literature-supported,2013 abstract only; exact exchange recipe unresolved
+C10,ITS,Fixed positive-weight energy-only ITS preserves stationary-point Hessian mode ordering,its2018,parallel-theory.md,derived,Does not imply no benefit in stochastic dynamics
+C11,exchange,Canonical swap formula alone does not establish canonical sampling for history-dependent SSW,re2011,parallel-theory.md,inference,Proposal and local-kernel invariant distribution need proof
+C12,spatial,Spatial parallel updates need interaction decomposition or controlled error,kmc2011;eon;mace,parallel-theory.md,inference,No evidence current small systems offer sufficient independence

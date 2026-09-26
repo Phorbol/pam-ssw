@@ -1,3 +1,13 @@
+## 2026-09-27 外部源码审查：批推理资格与多轨迹分配进入优先评估
+
+已固定版本审查 ASE、GOCIA、VSSR-MC、EON、GOFEE、HASGO、TorchSim/MACE。
+本轮无新增 PES/作业或核心代码变更，不能据源码宣称加速。
+[取舍与下一步](../../research/ga_ssw/evidence/external-method-review-20260927/review.md)。
+保留下述有界 LASP 同势 LJ 契约核查；并行准备保存态批 E/F/stress 的离线吞吐资格。
+优先评估独立链/既有池与多副本交换的机制差异；先固定总成本和状态归属，不同时引入温度扫描。
+现有 Hookean/重连先诊断和消融，GOCIA 删除碎片不适用于固定原子数 C60。
+GOFEE 外层 GP、ITS、空间同时更新暂缓；不以这些支线替代随机 C60 双验收或真实材料验证。
+
 ## 2026-09-27 优先级更新：文献模型基准与LASP同势对照优先
 
 用户要求先评估总体进度，优先以SSW论文benchmark及LJ cluster/bulk隔离机制，
