@@ -1,0 +1,8 @@
+{
+  "status": "completed",
+  "mode": "mc",
+  "steps": 2,
+  "backend": "ASE EMT",
+  "path": "same run_arm, ledgers, fresh checks, result serializer",
+  "scientific_scope": "API/accounting smoke only; no MH1 or search-quality claim"
+}

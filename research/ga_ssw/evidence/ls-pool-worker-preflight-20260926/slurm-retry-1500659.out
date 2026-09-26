@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/evidence/ls-pool-worker-preflight-20260926/verify.py", line 14, in <module>
+    assert len(records) == 2, (mode, len(records))
+           ^^^^^^^^^^^^^^^^^
+AssertionError: ('mc', 1)

@@ -1,0 +1,82 @@
+{
+  "mode": "uniform",
+  "mapping": [
+    0,
+    1,
+    2
+  ],
+  "representatives": {
+    "0": 0,
+    "1": 1,
+    "2": 2
+  },
+  "decisions": [
+    {
+      "step": 0,
+      "source_entry": 0,
+      "selected_entry": 1,
+      "chosen_index": null,
+      "actual_index": 1,
+      "cumulative_requests": 35
+    },
+    {
+      "step": 1,
+      "source_entry": 1,
+      "selected_entry": 0,
+      "chosen_index": 0,
+      "actual_index": 0,
+      "cumulative_requests": 67
+    }
+  ],
+  "attempts": [
+    {
+      "source_entry": 0,
+      "status": "gaussian_limit",
+      "qualified": true,
+      "landing_index": 1,
+      "evaluation_requests": 29
+    },
+    {
+      "source_entry": 1,
+      "status": "gaussian_limit",
+      "qualified": true,
+      "landing_index": 2,
+      "evaluation_requests": 32
+    }
+  ],
+  "qualified_discoveries": 2,
+  "duplicates": 0,
+  "initial_requests": 6,
+  "outer_requests": 61,
+  "total_requests": 67,
+  "cost_closed": true,
+  "entries": [
+    {
+      "entry_id": 0,
+      "parent_id": null,
+      "energy": 9.361357958351503,
+      "visits": 2,
+      "node_trials": 1,
+      "node_successes": 1,
+      "node_duplicate_failures": 0
+    },
+    {
+      "entry_id": 1,
+      "parent_id": 0,
+      "energy": 9.36139978775818,
+      "visits": 2,
+      "node_trials": 1,
+      "node_successes": 1,
+      "node_duplicate_failures": 0
+    },
+    {
+      "entry_id": 2,
+      "parent_id": 1,
+      "energy": 9.361399612563131,
+      "visits": 1,
+      "node_trials": 0,
+      "node_successes": 0,
+      "node_duplicate_failures": 0
+    }
+  ]
+}

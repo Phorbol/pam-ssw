@@ -1,0 +1,78 @@
+{
+  "checks": [
+    {
+      "candidate_index": 0,
+      "source": "initial",
+      "record_index": -1,
+      "minimum_index": 0,
+      "converged": true,
+      "accepted": true,
+      "atoms": {
+        "numbers": [
+          29,
+          29,
+          29,
+          29
+        ],
+        "positions": [
+          [
+            0.0849967301699929,
+            0.049068637159713026,
+            0.034836414407454844
+          ],
+          [
+            2.4750032698300073,
+            0.049068637159713116,
+            0.0348364144074547
+          ],
+          [
+            1.2800000000000002,
+            2.1188643611512146,
+            0.03483410045362816
+          ],
+          [
+            1.28,
+            0.7389983645293581,
+            1.986493070731463
+          ]
+        ],
+        "cell": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "pbc": [
+          false,
+          false,
+          false
+        ],
+        "constraints": []
+      },
+      "algorithm_energy_eV": 4.684003377788498,
+      "algorithm_max_force_eV_A": 0.03919295037043423,
+      "status": "fresh_completed",
+      "fresh_requests": 1,
+      "fresh_energy_eV": 4.684003377788498,
+      "fresh_fmax_eV_A": 0.03919295037043423,
+      "energy_delta_eV": 0.0,
+      "force_qualified": true,
+      "certified": true
+    }
+  ],
+  "candidate_count": 1,
+  "qualified_count": 1,
+  "fresh_requests": 1,
+  "errors": []
+}

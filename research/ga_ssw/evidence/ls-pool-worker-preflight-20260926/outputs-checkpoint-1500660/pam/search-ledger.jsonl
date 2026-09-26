@@ -1,0 +1,128 @@
+{"event": "attempt_started", "stage": "search", "attempt": 1, "request_candidate": 1, "elapsed_seconds": 0.0014626989723183215}
+{"event": "attempt_completed", "stage": "search", "attempt": 1, "request": 1, "charged": true, "energy_eV": 10.602711190043317, "fmax_eV_A": 1.3621045499687132, "elapsed_seconds": 0.0028063240461051464}
+{"event": "attempt_started", "stage": "search", "attempt": 2, "request_candidate": 2, "elapsed_seconds": 0.0053228409960865974}
+{"event": "attempt_completed", "stage": "search", "attempt": 2, "request": 2, "charged": true, "energy_eV": 10.30117490189006, "fmax_eV_A": 1.21829157398336, "elapsed_seconds": 0.0013594579650089145}
+{"event": "attempt_started", "stage": "search", "attempt": 3, "request_candidate": 3, "elapsed_seconds": 0.007621627999469638}
+{"event": "attempt_completed", "stage": "search", "attempt": 3, "request": 3, "charged": true, "energy_eV": 9.546008962217153, "fmax_eV_A": 0.6809056719609663, "elapsed_seconds": 0.001293581968639046}
+{"event": "attempt_started", "stage": "search", "attempt": 4, "request_candidate": 4, "elapsed_seconds": 0.009834658994805068}
+{"event": "attempt_completed", "stage": "search", "attempt": 4, "request": 4, "charged": true, "energy_eV": 9.373361367380689, "fmax_eV_A": 0.15981377424317947, "elapsed_seconds": 0.0012506279745139182}
+{"event": "attempt_started", "stage": "search", "attempt": 5, "request_candidate": 5, "elapsed_seconds": 0.01196363300550729}
+{"event": "attempt_completed", "stage": "search", "attempt": 5, "request": 5, "charged": true, "energy_eV": 9.361467245296744, "fmax_eV_A": 0.015496858020078297, "elapsed_seconds": 0.0012703199754469097}
+{"event": "attempt_started", "stage": "search", "attempt": 6, "request_candidate": 6, "elapsed_seconds": 0.014105590991675854}
+{"event": "attempt_completed", "stage": "search", "attempt": 6, "request": 6, "charged": true, "energy_eV": 9.361357958351503, "fmax_eV_A": 0.0004114324924216268, "elapsed_seconds": 0.0012446509790606797}
+{"event": "attempt_started", "stage": "search", "attempt": 7, "request_candidate": 7, "elapsed_seconds": 0.019736307964194566}
+{"event": "attempt_completed", "stage": "search", "attempt": 7, "request": 7, "charged": true, "energy_eV": 9.361357958351503, "fmax_eV_A": 0.0004114324924216268, "elapsed_seconds": 0.0005258670425973833}
+{"event": "attempt_started", "stage": "search", "attempt": 8, "request_candidate": 8, "elapsed_seconds": 0.02146455697948113}
+{"event": "attempt_completed", "stage": "search", "attempt": 8, "request": 8, "charged": true, "energy_eV": 9.361357958351503, "fmax_eV_A": 0.0004114324924216268, "elapsed_seconds": 0.00047923100646585226}
+{"event": "attempt_started", "stage": "search", "attempt": 9, "request_candidate": 9, "elapsed_seconds": 0.023427406966220587}
+{"event": "attempt_completed", "stage": "search", "attempt": 9, "request": 9, "charged": true, "energy_eV": 9.361357958351503, "fmax_eV_A": 0.0004114324924216268, "elapsed_seconds": 0.0005035240319557488}
+{"event": "attempt_started", "stage": "search", "attempt": 10, "request_candidate": 10, "elapsed_seconds": 0.025124615989625454}
+{"event": "attempt_completed", "stage": "search", "attempt": 10, "request": 10, "charged": true, "energy_eV": 9.361357958351503, "fmax_eV_A": 0.0004114324924216268, "elapsed_seconds": 0.0005561679718084633}
+{"event": "attempt_started", "stage": "search", "attempt": 11, "request_candidate": 11, "elapsed_seconds": 0.026935592002701014}
+{"event": "attempt_completed", "stage": "search", "attempt": 11, "request": 11, "charged": true, "energy_eV": 9.361358013767028, "fmax_eV_A": 0.0008526159714979621, "elapsed_seconds": 0.0013468170072883368}
+{"event": "attempt_started", "stage": "search", "attempt": 12, "request_candidate": 12, "elapsed_seconds": 0.029664754983969033}
+{"event": "attempt_completed", "stage": "search", "attempt": 12, "request": 12, "charged": true, "energy_eV": 9.36135806536641, "fmax_eV_A": 0.0015494425073278389, "elapsed_seconds": 0.0013156249769963324}
+{"event": "attempt_started", "stage": "search", "attempt": 13, "request_candidate": 13, "elapsed_seconds": 0.0323408690164797}
+{"event": "attempt_completed", "stage": "search", "attempt": 13, "request": 13, "charged": true, "energy_eV": 9.361357958165515, "fmax_eV_A": 0.0006223879897714121, "elapsed_seconds": 0.0013612129841931164}
+{"event": "attempt_started", "stage": "search", "attempt": 14, "request_candidate": 14, "elapsed_seconds": 0.035076625004876405}
+{"event": "attempt_completed", "stage": "search", "attempt": 14, "request": 14, "charged": true, "energy_eV": 9.361357908607573, "fmax_eV_A": 0.0003516423174507288, "elapsed_seconds": 0.0013280109851621091}
+{"event": "attempt_started", "stage": "search", "attempt": 15, "request_candidate": 15, "elapsed_seconds": 0.037729750969447196}
+{"event": "attempt_completed", "stage": "search", "attempt": 15, "request": 15, "charged": true, "energy_eV": 9.361357908434993, "fmax_eV_A": 0.0002894124117746475, "elapsed_seconds": 0.0012764490093104541}
+{"event": "attempt_started", "stage": "search", "attempt": 16, "request_candidate": 16, "elapsed_seconds": 0.040325297974050045}
+{"event": "attempt_completed", "stage": "search", "attempt": 16, "request": 16, "charged": true, "energy_eV": 9.361357951923061, "fmax_eV_A": 0.0004989715916286074, "elapsed_seconds": 0.0012734780320897698}
+{"event": "attempt_started", "stage": "search", "attempt": 17, "request_candidate": 17, "elapsed_seconds": 0.04294505500001833}
+{"event": "attempt_completed", "stage": "search", "attempt": 17, "request": 17, "charged": true, "energy_eV": 9.361357979330764, "fmax_eV_A": 0.0006432916028436498, "elapsed_seconds": 0.0012709309812635183}
+{"event": "attempt_started", "stage": "search", "attempt": 18, "request_candidate": 18, "elapsed_seconds": 0.04554035101318732}
+{"event": "attempt_completed", "stage": "search", "attempt": 18, "request": 18, "charged": true, "energy_eV": 9.36135803367816, "fmax_eV_A": 0.001338883349837467, "elapsed_seconds": 0.0013078849879093468}
+{"event": "attempt_started", "stage": "search", "attempt": 19, "request_candidate": 19, "elapsed_seconds": 0.048224297002889216}
+{"event": "attempt_completed", "stage": "search", "attempt": 19, "request": 19, "charged": true, "energy_eV": 9.361358019179992, "fmax_eV_A": 0.0011418499001858943, "elapsed_seconds": 0.0013180659734643996}
+{"event": "attempt_started", "stage": "search", "attempt": 20, "request_candidate": 20, "elapsed_seconds": 0.05095460498705506}
+{"event": "attempt_completed", "stage": "search", "attempt": 20, "request": 20, "charged": true, "energy_eV": 9.36135796677032, "fmax_eV_A": 0.0004247844881335337, "elapsed_seconds": 0.0013152349856682122}
+{"event": "attempt_started", "stage": "search", "attempt": 21, "request_candidate": 21, "elapsed_seconds": 0.05357631098013371}
+{"event": "attempt_completed", "stage": "search", "attempt": 21, "request": 21, "charged": true, "energy_eV": 9.39339231668706, "fmax_eV_A": 0.1475296075423611, "elapsed_seconds": 0.0013274510274641216}
+{"event": "attempt_started", "stage": "search", "attempt": 22, "request_candidate": 22, "elapsed_seconds": 0.05624578899005428}
+{"event": "attempt_completed", "stage": "search", "attempt": 22, "request": 22, "charged": true, "energy_eV": 9.39339231668706, "fmax_eV_A": 0.1475296075423611, "elapsed_seconds": 0.0005146919866092503}
+{"event": "attempt_started", "stage": "search", "attempt": 23, "request_candidate": 23, "elapsed_seconds": 0.05810558196390048}
+{"event": "attempt_completed", "stage": "search", "attempt": 23, "request": 23, "charged": true, "energy_eV": 9.39368743839739, "fmax_eV_A": 0.14659683170061133, "elapsed_seconds": 0.001262625039089471}
+{"event": "attempt_started", "stage": "search", "attempt": 24, "request_candidate": 24, "elapsed_seconds": 0.060810591967310756}
+{"event": "attempt_completed", "stage": "search", "attempt": 24, "request": 24, "charged": true, "energy_eV": 9.4040196027648, "fmax_eV_A": 0.16211750147295154, "elapsed_seconds": 0.001274768030270934}
+{"event": "attempt_started", "stage": "search", "attempt": 25, "request_candidate": 25, "elapsed_seconds": 0.06352504796814173}
+{"event": "attempt_completed", "stage": "search", "attempt": 25, "request": 25, "charged": true, "energy_eV": 9.412948527308393, "fmax_eV_A": 0.17011197782014298, "elapsed_seconds": 0.001313363027293235}
+{"event": "attempt_started", "stage": "search", "attempt": 26, "request_candidate": 26, "elapsed_seconds": 0.06626402196707204}
+{"event": "attempt_completed", "stage": "search", "attempt": 26, "request": 26, "charged": true, "energy_eV": 9.414679965160168, "fmax_eV_A": 0.17233379443065272, "elapsed_seconds": 0.00128173700068146}
+{"event": "attempt_started", "stage": "search", "attempt": 27, "request_candidate": 27, "elapsed_seconds": 0.06899656396126375}
+{"event": "attempt_completed", "stage": "search", "attempt": 27, "request": 27, "charged": true, "energy_eV": 9.413692512687257, "fmax_eV_A": 0.169097604125332, "elapsed_seconds": 0.0012654050369746983}
+{"event": "attempt_started", "stage": "search", "attempt": 28, "request_candidate": 28, "elapsed_seconds": 0.07180868397699669}
+{"event": "attempt_completed", "stage": "search", "attempt": 28, "request": 28, "charged": true, "energy_eV": 9.413692512687257, "fmax_eV_A": 0.169097604125332, "elapsed_seconds": 0.0005183620378375053}
+{"event": "attempt_started", "stage": "search", "attempt": 29, "request_candidate": 29, "elapsed_seconds": 0.07297336001647636}
+{"event": "attempt_completed", "stage": "search", "attempt": 29, "request": 29, "charged": true, "energy_eV": 9.413692512687257, "fmax_eV_A": 0.169097604125332, "elapsed_seconds": 0.0004502229858189821}
+{"event": "attempt_started", "stage": "search", "attempt": 30, "request_candidate": 30, "elapsed_seconds": 0.07416716101579368}
+{"event": "attempt_completed", "stage": "search", "attempt": 30, "request": 30, "charged": true, "energy_eV": 9.411551943338822, "fmax_eV_A": 0.16607989350818433, "elapsed_seconds": 0.0012327469885349274}
+{"event": "attempt_started", "stage": "search", "attempt": 31, "request_candidate": 31, "elapsed_seconds": 0.07623117900220677}
+{"event": "attempt_completed", "stage": "search", "attempt": 31, "request": 31, "charged": true, "energy_eV": 9.403775239482117, "fmax_eV_A": 0.5019843437930913, "elapsed_seconds": 0.0012326709693297744}
+{"event": "attempt_started", "stage": "search", "attempt": 32, "request_candidate": 32, "elapsed_seconds": 0.07833720598137006}
+{"event": "attempt_completed", "stage": "search", "attempt": 32, "request": 32, "charged": true, "energy_eV": 9.385751167596885, "fmax_eV_A": 0.7945022213821492, "elapsed_seconds": 0.0012432030052877963}
+{"event": "attempt_started", "stage": "search", "attempt": 33, "request_candidate": 33, "elapsed_seconds": 0.08044692996190861}
+{"event": "attempt_completed", "stage": "search", "attempt": 33, "request": 33, "charged": true, "energy_eV": 9.362151072608013, "fmax_eV_A": 0.04798886202404335, "elapsed_seconds": 0.0012599560432136059}
+{"event": "attempt_started", "stage": "search", "attempt": 34, "request_candidate": 34, "elapsed_seconds": 0.08258112100884318}
+{"event": "attempt_completed", "stage": "search", "attempt": 34, "request": 34, "charged": true, "energy_eV": 9.361543824959941, "fmax_eV_A": 0.021548995885601906, "elapsed_seconds": 0.0012352839694358408}
+{"event": "attempt_started", "stage": "search", "attempt": 35, "request_candidate": 35, "elapsed_seconds": 0.08477603096980602}
+{"event": "attempt_completed", "stage": "search", "attempt": 35, "request": 35, "charged": true, "energy_eV": 9.36139978775818, "fmax_eV_A": 0.008510864554079097, "elapsed_seconds": 0.0012598310131579638}
+{"event": "attempt_started", "stage": "search", "attempt": 36, "request_candidate": 36, "elapsed_seconds": 0.10137833497719839}
+{"event": "attempt_completed", "stage": "search", "attempt": 36, "request": 36, "charged": true, "energy_eV": 9.361357958351503, "fmax_eV_A": 0.0004114324924216268, "elapsed_seconds": 0.001427993003744632}
+{"event": "attempt_started", "stage": "search", "attempt": 37, "request_candidate": 37, "elapsed_seconds": 0.10405072098365054}
+{"event": "attempt_completed", "stage": "search", "attempt": 37, "request": 37, "charged": true, "energy_eV": 9.361357958351503, "fmax_eV_A": 0.0004114324924216268, "elapsed_seconds": 0.000500246009323746}
+{"event": "attempt_started", "stage": "search", "attempt": 38, "request_candidate": 38, "elapsed_seconds": 0.10600614099530503}
+{"event": "attempt_completed", "stage": "search", "attempt": 38, "request": 38, "charged": true, "energy_eV": 9.361357958351503, "fmax_eV_A": 0.0004114324924216268, "elapsed_seconds": 0.0005008750013075769}
+{"event": "attempt_started", "stage": "search", "attempt": 39, "request_candidate": 39, "elapsed_seconds": 0.10755736898863688}
+{"event": "attempt_completed", "stage": "search", "attempt": 39, "request": 39, "charged": true, "energy_eV": 9.361357958351503, "fmax_eV_A": 0.0004114324924216268, "elapsed_seconds": 0.0005552360089495778}
+{"event": "attempt_started", "stage": "search", "attempt": 40, "request_candidate": 40, "elapsed_seconds": 0.10930650401860476}
+{"event": "attempt_completed", "stage": "search", "attempt": 40, "request": 40, "charged": true, "energy_eV": 9.36135801484415, "fmax_eV_A": 0.0008017689481890263, "elapsed_seconds": 0.001328039972577244}
+{"event": "attempt_started", "stage": "search", "attempt": 41, "request_candidate": 41, "elapsed_seconds": 0.11197878001257777}
+{"event": "attempt_completed", "stage": "search", "attempt": 41, "request": 41, "charged": true, "energy_eV": 9.361358073690702, "fmax_eV_A": 0.0014372353829573195, "elapsed_seconds": 0.0013328779605217278}
+{"event": "attempt_started", "stage": "search", "attempt": 42, "request_candidate": 42, "elapsed_seconds": 0.11468106496613473}
+{"event": "attempt_completed", "stage": "search", "attempt": 42, "request": 42, "charged": true, "energy_eV": 9.361357975193421, "fmax_eV_A": 0.000874177658924159, "elapsed_seconds": 0.001326391997281462}
+{"event": "attempt_started", "stage": "search", "attempt": 43, "request_candidate": 43, "elapsed_seconds": 0.11730254301801324}
+{"event": "attempt_completed", "stage": "search", "attempt": 43, "request": 43, "charged": true, "energy_eV": 9.36135790730874, "fmax_eV_A": 0.000261865774725704, "elapsed_seconds": 0.0012979349703527987}
+{"event": "attempt_started", "stage": "search", "attempt": 44, "request_candidate": 44, "elapsed_seconds": 0.1199121680110693}
+{"event": "attempt_completed", "stage": "search", "attempt": 44, "request": 44, "charged": true, "energy_eV": 9.361357911092668, "fmax_eV_A": 0.0003488215683073421, "elapsed_seconds": 0.001387264986988157}
+{"event": "attempt_started", "stage": "search", "attempt": 45, "request_candidate": 45, "elapsed_seconds": 0.12261070596287027}
+{"event": "attempt_completed", "stage": "search", "attempt": 45, "request": 45, "charged": true, "energy_eV": 9.361357954421427, "fmax_eV_A": 0.000491257065844233, "elapsed_seconds": 0.0012987330555915833}
+{"event": "attempt_started", "stage": "search", "attempt": 46, "request_candidate": 46, "elapsed_seconds": 0.1252118039992638}
+{"event": "attempt_completed", "stage": "search", "attempt": 46, "request": 46, "charged": true, "energy_eV": 9.361357982007494, "fmax_eV_A": 0.0006121390244743357, "elapsed_seconds": 0.001271202985662967}
+{"event": "attempt_started", "stage": "search", "attempt": 47, "request_candidate": 47, "elapsed_seconds": 0.1278085169615224}
+{"event": "attempt_completed", "stage": "search", "attempt": 47, "request": 47, "charged": true, "energy_eV": 9.361357989876726, "fmax_eV_A": 0.0007806145475543335, "elapsed_seconds": 0.001289899053517729}
+{"event": "attempt_started", "stage": "search", "attempt": 48, "request_candidate": 48, "elapsed_seconds": 0.13041498098755255}
+{"event": "attempt_completed", "stage": "search", "attempt": 48, "request": 48, "charged": true, "energy_eV": 9.361358061534094, "fmax_eV_A": 0.0016439385533120832, "elapsed_seconds": 0.0012947989744134247}
+{"event": "attempt_started", "stage": "search", "attempt": 49, "request_candidate": 49, "elapsed_seconds": 0.13300639699446037}
+{"event": "attempt_completed", "stage": "search", "attempt": 49, "request": 49, "charged": true, "energy_eV": 9.361357966914758, "fmax_eV_A": 0.0004275203165577291, "elapsed_seconds": 0.0013105749967508018}
+{"event": "attempt_started", "stage": "search", "attempt": 50, "request_candidate": 50, "elapsed_seconds": 0.1355583510012366}
+{"event": "attempt_completed", "stage": "search", "attempt": 50, "request": 50, "charged": true, "energy_eV": 9.393527077307484, "fmax_eV_A": 0.15344909278386404, "elapsed_seconds": 0.0012936220155097544}
+{"event": "attempt_started", "stage": "search", "attempt": 51, "request_candidate": 51, "elapsed_seconds": 0.1382041479810141}
+{"event": "attempt_completed", "stage": "search", "attempt": 51, "request": 51, "charged": true, "energy_eV": 9.393527077307484, "fmax_eV_A": 0.15344909278386404, "elapsed_seconds": 0.0004966009873896837}
+{"event": "attempt_started", "stage": "search", "attempt": 52, "request_candidate": 52, "elapsed_seconds": 0.1400004859897308}
+{"event": "attempt_completed", "stage": "search", "attempt": 52, "request": 52, "charged": true, "energy_eV": 9.393808827882278, "fmax_eV_A": 0.14888538400531054, "elapsed_seconds": 0.0012777730007655919}
+{"event": "attempt_started", "stage": "search", "attempt": 53, "request_candidate": 53, "elapsed_seconds": 0.1426903129904531}
+{"event": "attempt_completed", "stage": "search", "attempt": 53, "request": 53, "charged": true, "energy_eV": 9.403970737404226, "fmax_eV_A": 0.15148156020820785, "elapsed_seconds": 0.0012572199921123683}
+{"event": "attempt_started", "stage": "search", "attempt": 54, "request_candidate": 54, "elapsed_seconds": 0.14534619700862095}
+{"event": "attempt_completed", "stage": "search", "attempt": 54, "request": 54, "charged": true, "energy_eV": 9.412536551054515, "fmax_eV_A": 0.17085106192375304, "elapsed_seconds": 0.001260290970094502}
+{"event": "attempt_started", "stage": "search", "attempt": 55, "request_candidate": 55, "elapsed_seconds": 0.14800549298524857}
+{"event": "attempt_completed", "stage": "search", "attempt": 55, "request": 55, "charged": true, "energy_eV": 9.416331652935765, "fmax_eV_A": 0.1697067194509822, "elapsed_seconds": 0.0012622210197150707}
+{"event": "attempt_started", "stage": "search", "attempt": 56, "request_candidate": 56, "elapsed_seconds": 0.15065530099673197}
+{"event": "attempt_completed", "stage": "search", "attempt": 56, "request": 56, "charged": true, "energy_eV": 9.413924721877436, "fmax_eV_A": 0.1676519124529836, "elapsed_seconds": 0.0012600829941220582}
+{"event": "attempt_started", "stage": "search", "attempt": 57, "request_candidate": 57, "elapsed_seconds": 0.15349261299706995}
+{"event": "attempt_completed", "stage": "search", "attempt": 57, "request": 57, "charged": true, "energy_eV": 9.413924721877436, "fmax_eV_A": 0.1676519124529836, "elapsed_seconds": 0.0004884079680778086}
+{"event": "attempt_started", "stage": "search", "attempt": 58, "request_candidate": 58, "elapsed_seconds": 0.1546459890087135}
+{"event": "attempt_completed", "stage": "search", "attempt": 58, "request": 58, "charged": true, "energy_eV": 9.413924721877436, "fmax_eV_A": 0.1676519124529836, "elapsed_seconds": 0.00045327498810365796}
+{"event": "attempt_started", "stage": "search", "attempt": 59, "request_candidate": 59, "elapsed_seconds": 0.15585070400265977}
+{"event": "attempt_completed", "stage": "search", "attempt": 59, "request": 59, "charged": true, "energy_eV": 9.411758209992495, "fmax_eV_A": 0.16326716186605447, "elapsed_seconds": 0.0012568400125019252}
+{"event": "attempt_started", "stage": "search", "attempt": 60, "request_candidate": 60, "elapsed_seconds": 0.15795078099472448}
+{"event": "attempt_completed", "stage": "search", "attempt": 60, "request": 60, "charged": true, "energy_eV": 9.398865502869416, "fmax_eV_A": 0.39510717428481484, "elapsed_seconds": 0.0012492749956436455}
+{"event": "attempt_started", "stage": "search", "attempt": 61, "request_candidate": 61, "elapsed_seconds": 0.16003809397807345}
+{"event": "attempt_completed", "stage": "search", "attempt": 61, "request": 61, "charged": true, "energy_eV": 9.385894586046852, "fmax_eV_A": 0.763408662828074, "elapsed_seconds": 0.0012369999894872308}
+{"event": "attempt_started", "stage": "search", "attempt": 62, "request_candidate": 62, "elapsed_seconds": 0.16214245196897537}
+{"event": "attempt_completed", "stage": "search", "attempt": 62, "request": 62, "charged": true, "energy_eV": 9.362256025491243, "fmax_eV_A": 0.055923989605674455, "elapsed_seconds": 0.0012487359927035868}
+{"event": "attempt_started", "stage": "search", "attempt": 63, "request_candidate": 63, "elapsed_seconds": 0.16424935800023377}
+{"event": "attempt_completed", "stage": "search", "attempt": 63, "request": 63, "charged": true, "energy_eV": 9.36153624313009, "fmax_eV_A": 0.022209627157295332, "elapsed_seconds": 0.0012446990003809333}
+{"event": "attempt_started", "stage": "search", "attempt": 64, "request_candidate": 64, "elapsed_seconds": 0.16632756299804896}
+{"event": "attempt_completed", "stage": "search", "attempt": 64, "request": 64, "charged": true, "energy_eV": 9.361398292547374, "fmax_eV_A": 0.007676940550748558, "elapsed_seconds": 0.0012155830045230687}

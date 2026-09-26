@@ -1,0 +1,78 @@
+{
+  "status": "prepared_not_submitted",
+  "protocol": "protocol.md",
+  "model": {
+    "kind": "emt"
+  },
+  "cases": [
+    {
+      "name": "C4H6",
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/evidence/ls-pool-worker-preflight-20260926/outputs-checkpoint-1500660/uniform/initial.extxyz",
+      "config": {
+        "width": 0.2,
+        "rotation_bias": 0.5,
+        "max_gaussians": 1,
+        "temperature_K": 300.0,
+        "fmax": 0.01,
+        "relax_steps": 150,
+        "fd_step": 0.0001,
+        "rotation_hvp": 41,
+        "rotation_tol": 0.02,
+        "forward_force": 0.1,
+        "direction_sampling": "global",
+        "rotation_solver": "ritz",
+        "cluster_frame": "direction_only",
+        "quench_optimizer": "safe-lbfgs-total",
+        "lbfgs_memory": null,
+        "bias_stage_steps": null,
+        "bias_fmax": null,
+        "pre_rotation_hvp": null,
+        "rotation_exit_policy": "force"
+      },
+      "native_ls": {
+        "bond_energies": {
+          "(29, 29)": 3.0
+        },
+        "bond_lengths": {
+          "(29, 29)": 2.8
+        },
+        "scale": 0.1
+      },
+      "recovered_rotation": null,
+      "recovered_direction": null,
+      "native_mc": {
+        "energy_tol_eV": 0.1,
+        "maxtrap": 2
+      },
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-coverage-20260924/native_ls-seed61/effective_config.json",
+      "graph_cutoffs_A": {
+        "1,1": 0.8400000095367433,
+        "1,6": 1.190000033378601,
+        "6,6": 1.6399999618530272
+      }
+    }
+  ],
+  "methods": [
+    "uniform"
+  ],
+  "seed": 7,
+  "selector_seed": 8,
+  "steps": 2,
+  "budget": {
+    "search_requests_per_arm": 80000,
+    "fresh_requests_per_arm": 101,
+    "wall_seconds_per_arm": 1700,
+    "process_seconds_per_arm": 1800,
+    "total_search_requests": 480000,
+    "total_fresh_requests": 606,
+    "max_concurrent_gpus": 2,
+    "max_gpu_hours": 3
+  },
+  "pool": {
+    "identity_matcher": "ase_permute_v1",
+    "energy_tol": 1e-05,
+    "rmsd_tol": 0.001
+  },
+  "analysis_scope": "one-seed-per-case developer screen; no population success-rate or general controller ranking",
+  "prerequisite": "f756b96 implementation; CPU1500597 adapter panel; CPU1500605 saved-trajectory rearchive complete"
+}

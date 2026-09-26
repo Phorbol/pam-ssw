@@ -1,0 +1,2 @@
+{"event": "attempt_started", "stage": "fresh", "attempt": 1, "request_candidate": 1, "elapsed_seconds": 5.757028702646494e-06}
+{"event": "attempt_completed", "stage": "fresh", "attempt": 1, "request": 1, "charged": true, "energy_eV": 4.684003377788498, "fmax_eV_A": 0.03919295037043423, "elapsed_seconds": 0.0018537219730205834}

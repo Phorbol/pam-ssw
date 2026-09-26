@@ -1,0 +1,41 @@
+{
+  "contract": {
+    "version": 2,
+    "identity": "research.ga_ssw.pool_starter_adapter.PoolStarterAdapter",
+    "mode": "pam",
+    "archive": {
+      "energy_tol": 0.001,
+      "rmsd_tol": 0.1,
+      "max_prototypes": 1000,
+      "cell_tol": 0.001
+    },
+    "scorer": {
+      "mode": "global_minimum",
+      "near_energy_window": 0.5
+    },
+    "selector": {
+      "policy": {
+        "archive_density_weight": 0.5,
+        "novelty_weight": 1.0,
+        "frontier_weight": 0.5,
+        "exploration_weight": 0.75,
+        "baseline_probability": 0.15,
+        "beta_energy": 1.0
+      }
+    },
+    "identity_matcher": {
+      "mode": "ase_permute_v1",
+      "implementation": "ase.geometry.distance",
+      "ase_version": "3.26.0",
+      "permute": true,
+      "normalization": "divide_by_sqrt_n_atoms",
+      "domain": "nonperiodic_unconstrained"
+    }
+  },
+  "mode": "pam",
+  "selector_seed": 193,
+  "runtime_rng_separate_from_ssw_rng": true,
+  "identity_matcher": "ase_permute_v1",
+  "energy_tol_eV": 0.001,
+  "rmsd_tol_A": 0.1
+}

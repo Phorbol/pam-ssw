@@ -1,0 +1,9 @@
+{
+  "status": "completed",
+  "mode": "pam",
+  "steps": 2,
+  "backend": "ASE EMT",
+  "path": "same run_arm, ledgers, fresh checks, result serializer",
+  "fixture": "Icosahedron Cu13 with Native-LS/Mc settings from tests/standalone/test_pool_checkpoint_real.py and test_ls_pool_restart.py",
+  "scientific_scope": "API/accounting smoke only; no MH1 or search-quality claim"
+}

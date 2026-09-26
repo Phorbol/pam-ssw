@@ -1,0 +1,17 @@
+{
+  "identity_matcher": "ase_permute_v1",
+  "runtime_selector": false,
+  "energy_tol_eV": 0.001,
+  "rmsd_tol_A": 0.1,
+  "mapping_minimum_index_to_entry": [
+    0
+  ],
+  "entries": [
+    {
+      "entry_id": 0,
+      "energy_eV": 4.684003377788498,
+      "visits": 1,
+      "parent_id": null
+    }
+  ]
+}

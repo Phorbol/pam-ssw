@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/run_ls_pool_routing_panel.py", line 500, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/run_ls_pool_routing_panel.py", line 446, in main
+    return run_emt_preflight(args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/run_ls_pool_routing_panel.py", line 490, in run_emt_preflight
+    rc = run_arm(args)
+         ^^^^^^^^^^^^^
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/run_ls_pool_routing_panel.py", line 265, in run_arm
+    initial = read(case["input"])
+              ^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/io/formats.py", line 787, in read
+    format = format or filetype(filename, read=isinstance(filename, str))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/io/formats.py", line 962, in filetype
+    fd = open_with_compression(filename, 'rb')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/io/formats.py", line 591, in open_with_compression
+    return open(filename, mode)
+           ^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/evidence/ls-pool-worker-preflight-20260926/outputs/mc/initial.extxyz'

@@ -1,0 +1,35 @@
+Traceback (most recent call last):
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/run_ls_pool_routing_panel.py", line 498, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/run_ls_pool_routing_panel.py", line 447, in main
+    return run_emt_preflight(args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/run_ls_pool_routing_panel.py", line 487, in run_emt_preflight
+    rc = run_arm(args)
+         ^^^^^^^^^^^^^
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/run_ls_pool_routing_panel.py", line 403, in run_arm
+    write_json(out / "search-result.json", {"status": result.status,
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/optimizer-panel-20260926/research/ga_ssw/run_ls_pool_routing_panel.py", line 55, in write_json
+    path.write_text(json.dumps(serial(value), indent=2, allow_nan=False) + "\n")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/json/__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/json/encoder.py", line 202, in encode
+    chunks = list(chunks)
+             ^^^^^^^^^^^^
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/json/encoder.py", line 432, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/json/encoder.py", line 439, in _iterencode
+    o = _default(o)
+        ^^^^^^^^^^^
+  File "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type NativeLSRuntime is not JSON serializable

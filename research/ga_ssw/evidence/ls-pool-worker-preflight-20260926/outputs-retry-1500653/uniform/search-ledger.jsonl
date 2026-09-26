@@ -1,0 +1,10 @@
+{"event": "attempt_started", "stage": "search", "attempt": 1, "request_candidate": 1, "elapsed_seconds": 0.0019774279789999127}
+{"event": "attempt_completed", "stage": "search", "attempt": 1, "request": 1, "charged": true, "energy_eV": 5.148612636856608, "fmax_eV_A": 1.9449973118471304, "elapsed_seconds": 0.002134390000719577}
+{"event": "attempt_started", "stage": "search", "attempt": 2, "request_candidate": 2, "elapsed_seconds": 0.005140097986441106}
+{"event": "attempt_completed", "stage": "search", "attempt": 2, "request": 2, "charged": true, "energy_eV": 4.952339273140312, "fmax_eV_A": 1.575699936176451, "elapsed_seconds": 0.0009228850249201059}
+{"event": "attempt_started", "stage": "search", "attempt": 3, "request_candidate": 3, "elapsed_seconds": 0.006983859988395125}
+{"event": "attempt_completed", "stage": "search", "attempt": 3, "request": 3, "charged": true, "energy_eV": 4.777829344079517, "fmax_eV_A": 1.2181204967887413, "elapsed_seconds": 0.0008279359899461269}
+{"event": "attempt_started", "stage": "search", "attempt": 4, "request_candidate": 4, "elapsed_seconds": 0.008709409972652793}
+{"event": "attempt_completed", "stage": "search", "attempt": 4, "request": 4, "charged": true, "energy_eV": 4.690355503874192, "fmax_eV_A": 0.2855689558279236, "elapsed_seconds": 0.0008062150445766747}
+{"event": "attempt_started", "stage": "search", "attempt": 5, "request_candidate": 5, "elapsed_seconds": 0.01038853102363646}
+{"event": "attempt_completed", "stage": "search", "attempt": 5, "request": 5, "charged": true, "energy_eV": 4.684003377788498, "fmax_eV_A": 0.03919295037043423, "elapsed_seconds": 0.000806569994892925}

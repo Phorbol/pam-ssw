@@ -1,0 +1,6 @@
+{"event": "attempt_started", "stage": "fresh", "attempt": 1, "request_candidate": 1, "elapsed_seconds": 6.343994755297899e-06}
+{"event": "attempt_completed", "stage": "fresh", "attempt": 1, "request": 1, "charged": true, "energy_eV": 9.361357958351503, "fmax_eV_A": 0.0004114324924216268, "elapsed_seconds": 0.002672016038559377}
+{"event": "attempt_started", "stage": "fresh", "attempt": 2, "request_candidate": 2, "elapsed_seconds": 0.003930013976059854}
+{"event": "attempt_completed", "stage": "fresh", "attempt": 2, "request": 2, "charged": true, "energy_eV": 9.36139978775818, "fmax_eV_A": 0.008510864554079097, "elapsed_seconds": 0.0021994710550643504}
+{"event": "attempt_started", "stage": "fresh", "attempt": 3, "request_candidate": 3, "elapsed_seconds": 0.007673438987694681}
+{"event": "attempt_completed", "stage": "fresh", "attempt": 3, "request": 3, "charged": true, "energy_eV": 9.361398292547374, "fmax_eV_A": 0.007676940550748558, "elapsed_seconds": 0.0021607850212603807}

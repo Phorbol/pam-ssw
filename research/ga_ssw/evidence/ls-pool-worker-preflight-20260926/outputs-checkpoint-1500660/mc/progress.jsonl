@@ -1,0 +1,3 @@
+{"kind": "initial", "next_index": 0, "evaluation_requests": 6, "current_energy_eV": 9.361357958351503, "best_energy_eV": 9.361357958351503, "step_status": null, "accepted": null, "has_landing": false, "starter_selection": null}
+{"kind": "outer_step", "next_index": 1, "evaluation_requests": 35, "current_energy_eV": 9.36139978775818, "best_energy_eV": 9.361357958351503, "step_status": "gaussian_limit", "accepted": true, "has_landing": true, "starter_selection": null}
+{"kind": "outer_step", "next_index": 2, "evaluation_requests": 67, "current_energy_eV": 9.361399612563131, "best_energy_eV": 9.361357958351503, "step_status": "gaussian_limit", "accepted": true, "has_landing": true, "starter_selection": null}

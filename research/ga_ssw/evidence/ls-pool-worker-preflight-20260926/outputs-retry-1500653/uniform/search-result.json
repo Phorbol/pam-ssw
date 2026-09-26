@@ -1,0 +1,894 @@
+{
+  "status": "ls_initialization_failed",
+  "postprocess_status": "ls_initialization_failed",
+  "search_requests": 5,
+  "adapter_calls": 0,
+  "result": {
+    "initial": {
+      "atoms": {
+        "numbers": [
+          29,
+          29,
+          29,
+          29
+        ],
+        "positions": [
+          [
+            0.0849967301699929,
+            0.049068637159713026,
+            0.034836414407454844
+          ],
+          [
+            2.4750032698300073,
+            0.049068637159713116,
+            0.0348364144074547
+          ],
+          [
+            1.2800000000000002,
+            2.1188643611512146,
+            0.03483410045362816
+          ],
+          [
+            1.28,
+            0.7389983645293581,
+            1.986493070731463
+          ]
+        ],
+        "cell": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "pbc": [
+          false,
+          false,
+          false
+        ],
+        "constraints": []
+      },
+      "energy": 4.684003377788498,
+      "max_force": 0.03919295037043423,
+      "converged": true,
+      "optimizer_steps": 4,
+      "evaluation_requests": 5,
+      "surface": "true",
+      "optimizer_telemetry": {
+        "backend": "safe-lbfgs-total",
+        "evaluator_calls": 5,
+        "backend_evaluations": 5,
+        "reporting_cache_hits": 1,
+        "reporting_evaluator_calls": 0,
+        "finalization_requests": 1,
+        "explicit_finalization_calls": 0,
+        "gradient_measure": "raw_active_max_force",
+        "converged": true,
+        "termination_reason": "converged",
+        "optimizer_success": true,
+        "accepted_steps": 4,
+        "rejected_steps": 0,
+        "accepted_secants": 4,
+        "rejected_secants": 0,
+        "line_search_evaluations": 4,
+        "mic_branch_resets": 0,
+        "bias_secant_curvature_sum": 0.0
+      }
+    },
+    "current": {
+      "numbers": [
+        29,
+        29,
+        29,
+        29
+      ],
+      "positions": [
+        [
+          0.0849967301699929,
+          0.049068637159713026,
+          0.034836414407454844
+        ],
+        [
+          2.4750032698300073,
+          0.049068637159713116,
+          0.0348364144074547
+        ],
+        [
+          1.2800000000000002,
+          2.1188643611512146,
+          0.03483410045362816
+        ],
+        [
+          1.28,
+          0.7389983645293581,
+          1.986493070731463
+        ]
+      ],
+      "cell": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "pbc": [
+        false,
+        false,
+        false
+      ],
+      "constraints": []
+    },
+    "best": {
+      "numbers": [
+        29,
+        29,
+        29,
+        29
+      ],
+      "positions": [
+        [
+          0.0849967301699929,
+          0.049068637159713026,
+          0.034836414407454844
+        ],
+        [
+          2.4750032698300073,
+          0.049068637159713116,
+          0.0348364144074547
+        ],
+        [
+          1.2800000000000002,
+          2.1188643611512146,
+          0.03483410045362816
+        ],
+        [
+          1.28,
+          0.7389983645293581,
+          1.986493070731463
+        ]
+      ],
+      "cell": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "pbc": [
+        false,
+        false,
+        false
+      ],
+      "constraints": []
+    },
+    "minima": [
+      {
+        "atoms": {
+          "numbers": [
+            29,
+            29,
+            29,
+            29
+          ],
+          "positions": [
+            [
+              0.0849967301699929,
+              0.049068637159713026,
+              0.034836414407454844
+            ],
+            [
+              2.4750032698300073,
+              0.049068637159713116,
+              0.0348364144074547
+            ],
+            [
+              1.2800000000000002,
+              2.1188643611512146,
+              0.03483410045362816
+            ],
+            [
+              1.28,
+              0.7389983645293581,
+              1.986493070731463
+            ]
+          ],
+          "cell": [
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "pbc": [
+            false,
+            false,
+            false
+          ],
+          "constraints": []
+        },
+        "energy": 4.684003377788498,
+        "max_force": 0.03919295037043423,
+        "converged": true,
+        "optimizer_steps": 4,
+        "evaluation_requests": 5,
+        "surface": "true",
+        "optimizer_telemetry": {
+          "backend": "safe-lbfgs-total",
+          "evaluator_calls": 5,
+          "backend_evaluations": 5,
+          "reporting_cache_hits": 1,
+          "reporting_evaluator_calls": 0,
+          "finalization_requests": 1,
+          "explicit_finalization_calls": 0,
+          "gradient_measure": "raw_active_max_force",
+          "converged": true,
+          "termination_reason": "converged",
+          "optimizer_success": true,
+          "accepted_steps": 4,
+          "rejected_steps": 0,
+          "accepted_secants": 4,
+          "rejected_secants": 0,
+          "line_search_evaluations": 4,
+          "mic_branch_resets": 0,
+          "bias_secant_curvature_sum": 0.0
+        }
+      }
+    ],
+    "records": [
+      {
+        "index": -1,
+        "status": "ls_initialization_failed",
+        "accepted": false,
+        "climb": [],
+        "landing": null,
+        "energy_response": null,
+        "evaluation_requests": 0,
+        "error": "zero bond-count branch is unsupported",
+        "last_atoms": {
+          "numbers": [
+            29,
+            29,
+            29,
+            29
+          ],
+          "positions": [
+            [
+              0.0849967301699929,
+              0.049068637159713026,
+              0.034836414407454844
+            ],
+            [
+              2.4750032698300073,
+              0.049068637159713116,
+              0.0348364144074547
+            ],
+            [
+              1.2800000000000002,
+              2.1188643611512146,
+              0.03483410045362816
+            ],
+            [
+              1.28,
+              0.7389983645293581,
+              1.986493070731463
+            ]
+          ],
+          "cell": [
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "pbc": [
+            false,
+            false,
+            false
+          ],
+          "constraints": []
+        },
+        "initial_direction": null,
+        "ls_update": null,
+        "cluster_reconnection": null,
+        "ls_preparation": null,
+        "mc_telemetry": null,
+        "starter_selection": null
+      }
+    ],
+    "evaluation_requests": 5,
+    "status": "ls_initialization_failed",
+    "checkpoint": {
+      "initial": {
+        "atoms": {
+          "numbers": [
+            29,
+            29,
+            29,
+            29
+          ],
+          "positions": [
+            [
+              0.0849967301699929,
+              0.049068637159713026,
+              0.034836414407454844
+            ],
+            [
+              2.4750032698300073,
+              0.049068637159713116,
+              0.0348364144074547
+            ],
+            [
+              1.2800000000000002,
+              2.1188643611512146,
+              0.03483410045362816
+            ],
+            [
+              1.28,
+              0.7389983645293581,
+              1.986493070731463
+            ]
+          ],
+          "cell": [
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "pbc": [
+            false,
+            false,
+            false
+          ],
+          "constraints": []
+        },
+        "energy": 4.684003377788498,
+        "max_force": 0.03919295037043423,
+        "converged": true,
+        "optimizer_steps": 4,
+        "evaluation_requests": 5,
+        "surface": "true",
+        "optimizer_telemetry": {
+          "backend": "safe-lbfgs-total",
+          "evaluator_calls": 5,
+          "backend_evaluations": 5,
+          "reporting_cache_hits": 1,
+          "reporting_evaluator_calls": 0,
+          "finalization_requests": 1,
+          "explicit_finalization_calls": 0,
+          "gradient_measure": "raw_active_max_force",
+          "converged": true,
+          "termination_reason": "converged",
+          "optimizer_success": true,
+          "accepted_steps": 4,
+          "rejected_steps": 0,
+          "accepted_secants": 4,
+          "rejected_secants": 0,
+          "line_search_evaluations": 4,
+          "mic_branch_resets": 0,
+          "bias_secant_curvature_sum": 0.0
+        }
+      },
+      "current": {
+        "numbers": [
+          29,
+          29,
+          29,
+          29
+        ],
+        "positions": [
+          [
+            0.0849967301699929,
+            0.049068637159713026,
+            0.034836414407454844
+          ],
+          [
+            2.4750032698300073,
+            0.049068637159713116,
+            0.0348364144074547
+          ],
+          [
+            1.2800000000000002,
+            2.1188643611512146,
+            0.03483410045362816
+          ],
+          [
+            1.28,
+            0.7389983645293581,
+            1.986493070731463
+          ]
+        ],
+        "cell": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "pbc": [
+          false,
+          false,
+          false
+        ],
+        "constraints": []
+      },
+      "current_energy": 4.684003377788498,
+      "best": {
+        "atoms": {
+          "numbers": [
+            29,
+            29,
+            29,
+            29
+          ],
+          "positions": [
+            [
+              0.0849967301699929,
+              0.049068637159713026,
+              0.034836414407454844
+            ],
+            [
+              2.4750032698300073,
+              0.049068637159713116,
+              0.0348364144074547
+            ],
+            [
+              1.2800000000000002,
+              2.1188643611512146,
+              0.03483410045362816
+            ],
+            [
+              1.28,
+              0.7389983645293581,
+              1.986493070731463
+            ]
+          ],
+          "cell": [
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "pbc": [
+            false,
+            false,
+            false
+          ],
+          "constraints": []
+        },
+        "energy": 4.684003377788498,
+        "max_force": 0.03919295037043423,
+        "converged": true,
+        "optimizer_steps": 4,
+        "evaluation_requests": 5,
+        "surface": "true",
+        "optimizer_telemetry": {
+          "backend": "safe-lbfgs-total",
+          "evaluator_calls": 5,
+          "backend_evaluations": 5,
+          "reporting_cache_hits": 1,
+          "reporting_evaluator_calls": 0,
+          "finalization_requests": 1,
+          "explicit_finalization_calls": 0,
+          "gradient_measure": "raw_active_max_force",
+          "converged": true,
+          "termination_reason": "converged",
+          "optimizer_success": true,
+          "accepted_steps": 4,
+          "rejected_steps": 0,
+          "accepted_secants": 4,
+          "rejected_secants": 0,
+          "line_search_evaluations": 4,
+          "mic_branch_resets": 0,
+          "bias_secant_curvature_sum": 0.0
+        }
+      },
+      "minima": [
+        {
+          "atoms": {
+            "numbers": [
+              29,
+              29,
+              29,
+              29
+            ],
+            "positions": [
+              [
+                0.0849967301699929,
+                0.049068637159713026,
+                0.034836414407454844
+              ],
+              [
+                2.4750032698300073,
+                0.049068637159713116,
+                0.0348364144074547
+              ],
+              [
+                1.2800000000000002,
+                2.1188643611512146,
+                0.03483410045362816
+              ],
+              [
+                1.28,
+                0.7389983645293581,
+                1.986493070731463
+              ]
+            ],
+            "cell": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ]
+            ],
+            "pbc": [
+              false,
+              false,
+              false
+            ],
+            "constraints": []
+          },
+          "energy": 4.684003377788498,
+          "max_force": 0.03919295037043423,
+          "converged": true,
+          "optimizer_steps": 4,
+          "evaluation_requests": 5,
+          "surface": "true",
+          "optimizer_telemetry": {
+            "backend": "safe-lbfgs-total",
+            "evaluator_calls": 5,
+            "backend_evaluations": 5,
+            "reporting_cache_hits": 1,
+            "reporting_evaluator_calls": 0,
+            "finalization_requests": 1,
+            "explicit_finalization_calls": 0,
+            "gradient_measure": "raw_active_max_force",
+            "converged": true,
+            "termination_reason": "converged",
+            "optimizer_success": true,
+            "accepted_steps": 4,
+            "rejected_steps": 0,
+            "accepted_secants": 4,
+            "rejected_secants": 0,
+            "line_search_evaluations": 4,
+            "mic_branch_resets": 0,
+            "bias_secant_curvature_sum": 0.0
+          }
+        }
+      ],
+      "records": [
+        {
+          "index": -1,
+          "status": "ls_initialization_failed",
+          "accepted": false,
+          "climb": [],
+          "landing": null,
+          "energy_response": null,
+          "evaluation_requests": 0,
+          "error": "zero bond-count branch is unsupported",
+          "last_atoms": {
+            "numbers": [
+              29,
+              29,
+              29,
+              29
+            ],
+            "positions": [
+              [
+                0.0849967301699929,
+                0.049068637159713026,
+                0.034836414407454844
+              ],
+              [
+                2.4750032698300073,
+                0.049068637159713116,
+                0.0348364144074547
+              ],
+              [
+                1.2800000000000002,
+                2.1188643611512146,
+                0.03483410045362816
+              ],
+              [
+                1.28,
+                0.7389983645293581,
+                1.986493070731463
+              ]
+            ],
+            "cell": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ]
+            ],
+            "pbc": [
+              false,
+              false,
+              false
+            ],
+            "constraints": []
+          },
+          "initial_direction": null,
+          "ls_update": null,
+          "cluster_reconnection": null,
+          "ls_preparation": null,
+          "mc_telemetry": null,
+          "starter_selection": null
+        }
+      ],
+      "frozen": null,
+      "response": null,
+      "config": {
+        "width": 0.1,
+        "rotation_bias": 100.0,
+        "max_gaussians": 1,
+        "temperature_K": 150.0,
+        "fmax": 0.05,
+        "relax_steps": 200,
+        "fd_step": 0.001,
+        "rotation_hvp": 4,
+        "rotation_tol": 0.2,
+        "forward_force": 0.1,
+        "direction_sampling": "global",
+        "rotation_solver": "dimer",
+        "cluster_frame": "direction_only",
+        "quench_optimizer": "safe-lbfgs-total",
+        "lbfgs_memory": null,
+        "bias_stage_steps": null,
+        "bias_fmax": null,
+        "pre_rotation_hvp": null,
+        "rotation_exit_policy": "force"
+      },
+      "ls": {
+        "bond_energies": {
+          "(29, 29)": 3.6298000812530518
+        },
+        "bond_lengths": {
+          "(29, 29)": 1.875
+        },
+        "scale": 5.0,
+        "energy_filter": null,
+        "length_filter": null,
+        "atom_filter": null,
+        "amp_c": 2.0,
+        "length_tolerance": 0.1,
+        "target_mev_per_atom": 20.0,
+        "eta": 0.005,
+        "max_change": 0.01,
+        "frequency": 10,
+        "presteps": 100,
+        "cycle": 100,
+        "ratio": 1.100000023841858,
+        "lselfadapt": true,
+        "bond_geometry": "native-mic",
+        "prequench": {
+          "fmax": 0.1,
+          "steps": 50,
+          "exit_policy": "force_or_step_limit"
+        }
+      },
+      "height_policy": null,
+      "gaussian_policy": null,
+      "height_update_budget": 1000,
+      "reconnect_distance": null,
+      "rng_state": {
+        "bit_generator": "PCG64",
+        "state": {
+          "state": 227083473897745248041463691165023456431,
+          "inc": 108223956209717140042871041591519079807
+        },
+        "has_uint32": 0,
+        "uinteger": 0
+      },
+      "evaluation_requests": 5,
+      "next_index": 0,
+      "status": "ls_initialization_failed",
+      "schema_version": 5,
+      "identity_view": null,
+      "mc_settings": null,
+      "native_mc_state": null,
+      "recovered_rotation": null,
+      "recovered_direction_state": null,
+      "pool_state": {
+        "current_index": 0,
+        "last_landing_index": null,
+        "selector_rng_state": {
+          "bit_generator": "PCG64",
+          "state": {
+            "state": 299894082341857453403633352825449290598,
+            "inc": 331797244987867713913643920723053232557
+          },
+          "has_uint32": 0,
+          "uinteger": 0
+        },
+        "contract": {
+          "version": 2,
+          "identity": "research.ga_ssw.pool_starter_adapter.PoolStarterAdapter",
+          "mode": "uniform",
+          "archive": {
+            "energy_tol": 0.001,
+            "rmsd_tol": 0.1,
+            "max_prototypes": 1000,
+            "cell_tol": 0.001
+          },
+          "scorer": {
+            "mode": "global_minimum",
+            "near_energy_window": 0.5
+          },
+          "selector": {
+            "policy": {
+              "archive_density_weight": 0.5,
+              "novelty_weight": 1.0,
+              "frontier_weight": 0.5,
+              "exploration_weight": 0.75,
+              "baseline_probability": 0.15,
+              "beta_energy": 1.0
+            }
+          },
+          "identity_matcher": {
+            "mode": "ase_permute_v1",
+            "implementation": "ase.geometry.distance",
+            "ase_version": "3.26.0",
+            "permute": true,
+            "normalization": "divide_by_sqrt_n_atoms",
+            "domain": "nonperiodic_unconstrained"
+          }
+        },
+        "state": {
+          "version": 2,
+          "contract": {
+            "version": 2,
+            "identity": "research.ga_ssw.pool_starter_adapter.PoolStarterAdapter",
+            "mode": "uniform",
+            "archive": {
+              "energy_tol": 0.001,
+              "rmsd_tol": 0.1,
+              "max_prototypes": 1000,
+              "cell_tol": 0.001
+            },
+            "scorer": {
+              "mode": "global_minimum",
+              "near_energy_window": 0.5
+            },
+            "selector": {
+              "policy": {
+                "archive_density_weight": 0.5,
+                "novelty_weight": 1.0,
+                "frontier_weight": 0.5,
+                "exploration_weight": 0.75,
+                "baseline_probability": 0.15,
+                "beta_energy": 1.0
+              }
+            },
+            "identity_matcher": {
+              "mode": "ase_permute_v1",
+              "implementation": "ase.geometry.distance",
+              "ase_version": "3.26.0",
+              "permute": true,
+              "normalization": "divide_by_sqrt_n_atoms",
+              "domain": "nonperiodic_unconstrained"
+            }
+          },
+          "archive": {
+            "entries": [],
+            "prototypes": [],
+            "energy_mismatch_hits": 0,
+            "max_energy_mismatch": 0.0
+          },
+          "mapping": [],
+          "representatives": [],
+          "outcomes": [],
+          "decisions": [],
+          "source": null,
+          "executed": 0,
+          "finalized": false
+        }
+      },
+      "hookean_specs": [],
+      "base_schema_version": null
+    },
+    "identity_view": null
+  }
+}

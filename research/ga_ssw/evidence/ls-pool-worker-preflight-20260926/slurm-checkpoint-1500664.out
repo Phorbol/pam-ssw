@@ -1,0 +1,3 @@
+mc records=2 landings= 2 search= 67 fresh= 3 selector_calls= None
+uniform records=2 landings= 2 search= 67 fresh= 3 selector_calls= 2
+pam records=2 landings= 2 search= 64 fresh= 3 selector_calls= 2
