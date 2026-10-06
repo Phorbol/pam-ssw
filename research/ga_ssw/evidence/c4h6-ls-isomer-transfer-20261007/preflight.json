@@ -1,0 +1,198 @@
+{
+  "branch": "research/c60-local-defect-qualification",
+  "budgets": {
+    "arms": [
+      "ssw",
+      "paper_ls"
+    ],
+    "campaign_wall_seconds": 1080,
+    "cases": [
+      "cyclobutene",
+      "bicyclobutane"
+    ],
+    "fresh_cap_per_arm": 13,
+    "fresh_total_cap": 52,
+    "outer_steps": 12,
+    "search_cap_per_arm": 8000,
+    "search_total_cap": 32000,
+    "seed": 59,
+    "wall_seconds_per_arm": 240
+  },
+  "config": {
+    "paper_ls": {
+      "bond_energies": {
+        "(1, 1)": 4.526579856872559,
+        "(1, 6)": 4.29817008972168,
+        "(6, 6)": 3.4468400478363037
+      },
+      "bond_lengths": {
+        "(1, 1)": 0.8400000095367431,
+        "(1, 6)": 1.1900000333786012,
+        "(6, 6)": 1.6399999618530274
+      },
+      "energy_filter": [],
+      "initial_fraction": 0.03,
+      "learning_rate": 1.8,
+      "prequench": {
+        "exit_policy": "force_or_step_limit",
+        "fmax": 0.1,
+        "steps": 50
+      },
+      "target_per_atom": 0.7,
+      "xi": 0.2
+    },
+    "rotation": {
+      "ftol": 0.02,
+      "max_force_calls": 40,
+      "metric": "euclidean",
+      "pre_ftol": 0.2,
+      "pre_rotmax": 5,
+      "rotmax": 15
+    },
+    "ssw": {
+      "bias_fmax": 0.1,
+      "bias_stage_steps": null,
+      "cluster_frame": "direction_only",
+      "direction_sampling": "global",
+      "fd_step": 0.001,
+      "fmax": 0.03,
+      "forward_force": 0.1,
+      "lbfgs_memory": 500,
+      "max_gaussians": 25,
+      "pre_rotation_hvp": null,
+      "quench_optimizer": "safe-lbfgs-total",
+      "relax_steps": 400,
+      "rotation_bias": 100.0,
+      "rotation_exit_policy": "force_or_budget",
+      "rotation_hvp": 100,
+      "rotation_solver": "ritz",
+      "rotation_tol": 0.02,
+      "temperature_K": 150.0,
+      "width": 0.1
+    }
+  },
+  "core_tree": "c572a1cc0766f8d3ff534a467ad64613aaa78ce0",
+  "device": "cuda",
+  "dtype": "float64",
+  "git_head": "43bf9061cae4fd0c5060efbedaa7e013acb27db1",
+  "implementation_parameter_boundary": "HC energy/length tables come from current native_ls.py; paper LS uses its energies and +0.1 A pair cutoffs, as in the prior C4H6 lifecycle. The paper formula/target is reused, but these tables/cutoffs are not specified in the paper SI.",
+  "inputs": {
+    "bicyclobutane": {
+      "cell_A": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "numbers": [
+        6,
+        6,
+        6,
+        6,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c4h6-model-qualification-20260924-r2/bicyclobutane/input.extxyz",
+      "pbc": [
+        false,
+        false,
+        false
+      ],
+      "sha256": "e9700f800d495b53674064aea953116c32d32f4ecf701582c222a42a87db7571"
+    },
+    "cyclobutene": {
+      "cell_A": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "numbers": [
+        6,
+        6,
+        6,
+        6,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c4h6-model-qualification-20260924-r2/cyclobutene/input.extxyz",
+      "pbc": [
+        false,
+        false,
+        false
+      ],
+      "sha256": "87bb85eb4ec12b4aae64a305c21c9a693bed98c2e8c996dc18055672c3227a1b"
+    }
+  },
+  "ledger_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/periodic-rotation-priority-20260923/ledger.py",
+  "ledger_sha256": "729355f7f85defc9faebb3b128ec09fb70d6359e3fb5e89bb8c6949b91c19e45",
+  "lifecycle_config_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c4h6-mh1-lifecycle-20260924/effective_config.json",
+  "lifecycle_config_sha256": "34a3b3c3345c16b9b1031dd6046d521c45a4dada81f9e5c32f4e21c00db07efb",
+  "model": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+  "model_head": "omol",
+  "model_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+  "paper_parameters": {
+    "NG": 25,
+    "T_K": 150,
+    "initial_fraction": 0.03,
+    "learning_rate": 1.8,
+    "target_eV_atom": 0.7,
+    "width_A": 0.1,
+    "xi_fraction": 0.2
+  },
+  "physics_calls": 0,
+  "qualification_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c4h6-model-qualification-20260924-r2/qualification.json",
+  "qualification_sha256": "e75384530a1478c0196fe7f95164649c64b4536fafe0d7d6d4799a8686da2bc5",
+  "runtime": {
+    "ase": "3.26.0",
+    "cuda_available": false,
+    "cuda_device_count": 0,
+    "mace": "0.3.16",
+    "numpy": "2.0.2",
+    "python": "3.12.11 | packaged by Anaconda, Inc. | (main, Jun  5 2025, 13:09:17) [GCC 11.2.0]",
+    "torch": "2.8.0+cu128"
+  },
+  "source_import_paths": {
+    "ASESurface": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/surface.py",
+    "LSPrequenchSettings": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/ls_prequench.py",
+    "LSSettings": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/paper_reference.py",
+    "MACECalculator": "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/mace/calculators/mace.py",
+    "RecoveredRotationSettings": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/recovered_rotation.py",
+    "c4h6_graph": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/analyze_c4h6_ls_reaction_coverage.py",
+    "component_formulas": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/analyze_c4h6_ls_reaction_coverage.py",
+    "ledger": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/periodic-rotation-priority-20260923/ledger.py",
+    "run_ssw": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/paper_reference.py"
+  },
+  "status": "preflight_ok_zero_PES",
+  "tracked_core_clean": true
+}
