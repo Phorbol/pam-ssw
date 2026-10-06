@@ -71,6 +71,14 @@ GPU1663620/修复CPU读出1663637共424 EFS，无PES重跑；联合默认暂不�
 无失败/denial，两初态cold fmax .02956/.02669且三个键截断均连通；参考笼资格通过。
 主agent逐ledger核对请求/实际calculate闭合并核验冻结源码导入，四臂计划核验通过。
 搜索array1664068已提交，每臂60k/80min，两卡并发；尚无搜索效果结论。
+终态CPU读出1664073依赖afterany；不高频监控，不自动续跑。
+
+为后续VC纸面目标先做独立低成本模型资格，CPU1664166/source76a75cc完成：
+8/8 fcc/hcp参考cold力/stress合格，181请求/164实际calculate，主agent逐账复核。
+rc2.7的Ehcp−Efcc=+.00763eV/atom（fcc更低）；3/6/10为负，证明现有bulk smoke
+不能直接以hcp作为最低能目标。保留精度损失但物理阈值合格的一例状态；不选rc6
+来制造与paper差值接近，不作GM/全Hessian/原版势等价声明，未新增VC搜索。
+[参考资格与决定](../../research/ga_ssw/evidence/lj-crystal-target-qualification-20261007/decision.md)。
 
 短LJ55/LJ38六臂与C4H6反例已收口：LJ共同cost的优势依体系反转；C4两论文
 起点SSW/LS连通新图类2/1与1/2，29897请求含四候选精修/曲率资格。LS保留显式
