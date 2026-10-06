@@ -27,10 +27,19 @@ Freeze cached MH-1 model a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafde
 omol/float64/CUDA with cueq/oeq disabled. Reference is the independently
 qualified Ih at c60-local-defect-20260925/qualification/isomer-1/final.extxyz,
 fresh E=-62215.393370790625eV, fmax .00407518eV/A (source result.json).
+Reuse existing local curvature qualification, not a new Hessian campaign:
+c60-local-defect-20260925/curvature/results.json records174 internal eigenvalues
+for this reference, all positive (minimum3.03193466eV/A²), with the two lowest
+directions independently checked at .02A. Its runner uses the same MH-1/omol
+float64 backend. This supports a locally stable cage target on that model,
+not global-minimum/DFT validity; the old365 reference E/F calls remain historical
+costs, not newly issued requests or independent transfer evidence.
 SSW settings inherit the existing C60 protocol: width .6A,NG12,T150K,
 fmax .03eV/A,bias_fmax .1,1000 inner iterations,fd .001A,
 Safe-total/history500,direction_only,NativeMC(.1eV,99999). Preserve these
 as experimental choices, not promote them to defaults or fit on new seeds.
+NativeMC retains its recovered divisor20;150K here is a search configuration,
+not a claim of canonical150K sampling (effective exponent scale is20kBT).
 
 Stages: first generate/freeze inputs and snapshot the selected core/runner,
 then verify the existing harness on CPU (including budget and checkpoint
