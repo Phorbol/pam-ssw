@@ -81,6 +81,17 @@ GPU1663620/修复CPU读出1663637共424 EFS，无PES重跑；联合默认暂不�
 声明；下一项锁定唯一LS因子及总成本，不重开旧#1/#2或调参当前随机起点。
 [资格结果与范围](../../research/ga_ssw/evidence/c60-ls-source3-qualification-20261007/decision.md)。
 
+新local对照source4fec3e3已冻结并提交array1664389/afterany读出1664393：同#3资格
+终态，2个search RNG×SSW/paper-LS，唯一变化为LS；两臂同full_peratom方向/nativeMC/
+Safe-total。每臂100外步或20k请求或20min、3cold上限，无续跑/调参；总80k+12。
+LS用paper3.61eV/.03/xi.2/lambda1.8/目标.02，既有邻域1.64A明确不称paper截断；
+soft prequench .05与true .03分开。研究runner接线27d44c9，CPU1664330回归30通过；
+主agent真实四计划stub预检、failed-soft排除与LS状态replay检查通过，均零真实PES。
+输入/核心/runner/资格/参考已冻结，GPU执行前逐文件核验；无核心/API变更。
+尚无SSW/LS效果结果；指标为同cost的Ih图+能窗+force/cold与新连通图类，不能用
+已经成笼的local初态冒充随机成笼成功。原四臂random方向面板1664068保持不变。
+[固定因子、来源、判据和停止条件](../../research/ga_ssw/evidence/c60-source3-paper-ls-transfer-20261007/protocol.md)。
+
 为后续VC纸面目标先做独立低成本模型资格，CPU1664166/source76a75cc完成：
 8/8 fcc/hcp参考cold力/stress合格，181请求/164实际calculate，主agent逐账复核。
 rc2.7的Ehcp−Efcc=+.00763eV/atom（fcc更低）；3/6/10为负，证明现有bulk smoke
