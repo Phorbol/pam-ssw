@@ -1,6 +1,7 @@
 ## 2026-10-07 当前：LJ/Morse方向对照收口，转入TiO2变胞相目标
 
-主线仍是独立ASE SSW/LS目标发现与总成本，随后VC；核心树c572a1cc不变。
+主线仍是独立ASE SSW/LS目标发现与总成本，随后VC；以下原面板核心树c572a1cc，
+后续原子入口修复6129c5f单独验证，不能混作原面板源码。
 LJ55两个新起点rotation/full在同势/预算/RNG下，完整方向29534/2374请求均
 通过结构+能量+force+cold证书；rotation seed22需20923，seed21到160k未过
 1meV能量窗口，但86321已匹配Ih形状，不能说没有找到笼。方向组合有范围明确
@@ -41,7 +42,9 @@ GPU1663620/修复CPU读出1663637共424 EFS，无PES重跑；联合默认暂不�
 下一项仅接通已有SSWConfig.force_or_budget在periodic atomic_climb的拒绝入口，
 源码6129c5f，保留converged=False、显式budget_released及所有真面资格门，不新增
 参数/持久化架构/默认。独立stub35通过；CPU1663773真实Cu/EMT及block/checkpoint
-回归32通过。计划从两保存post-cell起点配对检验原子逃逸，不重跑坍缩cell路线。
+回归32通过。源码04f4aa2零PES预检通过，GPU1663813/依赖CPU1663814已提交，
+从两保存post-cell起点配对检验原子逃逸，不重跑坍缩cell路线；未有实际结果。
+四臂串行共用一V100/10min及540秒截止，最多12000搜索+8cold，不扩原面板。
 [固定协议](../../research/ga_ssw/evidence/tio2-atomic-budget-release-20261007/protocol.md)。
 
 短LJ55/LJ38六臂与C4H6反例已收口：LJ共同cost的优势依体系反转；C4两论文
