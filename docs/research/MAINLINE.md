@@ -96,6 +96,8 @@ soft prequench .05与true .03分开。研究runner接线27d44c9，CPU1664330回�
 可观察lineage上限分开，缺检查点不虚报前缀到达，中断calculate明确未知而非零。
 主agent用charged5000/lineage1的纯stub反例验证，预淬火失败排除/正常LS回放也已检查；
 修正不改变已冻结算法、输入或预算。mc_failed的响应保留，明确未更新强度。
+同样的收费/lineage边界已补到随机C60读出，缺segment实际calculate不填零，
+保留已知下界；主agent六个零PES反例/正常终态检查通过。无搜索重跑或参数变化。
 
 下一周期候选仅做只读就绪核查：2014VC §3.1的SiO2目标是BKS上的anatase型#141，
 72atom quartz起点来自已有COD9atom×8。已有1502803/1502823面板只给17/18数值

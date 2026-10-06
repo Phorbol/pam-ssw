@@ -7,6 +7,23 @@ from pathlib import Path
 import sys
 
 
+def _calculator_call_counts(segments):
+    """Return exact search calls when every segment recorded them, plus known subtotal."""
+    known = sum(segment.get("calculate_calls", 0) for segment in segments)
+    exact = known if all("calculate_calls" in segment for segment in segments) else None
+    return exact, known
+
+
+def _paired_horizons(arms, requested):
+    """Separate cost charged by the ledger from checkpointed search coverage."""
+    charged = min(row["search_requests"] for row in arms)
+    observed = min(row.get("lineage_requests", 0) for row in arms)
+    return {"actual_common_horizon": min(requested, observed),
+            "charged_common_horizon": min(requested, charged),
+            "both_horizon_reached": observed >= requested,
+            "charged_both_horizon_reached": charged >= requested}
+
+
 def run(prepared, output):
     manifest = json.loads((prepared / "search-plan-manifest.json").read_text())
     sys.path.insert(0, str(prepared / "source"))
@@ -38,11 +55,13 @@ def run(prepared, output):
             raise ValueError(f"clean terminal raw request/budget mismatch: {folder}")
         if len(budget["fresh_checks"]) != budget["fresh"]:
             raise ValueError(f"fresh reservation/check count mismatch: {folder}")
+        calculate_calls, calculate_calls_lower_bound = _calculator_call_counts(budget["segments"])
         row.update(status=budget["status"], search_requests=budget["search"],
                    fresh_requests=budget["fresh"], raw_search_requests=len(raw),
                    unconfirmed_search_reservations=uncertain,
                    failed_pes_requests=sum("error" in x for x in raw),
-                   actual_search_calculator_calls=sum(x.get("calculate_calls", 0) for x in budget["segments"]),
+                   actual_search_calculator_calls=calculate_calls,
+                   actual_search_calculator_calls_known_lower_bound=calculate_calls_lower_bound,
                    reserved_gpu_seconds=budget["reserved_seconds"],
                    fresh_checks=budget["fresh_checks"])
         checkpoint_path = folder / "last-result.pkl"
@@ -89,9 +108,13 @@ def run(prepared, output):
                    qualified_observations=sum(x["search_force_qualified"] for x in qualified),
                    lineage_requests=cp.evaluation_requests, cost_prefixes={})
         for cap in (15000, 30000, 60000):
-            valid = [x for x in qualified if x["search_force_qualified"] and x["cumulative_search_requests"] <= min(cap, budget["search"])]
+            observed_horizon = min(cap, cp.evaluation_requests)
+            charged_horizon = min(cap, budget["search"])
+            valid = [x for x in qualified if x["search_force_qualified"] and x["cumulative_search_requests"] <= observed_horizon]
             hits = [x for x in valid if x["graph_energy_candidate"]]
-            row["cost_prefixes"][str(cap)] = {"horizon_reached": budget["search"] >= cap,
+            row["cost_prefixes"][str(cap)] = {"horizon_reached": cp.evaluation_requests >= cap,
+                "charged_horizon": charged_horizon, "charged_horizon_reached": budget["search"] >= cap,
+                "observed_lineage_horizon": observed_horizon,
                 "qualified_observations": len(valid),
                 "best_energy_eV": min((x["energy_eV"] for x in valid), default=None),
                 "first_graph_energy_candidate_cost": hits[0]["cumulative_search_requests"] if hits else None}
@@ -100,10 +123,10 @@ def run(prepared, output):
     pairs = []
     for case in sorted({r["case"] for r in rows}):
         matched = [r for r in rows if r["case"] == case]
-        common = min(r["search_requests"] for r in matched)
         comparisons = []
         for requested in (15000, 30000, 60000):
-            horizon = min(requested, common)
+            horizons = _paired_horizons(matched, requested)
+            horizon = horizons["actual_common_horizon"]
             arms = {}
             for r in matched:
                 valid = [x for x in observations_by_arm.get((case, r["arm"]), [])
@@ -111,8 +134,7 @@ def run(prepared, output):
                 arms[r["arm"]] = {"qualified_observations": len(valid),
                     "best_energy_eV": min((x["energy_eV"] for x in valid), default=None),
                     "graph_energy_candidate": any(x["graph_energy_candidate"] for x in valid)}
-            comparisons.append({"requested_prefix": requested, "actual_common_horizon": horizon,
-                                "both_horizon_reached": common >= requested, "arms": arms})
+            comparisons.append({"requested_prefix": requested, **horizons, "arms": arms})
         pairs.append({"case": case, "comparisons": comparisons})
     result = {"rows": rows, "matched_cost_pairs": pairs,
               "qualification_overhead": json.loads((prepared / manifest["qualification_summary"]).read_text()),
