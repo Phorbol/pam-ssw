@@ -61,3 +61,26 @@ native-rotation-bias-field-trace.md). The2014 cumulative modified-PES quench
 formula alone cannot resolve that callback. Both current arms share the same
 callback, and first rotation has no Gaussian history; later stages do not
 establish native Hessian parity. No component/config change follows this audit.
+
+## Discriminating control after the frozen probe
+
+GPU1663813 and CPU1663814 completed: strict exits before any Gaussian in both
+sizes, while release completes10 terms and produces two cold-qualified minima;
+12atom matches anatase,48atom does not. Cost1557search+6cold; no error/denial.
+This shows the opt-in path can finish, but does not establish that Gaussian
+escape rather than final cell relaxation creates the target basin.
+
+New control: each same saved input gets exactly one direct cell_quench with
+the identical true_quench settings; no atom displacement, Gaussian, LS or
+extra fallback. Competing explanations are a new basin produced by climbing
+versus a basin already selected by preceding cell cycles. Match both direct
+and released certified endpoints under the same tight/broad matcher and report
+the full paid costs. If direct quench reaches the same basin, do not attribute
+the phase discovery or efficiency to ten Gaussian terms; retain only the
+completed-path capability conclusion. If they differ, retain scoped basin
+change evidence, still not an independent global-search success probability.
+
+Bound:2inputs x1000search/100sec, at most1fresh certified candidate perinput,
+oneV100/5min,240sec global deadline. Already-paid source input measurements are
+reused explicitly, not charged again or relabeled as new independent evidence.
+No replacement, retry, tolerance adjustment or automatic long trajectory.
