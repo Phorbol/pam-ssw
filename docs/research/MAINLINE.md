@@ -17,8 +17,10 @@ C4H6论文所列cyclobutene/bicyclobutane起点×SSW/paperLS各12步，GPU166270
 [MH-1候选资格与决定](../../research/ga_ssw/evidence/c4h6-ls-isomer-transfer-20261007/decision.md)。
 这是模型上的稳定候选证据，不是PBE反应网络/TS或通用LS优势。
 
-两个短面板收口，不扩seed/罚势/温度调参。下一项按已知LJ55 GM结构与能量
-双目标检验当前方向组合，先查既有命中费用/参考资格，冻结明确预算再提交；
+两个短面板收口，不扩seed/罚势/温度调参。按已知LJ55 GM结构与能量双目标
+推进当前方向组合：两个新共同起点CPU1663031合格，四臂CPU1663101已提交，
+只比较rotation/full-per_atom，每臂160k请求/300外步/600秒，最多两并发，
+无新增GPU/原版长轨迹。[协议与范围](../../research/ga_ssw/evidence/lj55-direction-target-20261007/protocol.md)。
 不重跑旧LJ38 800k。C60随机成笼+参考能量仍未验收，VC真实相搜索亦未验收。
 GA、完整Q、RC扩展、外部优化器与批推理继续暂缓。
 
