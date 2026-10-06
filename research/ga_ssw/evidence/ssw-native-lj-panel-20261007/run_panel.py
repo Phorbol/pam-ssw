@@ -16,6 +16,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import tempfile
 import sys
 import time
 import traceback
@@ -473,7 +474,7 @@ def execute_python(out, atoms, n, seed, arm, steps, cap, wall):
             row["new_minimum_index"] = idx
         events.append(row)
         with (out / "progress.jsonl").open("a") as stream:
-            stream.write(json.dumps(row, allow_nan=False) + "\n")
+            stream.write(json.dumps(load_serializer()._jsonable(row), allow_nan=False) + "\n")
         return False
     result = run_ssw(atoms.copy(), surface, steps=steps, config=config,
         rng=np.random.default_rng(np.random.SeedSequence(seed).spawn(2)[1]),
@@ -526,7 +527,9 @@ def execute_native(out, atoms, n, steps, cap, wall):
     (case / "bounded_process.py").write_bytes((NATIVE_PACKAGE / "bounded_process.py").read_bytes())
     (case / "lasp.external.sh").write_text(
         "#!/bin/bash\nset -euo pipefail\n" +
-        f"{sys.executable} {case / 'client.py'}\n")
+        "if [ ! -f socket-first.txt ]; then\n"
+        "  { printf '%s\\n' \"$LASP_MACE_SOCKET\"; ls -l \"$LASP_MACE_SOCKET\"; } > socket-first.txt 2>&1\n"
+        "fi\n" + f"{sys.executable} {case / 'client.py'}\n")
     (case / "lasp.external.sh").chmod(0o755)
     template = atoms.copy()
     template.set_cell(CELL); template.set_pbc(False)
@@ -539,8 +542,17 @@ def execute_native(out, atoms, n, steps, cap, wall):
         "--timeout", str(wall), "--log", str(case / "stdout.txt"),
         "--status", str(case / "process.json"), "--", "/lib64/ld-linux-x86-64.so.2",
         str(NATIVE_BINARY)]
-    result = run_lasp(command, cwd=case, atoms=template, calculator=checked,
-                      pbc=(False, False, False), max_requests=cap, env=env)
+    # One observed callback could not find its /tmp Unix socket. Use a short,
+    # user-owned shared filesystem directory; retain first-client visibility.
+    socket_base = Path("/home/gengjianrui/.cache/pam-ssw-external")
+    socket_base.mkdir(parents=True, exist_ok=True)
+    previous_tempdir = tempfile.tempdir
+    try:
+        tempfile.tempdir = str(socket_base)
+        result = run_lasp(command, cwd=case, atoms=template, calculator=checked,
+                          pbc=(False, False, False), max_requests=cap, env=env)
+    finally:
+        tempfile.tempdir = previous_tempdir
     json_write(case / "external-ef.json", result)
     if (case / "lasp.out").is_file():
         shutil.copy2(case / "lasp.out", case / "lasp.out.raw")
