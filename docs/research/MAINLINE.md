@@ -73,6 +73,14 @@ GPU1663620/修复CPU读出1663637共424 EFS，无PES重跑；联合默认暂不�
 搜索array1664068已提交，每臂60k/80min，两卡并发；尚无搜索效果结论。
 终态CPU读出1664073依赖afterany；不高频监控，不自动续跑。
 
+后续LS局部目标已另用未使用的文献C60异构体#3做资格检查，不混入上述随机面板。
+1664262在ledger父目录创建前失败，2wrapper attempts/0actual calculate，保留失败；
+无PES复现并修复后，1664282/source024486c在9秒完成，11初始+2cold=13实际E/F。
+冷复核fmax .01321、比Ih高1.84216eV，三个键截断均保留source笼且非Ih；主agent
+逐账及冻结导入核验通过。仅取得新local缺陷案例资格，尚未运行LS、无Hessian/GM
+声明；下一项锁定唯一LS因子及总成本，不重开旧#1/#2或调参当前随机起点。
+[资格结果与范围](../../research/ga_ssw/evidence/c60-ls-source3-qualification-20261007/decision.md)。
+
 为后续VC纸面目标先做独立低成本模型资格，CPU1664166/source76a75cc完成：
 8/8 fcc/hcp参考cold力/stress合格，181请求/164实际calculate，主agent逐账复核。
 rc2.7的Ehcp−Efcc=+.00763eV/atom（fcc更低）；3/6/10为负，证明现有bulk smoke
