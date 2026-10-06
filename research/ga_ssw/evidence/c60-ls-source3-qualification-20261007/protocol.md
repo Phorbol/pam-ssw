@@ -66,3 +66,14 @@ candidate, full qualification result and raw cost ledgers. This protocol
 authorizes only the eligibility gate within the already authorized bounded
 mainline development; a later fixed LS protocol must separately define its
 factor, sources, stopping rules and total-cost criterion before submission.
+
+Execution correction: job1664262/source465ae47 failed before any Calculator
+evaluation because `ledgers/` was not created. Reference and input each
+recorded one attempted wrapper request, zero actual `calculate` calls, and
+no raw ledger could be opened. Preserve that directory and scheduler status;
+it is an engineering failure, not a failed model/source eligibility result.
+The missing parent was reproduced without a real PES. Both execute and the
+dummy preflight now share its creation and use `ledgers/initial-quench.jsonl`.
+A new run ID may execute the unchanged source/model/qualification protocol
+after this focused correction; no scientific retry, input selection, budget
+increase, or automatic continuation is introduced.

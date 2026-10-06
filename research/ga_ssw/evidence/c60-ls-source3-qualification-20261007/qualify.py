@@ -62,6 +62,13 @@ def load_helper(path: Path):
     return module
 
 
+def create_ledgers(out: Path):
+    """CountedSurface requires the ledger parent before its first request."""
+    ledgers = out / "ledgers"
+    ledgers.mkdir(exist_ok=False)
+    return ledgers
+
+
 def source_records():
     if not ZIP_PATH.is_file() or not CSV_PATH.is_file():
         raise FileNotFoundError(f"C60 author archive or CSV is missing under {ARCHIVE_ROOT}")
@@ -188,10 +195,11 @@ def source_csv_and_input_preflight():
             self.results = {"energy": 0.0, "forces": np.zeros((len(self.atoms), 3))}
 
     with tempfile.TemporaryDirectory(prefix="c60-source3-fake-qualification-") as temp:
+        ledgers = create_ledgers(Path(temp))
         calculator = Dummy()
         call_counter = helper.instrument_calculate(calculator)
         calculator._c60_call_counter = call_counter
-        surface = helper.CountedSurface(calculator, Path(temp) / "ledger.jsonl", 8,
+        surface = helper.CountedSurface(calculator, ledgers / "initial-quench.jsonl", 8,
             time.monotonic() + 60, time.monotonic() + 60)
         from ase import Atoms
         from pamssw.standalone import NativeMCSettings, SSWConfig, run_ssw
@@ -252,6 +260,7 @@ def execute(out: Path):
     process_deadline = process_started + PROCESS_SECONDS
     out = out.resolve()
     out.mkdir(parents=True, exist_ok=False)
+    create_ledgers(out)
     dump(out / "status.json", {"status": "preparing", "started_unix": time.time(),
                                 "process_cap_seconds": PROCESS_SECONDS})
     try:
