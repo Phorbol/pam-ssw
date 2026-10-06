@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 def ledger_cost(path):
-    cost = dict(charged=0, actual=0, denied=0, failed=0, present=path.is_file())
+    cost = dict(charged=0, actual=0, denied=0, failed=0, denial_reasons={}, present=path.is_file())
     if path.is_file():
         for line in path.open():
             row=json.loads(line)
@@ -16,6 +16,9 @@ def ledger_cost(path):
             cost['actual']+=int(row.get('actual_calculator_calls',0))
             cost['denied']+=row.get('status')=='denied'
             cost['failed']+=row.get('status')=='failed'
+            if row.get('status')=='denied':
+                reason=row.get('reason','unspecified')
+                cost['denial_reasons'][reason]=cost['denial_reasons'].get(reason,0)+1
     return cost
 
 
@@ -56,6 +59,7 @@ def read_arm(path: Path, slot: int):
         "search_actual_calculator_calls": result.get("search_actual_calculator_calls"),
         "search_wall_seconds": result.get("search_wall_seconds"),
         "outer_callbacks": result.get("outer_callbacks"),
+        "budget_denials": costs['search']['denial_reasons'],
         "best_connected_force_qualified_minimum": best_q,
         "connected_force_qualified_minimum_count": len(qualified),
         "connected_force_qualified_curve": qualified,
@@ -126,7 +130,10 @@ def main():
            '|---:|---|---:|---:|---:|---:|---|---|']
     for a in arms:
         q=a.get('best_connected_force_qualified_minimum') or {}
-        lines.append(f"| {a.get('input_seed')} | {a.get('arm')} | {a['raw_costs']['search']['charged']} | {a['raw_costs']['search']['actual']} | {a.get('connected_force_qualified_minimum_count')} | {q.get('energy_eV')} | {a.get('confirmed_80G_hit')} | {a.get('execution_status',a.get('status'))} |")
+        status=a.get('execution_status',a.get('status'))
+        if a['raw_costs']['search']['denial_reasons']:
+            status += ' (budget censored: '+', '.join(a['raw_costs']['search']['denial_reasons'])+')'
+        lines.append(f"| {a.get('input_seed')} | {a.get('arm')} | {a['raw_costs']['search']['charged']} | {a['raw_costs']['search']['actual']} | {a.get('connected_force_qualified_minimum_count')} | {q.get('energy_eV')} | {a.get('confirmed_80G_hit')} | {status} |")
     lines += ['',f"Current panel requests: {summary['costs']}; reused historical input preparation {summary['reused_initial_preparation_requests']} (reported separately).",
         'Saved noninitial landings use the algorithm force certificate. Cold E/F checks cover initial and best only.',
         'Two fixed inputs, including one fragmented input; not paper success-rate replication, general superiority or default promotion.']
