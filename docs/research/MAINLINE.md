@@ -106,6 +106,12 @@ soft prequench .05与true .03分开。研究runner接线27d44c9，CPU1664330回�
 候选SI路径工具不可达/传输SSL失败，尚无文件。不是已证实“没有SI”；不猜SiO2
 目标模板或直接把TiO2换元素称paper源。此项不阻塞C60/LS，未新增周期PES/作业。
 
+新#3原版输入资格GPU1664642/source58d4579完成：仅3paid/3actual E/F，0failure/
+denial。孤立/50A周期及实际native callback均通过1e-4 E/F与坐标/胞门，最近跨镜像
+42.971A，模型cutoff6A；root费用/实际导入/快照审核通过。仅初态单点，无逃逸/排名。
+下一原版参照须先明确native RNG与独立轨迹契约，不能把两个jobid当两个seed；
+两个已冻结C60面板保持运行，不由此扩预算。[资格结果与范围](../../research/ga_ssw/evidence/c60-source3-lasp-input-qualification-20261007/decision.md)。
+
 为后续VC纸面目标先做独立低成本模型资格，CPU1664166/source76a75cc完成：
 8/8 fcc/hcp参考cold力/stress合格，181请求/164实际calculate，主agent逐账复核。
 rc2.7的Ehcp−Efcc=+.00763eV/atom（fcc更低）；3/6/10为负，证明现有bulk smoke
