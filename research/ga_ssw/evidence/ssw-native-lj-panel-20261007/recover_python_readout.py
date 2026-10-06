@@ -33,7 +33,13 @@ def recover(raw, output, fresh_enabled):
     assert provenance["imports"]["head_pamssw_tree"] == "c572a1cc0766f8d3ff534a467ad64613aaa78ce0"
     assert panel.sources()["tracked_pamssw_changes"] == []
     progress = [json.loads(line) for line in (raw / "progress.jsonl").read_text().splitlines()]
-    assert len(cp.records) == sum(p["kind"] == "outer_step" for p in progress)
+    # Observer runs at completed boundaries; a terminal error may be checkpoint-only.
+    by_index = {r.index: r for r in cp.records}
+    for event in progress:
+        if event["kind"] == "outer_step":
+            record = by_index[event["outer_index"]]
+            assert record.evaluation_requests == event["step_requests"] and record.status == event["status"]
+    assert cp.evaluation_requests == cp.initial.evaluation_requests + sum(r.evaluation_requests for r in cp.records)
     output.mkdir(parents=True, exist_ok=False)
     for path in raw.iterdir():
         if path.name != "provenance.json":
@@ -73,6 +79,7 @@ def recover(raw, output, fresh_enabled):
         "initial": {"energy_eV": cp.initial.energy, "fmax_eV_A": cp.initial.max_force,
                     "converged": cp.initial.converged},
         "best_energy_eV": cp.best.energy, "minima": minima, "outer_events": progress,
+        "checkpoint_records": cp.records,
         "fresh": checks, "fresh_requests": 0 if fresh is None else fresh.requests,
         "best_geometry_gate": panel.geometry_gate(cp.best.atoms),
         "recovery_scope": "final export failure; original search and checkpoint unchanged"})
