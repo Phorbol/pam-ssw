@@ -1,0 +1,327 @@
+{
+  "status": "preflight_ok",
+  "real_pes_requests": 0,
+  "config": {
+    "purpose": "development functional/cost transfer on short-range Morse; not GM-rate replication",
+    "potential": {
+      "class": "ase.calculators.morse.MorsePotential",
+      "epsilon_eV": 1.0,
+      "rho0": 14.0,
+      "r0_A": 2.7,
+      "rcut1_reduced_r0": 100.0,
+      "rcut2_reduced_r0": 101.0,
+      "rcut1_A": 270.0,
+      "rcut2_A": 272.7,
+      "pbc": false,
+      "constraints": [],
+      "confinement": null,
+      "cutoff_note": "ASE finite neighbor cutoff; settings match prior rho14 qualification. No claim is made for arbitrarily extreme configurations outside the observed compact-cluster domain."
+    },
+    "ssw": {
+      "width": 0.6,
+      "rotation_bias": 1.0,
+      "max_gaussians": 14,
+      "temperature_K": 464.20495549675246,
+      "fmax": 0.05,
+      "relax_steps": 1000,
+      "fd_step": 0.001,
+      "rotation_hvp": 39,
+      "rotation_tol": 0.02,
+      "forward_force": 0.1,
+      "direction_sampling": "global",
+      "rotation_solver": "broyden-euclidean",
+      "cluster_frame": "direction_only",
+      "quench_optimizer": "safe-lbfgs-total",
+      "lbfgs_memory": 500,
+      "bias_stage_steps": null,
+      "bias_fmax": 0.1,
+      "pre_rotation_hvp": null,
+      "rotation_exit_policy": "force_or_budget"
+    },
+    "rotation": {
+      "pre_rotmax": 5,
+      "rotmax": 15,
+      "pre_ftol": 0.2,
+      "ftol": 0.02,
+      "metric": "euclidean",
+      "max_force_calls": 40
+    },
+    "full_direction_per_atom": {
+      "ratio_local": 50,
+      "local_probability": 0.5,
+      "group_threshold": 0.5,
+      "pre_rotmax": 5,
+      "rotmax": 15,
+      "pre_ftol": 0.2,
+      "ftol": 0.02,
+      "metric": "euclidean",
+      "max_force_calls": 40,
+      "c1_radius_policy": "per_atom",
+      "startup_order": "legacy",
+      "geometry": "nonperiodic"
+    },
+    "height": {
+      "initial_weight": 0.5,
+      "negative_weight": 0.2,
+      "level": 1,
+      "max_weight": 10.0,
+      "growth_step": 1.0,
+      "growth_scale": 2.0
+    },
+    "mc": {
+      "energy_tol": 0.1,
+      "maxtrap": 99999
+    },
+    "operational_temperature_K": 464.20495549675246,
+    "target": {
+      "energy_eV": -340.811371,
+      "energy_tolerance_eV": 0.001,
+      "force_max_eV_A": 0.05,
+      "connected_cutoff_A": 3.5100000000000002,
+      "reference": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/references/morse-80G-rho14.extxyz",
+      "geometry_method": "analyze_panel.compare_geometry; graph permutation + proper-rotation RMS"
+    },
+    "arms": [
+      "rotation",
+      "full_per_atom"
+    ],
+    "input_seeds": [
+      25092501,
+      25092502
+    ],
+    "paired_search_rng_seeds": [
+      26100731,
+      26100732
+    ],
+    "budget_per_arm": {
+      "requests_including_initial_and_failed_work": 80000,
+      "outer_attempts": 100,
+      "wall_seconds": 600.0,
+      "fresh_requests": 2
+    },
+    "panel_total": {
+      "search_requests_max": 320000,
+      "fresh_requests_max": 9,
+      "cpu_tasks_max": 2,
+      "arm_runs": 4,
+      "no_repeats_or_continuations": true
+    },
+    "inputs": [
+      "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/morse-compact-initials/m80-25092501/final.extxyz",
+      "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/morse-compact-initials/m80-25092502/final.extxyz"
+    ],
+    "initial_structures": "use the saved force-qualified final.extxyz from prior random-structure qualification byte-for-byte; no resampling, repair, recentering, or extra preparation",
+    "evaluation_domain": "finite coordinates and nonperiodic only; bounding span recorded as diagnostic, never a reject condition"
+  },
+  "imports": {
+    "python": "/home/gengjianrui/.conda/envs/mace_env/bin/python",
+    "ase_version": "3.26.0",
+    "MorsePotential": "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/calculators/morse.py",
+    "run_ssw": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/paper_reference.py",
+    "standalone_init": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/__init__.py",
+    "RecoveredRotationSettings": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/recovered_rotation.py",
+    "RecoveredDirectionSettings": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/recovered_direction.py",
+    "ConservativeNativeHeightPolicy": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/native_height_policy.py",
+    "NativeMCSettings": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/native_mc.py",
+    "lasp_external_ase": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/lasp_external_ase.py",
+    "panel_runner": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ssw-native-lj-panel-20261007/run_panel.py",
+    "panel_analysis": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ssw-native-lj-panel-20261007/analyze_panel.py",
+    "compact_surface_helper": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/lj55-direction-target-20261007/run.py",
+    "serializer": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/periodic-rotation-priority-20260923/ledger.py",
+    "run_ssw_callable": true,
+    "ASESurface_callable": true,
+    "MorsePotential_callable": true
+  },
+  "inputs": [
+    {
+      "seed": 25092501,
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/morse-compact-initials/m80-25092501/final.extxyz",
+      "sha256": "908a9c9c64994472e8119fe1b4efc9b8ce819ebc5c0e1654e0c04d28274c4741",
+      "atom_count": 80,
+      "components_1p3r0": [
+        80
+      ],
+      "pbc": [
+        false,
+        false,
+        false
+      ],
+      "span_A_diagnostic_only": [
+        12.25454362,
+        14.2884077,
+        14.060583829999999
+      ],
+      "domain_gate": {
+        "eligible": true,
+        "reason": "ok",
+        "span_A_diagnostic_only": [
+          12.25454362,
+          14.2884077,
+          14.060583829999999
+        ],
+        "rejects_by_span": false
+      },
+      "prior_random_qualification": {
+        "n": 80,
+        "seed": 25092501,
+        "scope": "random-ensemble qualification only",
+        "r0_A": 2.7,
+        "rho0": 14.0,
+        "radius_A": 9.129727353150995,
+        "ensemble": "fcc_volume_plus_shell",
+        "status": "force_converged",
+        "converged": true,
+        "energy": -271.52928536658067,
+        "fmax": 0.008289778664225242,
+        "components_by_cutoff_r0": {
+          "1.3": [
+            80
+          ],
+          "1.5": [
+            80
+          ],
+          "2.0": [
+            80
+          ]
+        },
+        "diameter_A": 15.417611935679709,
+        "fresh_requests": 1,
+        "search_requests": 1006,
+        "wall_seconds": 6.263246806047391
+      },
+      "prior_qualification_summary": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/morse-compact-initials/summary.json"
+    },
+    {
+      "seed": 25092502,
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/morse-compact-initials/m80-25092502/final.extxyz",
+      "sha256": "59add039f69f3344b2da4fc77c0f13356780ed95c3153bdea7582d5724057d4d",
+      "atom_count": 80,
+      "components_1p3r0": [
+        73,
+        6,
+        1
+      ],
+      "pbc": [
+        false,
+        false,
+        false
+      ],
+      "span_A_diagnostic_only": [
+        14.13758151,
+        14.24887292,
+        16.82227021
+      ],
+      "domain_gate": {
+        "eligible": true,
+        "reason": "ok",
+        "span_A_diagnostic_only": [
+          14.13758151,
+          14.24887292,
+          16.82227021
+        ],
+        "rejects_by_span": false
+      },
+      "prior_random_qualification": {
+        "n": 80,
+        "seed": 25092502,
+        "scope": "random-ensemble qualification only",
+        "r0_A": 2.7,
+        "rho0": 14.0,
+        "radius_A": 9.129727353150995,
+        "ensemble": "fcc_volume_plus_shell",
+        "status": "force_converged",
+        "converged": true,
+        "energy": -249.64881533198206,
+        "fmax": 0.008919435023568447,
+        "components_by_cutoff_r0": {
+          "1.3": [
+            73,
+            6,
+            1
+          ],
+          "1.5": [
+            73,
+            6,
+            1
+          ],
+          "2.0": [
+            80
+          ]
+        },
+        "diameter_A": 16.9903725193064,
+        "fresh_requests": 1,
+        "search_requests": 666,
+        "wall_seconds": 3.927664390008431
+      },
+      "prior_qualification_summary": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/morse-compact-initials/summary.json"
+    }
+  ],
+  "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/references/morse-80G-rho14.extxyz",
+  "reference_sha256": "6793506c451d86d757a8984dca3dbd486b00ff95b3d97827ea921f2270e08763",
+  "reference_atom_count": 80,
+  "panel_settings": {
+    "ssw": {
+      "width": 0.6,
+      "rotation_bias": 1.0,
+      "max_gaussians": 14,
+      "temperature_K": 464.20495549675246,
+      "fmax": 0.05,
+      "relax_steps": 1000,
+      "fd_step": 0.001,
+      "rotation_hvp": 39,
+      "rotation_tol": 0.02,
+      "forward_force": 0.1,
+      "direction_sampling": "global",
+      "rotation_solver": "broyden-euclidean",
+      "cluster_frame": "direction_only",
+      "quench_optimizer": "safe-lbfgs-total",
+      "lbfgs_memory": 500,
+      "bias_stage_steps": null,
+      "bias_fmax": 0.1,
+      "pre_rotation_hvp": null,
+      "rotation_exit_policy": "force_or_budget"
+    },
+    "rotation": {
+      "pre_rotmax": 5,
+      "rotmax": 15,
+      "pre_ftol": 0.2,
+      "ftol": 0.02,
+      "metric": "euclidean",
+      "max_force_calls": 40
+    },
+    "full_direction_per_atom": {
+      "ratio_local": 50,
+      "local_probability": 0.5,
+      "group_threshold": 0.5,
+      "pre_rotmax": 5,
+      "rotmax": 15,
+      "pre_ftol": 0.2,
+      "ftol": 0.02,
+      "metric": "euclidean",
+      "max_force_calls": 40,
+      "c1_radius_policy": "per_atom",
+      "startup_order": "legacy",
+      "geometry": "nonperiodic"
+    },
+    "height": {
+      "initial_weight": 0.5,
+      "negative_weight": 0.2,
+      "level": 1,
+      "max_weight": 10.0,
+      "growth_step": 1.0,
+      "growth_scale": 2.0
+    },
+    "mc": {
+      "energy_tol": 0.1,
+      "maxtrap": 99999
+    }
+  },
+  "checks": {
+    "run_ssw": true,
+    "reference_atom_count": 80,
+    "dummy_surface_contract": true,
+    "panel_settings_importable": true,
+    "real_pes_requests": 0,
+    "morse_calculator_constructed_or_evaluated": false
+  }
+}
