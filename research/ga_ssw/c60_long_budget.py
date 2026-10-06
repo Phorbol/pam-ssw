@@ -121,15 +121,30 @@ def calculator(plan):
 
 
 def settings(plan):
-    from pamssw.standalone import LSPrequenchSettings, NativeLSSettings
-    spec = plan.get('native_ls')
-    if spec is None:
+    from pamssw.standalone import LSPrequenchSettings, LSSettings, NativeLSSettings
+    native_spec = plan.get('native_ls')
+    paper_spec = plan.get('paper_ls')
+    if native_spec is not None and paper_spec is not None:
+        raise ValueError('native_ls and paper_ls are mutually exclusive')
+    if native_spec is None and paper_spec is None:
         return None
-    spec = dict(spec); spec.pop('parameter_source', None)
+
+    spec = dict(native_spec if native_spec is not None else paper_spec)
+    spec.pop('parameter_source', None)
     for key in ('bond_energies', 'bond_lengths'):
         spec[key] = {tuple(map(int, k.split(','))): v for k, v in spec[key].items()}
-    spec['prequench'] = LSPrequenchSettings(**spec['prequench'])
-    return NativeLSSettings(**spec)
+    if spec.get('prequench') is not None:
+        spec['prequench'] = LSPrequenchSettings(**spec['prequench'])
+    return NativeLSSettings(**spec) if native_spec is not None else LSSettings(**spec)
+
+
+def outer_steps(plan):
+    if 'outer_steps' not in plan:
+        return plan['search_cap']
+    value = plan['outer_steps']
+    if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+        raise ValueError('outer_steps must be a positive integer')
+    return value
 
 
 def run_segment(folder, seconds, *, max_attempts=None, interrupted=False):
@@ -143,6 +158,8 @@ def run_segment(folder, seconds, *, max_attempts=None, interrupted=False):
     if (plan.get('recovered_rotation') is not None and
             plan.get('recovered_direction') is not None):
         raise ValueError('recovered_rotation and recovered_direction are mutually exclusive')
+    ls_settings = settings(plan)
+    search_steps = outer_steps(plan)
     if sha(folder / plan['input']) != plan['input_sha256']:
         raise ValueError('input changed')
     for filename, expected in plan.get('frozen_files', {}).items():
@@ -215,7 +232,7 @@ def run_segment(folder, seconds, *, max_attempts=None, interrupted=False):
     try:
         kwargs = dict(config=SSWConfig(**plan['ssw_config']),
             rng=np.random.default_rng(plan['seed']), checkpoint=cp,
-            checkpoint_callback=boundary, ls=settings(plan))
+            checkpoint_callback=boundary, ls=ls_settings)
         if plan.get('native_mc') is not None:
             kwargs['mc'] = NativeMCSettings(plan['native_mc']['energy_tol_eV'],
                                             plan['native_mc']['maxtrap'])
@@ -224,7 +241,7 @@ def run_segment(folder, seconds, *, max_attempts=None, interrupted=False):
         if plan.get('recovered_direction') is not None:
             kwargs['recovered_direction'] = RecoveredDirectionSettings(**plan['recovered_direction'])
         result = run_ssw(read(folder / plan['input']), surface,
-            steps=plan['search_cap'], **kwargs)  # cap cannot restrict before request budget
+            steps=search_steps, **kwargs)  # request budget remains an independent hard cap
         if result.status == 'paused':
             status = 'paused' if budget.state['search'] < plan['search_cap'] else 'search_exhausted'
         else:

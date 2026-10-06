@@ -164,6 +164,95 @@ def test_segment_without_recovery_option_keeps_default_kwargs(tmp_path, monkeypa
     assert 'recovered_rotation' not in received
 
 
+def test_settings_preserve_plain_and_native_plans_and_parse_paper_ls():
+    from pamssw.standalone import LSSettings, NativeLSSettings
+
+    assert r.settings({}) is None
+    native = r.settings({'native_ls': {
+        'bond_energies': {'29,29': 1.}, 'bond_lengths': {'29,29': 3.},
+        'target_mev_per_atom': 1., 'prequench': {'fmax': .1, 'steps': 50,
+            'exit_policy': 'force_or_step_limit'}}})
+    assert isinstance(native, NativeLSSettings)
+    assert native.bond_energies == {(29, 29): 1.}
+    assert native.prequench.steps == 50
+
+    paper = r.settings({'paper_ls': {
+        'bond_energies': {'6,6': 3.61}, 'bond_lengths': {'6,6': 1.64},
+        'target_per_atom': .02, 'initial_fraction': .03, 'xi': .2,
+        'learning_rate': 1.8, 'energy_filter': None,
+        'prequench': {'fmax': .1, 'steps': 75}}})
+    assert isinstance(paper, LSSettings)
+    assert paper.bond_energies == {(6, 6): 3.61}
+    assert paper.bond_lengths == {(6, 6): 1.64}
+    assert (paper.target_per_atom, paper.initial_fraction, paper.xi, paper.learning_rate) == (.02, .03, .2, 1.8)
+    assert paper.prequench.steps == 75
+
+
+@pytest.mark.parametrize('invalid', [None, 0, -1, True, 1.5, '3'])
+def test_invalid_outer_steps_rejected_before_budget_or_calculator(tmp_path, monkeypatch, invalid):
+    folder = tmp_path / 'arm'; plan = prepare_without_emt(folder, monkeypatch)
+    plan.pop('recovered_rotation')
+    plan['outer_steps'] = invalid
+    r.atomic_json(folder / 'plan.json', plan)
+    calculator_calls = []
+    monkeypatch.setattr(r, 'calculator', lambda _: calculator_calls.append(True))
+
+    with pytest.raises(ValueError, match='outer_steps'):
+        r.run_segment(folder, 600, max_attempts=1)
+
+    assert calculator_calls == []
+    assert not (folder / 'budget.json').exists()
+
+
+def test_native_and_paper_ls_conflict_rejected_before_budget_or_calculator(tmp_path, monkeypatch):
+    folder = tmp_path / 'arm'; plan = prepare_without_emt(folder, monkeypatch)
+    plan['native_ls'] = {'bond_energies': {'29,29': 1.}, 'bond_lengths': {'29,29': 3.},
+        'target_mev_per_atom': 1., 'prequench': None}
+    plan['paper_ls'] = {
+        'bond_energies': {'6,6': 3.61}, 'bond_lengths': {'6,6': 1.64},
+        'target_per_atom': .02}
+    r.atomic_json(folder / 'plan.json', plan)
+    calculator_calls = []
+    monkeypatch.setattr(r, 'calculator', lambda _: calculator_calls.append(True))
+
+    with pytest.raises(ValueError, match='native_ls and paper_ls'):
+        r.run_segment(folder, 600, max_attempts=1)
+
+    assert calculator_calls == []
+    assert not (folder / 'budget.json').exists()
+
+
+@pytest.mark.parametrize('outer,expected_steps', [(3, 3), (None, 10000)])
+def test_paper_ls_and_outer_steps_forward_without_pes(tmp_path, monkeypatch, outer, expected_steps):
+    from types import SimpleNamespace
+    from pamssw import standalone
+    from pamssw.standalone import LSSettings
+
+    folder = tmp_path / 'arm'; plan = prepare_without_emt(folder, monkeypatch)
+    plan.pop('recovered_rotation')
+    plan['paper_ls'] = {
+        'bond_energies': {'6,6': 3.61}, 'bond_lengths': {'6,6': 1.64},
+        'target_per_atom': .02, 'initial_fraction': .03, 'xi': .2,
+        'learning_rate': 1.8, 'prequench': None}
+    if outer is not None:
+        plan['outer_steps'] = outer
+    r.atomic_json(folder / 'plan.json', plan)
+    class Calculator:
+        def calculate(self, *args, **kwargs):
+            raise AssertionError('stubbed run must not evaluate the calculator')
+    monkeypatch.setattr(r, 'calculator', lambda _: Calculator())
+    received = {}
+    monkeypatch.setattr(standalone, 'run_ssw',
+        lambda *args, **kwargs: received.update(kwargs) or SimpleNamespace(status='completed', checkpoint=None))
+
+    state = r.run_segment(folder, 600, max_attempts=1)
+
+    assert isinstance(received['ls'], LSSettings)
+    assert received['steps'] == expected_steps
+    assert state['status'] == 'completed'
+    assert state['search'] == 0
+
+
 def test_interrupted_paid_request_survives_checkpoint_rollback(tmp_path):
     folder = tmp_path / 'arm'; plan = prepare(folder)
     r.run_segment(folder, 600, max_attempts=1)
