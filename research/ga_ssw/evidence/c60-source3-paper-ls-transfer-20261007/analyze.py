@@ -60,7 +60,9 @@ def analyze(prepared, out):
         row.update(status=budget["status"], search_requests=budget["search"],
             fresh_requests=budget["fresh"], failed_pes_requests=sum("error" in r for r in raw),
             raw_requests=len(raw), uncertain_reservations=uncertain,
-            actual_search_calculate=sum(s.get("calculate_calls", 0) for s in budget["segments"]),
+            actual_search_calculate=(sum(s["calculate_calls"] for s in budget["segments"])
+                if all("calculate_calls" in s for s in budget["segments"]) else None),
+            actual_search_calculate_known_lower_bound=sum(s.get("calculate_calls", 0) for s in budget["segments"]),
             actual_fresh_calculate="not_instrumented_by_existing_runner",
             elapsed_seconds=sum(s.get("elapsed_seconds", 0) for s in budget["segments"]),
             fresh_checks=budget["fresh_checks"])
@@ -99,6 +101,10 @@ def analyze(prepared, out):
                     requests=step.evaluation_requests, error=step.error))
             if preparation is not None:
                 prequench_cost += preparation["evaluation_requests"]
+                if step.status == "mc_failed":
+                    ls_events.append(dict(outer_index=step.index, requests=preparation["evaluation_requests"],
+                        true_response_eV_atom=step.energy_response,
+                        update_status="skipped_mc_failed", error=step.error))
             if preparation is not None and step.status != "mc_failed":
                 event = dict(outer_index=step.index, requests=preparation["evaluation_requests"],
                     qualification=preparation["qualification"],
@@ -181,7 +187,8 @@ def analyze(prepared, out):
     comparisons = []
     for seed in sorted({r["seed"] for r in rows}):
         arms = [r for r in rows if r["seed"] == seed]
-        common_cost = min(r["search_requests"] for r in arms)
+        charged_cost = min(r["search_requests"] for r in arms)
+        common_cost = min(r.get("lineage_requests", 0) for r in arms)
         for prefix in PREFIXES:
             horizon = min(prefix, common_cost)
             paired = {}
@@ -195,6 +202,7 @@ def analyze(prepared, out):
                     first_ih_energy_force_cost=hits[0]["search_cost"] if hits else None,
                     cold_target_candidate=any(v["cold_qualified"] for v in hits))
             comparisons.append(dict(seed=seed, requested_prefix=prefix, common_horizon=horizon,
+                charged_common_horizon=min(prefix, charged_cost),
                 both_horizon_reached=common_cost >= prefix, arms=paired))
     if sum(r["search_requests"] for r in rows) > 80000 or sum(r["fresh_requests"] for r in rows) > 12:
         raise ValueError("aggregate protocol budget exceeded")
