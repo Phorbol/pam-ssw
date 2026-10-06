@@ -58,8 +58,6 @@ def atomic_climb(atoms,surface,*,reference_energy,config,rng,max_completed_gauss
         raise NotImplementedError('broyden-euclidean is supported by run_ssw, not atomic_climb')
     if config.pre_rotation_hvp is not None:
         raise NotImplementedError('staged rotation is supported by run_ssw, not atomic_climb')
-    if config.rotation_exit_policy != 'force':
-        raise NotImplementedError('rotation_exit_policy is supported by run_ssw, not atomic_climb')
     if gaussian_policy is not None:
         from .pam_gaussian import PAMCurvatureGaussian
         if not isinstance(gaussian_policy, PAMCurvatureGaussian): raise TypeError('gaussian_policy must be PAMCurvatureGaussian')
@@ -88,8 +86,6 @@ def resume_atomic_climb(checkpoint,surface,config=None,*,max_completed_gaussians
         raise NotImplementedError('broyden-euclidean is supported by run_ssw, not atomic_climb')
     if config.pre_rotation_hvp is not None:
         raise NotImplementedError('staged rotation is supported by run_ssw, not atomic_climb')
-    if config.rotation_exit_policy != 'force':
-        raise NotImplementedError('rotation_exit_policy is supported by run_ssw, not atomic_climb')
     if max_completed_gaussians is not None and (isinstance(max_completed_gaussians,bool) or not isinstance(max_completed_gaussians,int) or max_completed_gaussians<1):
         raise ValueError('max_completed_gaussians must be a positive integer')
     if checkpoint.next_index != len(checkpoint.climb) or not 0<=checkpoint.next_index<=config.max_gaussians:
@@ -130,11 +126,22 @@ def resume_atomic_climb(checkpoint,surface,config=None,*,max_completed_gaussians
             rotation_anchor/=norm
             mode=solver(work,rotation_anchor,rotation_bias=config.rotation_bias,fd_step=config.fd_step,
                         max_hvp=config.rotation_hvp,tol=config.rotation_tol,evaluate=rotation_surface)
-            if not mode.converged:
+            rotation_stop = getattr(mode, 'stop_reason', 'unspecified')
+            rotation_budget_released = (not mode.converged and
+                config.rotation_exit_policy == 'force_or_budget' and
+                rotation_stop == 'budget_exhausted')
+            if rotation_budget_released:
+                direction = np.asarray(mode.direction)
+                if (direction.shape != work.positions.shape or
+                        not np.isfinite(direction).all() or np.linalg.norm(direction) == 0 or
+                        not np.isfinite(mode.curvature) or
+                        not np.isfinite(mode.residual_norm) or mode.residual_norm < 0):
+                    raise ValueError('budget rotation returned invalid evaluated direction or certificate')
+            if not mode.converged and not rotation_budget_released:
                 status='rotation_failed'
                 events.append(dict(index=index,rotation_solver=config.rotation_solver,
                     residual=mode.residual_norm,force_requests=mode.force_calls,
-                    rotation_stop_reason=getattr(mode, 'stop_reason', 'unspecified'),
+                    rotation_stop_reason=rotation_stop,
                     rotation_converged=False,rotation_budget_released=False))
                 break
             center=work.positions.copy()
@@ -163,9 +170,9 @@ def resume_atomic_climb(checkpoint,surface,config=None,*,max_completed_gaussians
             relaxed=quench(displaced,surface,fmax=bias_fmax,steps=stage_steps,terms=terms,
                            optimizer=config.quench_optimizer,lbfgs_memory=config.lbfgs_memory)
             event=dict(index=index,rotation_solver=config.rotation_solver,cluster_frame=config.cluster_frame,center=center.tolist(),direction=mode.direction.tolist(),weight=weight,width=width,biased_energy=relaxed.energy,force_certificate=relaxed.surface,max_force=relaxed.max_force,rotation_residual=mode.residual_norm,rotation_force_requests=mode.force_calls,quench_requests=relaxed.evaluation_requests)
-            event.update(rotation_stop_reason=getattr(mode, 'stop_reason', 'unspecified'),
+            event.update(rotation_stop_reason=rotation_stop,
                          rotation_converged=bool(mode.converged),
-                         rotation_budget_released=False,
+                         rotation_budget_released=bool(rotation_budget_released),
                          actual_anchor=rotation_anchor.tolist(),
                          actual_rotation_bias=float(config.rotation_bias))
             if policy_data is not None: event['gaussian_policy']=policy_data

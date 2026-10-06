@@ -104,13 +104,26 @@ def test_old_config_instance_uses_default_exit_policy():
     assert cfg == config()
 
 
-def test_other_climb_entrypoint_cannot_silently_ignore_policy():
-    from pamssw.standalone.atomic_climb import atomic_climb
-    surface=Flat()
+def test_atomic_climb_does_not_silently_ignore_budget_exit_policy(monkeypatch):
+    import importlib
+    climb = importlib.import_module('pamssw.standalone.atomic_climb')
+    surface=Flat(); quench_calls=[]
+    def direction(atoms, anchor, **kwargs):
+        return SimpleNamespace(direction=anchor.copy(),curvature=-1.,residual_norm=.4,
+            force_calls=3,hvp_calls=2,converged=False,
+            projected_symmetry_error=0.,stop_reason='budget_exhausted')
+    def quench(atoms, surface, **kwargs):
+        quench_calls.append(bool(kwargs.get('terms')))
+        return QuenchResult(atoms.copy(),0.,0.,True,0,0,'stub')
+    monkeypatch.setattr(climb,'paper_dimer_direction',direction)
+    monkeypatch.setattr(climb,'quench',quench)
     cfg=replace(config(rotation_exit_policy='force_or_budget'),
         cluster_frame='translation_only',quench_optimizer='safe-lbfgs-total')
     atoms=Atoms('H2',positions=[[0,0,0],[1,0,0]],cell=[5,5,5],pbc=True)
-    with pytest.raises(NotImplementedError,match='rotation_exit_policy'):
-        atomic_climb(atoms,surface,reference_energy=0.,config=cfg,
-                     rng=np.random.default_rng(0))
-    assert surface.requests == 0
+    result=climb.atomic_climb(atoms,surface,reference_energy=-10.,config=cfg,
+                              rng=np.random.default_rng(0))
+    assert quench_calls == [True]
+    event=result.climb[0]
+    assert event['rotation_budget_released'] is True
+    assert event['rotation_converged'] is False
+    assert event['rotation_stop_reason'] == 'budget_exhausted'
