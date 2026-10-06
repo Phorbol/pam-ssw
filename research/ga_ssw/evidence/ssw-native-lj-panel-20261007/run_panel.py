@@ -345,6 +345,9 @@ def make_arc(atoms):
 def execute(args):
     from ase.io import read, write
     from research.ga_ssw.full_pair_lj import FullPairLJ
+    # The supervisor changes cwd; retain absolute child script/status paths.
+    args.output = args.output.resolve()
+    args.input = args.input.resolve()
     if args.output.exists():
         raise FileExistsError(f"output must be new: {args.output}")
     if not (0 < args.cap <= 4000 and 0 < args.wall <= 600 and 0 < args.steps <= 6):
