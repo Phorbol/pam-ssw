@@ -1,0 +1,67 @@
+{
+  "status": "preflight_passed",
+  "real_ef_requests": 0,
+  "model_constructor": "(model_paths: Union[list, str, NoneType] = None, models: Union[List[torch.nn.modules.module.Module], torch.nn.modules.module.Module, NoneType] = None, device: str = 'cpu', energy_units_to_eV: float = 1.0, length_units_to_A: float = 1.0, default_dtype='', charges_key='Qs', info_keys=None, arrays_keys=None, model_type='MACE', compile_mode=None, fullgraph=True, enable_cueq=False, enable_oeq=False, pad_num_atoms: int = 0, pad_num_edges: int = 0, warmup: bool = False, **kwargs)",
+  "calculate_method": "(self, atoms=None, properties=None, system_changes=['positions', 'numbers', 'cell', 'pbc', 'initial_charges', 'initial_magmoms'])",
+  "runtime_dtype": {
+    "requested": "float64",
+    "torch_float64": "torch.float64",
+    "mace_argument": "default_dtype"
+  },
+  "surface_api": "(calculator, *, force_consistent=False)",
+  "cell_quench_api": "(atoms, surface, *, strain_length, pressure, fmax, stress_tol, max_step, maxiter, lbfgs_memory=None)",
+  "dummy_cache_case": {
+    "requests": 2,
+    "calculator_calls": 1,
+    "denials": 1
+  },
+  "dummy_failure_case": {
+    "requests": 1,
+    "calculator_calls": 1,
+    "failures": 1
+  },
+  "dummy_quench": {
+    "converged": true,
+    "requests": 2
+  },
+  "provenance": {
+    "head": "6a2a93999465c5daaecc2d0da4b0b798391454b2",
+    "head_pamssw_tree": "c572a1cc0766f8d3ff534a467ad64613aaa78ce0",
+    "python": "/home/gengjianrui/.conda/envs/mace_env/bin/python",
+    "python_version": "3.12.11",
+    "imports": {
+      "ase": "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/__init__.py",
+      "mace": "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/mace/__init__.py",
+      "torch": "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/torch/__init__.py",
+      "pamssw.standalone.vc_geometry": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/vc_geometry.py",
+      "pamssw.standalone.cell_relax": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/cell_relax.py"
+    },
+    "model": "/home/gengjianrui/.cache/mace/mace-omat-0-small.model",
+    "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+    "source_hashes": {
+      "plan.json": "007fcfcc903efe956c4a9291b50f4917c83bc65dec74421616155b52117de9d1",
+      "runner.py": "edf329d691ed98e53c497e1534a89e7389f0f6460d8d9b414d72a2963799804f",
+      "pamssw/standalone/__init__.py": "8ba7e9e0d02744c8c48ee1103f48474908202d52cbd9c6c582294a03366d1249",
+      "pamssw/standalone/vc_geometry.py": "bc7108c31805b51e3cdac13ec7d13ac00cfdb25f305642769e89a8572d1396c6",
+      "pamssw/standalone/cell_relax.py": "5bcf07dc5fe93df5a7738a28f03aa2c4947d0a35019054a46382fdeb8c42a24e",
+      "pamssw/standalone/generalized_numerics.py": "25d5bb8ddf5c71296def1d1b60b87f9c6abce83fdc0ebe9f8809588852dfe740"
+    },
+    "inputs": {
+      "phase87_is": {
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/literature/benchmark-sources/coordinates/is-phase-87-of-pathway-between-phase-87-to-anatase.extxyz",
+        "sha256": "d2159b501b270d14769d0d405053303b001f5ec0786ffd7444cbf95dcdb56d9f",
+        "atoms": 12
+      },
+      "anatase_fs": {
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/literature/benchmark-sources/coordinates/fs-anatase-of-pathway-between-phase-87-to-anatase.extxyz",
+        "sha256": "e1726c173dde3e0007e094f85ab006ae46e14048311867b816ada1faafe331a7",
+        "atoms": 12
+      },
+      "rutile": {
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/literature/benchmark-sources/coordinates/rutile.extxyz",
+        "sha256": "8a23e687de1d91e5ed44687be1003c1851990264a1837ce46e9a0c8bed49840b",
+        "atoms": 12
+      }
+    }
+  }
+}
