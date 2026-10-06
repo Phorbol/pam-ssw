@@ -1,0 +1,273 @@
+{
+  "status": "preflight_ok",
+  "pes_requests": 0,
+  "protocol": {
+    "potential": {
+      "class": "FullPairLJ",
+      "epsilon_eV": 1.0,
+      "sigma_A": 2.7,
+      "cutoff_A": null,
+      "periodic": false
+    },
+    "ssw": {
+      "width": 0.6,
+      "rotation_bias": 1.0,
+      "max_gaussians": 14,
+      "temperature_K": 464.20495549675246,
+      "fmax": 0.05,
+      "relax_steps": 1000,
+      "fd_step": 0.001,
+      "rotation_hvp": 39,
+      "rotation_tol": 0.02,
+      "forward_force": 0.1,
+      "direction_sampling": "global",
+      "rotation_solver": "broyden-euclidean",
+      "cluster_frame": "direction_only",
+      "quench_optimizer": "safe-lbfgs-total",
+      "lbfgs_memory": 500,
+      "bias_stage_steps": null,
+      "bias_fmax": 0.1,
+      "pre_rotation_hvp": null,
+      "rotation_exit_policy": "force_or_budget"
+    },
+    "rotation": {
+      "pre_rotmax": 5,
+      "rotmax": 15,
+      "pre_ftol": 0.2,
+      "ftol": 0.02,
+      "metric": "euclidean",
+      "max_force_calls": 40
+    },
+    "full_direction_per_atom": {
+      "ratio_local": 50,
+      "local_probability": 0.5,
+      "group_threshold": 0.5,
+      "pre_rotmax": 5,
+      "rotmax": 15,
+      "pre_ftol": 0.2,
+      "ftol": 0.02,
+      "metric": "euclidean",
+      "max_force_calls": 40,
+      "c1_radius_policy": "per_atom",
+      "startup_order": "legacy",
+      "geometry": "nonperiodic"
+    },
+    "height": {
+      "initial_weight": 0.5,
+      "negative_weight": 0.2,
+      "level": 1,
+      "max_weight": 10.0,
+      "growth_step": 1.0,
+      "growth_scale": 2.0
+    },
+    "mc": {
+      "energy_tol": 0.1,
+      "maxtrap": 99999
+    },
+    "equivalent_temperature_K": 464.20495549675246,
+    "fmax_search_eV_A": 0.05,
+    "target_energy_eV": -279.24847,
+    "target_energy_tolerance_eV": 0.001,
+    "target_geometry": {
+      "method": "existing analyze_panel.compare_geometry",
+      "adjacency_cutoff_sigma": 1.3,
+      "proper_rotation_rms_A": 0.081,
+      "mapping_cap": 1000
+    },
+    "budgets": {
+      "search_surface_requests_including_initial_quench": 160000,
+      "completed_outer_steps": 300,
+      "wall_seconds": 600.0,
+      "prepare_true_quench_requests": 1000,
+      "fresh_requests_per_seed_preparation": 1,
+      "fresh_reference_requests_total": 1,
+      "fresh_requests_per_arm": 2
+    },
+    "initialization": "uniform volume ball, bulk-density radius, no rejection/retry"
+  },
+  "checks": {
+    "target_points": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/references/lj55.points",
+    "target_shape": [
+      55,
+      3
+    ],
+    "target_geometry_gate": {
+      "eligible": true,
+      "reason": "ok",
+      "min_A": [
+        45.07370721698491,
+        44.955448152539816,
+        44.52325759977473
+      ],
+      "max_A": [
+        54.92626263968491,
+        55.04453920580982,
+        55.47673185054473
+      ],
+      "axis_span_A": [
+        9.8525554227,
+        10.089091053270003,
+        10.95347425077
+      ],
+      "storage_cell_A": 100.0,
+      "max_span_A": 50.0
+    },
+    "target_atom_count": 55,
+    "run_ssw": true,
+    "ASESurface": true,
+    "save_ssw_checkpoint": true,
+    "FullPairLJ": true,
+    "slots": [
+      {
+        "slot": 0,
+        "seed": 26100721,
+        "arm": "rotation"
+      },
+      {
+        "slot": 1,
+        "seed": 26100721,
+        "arm": "full_per_atom"
+      },
+      {
+        "slot": 2,
+        "seed": 26100722,
+        "arm": "rotation"
+      },
+      {
+        "slot": 3,
+        "seed": 26100722,
+        "arm": "full_per_atom"
+      }
+    ],
+    "compact_surface_contract": true
+  },
+  "generated_inputs": [
+    {
+      "seed": 26100721,
+      "natoms": 55,
+      "pbc": [
+        false,
+        false,
+        false
+      ],
+      "cell_A": [
+        [
+          100.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          100.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          100.0
+        ]
+      ],
+      "geometry_gate": {
+        "eligible": true,
+        "reason": "ok",
+        "min_A": [
+          44.8477823150129,
+          44.30723141485403,
+          43.729092026664084
+        ],
+        "max_A": [
+          56.23095880848065,
+          55.59908761876678,
+          55.438255892148575
+        ],
+        "axis_span_A": [
+          11.38317649346775,
+          11.29185620391275,
+          11.709163865484491
+        ],
+        "storage_cell_A": 100.0,
+        "max_span_A": 50.0
+      },
+      "raw_positions_sha256": "50d46f9399adfe08da69e76da9ec92ae1c4d7249f609661c8ff11253a6f5a53b",
+      "search_rng_child_state": [
+        2908461533,
+        1889426616,
+        3926506655,
+        1968976729
+      ]
+    },
+    {
+      "seed": 26100722,
+      "natoms": 55,
+      "pbc": [
+        false,
+        false,
+        false
+      ],
+      "cell_A": [
+        [
+          100.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          100.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          100.0
+        ]
+      ],
+      "geometry_gate": {
+        "eligible": true,
+        "reason": "ok",
+        "min_A": [
+          44.21759158661322,
+          44.94659471149595,
+          44.82960504361769
+        ],
+        "max_A": [
+          55.01804688007867,
+          55.66811485878927,
+          56.46485879131695
+        ],
+        "axis_span_A": [
+          10.800455293465454,
+          10.721520147293319,
+          11.63525374769926
+        ],
+        "storage_cell_A": 100.0,
+        "max_span_A": 50.0
+      },
+      "raw_positions_sha256": "11c77cb8f874c9c286d1290b8b3dc9d9567766ffe0490145d14b4e8b45f4221f",
+      "search_rng_child_state": [
+        414925572,
+        819278914,
+        3723692296,
+        3273334869
+      ]
+    }
+  ],
+  "imports": {
+    "checkout": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification",
+    "git_head": "3e42e9779a5bb6e2328a03f5b02c9e1b11682339",
+    "head_pamssw_tree": "c572a1cc0766f8d3ff534a467ad64613aaa78ce0",
+    "python": "/home/gengjianrui/.conda/envs/mace_env/bin/python",
+    "FullPairLJ": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/full_pair_lj.py",
+    "FullPairLJ_class": "research.ga_ssw.full_pair_lj.FullPairLJ",
+    "run_ssw": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/paper_reference.py",
+    "RecoveredRotationSettings": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/recovered_rotation.py",
+    "RecoveredDirectionSettings": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/recovered_direction.py",
+    "ConservativeNativeHeightPolicy": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/native_height_policy.py",
+    "NativeMCSettings": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/native_mc.py",
+    "panel_runner": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ssw-native-lj-panel-20261007/run_panel.py",
+    "panel_runner_sha256": "88b67dc3526ac8c9554916e7c4537214eb506853a29e98a8d9f6afc1ce1ade45",
+    "panel_analysis": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ssw-native-lj-panel-20261007/analyze_panel.py",
+    "panel_analysis_sha256": "8eef42cfc82846b624b151b94f855c6b7c5a86069028d34e78590f5bee834b36",
+    "cambridge_reference": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/references/lj55.points",
+    "cambridge_reference_sha256": "43f5c2568c7de4fc03273427d4c2772a9104e727f22a7dfb60c87d2d333be7fa"
+  }
+}
