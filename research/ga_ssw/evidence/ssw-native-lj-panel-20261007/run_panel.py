@@ -7,7 +7,7 @@ script does not alter PAM-SSW and keeps all run products under a new directory.
 from __future__ import annotations
 
 import argparse
-from dataclasses import asdict
+from dataclasses import asdict, replace
 import hashlib
 import importlib.util
 import json
@@ -422,12 +422,13 @@ def execute(args):
         "binary_sha256": sha256(NATIVE_BINARY) if NATIVE_BINARY.is_file() else None,
         "runner_sha256": runner_hash,
         "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+    common["settings"]["recovered_direction"]["c1_radius_policy"] = args.c1_radius_policy
     json_write(args.output / "provenance.json", common)
     try:
         if arm == "native":
             execute_native(args.output, atoms, args.n, steps, cap, wall)
         else:
-            execute_python(args.output, atoms, args.n, nseed, arm, steps, cap, wall)
+            execute_python(args.output, atoms, args.n, nseed, arm, steps, cap, wall, args.c1_radius_policy)
     except Exception as exc:
         json_write(args.output / "failure.json", {"error": repr(exc),
             "traceback": traceback.format_exc(), "arm": arm,
@@ -435,7 +436,7 @@ def execute(args):
         raise
 
 
-def execute_python(out, atoms, n, seed, arm, steps, cap, wall):
+def execute_python(out, atoms, n, seed, arm, steps, cap, wall, c1_radius_policy="restricted"):
     from ase.io import write
     from research.ga_ssw.full_pair_lj import FullPairLJ
     from pamssw.standalone import (run_ssw, RecoveredRotationSettings,
@@ -443,6 +444,7 @@ def execute_python(out, atoms, n, seed, arm, steps, cap, wall):
     from pamssw.standalone.recovered_direction import RecoveredDirectionSettings
     from pamssw.standalone.paper_reference import save_ssw_checkpoint
     config, rotation, direction, height, mc, _temp = settings()
+    direction = replace(direction, c1_radius_policy=c1_radius_policy)
     surface = CountedSurface(FullPairLJ(epsilon=EPSILON, sigma=SIGMA),
                              out / "ef-ledger.jsonl", cap=cap,
                              deadline=time.monotonic() + wall)
@@ -613,6 +615,7 @@ def parse_args():
     p.add_argument("--initialization", choices=("dilute", "bulk-density"), default="dilute")
     p.add_argument("--output", type=Path)
     p.add_argument("--arm", choices=("rotation", "full", "native"))
+    p.add_argument("--c1-radius-policy", choices=("restricted", "per_atom"), default="restricted")
     p.add_argument("--n", type=int, choices=(38, 55))
     p.add_argument("--input", type=Path)
     p.add_argument("--cap", type=int, default=4000)

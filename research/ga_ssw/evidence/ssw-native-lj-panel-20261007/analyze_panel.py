@@ -480,7 +480,7 @@ def md_report(payload):
             qual = f"{costs.get('qualified_matched_landing_events', 0)} ({costs.get('intact_force_qualified_landings', 0)})"
             evs = r.get("events", [])
             evidence = Counter(e.get("geometry_to_initial", {}).get("classification", "unavailable")
-                               for e in evs if e.get("matched_request"))
+                               for e in evs if e.get("matched_request") and e.get("event_role") == "landing")
             if evs:
                 evidence["parsed_unmatched_event_records"] = costs.get("unmatched_events", 0)
             best = min((e["energy_eV"] for e in evs if e.get("intact_force_qualified_landing")), default=None)
@@ -488,7 +488,7 @@ def md_report(payload):
             stages += (f"; native_rc:{(r.get('native_result') or {}).get('native_returncode')}; "
                        f"event_match:{len(evs) - costs.get('unmatched_events', 0)}/{len(evs)}")
             con = Counter(str(e.get("connectivity", {}).get("single_cluster", "NA"))
-                          for e in evs if e.get("matched_request"))
+                          for e in evs if e.get("matched_request") and e.get("event_role") == "landing")
             input_con = r.get("input", {}).get("connectivity", {}).get("component_sizes_desc", "NA")
         elif r.get("kind") == "python":
             result_total = costs.get("result_total_requests")
