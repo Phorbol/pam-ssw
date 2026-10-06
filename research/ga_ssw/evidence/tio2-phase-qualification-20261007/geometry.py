@@ -75,6 +75,21 @@ def main():
                   qualified_run=None)
     if args.qualified:
         qualification = json.loads((args.qualified / 'qualification.json').read_text())
+        cost_checks = {}
+        for row in qualification['rows']:
+            case_dir = args.qualified / row['case']
+            costs = {}
+            for kind, filename in [('search', 'requests.jsonl'), ('fresh', 'fresh-requests.jsonl')]:
+                ledger = case_dir / filename
+                entries = [json.loads(line) for line in ledger.open()] if ledger.exists() else []
+                costs[kind] = dict(requests=sum(x['event'] in ('evaluation', 'failure') for x in entries),
+                                   calculator_calls=sum(x.get('calculator_calls', 0) for x in entries),
+                                   failures=sum(x['event'] == 'failure' for x in entries),
+                                   denials=sum(x['event'] == 'denial' for x in entries))
+                for field in ('requests', 'calculator_calls', 'failures', 'denials'):
+                    if costs[kind][field] != row[f'{kind}_{field}']:
+                        raise AssertionError(f'raw ledger mismatch: {row["case"]}/{kind}/{field}')
+            cost_checks[row['case']] = costs
         endpoints = {}
         for case in plan['cases']:
             path = args.qualified / case['id'] / 'endpoint.extxyz'
@@ -92,7 +107,8 @@ def main():
         pairwise = {name: {a: {b: matcher(x, y) for b, y in available.items()}
                               for a, x in available.items()} for name, matcher in matchers.items()}
         result['qualified_run'] = dict(path=str(args.qualified), qualification=qualification,
-                                      endpoints=endpoints, endpoint_pairwise=pairwise)
+                                      endpoints=endpoints, endpoint_pairwise=pairwise,
+                                      raw_cost_checks=cost_checks)
     (args.out / 'geometry.json').write_text(json.dumps(result, indent=2, allow_nan=False) + '\n')
     print(json.dumps(dict(calibration_passed=result['calibration_passed'], calibration=checks,
                           output=str(args.out)), indent=2))
