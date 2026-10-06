@@ -1,8 +1,37 @@
 """Audit four bounded TiO2 VC arms; no calculator calls or geometric retuning."""
 import argparse
+import hashlib
 import json
+import sys
 from collections import Counter
 from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[3]))
+
+
+def initial_geometry_matches(path, minima):
+    """Offline geometric comparison only; does not certify a new basin."""
+    from ase.io import read
+    from pamssw.standalone.periodic_ga_reference import pymatgen_identity
+    initial_path = path / 'initial-endpoint.extxyz'
+    if not initial_path.exists():
+        return []
+    initial = read(initial_path)
+    plan = json.loads((path / 'effective-plan.json').read_text())
+    matchers = {key: pymatgen_identity(**values)
+                for key, values in plan['identity_tolerances'].items()}
+    rows = []
+    for row in minima:
+        atoms = read(path / row['structure_path'])
+        matches = {}
+        for key, matcher in matchers.items():
+            try:
+                matches[key] = bool(matcher(initial, atoms))
+            except Exception as error:
+                matches[key] = dict(error=repr(error))
+        rows.append(dict(minimum_index=row['minimum_index'], initial_matches=matches))
+    return rows
 
 
 def ledger_cost(path):
@@ -53,6 +82,7 @@ def read_arm(path, slot):
     best = min(qualified, key=lambda r: r['energy_per_atom_eV'], default=None)
     return dict(slot=slot, path=str(path), result_present=True, raw_costs=costs,
                 result=result, provenance=provenance, qualified_observations=qualified,
+                initial_geometry_matches=initial_geometry_matches(path, minima),
                 best_qualified_observation=best,
                 outer_statuses=dict(Counter(r['status'] for r in outer)),
                 accepted_count=sum(bool(r.get('accepted')) for r in outer),
@@ -81,6 +111,8 @@ def main():
     confirmed = [a['slot'] for a in arms if ref_passed and
                  a.get('result', {}).get('first_target_cold_confirmed')]
     summary = dict(scope='same-model paper-geometry target; existing whole VC pipelines; no DFT/rate or isolated-component claim',
+                   analysis_source=str(Path(__file__).resolve()),
+                   analysis_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                    planned_arms=4, missing_slots=[a['slot'] for a in arms if not a['result_present']],
                    raw_costs=totals, reused_qualification_requests=31,
                    reference_cold_qualified=ref_passed, confirmed_slots=confirmed,
