@@ -1,0 +1,163 @@
+{
+  "status": "preflight_ok",
+  "pes_requests": 0,
+  "protocol": {
+    "potential": {
+      "class": "FullPairLJ",
+      "epsilon_eV": 1.0,
+      "sigma_A": 2.7,
+      "cutoff_A": null,
+      "periodic": false
+    },
+    "ssw_config": {
+      "width": 0.6,
+      "rotation_bias": 1.0,
+      "max_gaussians": 14,
+      "temperature_K": 464.20495549675246,
+      "fmax": 0.05,
+      "relax_steps": 1000,
+      "fd_step": 0.001,
+      "rotation_hvp": 39,
+      "rotation_tol": 0.02,
+      "forward_force": 0.1,
+      "direction_sampling": "global",
+      "rotation_solver": "broyden-euclidean",
+      "cluster_frame": "direction_only",
+      "quench_optimizer": "safe-lbfgs-total",
+      "lbfgs_memory": 500,
+      "bias_stage_steps": null,
+      "bias_fmax": 0.1,
+      "pre_rotation_hvp": null,
+      "rotation_exit_policy": "force_or_budget"
+    },
+    "recovered_rotation": {
+      "pre_rotmax": 5,
+      "rotmax": 15,
+      "pre_ftol": 0.2,
+      "ftol": 0.02,
+      "metric": "euclidean",
+      "max_force_calls": 40
+    },
+    "recovered_direction": {
+      "ratio_local": 50,
+      "local_probability": 0.5,
+      "group_threshold": 0.5,
+      "pre_rotmax": 5,
+      "rotmax": 15,
+      "pre_ftol": 0.2,
+      "ftol": 0.02,
+      "metric": "euclidean",
+      "max_force_calls": 40,
+      "c1_radius_policy": "restricted",
+      "startup_order": "legacy",
+      "geometry": "nonperiodic"
+    },
+    "native_height": {
+      "initial_weight": 0.5,
+      "negative_weight": 0.2,
+      "level": 1,
+      "max_weight": 10.0,
+      "growth_step": 1.0,
+      "growth_scale": 2.0
+    },
+    "native_mc": {
+      "energy_tol": 0.1,
+      "maxtrap": 99999
+    },
+    "native_equivalent_temperature_K": 464.20495549675246,
+    "outer_steps": 6,
+    "request_cap_per_arm": 4000,
+    "wall_cap_seconds_per_arm": 600,
+    "geometry_gate": "all positions in [0,100), axis ptp<50 A"
+  },
+  "generated_inputs": {
+    "55": {
+      "seed": 26100711,
+      "natoms": 55,
+      "initialization": "bulk-density",
+      "geometry_gate": {
+        "eligible": true,
+        "reason": "ok",
+        "min_A": [
+          44.66976132059365,
+          44.90962505841555,
+          45.033799086322844
+        ],
+        "max_A": [
+          56.63829792229527,
+          54.71592584639529,
+          55.76814332569216
+        ],
+        "axis_span_A": [
+          11.968536601701622,
+          9.806300787979737,
+          10.734344239369314
+        ],
+        "storage_cell_A": 100.0,
+        "max_span_A": 50.0
+      },
+      "raw_positions_sha256": "d781b417c705633c529ebd0f44cbbb43f31927448b7d1c8a36df6e15cc9100e2"
+    },
+    "38": {
+      "seed": 26100712,
+      "natoms": 38,
+      "initialization": "bulk-density",
+      "geometry_gate": {
+        "eligible": true,
+        "reason": "ok",
+        "min_A": [
+          45.46676350365229,
+          45.13572604267716,
+          45.09696194895785
+        ],
+        "max_A": [
+          54.43485625673529,
+          54.82391250132029,
+          54.35407129589372
+        ],
+        "axis_span_A": [
+          8.968092753082999,
+          9.688186458643123,
+          9.25710934693587
+        ],
+        "storage_cell_A": 100.0,
+        "max_span_A": 50.0
+      },
+      "raw_positions_sha256": "b8192798a56629583b570a4adcca3210feaefe32338161fa5b829297f54fe38f"
+    }
+  },
+  "dependencies": {
+    "FullPairLJ": true,
+    "FullPairLJ_properties": [
+      "energy",
+      "free_energy",
+      "forces"
+    ],
+    "run_ssw": true,
+    "ASESurface": true,
+    "run_lasp": true,
+    "save_ssw_checkpoint": true
+  },
+  "serializer": true,
+  "imports": {
+    "checkout": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification",
+    "git_head": "e7da940a8d87725074b70a39f2686c8d54d68d39",
+    "head_pamssw_tree": "c572a1cc0766f8d3ff534a467ad64613aaa78ce0",
+    "tracked_pamssw_changes": [],
+    "FullPairLJ": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/full_pair_lj.py",
+    "run_ssw": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/paper_reference.py",
+    "RecoveredRotationSettings": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/recovered_rotation.py",
+    "RecoveredDirectionSettings": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/recovered_direction.py",
+    "ConservativeNativeHeightPolicy": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/native_height_policy.py",
+    "NativeMCSettings": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/native_mc.py",
+    "lasp_external_ase": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/lasp_external_ase.py",
+    "FullPairLJ_class": "research.ga_ssw.full_pair_lj.FullPairLJ"
+  },
+  "native_binary_exists": true,
+  "native_binary_sha256": "bba43b391619ae03cf7e9c455d8fe3a7c7bb7d434a56c7ef297bee38aa9b6704",
+  "native_binary_hash_matches_audited": true,
+  "mpi_library_exists": true,
+  "native_package_exists": true,
+  "native_client_exists": true,
+  "bounded_supervisor_exists": true
+}

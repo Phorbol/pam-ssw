@@ -117,7 +117,9 @@ def settings():
     return config, rotation, direction, height, mc, temperature
 
 
-def uniform_volume_cluster(n: int, seed: int):
+def uniform_volume_cluster(n: int, seed: int, initialization="dilute"):
+    # fcc density at pair r_min=2**(1/6)*sigma is 1/sigma**3.
+    radius_A = RADIUS if initialization == "dilute" else SIGMA * (3*n/(4*math.pi))**(1/3)
     from ase import Atoms
     children = np.random.SeedSequence(seed).spawn(2)
     rng = np.random.default_rng(children[0])
@@ -126,10 +128,28 @@ def uniform_volume_cluster(n: int, seed: int):
     if np.any(norm == 0):
         raise FloatingPointError("zero random direction; preserve failure, do not resample")
     direction /= norm[:, None]
-    radius = rng.random(n) ** (1.0 / 3.0) * RADIUS
+    radius = rng.random(n) ** (1.0 / 3.0) * radius_A
     positions = direction * radius[:, None]
     positions += 50.0 - positions.mean(axis=0)
     return Atoms(f"Ar{n}", positions=positions, cell=CELL, pbc=False), children[1]
+
+
+def connected_components(atoms):
+    # Geometric qualification only; not a bond/Hessian stability assertion.
+    adjacent = (atoms.get_all_distances(mic=False) < 1.3 * SIGMA)
+    todo = set(range(len(atoms)))
+    sizes = []
+    while todo:
+        stack = [todo.pop()]
+        size = 0
+        while stack:
+            i = stack.pop()
+            size += 1
+            new = set(np.flatnonzero(adjacent[i])) & todo
+            todo -= new
+            stack.extend(new)
+        sizes.append(size)
+    return sorted(sizes, reverse=True)
 
 
 def geometry_gate(atoms):
@@ -212,7 +232,7 @@ def campaign_config():
             "wall_cap_seconds_per_arm": 600, "geometry_gate": "all positions in [0,100), axis ptp<50 A"}
 
 
-def preflight():
+def preflight(initialization="dilute"):
     from research.ga_ssw.full_pair_lj import FullPairLJ
     from pamssw.standalone import run_ssw, ASESurface
     from research.ga_ssw.lasp_external_ase import run_lasp
@@ -222,8 +242,8 @@ def preflight():
     calculator = FullPairLJ(epsilon=EPSILON, sigma=SIGMA)
     generated = {}
     for n, seed in SEEDS.items():
-        atoms, _ = uniform_volume_cluster(n, seed)
-        generated[str(n)] = {"seed": seed, "natoms": len(atoms),
+        atoms, _ = uniform_volume_cluster(n, seed, initialization)
+        generated[str(n)] = {"seed": seed, "natoms": len(atoms), "initialization": initialization,
             "geometry_gate": geometry_gate(atoms),
             "raw_positions_sha256": hashlib.sha256(atoms.positions.tobytes()).hexdigest()}
     result = {"status": "preflight_ok", "pes_requests": 0, "protocol": cfg,
@@ -248,7 +268,7 @@ def preflight():
         raise SystemExit("preflight geometry gate failed")
 
 
-def prepare(output: Path):
+def prepare(output: Path, initialization="dilute"):
     from ase.io import write
     from research.ga_ssw.full_pair_lj import FullPairLJ
     from pamssw.standalone import ASESurface, run_ssw
@@ -264,7 +284,7 @@ def prepare(output: Path):
         case.mkdir()
         surface = None
         try:
-            raw, search_seed = uniform_volume_cluster(n, seed)
+            raw, search_seed = uniform_volume_cluster(n, seed, initialization)
             write(case / "random-raw.extxyz", raw)
             surface = CountedSurface(FullPairLJ(epsilon=EPSILON, sigma=SIGMA),
                                      case / "prepare-ef.jsonl", cap=1000)
@@ -280,7 +300,12 @@ def prepare(output: Path):
                              initial.max_force <= FMAX and candidate is not None and
                              candidate.converged and candidate.max_force <= FMAX and
                              geometry_gate(candidate.atoms)["eligible"])
+            components = connected_components(candidate.atoms) if candidate is not None else []
+            numerical_qualified = qualified
+            qualified = qualified and components == [n]
             row = {"status": "qualified" if qualified else "not_qualified",
+                "initialization": initialization, "raw_radius_A": RADIUS if initialization == "dilute" else SIGMA*(3*n/(4*math.pi))**(1/3),
+                "numerical_qualified": numerical_qualified, "component_sizes_1p3sigma": components,
                 "n": n, "seed": seed, "prepare_requests": surface.requests,
                 "initial": {"energy_eV": float(initial.energy),
                     "fmax_eV_A": float(initial.max_force), "converged": bool(initial.converged)},
@@ -321,6 +346,7 @@ def native_input_text(n, steps):
     # Keys below are present in the recovered native allkeys log.  Do not add
     # undocumented aliases: effective values are captured from allkeys.log.
     lines = ["potential external", "explore_type ssw", "Ewaldflag 0", "Run_type 5",
+        f"ranseed {SEEDS[n]}",
         f"SSW.SSWsteps {steps}", f"SSW.ftol {FMAX / math.sqrt(3):.15g}",
         "SSW.MaxOptstep 1000", "SSW.NG 14", f"SSW.Temp {t:.15g}",
         "SSW.ds_atom 0.6", "SSW.internal_LJ F", "SSW.Lmode_Q F",
@@ -370,6 +396,8 @@ def execute(args):
             int(qualification.get("n", -1)) != args.n or
             int(qualification.get("seed", -1)) != seed):
         raise ValueError("prepared-case result does not qualify this requested seed")
+    if connected_components(atoms) != [args.n]:
+        raise ValueError("prepared input is fragmented at 1.3sigma; not an intact-cluster escape control")
     atoms.set_cell(CELL)
     atoms.set_pbc(False)
     if not geometry_gate(atoms)["eligible"]:
@@ -569,6 +597,7 @@ def parse_args():
     mode.add_argument("--prepare", action="store_true")
     mode.add_argument("--execute", action="store_true")
     mode.add_argument("--native-probe", action="store_true")
+    p.add_argument("--initialization", choices=("dilute", "bulk-density"), default="dilute")
     p.add_argument("--output", type=Path)
     p.add_argument("--arm", choices=("rotation", "full", "native"))
     p.add_argument("--n", type=int, choices=(38, 55))
@@ -582,10 +611,10 @@ def parse_args():
 def main():
     args = parse_args()
     if args.preflight:
-        preflight(); return
+        preflight(args.initialization); return
     if args.prepare:
         if args.output is None: raise SystemExit("--prepare requires --output")
-        prepare(args.output); return
+        prepare(args.output, args.initialization); return
     if args.execute or args.native_probe:
         missing = [name for name in ("output", "arm", "n", "input") if getattr(args, name) is None]
         if missing: raise SystemExit("execution requires --output --arm --n --input")
