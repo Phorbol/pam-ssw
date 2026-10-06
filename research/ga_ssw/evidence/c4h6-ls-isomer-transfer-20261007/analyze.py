@@ -589,8 +589,8 @@ def markdown(data: dict) -> str:
              "This report counts force-qualified connected graph changes as candidates only. It does not claim Hessian-positive minima or reaction-path validation.", "",
              "## Provenance and shared starts", "",
              f"Model SHA/head/device/dtype: `{data['provenance'].get('model_sha256')}` / `{data['provenance'].get('model_head')}` / `{data['provenance'].get('device')}` / `{data['provenance'].get('dtype')}`.",
-             f"Core tree: `{data['provenance'].get('core_tree')}`. Inputs: `" + ", `".join(
-                 f"{case}={_dict(_dict(data['provenance'].get('inputs')).get(case)).get('sha256')}" for case in CASES) + "`.", "",
+             f"Core tree: `{data['provenance'].get('core_tree')}`. Inputs: " + ", ".join(
+                 f"`{case}={_dict(_dict(data['provenance'].get('inputs')).get(case)).get('sha256')}`" for case in CASES) + ".", "",
              "| Input | Raw bytes match across arms | Raw graphs match | Post-quench initial graphs match |",
              "|---|---|---|---|"]
     for case in CASES:
@@ -598,20 +598,23 @@ def markdown(data: dict) -> str:
         lines.append(f"| {case} | {row.get('raw_input_sha_equal')} | {row.get('raw_input_graphs_isomorphic')} | {row.get('initial_quench_graphs_isomorphic')} |")
     lines += ["", "## Cost and graph outcomes", "",
               "All completed outer attempts are included regardless of MC acceptance. Initialization and censored/unassigned tail E/F costs remain separate.", "",
-              "| Case | Arm | State | Records / 12 | Search E/F | Init | Outer records E/F | Tail | Mean all outer records | Fresh qualified connected changes | New distinct saved graph classes |",
-              "|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
+              "| Case | Arm | State | Records / 12 | Search E/F | Init | Outer records E/F | Tail | Mean all outer records | Fresh-qualified connected changed candidates | Fresh-qualified connected changed classes | Fresh-qualified fragmented/non-C4H6 candidates | New distinct saved graph classes* |",
+              "|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|"]
     for case in CASES:
         for arm in ARMS:
             row = next((x for x in data["arms"] if x.get("case") == case and x.get("arm") == arm), {})
             cost = _dict(row.get("request_cost")); counts = _dict(row.get("candidate_counts")); classes = _dict(row.get("graph_classes"))
-            lines.append("| {case} | {arm} | {status} | {records}/{asked} | {search} | {init} | {outer} | {tail} | {mean} | {qualified} | {newclasses} |".format(
+            lines.append("| {case} | {arm} | {status} | {records}/{asked} | {search} | {init} | {outer} | {tail} | {mean} | {qualified} | {changed_classes} | {fragmented} | {newclasses} |".format(
                 case=case, arm=arm, status=row.get("summary", {}).get("status", row.get("status", "missing")),
                 records=cost.get("completed_outer_records", 0), asked=cost.get("requested_outer_steps", OUTER_STEPS),
                 search=cost.get("raw_ledger", {}).get("attempted_ef_calls", 0), init=cost.get("initialization_requests", 0),
                 outer=cost.get("outer_requests_all_records_including_rejected", 0), tail=cost.get("unassigned_tail_or_censored_requests", 0),
                 mean=(f"{cost['mean_requests_per_completed_outer_all_statuses']:.1f}" if cost.get("mean_requests_per_completed_outer_all_statuses") is not None else "NA"),
                 qualified=counts.get("fresh_qualified_connected_graph_changes", 0),
+                changed_classes=classes.get("fresh_qualified_connected_changed_class_count", 0),
+                fragmented=counts.get("fresh_qualified_fragmented_or_non_C4H6", 0),
                 newclasses=classes.get("new_distinct_saved_graph_classes_count", 0)))
+    lines += ["", "* Saved-class count is the number of distinct topology classes among all saved-minimum candidates that differ from that case's own raw input graph. It is not restricted to fresh-qualified, connected, intact C4H6 candidates; inspect the fresh-qualified connected changed-class and fragmented/non-C4H6 columns separately.", ""]
     lines += ["", "## LS response", "", "Paper target is 0.7 eV/atom. The response is the true-potential energy rise after soft-only prequench divided by 10 atoms; no biased-climb energy is treated as this response.", ""]
     for row in data["arms"]:
         if row.get("arm") != "paper_ls":
