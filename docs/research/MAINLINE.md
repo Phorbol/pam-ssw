@@ -58,7 +58,9 @@ GPU1663620/修复CPU读出1663637共424 EFS，无PES重跑；联合默认暂不�
 不重开），仅比较已有recovered rotation与full_peratom方向bundle。源码46de9f6
 补齐研究runner既有方向接口，CPU1663912预算/恢复兼容20检查通过；3个无PES入口检查
 由主agent复核通过（最初fixture隐式EMT淬火已发现并改为禁止EMT.calculate）。
-两新输入及后端资格仍待准备，不称已运行；计划至多240ksearch+12cold、两卡并发，
+源码0b704b4准备脚本及无PES预检通过，资格GPU1664049已提交（单卡5min，
+至多6000初始淬火请求+3cold）；搜索尚未提交。主agent另修复worker记录validator
+路径，实际冻结副本在prepared根目录。计划至多240ksearch+12cold、两卡并发，
 每臂60k与80min上限，无自动续跑。先资格检查再决定提交，不盲目回到百万预算。
 [问题、因子、验收与边界](../../research/ga_ssw/evidence/c60-direction-transfer-20261007/protocol.md)。
 
