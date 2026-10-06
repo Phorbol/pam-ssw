@@ -25,18 +25,24 @@ M80 CPU1663302/读出1663308及1663399已完成，源码8204fd9，核心不变�
 坐标来自2017 SSW-NN SI，非2014VC SI；源phase87/rutile测得对称群12/31，
 不冒称87/136。rutile暂不作相搜索输入。无Hessian稳定性或DFT数值复现声明。
 [资格协议](../../research/ga_ssw/evidence/tio2-phase-qualification-20261007/protocol.md)。
-已冻结12/48atom phase87几何→当前势anatase目标的joint/block四臂方案：40外步/
-20kEFS/600秒每臂，最多两V100并发，总80k+≤13cold，不续跑。独立审查与零真实PES
-预检通过（dummy block19/joint54请求；分析器区分失败费用与未收费denial，拒绝账本不闭合），
-源码835b6f2，GPU数组1663547与afterany CPU读出1663551已提交；**实际相发现结果待验证**。对比的是完整管线，不是单个坐标/优化器组件的消融。
-[目标协议](../../research/ga_ssw/evidence/tio2-vc-target-panel-20261007/protocol.md)。
-联合12/48两臂已结束：各40次全部rotation_failed，分别1602/1607请求、0模型失败，
-Gaussian/偏置淬火费用为0；各仅有初态。不能当作偏置优化器或相搜索劣势。
-保持fd/metric/.02门不变，安排保存态两anchor×两尺寸的dimer/Ritz同40EFS诊断，
-另12atom全局部Hessian参考：≤320迭代+84参考+20直接复核=424EFS，非全局搜索。
-源码196d502，GPU1663620依赖原面板结束，CPU1663621依赖该诊断，未验证收益。
-[诊断协议](../../research/ga_ssw/evidence/tio2-vc-rotation-probe-20261007/protocol.md)。
+12/48atom phase87几何→当前势anatase目标四臂已完成，GPU1663547/CPU1663551。
+block48在995累计请求/outer4找到anatase，几何/能窗/cold force与stress均通过；该点
+MC拒绝仍为有效发现。两block最佳均经cold且匹配TiO2-B，能量比当前anatase更低；
+CPU1663680仅作模板分类，无GM/DFT声明。block12未命中，极端cell体积2.12A³/
+主伸长.0457导致wall截断，不当势异常。15475搜索+9复核=15484，准备31另列。
+[结果、反例与决定](../../research/ga_ssw/evidence/tio2-vc-target-panel-20261007/decision.md)。
 
+联合两臂各40次全rotation_failed；block原子scheduled10/20次亦全部失败，未生成
+Gaussian。保存态40EFS同budget的Ritz虽较dimer降低残差，4/4仍未过.02门；12atom
+全Hessian方向直接残差1.6e-5能过门，指向迭代效率不足，不归因于MLIP噪声或LBFGS。
+GPU1663620/修复CPU读出1663637共424 EFS，无PES重跑；联合默认暂不改变。
+[诊断与范围](../../research/ga_ssw/evidence/tio2-vc-rotation-probe-20261007/decision.md)。
+
+下一项仅接通已有SSWConfig.force_or_budget在periodic atomic_climb的拒绝入口，
+源码6129c5f，保留converged=False、显式budget_released及所有真面资格门，不新增
+参数/持久化架构/默认。独立stub35通过；CPU1663773真实Cu/EMT及block/checkpoint
+回归32通过。计划从两保存post-cell起点配对检验原子逃逸，不重跑坍缩cell路线。
+[固定协议](../../research/ga_ssw/evidence/tio2-atomic-budget-release-20261007/protocol.md)。
 
 短LJ55/LJ38六臂与C4H6反例已收口：LJ共同cost的优势依体系反转；C4两论文
 起点SSW/LS连通新图类2/1与1/2，29897请求含四候选精修/曲率资格。LS保留显式
