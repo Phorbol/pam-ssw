@@ -1,0 +1,851 @@
+{
+  "purpose": "Read-only evaluation-request cost audit; no walltime attribution by phase",
+  "stage_panels": {
+    "C4H6": {
+      "scope": "selected correlated climb stages only",
+      "source": "research/ga_ssw/evidence/climb-depth-ablation-20260925/stage-cost-audit.json",
+      "stages": 300,
+      "all_stage_requests": 7468,
+      "quench_requests": 4661,
+      "rotation_force_requests": 2207,
+      "event_unassigned_requests": 600,
+      "closure": 7468
+    },
+    "C60": {
+      "scope": "selected correlated climb stages only",
+      "source": "research/ga_ssw/evidence/climb-depth-ablation-20260925/stage-cost-audit.json",
+      "stages": 48,
+      "all_stage_requests": 3211,
+      "quench_requests": 2698,
+      "rotation_force_requests": 417,
+      "event_unassigned_requests": 96,
+      "closure": 3211
+    }
+  },
+  "c60_direction_probe_runs": [
+    {
+      "source": "research/ga_ssw/evidence/c60-local-defect-20260925/direction-probe/runs/native_ls-1101/result.json",
+      "summary_source": "research/ga_ssw/evidence/c60-local-defect-20260925/direction-probe/runs/native_ls-1101/summary.json",
+      "totals": {
+        "rotation": 693,
+        "biased_quench": 2785,
+        "climb_unassigned": 222,
+        "true_landing_quench": 314,
+        "ls_prequench": 75,
+        "record_requests": 4089,
+        "run_evaluation_requests": 4090,
+        "unassigned_outside_records": 1,
+        "wall_seconds_whole_run": 318.72713648714125,
+        "attempts": 10,
+        "attempt_status_counts": {
+          "gaussian_limit": 9,
+          "lower_true_energy": 1
+        },
+        "landing_unconverged_attempts": 0,
+        "request_closure_error": 0
+      },
+      "records": [
+        {
+          "rotation": 76,
+          "biased_quench": 349,
+          "climb_unassigned": 24,
+          "true_landing_quench": 10,
+          "ls_prequench": 7,
+          "record_requests": 466,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 72,
+          "biased_quench": 365,
+          "climb_unassigned": 24,
+          "true_landing_quench": 59,
+          "ls_prequench": 7,
+          "record_requests": 527,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 65,
+          "biased_quench": 208,
+          "climb_unassigned": 24,
+          "true_landing_quench": 22,
+          "ls_prequench": 7,
+          "record_requests": 326,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 78,
+          "biased_quench": 315,
+          "climb_unassigned": 24,
+          "true_landing_quench": 34,
+          "ls_prequench": 7,
+          "record_requests": 458,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 77,
+          "biased_quench": 273,
+          "climb_unassigned": 24,
+          "true_landing_quench": 21,
+          "ls_prequench": 7,
+          "record_requests": 402,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 79,
+          "biased_quench": 262,
+          "climb_unassigned": 24,
+          "true_landing_quench": 53,
+          "ls_prequench": 7,
+          "record_requests": 425,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 19,
+          "biased_quench": 101,
+          "climb_unassigned": 6,
+          "true_landing_quench": 10,
+          "ls_prequench": 7,
+          "record_requests": 143,
+          "attempt_status": "lower_true_energy",
+          "landing_converged": true
+        },
+        {
+          "rotation": 72,
+          "biased_quench": 219,
+          "climb_unassigned": 24,
+          "true_landing_quench": 60,
+          "ls_prequench": 9,
+          "record_requests": 384,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 88,
+          "biased_quench": 357,
+          "climb_unassigned": 24,
+          "true_landing_quench": 21,
+          "ls_prequench": 9,
+          "record_requests": 499,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 67,
+          "biased_quench": 336,
+          "climb_unassigned": 24,
+          "true_landing_quench": 24,
+          "ls_prequench": 8,
+          "record_requests": 459,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        }
+      ]
+    },
+    {
+      "source": "research/ga_ssw/evidence/c60-local-defect-20260925/direction-probe/runs/native_ls-1102/result.json",
+      "summary_source": "research/ga_ssw/evidence/c60-local-defect-20260925/direction-probe/runs/native_ls-1102/summary.json",
+      "totals": {
+        "rotation": 701,
+        "biased_quench": 2500,
+        "climb_unassigned": 240,
+        "true_landing_quench": 288,
+        "ls_prequench": 71,
+        "record_requests": 3800,
+        "run_evaluation_requests": 3801,
+        "unassigned_outside_records": 1,
+        "wall_seconds_whole_run": 284.6893571158871,
+        "attempts": 10,
+        "attempt_status_counts": {
+          "gaussian_limit": 10
+        },
+        "landing_unconverged_attempts": 0,
+        "request_closure_error": 0
+      },
+      "records": [
+        {
+          "rotation": 74,
+          "biased_quench": 233,
+          "climb_unassigned": 24,
+          "true_landing_quench": 21,
+          "ls_prequench": 7,
+          "record_requests": 359,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 77,
+          "biased_quench": 214,
+          "climb_unassigned": 24,
+          "true_landing_quench": 48,
+          "ls_prequench": 7,
+          "record_requests": 370,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 76,
+          "biased_quench": 289,
+          "climb_unassigned": 24,
+          "true_landing_quench": 33,
+          "ls_prequench": 7,
+          "record_requests": 429,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 67,
+          "biased_quench": 280,
+          "climb_unassigned": 24,
+          "true_landing_quench": 29,
+          "ls_prequench": 7,
+          "record_requests": 407,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 50,
+          "biased_quench": 244,
+          "climb_unassigned": 24,
+          "true_landing_quench": 29,
+          "ls_prequench": 7,
+          "record_requests": 354,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 68,
+          "biased_quench": 222,
+          "climb_unassigned": 24,
+          "true_landing_quench": 27,
+          "ls_prequench": 7,
+          "record_requests": 348,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 76,
+          "biased_quench": 342,
+          "climb_unassigned": 24,
+          "true_landing_quench": 16,
+          "ls_prequench": 7,
+          "record_requests": 465,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 75,
+          "biased_quench": 234,
+          "climb_unassigned": 24,
+          "true_landing_quench": 27,
+          "ls_prequench": 7,
+          "record_requests": 367,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 75,
+          "biased_quench": 234,
+          "climb_unassigned": 24,
+          "true_landing_quench": 34,
+          "ls_prequench": 7,
+          "record_requests": 374,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 63,
+          "biased_quench": 208,
+          "climb_unassigned": 24,
+          "true_landing_quench": 24,
+          "ls_prequench": 8,
+          "record_requests": 327,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        }
+      ]
+    },
+    {
+      "source": "research/ga_ssw/evidence/c60-local-defect-20260925/direction-probe/runs/ssw_without_ls-1101/result.json",
+      "summary_source": "research/ga_ssw/evidence/c60-local-defect-20260925/direction-probe/runs/ssw_without_ls-1101/summary.json",
+      "totals": {
+        "rotation": 714,
+        "biased_quench": 2834,
+        "climb_unassigned": 240,
+        "true_landing_quench": 317,
+        "ls_prequench": 0,
+        "record_requests": 4105,
+        "run_evaluation_requests": 4106,
+        "unassigned_outside_records": 1,
+        "wall_seconds_whole_run": 291.4047325477004,
+        "attempts": 10,
+        "attempt_status_counts": {
+          "gaussian_limit": 10
+        },
+        "landing_unconverged_attempts": 0,
+        "request_closure_error": 0
+      },
+      "records": [
+        {
+          "rotation": 77,
+          "biased_quench": 372,
+          "climb_unassigned": 24,
+          "true_landing_quench": 25,
+          "ls_prequench": 0,
+          "record_requests": 498,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 73,
+          "biased_quench": 318,
+          "climb_unassigned": 24,
+          "true_landing_quench": 58,
+          "ls_prequench": 0,
+          "record_requests": 473,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 66,
+          "biased_quench": 235,
+          "climb_unassigned": 24,
+          "true_landing_quench": 22,
+          "ls_prequench": 0,
+          "record_requests": 347,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 74,
+          "biased_quench": 339,
+          "climb_unassigned": 24,
+          "true_landing_quench": 59,
+          "ls_prequench": 0,
+          "record_requests": 496,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 78,
+          "biased_quench": 302,
+          "climb_unassigned": 24,
+          "true_landing_quench": 26,
+          "ls_prequench": 0,
+          "record_requests": 430,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 73,
+          "biased_quench": 253,
+          "climb_unassigned": 24,
+          "true_landing_quench": 19,
+          "ls_prequench": 0,
+          "record_requests": 369,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 76,
+          "biased_quench": 305,
+          "climb_unassigned": 24,
+          "true_landing_quench": 24,
+          "ls_prequench": 0,
+          "record_requests": 429,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 61,
+          "biased_quench": 230,
+          "climb_unassigned": 24,
+          "true_landing_quench": 26,
+          "ls_prequench": 0,
+          "record_requests": 341,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 76,
+          "biased_quench": 241,
+          "climb_unassigned": 24,
+          "true_landing_quench": 26,
+          "ls_prequench": 0,
+          "record_requests": 367,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 60,
+          "biased_quench": 239,
+          "climb_unassigned": 24,
+          "true_landing_quench": 32,
+          "ls_prequench": 0,
+          "record_requests": 355,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        }
+      ]
+    },
+    {
+      "source": "research/ga_ssw/evidence/c60-local-defect-20260925/direction-probe/runs/ssw_without_ls-1102/result.json",
+      "summary_source": "research/ga_ssw/evidence/c60-local-defect-20260925/direction-probe/runs/ssw_without_ls-1102/summary.json",
+      "totals": {
+        "rotation": 696,
+        "biased_quench": 3135,
+        "climb_unassigned": 226,
+        "true_landing_quench": 243,
+        "ls_prequench": 0,
+        "record_requests": 4300,
+        "run_evaluation_requests": 4301,
+        "unassigned_outside_records": 1,
+        "wall_seconds_whole_run": 304.6165243703872,
+        "attempts": 10,
+        "attempt_status_counts": {
+          "gaussian_limit": 9,
+          "lower_true_energy": 1
+        },
+        "landing_unconverged_attempts": 0,
+        "request_closure_error": 0
+      },
+      "records": [
+        {
+          "rotation": 75,
+          "biased_quench": 367,
+          "climb_unassigned": 24,
+          "true_landing_quench": 19,
+          "ls_prequench": 0,
+          "record_requests": 485,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 79,
+          "biased_quench": 265,
+          "climb_unassigned": 24,
+          "true_landing_quench": 33,
+          "ls_prequench": 0,
+          "record_requests": 401,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 73,
+          "biased_quench": 378,
+          "climb_unassigned": 24,
+          "true_landing_quench": 29,
+          "ls_prequench": 0,
+          "record_requests": 504,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 34,
+          "biased_quench": 173,
+          "climb_unassigned": 10,
+          "true_landing_quench": 6,
+          "ls_prequench": 0,
+          "record_requests": 223,
+          "attempt_status": "lower_true_energy",
+          "landing_converged": true
+        },
+        {
+          "rotation": 78,
+          "biased_quench": 375,
+          "climb_unassigned": 24,
+          "true_landing_quench": 28,
+          "ls_prequench": 0,
+          "record_requests": 505,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 76,
+          "biased_quench": 331,
+          "climb_unassigned": 24,
+          "true_landing_quench": 35,
+          "ls_prequench": 0,
+          "record_requests": 466,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 70,
+          "biased_quench": 227,
+          "climb_unassigned": 24,
+          "true_landing_quench": 26,
+          "ls_prequench": 0,
+          "record_requests": 347,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 65,
+          "biased_quench": 293,
+          "climb_unassigned": 24,
+          "true_landing_quench": 6,
+          "ls_prequench": 0,
+          "record_requests": 388,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 73,
+          "biased_quench": 344,
+          "climb_unassigned": 24,
+          "true_landing_quench": 22,
+          "ls_prequench": 0,
+          "record_requests": 463,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 73,
+          "biased_quench": 382,
+          "climb_unassigned": 24,
+          "true_landing_quench": 39,
+          "ls_prequench": 0,
+          "record_requests": 518,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        }
+      ]
+    }
+  ],
+  "periodic_direction_runs": [
+    {
+      "source": "research/ga_ssw/evidence/periodic-direction-20260926/runs/anatase-global/result.json",
+      "summary_source": "research/ga_ssw/evidence/periodic-direction-20260926/runs/anatase-global/summary.json",
+      "totals": {
+        "rotation": 406,
+        "biased_quench": 800,
+        "climb_unassigned": 150,
+        "true_landing_quench": 48,
+        "ls_prequench": 0,
+        "record_requests": 1404,
+        "run_evaluation_requests": 1405,
+        "unassigned_outside_records": 1,
+        "wall_seconds_whole_run": null,
+        "attempts": 3,
+        "attempt_status_counts": {
+          "gaussian_limit": 3
+        },
+        "landing_unconverged_attempts": 0,
+        "request_closure_error": 0
+      },
+      "records": [
+        {
+          "rotation": 142,
+          "biased_quench": 275,
+          "climb_unassigned": 50,
+          "true_landing_quench": 16,
+          "ls_prequench": 0,
+          "record_requests": 483,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 131,
+          "biased_quench": 284,
+          "climb_unassigned": 50,
+          "true_landing_quench": 6,
+          "ls_prequench": 0,
+          "record_requests": 471,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 133,
+          "biased_quench": 241,
+          "climb_unassigned": 50,
+          "true_landing_quench": 26,
+          "ls_prequench": 0,
+          "record_requests": 450,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        }
+      ]
+    },
+    {
+      "source": "research/ga_ssw/evidence/periodic-direction-20260926/runs/anatase-local_memory/result.json",
+      "summary_source": "research/ga_ssw/evidence/periodic-direction-20260926/runs/anatase-local_memory/summary.json",
+      "totals": {
+        "rotation": 371,
+        "biased_quench": 464,
+        "climb_unassigned": 150,
+        "true_landing_quench": 81,
+        "ls_prequench": 0,
+        "record_requests": 1066,
+        "run_evaluation_requests": 1067,
+        "unassigned_outside_records": 1,
+        "wall_seconds_whole_run": null,
+        "attempts": 3,
+        "attempt_status_counts": {
+          "gaussian_limit": 3
+        },
+        "landing_unconverged_attempts": 0,
+        "request_closure_error": 0
+      },
+      "records": [
+        {
+          "rotation": 117,
+          "biased_quench": 169,
+          "climb_unassigned": 50,
+          "true_landing_quench": 41,
+          "ls_prequench": 0,
+          "record_requests": 377,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 138,
+          "biased_quench": 158,
+          "climb_unassigned": 50,
+          "true_landing_quench": 18,
+          "ls_prequench": 0,
+          "record_requests": 364,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 116,
+          "biased_quench": 137,
+          "climb_unassigned": 50,
+          "true_landing_quench": 22,
+          "ls_prequench": 0,
+          "record_requests": 325,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        }
+      ]
+    },
+    {
+      "source": "research/ga_ssw/evidence/periodic-direction-20260926/runs/brookite48-global/result.json",
+      "summary_source": "research/ga_ssw/evidence/periodic-direction-20260926/runs/brookite48-global/summary.json",
+      "totals": {
+        "rotation": 410,
+        "biased_quench": 600,
+        "climb_unassigned": 150,
+        "true_landing_quench": 87,
+        "ls_prequench": 0,
+        "record_requests": 1247,
+        "run_evaluation_requests": 1251,
+        "unassigned_outside_records": 4,
+        "wall_seconds_whole_run": null,
+        "attempts": 3,
+        "attempt_status_counts": {
+          "gaussian_limit": 3
+        },
+        "landing_unconverged_attempts": 0,
+        "request_closure_error": 0
+      },
+      "records": [
+        {
+          "rotation": 131,
+          "biased_quench": 196,
+          "climb_unassigned": 50,
+          "true_landing_quench": 29,
+          "ls_prequench": 0,
+          "record_requests": 406,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 143,
+          "biased_quench": 182,
+          "climb_unassigned": 50,
+          "true_landing_quench": 18,
+          "ls_prequench": 0,
+          "record_requests": 393,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 136,
+          "biased_quench": 222,
+          "climb_unassigned": 50,
+          "true_landing_quench": 40,
+          "ls_prequench": 0,
+          "record_requests": 448,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        }
+      ]
+    },
+    {
+      "source": "research/ga_ssw/evidence/periodic-direction-20260926/runs/brookite48-local_memory/result.json",
+      "summary_source": "research/ga_ssw/evidence/periodic-direction-20260926/runs/brookite48-local_memory/summary.json",
+      "totals": {
+        "rotation": 326,
+        "biased_quench": 398,
+        "climb_unassigned": 150,
+        "true_landing_quench": 51,
+        "ls_prequench": 0,
+        "record_requests": 925,
+        "run_evaluation_requests": 929,
+        "unassigned_outside_records": 4,
+        "wall_seconds_whole_run": null,
+        "attempts": 3,
+        "attempt_status_counts": {
+          "gaussian_limit": 3
+        },
+        "landing_unconverged_attempts": 0,
+        "request_closure_error": 0
+      },
+      "records": [
+        {
+          "rotation": 104,
+          "biased_quench": 119,
+          "climb_unassigned": 50,
+          "true_landing_quench": 16,
+          "ls_prequench": 0,
+          "record_requests": 289,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 121,
+          "biased_quench": 144,
+          "climb_unassigned": 50,
+          "true_landing_quench": 17,
+          "ls_prequench": 0,
+          "record_requests": 332,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 101,
+          "biased_quench": 135,
+          "climb_unassigned": 50,
+          "true_landing_quench": 18,
+          "ls_prequench": 0,
+          "record_requests": 304,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        }
+      ]
+    },
+    {
+      "source": "research/ga_ssw/evidence/periodic-direction-20260926/runs/rutile-global/result.json",
+      "summary_source": "research/ga_ssw/evidence/periodic-direction-20260926/runs/rutile-global/summary.json",
+      "totals": {
+        "rotation": 376,
+        "biased_quench": 685,
+        "climb_unassigned": 150,
+        "true_landing_quench": 47,
+        "ls_prequench": 0,
+        "record_requests": 1258,
+        "run_evaluation_requests": 1259,
+        "unassigned_outside_records": 1,
+        "wall_seconds_whole_run": null,
+        "attempts": 3,
+        "attempt_status_counts": {
+          "gaussian_limit": 3
+        },
+        "landing_unconverged_attempts": 0,
+        "request_closure_error": 0
+      },
+      "records": [
+        {
+          "rotation": 121,
+          "biased_quench": 205,
+          "climb_unassigned": 50,
+          "true_landing_quench": 12,
+          "ls_prequench": 0,
+          "record_requests": 388,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 134,
+          "biased_quench": 237,
+          "climb_unassigned": 50,
+          "true_landing_quench": 17,
+          "ls_prequench": 0,
+          "record_requests": 438,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 121,
+          "biased_quench": 243,
+          "climb_unassigned": 50,
+          "true_landing_quench": 18,
+          "ls_prequench": 0,
+          "record_requests": 432,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        }
+      ]
+    },
+    {
+      "source": "research/ga_ssw/evidence/periodic-direction-20260926/runs/rutile-local_memory/result.json",
+      "summary_source": "research/ga_ssw/evidence/periodic-direction-20260926/runs/rutile-local_memory/summary.json",
+      "totals": {
+        "rotation": 358,
+        "biased_quench": 473,
+        "climb_unassigned": 150,
+        "true_landing_quench": 50,
+        "ls_prequench": 0,
+        "record_requests": 1031,
+        "run_evaluation_requests": 1032,
+        "unassigned_outside_records": 1,
+        "wall_seconds_whole_run": null,
+        "attempts": 3,
+        "attempt_status_counts": {
+          "gaussian_limit": 3
+        },
+        "landing_unconverged_attempts": 0,
+        "request_closure_error": 0
+      },
+      "records": [
+        {
+          "rotation": 104,
+          "biased_quench": 153,
+          "climb_unassigned": 50,
+          "true_landing_quench": 15,
+          "ls_prequench": 0,
+          "record_requests": 322,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 138,
+          "biased_quench": 163,
+          "climb_unassigned": 50,
+          "true_landing_quench": 14,
+          "ls_prequench": 0,
+          "record_requests": 365,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        },
+        {
+          "rotation": 116,
+          "biased_quench": 157,
+          "climb_unassigned": 50,
+          "true_landing_quench": 21,
+          "ls_prequench": 0,
+          "record_requests": 344,
+          "attempt_status": "gaussian_limit",
+          "landing_converged": true
+        }
+      ]
+    }
+  ],
+  "lj_diagnostic": {
+    "source": "research/ga_ssw/evidence/lj-gaussian-policy-probe-20260927/report.md",
+    "scope": "82 saved Gaussian stages, 12 outer attempts, after initial quench",
+    "total_requests": 5678,
+    "biased_local_optimizer_requests": 4361,
+    "rotation_requests": 566,
+    "true_quench_and_other_requests": 751,
+    "closure": 5678,
+    "walltime_by_phase": null
+  }
+}
