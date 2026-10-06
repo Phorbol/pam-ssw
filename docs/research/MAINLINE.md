@@ -30,6 +30,13 @@ M80 CPU1663302/读出1663308及1663399已完成，源码8204fd9，核心不变�
 预检通过（dummy block19/joint54请求；分析器区分失败费用与未收费denial，拒绝账本不闭合），
 源码835b6f2，GPU数组1663547与afterany CPU读出1663551已提交；**实际相发现结果待验证**。对比的是完整管线，不是单个坐标/优化器组件的消融。
 [目标协议](../../research/ga_ssw/evidence/tio2-vc-target-panel-20261007/protocol.md)。
+联合12/48两臂已结束：各40次全部rotation_failed，分别1602/1607请求、0模型失败，
+Gaussian/偏置淬火费用为0；各仅有初态。不能当作偏置优化器或相搜索劣势。
+保持fd/metric/.02门不变，安排保存态两anchor×两尺寸的dimer/Ritz同40EFS诊断，
+另12atom全局部Hessian参考：≤320迭代+84参考+20直接复核=424EFS，非全局搜索。
+源码196d502，GPU1663620依赖原面板结束，CPU1663621依赖该诊断，未验证收益。
+[诊断协议](../../research/ga_ssw/evidence/tio2-vc-rotation-probe-20261007/protocol.md)。
+
 
 短LJ55/LJ38六臂与C4H6反例已收口：LJ共同cost的优势依体系反转；C4两论文
 起点SSW/LS连通新图类2/1与1/2，29897请求含四候选精修/曲率资格。LS保留显式

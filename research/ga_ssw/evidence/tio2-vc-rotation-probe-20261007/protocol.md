@@ -48,3 +48,12 @@ implemented cell formula Frot=2h||Hn-kappa*n|| to10eV/A^2, not .02. These
 values concern different coordinate metrics. This probe does not silently
 substitute the paper cell criterion into joint coordinates. Native CBD and
 this plane dimer are also distinct algorithms; no native numerical parity claim.
+
+## Execution registration
+
+Source196d502; existing core treec572a1cc remains unchanged. Root review made
+all solver/reference/direct-check callbacks project gradients exactly as the
+joint walker does; closure checks inspect dictionary.closed rather than the
+truth value of a nonempty dictionary. Unit-direction component norms are
+dimensionless. Zero-real-PES preflight, compile and shell syntax passed.
+GPU1663620 is afterany1663547; CPU1663621 is afterany1663620. Outcomes pending.
