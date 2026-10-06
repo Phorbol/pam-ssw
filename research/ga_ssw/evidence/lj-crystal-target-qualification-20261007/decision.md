@@ -41,6 +41,15 @@ geometry remains missing. Do not replace the paper's LJ128 vacancy state by
 a guessed127-atom cube, or automatically launch8×250 trajectories.
 The ongoing C60 direction panel and prospective LS input gate keep priority.
 
+Bounded static native check: archived ELF `GA-SSW_program/lasp` has
+`module_pes_mp_cutlj_` at0x53e2800 and `module_pes_mp_epslj_` at0x53e2808;
+root `objdump -s --start-address=0x53e2800 --stop-address=0x53e2810` confirmed
+initialized binary64 values30.0/.03. Their dispatch/consumer for `potential lj`
+was not established; sigma and shifting remain unresolved. Embedded LAMMPS
+PairLJCut is a separate implementation and cannot establish native inputs.
+No LASP PES call or binary modification was made. These bytes are not a
+qualified active parameter set, so they do not resolve the model boundary.
+
 Sources: [SSW-crystal2014](https://doi.org/10.1039/c4cp01485e), section3.2
 and Fig4, local author fulltext cited in protocol; Pártay et al.,
 [Polytypism in the ground state structure of the Lennard-Jonesium](https://arxiv.org/abs/1705.01751)
