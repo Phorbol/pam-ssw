@@ -83,10 +83,23 @@ def source_info():
     }
 
 
+def geometry_gate(atoms):
+    """Nonperiodic domain; native-image diagnostics never bound the isolated PES."""
+    diagnostics = PANEL.geometry_gate(atoms)
+    finite = bool(np.isfinite(atoms.positions).all())
+    nonperiodic = not bool(atoms.pbc.any())
+    return {"eligible": finite and nonperiodic,
+            "reason": "ok" if finite and nonperiodic else
+                      "nonfinite_coordinates" if not finite else "periodic_input",
+            "scope": "nonperiodic_full_pair_no_storage_bound_v2",
+            "native_image_diagnostics_only": diagnostics}
+
+
 def config_record():
     config, rotation, direction, height, mc, temp = PANEL.settings()
     direction = __import__("dataclasses").replace(direction, c1_radius_policy="per_atom")
-    return {"potential": {"class": "FullPairLJ", "epsilon_eV": EPSILON,
+    return {"protocol_revision": "v2-nonperiodic-domain",
+            "potential": {"class": "FullPairLJ", "epsilon_eV": EPSILON,
                            "sigma_A": SIGMA, "cutoff_A": None, "periodic": False},
             "ssw": asdict(config), "rotation": asdict(rotation),
             "full_direction_per_atom": asdict(direction), "height": asdict(height),
@@ -102,7 +115,8 @@ def config_record():
                         "fresh_requests_per_seed_preparation": 1,
                         "fresh_reference_requests_total": 1,
                         "fresh_requests_per_arm": FRESH_CAP},
-            "initialization": "uniform volume ball, bulk-density radius, no rejection/retry"}
+            "initialization": "uniform volume ball, bulk-density radius, no rejection/retry",
+            "evaluation_domain": "finite nonperiodic positions; cell/span diagnostic only"}
 
 
 def target_atoms():
@@ -133,13 +147,13 @@ def preflight():
     generated = []
     for seed in SEEDS:
         atoms, child = PANEL.uniform_volume_cluster(N, seed, "bulk-density")
-        gate = PANEL.geometry_gate(atoms)
+        gate = geometry_gate(atoms)
         generated.append({"seed": seed, "natoms": len(atoms), "pbc": atoms.pbc.tolist(),
             "cell_A": atoms.cell.array.tolist(), "geometry_gate": gate,
             "raw_positions_sha256": hashlib.sha256(atoms.positions.tobytes()).hexdigest(),
             "search_rng_child_state": child.generate_state(4).tolist()})
     checks = {"target_points": str(REFERENCE_PATH), "target_shape": list(target.positions.shape),
-              "target_geometry_gate": PANEL.geometry_gate(target),
+              "target_geometry_gate": geometry_gate(target),
               "target_atom_count": len(target), "run_ssw": callable(run_ssw),
               "ASESurface": callable(ASESurface), "save_ssw_checkpoint": callable(save_ssw_checkpoint),
               "FullPairLJ": issubclass(FullPairLJ, Calculator),
@@ -172,11 +186,25 @@ def preflight():
             and ledger[1]["charged"] and not ledger[1]["actual_calculator_called"]
             and ledger[0]["status"] == "ok" and not ledger[2]["charged"]
             and ledger[2]["status"] == "denied")
+    # Observed v1 failures were finite nonperiodic configurations beyond 50 A.
+    # This dummy check reproduces that domain boundary without evaluating any PES.
+    wide = Atoms("Ar2", positions=[[-20., 0., 0.], [120., 0., 0.]], cell=[100.]*3, pbc=False)
+    with tempfile.TemporaryDirectory(prefix="lj55-domain-preflight-") as tmp:
+        dummy = Dummy()
+        compact = CompactSurface(dummy, Path(tmp) / "ledger.jsonl", cap=2)
+        compact.evaluate(wide)
+        periodic_rejected = False
+        wide.pbc = True
+        try:
+            compact.evaluate(wide)
+        except RuntimeError as exc:
+            periodic_rejected = "geometry_gate_failed:periodic_input" in str(exc)
+        checks["nonperiodic_domain_regression"] = bool(periodic_rejected and dummy.calls == 1)
     print(json.dumps({"status": "preflight_ok", "pes_requests": 0, "protocol": cfg,
                       "checks": checks, "generated_inputs": generated,
                       "imports": source_info()}, indent=2, allow_nan=False))
     if (not all(x["geometry_gate"]["eligible"] for x in generated) or
-            not checks["target_geometry_gate"]["eligible"] or not checks["compact_surface_contract"]):
+            not checks["target_geometry_gate"]["eligible"] or not checks["compact_surface_contract"] or not checks["nonperiodic_domain_regression"]):
         raise SystemExit("preflight geometry-domain check failed")
 
 
@@ -205,18 +233,18 @@ class CompactSurface:
             self.denied += 1
             self._append({"request": self.paid + 1, "charged": False, "status": "denied",
                           "reason": "request_cap_denied_before_evaluation",
-                          "geometry_gate": PANEL.geometry_gate(atoms)})
+                          "geometry_gate": geometry_gate(atoms)})
             raise RuntimeError("request_cap_denied_before_evaluation")
         if self.deadline is not None and time.monotonic() >= self.deadline:
             self.denied += 1
             self._append({"request": self.paid + 1, "charged": False, "status": "denied",
                           "reason": "wall_cap_denied_before_evaluation",
-                          "geometry_gate": PANEL.geometry_gate(atoms)})
+                          "geometry_gate": geometry_gate(atoms)})
             raise RuntimeError("wall_cap_denied_before_evaluation")
         self.paid += 1
         row = {"request": self.paid, "charged": True, "status": "pending",
                "actual_calculator_called": False, "energy_eV": None, "fmax_eV_A": None,
-               "geometry_gate": PANEL.geometry_gate(atoms)}
+               "geometry_gate": geometry_gate(atoms)}
         calculate_before = self._calculate_counter["calls"]
         try:
             if not row["geometry_gate"]["eligible"]:
@@ -311,7 +339,7 @@ def prepare(output: Path):
             write(case / "prepared-candidate.extxyz", best.atoms)
             numerical = bool(initial.converged and np.isfinite(initial.energy) and initial.max_force <= FMAX
                              and best.converged and np.isfinite(best.energy) and best.max_force <= FMAX
-                             and PANEL.geometry_gate(best.atoms)["eligible"]
+                             and geometry_gate(best.atoms)["eligible"]
                              and PANEL.connected_components(best.atoms) == [N])
             fresh = CompactSurface(FullPairLJ(epsilon=EPSILON, sigma=SIGMA),
                 case / "prepare-fresh-ledger.jsonl", cap=1, failures_dir=case / "failures")
@@ -368,7 +396,7 @@ def execute(prepared_dir: Path, slot: int, output: Path):
     if not prep_result.get("qualified") or not input_path.is_file():
         raise RuntimeError(f"seed {seed} is not qualified; this slot cannot search")
     atoms = read(input_path)
-    if len(atoms) != N or not PANEL.geometry_gate(atoms)["eligible"] or PANEL.connected_components(atoms) != [N]:
+    if len(atoms) != N or not geometry_gate(atoms)["eligible"] or PANEL.connected_components(atoms) != [N]:
         raise RuntimeError("prepared input fails LJ55 domain/connectivity contract")
     output.mkdir(parents=True, exist_ok=False)
     snapshot(output)
