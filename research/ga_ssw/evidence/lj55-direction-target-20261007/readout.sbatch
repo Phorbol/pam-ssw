@@ -11,4 +11,5 @@ set -euo pipefail
 export PYTHONNOUSERSITE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
 cd /home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification
 task_dir=research/ga_ssw/evidence/lj55-direction-target-20261007
-exec /home/gengjianrui/.conda/envs/mace_env/bin/python "$task_dir/analyze.py" --prepared "$task_dir/prepared-1663031" --runs "$task_dir/run-1663101-0" "$task_dir/run-1663101-1" "$task_dir/run-1663101-2" "$task_dir/run-1663101-3" --output "$task_dir/readout-${SLURM_JOB_ID}"
+task_panel=${1:?Pass the four-slot panel job ID}
+exec /home/gengjianrui/.conda/envs/mace_env/bin/python "$task_dir/analyze.py" --prepared "$task_dir/prepared-1663031" --runs "$task_dir/run-${task_panel}-0" "$task_dir/run-${task_panel}-1" "$task_dir/run-${task_panel}-2" "$task_dir/run-${task_panel}-3" --output "$task_dir/readout-${SLURM_JOB_ID}"
