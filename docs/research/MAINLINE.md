@@ -92,6 +92,18 @@ soft prequench .05与true .03分开。研究runner接线27d44c9，CPU1664330回�
 已经成笼的local初态冒充随机成笼成功。原四臂random方向面板1664068保持不变。
 [固定因子、来源、判据和停止条件](../../research/ga_ssw/evidence/c60-source3-paper-ls-transfer-20261007/protocol.md)。
 
+读出独立审查指出收费预算可能包含检查点之外的工作；977a5c6已将共同收费上限与
+可观察lineage上限分开，缺检查点不虚报前缀到达，中断calculate明确未知而非零。
+主agent用charged5000/lineage1的纯stub反例验证，预淬火失败排除/正常LS回放也已检查；
+修正不改变已冻结算法、输入或预算。mc_failed的响应保留，明确未更新强度。
+
+下一周期候选仅做只读就绪核查：2014VC §3.1的SiO2目标是BKS上的anatase型#141，
+72atom quartz起点来自已有COD9atom×8。已有1502803/1502823面板只给17/18数值
+合格落点，17个均MC拒绝且比自身初态高8.84–16.75eV，不证明新相/GM；原协议已收口。
+原ESI在现有archive仍缺目标坐标；官方页面可检索到129K附件，但当前RSC页面403、
+候选SI路径工具不可达/传输SSL失败，尚无文件。不是已证实“没有SI”；不猜SiO2
+目标模板或直接把TiO2换元素称paper源。此项不阻塞C60/LS，未新增周期PES/作业。
+
 为后续VC纸面目标先做独立低成本模型资格，CPU1664166/source76a75cc完成：
 8/8 fcc/hcp参考cold力/stress合格，181请求/164实际calculate，主agent逐账复核。
 rc2.7的Ehcp−Efcc=+.00763eV/atom（fcc更低）；3/6/10为负，证明现有bulk smoke
