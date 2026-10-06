@@ -1,0 +1,13 @@
+{
+  "search_array": 1665016,
+  "readout_afterany": 1665018,
+  "cold_afterok": 1665019,
+  "source_commit": "87b5b91ffe22994dfd7b4b91d52483e4e6683cd0",
+  "prepared": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-source3-native-reference-20261007/prepared-20261007-b",
+  "search_cap_each": 16000,
+  "search_wall_each_s": 900,
+  "allocation_wall_each_s": 1200,
+  "fresh_cap_total": 6,
+  "account": "sjtu-caoxiaoming",
+  "no_automatic_retry_resume_or_extension": true
+}

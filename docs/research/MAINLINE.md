@@ -105,6 +105,17 @@ LS两臂37/34次预淬火均合格，362/330请求，响应与强度回放和che
 与共同局部困难，不新增nativeLS第三因子或同案例调参。
 [种子资格与范围](../../research/ga_ssw/evidence/lasp-explicit-seed-qualification-20261007/decision.md)。
 
+同#3有界nativeSSW参照source87b5b91已冻结prepared-20261007-b，并提交GPUarray1665016
+（两个显式seed，各16k paid或900秒搜索、20min allocation、两卡并发），CPU1665018
+afterany读出与GPU1665019 afterok最多6cold跟随。不开nativeLS第三臂/新优化器；
+孤立Python与50A周期native及RNG/MC/optimizer差别显式保留，比较整栈而非单组件。
+主agent修复了准备脚本继承旧绝对client路径及冷复核预算文字不一致，实际冻结
+launcher用相邻client、每run<=3cold；全路径dummy预检2paid/1actual/1denial通过，
+失败不会保留stale external.ene。4个历史Minfound与累计paidoffset/能量/force对应
+通过，缺失/错配/非有限值排除通过；cold六slot缓存/失败计数检查通过，均0真实PES。
+已核验源码、input ARC、MH1/binary、positive seed与vacuum几何；尚无native搜索结果。
+[问题、判据、预算与执行边界](../../research/ga_ssw/evidence/c60-source3-native-reference-20261007/protocol.md)。
+
 读出独立审查指出收费预算可能包含检查点之外的工作；977a5c6已将共同收费上限与
 可观察lineage上限分开，缺检查点不虚报前缀到达，中断calculate明确未知而非零。
 主agent用charged5000/lineage1的纯stub反例验证，预淬火失败排除/正常LS回放也已检查；
