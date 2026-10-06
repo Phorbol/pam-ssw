@@ -1,0 +1,115 @@
+{
+  "scope": "bounded phase-target functional/cost comparison of existing whole VC walkers; no paper-rate/DFT/singlecomponent inference",
+  "model": "/home/gengjianrui/.cache/mace/mace-omat-0-small.model",
+  "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+  "calculator": {
+    "head": "omat_pbe",
+    "device": "cuda",
+    "dtype": "float64",
+    "enable_cueq": false,
+    "enable_oeq": false
+  },
+  "atomic_config": {
+    "width": 0.6,
+    "rotation_bias": 1.0,
+    "max_gaussians": 10,
+    "temperature_K": 4000.0,
+    "fmax": 0.05,
+    "relax_steps": 300,
+    "fd_step": 0.001,
+    "rotation_hvp": 39,
+    "rotation_tol": 0.02,
+    "forward_force": 0.1,
+    "direction_sampling": "global",
+    "rotation_solver": "dimer",
+    "cluster_frame": "translation_only",
+    "quench_optimizer": "safe-lbfgs-total",
+    "lbfgs_memory": 500,
+    "bias_fmax": 0.1
+  },
+  "block_config": {
+    "quench_length": 5.0,
+    "cell_cycles": 5,
+    "atomic_period": 2,
+    "cell_step_fraction": 0.15,
+    "cell_step_metric": "lattice_frobenius",
+    "cell_fd_step": 0.005,
+    "cell_rotation_requests": 6,
+    "cell_rotation_force_tol": 0.1,
+    "partial_atom_steps": 25,
+    "partial_atom_fmax": 0.1,
+    "pressure": 0.0,
+    "stress_tol": 0.001,
+    "max_step": 0.2
+  },
+  "joint_config": {
+    "strain_length": 5.0,
+    "width": 0.6,
+    "rotation_bias": 1.0,
+    "temperature_K": 4000.0,
+    "forward_force": 0.1,
+    "max_gaussians": 10,
+    "gradient_tol": 0.1,
+    "fmax": 0.05,
+    "stress_tol": 0.001,
+    "max_step": 0.2,
+    "relax_steps": 300,
+    "fd_step": 0.001,
+    "rotation_hvp": 39,
+    "rotation_tol": 0.02,
+    "lbfgs_memory": 500,
+    "bias_release": "strict"
+  },
+  "cases": [
+    {
+      "id": "phase87_12",
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-phase-qualification-20261007/run-1663408/phase87_is/endpoint.extxyz",
+      "sha256": "564aae0f5f7638b79edc6e23befe1e9ee12ecb6641fbf922e31a20ad8b23afc5",
+      "natoms": 12,
+      "paired_seed": 26100751
+    },
+    {
+      "id": "phase87_48",
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/literature/benchmark-sources/coordinates/phase-87.extxyz",
+      "sha256": "07b56b86271fc7e812b13cf8068f746a151854198e1f12be898751ef7d071542",
+      "natoms": 48,
+      "paired_seed": 26100752
+    }
+  ],
+  "target": {
+    "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-phase-qualification-20261007/run-1663408/anatase_fs/endpoint.extxyz",
+    "sha256": "867a034e9e339e273b7a580e397c4245728c6d6ebe9c951a93fc79b9fe6606d8",
+    "energy_eV": -107.0341220437806,
+    "natoms": 12,
+    "energy_tolerance_eV_per_atom": 0.001,
+    "fmax_eV_A": 0.05,
+    "stress_tol_eV_A3": 0.001
+  },
+  "identity_tolerances": {
+    "tight": {
+      "ltol": 0.05,
+      "stol": 0.1,
+      "angle_tol": 2.0
+    },
+    "broad": {
+      "ltol": 0.2,
+      "stol": 0.3,
+      "angle_tol": 5.0
+    }
+  },
+  "budget": {
+    "per_arm_requests": 20000,
+    "per_arm_seconds": 600,
+    "outer_steps": 40,
+    "fresh_requests_per_arm": 3,
+    "shared_reference_requests": 1,
+    "max_concurrent": 2
+  },
+  "source_qualification": {
+    "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-phase-qualification-20261007/run-1663408/qualification.json",
+    "geometry": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-phase-qualification-20261007/geometry-1663414/geometry.json",
+    "paid_search": 25,
+    "fresh": 6,
+    "paper_doi": "10.1039/c7sc01459g"
+  }
+}

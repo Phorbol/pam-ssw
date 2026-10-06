@@ -1,4 +1,4 @@
-## 2026-10-07 当前：LJ55有效目标对照收口，转入论文Morse势面
+## 2026-10-07 当前：LJ/Morse方向对照收口，转入TiO2变胞相目标
 
 主线仍是独立ASE SSW/LS目标发现与总成本，随后VC；核心树c572a1cc不变。
 LJ55两个新起点rotation/full在同势/预算/RNG下，完整方向29534/2374请求均
@@ -12,11 +12,23 @@ LJ55两个新起点rotation/full在同势/预算/RNG下，完整方向29534/2374
 完成；v2 212831+5fresh，共同准备457，v1 70794+6fresh，系列284093请求，
 重复只算费用/回归不算独立seed。已关闭，不调窗口/force、不扩大同案例预算。
 
-下一项M80强局部Morse势有界方向传递已提交CPU1663302，源码8204fd9：复用两个固定compact初态（一个80
-连通，一个73+6+1）、两个方向，每臂80k请求/100步/600秒，CPU两并发，无LS/
-围限/重采样。零PES/域/缓存计数预检通过，尚无实际结果。
-[固定协议](../../research/ga_ssw/evidence/m80-direction-transfer-20261007/protocol.md)。允许结论是功能、合格连通落点及成本/失败；不以少量未命中估计
-论文100轨迹/2000步的GM成功率，不直接开184M请求研究。
+M80 CPU1663302/读出1663308及1663399已完成，源码8204fd9，核心不变。
+两起点同cost的连通最佳能量full比rotation低6.7258/.0441eV；后一例rotation
+更早到自身最佳，不称稳定方向赢家。4/4最佳cold力合格且连通，80G联合目标0/4。
+一例80k预算截断，不是势计算错误；其余各100步。286056搜索+9fresh，历史准备
+1674另列，总287739。已收口，不调参/追加seed或自动复制论文100轨迹。
+[判据、成本、反证与决定](../../research/ga_ssw/evidence/m80-direction-transfer-20261007/decision.md)。
+
+下一项TiO2已从只检查力/stress升级为anatase结构目标。GPU1663408/source3f19072
+用25EFS+6cold使paper phase87 IS12/anatase FS12分别合格且保持不同几何，后者
+低.50490eV/12atom。CPU1663379/1663414通过编号/包裹/换基/超胞及不同相对照。
+坐标来自2017 SSW-NN SI，非2014VC SI；源phase87/rutile测得对称群12/31，
+不冒称87/136。rutile暂不作相搜索输入。无Hessian稳定性或DFT数值复现声明。
+[资格协议](../../research/ga_ssw/evidence/tio2-phase-qualification-20261007/protocol.md)。
+已冻结12/48atom phase87几何→当前势anatase目标的joint/block四臂方案：40外步/
+20kEFS/600秒每臂，最多两V100并发，总80k+≤13cold，不续跑；研究脚本尚在审查，
+**未提交搜索**。对比的是完整管线，不是单个坐标/优化器组件的消融。
+[目标协议](../../research/ga_ssw/evidence/tio2-vc-target-panel-20261007/protocol.md)。
 
 短LJ55/LJ38六臂与C4H6反例已收口：LJ共同cost的优势依体系反转；C4两论文
 起点SSW/LS连通新图类2/1与1/2，29897请求含四候选精修/曲率资格。LS保留显式
