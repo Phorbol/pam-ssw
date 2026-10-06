@@ -25,7 +25,7 @@ def main():
     plan = json.loads((Path(__file__).parent / 'plan.json').read_text())
     arrays = np.load(args.run / 'mode-arrays.npz', allow_pickle=False)
     costs = [ledger(p) for p in sorted(args.run.glob('*.jsonl'))
-             if p.name.startswith(('requests-', 'fresh-'))]
+             if p.name.startswith(('requests-', 'fresh-')) and p.name != 'fresh-records.jsonl']
     total = sum(row['requests'] for row in costs)
     cap = sum(plan['budget'][key] for key in
               ('total_search_requests', 'total_reference_requests', 'total_fresh_requests'))

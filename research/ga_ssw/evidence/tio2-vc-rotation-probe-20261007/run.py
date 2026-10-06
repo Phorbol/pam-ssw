@@ -600,7 +600,7 @@ def execute(plan, output):
     (output / "reference.json").write_text(json.dumps(reference_row, indent=2, allow_nan=False) + "\n")
     (output / "fresh-records.jsonl").write_text("".join(
         json.dumps(row, allow_nan=False) + "\n" for row in cold_rows))
-    ledger_paths = sorted(output.glob("requests-*.jsonl")) + sorted(output.glob("fresh-*.jsonl"))
+    ledger_paths = sorted(output.glob("requests-*.jsonl")) + [p for p in sorted(output.glob("fresh-*.jsonl")) if p.name != "fresh-records.jsonl"]
     ledger_closures = {path.name: _ledger_closure_from_file(path) for path in ledger_paths}
     closure_checks = ([row.get("search_ledger_closure", {}).get("closed", False) for row in rows]
         + [reference_row.get("ledger_closure", {}).get("closed", False)]
