@@ -481,11 +481,12 @@ def execute_python(out, atoms, n, seed, arm, steps, cap, wall):
         progress_callback=progress, **options)
     if result.checkpoint is not None:
         save_ssw_checkpoint(out / "checkpoint.pkl", result.checkpoint)
-    write(out / "best.extxyz", result.best.atoms)
+    best_quench = result.checkpoint.best
+    write(out / "best.extxyz", result.best)
     fresh = CountedSurface(FullPairLJ(epsilon=EPSILON, sigma=SIGMA),
                            out / "fresh-ef.jsonl", cap=2)
     fresh_rows = []
-    for label, quench in (("initial", result.initial), ("best", result.best)):
+    for label, quench in (("initial", result.initial), ("best", best_quench)):
         state = quench.atoms
         if (not quench.converged or not np.isfinite(quench.energy) or
                 not np.isfinite(quench.max_force) or quench.max_force > FMAX):
@@ -505,9 +506,9 @@ def execute_python(out, atoms, n, seed, arm, steps, cap, wall):
         "initial": {"energy_eV": float(result.initial.energy),
             "fmax_eV_A": float(result.initial.max_force),
             "converged": bool(result.initial.converged)},
-        "best_energy_eV": float(result.best.energy),
+        "best_energy_eV": float(best_quench.energy),
         "fresh": fresh_rows, "fresh_requests": fresh.requests, "minima": minima,
-        "outer_events": events, "best_geometry_gate": geometry_gate(result.best.atoms),
+        "outer_events": events, "best_geometry_gate": geometry_gate(result.best),
         "configuration": {"ssw": asdict(config),
             "recovered_rotation": asdict(rotation) if arm == "rotation" else None,
             "recovered_direction": asdict(direction) if arm == "full" else None,
