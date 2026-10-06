@@ -49,3 +49,15 @@ cap. Failed work/denials and actual calculator calls remain separately visible.
 Save input/config/model/source provenance, Gaussian history, ledgers, endpoint,
 all stopping/certificate flags. Current CPU regression verifies unchanged real
 Cu/EMT climb and checkpoint behavior; pure stubs verify opt-in semantics only.
+
+Scope clarified by a read-only source audit while the frozen experiment runs:
+atomic_climb's rotation callback contains the physical PES and coordinate
+projection; its solver adds its own rank-one rotation bias. Stored Gaussian
+terms enter the biased quench, not later rotation callbacks. run_ssw similarly
+uses physical + frozen LS (if enabled) for rotation, excluding stored Gaussians.
+Native add_rotation_bias's rank-one force is recovered, but the native callback's
+cumulative-Gaussian lifetime remains unresolved (see docs/research/
+native-rotation-bias-field-trace.md). The2014 cumulative modified-PES quench
+formula alone cannot resolve that callback. Both current arms share the same
+callback, and first rotation has no Gaussian history; later stages do not
+establish native Hessian parity. No component/config change follows this audit.
