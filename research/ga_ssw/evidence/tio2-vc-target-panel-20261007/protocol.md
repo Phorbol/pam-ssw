@@ -107,3 +107,12 @@ configuration, raw scalar EFS ledgers, outer decisions/cells/minima, budget
 denials and cold checks. Readout runs onCPU, separates execution, numerical and
 phase identity, compares common paid horizons, and keeps related-size caveats.
 No core algorithm or default changes in this panel.
+
+## Execution registration
+
+Source835b6f2, core treec572a1cc unchanged. Compile, bash syntax, zero-real-PES
+preflight passed in mace_env Python3.12 with PYTHONNOUSERSITE=1. Dummy
+block/joint API calls19/54 requests; they do not establish physical performance.
+Analyzer failure-cost/censor and broken-closure checks passed. GPU array1663547
+(slots0–3, max2concurrent) and afterany CPU readout1663551 submitted using
+sjtu-caoxiaoming. Actual phase outcomes remain unverified. No auto continuation.

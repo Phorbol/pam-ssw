@@ -26,8 +26,9 @@ M80 CPU1663302/读出1663308及1663399已完成，源码8204fd9，核心不变�
 不冒称87/136。rutile暂不作相搜索输入。无Hessian稳定性或DFT数值复现声明。
 [资格协议](../../research/ga_ssw/evidence/tio2-phase-qualification-20261007/protocol.md)。
 已冻结12/48atom phase87几何→当前势anatase目标的joint/block四臂方案：40外步/
-20kEFS/600秒每臂，最多两V100并发，总80k+≤13cold，不续跑；研究脚本尚在审查，
-**未提交搜索**。对比的是完整管线，不是单个坐标/优化器组件的消融。
+20kEFS/600秒每臂，最多两V100并发，总80k+≤13cold，不续跑。独立审查与零真实PES
+预检通过（dummy block19/joint54请求；分析器区分失败费用与未收费denial，拒绝账本不闭合），
+源码835b6f2，GPU数组1663547与afterany CPU读出1663551已提交；**实际相发现结果待验证**。对比的是完整管线，不是单个坐标/优化器组件的消融。
 [目标协议](../../research/ga_ssw/evidence/tio2-vc-target-panel-20261007/protocol.md)。
 
 短LJ55/LJ38六臂与C4H6反例已收口：LJ共同cost的优势依体系反转；C4两论文
