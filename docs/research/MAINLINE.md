@@ -42,10 +42,22 @@ GPU1663620/修复CPU读出1663637共424 EFS，无PES重跑；联合默认暂不�
 下一项仅接通已有SSWConfig.force_or_budget在periodic atomic_climb的拒绝入口，
 源码6129c5f，保留converged=False、显式budget_released及所有真面资格门，不新增
 参数/持久化架构/默认。独立stub35通过；CPU1663773真实Cu/EMT及block/checkpoint
-回归32通过。源码04f4aa2零PES预检通过，GPU1663813/依赖CPU1663814已提交，
-从两保存post-cell起点配对检验原子逃逸，不重跑坍缩cell路线；未有实际结果。
-四臂串行共用一V100/10min及540秒截止，最多12000搜索+8cold，不扩原面板。
+回归32通过。源码04f4aa2零PES预检通过，GPU1663813/CPU1663814已完成，
+从两保存post-cell起点配对检验：strict均40请求首轮退出；release均10Gaussian
+完成，688/789请求产生cold合格极小值，12atom命中anatase，48atom未命中。
+共1557search+6cold/1497实际search calculate，无error/denial；这不证明全局收益。
+两起点不力/stress合格且不匹配anatase，仍可能已被前置cell周期选入相同basin。
+源码3743147 GPU1663900/依赖CPU1663927增加相同输入直接true-quench小对照，
+最多2000search+2cold、一卡5min；不改原结果/参数、不自动延长轨迹。
 [固定协议](../../research/ga_ssw/evidence/tio2-atomic-budget-release-20261007/protocol.md)。
+
+下一项回归SSW主线：新随机C6026100781/82（旧17093–17096与17101/02已使用，
+不重开），仅比较已有recovered rotation与full_peratom方向bundle。源码46de9f6
+补齐研究runner既有方向接口，CPU1663912验证预算/恢复兼容；3个无PES入口检查
+由主agent复核通过（最初fixture隐式EMT淬火已发现并改为禁止EMT.calculate）。
+两新输入及后端资格仍待准备，不称已运行；计划至多240ksearch+12cold、两卡并发，
+每臂60k与80min上限，无自动续跑。先资格检查再决定提交，不盲目回到百万预算。
+[问题、因子、验收与边界](../../research/ga_ssw/evidence/c60-direction-transfer-20261007/protocol.md)。
 
 短LJ55/LJ38六臂与C4H6反例已收口：LJ共同cost的优势依体系反转；C4两论文
 起点SSW/LS连通新图类2/1与1/2，29897请求含四候选精修/曲率资格。LS保留显式
