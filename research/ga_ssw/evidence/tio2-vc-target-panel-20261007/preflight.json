@@ -1,0 +1,243 @@
+{
+  "status": "preflight_passed",
+  "real_pes_requests": 0,
+  "configuration": {
+    "purpose": "actual anatase-phase discovery from phase87 inputs on existing OMAT-small",
+    "claim_scope": "paired whole-walker comparison; not component causality or DFT paper-rate replication",
+    "walkers": {
+      "atomic": {
+        "width": 0.6,
+        "rotation_bias": 1.0,
+        "max_gaussians": 10,
+        "temperature_K": 4000.0,
+        "fmax": 0.05,
+        "relax_steps": 300,
+        "fd_step": 0.001,
+        "rotation_hvp": 39,
+        "rotation_tol": 0.02,
+        "forward_force": 0.1,
+        "direction_sampling": "global",
+        "rotation_solver": "dimer",
+        "cluster_frame": "translation_only",
+        "quench_optimizer": "safe-lbfgs-total",
+        "lbfgs_memory": 500,
+        "bias_fmax": 0.1
+      },
+      "block": {
+        "quench_length": 5.0,
+        "cell_cycles": 5,
+        "atomic_period": 2,
+        "cell_step_fraction": 0.15,
+        "cell_step_metric": "lattice_frobenius",
+        "cell_fd_step": 0.005,
+        "cell_rotation_requests": 6,
+        "cell_rotation_force_tol": 0.1,
+        "partial_atom_steps": 25,
+        "partial_atom_fmax": 0.1,
+        "pressure": 0.0,
+        "stress_tol": 0.001,
+        "max_step": 0.2
+      },
+      "joint_vc": {
+        "strain_length": 5.0,
+        "width": 0.6,
+        "rotation_bias": 1.0,
+        "temperature_K": 4000.0,
+        "forward_force": 0.1,
+        "max_gaussians": 10,
+        "gradient_tol": 0.1,
+        "fmax": 0.05,
+        "stress_tol": 0.001,
+        "max_step": 0.2,
+        "relax_steps": 300,
+        "fd_step": 0.001,
+        "rotation_hvp": 39,
+        "rotation_tol": 0.02,
+        "lbfgs_memory": 500,
+        "bias_release": "strict"
+      }
+    },
+    "paired_rng_seeds": [
+      26100751,
+      26100752
+    ],
+    "outer_steps": 40,
+    "budget": {
+      "per_arm_search_requests_including_initial_and_failures": 20000,
+      "per_arm_outer_attempts": 40,
+      "per_arm_wall_seconds": 600.0,
+      "per_arm_fresh_requests": 3,
+      "per_arm_fresh_seconds": 30.0,
+      "panel_search_request_cap": 80000,
+      "panel_fresh_request_cap": 13,
+      "first_target_cost": "all paid requests through its completed outer step"
+    },
+    "target_gate": "physical fmax/stress + tight and broad pymatgen identity + energy per atom window"
+  },
+  "api_checks": {
+    "run_block_ssw": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/block_ssw.py",
+    "run_vc_ssw": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/vc_reference.py",
+    "mace_constructor": "(model_paths: Union[list, str, NoneType] = None, models: Union[List[torch.nn.modules.module.Module], torch.nn.modules.module.Module, NoneType] = None, device: str = 'cpu', energy_units_to_eV: float = 1.0, length_units_to_A: float = 1.0, default_dtype='', charges_key='Qs', info_keys=None, arrays_keys=None, model_type='MACE', compile_mode=None, fullgraph=True, enable_cueq=False, enable_oeq=False, pad_num_atoms: int = 0, pad_num_edges: int = 0, warmup: bool = False, **kwargs)",
+    "block_signature": "(atoms, surface, *, steps, config, rng)",
+    "joint_signature": "(atoms, surface, *, steps, config, rng, ls=None, direction_solver=None, rotation_force_calls=None, height_policy=None, height_update_budget=1000, ls_prequench='fixed_cell')",
+    "qualification_helpers": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-phase-qualification-20261007/run.py",
+    "block_dummy": {
+      "status": "completed",
+      "requests": 19,
+      "records": 2,
+      "calculator_calls": 11
+    },
+    "joint_vc_dummy": {
+      "status": "completed",
+      "requests": 54,
+      "records": 2,
+      "calculator_calls": 21
+    }
+  },
+  "qualification_helper_budget_cache_preflight": {
+    "status": "preflight_passed",
+    "real_ef_requests": 0,
+    "model_constructor": "(model_paths: Union[list, str, NoneType] = None, models: Union[List[torch.nn.modules.module.Module], torch.nn.modules.module.Module, NoneType] = None, device: str = 'cpu', energy_units_to_eV: float = 1.0, length_units_to_A: float = 1.0, default_dtype='', charges_key='Qs', info_keys=None, arrays_keys=None, model_type='MACE', compile_mode=None, fullgraph=True, enable_cueq=False, enable_oeq=False, pad_num_atoms: int = 0, pad_num_edges: int = 0, warmup: bool = False, **kwargs)",
+    "calculate_method": "(self, atoms=None, properties=None, system_changes=['positions', 'numbers', 'cell', 'pbc', 'initial_charges', 'initial_magmoms'])",
+    "runtime_dtype": {
+      "requested": "float64",
+      "torch_float64": "torch.float64",
+      "mace_argument": "default_dtype"
+    },
+    "surface_api": "(calculator, *, force_consistent=False)",
+    "cell_quench_api": "(atoms, surface, *, strain_length, pressure, fmax, stress_tol, max_step, maxiter, lbfgs_memory=None)",
+    "dummy_cache_case": {
+      "requests": 2,
+      "calculator_calls": 1,
+      "denials": 1
+    },
+    "dummy_failure_case": {
+      "requests": 1,
+      "calculator_calls": 1,
+      "failures": 1
+    },
+    "dummy_quench": {
+      "converged": true,
+      "requests": 2
+    },
+    "provenance": {
+      "head": "53c042ff7b74cc70c4bd530670d280284a511c07",
+      "head_pamssw_tree": "c572a1cc0766f8d3ff534a467ad64613aaa78ce0",
+      "python": "/home/gengjianrui/.conda/envs/mace_env/bin/python",
+      "python_version": "3.12.11",
+      "imports": {
+        "ase": "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/__init__.py",
+        "mace": "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/mace/__init__.py",
+        "torch": "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/torch/__init__.py",
+        "pamssw.standalone.vc_geometry": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/vc_geometry.py",
+        "pamssw.standalone.cell_relax": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/cell_relax.py"
+      },
+      "model": "/home/gengjianrui/.cache/mace/mace-omat-0-small.model",
+      "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+      "source_hashes": {
+        "plan.json": "007fcfcc903efe956c4a9291b50f4917c83bc65dec74421616155b52117de9d1",
+        "runner.py": "edf329d691ed98e53c497e1534a89e7389f0f6460d8d9b414d72a2963799804f",
+        "pamssw/standalone/__init__.py": "8ba7e9e0d02744c8c48ee1103f48474908202d52cbd9c6c582294a03366d1249",
+        "pamssw/standalone/vc_geometry.py": "bc7108c31805b51e3cdac13ec7d13ac00cfdb25f305642769e89a8572d1396c6",
+        "pamssw/standalone/cell_relax.py": "5bcf07dc5fe93df5a7738a28f03aa2c4947d0a35019054a46382fdeb8c42a24e",
+        "pamssw/standalone/generalized_numerics.py": "25d5bb8ddf5c71296def1d1b60b87f9c6abce83fdc0ebe9f8809588852dfe740"
+      },
+      "inputs": {
+        "phase87_is": {
+          "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/literature/benchmark-sources/coordinates/is-phase-87-of-pathway-between-phase-87-to-anatase.extxyz",
+          "sha256": "d2159b501b270d14769d0d405053303b001f5ec0786ffd7444cbf95dcdb56d9f",
+          "atoms": 12
+        },
+        "anatase_fs": {
+          "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/literature/benchmark-sources/coordinates/fs-anatase-of-pathway-between-phase-87-to-anatase.extxyz",
+          "sha256": "e1726c173dde3e0007e094f85ab006ae46e14048311867b816ada1faafe331a7",
+          "atoms": 12
+        },
+        "rutile": {
+          "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/literature/benchmark-sources/coordinates/rutile.extxyz",
+          "sha256": "8a23e687de1d91e5ed44687be1003c1851990264a1837ce46e9a0c8bed49840b",
+          "atoms": 12
+        }
+      }
+    }
+  },
+  "identity_preflight": {
+    "tight": {
+      "target_self_match": true,
+      "target_48_atom_supercell_match": true
+    },
+    "broad": {
+      "target_self_match": true,
+      "target_48_atom_supercell_match": true
+    }
+  },
+  "provenance": {
+    "checkout": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification",
+    "git_head": "53c042ff7b74cc70c4bd530670d280284a511c07",
+    "head_pamssw_tree": "c572a1cc0766f8d3ff534a467ad64613aaa78ce0",
+    "python": "/home/gengjianrui/.conda/envs/mace_env/bin/python",
+    "python_version": "3.12.11",
+    "imports": {
+      "atomic_climb": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/atomic_climb.py",
+      "block_ssw": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/block_ssw.py",
+      "cbd_cell": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/cbd_cell.py",
+      "direction": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/direction.py",
+      "dimer": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/dimer.py",
+      "gaussian": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/gaussian.py",
+      "paper_reference": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/paper_reference.py",
+      "periodic_identity": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/periodic_ga_reference.py",
+      "periodic_geometry": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/periodic_geometry.py",
+      "vc_reference": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/vc_reference.py",
+      "vc_geometry": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/vc_geometry.py",
+      "cell_relax": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/cell_relax.py",
+      "generalized_numerics": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/generalized_numerics.py",
+      "surface": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/surface.py",
+      "ase": "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/ase/__init__.py",
+      "mace": "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/mace/__init__.py",
+      "torch": "/home/gengjianrui/.conda/envs/mace_env/lib/python3.12/site-packages/torch/__init__.py",
+      "atomic_config": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/paper_reference.py",
+      "qualification_helper": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-phase-qualification-20261007/run.py",
+      "runner": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-vc-target-panel-20261007/run.py"
+    },
+    "source_sha256": {
+      "atomic_climb": "e231d1fddcf3bdec0576bc69eb54ae2f97557cc993ce33202ddff68972421d8b",
+      "block_ssw": "9ce5c3e78cf154505981af7ca18c8da1cb63b7034efa699a86daa07d80eef955",
+      "cbd_cell": "18d5ca40a192434e795fc6c1fe44854a5b8412140fdbd43b4a7b0623b2248c14",
+      "direction": "22e90dd246a083e89ad0988366372fbc84e191667453c8884235c5d5f65069fb",
+      "dimer": "e014286ef4170da09a242bf3c9c12fa6440264d6833d3faef520b40c66677beb",
+      "gaussian": "6ea22e6d10edcfaba1b1c893de61a3b5eb1be750801048be67c3c65a5c5d9691",
+      "paper_reference": "5854745149e8a487b2659beff68578cda615a8b30936c1db4003d649a56c7563",
+      "periodic_identity": "3870da0270014c7b77baf727acca089b1b5ab3f191228fbea04f90566b82d38f",
+      "periodic_geometry": "f4803a8e8504d87d883dfba0b79d3f84f8ad320fdc9306fae94fa6527c483a0b",
+      "vc_reference": "e21773b6186588c696e177d0f1e64f063b613b197cf92966867719efe6c3bde0",
+      "vc_geometry": "bc7108c31805b51e3cdac13ec7d13ac00cfdb25f305642769e89a8572d1396c6",
+      "cell_relax": "5bcf07dc5fe93df5a7738a28f03aa2c4947d0a35019054a46382fdeb8c42a24e",
+      "generalized_numerics": "25d5bb8ddf5c71296def1d1b60b87f9c6abce83fdc0ebe9f8809588852dfe740",
+      "surface": "ef5be025940b12efba9ae96ede131c4d1d8fcbc083603cc3816a9b3eced7ce10",
+      "ase": "3feb63d0a84020ff4aaab2080fd53b5476eca1f196a564f7e9e5d8120034a0aa",
+      "mace": "e552c116b7d2c653f98b01f5c4fd599997f19f669a32bc6bf16396dd9f79365b",
+      "torch": "2f0deb66d5dff6b9c02a62832c3bf3824c2ee031c462a3afeb9ca170466da5bf",
+      "atomic_config": "5854745149e8a487b2659beff68578cda615a8b30936c1db4003d649a56c7563",
+      "qualification_helper": "edf329d691ed98e53c497e1534a89e7389f0f6460d8d9b414d72a2963799804f",
+      "runner": "7fec84ef58073f42e6ff0eaab8e63c7338bf169b819e77dbc7b1466f9846db5d"
+    },
+    "plan_sha256": "edddcde88c19da796843831743bf649070732f4d1ddf635681d3e98c49c0a35f",
+    "protocol_sha256": "c65458d8bcc0018011d18fa5fc7462e4dd0add8bdf88560847fc10e1da2aead7",
+    "model": "/home/gengjianrui/.cache/mace/mace-omat-0-small.model",
+    "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+    "inputs": {
+      "phase87_12": {
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-phase-qualification-20261007/run-1663408/phase87_is/endpoint.extxyz",
+        "sha256": "564aae0f5f7638b79edc6e23befe1e9ee12ecb6641fbf922e31a20ad8b23afc5"
+      },
+      "phase87_48": {
+        "path": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/literature/benchmark-sources/coordinates/phase-87.extxyz",
+        "sha256": "07b56b86271fc7e812b13cf8068f746a151854198e1f12be898751ef7d071542"
+      }
+    },
+    "target": {
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-phase-qualification-20261007/run-1663408/anatase_fs/endpoint.extxyz",
+      "sha256": "867a034e9e339e273b7a580e397c4245728c6d6ebe9c951a93fc79b9fe6606d8"
+    }
+  }
+}
