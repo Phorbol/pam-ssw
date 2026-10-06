@@ -88,9 +88,22 @@ LS用paper3.61eV/.03/xi.2/lambda1.8/目标.02，既有邻域1.64A明确不称pap
 soft prequench .05与true .03分开。研究runner接线27d44c9，CPU1664330回归30通过；
 主agent真实四计划stub预检、failed-soft排除与LS状态replay检查通过，均零真实PES。
 输入/核心/runner/资格/参考已冻结，GPU执行前逐文件核验；无核心/API变更。
-尚无SSW/LS效果结果；指标为同cost的Ih图+能窗+force/cold与新连通图类，不能用
-已经成笼的local初态冒充随机成笼成功。原四臂random方向面板1664068保持不变。
+四臂与读出均已完成：实际15791/15917/15615/15754search，另8fresh；57680实际
+search calculate，fresh calculate未独立计数。四臂wall边界截断，未到20k，不虚报
+该前缀。142完成外步均NG12，146个含初态true-force合格观察中3个断裂；Ih目标0/4。
+LS两臂37/34次预淬火均合格，362/330请求，响应与强度回放和checkpoint一致，
+末响应接近.02目标；不是LS未执行/预淬火失败。共同5k/10k能量改善小于.0001eV，
+不排名，保留实验性且不调参/自动延长。原四臂random方向面板1664068保持不变。
+[结果、反证及下一决定](../../research/ga_ssw/evidence/c60-source3-paper-ls-transfer-20261007/decision.md)。
 [固定因子、来源、判据和停止条件](../../research/ga_ssw/evidence/c60-source3-paper-ls-transfer-20261007/protocol.md)。
+
+原版同#3对照前的显式ranseed接口CPU1664773/sourcec3c7e55已核验：同seed两
+独立进程8个callback坐标相同，不同seed从第3请求产生>.1A差别，allkeys保留
+正seed。24synthetic请求/21实际synthetic calculate/3quota denial，0真实PES；
+正seed无打印内部数值，不能补造。支持短前缀种子控制，不是长程逐位复现或统计
+独立性。旧17093/94仅为初态编号。下一项有界原版SSW参照用于区分当前栈不足
+与共同局部困难，不新增nativeLS第三因子或同案例调参。
+[种子资格与范围](../../research/ga_ssw/evidence/lasp-explicit-seed-qualification-20261007/decision.md)。
 
 读出独立审查指出收费预算可能包含检查点之外的工作；977a5c6已将共同收费上限与
 可观察lineage上限分开，缺检查点不虚报前缀到达，中断calculate明确未知而非零。
