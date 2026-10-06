@@ -8,14 +8,14 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 from pathlib import Path
 
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[3]))
 import numpy as np
 from ase.io import read, write
 from pamssw.standalone.periodic_ga_reference import pymatgen_identity
-
-HERE = Path(__file__).resolve().parent
-
 
 def describe(atoms):
     import spglib
