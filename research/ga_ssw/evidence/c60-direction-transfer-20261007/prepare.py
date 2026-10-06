@@ -95,6 +95,25 @@ def core_sources():
     return sorted((ROOT / "pamssw").rglob("*.py"))
 
 
+def write_inputs(out: Path):
+    from ase.io import read, write
+    (out / "inputs").mkdir(parents=True, exist_ok=False)
+    generated = []
+    for seed in SEEDS:
+        atoms, trials = generate_input(seed)
+        path = out / "inputs" / f"seed-{seed}.extxyz"
+        write(path, atoms)
+        atoms = read(path)
+        item = {"seed": seed, "trials": trials, "path": str(path.relative_to(out)),
+                "sha256": sha256(path), "radius_A": 5., "minimum_separation_A": 1.,
+                "coordinate_rounding_decimals": 10, "translation_A": [25., 25., 25.],
+                "cell_A": [50., 50., 50.], "pbc": [False, False, False],
+                "selection_by_relaxed_quality": False}
+        dump(out / "inputs" / f"seed-{seed}.json", item)
+        generated.append((seed, atoms, item))
+    return generated
+
+
 def snapshot(out: Path):
     source = out / "source"
     copied = []
@@ -347,6 +366,19 @@ def run_preflight():
                 and integration_surface.requests == 1
                 and calls["count"] - integration_before == 1):
             raise RuntimeError("zero-force run_ssw initialization integration failed")
+        scaffold = Path(temp) / "prepared"
+        scaffold.mkdir()
+        inputs = write_inputs(scaffold)
+        snapshot(scaffold)
+        (scaffold / "qualification").mkdir()
+        shutil.copy2(REFERENCE, scaffold / "qualification" / "reference-source.extxyz")
+        dump(scaffold / "qualification" / "qualification-summary.json", {
+            "status": "qualified", "search_eligible": True,
+            "reference": {"qualified": True},
+            "inputs": [{"label": f"seed-{seed}", "qualified": True} for seed in SEEDS],
+            "preflight_stub_only": True})
+        arm_plans(scaffold, inputs, REFERENCE_ENERGY)
+        verify_output(scaffold)
     generated = []
     for seed in SEEDS:
         atoms, trials = generate_input(seed)
@@ -361,6 +393,7 @@ def run_preflight():
         generated.append({"seed": seed, "trials": trials})
     print(json.dumps({"status": "preflight_passed", "real_pes_requests": 0,
                       "real_model_initialized": False, "dummy_accounting": "passed",
+                      "input_snapshot_and_plan_scaffolding": "passed_with_stub_qualification",
                       "dummy_surface_requests": surface.requests,
                       "dummy_calculator_calls": direct_dummy_calls,
                       "dummy_cap_denials": surface.denials,
@@ -453,19 +486,7 @@ def execute(out: Path):
     dump(out / "preparation-status.json", {"status": "preparing", "started_unix": time.time(),
                                              "process_cap_seconds": PROCESS_SECONDS})
     try:
-        generated = []
-        for seed in SEEDS:
-            atoms, trials = generate_input(seed)
-            path = out / "inputs" / f"seed-{seed}.extxyz"
-            write(path, atoms)
-            atoms = read(path)  # qualify the serialized coordinates used by all four arms
-            item = {"seed": seed, "trials": trials, "path": str(path.relative_to(out)),
-                    "sha256": sha256(path), "radius_A": 5., "minimum_separation_A": 1.,
-                    "coordinate_rounding_decimals": 10, "translation_A": [25., 25., 25.],
-                    "cell_A": [50., 50., 50.], "pbc": [False, False, False],
-                    "selection_by_relaxed_quality": False}
-            dump(out / "inputs" / f"seed-{seed}.json", item)
-            generated.append((seed, atoms, item))
+        generated = write_inputs(out)
         manifest = snapshot(out)
         (out / "qualification").mkdir(parents=True, exist_ok=True)
         shutil.copy2(REFERENCE, out / "qualification" / "reference-source.extxyz")
