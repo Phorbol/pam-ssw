@@ -1,0 +1,91 @@
+{
+  "model": "/home/gengjianrui/.cache/mace/mace-omat-0-small.model",
+  "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+  "calculator": {
+    "head": "omat_pbe",
+    "device": "cuda",
+    "dtype": "float64",
+    "enable_cueq": false,
+    "enable_oeq": false
+  },
+  "cases": [
+    {
+      "id": "phase87_12",
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-vc-target-panel-20261007/run-1663547-1/outer-001-last-work.extxyz",
+      "input_sha256": "4c4abd78385c2d30a20800861b7c3fcc1743fd40c3d36983249fa5146be0a583",
+      "reference_energy_eV": -106.5292197026681,
+      "source_run": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-vc-target-panel-20261007/run-1663547-1",
+      "source_outer_index": 1,
+      "seed": 26100771
+    },
+    {
+      "id": "phase87_48",
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-vc-target-panel-20261007/run-1663547-3/outer-001-last-work.extxyz",
+      "input_sha256": "6f57117b1b0434a1b6a2b2ded0fe9694678445adcd472f521f8267119fafc922",
+      "reference_energy_eV": -426.1858527594467,
+      "source_run": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-vc-target-panel-20261007/run-1663547-3",
+      "source_outer_index": 1,
+      "seed": 26100772
+    }
+  ],
+  "atomic_config": {
+    "width": 0.6,
+    "rotation_bias": 1.0,
+    "max_gaussians": 10,
+    "temperature_K": 4000.0,
+    "fmax": 0.05,
+    "relax_steps": 300,
+    "fd_step": 0.001,
+    "rotation_hvp": 39,
+    "rotation_tol": 0.02,
+    "forward_force": 0.1,
+    "direction_sampling": "global",
+    "rotation_solver": "dimer",
+    "cluster_frame": "translation_only",
+    "quench_optimizer": "safe-lbfgs-total",
+    "lbfgs_memory": 500,
+    "bias_fmax": 0.1
+  },
+  "true_quench": {
+    "strain_length": 5.0,
+    "pressure": 0.0,
+    "fmax": 0.05,
+    "stress_tol": 0.001,
+    "max_step": 0.2,
+    "maxiter": 300,
+    "lbfgs_memory": 500
+  },
+  "target": {
+    "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-phase-qualification-20261007/run-1663408/anatase_fs/endpoint.extxyz",
+    "sha256": "867a034e9e339e273b7a580e397c4245728c6d6ebe9c951a93fc79b9fe6606d8",
+    "energy_eV": -107.0341220437806,
+    "natoms": 12,
+    "energy_tolerance_eV_per_atom": 0.001,
+    "fmax_eV_A": 0.05,
+    "stress_tol_eV_A3": 0.001
+  },
+  "identity_tolerances": {
+    "tight": {
+      "ltol": 0.05,
+      "stol": 0.1,
+      "angle_tol": 2.0
+    },
+    "broad": {
+      "ltol": 0.2,
+      "stol": 0.3,
+      "angle_tol": 5.0
+    }
+  },
+  "policies": [
+    "force",
+    "force_or_budget"
+  ],
+  "budget": {
+    "per_arm_requests": 3000,
+    "per_arm_seconds": 120,
+    "total_seconds": 540,
+    "fresh_per_arm_requests": 2,
+    "total_search_request_cap": 12000,
+    "total_fresh_request_cap": 8
+  }
+}
