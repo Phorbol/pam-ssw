@@ -111,6 +111,9 @@ denial。孤立/50A周期及实际native callback均通过1e-4 E/F与坐标/胞�
 42.971A，模型cutoff6A；root费用/实际导入/快照审核通过。仅初态单点，无逃逸/排名。
 下一原版参照须先明确native RNG与独立轨迹契约，不能把两个jobid当两个seed；
 两个已冻结C60面板保持运行，不由此扩预算。[资格结果与范围](../../research/ga_ssw/evidence/c60-source3-lasp-input-qualification-20261007/decision.md)。
+随后仅修研究外接helper的预算漏洞：Calculator失败也消耗一次E/F限额，输入验证失败
+不计；公共签名/成功记录格式不变。root针对性回归6通过、parser self-test通过，
+无真实PES/资格重跑。全库pytest仍有既有同名test_softening收集冲突，不宣称全库通过。
 
 为后续VC纸面目标先做独立低成本模型资格，CPU1664166/source76a75cc完成：
 8/8 fcc/hcp参考cold力/stress合格，181请求/164实际calculate，主agent逐账复核。

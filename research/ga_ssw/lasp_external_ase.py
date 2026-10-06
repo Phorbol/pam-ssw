@@ -85,12 +85,16 @@ class _Handler(socketserver.StreamRequestHandler):
             request = json.loads(self.rfile.readline())
             raw_coord = request["coord"]
             parsed = parse_external_coord(raw_coord)
-            if len(service.log) >= service.max_requests:
+            if service.ef_attempts >= service.max_requests:
                 raise RuntimeError("external request cap reached")
             if not np.allclose(parsed["cell"], service.cell, rtol=0., atol=service.cell_atol):
                 raise ValueError("requested fixed cell differs from template")
             atoms = _materialize_template(service.template, parsed, service.pbc)
             atoms.calc = service.calculator
+            # Charge immediately before entering ASE's calculator path. A
+            # failed energy/force calculation still consumes this E/F slot;
+            # parse, cell, composition, and constraint failures above do not.
+            service.ef_attempts += 1
             energy = atoms.get_potential_energy()
             forces = atoms.get_forces()
             encode_external_result(energy, forces, len(atoms))
@@ -130,6 +134,7 @@ class _Service(socketserver.UnixStreamServer):
         if not math.isfinite(self.cell_atol) or self.cell_atol < 0:
             raise ValueError("cell_atol must be finite and nonnegative")
         self.log, self.errors = [], []
+        self.ef_attempts = 0
 
 
 def run_lasp(command, *, cwd, atoms, calculator, pbc, max_requests=100,
@@ -142,6 +147,8 @@ def run_lasp(command, *, cwd, atoms, calculator, pbc, max_requests=100,
     caller owns the LASP input directory;
     this function only supplies the socket service and returns an in-memory
     audit record.  It does not submit jobs or write public experiment state.
+    ``max_requests`` limits E/F attempts, including calculator failures;
+    input validation failures do not enter the calculator or consume a slot.
     """
     if atoms.constraints:
         raise ValueError("constraints are outside this helper contract")
