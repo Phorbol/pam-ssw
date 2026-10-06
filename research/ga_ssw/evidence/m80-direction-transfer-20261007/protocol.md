@@ -59,3 +59,12 @@ All errors, failed requests, incomplete attempts, cap censoring, and wall censor
 ## Source boundary
 
 The paper-reported M80 target/cost figures and reproduction gaps are documented in `../cluster-paper-reproduction-20260925/morse-source-audit.md` from Shang and Liu, *J. Chem. Theory Comput.* 2013, 9, 1838–1845, DOI `10.1021/ct301010b`, §3.3 and Table 1. The Cambridge rho=14 target energy and rho=6 source-coordinate limitation are also captured in that audit. These facts motivate the bounded question; they are not evidence that this operational panel reproduces the paper's ensemble or rate.
+
+## 执行记录
+
+Root审查确认读取final而非原始随机坐标；SSW核心树c572a1cc不变。
+源码8204fd9，零PES预检、计数器缓存/预算回归、Python编译与SBATCH语法通过。
+CPU1663302四槽已提交，最多两并发；提交状态不代表计算/科学验收。
+读出同时核对原始计数账本及initial+outer费用闭合，配对报告共同已付成本下的
+连通力合格能量曲线。已有两初态历史准备1672+2fresh请求分别列出、不双计。
+除initial/best的cold证书外，其他落点仅有搜索力证书，不暗称全部独立复核。
