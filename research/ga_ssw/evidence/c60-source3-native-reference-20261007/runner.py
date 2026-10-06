@@ -112,8 +112,8 @@ def main(out: Path) -> None:
                 request = json.loads(raw_request)
                 record["external_coord"] = request["coord"]
                 if failed:
-                    record["error_kind"] = "geometry"
-                    raise RuntimeError("case already failed geometry gate")
+                    record["error_kind"] = "previous_failure"
+                    raise RuntimeError("case already stopped after a geometry or backend failure")
                 atoms = parse_external_coord(request["coord"])
                 record.update(positions=atoms.positions.tolist(), cell=atoms.cell.array.tolist(), pbc=atoms.pbc.tolist())
                 canonical, diagnostics = inspect_vacuum(atoms, actual_rmax)
@@ -178,7 +178,9 @@ def main(out: Path) -> None:
             summary = {"case": case, "seed": plan["seed"], "process": status,
                        "requests": len(requests), "paid_ef": paid,
                        "actual_calculate_calls": actual_calculate_calls,
-                       "geometry_failed": failed, "ssw_done": "SSW all done" in lasp,
+                       "geometry_failed": any(r.get("error_kind") == "geometry" for r in requests),
+                       "backend_failed": any(r.get("paid_ef") and r.get("ok") is False for r in requests),
+                       "ssw_done": "SSW all done" in lasp,
                        "elapsed_seconds": time.monotonic() - started,
                        "wall_cap_seconds": plan["wall_seconds"]}
             (out / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
