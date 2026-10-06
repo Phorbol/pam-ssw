@@ -137,8 +137,12 @@ def run_segment(folder, seconds, *, max_attempts=None, interrupted=False):
     from ase.io import read
     from pamssw.standalone import (SSWConfig, NativeMCSettings, RecoveredRotationSettings,
         run_ssw, load_ssw_checkpoint, save_ssw_checkpoint)
+    from pamssw.standalone.recovered_direction import RecoveredDirectionSettings
     from pamssw.standalone.surface import ASESurface
     folder = Path(folder); plan = json.loads((folder / 'plan.json').read_text())
+    if (plan.get('recovered_rotation') is not None and
+            plan.get('recovered_direction') is not None):
+        raise ValueError('recovered_rotation and recovered_direction are mutually exclusive')
     if sha(folder / plan['input']) != plan['input_sha256']:
         raise ValueError('input changed')
     for filename, expected in plan.get('frozen_files', {}).items():
@@ -217,6 +221,8 @@ def run_segment(folder, seconds, *, max_attempts=None, interrupted=False):
                                             plan['native_mc']['maxtrap'])
         if plan.get('recovered_rotation') is not None:
             kwargs['recovered_rotation'] = RecoveredRotationSettings(**plan['recovered_rotation'])
+        if plan.get('recovered_direction') is not None:
+            kwargs['recovered_direction'] = RecoveredDirectionSettings(**plan['recovered_direction'])
         result = run_ssw(read(folder / plan['input']), surface,
             steps=plan['search_cap'], **kwargs)  # cap cannot restrict before request budget
         if result.status == 'paused':

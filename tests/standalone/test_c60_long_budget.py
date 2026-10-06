@@ -1,12 +1,15 @@
 """Caller budget/segmentation regressions; not evidence of C60 search quality."""
 import importlib.util
 import json
+import sys
 from dataclasses import asdict, replace
 from pathlib import Path
 import numpy as np
 import pytest
+from ase import Atoms
+from ase.calculators.emt import EMT
 from ase.io import write
-from pamssw.standalone import load_ssw_checkpoint
+from pamssw.standalone import SSWConfig, load_ssw_checkpoint
 from test_ssw_checkpoint import _case
 
 spec = importlib.util.spec_from_file_location('c60long', Path(__file__).parents[2] / 'research/ga_ssw/c60_long_budget.py')
@@ -29,6 +32,19 @@ def prepare(folder, native=False):
         search_cap=10000, fresh_cap=3, wall_seconds=3600)
     r.atomic_json(folder / 'plan.json', plan)
     return plan
+
+
+def prepare_without_emt(folder, monkeypatch):
+    def calculator_free_case():
+        atoms = Atoms('Cu2', positions=[[0, 0, 0], [2.7, 0, 0]])
+        config = SSWConfig(width=.1, rotation_bias=2., max_gaussians=1,
+            temperature_K=300., fmax=1e-5, relax_steps=100, fd_step=1e-4,
+            rotation_hvp=8, rotation_tol=1e-3, direction_sampling='global')
+        return atoms, config, None
+    monkeypatch.setattr(sys.modules[__name__], '_case', calculator_free_case)
+    monkeypatch.setattr(EMT, 'calculate', lambda *args, **kwargs:
+                        (_ for _ in ()).throw(AssertionError('unexpected EMT evaluation')))
+    return prepare(folder)
 
 
 @pytest.mark.parametrize('native', [False, True])
@@ -82,6 +98,70 @@ def test_changed_plan_rejected_before_calculator(tmp_path):
     plan['seed'] = 20; r.atomic_json(folder / 'plan.json', plan)
     with pytest.raises(ValueError, match='plan changed'):
         r.Budget(folder, plan)
+
+
+def test_segment_forwards_recovered_direction_without_pes(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    from pamssw.standalone import recovered_direction
+    from pamssw import standalone
+
+    folder = tmp_path / 'arm'; plan = prepare_without_emt(folder, monkeypatch)
+    plan.pop('recovered_rotation')
+    plan['recovered_direction'] = dict(
+        ratio_local=50, local_probability=.5, group_threshold=.5,
+        pre_rotmax=5, rotmax=15, pre_ftol=.2, ftol=.02,
+        metric='euclidean', max_force_calls=40)
+    r.atomic_json(folder / 'plan.json', plan)
+    received = {}
+    class Calculator:
+        def calculate(self, *args, **kwargs):
+            raise AssertionError('zero-PES test must not evaluate')
+    monkeypatch.setattr(r, 'calculator', lambda _: Calculator())
+    monkeypatch.setattr(standalone, 'run_ssw',
+        lambda *args, **kwargs: received.update(kwargs) or SimpleNamespace(status='completed', checkpoint=None))
+
+    r.run_segment(folder, 600, max_attempts=1)
+
+    assert isinstance(received['recovered_direction'], recovered_direction.RecoveredDirectionSettings)
+    assert received['recovered_direction'].max_force_calls == 40
+    assert 'recovered_rotation' not in received
+
+
+def test_ambiguous_recovery_plan_rejected_before_calculator(tmp_path, monkeypatch):
+    folder = tmp_path / 'arm'; plan = prepare_without_emt(folder, monkeypatch)
+    plan['recovered_direction'] = dict(
+        ratio_local=50, local_probability=.5, group_threshold=.5,
+        pre_rotmax=5, rotmax=15, pre_ftol=.2, ftol=.02,
+        metric='euclidean', max_force_calls=40)
+    r.atomic_json(folder / 'plan.json', plan)
+    calculator_calls = []
+    monkeypatch.setattr(r, 'calculator', lambda _: calculator_calls.append(True))
+
+    with pytest.raises(ValueError, match='mutually exclusive'):
+        r.run_segment(folder, 600, max_attempts=1)
+
+    assert calculator_calls == []
+
+
+def test_segment_without_recovery_option_keeps_default_kwargs(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    from pamssw import standalone
+
+    folder = tmp_path / 'arm'; plan = prepare_without_emt(folder, monkeypatch)
+    plan.pop('recovered_rotation')
+    r.atomic_json(folder / 'plan.json', plan)
+    received = {}
+    class Calculator:
+        def calculate(self, *args, **kwargs):
+            raise AssertionError('zero-PES test must not evaluate')
+    monkeypatch.setattr(r, 'calculator', lambda _: Calculator())
+    monkeypatch.setattr(standalone, 'run_ssw',
+        lambda *args, **kwargs: received.update(kwargs) or SimpleNamespace(status='completed', checkpoint=None))
+
+    r.run_segment(folder, 600, max_attempts=1)
+
+    assert 'recovered_direction' not in received
+    assert 'recovered_rotation' not in received
 
 
 def test_interrupted_paid_request_survives_checkpoint_rollback(tmp_path):
