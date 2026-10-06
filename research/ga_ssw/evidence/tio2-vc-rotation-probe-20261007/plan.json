@@ -1,0 +1,66 @@
+{
+  "model": "/home/gengjianrui/.cache/mace/mace-omat-0-small.model",
+  "model_sha256": "0abfde07862cf1e93b8b4d03cb702f29ce9c344ff2fc4de2ec0d7166d6c113a5",
+  "calculator": {
+    "head": "omat_pbe",
+    "device": "cuda",
+    "dtype": "float64",
+    "enable_cueq": false,
+    "enable_oeq": false
+  },
+  "cases": [
+    {
+      "id": "phase87_12",
+      "natoms": 12,
+      "seed": 26100751,
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-vc-target-panel-20261007/run-1663547-0/initial-endpoint.extxyz",
+      "input_sha256": "6b0cf703da2d01b5a256e41f9ce2f1361e70a5dd0c42bd47b8fa33d288c3fdfe",
+      "source_result": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-vc-target-panel-20261007/run-1663547-0/result.json",
+      "source_provenance": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-vc-target-panel-20261007/run-1663547-0/provenance.json",
+      "outer_anchor_indices": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "phase87_48",
+      "natoms": 48,
+      "seed": 26100752,
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-vc-target-panel-20261007/run-1663547-2/initial-endpoint.extxyz",
+      "input_sha256": "fb7449f1362b42afc8f3d7920214db77262c0a4918a2b3c4daa5f07a528a4f8a",
+      "source_result": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-vc-target-panel-20261007/run-1663547-2/result.json",
+      "source_provenance": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-vc-target-panel-20261007/run-1663547-2/provenance.json",
+      "outer_anchor_indices": [
+        0,
+        1
+      ]
+    }
+  ],
+  "rotation": {
+    "strain_length": 5.0,
+    "pressure": 0.0,
+    "rotation_bias": 1.0,
+    "fd_step": 0.001,
+    "tol": 0.02,
+    "dimer_max_hvp": 39,
+    "ritz_max_force_calls": 40
+  },
+  "budget": {
+    "total_search_requests": 320,
+    "total_fresh_requests": 20,
+    "total_seconds": 240,
+    "total_reference_requests": 84
+  },
+  "methods": [
+    "plane_dimer",
+    "central_ritz"
+  ],
+  "reference": {
+    "case": "phase87_12",
+    "coordinate_columns": 42,
+    "finite_difference": "central",
+    "fd_step": 0.001,
+    "project_translation": true,
+    "interpretation": "local rotation reference, not Hessian minimum certificate"
+  }
+}

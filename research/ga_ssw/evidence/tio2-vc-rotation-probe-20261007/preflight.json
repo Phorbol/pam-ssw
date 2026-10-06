@@ -1,0 +1,47 @@
+{
+  "real_pes_requests": 0,
+  "mode_checks": [
+    {
+      "method": "plane_dimer",
+      "mode": {
+        "requests": 4,
+        "calculator_calls": 3,
+        "failures": 0,
+        "denials": 0,
+        "boundary": null
+      },
+      "hvp_calls": 1,
+      "converged": true,
+      "cold_residual_requests": 2
+    },
+    {
+      "method": "central_ritz",
+      "mode": {
+        "requests": 6,
+        "calculator_calls": 6,
+        "failures": 0,
+        "denials": 0,
+        "boundary": null
+      },
+      "hvp_calls": 2,
+      "converged": true,
+      "cold_residual_requests": 2
+    }
+  ],
+  "hessian_reference": {
+    "requests": 84,
+    "calculator_calls": 84,
+    "columns": 42,
+    "activity_basis_columns": 39,
+    "cold_residual_requests": 2
+  },
+  "failure_case": {
+    "requests": 1,
+    "calculator_calls": 1,
+    "failures": 1,
+    "denials": 1,
+    "boundary": "per_case_request_cap"
+  },
+  "budget_router_cases": 2,
+  "cap_denial_checked": true
+}
