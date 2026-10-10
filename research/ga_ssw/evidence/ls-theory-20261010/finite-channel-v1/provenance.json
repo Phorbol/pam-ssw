@@ -1,0 +1,15 @@
+{
+  "base_commit": "a7a7c059c2fafec59c5cf44c3b4a7132b39a7dad",
+  "source_snapshot": "source",
+  "inputs": "torsion and ring folders copied from established channel runs",
+  "budget": {
+    "requests": 7000,
+    "counted_seconds": 900,
+    "V100_cards": 1,
+    "slurm_minutes": 20
+  },
+  "purpose": "fixed-W finite-amplitude two-channel diagnostic; not search performance",
+  "runner_pending_review": false,
+  "review": "Source reviewed; counted original gauche energy reference fixed before execution; AST and no-PES interface checks",
+  "job_id": 1728623
+}

@@ -1,0 +1,3112 @@
+{
+  "source_result": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/finite-channel-v1/run-1728623/result.json",
+  "source_run_status": "completed_stationary_branch_diagnostics",
+  "source_requests": 4291,
+  "source_actual_calculate_calls": 4240,
+  "source_denials": 0,
+  "original_gauche_baseline": {
+    "V_eV": -4243.8376215796425,
+    "W_eV": 1.0838862204551696,
+    "F_at_a0_eV": -4243.8376215796425,
+    "physical_fmax_eV_A": 8.814115979018153e-05,
+    "requests_total_start": 0,
+    "requests_total_end": 1,
+    "requests": 1
+  },
+  "frozen_W": {
+    "origin": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/finite-channel-v1/torsion/plus-0.050.extxyz",
+    "xi": 0.2,
+    "initial_fraction": 0.03,
+    "bond_lengths_rule": "HC table + 0.1 A",
+    "strengths_eV": [
+      0.1034052014350891,
+      0.12894510269165038,
+      0.12894510269165038,
+      0.1034052014350891,
+      0.12894510269165038,
+      0.1034052014350891,
+      0.12894510269165038,
+      0.12894510269165038,
+      0.12894510269165038
+    ],
+    "S0_eV": 1.0838862204551696
+  },
+  "connectivity_validated": false,
+  "rows": [
+    {
+      "amplitude": 1.0,
+      "status": "qualified_stationary_branches_and_downhill_diagnostics",
+      "error": null,
+      "requests": 823,
+      "phases": {
+        "minimum": {
+          "qualified_stationarity": true,
+          "qualified_hessian": true,
+          "optimizer": {
+            "success_flag": true,
+            "message": "Optimization terminated successfully.",
+            "iterations": 31,
+            "function_calls": 42
+          },
+          "certificate": {
+            "V_eV": -4243.806349166347,
+            "W_eV": 1.019991546988508,
+            "F_eV": -4242.786357619359,
+            "physical_fmax_eV_A": 0.553102763448543,
+            "total_fmax_eV_A": 8.721453366000979e-05,
+            "force_qualified": true
+          },
+          "hessian": {
+            "steps_A": [
+              0.001,
+              0.0005
+            ],
+            "stencil_spread_eV_A2": 0.0001185664819520846,
+            "antisymmetric_norms_eV_A2": [
+              0.00020876246905262108,
+              5.219067127277294e-05
+            ],
+            "eigenvalues_eV_A2": [
+              0.09568042149638412,
+              0.7431338852774697,
+              1.2601975776578862,
+              2.7223622231024565,
+              3.129434934349916,
+              4.782069827908584,
+              5.81098462798249,
+              7.056849590779658,
+              7.461734086680789,
+              9.455034133084931,
+              10.83405812747486,
+              13.741561452564243,
+              16.15001028760026,
+              17.344356477198204,
+              22.873251410653946,
+              23.824701763465825,
+              40.77333279084253,
+              52.73109507835097,
+              71.81200149619688,
+              84.27017806859962,
+              92.84301951924634,
+              94.533289459398,
+              139.7950005770067,
+              144.35399318496385
+            ],
+            "negative_mode_count": 0,
+            "positive_mode_count": 24,
+            "near_zero_or_unresolved_count": 0,
+            "qualified": true,
+            "criterion": "minimum: lambda_min > 5*spread"
+          },
+          "requests_optimization_and_certificate": 43,
+          "requests_including_hessian": 139,
+          "requests_total_start": 1,
+          "requests_total_end": 140
+        },
+        "easy_ts": {
+          "qualified_stationarity": true,
+          "qualified_hessian": true,
+          "optimizer": {
+            "success_flag": true,
+            "status_code": 1,
+            "message": "The solution converged.",
+            "function_calls": 14,
+            "jacobian": "physical central force differences h=0.001 A + exact a*K_W",
+            "jacobian_calls": 1,
+            "root_residual_inf_eV_A": 1.5714373401391086e-11,
+            "root_residual_qualified": true
+          },
+          "certificate": {
+            "V_eV": -4243.65648985564,
+            "W_eV": 1.0153521305470998,
+            "F_eV": -4242.641137725092,
+            "physical_fmax_eV_A": 0.5516815991025215,
+            "total_fmax_eV_A": 1.1310956232398513e-09,
+            "force_qualified": true
+          },
+          "hessian": {
+            "steps_A": [
+              0.001,
+              0.0005
+            ],
+            "stencil_spread_eV_A2": 0.00030867519428328435,
+            "antisymmetric_norms_eV_A2": [
+              0.00023097058821295054,
+              5.7742760840662625e-05
+            ],
+            "eigenvalues_eV_A2": [
+              -0.1773322991456762,
+              0.7712125127317051,
+              0.8230624907561799,
+              2.6763195056247864,
+              3.1893084415209354,
+              4.701813424583735,
+              4.8663317500009216,
+              6.949793183678867,
+              8.147517354086478,
+              8.575960674438628,
+              11.15807434487679,
+              12.343656406691755,
+              13.645385091888365,
+              20.211376237774367,
+              21.139767418516858,
+              23.369741131270676,
+              38.51885557393474,
+              54.035058361740354,
+              67.8725702047443,
+              82.76269073420607,
+              91.28646595300752,
+              94.70259231126948,
+              141.2002219402054,
+              145.00327576702935
+            ],
+            "negative_mode_count": 1,
+            "positive_mode_count": 23,
+            "near_zero_or_unresolved_count": 0,
+            "qualified": true,
+            "criterion": "saddle: lambda0 < -5*spread and lambda1 > 5*spread"
+          },
+          "requests_optimization_and_certificate": 111,
+          "requests_including_hessian": 207,
+          "requests_total_start": 140,
+          "requests_total_end": 347
+        },
+        "ring_ts": {
+          "qualified_stationarity": true,
+          "qualified_hessian": true,
+          "optimizer": {
+            "success_flag": true,
+            "status_code": 1,
+            "message": "The solution converged.",
+            "function_calls": 11,
+            "jacobian": "physical central force differences h=0.001 A + exact a*K_W",
+            "jacobian_calls": 1,
+            "root_residual_inf_eV_A": 1.3158004985250138e-09,
+            "root_residual_qualified": true
+          },
+          "certificate": {
+            "V_eV": -4241.514736838783,
+            "W_eV": 0.9990993247950446,
+            "F_eV": -4240.515637513989,
+            "physical_fmax_eV_A": 0.5609550542880668,
+            "total_fmax_eV_A": 4.486702611461199e-09,
+            "force_qualified": true
+          },
+          "hessian": {
+            "steps_A": [
+              0.001,
+              0.0005
+            ],
+            "stencil_spread_eV_A2": 0.00023732364211483418,
+            "antisymmetric_norms_eV_A2": [
+              0.000287504726923791,
+              7.187628904688548e-05
+            ],
+            "eigenvalues_eV_A2": [
+              -12.770134263789915,
+              0.9880750899151565,
+              1.6883041111229202,
+              1.9090821930827129,
+              2.385612602854618,
+              3.9845485440242805,
+              4.967149409683375,
+              5.8514488428846985,
+              6.978071451252811,
+              9.009984442617618,
+              9.538665124768912,
+              11.0159057140169,
+              14.942909316137232,
+              16.96660254558378,
+              19.76492076965012,
+              24.306255209859394,
+              35.265828995796795,
+              47.973997883202884,
+              68.56444764466902,
+              80.01360213987958,
+              83.90884997869419,
+              90.67311079400405,
+              105.60186773780309,
+              119.26695366193313
+            ],
+            "negative_mode_count": 1,
+            "positive_mode_count": 23,
+            "near_zero_or_unresolved_count": 0,
+            "qualified": true,
+            "criterion": "saddle: lambda0 < -5*spread and lambda1 > 5*spread"
+          },
+          "requests_optimization_and_certificate": 108,
+          "requests_including_hessian": 204,
+          "requests_total_start": 347,
+          "requests_total_end": 551
+        }
+      },
+      "stationary_values": {
+        "minimum": {
+          "V_eV": -4243.806349166347,
+          "W_eV": 1.019991546988508,
+          "F_eV": -4242.786357619359,
+          "physical_fmax_eV_A": 0.553102763448543,
+          "total_fmax_eV_A": 8.721453366000979e-05,
+          "force_qualified": true
+        },
+        "easy_ts": {
+          "V_eV": -4243.65648985564,
+          "W_eV": 1.0153521305470998,
+          "F_eV": -4242.641137725092,
+          "barrier_F_eV": 0.1452198942661198,
+          "physical_energy_difference_between_biased_stationary_points_eV": 0.14985931070714287,
+          "exact_dB_da_W_TS_minus_W_min_eV": -0.004639416441408084
+        },
+        "ring_ts": {
+          "V_eV": -4241.514736838783,
+          "W_eV": 0.9990993247950446,
+          "F_eV": -4240.515637513989,
+          "barrier_F_eV": 2.2707201053699464,
+          "physical_energy_difference_between_biased_stationary_points_eV": 2.2916123275635982,
+          "exact_dB_da_W_TS_minus_W_min_eV": -0.020892222193463317
+        },
+        "barrier_gap_ring_minus_easy_F_eV": 2.1255002111038266,
+        "exact_gap_slope_W_eV": -0.016252805752055233
+      },
+      "physical_loading_per_atom_eV": 0.003127241329548269,
+      "biased_downhill": {
+        "easy_ts": {
+          "minus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 49,
+            "certificate": {
+              "V_eV": -4243.890445207543,
+              "W_eV": 1.0227519775274851,
+              "F_eV": -4242.867693230016,
+              "physical_fmax_eV_A": 0.5532632748661793,
+              "total_fmax_eV_A": 4.126616744518596e-05,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 1.3019287287026216,
+            "biased_total_energy_difference_to_current_min_eV": -0.08133561065733375,
+            "physical_energy_difference_to_current_min_eV": -0.08409604119606229,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                0,
+                4,
+                1,
+                6
+              ],
+              [
+                0,
+                5,
+                1,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                1,
+                6,
+                1,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ],
+              [
+                2,
+                7,
+                1,
+                6
+              ],
+              [
+                3,
+                8,
+                1,
+                6
+              ],
+              [
+                3,
+                9,
+                1,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": true,
+            "requests_total_start": 551,
+            "requests_total_end": 618,
+            "requests": 67
+          },
+          "plus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 45,
+            "certificate": {
+              "V_eV": -4243.806347263661,
+              "W_eV": 1.0199896404211608,
+              "F_eV": -4242.78635762324,
+              "physical_fmax_eV_A": 0.5531057248640848,
+              "total_fmax_eV_A": 0.00011801517604644524,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 2.0468981437282366e-05,
+            "biased_total_energy_difference_to_current_min_eV": -3.881723387166858e-09,
+            "physical_energy_difference_to_current_min_eV": 1.9026856534765102e-06,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                0,
+                4,
+                1,
+                6
+              ],
+              [
+                0,
+                5,
+                1,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                1,
+                6,
+                1,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ],
+              [
+                2,
+                7,
+                1,
+                6
+              ],
+              [
+                3,
+                8,
+                1,
+                6
+              ],
+              [
+                3,
+                9,
+                1,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": true,
+            "requests_total_start": 618,
+            "requests_total_end": 678,
+            "requests": 60
+          }
+        },
+        "ring_ts": {
+          "minus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 36,
+            "certificate": {
+              "V_eV": -4243.486810609311,
+              "W_eV": 0.9648771939778426,
+              "F_eV": -4242.521933415333,
+              "physical_fmax_eV_A": 0.5595650925196696,
+              "total_fmax_eV_A": 6.387116945983691e-05,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 0.9062236326687779,
+            "biased_total_energy_difference_to_current_min_eV": 0.26442420402599964,
+            "physical_energy_difference_to_current_min_eV": 0.31953855703613954,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                0,
+                3,
+                6,
+                6
+              ],
+              [
+                0,
+                4,
+                1,
+                6
+              ],
+              [
+                0,
+                5,
+                1,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                1,
+                6,
+                1,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ],
+              [
+                2,
+                7,
+                1,
+                6
+              ],
+              [
+                3,
+                8,
+                1,
+                6
+              ],
+              [
+                3,
+                9,
+                1,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": false,
+            "requests_total_start": 678,
+            "requests_total_end": 727,
+            "requests": 49
+          },
+          "plus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 41,
+            "certificate": {
+              "V_eV": -4243.806349427965,
+              "W_eV": 1.0199918039871196,
+              "F_eV": -4242.786357623978,
+              "physical_fmax_eV_A": 0.5530907795090454,
+              "total_fmax_eV_A": 4.549939876062246e-05,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 1.8444783018746693e-05,
+            "biased_total_energy_difference_to_current_min_eV": -4.6193235903047025e-09,
+            "physical_energy_difference_to_current_min_eV": -2.6161796995438635e-07,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                0,
+                4,
+                1,
+                6
+              ],
+              [
+                0,
+                5,
+                1,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                1,
+                6,
+                1,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ],
+              [
+                2,
+                7,
+                1,
+                6
+              ],
+              [
+                3,
+                8,
+                1,
+                6
+              ],
+              [
+                3,
+                9,
+                1,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": true,
+            "requests_total_start": 727,
+            "requests_total_end": 780,
+            "requests": 53
+          }
+        }
+      },
+      "physical_release_of_biased_minimum": {
+        "optimizer_success_flag": true,
+        "optimizer_message": "Optimization terminated successfully.",
+        "optimizer_iterations": 27,
+        "certificate": {
+          "V_eV": -4243.837621579153,
+          "W_eV": 1.0838859878621478,
+          "F_eV": -4243.837621579153,
+          "physical_fmax_eV_A": 0.00010466994589741362,
+          "total_fmax_eV_A": 0.00010466994589741362,
+          "force_qualified": true
+        },
+        "same_numbering_proper_Kabsch_rmsd_to_original_gauche_A": 4.186050111542714e-05,
+        "physical_energy_difference_to_original_gauche_eV": 4.893081495538354e-10,
+        "HC_graph_edges": [
+          [
+            0,
+            1,
+            6,
+            6
+          ],
+          [
+            0,
+            4,
+            1,
+            6
+          ],
+          [
+            0,
+            5,
+            1,
+            6
+          ],
+          [
+            1,
+            2,
+            6,
+            6
+          ],
+          [
+            1,
+            6,
+            1,
+            6
+          ],
+          [
+            2,
+            3,
+            6,
+            6
+          ],
+          [
+            2,
+            7,
+            1,
+            6
+          ],
+          [
+            3,
+            8,
+            1,
+            6
+          ],
+          [
+            3,
+            9,
+            1,
+            6
+          ]
+        ],
+        "requests_total_start": 780,
+        "requests_total_end": 824,
+        "requests": 44
+      },
+      "fixed_W_response": {
+        "status": "computed_conditional_fixed_W_estimate",
+        "formula": "gq=-Q.T F_W; chi=gq.T solve(H_F_h0005,gq); Pprime=a*chi/N; eta_crit_fixed_W=2*S0/(a*chi)",
+        "amplitude": 1.0,
+        "atom_count": 10,
+        "gq_eV_A": [
+          -0.15749123376141408,
+          0.24687389785343472,
+          0.10134281130456814,
+          0.039070078860488605,
+          0.08988700733007059,
+          -0.10812342725778151,
+          0.11251770806899694,
+          0.5090436636889273,
+          -0.2643103186584384,
+          -0.5020472945471832,
+          0.06193621138361152,
+          0.29469562901105567,
+          0.45108868688221615,
+          0.07253021720011059,
+          -0.21525094319011717,
+          0.2110648653990697,
+          -0.39757415898388265,
+          -0.09653780090673925,
+          -0.32754372185797137,
+          0.5234063464492821,
+          0.24432852604897012,
+          -0.13495415108443748,
+          -0.39576784638890716,
+          0.33658406520106654
+        ],
+        "chi_eV": 0.05998667711741205,
+        "Pprime_per_atom_eV_per_amplitude": 0.005998667711741205,
+        "S0_eV": 1.0838862204551696,
+        "eta_crit_fixed_W": 36.137564957421354,
+        "hessian_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/finite-channel-v1/run-1728623/a-1-minimum-hessian.npz",
+        "hessian_field": "H_F_h0005",
+        "interpretation_limit": "conditional scalar update under fixed W and local harmonic response; not a rebuilt-controller stability test"
+      }
+    },
+    {
+      "amplitude": 2.0,
+      "status": "qualified_stationary_branches_and_downhill_diagnostics",
+      "error": null,
+      "requests": 819,
+      "phases": {
+        "minimum": {
+          "qualified_stationarity": true,
+          "qualified_hessian": true,
+          "optimizer": {
+            "success_flag": true,
+            "message": "Optimization terminated successfully.",
+            "iterations": 30,
+            "function_calls": 41
+          },
+          "certificate": {
+            "V_eV": -4243.722037604812,
+            "W_eV": 0.9634167364417711,
+            "F_eV": -4241.795204131929,
+            "physical_fmax_eV_A": 1.0305756515592936,
+            "total_fmax_eV_A": 6.606879127302161e-05,
+            "force_qualified": true
+          },
+          "hessian": {
+            "steps_A": [
+              0.001,
+              0.0005
+            ],
+            "stencil_spread_eV_A2": 0.00011925266874274974,
+            "antisymmetric_norms_eV_A2": [
+              0.00020601112726247655,
+              5.150291551556774e-05
+            ],
+            "eigenvalues_eV_A2": [
+              0.09250972065221756,
+              0.72089148938179,
+              1.2131687372217763,
+              2.6244986172768363,
+              3.0136624577419853,
+              4.598142901990665,
+              5.586895066645953,
+              6.8384884141188405,
+              7.180789230775781,
+              9.085568537531627,
+              10.457207999624801,
+              13.199385053530937,
+              15.608280150152206,
+              16.819643936088443,
+              21.965622822637982,
+              23.380701292251754,
+              40.08617745778952,
+              51.8704383394255,
+              70.63928334062776,
+              82.96401731875885,
+              91.22451503811791,
+              92.87356312963554,
+              138.45151018983444,
+              142.80607987066048
+            ],
+            "negative_mode_count": 0,
+            "positive_mode_count": 24,
+            "near_zero_or_unresolved_count": 0,
+            "qualified": true,
+            "criterion": "minimum: lambda_min > 5*spread"
+          },
+          "requests_optimization_and_certificate": 42,
+          "requests_including_hessian": 138,
+          "requests_total_start": 824,
+          "requests_total_end": 962
+        },
+        "easy_ts": {
+          "qualified_stationarity": true,
+          "qualified_hessian": true,
+          "optimizer": {
+            "success_flag": true,
+            "status_code": 1,
+            "message": "The solution converged.",
+            "function_calls": 14,
+            "jacobian": "physical central force differences h=0.001 A + exact a*K_W",
+            "jacobian_calls": 1,
+            "root_residual_inf_eV_A": 2.036786815241877e-11,
+            "root_residual_qualified": true
+          },
+          "certificate": {
+            "V_eV": -4243.572789626526,
+            "W_eV": 0.9591846238644022,
+            "F_eV": -4241.654420378797,
+            "physical_fmax_eV_A": 1.0276041998568544,
+            "total_fmax_eV_A": 1.1126081314232386e-09,
+            "force_qualified": true
+          },
+          "hessian": {
+            "steps_A": [
+              0.001,
+              0.0005
+            ],
+            "stencil_spread_eV_A2": 0.00030712518403383895,
+            "antisymmetric_norms_eV_A2": [
+              0.00022917675418260793,
+              5.72944533443914e-05
+            ],
+            "eigenvalues_eV_A2": [
+              -0.1675153014639894,
+              0.7434401808030667,
+              0.7945774176834888,
+              2.581295535991887,
+              3.0749466278809954,
+              4.523371467123942,
+              4.687304019949253,
+              6.7451922010420144,
+              7.85425196675078,
+              8.262536785358332,
+              10.766960254988046,
+              11.902929605433334,
+              13.191804016524552,
+              19.47838949425661,
+              20.33827564344984,
+              23.0083299854527,
+              37.893387757436514,
+              53.161083018284955,
+              66.83260222654498,
+              81.5598983658065,
+              89.72748225026946,
+              93.05854598736859,
+              139.85603986589328,
+              143.69903725905374
+            ],
+            "negative_mode_count": 1,
+            "positive_mode_count": 23,
+            "near_zero_or_unresolved_count": 0,
+            "qualified": true,
+            "criterion": "saddle: lambda0 < -5*spread and lambda1 > 5*spread"
+          },
+          "requests_optimization_and_certificate": 111,
+          "requests_including_hessian": 207,
+          "requests_total_start": 962,
+          "requests_total_end": 1169
+        },
+        "ring_ts": {
+          "qualified_stationarity": true,
+          "qualified_hessian": true,
+          "optimizer": {
+            "success_flag": true,
+            "status_code": 1,
+            "message": "The solution converged.",
+            "function_calls": 11,
+            "jacobian": "physical central force differences h=0.001 A + exact a*K_W",
+            "jacobian_calls": 1,
+            "root_residual_inf_eV_A": 1.0147809865241351e-09,
+            "root_residual_qualified": true
+          },
+          "certificate": {
+            "V_eV": -4241.430446105788,
+            "W_eV": 0.9425357878475384,
+            "F_eV": -4239.545374530093,
+            "physical_fmax_eV_A": 1.0436530770846988,
+            "total_fmax_eV_A": 4.162777996009586e-09,
+            "force_qualified": true
+          },
+          "hessian": {
+            "steps_A": [
+              0.001,
+              0.0005
+            ],
+            "stencil_spread_eV_A2": 0.0002501037455989239,
+            "antisymmetric_norms_eV_A2": [
+              0.00028286059468163056,
+              7.071553165884243e-05
+            ],
+            "eigenvalues_eV_A2": [
+              -12.8237116032962,
+              0.9491799390375464,
+              1.622504769429433,
+              1.8355158004291274,
+              2.3078100063573954,
+              3.817646368710442,
+              4.773841915335211,
+              5.63802722528779,
+              6.747494090035071,
+              8.630215863426221,
+              9.2114655795012,
+              10.663641879350035,
+              14.42864844054342,
+              16.336991629750887,
+              18.934925518044736,
+              23.97318506810911,
+              34.638189123125144,
+              47.12106970552462,
+              67.38339460814949,
+              78.60416704287971,
+              82.23258846677456,
+              89.16619710588722,
+              104.65836629620503,
+              117.12958677384817
+            ],
+            "negative_mode_count": 1,
+            "positive_mode_count": 23,
+            "near_zero_or_unresolved_count": 0,
+            "qualified": true,
+            "criterion": "saddle: lambda0 < -5*spread and lambda1 > 5*spread"
+          },
+          "requests_optimization_and_certificate": 108,
+          "requests_including_hessian": 204,
+          "requests_total_start": 1169,
+          "requests_total_end": 1373
+        }
+      },
+      "stationary_values": {
+        "minimum": {
+          "V_eV": -4243.722037604812,
+          "W_eV": 0.9634167364417711,
+          "F_eV": -4241.795204131929,
+          "physical_fmax_eV_A": 1.0305756515592936,
+          "total_fmax_eV_A": 6.606879127302161e-05,
+          "force_qualified": true
+        },
+        "easy_ts": {
+          "V_eV": -4243.572789626526,
+          "W_eV": 0.9591846238644022,
+          "F_eV": -4241.654420378797,
+          "barrier_F_eV": 0.14078375313147262,
+          "physical_energy_difference_between_biased_stationary_points_eV": 0.14924797828552983,
+          "exact_dB_da_W_TS_minus_W_min_eV": -0.004232112577368885
+        },
+        "ring_ts": {
+          "V_eV": -4241.430446105788,
+          "W_eV": 0.9425357878475384,
+          "F_eV": -4239.545374530093,
+          "barrier_F_eV": 2.2498296018356996,
+          "physical_energy_difference_between_biased_stationary_points_eV": 2.291591499023525,
+          "exact_dB_da_W_TS_minus_W_min_eV": -0.020880948594232618
+        },
+        "barrier_gap_ring_minus_easy_F_eV": 2.109045848704227,
+        "exact_gap_slope_W_eV": -0.016648836016863733
+      },
+      "physical_loading_per_atom_eV": 0.011558397483076988,
+      "biased_downhill": {
+        "easy_ts": {
+          "minus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 49,
+            "certificate": {
+              "V_eV": -4243.722040111584,
+              "W_eV": 0.963417987444427,
+              "F_eV": -4241.795204136695,
+              "physical_fmax_eV_A": 1.0305766507529612,
+              "total_fmax_eV_A": 7.659739884296999e-05,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 3.87294275472215e-05,
+            "biased_total_energy_difference_to_current_min_eV": -4.766661731991917e-09,
+            "physical_energy_difference_to_current_min_eV": -2.506772034394089e-06,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                0,
+                4,
+                1,
+                6
+              ],
+              [
+                0,
+                5,
+                1,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                1,
+                6,
+                1,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ],
+              [
+                2,
+                7,
+                1,
+                6
+              ],
+              [
+                3,
+                8,
+                1,
+                6
+              ],
+              [
+                3,
+                9,
+                1,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": true,
+            "requests_total_start": 1373,
+            "requests_total_end": 1434,
+            "requests": 61
+          },
+          "plus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 50,
+            "certificate": {
+              "V_eV": -4243.806164830959,
+              "W_eV": 0.9661975982486734,
+              "F_eV": -4241.8737696344615,
+              "physical_fmax_eV_A": 1.0310290148638945,
+              "total_fmax_eV_A": 0.00013835189444432952,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 1.3138123347617612,
+            "biased_total_energy_difference_to_current_min_eV": -0.07856550253291061,
+            "physical_energy_difference_to_current_min_eV": -0.08412722614684753,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                0,
+                4,
+                1,
+                6
+              ],
+              [
+                0,
+                5,
+                1,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                1,
+                6,
+                1,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ],
+              [
+                2,
+                7,
+                1,
+                6
+              ],
+              [
+                3,
+                8,
+                1,
+                6
+              ],
+              [
+                3,
+                9,
+                1,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": true,
+            "requests_total_start": 1434,
+            "requests_total_end": 1498,
+            "requests": 64
+          }
+        },
+        "ring_ts": {
+          "minus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 36,
+            "certificate": {
+              "V_eV": -4243.403111566757,
+              "W_eV": 0.9087034008560195,
+              "F_eV": -4241.585704765044,
+              "physical_fmax_eV_A": 1.0424095813088403,
+              "total_fmax_eV_A": 9.984030127303964e-05,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 0.9164049730805137,
+            "biased_total_energy_difference_to_current_min_eV": 0.2094993668843017,
+            "physical_energy_difference_to_current_min_eV": 0.31892603805499675,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                0,
+                3,
+                6,
+                6
+              ],
+              [
+                0,
+                4,
+                1,
+                6
+              ],
+              [
+                0,
+                5,
+                1,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                1,
+                6,
+                1,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ],
+              [
+                2,
+                7,
+                1,
+                6
+              ],
+              [
+                3,
+                8,
+                1,
+                6
+              ],
+              [
+                3,
+                9,
+                1,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": false,
+            "requests_total_start": 1498,
+            "requests_total_end": 1548,
+            "requests": 50
+          },
+          "plus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 40,
+            "certificate": {
+              "V_eV": -4243.722040364917,
+              "W_eV": 0.9634181140703636,
+              "F_eV": -4241.795204136776,
+              "physical_fmax_eV_A": 1.0305764410572293,
+              "total_fmax_eV_A": 9.599744731973012e-05,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 5.2381237297829226e-05,
+            "biased_total_energy_difference_to_current_min_eV": -4.8476067604497075e-09,
+            "physical_energy_difference_to_current_min_eV": -2.760105417110026e-06,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                0,
+                4,
+                1,
+                6
+              ],
+              [
+                0,
+                5,
+                1,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                1,
+                6,
+                1,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ],
+              [
+                2,
+                7,
+                1,
+                6
+              ],
+              [
+                3,
+                8,
+                1,
+                6
+              ],
+              [
+                3,
+                9,
+                1,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": true,
+            "requests_total_start": 1548,
+            "requests_total_end": 1600,
+            "requests": 52
+          }
+        }
+      },
+      "physical_release_of_biased_minimum": {
+        "optimizer_success_flag": true,
+        "optimizer_message": "Optimization terminated successfully.",
+        "optimizer_iterations": 30,
+        "certificate": {
+          "V_eV": -4243.837621579719,
+          "W_eV": 1.0838879047068872,
+          "F_eV": -4243.837621579719,
+          "physical_fmax_eV_A": 4.879341422395063e-05,
+          "total_fmax_eV_A": 4.879341422395063e-05,
+          "force_qualified": true
+        },
+        "same_numbering_proper_Kabsch_rmsd_to_original_gauche_A": 7.09642310140942e-06,
+        "physical_energy_difference_to_original_gauche_eV": -7.639755494892597e-11,
+        "HC_graph_edges": [
+          [
+            0,
+            1,
+            6,
+            6
+          ],
+          [
+            0,
+            4,
+            1,
+            6
+          ],
+          [
+            0,
+            5,
+            1,
+            6
+          ],
+          [
+            1,
+            2,
+            6,
+            6
+          ],
+          [
+            1,
+            6,
+            1,
+            6
+          ],
+          [
+            2,
+            3,
+            6,
+            6
+          ],
+          [
+            2,
+            7,
+            1,
+            6
+          ],
+          [
+            3,
+            8,
+            1,
+            6
+          ],
+          [
+            3,
+            9,
+            1,
+            6
+          ]
+        ],
+        "requests_total_start": 1600,
+        "requests_total_end": 1643,
+        "requests": 43
+      },
+      "fixed_W_response": {
+        "status": "computed_conditional_fixed_W_estimate",
+        "formula": "gq=-Q.T F_W; chi=gq.T solve(H_F_h0005,gq); Pprime=a*chi/N; eta_crit_fixed_W=2*S0/(a*chi)",
+        "amplitude": 2.0,
+        "atom_count": 10,
+        "gq_eV_A": [
+          -0.13081722359654221,
+          0.21751306895826664,
+          0.08186737260929583,
+          0.03319854897021864,
+          0.07718925113285804,
+          -0.08980843320117618,
+          0.10179087139270539,
+          0.4710043267630815,
+          -0.24892675244535625,
+          -0.467371379740047,
+          0.04969616595522883,
+          0.2710490468055403,
+          0.4223966708659204,
+          0.06817777497020358,
+          -0.20448285182714887,
+          0.2037578569659017,
+          -0.37173552636386054,
+          -0.09614157606725096,
+          -0.2986538731600534,
+          0.48131800629169214,
+          0.22423885311033273,
+          -0.11663339249604739,
+          -0.3742012933181208,
+          0.3092049256298241
+        ],
+        "chi_eV": 0.053369227927852744,
+        "Pprime_per_atom_eV_per_amplitude": 0.010673845585570548,
+        "S0_eV": 1.0838862204551696,
+        "eta_crit_fixed_W": 20.309198062981583,
+        "hessian_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/finite-channel-v1/run-1728623/a-2-minimum-hessian.npz",
+        "hessian_field": "H_F_h0005",
+        "interpretation_limit": "conditional scalar update under fixed W and local harmonic response; not a rebuilt-controller stability test"
+      }
+    },
+    {
+      "amplitude": 4.0,
+      "status": "qualified_stationary_branches_and_downhill_diagnostics",
+      "error": null,
+      "requests": 823,
+      "phases": {
+        "minimum": {
+          "qualified_stationarity": true,
+          "qualified_hessian": true,
+          "optimizer": {
+            "success_flag": true,
+            "message": "Optimization terminated successfully.",
+            "iterations": 27,
+            "function_calls": 37
+          },
+          "certificate": {
+            "V_eV": -4243.437573012024,
+            "W_eV": 0.8674620229267664,
+            "F_eV": -4239.967724920317,
+            "physical_fmax_eV_A": 1.808574602302722,
+            "total_fmax_eV_A": 5.9007506297894695e-05,
+            "force_qualified": true
+          },
+          "hessian": {
+            "steps_A": [
+              0.001,
+              0.0005
+            ],
+            "stencil_spread_eV_A2": 0.00011963252436928047,
+            "antisymmetric_norms_eV_A2": [
+              0.0001952035225492684,
+              4.88010843543192e-05
+            ],
+            "eigenvalues_eV_A2": [
+              0.08445568049394686,
+              0.6824655952791652,
+              1.1318549020109014,
+              2.446731460731292,
+              2.8079390146732246,
+              4.279396357519813,
+              5.20014845886159,
+              6.447844809027351,
+              6.680387808320951,
+              8.438337666789879,
+              9.788677290198898,
+              12.233055416771043,
+              14.5902944210895,
+              15.915775424478838,
+              20.250851016635387,
+              22.630663871822915,
+              38.80736350189941,
+              50.25292938204641,
+              68.47740735024057,
+              80.52411921581887,
+              88.22426735901406,
+              89.81738618910474,
+              135.86848951389,
+              139.93492297555295
+            ],
+            "negative_mode_count": 0,
+            "positive_mode_count": 24,
+            "near_zero_or_unresolved_count": 0,
+            "qualified": true,
+            "criterion": "minimum: lambda_min > 5*spread"
+          },
+          "requests_optimization_and_certificate": 38,
+          "requests_including_hessian": 134,
+          "requests_total_start": 1643,
+          "requests_total_end": 1777
+        },
+        "easy_ts": {
+          "qualified_stationarity": true,
+          "qualified_hessian": true,
+          "optimizer": {
+            "success_flag": true,
+            "status_code": 1,
+            "message": "The solution converged.",
+            "function_calls": 17,
+            "jacobian": "physical central force differences h=0.001 A + exact a*K_W",
+            "jacobian_calls": 1,
+            "root_residual_inf_eV_A": 5.758175244687984e-10,
+            "root_residual_qualified": true
+          },
+          "certificate": {
+            "V_eV": -4243.290759883278,
+            "W_eV": 0.864041489902693,
+            "F_eV": -4239.834593923667,
+            "physical_fmax_eV_A": 1.803300869528345,
+            "total_fmax_eV_A": 1.3665408365435228e-09,
+            "force_qualified": true
+          },
+          "hessian": {
+            "steps_A": [
+              0.001,
+              0.0005
+            ],
+            "stencil_spread_eV_A2": 0.000346983918732557,
+            "antisymmetric_norms_eV_A2": [
+              0.00027333357707142104,
+              5.6683670768385395e-05
+            ],
+            "eigenvalues_eV_A2": [
+              -0.15041320867628452,
+              0.6943559149182705,
+              0.7440034499760627,
+              2.4127838710077705,
+              2.8713254209719588,
+              4.211958080177579,
+              4.372814183184043,
+              6.376746744976474,
+              7.334647353841202,
+              7.713826592094041,
+              10.063579533417954,
+              11.112705342035333,
+              12.406335217112959,
+              18.150244598519155,
+              18.88663819026333,
+              22.362130441413903,
+              36.728555459464154,
+              51.533178867827694,
+              64.9343325350008,
+              79.38065012343704,
+              86.85785947521927,
+              90.072896665219,
+              137.36785824155226,
+              141.23144149123502
+            ],
+            "negative_mode_count": 1,
+            "positive_mode_count": 23,
+            "near_zero_or_unresolved_count": 0,
+            "qualified": true,
+            "criterion": "saddle: lambda0 < -5*spread and lambda1 > 5*spread"
+          },
+          "requests_optimization_and_certificate": 114,
+          "requests_including_hessian": 210,
+          "requests_total_start": 1777,
+          "requests_total_end": 1987
+        },
+        "ring_ts": {
+          "qualified_stationarity": true,
+          "qualified_hessian": true,
+          "optimizer": {
+            "success_flag": true,
+            "status_code": 1,
+            "message": "The solution converged.",
+            "function_calls": 15,
+            "jacobian": "physical central force differences h=0.001 A + exact a*K_W",
+            "jacobian_calls": 1,
+            "root_residual_inf_eV_A": 7.87814107752914e-10,
+            "root_residual_qualified": true
+          },
+          "certificate": {
+            "V_eV": -4241.146401108035,
+            "W_eV": 0.8467137551366345,
+            "F_eV": -4237.759546087489,
+            "physical_fmax_eV_A": 1.8273318744745437,
+            "total_fmax_eV_A": 3.6310037922916945e-09,
+            "force_qualified": true
+          },
+          "hessian": {
+            "steps_A": [
+              0.001,
+              0.0005
+            ],
+            "stencil_spread_eV_A2": 0.000254867304730527,
+            "antisymmetric_norms_eV_A2": [
+              0.0002626394377015599,
+              6.566014989537056e-05
+            ],
+            "eigenvalues_eV_A2": [
+              -12.906893934676177,
+              0.8791591359818866,
+              1.5068448507703986,
+              1.707722564363468,
+              2.1724363426312525,
+              3.5258047826440992,
+              4.4348882455384135,
+              5.268002472506761,
+              6.344033361646219,
+              7.965282252068907,
+              8.642007882962425,
+              10.020196283574673,
+              13.498455360952482,
+              15.220665930182816,
+              17.417480663875867,
+              23.367573153451062,
+              33.51523907206582,
+              45.578808037125974,
+              65.19255859550387,
+              76.01445495949785,
+              79.267565190559,
+              86.48889343972216,
+              102.94677764658455,
+              113.1931452404678
+            ],
+            "negative_mode_count": 1,
+            "positive_mode_count": 23,
+            "near_zero_or_unresolved_count": 0,
+            "qualified": true,
+            "criterion": "saddle: lambda0 < -5*spread and lambda1 > 5*spread"
+          },
+          "requests_optimization_and_certificate": 112,
+          "requests_including_hessian": 208,
+          "requests_total_start": 1987,
+          "requests_total_end": 2195
+        }
+      },
+      "stationary_values": {
+        "minimum": {
+          "V_eV": -4243.437573012024,
+          "W_eV": 0.8674620229267664,
+          "F_eV": -4239.967724920317,
+          "physical_fmax_eV_A": 1.808574602302722,
+          "total_fmax_eV_A": 5.9007506297894695e-05,
+          "force_qualified": true
+        },
+        "easy_ts": {
+          "V_eV": -4243.290759883278,
+          "W_eV": 0.864041489902693,
+          "F_eV": -4239.834593923667,
+          "barrier_F_eV": 0.13313099664992478,
+          "physical_energy_difference_between_biased_stationary_points_eV": 0.14681312874563446,
+          "exact_dB_da_W_TS_minus_W_min_eV": -0.0034205330240734133
+        },
+        "ring_ts": {
+          "V_eV": -4241.146401108035,
+          "W_eV": 0.8467137551366345,
+          "F_eV": -4237.759546087489,
+          "barrier_F_eV": 2.208178832827798,
+          "physical_energy_difference_between_biased_stationary_points_eV": 2.29117190398847,
+          "exact_dB_da_W_TS_minus_W_min_eV": -0.020748267790131947
+        },
+        "barrier_gap_ring_minus_easy_F_eV": 2.0750478361778733,
+        "exact_gap_slope_W_eV": -0.017327734766058533
+      },
+      "physical_loading_per_atom_eV": 0.040004856761879634,
+      "biased_downhill": {
+        "easy_ts": {
+          "minus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 46,
+            "certificate": {
+              "V_eV": -4243.437568784638,
+              "W_eV": 0.8674609523920479,
+              "F_eV": -4239.967724975069,
+              "physical_fmax_eV_A": 1.8086136263661896,
+              "total_fmax_eV_A": 0.00011553522471581437,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 0.0003743692233935998,
+            "biased_total_energy_difference_to_current_min_eV": -5.475249054143205e-08,
+            "physical_energy_difference_to_current_min_eV": 4.227385943522677e-06,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                0,
+                4,
+                1,
+                6
+              ],
+              [
+                0,
+                5,
+                1,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                1,
+                6,
+                1,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ],
+              [
+                2,
+                7,
+                1,
+                6
+              ],
+              [
+                3,
+                8,
+                1,
+                6
+              ],
+              [
+                3,
+                9,
+                1,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": true,
+            "requests_total_start": 2195,
+            "requests_total_end": 2256,
+            "requests": 61
+          },
+          "plus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 50,
+            "certificate": {
+              "V_eV": -4243.521953646422,
+              "W_eV": 0.870323941622852,
+              "F_eV": -4240.04065787993,
+              "physical_fmax_eV_A": 1.8099913588127539,
+              "total_fmax_eV_A": 6.41027160878295e-05,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 1.3381487656986673,
+            "biased_total_energy_difference_to_current_min_eV": -0.07293295961335389,
+            "physical_energy_difference_to_current_min_eV": -0.08438063439825783,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                0,
+                4,
+                1,
+                6
+              ],
+              [
+                0,
+                5,
+                1,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                1,
+                6,
+                1,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ],
+              [
+                2,
+                7,
+                1,
+                6
+              ],
+              [
+                3,
+                8,
+                1,
+                6
+              ],
+              [
+                3,
+                9,
+                1,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": true,
+            "requests_total_start": 2256,
+            "requests_total_end": 2322,
+            "requests": 66
+          }
+        },
+        "ring_ts": {
+          "minus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 41,
+            "certificate": {
+              "V_eV": -4243.437578126151,
+              "W_eV": 0.8674632876853599,
+              "F_eV": -4239.9677249754095,
+              "physical_fmax_eV_A": 1.8085974561633134,
+              "total_fmax_eV_A": 7.38187176438047e-05,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 0.00035262089410772,
+            "biased_total_energy_difference_to_current_min_eV": -5.509264155989513e-08,
+            "physical_energy_difference_to_current_min_eV": -5.11412690684665e-06,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                0,
+                4,
+                1,
+                6
+              ],
+              [
+                0,
+                5,
+                1,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                1,
+                6,
+                1,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ],
+              [
+                2,
+                7,
+                1,
+                6
+              ],
+              [
+                3,
+                8,
+                1,
+                6
+              ],
+              [
+                3,
+                9,
+                1,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": true,
+            "requests_total_start": 2322,
+            "requests_total_end": 2374,
+            "requests": 52
+          },
+          "plus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 36,
+            "certificate": {
+              "V_eV": -4243.122150721334,
+              "W_eV": 0.8138942745801084,
+              "F_eV": -4239.866573623013,
+              "physical_fmax_eV_A": 1.829079680563738,
+              "total_fmax_eV_A": 8.430009985862268e-05,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 0.9359231159195107,
+            "biased_total_energy_difference_to_current_min_eV": 0.1011512973036588,
+            "physical_energy_difference_to_current_min_eV": 0.31542229068963934,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                0,
+                3,
+                6,
+                6
+              ],
+              [
+                0,
+                4,
+                1,
+                6
+              ],
+              [
+                0,
+                5,
+                1,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                1,
+                6,
+                1,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ],
+              [
+                2,
+                7,
+                1,
+                6
+              ],
+              [
+                3,
+                8,
+                1,
+                6
+              ],
+              [
+                3,
+                9,
+                1,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": false,
+            "requests_total_start": 2374,
+            "requests_total_end": 2420,
+            "requests": 46
+          }
+        }
+      },
+      "physical_release_of_biased_minimum": {
+        "optimizer_success_flag": true,
+        "optimizer_message": "Optimization terminated successfully.",
+        "optimizer_iterations": 32,
+        "certificate": {
+          "V_eV": -4243.837621580633,
+          "W_eV": 1.0838874370412117,
+          "F_eV": -4243.837621580633,
+          "physical_fmax_eV_A": 1.4850324083127893e-05,
+          "total_fmax_eV_A": 1.4850324083127893e-05,
+          "force_qualified": true
+        },
+        "same_numbering_proper_Kabsch_rmsd_to_original_gauche_A": 2.2729541905417087e-05,
+        "physical_energy_difference_to_original_gauche_eV": -9.904397302307189e-10,
+        "HC_graph_edges": [
+          [
+            0,
+            1,
+            6,
+            6
+          ],
+          [
+            0,
+            4,
+            1,
+            6
+          ],
+          [
+            0,
+            5,
+            1,
+            6
+          ],
+          [
+            1,
+            2,
+            6,
+            6
+          ],
+          [
+            1,
+            6,
+            1,
+            6
+          ],
+          [
+            2,
+            3,
+            6,
+            6
+          ],
+          [
+            2,
+            7,
+            1,
+            6
+          ],
+          [
+            3,
+            8,
+            1,
+            6
+          ],
+          [
+            3,
+            9,
+            1,
+            6
+          ]
+        ],
+        "requests_total_start": 2420,
+        "requests_total_end": 2466,
+        "requests": 46
+      },
+      "fixed_W_response": {
+        "status": "computed_conditional_fixed_W_estimate",
+        "formula": "gq=-Q.T F_W; chi=gq.T solve(H_F_h0005,gq); Pprime=a*chi/N; eta_crit_fixed_W=2*S0/(a*chi)",
+        "amplitude": 4.0,
+        "atom_count": 10,
+        "gq_eV_A": [
+          -0.08846756857792568,
+          0.17076898421185938,
+          0.049689997172019024,
+          0.023923180225809918,
+          0.05695854779459943,
+          -0.06030000560701173,
+          0.08417382026115083,
+          0.4079426389359241,
+          -0.2233539875105549,
+          -0.4089317864798792,
+          0.03129540670893906,
+          0.23340923323249874,
+          0.37376456581036743,
+          0.06058629933008605,
+          -0.18740733290832945,
+          0.19193486138949076,
+          -0.32791552951712455,
+          -0.09429001573237351,
+          -0.2523093227359054,
+          0.41162295944558636,
+          0.19023259026658362,
+          -0.0863418628946893,
+          -0.33736642449589976,
+          0.2640201220733178
+        ],
+        "chi_eV": 0.04314159970514646,
+        "Pprime_per_atom_eV_per_amplitude": 0.017256639882058583,
+        "S0_eV": 1.0838862204551696,
+        "eta_crit_fixed_W": 12.561961399937035,
+        "hessian_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/finite-channel-v1/run-1728623/a-4-minimum-hessian.npz",
+        "hessian_field": "H_F_h0005",
+        "interpretation_limit": "conditional scalar update under fixed W and local harmonic response; not a rebuilt-controller stability test"
+      }
+    },
+    {
+      "amplitude": 8.0,
+      "status": "qualified_stationary_branches_and_downhill_diagnostics",
+      "error": null,
+      "requests": 884,
+      "phases": {
+        "minimum": {
+          "qualified_stationarity": true,
+          "qualified_hessian": true,
+          "optimizer": {
+            "success_flag": true,
+            "message": "Optimization terminated successfully.",
+            "iterations": 28,
+            "function_calls": 39
+          },
+          "certificate": {
+            "V_eV": -4242.593420638893,
+            "W_eV": 0.7238426430820074,
+            "F_eV": -4236.802679494237,
+            "physical_fmax_eV_A": 2.884841359190812,
+            "total_fmax_eV_A": 5.633840143811542e-05,
+            "force_qualified": true
+          },
+          "hessian": {
+            "steps_A": [
+              0.001,
+              0.0005
+            ],
+            "stencil_spread_eV_A2": 0.00010621560878270078,
+            "antisymmetric_norms_eV_A2": [
+              0.00015671929530870478,
+              3.917977992165346e-05
+            ],
+            "eigenvalues_eV_A2": [
+              0.066224324125413,
+              0.6253859190984365,
+              1.006281398289577,
+              2.148623299561727,
+              2.474297866787534,
+              3.7870887790124694,
+              4.606247132121198,
+              5.820617971449558,
+              5.867506483172565,
+              7.412087263366189,
+              8.718733989658237,
+              10.65957110743389,
+              12.838641082343983,
+              14.51397532500066,
+              17.29619857431273,
+              21.506224537083007,
+              36.84482925384919,
+              47.80456891435462,
+              65.26661525693333,
+              76.89396911588929,
+              83.7235037632764,
+              85.21475909098857,
+              131.32387773735803,
+              135.12123573643092
+            ],
+            "negative_mode_count": 0,
+            "positive_mode_count": 24,
+            "near_zero_or_unresolved_count": 0,
+            "qualified": true,
+            "criterion": "minimum: lambda_min > 5*spread"
+          },
+          "requests_optimization_and_certificate": 40,
+          "requests_including_hessian": 136,
+          "requests_total_start": 2466,
+          "requests_total_end": 2602
+        },
+        "easy_ts": {
+          "qualified_stationarity": true,
+          "qualified_hessian": true,
+          "optimizer": {
+            "success_flag": true,
+            "status_code": 1,
+            "message": "The solution converged.",
+            "function_calls": 17,
+            "jacobian": "physical central force differences h=0.001 A + exact a*K_W",
+            "jacobian_calls": 2,
+            "root_residual_inf_eV_A": 4.464312091170483e-11,
+            "root_residual_qualified": true
+          },
+          "certificate": {
+            "V_eV": -4242.456023483861,
+            "W_eV": 0.7219994292361324,
+            "F_eV": -4236.680028049972,
+            "physical_fmax_eV_A": 2.880150566958877,
+            "total_fmax_eV_A": 1.0415113554629773e-09,
+            "force_qualified": true
+          },
+          "hessian": {
+            "steps_A": [
+              0.001,
+              0.0005
+            ],
+            "stencil_spread_eV_A2": 0.0002720559963195924,
+            "antisymmetric_norms_eV_A2": [
+              0.00018554233110002171,
+              4.638557169011974e-05
+            ],
+            "eigenvalues_eV_A2": [
+              -0.12439599916029742,
+              0.6157013556622036,
+              0.6618334430843634,
+              2.139909124443239,
+              2.5390121965145824,
+              3.7212117431835807,
+              3.870716427386436,
+              5.77475884873898,
+              6.506377190416035,
+              6.849292402765124,
+              8.906770046069061,
+              9.807812190717735,
+              11.2033644910806,
+              15.935472902280411,
+              16.447248864272247,
+              21.399242154633924,
+              34.93354995979172,
+              49.09437262143815,
+              62.14268103601371,
+              76.33016057751112,
+              82.66252909611084,
+              85.7157310216797,
+              133.21992885582637,
+              136.98798444020744
+            ],
+            "negative_mode_count": 1,
+            "positive_mode_count": 23,
+            "near_zero_or_unresolved_count": 0,
+            "qualified": true,
+            "criterion": "saddle: lambda0 < -5*spread and lambda1 > 5*spread"
+          },
+          "requests_optimization_and_certificate": 162,
+          "requests_including_hessian": 258,
+          "requests_total_start": 2602,
+          "requests_total_end": 2860
+        },
+        "ring_ts": {
+          "qualified_stationarity": true,
+          "qualified_hessian": true,
+          "optimizer": {
+            "success_flag": true,
+            "status_code": 1,
+            "message": "The solution converged.",
+            "function_calls": 22,
+            "jacobian": "physical central force differences h=0.001 A + exact a*K_W",
+            "jacobian_calls": 1,
+            "root_residual_inf_eV_A": 1.6242384617026812e-08,
+            "root_residual_qualified": true
+          },
+          "certificate": {
+            "V_eV": -4240.304061722422,
+            "W_eV": 0.7034125441440583,
+            "F_eV": -4234.67676136927,
+            "physical_fmax_eV_A": 2.9070809669615594,
+            "total_fmax_eV_A": 1.671698161571549e-08,
+            "force_qualified": true
+          },
+          "hessian": {
+            "steps_A": [
+              0.001,
+              0.0005
+            ],
+            "stencil_spread_eV_A2": 0.00022224365751924462,
+            "antisymmetric_norms_eV_A2": [
+              0.00021124273336285232,
+              5.28106552425336e-05
+            ],
+            "eigenvalues_eV_A2": [
+              -12.90519159015915,
+              0.7631757041445568,
+              1.3182090974831142,
+              1.512570280218311,
+              1.9579877294884562,
+              3.0631052033734707,
+              3.895783526983705,
+              4.6872181383604365,
+              5.7143872381093805,
+              6.939480064141779,
+              7.759308945322895,
+              8.92820118171755,
+              11.964279236910539,
+              13.432290207686703,
+              14.84480732258772,
+              22.386016228190076,
+              31.776594668478094,
+              43.15386317282864,
+              61.665914892921585,
+              72.09789814181124,
+              74.94026944533339,
+              82.2177237496151,
+              100.12575864964516,
+              106.73775933255926
+            ],
+            "negative_mode_count": 1,
+            "positive_mode_count": 23,
+            "near_zero_or_unresolved_count": 0,
+            "qualified": true,
+            "criterion": "saddle: lambda0 < -5*spread and lambda1 > 5*spread"
+          },
+          "requests_optimization_and_certificate": 119,
+          "requests_including_hessian": 215,
+          "requests_total_start": 2860,
+          "requests_total_end": 3075
+        }
+      },
+      "stationary_values": {
+        "minimum": {
+          "V_eV": -4242.593420638893,
+          "W_eV": 0.7238426430820074,
+          "F_eV": -4236.802679494237,
+          "physical_fmax_eV_A": 2.884841359190812,
+          "total_fmax_eV_A": 5.633840143811542e-05,
+          "force_qualified": true
+        },
+        "easy_ts": {
+          "V_eV": -4242.456023483861,
+          "W_eV": 0.7219994292361324,
+          "F_eV": -4236.680028049972,
+          "barrier_F_eV": 0.12265144426510233,
+          "physical_energy_difference_between_biased_stationary_points_eV": 0.13739715503197658,
+          "exact_dB_da_W_TS_minus_W_min_eV": -0.0018432138458750469
+        },
+        "ring_ts": {
+          "V_eV": -4240.304061722422,
+          "W_eV": 0.7034125441440583,
+          "F_eV": -4234.67676136927,
+          "barrier_F_eV": 2.125918124967029,
+          "physical_energy_difference_between_biased_stationary_points_eV": 2.289358916470519,
+          "exact_dB_da_W_TS_minus_W_min_eV": -0.020430098937949115
+        },
+        "barrier_gap_ring_minus_easy_F_eV": 2.003266680701927,
+        "exact_gap_slope_W_eV": -0.018586885092074068
+      },
+      "physical_loading_per_atom_eV": 0.12442009407495788,
+      "biased_downhill": {
+        "easy_ts": {
+          "minus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 47,
+            "certificate": {
+              "V_eV": -4242.593413031084,
+              "W_eV": 0.7238416921003772,
+              "F_eV": -4236.802679494282,
+              "physical_fmax_eV_A": 2.8848192947080227,
+              "total_fmax_eV_A": 8.645399980269119e-05,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 9.188018446663597e-06,
+            "biased_total_energy_difference_to_current_min_eV": -4.4565240386873484e-11,
+            "physical_energy_difference_to_current_min_eV": 7.607808583998121e-06,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": true,
+            "requests_total_start": 3075,
+            "requests_total_end": 3136,
+            "requests": 61
+          },
+          "plus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 48,
+            "certificate": {
+              "V_eV": -4242.679649531371,
+              "W_eV": 0.7270066285294556,
+              "F_eV": -4236.863596503135,
+              "physical_fmax_eV_A": 2.8890659265355105,
+              "total_fmax_eV_A": 4.419847357930201e-05,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 1.388593148967779,
+            "biased_total_energy_difference_to_current_min_eV": -0.06091700889828644,
+            "physical_energy_difference_to_current_min_eV": -0.08622889247817511,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                0,
+                4,
+                1,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ],
+              [
+                3,
+                9,
+                1,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": false,
+            "requests_total_start": 3136,
+            "requests_total_end": 3203,
+            "requests": 67
+          }
+        },
+        "ring_ts": {
+          "minus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 45,
+            "certificate": {
+              "V_eV": -4242.593409180325,
+              "W_eV": 0.7238412107111839,
+              "F_eV": -4236.802679494635,
+              "physical_fmax_eV_A": 2.8848259112339245,
+              "total_fmax_eV_A": 4.989384136840714e-05,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 8.320222113947487e-06,
+            "biased_total_energy_difference_to_current_min_eV": -3.9835867937654257e-10,
+            "physical_energy_difference_to_current_min_eV": 1.145856822404312e-05,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": true,
+            "requests_total_start": 3203,
+            "requests_total_end": 3259,
+            "requests": 56
+          },
+          "plus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 35,
+            "certificate": {
+              "V_eV": -4242.295962774241,
+              "W_eV": 0.6732487622657228,
+              "F_eV": -4236.909972676115,
+              "physical_fmax_eV_A": 2.919020570135131,
+              "total_fmax_eV_A": 9.395766281320502e-05,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 0.9720964461205692,
+            "biased_total_energy_difference_to_current_min_eV": -0.10729318187804893,
+            "physical_energy_difference_to_current_min_eV": 0.29745786465173296,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                0,
+                3,
+                6,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": false,
+            "requests_total_start": 3259,
+            "requests_total_end": 3307,
+            "requests": 48
+          }
+        }
+      },
+      "physical_release_of_biased_minimum": {
+        "optimizer_success_flag": true,
+        "optimizer_message": "Optimization terminated successfully.",
+        "optimizer_iterations": 31,
+        "certificate": {
+          "V_eV": -4243.837621579925,
+          "W_eV": 1.0838875701592767,
+          "F_eV": -4243.837621579925,
+          "physical_fmax_eV_A": 3.8913889732843884e-05,
+          "total_fmax_eV_A": 3.8913889732843884e-05,
+          "force_qualified": true
+        },
+        "same_numbering_proper_Kabsch_rmsd_to_original_gauche_A": 3.968484834251934e-05,
+        "physical_energy_difference_to_original_gauche_eV": -2.828528522513807e-10,
+        "HC_graph_edges": [
+          [
+            0,
+            1,
+            6,
+            6
+          ],
+          [
+            0,
+            4,
+            1,
+            6
+          ],
+          [
+            0,
+            5,
+            1,
+            6
+          ],
+          [
+            1,
+            2,
+            6,
+            6
+          ],
+          [
+            1,
+            6,
+            1,
+            6
+          ],
+          [
+            2,
+            3,
+            6,
+            6
+          ],
+          [
+            2,
+            7,
+            1,
+            6
+          ],
+          [
+            3,
+            8,
+            1,
+            6
+          ],
+          [
+            3,
+            9,
+            1,
+            6
+          ]
+        ],
+        "requests_total_start": 3307,
+        "requests_total_end": 3350,
+        "requests": 43
+      },
+      "fixed_W_response": {
+        "status": "computed_conditional_fixed_W_estimate",
+        "formula": "gq=-Q.T F_W; chi=gq.T solve(H_F_h0005,gq); Pprime=a*chi/N; eta_crit_fixed_W=2*S0/(a*chi)",
+        "amplitude": 8.0,
+        "atom_count": 10,
+        "gq_eV_A": [
+          -0.0327228587460017,
+          0.10952919573340777,
+          0.005204866514802764,
+          0.011536818247017005,
+          0.0303180541714958,
+          -0.020920351288583557,
+          0.0593406376138394,
+          0.3176995839979126,
+          -0.1862369695839421,
+          -0.32304415149373544,
+          0.009603738582390938,
+          0.18316779857264875,
+          0.3015223815832482,
+          0.04892799868425374,
+          -0.16419463718141428,
+          0.1753630078067422,
+          -0.26270246894361954,
+          -0.08808060154028967,
+          -0.1900172587419369,
+          0.31221447054808993,
+          0.14018144542761124,
+          -0.043763358335073214,
+          -0.2816362882306354,
+          0.20017700589280868
+        ],
+        "chi_eV": 0.029888056562541024,
+        "Pprime_per_atom_eV_per_amplitude": 0.02391044525003282,
+        "S0_eV": 1.0838862204551696,
+        "eta_crit_fixed_W": 9.066215280568077,
+        "hessian_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/finite-channel-v1/run-1728623/a-8-minimum-hessian.npz",
+        "hessian_field": "H_F_h0005",
+        "interpretation_limit": "conditional scalar update under fixed W and local harmonic response; not a rebuilt-controller stability test"
+      }
+    },
+    {
+      "amplitude": 16.0,
+      "status": "qualified_stationary_branches_and_downhill_diagnostics",
+      "error": null,
+      "requests": 941,
+      "phases": {
+        "minimum": {
+          "qualified_stationarity": true,
+          "qualified_hessian": true,
+          "optimizer": {
+            "success_flag": true,
+            "message": "Optimization terminated successfully.",
+            "iterations": 31,
+            "function_calls": 42
+          },
+          "certificate": {
+            "V_eV": -4240.501848201889,
+            "W_eV": 0.5439240492315418,
+            "F_eV": -4231.799063414184,
+            "physical_fmax_eV_A": 4.05020140390293,
+            "total_fmax_eV_A": 4.606901956979285e-05,
+            "force_qualified": true
+          },
+          "hessian": {
+            "steps_A": [
+              0.001,
+              0.0005
+            ],
+            "stencil_spread_eV_A2": 8.743397880332726e-05,
+            "antisymmetric_norms_eV_A2": [
+              0.00010005566217679872,
+              2.5013909056587336e-05
+            ],
+            "eigenvalues_eV_A2": [
+              0.023477527618817773,
+              0.5887877773399127,
+              0.8499721174403136,
+              1.6979926349418475,
+              1.9876958365635489,
+              3.1725450102336135,
+              3.896718629489885,
+              4.637517787010344,
+              4.953769073736741,
+              5.984290521917346,
+              7.24973391970455,
+              8.347685442910516,
+              10.198413390760464,
+              12.494946258640027,
+              12.67290528546931,
+              19.83777954583456,
+              34.14891833978394,
+              44.48333058346085,
+              61.0346508210179,
+              72.04434515409743,
+              77.77788496807202,
+              78.98968869647553,
+              123.58913184713956,
+              127.4822885096435
+            ],
+            "negative_mode_count": 0,
+            "positive_mode_count": 24,
+            "near_zero_or_unresolved_count": 0,
+            "qualified": true,
+            "criterion": "minimum: lambda_min > 5*spread"
+          },
+          "requests_optimization_and_certificate": 43,
+          "requests_including_hessian": 139,
+          "requests_total_start": 3350,
+          "requests_total_end": 3489
+        },
+        "easy_ts": {
+          "qualified_stationarity": true,
+          "qualified_hessian": true,
+          "optimizer": {
+            "success_flag": true,
+            "status_code": 1,
+            "message": "The solution converged.",
+            "function_calls": 22,
+            "jacobian": "physical central force differences h=0.001 A + exact a*K_W",
+            "jacobian_calls": 2,
+            "root_residual_inf_eV_A": 4.626775296193948e-11,
+            "root_residual_qualified": true
+          },
+          "certificate": {
+            "V_eV": -4240.394692694613,
+            "W_eV": 0.5446515698442103,
+            "F_eV": -4231.680267577105,
+            "physical_fmax_eV_A": 4.053888567914852,
+            "total_fmax_eV_A": 1.0308660758676769e-09,
+            "force_qualified": true
+          },
+          "hessian": {
+            "steps_A": [
+              0.001,
+              0.0005
+            ],
+            "stencil_spread_eV_A2": 0.00022438530654873744,
+            "antisymmetric_norms_eV_A2": [
+              0.00014536970770897525,
+              3.634239525723617e-05
+            ],
+            "eigenvalues_eV_A2": [
+              -0.09372821220553693,
+              0.5057156696270353,
+              0.5403579454081805,
+              1.750246970583515,
+              2.0529648090636488,
+              3.046278522667272,
+              3.1654234744914738,
+              4.8956205186203485,
+              5.369683996817122,
+              5.663438472144268,
+              7.199669701644857,
+              7.821662563890349,
+              9.601497148779844,
+              12.61087089323829,
+              12.720782579714287,
+              19.951054208023386,
+              32.4495513366674,
+              45.632072124303235,
+              58.149672046490295,
+              72.20086480094616,
+              77.34245990673698,
+              79.93334332486327,
+              126.55695059270185,
+              129.8445623448959
+            ],
+            "negative_mode_count": 1,
+            "positive_mode_count": 23,
+            "near_zero_or_unresolved_count": 0,
+            "qualified": true,
+            "criterion": "saddle: lambda0 < -5*spread and lambda1 > 5*spread"
+          },
+          "requests_optimization_and_certificate": 167,
+          "requests_including_hessian": 263,
+          "requests_total_start": 3489,
+          "requests_total_end": 3752
+        },
+        "ring_ts": {
+          "qualified_stationarity": true,
+          "qualified_hessian": true,
+          "optimizer": {
+            "success_flag": true,
+            "status_code": 1,
+            "message": "The solution converged.",
+            "function_calls": 18,
+            "jacobian": "physical central force differences h=0.001 A + exact a*K_W",
+            "jacobian_calls": 2,
+            "root_residual_inf_eV_A": 4.993904956971222e-09,
+            "root_residual_qualified": true
+          },
+          "certificate": {
+            "V_eV": -4238.202295964463,
+            "W_eV": 0.5227390020780804,
+            "F_eV": -4229.8384719312135,
+            "physical_fmax_eV_A": 4.071941648790821,
+            "total_fmax_eV_A": 7.226655397297264e-09,
+            "force_qualified": true
+          },
+          "hessian": {
+            "steps_A": [
+              0.001,
+              0.0005
+            ],
+            "stencil_spread_eV_A2": 0.00030795432462609644,
+            "antisymmetric_norms_eV_A2": [
+              0.00022982414471740923,
+              3.641914389248786e-05
+            ],
+            "eigenvalues_eV_A2": [
+              -12.01891475806985,
+              0.5895020906633932,
+              1.0284977513687001,
+              1.2945471103068509,
+              1.6455636265476872,
+              2.42607880091559,
+              3.14559661780462,
+              3.855773715591285,
+              4.8658439542619725,
+              5.65477530015067,
+              6.613786244165967,
+              7.266729980067837,
+              9.759804022776269,
+              10.972456159610962,
+              10.994107682234294,
+              20.64985376252819,
+              28.991140803226543,
+              39.18129948931518,
+              55.33150840303232,
+              66.9915889165732,
+              68.93222092748567,
+              75.3935410795877,
+              94.81919857465613,
+              96.80106204946155
+            ],
+            "negative_mode_count": 1,
+            "positive_mode_count": 23,
+            "near_zero_or_unresolved_count": 0,
+            "qualified": true,
+            "criterion": "saddle: lambda0 < -5*spread and lambda1 > 5*spread"
+          },
+          "requests_optimization_and_certificate": 163,
+          "requests_including_hessian": 259,
+          "requests_total_start": 3752,
+          "requests_total_end": 4011
+        }
+      },
+      "stationary_values": {
+        "minimum": {
+          "V_eV": -4240.501848201889,
+          "W_eV": 0.5439240492315418,
+          "F_eV": -4231.799063414184,
+          "physical_fmax_eV_A": 4.05020140390293,
+          "total_fmax_eV_A": 4.606901956979285e-05,
+          "force_qualified": true
+        },
+        "easy_ts": {
+          "V_eV": -4240.394692694613,
+          "W_eV": 0.5446515698442103,
+          "F_eV": -4231.680267577105,
+          "barrier_F_eV": 0.11879583707923302,
+          "physical_energy_difference_between_biased_stationary_points_eV": 0.10715550727582013,
+          "exact_dB_da_W_TS_minus_W_min_eV": 0.000727520612668453
+        },
+        "ring_ts": {
+          "V_eV": -4238.202295964463,
+          "W_eV": 0.5227390020780804,
+          "F_eV": -4229.8384719312135,
+          "barrier_F_eV": 1.9605914829708126,
+          "physical_energy_difference_between_biased_stationary_points_eV": 2.2995522374258144,
+          "exact_dB_da_W_TS_minus_W_min_eV": -0.021185047153461367
+        },
+        "barrier_gap_ring_minus_easy_F_eV": 1.8417956458915796,
+        "exact_gap_slope_W_eV": -0.02191256776612982
+      },
+      "physical_loading_per_atom_eV": 0.3335773377753867,
+      "biased_downhill": {
+        "easy_ts": {
+          "minus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 54,
+            "certificate": {
+              "V_eV": -4240.501855410868,
+              "W_eV": 0.5439244997689752,
+              "F_eV": -4231.799063414564,
+              "physical_fmax_eV_A": 4.050190593726609,
+              "total_fmax_eV_A": 7.314338479101502e-05,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 4.5006102804709945e-05,
+            "biased_total_energy_difference_to_current_min_eV": -3.80168785341084e-10,
+            "physical_energy_difference_to_current_min_eV": -7.208979695860762e-06,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": true,
+            "requests_total_start": 4011,
+            "requests_total_end": 4076,
+            "requests": 65
+          },
+          "plus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 54,
+            "certificate": {
+              "V_eV": -4240.597297228996,
+              "W_eV": 0.5478570255829003,
+              "F_eV": -4231.831584819669,
+              "physical_fmax_eV_A": 4.061374133840391,
+              "total_fmax_eV_A": 6.449086019001067e-05,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 1.5198036762984053,
+            "biased_total_energy_difference_to_current_min_eV": -0.03252140548465832,
+            "physical_energy_difference_to_current_min_eV": -0.09544902710695169,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": true,
+            "requests_total_start": 4076,
+            "requests_total_end": 4142,
+            "requests": 66
+          }
+        },
+        "ring_ts": {
+          "minus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 47,
+            "certificate": {
+              "V_eV": -4240.5018590486825,
+              "W_eV": 0.5439247271343529,
+              "F_eV": -4231.799063414533,
+              "physical_fmax_eV_A": 4.050191851468861,
+              "total_fmax_eV_A": 0.00011813472302935215,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 1.8115286590072974e-05,
+            "biased_total_energy_difference_to_current_min_eV": -3.483364707790315e-10,
+            "physical_energy_difference_to_current_min_eV": -1.0846793884411454e-05,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": true,
+            "requests_total_start": 4142,
+            "requests_total_end": 4198,
+            "requests": 56
+          },
+          "plus": {
+            "optimizer_success_flag": true,
+            "optimizer_message": "Optimization terminated successfully.",
+            "optimizer_iterations": 34,
+            "certificate": {
+              "V_eV": -4240.268193704079,
+              "W_eV": 0.49873531042938046,
+              "F_eV": -4232.288428737209,
+              "physical_fmax_eV_A": 4.095552593743395,
+              "total_fmax_eV_A": 8.952941116059147e-05,
+              "force_qualified": true
+            },
+            "downhill_force_qualified": true,
+            "same_numbering_proper_Kabsch_rmsd_to_current_min_A": 1.0448698618600651,
+            "biased_total_energy_difference_to_current_min_eV": -0.4893653230246855,
+            "physical_energy_difference_to_current_min_eV": 0.23365449780976633,
+            "HC_graph_edges": [
+              [
+                0,
+                1,
+                6,
+                6
+              ],
+              [
+                0,
+                3,
+                6,
+                6
+              ],
+              [
+                1,
+                2,
+                6,
+                6
+              ],
+              [
+                2,
+                3,
+                6,
+                6
+              ]
+            ],
+            "HC_graph_same_as_current_min": false,
+            "requests_total_start": 4198,
+            "requests_total_end": 4246,
+            "requests": 48
+          }
+        }
+      },
+      "physical_release_of_biased_minimum": {
+        "optimizer_success_flag": true,
+        "optimizer_message": "Optimization terminated successfully.",
+        "optimizer_iterations": 34,
+        "certificate": {
+          "V_eV": -4243.83762158032,
+          "W_eV": 1.0838887279244458,
+          "F_eV": -4243.83762158032,
+          "physical_fmax_eV_A": 6.749906523818084e-05,
+          "total_fmax_eV_A": 6.749906523818084e-05,
+          "force_qualified": true
+        },
+        "same_numbering_proper_Kabsch_rmsd_to_original_gauche_A": 2.4684764031638445e-05,
+        "physical_energy_difference_to_original_gauche_eV": -6.775735528208315e-10,
+        "HC_graph_edges": [
+          [
+            0,
+            1,
+            6,
+            6
+          ],
+          [
+            0,
+            4,
+            1,
+            6
+          ],
+          [
+            0,
+            5,
+            1,
+            6
+          ],
+          [
+            1,
+            2,
+            6,
+            6
+          ],
+          [
+            1,
+            6,
+            1,
+            6
+          ],
+          [
+            2,
+            3,
+            6,
+            6
+          ],
+          [
+            2,
+            7,
+            1,
+            6
+          ],
+          [
+            3,
+            8,
+            1,
+            6
+          ],
+          [
+            3,
+            9,
+            1,
+            6
+          ]
+        ],
+        "requests_total_start": 4246,
+        "requests_total_end": 4291,
+        "requests": 45
+      },
+      "fixed_W_response": {
+        "status": "computed_conditional_fixed_W_estimate",
+        "formula": "gq=-Q.T F_W; chi=gq.T solve(H_F_h0005,gq); Pprime=a*chi/N; eta_crit_fixed_W=2*S0/(a*chi)",
+        "amplitude": 16.0,
+        "atom_count": 10,
+        "gq_eV_A": [
+          0.020399107143025088,
+          0.05263139592690881,
+          -0.03881915058117225,
+          -0.0030285064139849585,
+          0.0053652790962299135,
+          0.015372381359354842,
+          0.03135558145636329,
+          0.21288064094868484,
+          -0.14451834518640322,
+          -0.215655558652864,
+          -0.00031843968915135773,
+          0.13780897766743527,
+          0.2096872669909042,
+          0.030974027156688157,
+          -0.14259783389535316,
+          0.16062512776965174,
+          -0.17977745149597188,
+          -0.06787351295929579,
+          -0.1347581203220277,
+          0.19531493338406808,
+          0.07562565104193006,
+          0.0036897400156103138,
+          -0.21025931347107402,
+          0.13067165756345764
+        ],
+        "chi_eV": 0.01701237102479732,
+        "Pprime_per_atom_eV_per_amplitude": 0.02721979363967571,
+        "S0_eV": 1.0838862204551696,
+        "eta_crit_fixed_W": 7.963956191609708,
+        "hessian_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/finite-channel-v1/run-1728623/a-16-minimum-hessian.npz",
+        "hessian_field": "H_F_h0005",
+        "interpretation_limit": "conditional scalar update under fixed W and local harmonic response; not a rebuilt-controller stability test"
+      }
+    }
+  ],
+  "interpretation_limit": "offline stationary-branch summary; endpoint distances, graphs and energies are reported as recorded, with no automatic basin identity threshold; fixed-W eta is not actual controller stability"
+}
