@@ -1,0 +1,107 @@
+{
+  "purpose": "analytic-equation illustration only; no search efficacy claim",
+  "source": "10.1021/acs.jctc.4c01081 Eqs.16\u201317; local PDF page E visually checked",
+  "coordinate_units": "paper model coordinates; not atomistic eV/Angstrom calibration",
+  "numpy": "2.0.2",
+  "scipy": "1.16.0",
+  "rows": [
+    {
+      "a": 0.0,
+      "minimum": [
+        1.9959439427902372,
+        4.4770870591140515
+      ],
+      "saddle": [
+        4.110969480202121,
+        3.1312517227043224
+      ],
+      "lambda_min": 12.368850957625323,
+      "bare_hxx": 12.540891505651203,
+      "added_hxx": 0.0,
+      "true_energy_rise": 0.0,
+      "response_slope": 0.0,
+      "branch_barrier": 6.125888926498581,
+      "barrier_slope": -1.0050861611544322,
+      "barrier_slope_fd": -1.0050861620536367
+    },
+    {
+      "a": 0.1,
+      "minimum": [
+        2.0156341684090497,
+        4.476002928275189
+      ],
+      "saddle": [
+        4.111158331266904,
+        3.1312759553882423
+      ],
+      "lambda_min": 12.417123263362111,
+      "bare_hxx": 11.990725677735991,
+      "added_hxx": 0.601042849328756,
+      "true_energy_rise": 0.0023847127943650293,
+      "response_slope": 0.046105137284354704,
+      "branch_barrier": 6.027847794008375,
+      "barrier_slope": -0.9565654015024967,
+      "barrier_slope_fd": -0.956565402270293
+    },
+    {
+      "a": 1.0,
+      "minimum": [
+        2.1591138862791324,
+        4.468032763570823
+      ],
+      "saddle": [
+        4.1128447541023565,
+        3.1314923615836965
+      ],
+      "lambda_min": 12.282243136227091,
+      "bare_hxx": 8.262688818964145,
+      "added_hxx": 4.198791509493228,
+      "true_energy_rise": 0.14651755990955007,
+      "response_slope": 0.2273811962667506,
+      "branch_barrier": 5.312658312099711,
+      "barrier_slope": -0.6667249540074436,
+      "barrier_slope_fd": -0.6667249542458009
+    },
+    {
+      "a": 2.0,
+      "minimum": [
+        2.278423898107749,
+        4.461308483686472
+      ],
+      "saddle": [
+        4.114691273567404,
+        3.1317293335533045
+      ],
+      "lambda_min": 11.6046178144192,
+      "bare_hxx": 5.538895345584574,
+      "added_hxx": 6.231822954326658,
+      "true_energy_rise": 0.3986448700969607,
+      "response_slope": 0.2652257506393729,
+      "branch_barrier": 4.740315917152573,
+      "barrier_slope": -0.493487553359222,
+      "barrier_slope_fd": -0.49348755346567685
+    },
+    {
+      "a": 5.0,
+      "minimum": [
+        2.5371150675640672,
+        4.446410968391532
+      ],
+      "saddle": [
+        4.1200680481196486,
+        3.13241948864941
+      ],
+      "lambda_min": 8.84535159318568,
+      "bare_hxx": 0.8065200524532212,
+      "added_hxx": 8.159898313130808,
+      "true_energy_rise": 1.1696480466021395,
+      "response_slope": 0.23918909154572787,
+      "branch_barrier": 3.6758932529968984,
+      "barrier_slope": -0.2561260012124976,
+      "barrier_slope_fd": -0.2561260012368116
+    }
+  ],
+  "max_stationarity_residual": 9.751375509650927e-15,
+  "max_barrier_slope_error": 8.992044886468875e-10,
+  "note": "FD at a=0 uses infinitesimal negative a only for derivative verification; branch_barrier is a specified stationary-point energy difference; saddle connectivity at each a is not independently certified"
+}

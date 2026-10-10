@@ -1,0 +1,11 @@
+claim_id,section,claim,source_ids,evidence_location,status,notes
+LS-T1,pair mechanics,Exponential pair LS adds positive radial and negative transverse geometric stiffness,S1;S2,note section2 derivation,derived,Not all modes soften; exact for fixed pair geometry r>0
+LS-T2,geometry,LS effect includes stationary-point motion and third-derivative contraction,S1;S3,note T1-T2,derived,Smooth fixed W and nondegenerate branch; proper active coordinates
+LS-T3,response,True-energy response is monotone on same stable fixed-W branch for nonnegative amplitude,S1;S3,note T3-T4,derived,Not the across-step adaptive controller; branch jumps and finite residual matter
+LS-T4,barrier,Derivative of specified stationary branch energy difference is W(s)-W(m),S1,note T5-T6; WQ equation check,derived,No guaranteed sign; saddle connectivity and global minimum barrier not certified by derivative
+LS-T5,fold,Square-root curvature and three-halves barrier scale apply to a generic fold,S3,note T7,derived,Mapping to LS conditional; degeneracy and useless instabilities excluded from benefit claims
+LS-T6,metric,SPD metric preserves stationary points and Morse index unlike LS,S5,note section8 congruence argument,derived,Fixed physical energy and allowed path set; attraction basins can change
+LS-T7,nonlinear modes,Cubic barrier includes asymmetry beyond harmonic stiffness,S4,sectionII Eqs.1-2; note T8,reported,Proxy only; model-glass evidence does not validate C60 or chemistry
+LS-T8,inverse design,Local elastic-cost-constrained barrier improvement has a quadratic-form benchmark,S1;S3,note T9,derived,Known saddle needed; SPD C and free signed coefficients required for closed form
+LS-T9,WQ check,Paper WQ bias is PSD at fixed geometry yet re-equilibrated minimum can soften,S1,Eq.17 and note section3; wq-equation-check-v2.json,derived,Toy equation verification only; small amplitude can harden first
+LS-T10,research priority,Test mechanical response and actual barrier/landing before designing a new LS controller,S1;S2;S3;S4;S5,note section10 and review-plan.md,inferred,User-authorized priority; real-system hypothesis tests not yet run
