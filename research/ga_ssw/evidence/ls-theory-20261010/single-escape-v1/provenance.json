@@ -1,0 +1,15 @@
+{
+  "base_commit": "b1447956fd7fd3adec619aadd0f281e8b373fd73",
+  "source_snapshot": "source",
+  "endpoint_gate": "endpoint-release-v2/run-1728694: all five physical force/identity checks passed",
+  "protocol": "../escape-protocol.md",
+  "runner_pending_review": false,
+  "budget": {
+    "search_requests": 96000,
+    "fresh_requests": 24,
+    "V100_cards": 1,
+    "slurm_minutes": 45
+  },
+  "review": "Actual helper/input/no-PES setup verified; source reviewed for modified vs physical landing, post-landing controller failure, and cost semantics",
+  "job_id": 1728766
+}
