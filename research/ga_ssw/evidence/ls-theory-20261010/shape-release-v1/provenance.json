@@ -1,0 +1,8 @@
+{
+  "git_head": "c65aa94a57eda7db06f6b82a6773c7479b1161fd",
+  "source_snapshot": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/shape-release-v1/source",
+  "inputs_from": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/shape-channel-v1/run-1729334",
+  "cap": 1000,
+  "wall_seconds": 300,
+  "scope": "eight physical endpoint release diagnostics"
+}

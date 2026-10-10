@@ -1,0 +1,23 @@
+{
+  "scope": "Analytic bias evaluations at already qualified physical stationary points; first derivative at zero loading only. No new PES calls, no finite search, no algorithm or default change.",
+  "origin": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/finite-channel-v1/run-1728623/gauche-reference.extxyz",
+  "R0_A": 5.930564577778074,
+  "rows": [
+    {
+      "channel": "easy",
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/finite-channel-v1/run-1728623/easy-ts-aligned.extxyz",
+      "W_min_eV": 1.0838862204551696,
+      "radius_TS_over_min": 1.0305520127450853,
+      "original_barrier_derivative_eV": -0.005042472852714974,
+      "shape_normalized_barrier_derivative_eV": 0.16750571587700214
+    },
+    {
+      "channel": "ring",
+      "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/finite-channel-v1/run-1728623/ring-ts-aligned.extxyz",
+      "W_min_eV": 1.0838862204551696,
+      "radius_TS_over_min": 0.9128478236867832,
+      "original_barrier_derivative_eV": -0.02085711905999421,
+      "shape_normalized_barrier_derivative_eV": -0.42455357954967465
+    }
+  ]
+}

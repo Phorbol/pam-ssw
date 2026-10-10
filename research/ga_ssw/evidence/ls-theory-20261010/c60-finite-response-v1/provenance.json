@@ -1,0 +1,10 @@
+{
+  "git_head": "2b7dd2ad75d26dc631a9e6c827596419635bba53",
+  "source_snapshot": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/c60-finite-response-v1/source",
+  "scope": "C60 #2 physical minimum plus two LS endpoints; no search",
+  "request_cap": 4000,
+  "surface_wall_seconds": 600,
+  "slurm_minutes": 15,
+  "model": "MH-1/omol",
+  "uncommitted_source": "Source snapshot contains exact modified research runner and helper; core unchanged."
+}

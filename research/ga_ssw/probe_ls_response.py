@@ -43,11 +43,12 @@ def stiffness(soft, atoms):
     return radial, transverse
 
 
-def run_case(source, out, calculator):
+def run_case(source, out, calculator, *, amplitudes=(.125, .25, .5, 1.),
+             bond_tables=None, request_cap=4000, wall_seconds=450):
     out.mkdir(parents=True, exist_ok=False)
     atoms = read(source)
     write(out / "input.extxyz", atoms)
-    surface = ledger.CountedSurface(calculator, out / "requests.jsonl", 4000, 450)
+    surface = ledger.CountedSurface(calculator, out / "requests.jsonl", request_cap, wall_seconds)
     actual = ledger.instrument_calculate(calculator)
     start = time.monotonic()
     result = {"source": str(source), "status": "started", "rows": []}
@@ -102,7 +103,9 @@ def run_case(source, out, calculator):
         frame = ClusterFrame(atoms)
         qbasis = null_space(frame.basis.T)
         q0 = np.zeros(qbasis.shape[1])
-        if atoms.numbers[0] == 29:
+        if bond_tables is not None:
+            energies, lengths = bond_tables
+        elif atoms.numbers[0] == 29:
             energies, lengths = {(29, 29): 1.0}, {(29, 29): 3.0}
         else:
             energies = HC_BOND_ENERGIES
@@ -139,7 +142,7 @@ def run_case(source, out, calculator):
                                      "expected_dilation_drive_eV": -sum(soft.strengths)/soft.xi}
         np.savez(out / "baseline.npz", H=h0, Q=qbasis, radial=radial0, transverse=trans0, gradient=g)
         q = q0.copy()
-        for amplitude in (.125, .25, .5, 1.):
+        for amplitude in amplitudes:
             q, point, opt = optimize(q, soft, amplitude)
             write(out / f"soft-{amplitude}.extxyz", point)
             hv, info = hessian(q)

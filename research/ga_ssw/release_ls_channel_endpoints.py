@@ -115,7 +115,7 @@ def objective_factory(start, frame, qbasis, surface):
     return geometry, objective
 
 
-def main_run(finite_run: Path, torsion_ref: Path, ring_ref: Path, out: Path):
+def main_run(finite_run: Path, torsion_ref: Path, ring_ref: Path, out: Path, *, endpoints=ENDPOINTS):
     if out.exists():
         raise FileExistsError(f"refusing to overwrite output: {out}")
     finite_run = finite_run.resolve()
@@ -128,7 +128,7 @@ def main_run(finite_run: Path, torsion_ref: Path, ring_ref: Path, out: Path):
     if finite_data.get("status") != "completed_stationary_branch_diagnostics":
         raise ValueError(f"finite run is not complete: {finite_data.get('status')}")
     finite_rows = {float(row["amplitude"]): row for row in finite_data.get("rows", [])}
-    for amplitude in (8.0, 16.0):
+    for amplitude in sorted({float(row[0]) for row in endpoints}):
         row = finite_rows.get(amplitude)
         if row is None or row.get("status") != "qualified_stationary_branches_and_downhill_diagnostics":
             raise ValueError(f"a={amplitude:g} row missing or not qualified")
@@ -158,7 +158,7 @@ def main_run(finite_run: Path, torsion_ref: Path, ring_ref: Path, out: Path):
         "endpoints": [{"label": f"a-{amplitude:g}-{branch}-{sign}",
                        "amplitude": amplitude, "branch": branch, "sign": sign,
                        "start_path": str(finite_run / f"a-{amplitude:g}-{branch}-{sign}-landing.extxyz"),
-                       "status": "not_started"} for amplitude, branch, sign in ENDPOINTS]}
+                       "status": "not_started"} for amplitude, branch, sign in endpoints]}
     utilities.dump(out / "result.json", result)
     source_script = Path(__file__).resolve()
     shutil.copy2(source_script, out / "runner.py")
@@ -204,7 +204,7 @@ def main_run(finite_run: Path, torsion_ref: Path, ring_ref: Path, out: Path):
                 result["source_hashes"][f"{ref['label']}_energy_record"] = qualifier.sha256(Path(ref["energy_source"]))
         utilities.dump(out / "result.json", result)
 
-        for endpoint_index, (amplitude, branch, sign) in enumerate(ENDPOINTS):
+        for endpoint_index, (amplitude, branch, sign) in enumerate(endpoints):
             label = f"a-{amplitude:g}-{branch}-{sign}"
             entry = result["endpoints"][endpoint_index]
             start_path = Path(entry["start_path"])
@@ -272,7 +272,9 @@ def main_run(finite_run: Path, torsion_ref: Path, ring_ref: Path, out: Path):
                     pending["requests"] = 0
                 break
         else:
-            result["status"] = ("completed_five_endpoint_diagnostics" if all(
+            success_status = ("completed_five_endpoint_diagnostics" if len(endpoints) == 5
+                              else "completed_all_endpoint_diagnostics")
+            result["status"] = (success_status if all(
                 entry.get("status") == "completed_diagnostics" for entry in result["endpoints"])
                 else "completed_with_endpoint_errors_or_force_failures")
     except Exception as error:

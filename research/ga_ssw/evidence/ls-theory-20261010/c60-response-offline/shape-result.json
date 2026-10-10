@@ -1,0 +1,81 @@
+{
+  "scope": "offline analytic frozen-LS shape map W(R0*x/||x||); no Calculator/PES/optimizer",
+  "inputs": {
+    "geometry": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-2/final.extxyz",
+    "Hessian": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/curvature/isomer-2.npz",
+    "stiffness_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/probe_ls_response.py",
+    "softening_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/softening.py"
+  },
+  "definition": {
+    "x": "centered Cartesian coordinates",
+    "R0_A": 27.256891004642945,
+    "R_A": 27.256891004642945,
+    "alpha": 1.0,
+    "pair_cutoff_A": 1.64,
+    "bond_energy_eV": 3.61,
+    "initial_fraction": 0.03,
+    "xi": 0.2,
+    "frozen_pair_count": 90,
+    "W_shape_at_reference_eV": 9.746999999999998,
+    "translation_projector": "C=I-T T^T, T contains three normalized translations",
+    "P": "C-e e^T, e=x/R"
+  },
+  "response": {
+    "original": {
+      "cartesian_gradient_norm_eV_A": 1.8323407713344417,
+      "internal_gradient_norm_eV_A": 1.8323407713344415,
+      "chi_eV": 0.2824217718410578
+    },
+    "shape": {
+      "cartesian_gradient_norm_eV_A": 0.4007129039450333,
+      "internal_gradient_norm_eV_A": 0.4007129039450334,
+      "chi_eV": 0.004026405524297625,
+      "radial_gradient_component_removed_eV_A": 1.7879882188947542,
+      "x_dot_gradient_eV": -8.307561820208887e-17
+    }
+  },
+  "curvature": {
+    "H_V_projected_eigenvalue_min_eV_A2": 2.7015558708972764,
+    "H_V_plus_K_original_LS_min_eigenvalue_eV_A2": 2.633377331285225,
+    "H_V_plus_Hshape_min_eigenvalue_eV_A2": 2.6989923200844466,
+    "original_V_soft_mode_LS_curvature_shift_eV_A2": -0.06630022962506464,
+    "original_V_soft_mode_shape_curvature_shift_eV_A2": -0.0006841334243445846,
+    "original_V_soft_mode_total_curvature_before_eV_A2": 2.7015558708972764,
+    "original_V_soft_mode_total_after_original_LS_eV_A2": 2.6352556412722117,
+    "original_V_soft_mode_total_after_shape_LS_eV_A2": 2.700871737472932,
+    "Hessian_shape_identity_residual_norm_eV_A": 3.346409740010874e-14,
+    "shape_Hessian_symmetry_residual_norm_eV_A2": 0.0
+  },
+  "directional_finite_difference_checks": [
+    {
+      "direction": 0,
+      "energy_directional_derivative_analytic": 0.0715099371637026,
+      "energy_directional_derivative_fd": 0.07150993712734532,
+      "energy_directional_abs_error": 3.6357278299092854e-11,
+      "hvp_relative_error": 9.521714970835097e-11,
+      "hvp_max_abs_error_eV_A2": 4.266985376144561e-11
+    },
+    {
+      "direction": 1,
+      "energy_directional_derivative_analytic": -0.027889642945764268,
+      "energy_directional_derivative_fd": -0.02788964277300465,
+      "energy_directional_abs_error": 1.7275961911034088e-10,
+      "hvp_relative_error": 8.347723915858525e-11,
+      "hvp_max_abs_error_eV_A2": 4.3877859678964626e-11
+    },
+    {
+      "direction": 2,
+      "energy_directional_derivative_analytic": 0.0067822777877097,
+      "energy_directional_derivative_fd": 0.0067822775839943,
+      "energy_directional_abs_error": 2.0371540045138747e-10,
+      "hvp_relative_error": 1.0810017975555586e-10,
+      "hvp_max_abs_error_eV_A2": 4.417538557177636e-11
+    }
+  ],
+  "interpretation_limits": [
+    "This tests an analytically defined radial shape-normalized W at the original geometry only; it does not optimize the modified surface.",
+    "The physical V Hessian is the archived h=0.01 A central-force-difference matrix; it is not a dual-step Hessian certificate.",
+    "Instantaneous Hessian spectra do not establish a stationary point because the modified gradient is generally nonzero.",
+    "No conclusion about absent expansion, finite-amplitude behavior, or improved search efficiency follows from this local diagnostic."
+  ]
+}

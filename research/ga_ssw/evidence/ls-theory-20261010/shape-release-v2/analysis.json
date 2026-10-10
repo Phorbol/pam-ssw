@@ -1,0 +1,70 @@
+{
+  "source": "run-1729382/result.json",
+  "method": "minimum same-index proper Kabsch RMSD among the three original qualified references; graph and physical energy separately reported",
+  "rows": [
+    {
+      "endpoint": "a-0.125-easy_ts-minus",
+      "closest_reference": "torsion_gauche",
+      "rmsd_A": 5.210922460011195e-05,
+      "delta_E_eV": 6.259142537601292e-09,
+      "graph_equal": true,
+      "status": "completed_diagnostics"
+    },
+    {
+      "endpoint": "a-0.125-easy_ts-plus",
+      "closest_reference": "torsion_trans",
+      "rmsd_A": 4.377189228626825e-06,
+      "delta_E_eV": 2.219167072325945e-10,
+      "graph_equal": true,
+      "status": "completed_diagnostics"
+    },
+    {
+      "endpoint": "a-0.125-ring_ts-minus",
+      "closest_reference": "torsion_gauche",
+      "rmsd_A": 1.7834635077129356e-05,
+      "delta_E_eV": 3.285094862803817e-09,
+      "graph_equal": true,
+      "status": "completed_diagnostics"
+    },
+    {
+      "endpoint": "a-0.125-ring_ts-plus",
+      "closest_reference": "cyclobutene",
+      "rmsd_A": 2.3027393018961326e-06,
+      "delta_E_eV": 1.5006662579253316e-10,
+      "graph_equal": true,
+      "status": "completed_diagnostics"
+    },
+    {
+      "endpoint": "a-1-easy_ts-minus",
+      "closest_reference": "torsion_trans",
+      "rmsd_A": 6.769761950824284e-06,
+      "delta_E_eV": 1.8835635273717344e-09,
+      "graph_equal": true,
+      "status": "completed_diagnostics"
+    },
+    {
+      "endpoint": "a-1-easy_ts-plus",
+      "closest_reference": "torsion_gauche",
+      "rmsd_A": 1.4350756044831366e-05,
+      "delta_E_eV": -3.092281986027956e-10,
+      "graph_equal": true,
+      "status": "completed_diagnostics"
+    },
+    {
+      "endpoint": "a-1-ring_ts-minus",
+      "closest_reference": "cyclobutene",
+      "rmsd_A": 1.6485794026535046e-06,
+      "delta_E_eV": -2.4556356947869062e-11,
+      "graph_equal": true,
+      "status": "completed_diagnostics"
+    },
+    {
+      "endpoint": "a-1-ring_ts-plus",
+      "closest_reference": "torsion_gauche",
+      "rmsd_A": 3.8137254897162714e-05,
+      "delta_E_eV": -8.822098607197404e-10,
+      "graph_equal": true,
+      "status": "completed_diagnostics"
+    }
+  ]
+}

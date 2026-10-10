@@ -1,0 +1,101 @@
+{
+  "scope": "off-reference analytic FrozenShapeBias derivative checks only; no Calculator/PES/optimization",
+  "formula": "Wshape(x)=W(R0*C*x/||C*x||), with center projector C",
+  "systems": [
+    {
+      "system": "C4H6",
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c4h6-ls-isomer-transfer-20261007/qualified-1662853/representative-1/refined.extxyz",
+      "pair_count": 10,
+      "seed": 61010,
+      "base_perturbation_norm_A": 0.01,
+      "base_perturbation_center_of_mass_norm_A": 1.5023145987371596e-19,
+      "scale_applied_to_centered_reference": 1.17,
+      "R0_A": 5.271378667322574,
+      "Roff_A": 6.167374033095193,
+      "Roff_over_R0": 1.169973629731235,
+      "alpha_R0_over_R": 0.8547201189737232,
+      "Wshape_eV": 1.1865457657644662,
+      "gradient_norm_eV_A": 0.8203013710930314,
+      "hessian_symmetry_residual": 0.0,
+      "Hx_plus_g_norm_eV_A": 2.4225244092535804e-15,
+      "directional_fd_step_A": 1e-05,
+      "directional_checks": [
+        {
+          "direction": 0,
+          "energy_directional_analytic_eV_A": -0.07164820472535978,
+          "energy_directional_fd_eV_A": -0.07164820474692135,
+          "energy_directional_abs_error_eV_A": 2.1561571972306126e-11,
+          "hvp_relative_error": 6.324957006047314e-11,
+          "hvp_max_abs_error_eV_A2": 6.377609551577734e-11
+        },
+        {
+          "direction": 1,
+          "energy_directional_analytic_eV_A": 0.18311895847605553,
+          "energy_directional_fd_eV_A": 0.1831189584855508,
+          "energy_directional_abs_error_eV_A": 9.495265684833498e-12,
+          "hvp_relative_error": 6.05019503031936e-11,
+          "hvp_max_abs_error_eV_A2": 5.633526978243708e-11
+        },
+        {
+          "direction": 2,
+          "energy_directional_analytic_eV_A": 0.18263041438981473,
+          "energy_directional_fd_eV_A": 0.1826304143581758,
+          "energy_directional_abs_error_eV_A": 3.1638913711162786e-11,
+          "hvp_relative_error": 8.076464313710079e-11,
+          "hvp_max_abs_error_eV_A2": 6.432604449102541e-11
+        }
+      ]
+    },
+    {
+      "system": "C60",
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-2/final.extxyz",
+      "pair_count": 90,
+      "seed": 61010,
+      "base_perturbation_norm_A": 0.010000000000000002,
+      "base_perturbation_center_of_mass_norm_A": 6.733513558878605e-20,
+      "scale_applied_to_centered_reference": 1.17,
+      "R0_A": 27.256891004642945,
+      "Roff_A": 31.890069689181466,
+      "Roff_over_R0": 1.1699819206728055,
+      "alpha_R0_over_R": 0.85471406209845,
+      "Wshape_eV": 9.747650717893885,
+      "gradient_norm_eV_A": 0.3451030077856964,
+      "hessian_symmetry_residual": 0.0,
+      "Hx_plus_g_norm_eV_A": 1.720623622361095e-14,
+      "directional_fd_step_A": 1e-05,
+      "directional_checks": [
+        {
+          "direction": 0,
+          "energy_directional_analytic_eV_A": 0.0690252877880894,
+          "energy_directional_fd_eV_A": 0.06902528806307373,
+          "energy_directional_abs_error_eV_A": 2.749843269755914e-10,
+          "hvp_relative_error": 1.9243248577909635e-10,
+          "hvp_max_abs_error_eV_A2": 6.203051960973482e-11
+        },
+        {
+          "direction": 1,
+          "energy_directional_analytic_eV_A": -0.025298706464081566,
+          "energy_directional_fd_eV_A": -0.025298706063381356,
+          "energy_directional_abs_error_eV_A": 4.0070020912441606e-10,
+          "hvp_relative_error": 1.6498377827645152e-10,
+          "hvp_max_abs_error_eV_A2": 5.899603028325373e-11
+        },
+        {
+          "direction": 2,
+          "energy_directional_analytic_eV_A": 0.003924905011233731,
+          "energy_directional_fd_eV_A": 0.003924905112029364,
+          "energy_directional_abs_error_eV_A": 1.007956331247617e-10,
+          "hvp_relative_error": 1.7951997863029523e-10,
+          "hvp_max_abs_error_eV_A2": 6.417652520518402e-11
+        }
+      ]
+    }
+  ],
+  "acceptance_checks": {
+    "all_Roff_differ_from_R0": true,
+    "max_energy_directional_abs_error_eV_A": 4.0070020912441606e-10,
+    "max_hvp_relative_error": 1.9243248577909635e-10,
+    "max_Hx_plus_g_norm_eV_A": 1.720623622361095e-14
+  },
+  "interpretation": "Checks validate chain-rule implementation away from R=R0 for these frozen biases; they do not establish optimization behavior or scientific benefit."
+}

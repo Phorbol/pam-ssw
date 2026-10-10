@@ -1,0 +1,20 @@
+{
+  "git_head": "c65aa94a57eda7db06f6b82a6773c7479b1161fd",
+  "source_snapshot": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/shape-channel-v1/source",
+  "changed_research_sources": [
+    "probe_ls_channel_continuation.py",
+    "probe_shape_ls_channels.py",
+    "shape_ls_probe.py",
+    "probe_ls_response.py",
+    "probe_ls_ring_channel.py",
+    "qualify_ls_torsion_channel.py"
+  ],
+  "input_copy_from": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/finite-channel-v1",
+  "request_cap": 3000,
+  "wall_seconds": 600,
+  "amplitudes": [
+    0.125,
+    1.0
+  ],
+  "scope": "finite shape-only bias channel diagnostic; core unchanged"
+}

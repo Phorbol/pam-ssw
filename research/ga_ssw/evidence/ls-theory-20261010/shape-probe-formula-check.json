@@ -1,0 +1,74 @@
+{
+  "scope": "formula/API check of radial shape pullback for analytic frozen LS only; no Calculator, PES, optimization, or scientific-benefit claim",
+  "systems": [
+    {
+      "system": "C4H6",
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c4h6-ls-isomer-transfer-20261007/qualified-1662853/representative-1/refined.extxyz",
+      "pair_count": 10,
+      "reference_energy_eV": 1.187291421890259,
+      "scaled_translated_energy_eV": 1.1872914218902584,
+      "scale_translation_energy_abs_difference_eV": 6.661338147750939e-16,
+      "gradient_norm_eV_A": 0.9685164235886706,
+      "hessian_symmetry_residual": 0.0,
+      "Hx_plus_g_norm_eV_A": 3.2839561664984797e-15,
+      "directional_checks": [
+        {
+          "direction": 0,
+          "energy_directional_abs_error_eV_A": 2.0271728740084427e-11,
+          "hvp_relative_error": 9.589392755499142e-11,
+          "hvp_max_abs_error_eV_A2": 1.4870105147224422e-10
+        },
+        {
+          "direction": 1,
+          "energy_directional_abs_error_eV_A": 1.4245188362238537e-11,
+          "hvp_relative_error": 6.810367781285908e-11,
+          "hvp_max_abs_error_eV_A2": 7.043210459301008e-11
+        },
+        {
+          "direction": 2,
+          "energy_directional_abs_error_eV_A": 6.7800404179863e-11,
+          "hvp_relative_error": 8.351109948738235e-11,
+          "hvp_max_abs_error_eV_A2": 1.0632739133598079e-10
+        }
+      ]
+    },
+    {
+      "system": "C60",
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-2/final.extxyz",
+      "pair_count": 90,
+      "reference_energy_eV": 9.746999999999998,
+      "scaled_translated_energy_eV": 9.746999999999996,
+      "scale_translation_energy_abs_difference_eV": 1.7763568394002505e-15,
+      "gradient_norm_eV_A": 0.4007129039450333,
+      "hessian_symmetry_residual": 0.0,
+      "Hx_plus_g_norm_eV_A": 3.346389028309236e-14,
+      "directional_checks": [
+        {
+          "direction": 0,
+          "energy_directional_abs_error_eV_A": 8.25767232370822e-11,
+          "hvp_relative_error": 1.421934700057811e-10,
+          "hvp_max_abs_error_eV_A2": 7.757251785367458e-11
+        },
+        {
+          "direction": 1,
+          "energy_directional_abs_error_eV_A": 2.033169986537242e-10,
+          "hvp_relative_error": 1.6591523590817062e-10,
+          "hvp_max_abs_error_eV_A2": 1.0906570091506751e-10
+        },
+        {
+          "direction": 2,
+          "energy_directional_abs_error_eV_A": 4.910123212967937e-10,
+          "hvp_relative_error": 1.5967660629272712e-10,
+          "hvp_max_abs_error_eV_A2": 7.151648544201361e-11
+        }
+      ]
+    }
+  ],
+  "acceptance_checks": {
+    "scale_translation_energy_invariance_max_abs_eV": 1.7763568394002505e-15,
+    "Hx_plus_g_max_norm_eV_A": 3.346389028309236e-14,
+    "max_energy_gradient_directional_abs_error_eV_A": 4.910123212967937e-10,
+    "max_hvp_relative_error": 1.6591523590817062e-10
+  },
+  "interpretation": "Passing checks validate the implementation's analytic identities on these inputs only; they establish neither search benefit nor physical efficacy."
+}

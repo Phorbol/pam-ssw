@@ -1,0 +1,7 @@
+{
+  "job": 1729353,
+  "status": "setup_failed_before_calculator",
+  "cause": "copied continuation inputs omit physical trans reference minus-0.050.extxyz",
+  "requests": 0,
+  "correction": "copy complete already-qualified reference geometries and validate paths before resubmit"
+}

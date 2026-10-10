@@ -1,0 +1,77 @@
+{
+  "scope": "offline fixed-W harmonic response from archived geometry/Hessian; no Calculator, PES, or minimization",
+  "inputs": {
+    "hessian_npz": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/curvature/isomer-2.npz",
+    "geometry": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/qualification/isomer-2/final.extxyz",
+    "curvature_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-local-defect-20260925/curvature/runner.py",
+    "configuration_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-source3-paper-ls-transfer-20261007/protocol.md"
+  },
+  "consistency": {
+    "max_abs_geometry_difference_A": 0.0,
+    "basis_orthogonality_max_abs": 1.5543122344752192e-15,
+    "rigid_basis_overlap_max_abs": 3.556068144935927e-15,
+    "projected_H_eigenvalue_min_eV_A2": 2.701555870897228,
+    "projected_H_eigenvalue_max_eV_A2": 119.4123324999235,
+    "raw_H_antisymmetric_spectral_norm_eV_A2": 0.011122024162706776,
+    "cutoff_A": 1.64,
+    "xi": 0.2,
+    "pair_strength_at_0.03_eV": 0.1083,
+    "pair_strength_at_0.48_eV": 1.7328,
+    "frozen_pair_count": 90,
+    "FrozenBondSoftening_pair_list_matches_independent_cutoff": true,
+    "FrozenBondSoftening_analytic_energy_at_reference_eV": 9.747,
+    "analytic_gradient_vs_minus_evaluator_force_max_abs_eV_A": 1.1102230246251565e-16,
+    "atom_order_matches_extxyz": true,
+    "units": "x=A; H=eV/A^2; gradW=eV/A; chi=eV"
+  },
+  "response": {
+    "fraction_0.03": {
+      "fraction": 0.03,
+      "number_of_frozen_pairs": 90,
+      "chi_eV": 0.2824217718410579,
+      "physical_V_quadratic_deformation_cost_a1_eV": 0.14121088592052894,
+      "modified_F_equals_V_plus_aW_local_energy_change_a1_eV": -0.14121088592052894,
+      "physical_V_deformation_cost_per_atom_a1_eV_per_atom": 0.002353514765342149,
+      "modified_F_local_change_per_atom_a1_eV_per_atom": -0.002353514765342149,
+      "H_metric_expansion_fraction_(dTg)^2_over_(dTHd_chi)": 0.9899675238616643,
+      "predicted_internal_displacement_norm_a1_A": 0.15735212526272233,
+      "predicted_expansion_projection_a1_A": 0.1572179995948109,
+      "predicted_expansion_projection_over_internal_radius_a1": 0.005768009255642192,
+      "predicted_expansion_fraction_of_displacement_a1": 0.9991476081578975,
+      "g_norm_eV_per_A": 1.8323407713344417
+    },
+    "fraction_0.48": {
+      "fraction": 0.48,
+      "number_of_frozen_pairs": 90,
+      "chi_eV": 72.29997359131082,
+      "physical_V_quadratic_deformation_cost_a1_eV": 36.14998679565541,
+      "modified_F_equals_V_plus_aW_local_energy_change_a1_eV": -36.14998679565541,
+      "physical_V_deformation_cost_per_atom_a1_eV_per_atom": 0.6024997799275902,
+      "modified_F_local_change_per_atom_a1_eV_per_atom": -0.6024997799275902,
+      "H_metric_expansion_fraction_(dTg)^2_over_(dTHd_chi)": 0.9899675238616643,
+      "predicted_internal_displacement_norm_a1_A": 2.517634004203557,
+      "predicted_expansion_projection_a1_A": 2.5154879935169743,
+      "predicted_expansion_projection_over_internal_radius_a1": 0.09228814809027507,
+      "predicted_expansion_fraction_of_displacement_a1": 0.9991476081578975,
+      "g_norm_eV_per_A": 29.317452341351068
+    },
+    "fraction_0.48_as_a16_of_fraction_0.03": {
+      "a": 16,
+      "physical_V_quadratic_deformation_cost_eV": 36.14998679565541,
+      "modified_F_equals_V_plus_aW_local_energy_change_eV": -36.14998679565541,
+      "physical_V_deformation_cost_per_atom_eV_per_atom": 0.6024997799275902,
+      "modified_F_local_change_per_atom_eV_per_atom": -0.6024997799275902,
+      "H_metric_expansion_fraction_(dTg)^2_over_(dTHd_chi)": 0.9899675238616643,
+      "predicted_internal_displacement_norm_A": 2.517634004203557,
+      "predicted_expansion_projection_A": 2.5154879935169743,
+      "predicted_expansion_projection_over_internal_radius": 0.09228814809027507
+    }
+  },
+  "interpretation_limits": [
+    "Hessian comes from a single central force-difference stencil h=0.01 A, not a dual-step stability certificate.",
+    "This is a fixed-frozen-pair, first-order response at one C60 isomer, not a relaxed finite-amplitude result.",
+    "The quadratic +a^2 chi/2 is the physical V deformation cost; the modified F=V+aW local energy change is -a^2 chi/2. It is not a prediction that physical V decreases.",
+    "At a=16 the predicted internal displacement and physical V deformation cost are large; use only as a warning that weak-response expansion is unlikely to be controlled, not as a quantitative prediction.",
+    "No cross-reference geometry or Hessian was mixed; source geometry equals stored Hessian positions in original atom order."
+  ]
+}

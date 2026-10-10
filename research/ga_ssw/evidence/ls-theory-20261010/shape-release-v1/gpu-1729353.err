@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/shape-release-v1/source/research/ga_ssw/release_shape_ls_endpoints.py", line 13, in <module>
+    result=main_run(a.finite,a.torsion,a.ring,a.out,endpoints=endpoints)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/shape-release-v1/source/research/ga_ssw/release_ls_channel_endpoints.py", line 137, in main_run
+    trans = load_reference("torsion_trans", torsion_ref, "minus-0.050.extxyz", "minus-0.050")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/shape-release-v1/source/research/ga_ssw/release_ls_channel_endpoints.py", line 69, in load_reference
+    geometry_path = find_geometry(base, filename)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/shape-release-v1/source/research/ga_ssw/release_ls_channel_endpoints.py", line 58, in find_geometry
+    raise FileNotFoundError(f"missing {filename} under {base}")
+FileNotFoundError: missing minus-0.050.extxyz under /home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/shape-release-v1/torsion

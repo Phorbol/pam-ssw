@@ -104,7 +104,11 @@ def optimize_minimum(q0, amplitude, geometry, evaluate, qbasis, soft):
     return np.asarray(result.x), result
 
 
-def main_run(torsion_run: Path, ring_run: Path, out: Path):
+def main_run(torsion_run: Path, ring_run: Path, out: Path, *,
+             amplitudes=AMPLITUDES, bias_geometry="pair",
+             request_cap=REQUEST_CAP, wall_seconds=WALL_SECONDS):
+    if bias_geometry not in ("pair", "shape"):
+        raise ValueError("unknown research bias geometry")
     if out.exists():
         raise FileExistsError(f"output directory already exists: {out}")
     out.mkdir(parents=True, exist_ok=False)
@@ -126,8 +130,9 @@ def main_run(torsion_run: Path, ring_run: Path, out: Path):
         "torsion_run": str(torsion_run.resolve()), "ring_qualification_run": str(ring_run.resolve()),
         "gauche": str(gauche_path), "easy_ts": str(easy_ts_path), "ring_ts": str(ring_ts_path),
         "ring_gauche_release_for_provenance": str(ring_gauche_path)},
-        "limits": {"requests": REQUEST_CAP, "counted_wall_seconds": WALL_SECONDS,
-                   "force_tolerance_eV_A": FORCE_TOL, "amplitudes": AMPLITUDES,
+        "bias_geometry": bias_geometry,
+        "limits": {"requests": request_cap, "counted_wall_seconds": wall_seconds,
+                   "force_tolerance_eV_A": FORCE_TOL, "amplitudes": amplitudes,
                    "hessian_steps_A": HESSIAN_STEPS, "hessian_margin_factor": HESSIAN_MARGIN,
                    "negative_mode_displacement_A": DOWNHILL_STEP},
         "connectivity_validated": False, "rows": [],
@@ -171,6 +176,19 @@ def main_run(torsion_run: Path, ring_run: Path, out: Path):
                               "reference_distances_A": soft.reference_distances,
                               "strengths_eV": soft.strengths, "xi": soft.xi,
                               "initial_fraction": 0.03, "bond_lengths_rule": "HC table + 0.1 A"}
+        if bias_geometry == "shape":
+            shape_module_path = ROOT / "research/ga_ssw/shape_ls_probe.py"
+            shape_tools = import_file("shape_ls_probe", shape_module_path)
+            soft = shape_tools.FrozenShapeBias(soft, gauche)
+            result["source_hashes"]["shape_bias"] = qualifier.sha256(shape_module_path)
+            result["frozen_W"]["shape_reference_radius_A"] = soft.radius
+
+        def cartesian_bias_hessian(atoms):
+            if bias_geometry == "shape":
+                return soft.hessian(atoms)
+            radial, transverse = response_tools.stiffness(soft, atoms)
+            return radial + transverse
+
         model_hash = qualifier.sha256(qualifier.MODEL)
         if model_hash != qualifier.MODEL_SHA256:
             raise ValueError(f"MH-1 model hash mismatch: {model_hash}")
@@ -186,7 +204,7 @@ def main_run(torsion_run: Path, ring_run: Path, out: Path):
                                     default_dtype="float64", enable_cueq=False, enable_oeq=False)
         actual = utilities.instrument_calculate(calculator)
         surface = utilities.CountedSurface(calculator, out / "requests.jsonl",
-                                           cap=REQUEST_CAP, wall=WALL_SECONDS)
+                                           cap=request_cap, wall=wall_seconds)
         result["model"] = {"path": str(qualifier.MODEL), "sha256": model_hash,
                            "head": "omol", "device": "cuda", "dtype": "float64",
                            "torch": torch.__version__, "ase": ase_version,
@@ -246,8 +264,7 @@ def main_run(torsion_run: Path, ring_run: Path, out: Path):
                 antisymmetry.append(float(np.linalg.norm(raw - raw.T, 2)))
                 physical_mats.append((raw + raw.T) / 2)
             atoms = geometry(q)
-            radial, transverse = response_tools.stiffness(soft, atoms)
-            bias_cart = radial + transverse
+            bias_cart = cartesian_bias_hessian(atoms)
             bias_q = qbasis.T @ bias_cart @ qbasis
             total_mats = [matrix + amplitude * bias_q for matrix in physical_mats]
             spread = float(np.linalg.norm(total_mats[0] - total_mats[1], 2))
@@ -259,8 +276,7 @@ def main_run(torsion_run: Path, ring_run: Path, out: Path):
 
         def bias_hessian_q(q):
             atoms = geometry(q)
-            radial, transverse = response_tools.stiffness(soft, atoms)
-            return qbasis.T @ (radial + transverse) @ qbasis
+            return qbasis.T @ cartesian_bias_hessian(atoms) @ qbasis
 
         def save_hessian(path, hs):
             np.savez(path, H_V_h001=hs["physical_matrices"][0],
@@ -356,7 +372,7 @@ def main_run(torsion_run: Path, ring_run: Path, out: Path):
                     "exact_dB_da_W_TS_minus_W_min_eV": point["W_eV"] - minimum["W_eV"]}
 
         previous = {"minimum": q_min, "easy_ts": q_easy, "ring_ts": q_ring}
-        for amplitude in AMPLITUDES:
+        for amplitude in amplitudes:
             request_start = surface.requests
             row = {"amplitude": amplitude, "status": "started", "phases": {}}
             result["rows"].append(row)
