@@ -1,0 +1,320 @@
+[
+  {
+    "status": "completed",
+    "error": null,
+    "requests": 782,
+    "actual_calculations": 773,
+    "linear_response": {
+      "chi_eV": 0.0754718828461417,
+      "dilation_elastic_fraction": 0.8374784039705923,
+      "dilation_drive_eV": -5.936457109451294,
+      "expected_dilation_drive_eV": -5.936457109451294
+    },
+    "baseline": {
+      "success_flag": true,
+      "message": "Optimization terminated successfully.",
+      "steps": 20,
+      "requests": 27,
+      "energy": -4243.517937814309,
+      "bias": 0.0,
+      "fmax": 9.944017906590515e-05,
+      "stencil_spread": 0.00010887694021547215,
+      "antisymmetric_norms": [
+        0.00021418891843539024,
+        5.354723155589478e-05
+      ],
+      "eigenvalues": [
+        0.644542131065591,
+        2.085995047046049,
+        3.023099024176157,
+        3.8143302967230315,
+        4.038957254131438,
+        4.563170523914336,
+        4.8685619937464715,
+        8.69084979795983,
+        9.632678216020366,
+        10.627490488031865,
+        12.60123690072045,
+        16.878078868234322,
+        21.908148329784503,
+        22.3608156952309,
+        22.792414742564436,
+        36.31823843910973,
+        36.853936974037204,
+        60.27142346199403,
+        71.54596980654469,
+        77.851939791366,
+        81.46153240684573,
+        87.40331508170824,
+        89.8754431740513,
+        147.21202307153004
+      ]
+    },
+    "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/mechanism-v1/mh1-1728065/case-0",
+    "rows": [
+      {
+        "amplitude": 0.125,
+        "eigenvalue_change": -0.002712565291341895,
+        "parts": {
+          "mode_rotation": 1.7969560953678965e-06,
+          "direct_at_base": -0.051376852398999896,
+          "physical_geometry": 0.04810655882894904,
+          "bias_geometry": 0.0005559313226180479
+        },
+        "closure_error": 4.4565046097844174e-15,
+        "P_per_atom_eV": 5.836206964886515e-05,
+        "P_over_prediction": 0.9898182784552909,
+        "linear_displacement_relative_error": 0.005316992161025921,
+        "radius_ratio": 1.001340444625859,
+        "resolved_stable": true,
+        "release": {
+          "success_flag": true,
+          "message": "Optimization terminated successfully.",
+          "steps": 20,
+          "requests": 33,
+          "energy": -4243.51793781549,
+          "bias": 0.0,
+          "fmax": 0.0001286206476348901,
+          "same_order_rms_displacement": 9.077965340926702e-06
+        }
+      },
+      {
+        "amplitude": 0.25,
+        "eigenvalue_change": -0.005386301494163193,
+        "parts": {
+          "mode_rotation": 7.042868305329186e-06,
+          "direct_at_base": -0.10278142580220775,
+          "physical_geometry": 0.09518529186337257,
+          "bias_geometry": 0.0022027895763684197
+        },
+        "closure_error": 1.7607443281164592e-15,
+        "P_per_atom_eV": 0.00023084624290277135,
+        "P_over_prediction": 0.9787856741229197,
+        "linear_displacement_relative_error": 0.0072867033999361635,
+        "radius_ratio": 1.0026721510845604,
+        "resolved_stable": true,
+        "release": {
+          "success_flag": true,
+          "message": "Optimization terminated successfully.",
+          "steps": 23,
+          "requests": 36,
+          "energy": -4243.517937815059,
+          "bias": 0.0,
+          "fmax": 0.00010969065021388148,
+          "same_order_rms_displacement": 1.0465015535485329e-05
+        }
+      },
+      {
+        "amplitude": 0.5,
+        "eigenvalue_change": -0.01064664328650744,
+        "parts": {
+          "mode_rotation": 2.6987774203734993e-05,
+          "direct_at_base": -0.2056679161133442,
+          "physical_geometry": 0.18634607634672967,
+          "bias_geometry": 0.00864820870590076
+        },
+        "closure_error": -2.5934115965853266e-15,
+        "P_per_atom_eV": 0.000903861539427453,
+        "P_over_prediction": 0.958090886663136,
+        "linear_displacement_relative_error": 0.013703704085056176,
+        "radius_ratio": 1.0053103012918219,
+        "resolved_stable": true,
+        "release": {
+          "success_flag": true,
+          "message": "Optimization terminated successfully.",
+          "steps": 24,
+          "requests": 36,
+          "energy": -4243.517937815468,
+          "bias": 0.0,
+          "fmax": 7.931887251636035e-05,
+          "same_order_rms_displacement": 9.62762351832757e-06
+        }
+      },
+      {
+        "amplitude": 1.0,
+        "eigenvalue_change": -0.020845421762304195,
+        "parts": {
+          "mode_rotation": 9.920649591366182e-05,
+          "direct_at_base": -0.41171274149433046,
+          "physical_geometry": 0.3574110478355816,
+          "bias_geometry": 0.033357065400537726
+        },
+        "closure_error": 6.70991040507829e-15,
+        "P_per_atom_eV": 0.0034692076461396936,
+        "P_over_prediction": 0.9193377759534848,
+        "linear_displacement_relative_error": 0.026541634895885496,
+        "radius_ratio": 1.010488959772573,
+        "resolved_stable": true,
+        "release": {
+          "success_flag": true,
+          "message": "Optimization terminated successfully.",
+          "steps": 25,
+          "requests": 40,
+          "energy": -4243.517937815792,
+          "bias": 0.0,
+          "fmax": 5.0821835196431214e-05,
+          "same_order_rms_displacement": 9.420485966889795e-06
+        }
+      }
+    ]
+  },
+  {
+    "status": "completed",
+    "error": null,
+    "requests": 781,
+    "actual_calculations": 772,
+    "linear_response": {
+      "chi_eV": 0.06804369449323933,
+      "dilation_elastic_fraction": 0.7610780091494174,
+      "dilation_drive_eV": -5.419431102275848,
+      "expected_dilation_drive_eV": -5.419431102275848
+    },
+    "baseline": {
+      "success_flag": true,
+      "message": "Optimization terminated successfully.",
+      "steps": 24,
+      "requests": 31,
+      "energy": -4243.921715273033,
+      "bias": 0.0,
+      "fmax": 4.214996401782734e-05,
+      "stencil_spread": 0.0002868994263992712,
+      "antisymmetric_norms": [
+        0.0003558051448573338,
+        8.895137494469332e-05
+      ],
+      "eigenvalues": [
+        0.23237641695913544,
+        0.687692339660598,
+        1.3933008957437927,
+        2.2701424140206847,
+        3.1692308186557088,
+        5.158628457089701,
+        6.348108892379755,
+        7.7949538118145165,
+        7.955876116345351,
+        10.414339606110179,
+        10.639641440479148,
+        15.98959005836907,
+        16.549272791166338,
+        17.00469301336728,
+        24.34733628463036,
+        24.83041945155875,
+        40.47923642208267,
+        57.68668794612596,
+        68.65966189464281,
+        86.55161297499659,
+        93.34790954823403,
+        102.26161586447927,
+        142.33715539758737,
+        146.35359421365504
+      ]
+    },
+    "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/mechanism-v1/mh1-1728065/case-1",
+    "rows": [
+      {
+        "amplitude": 0.125,
+        "eigenvalue_change": -0.0013586664990143382,
+        "parts": {
+          "mode_rotation": 1.4737623853233739e-06,
+          "direct_at_base": -0.03081379465281003,
+          "physical_geometry": 0.029167928186226204,
+          "bias_geometry": 0.000285726205193463
+        },
+        "closure_error": 9.298117831235686e-15,
+        "P_per_atom_eV": 5.258932915239711e-05,
+        "P_over_prediction": 0.98928110556602,
+        "linear_displacement_relative_error": 0.003955017075415445,
+        "radius_ratio": 1.0010168206110728,
+        "resolved_stable": true,
+        "release": {
+          "success_flag": true,
+          "message": "Optimization terminated successfully.",
+          "steps": 19,
+          "requests": 30,
+          "energy": -4243.921715273542,
+          "bias": 0.0,
+          "fmax": 3.180294544942606e-05,
+          "same_order_rms_displacement": 4.878936788384996e-06
+        }
+      },
+      {
+        "amplitude": 0.25,
+        "eigenvalue_change": -0.002696720619173698,
+        "parts": {
+          "mode_rotation": 5.76769892851603e-06,
+          "direct_at_base": -0.061685096489688736,
+          "physical_geometry": 0.05784859461280494,
+          "bias_geometry": 0.0011340135587830052
+        },
+        "closure_error": 1.4255090163839412e-15,
+        "P_per_atom_eV": 0.00020796924272872274,
+        "P_over_prediction": 0.978050327349635,
+        "linear_displacement_relative_error": 0.00717668105706339,
+        "radius_ratio": 1.0020252894209414,
+        "resolved_stable": true,
+        "release": {
+          "success_flag": true,
+          "message": "Optimization terminated successfully.",
+          "steps": 20,
+          "requests": 32,
+          "energy": -4243.921715273172,
+          "bias": 0.0,
+          "fmax": 5.562124620590159e-05,
+          "same_order_rms_displacement": 5.597071585600587e-06
+        }
+      },
+      {
+        "amplitude": 0.5,
+        "eigenvalue_change": -0.005315286282626369,
+        "parts": {
+          "mode_rotation": 2.2657784547713833e-05,
+          "direct_at_base": -0.12360057066060838,
+          "physical_geometry": 0.113793743550318,
+          "bias_geometry": 0.0044688830431114344
+        },
+        "closure_error": -4.8606951796870135e-15,
+        "P_per_atom_eV": 0.000814270080627466,
+        "P_over_prediction": 0.9573496403354408,
+        "linear_displacement_relative_error": 0.013174470957188121,
+        "radius_ratio": 1.0040307001968753,
+        "resolved_stable": true,
+        "release": {
+          "success_flag": true,
+          "message": "Optimization terminated successfully.",
+          "steps": 26,
+          "requests": 39,
+          "energy": -4243.921715272792,
+          "bias": 0.0,
+          "fmax": 4.983435852133188e-05,
+          "same_order_rms_displacement": 3.899734753437786e-06
+        }
+      },
+      {
+        "amplitude": 1.0,
+        "eigenvalue_change": -0.01038071590598591,
+        "parts": {
+          "mode_rotation": 8.599629745950632e-05,
+          "direct_at_base": -0.24809192054125312,
+          "physical_geometry": 0.2202634768504036,
+          "bias_geometry": 0.017361731487396472
+        },
+        "closure_error": -7.636252741249905e-15,
+        "P_per_atom_eV": 0.0031239576580446736,
+        "P_over_prediction": 0.918221058192266,
+        "linear_displacement_relative_error": 0.025443447964382755,
+        "radius_ratio": 1.007975352639993,
+        "resolved_stable": true,
+        "release": {
+          "success_flag": true,
+          "message": "Optimization terminated successfully.",
+          "steps": 25,
+          "requests": 41,
+          "energy": -4243.921715273376,
+          "bias": 0.0,
+          "fmax": 6.448546882249507e-05,
+          "same_order_rms_displacement": 5.627091049339973e-06
+        }
+      }
+    ]
+  }
+]
