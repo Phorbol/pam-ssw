@@ -1,0 +1,123 @@
+{
+  "scope": "offline source, ledger, checkpoint and cost audit; no PES",
+  "random_source": "1445a531f8a027e7f126a10535aa43975be19ff7",
+  "random": [
+    {
+      "case": "seed-26100781",
+      "arm": "rotation",
+      "paid": 60000,
+      "actual_calculate": 58074,
+      "fresh": 2,
+      "qualified_observations": 59,
+      "phases": {
+        "initial": 446,
+        "rotation": 6395,
+        "biased_quench": 45713,
+        "true_landing": 6157,
+        "other_and_unfinished": 1289
+      },
+      "gaussians": 636,
+      "target": false,
+      "best_energy": -62193.11102368577
+    },
+    {
+      "case": "seed-26100781",
+      "arm": "direction",
+      "paid": 60000,
+      "actual_calculate": 55887,
+      "fresh": 2,
+      "qualified_observations": 122,
+      "phases": {
+        "initial": 446,
+        "rotation": 8980,
+        "biased_quench": 42230,
+        "true_landing": 5649,
+        "other_and_unfinished": 2695
+      },
+      "gaussians": 1348,
+      "target": false,
+      "best_energy": -62204.87819914025
+    },
+    {
+      "case": "seed-26100782",
+      "arm": "rotation",
+      "paid": 60000,
+      "actual_calculate": 57906,
+      "fresh": 2,
+      "qualified_observations": 68,
+      "phases": {
+        "initial": 206,
+        "rotation": 6734,
+        "biased_quench": 46482,
+        "true_landing": 5193,
+        "other_and_unfinished": 1385
+      },
+      "gaussians": 690,
+      "target": false,
+      "best_energy": -62196.20475802285
+    },
+    {
+      "case": "seed-26100782",
+      "arm": "direction",
+      "paid": 60000,
+      "actual_calculate": 55490,
+      "fresh": 2,
+      "qualified_observations": 133,
+      "phases": {
+        "initial": 206,
+        "rotation": 9570,
+        "biased_quench": 42386,
+        "true_landing": 4864,
+        "other_and_unfinished": 2974
+      },
+      "gaussians": 1486,
+      "target": false,
+      "best_energy": -62210.5154741329
+    }
+  ],
+  "native_source": "87b5b91ffe22994dfd7b4b91d52483e4e6683cd0",
+  "native": [
+    {
+      "seed": 26100791,
+      "counts": {
+        "raw": 9621,
+        "paid": 9621,
+        "failed_paid": 0,
+        "denied": 0,
+        "unexpected_denied": 0,
+        "geometry_bad": 0,
+        "metadata_bad": 0,
+        "nonfinite_paid": 0
+      },
+      "actual_calculate": 9592,
+      "minimum_events": 29,
+      "unfinished_paid_tail": 268,
+      "process_state": "supervised_wall_limit",
+      "target": false
+    },
+    {
+      "seed": 26100792,
+      "counts": {
+        "raw": 9878,
+        "paid": 9878,
+        "failed_paid": 0,
+        "denied": 0,
+        "unexpected_denied": 0,
+        "geometry_bad": 0,
+        "metadata_bad": 0,
+        "nonfinite_paid": 0
+      },
+      "actual_calculate": 9848,
+      "minimum_events": 31,
+      "unfinished_paid_tail": 231,
+      "process_state": "supervised_wall_limit",
+      "target": false
+    }
+  ],
+  "native_cold": {
+    "paid": 4,
+    "actual_calculate": 4,
+    "qualified": 4
+  },
+  "checks_passed": true
+}

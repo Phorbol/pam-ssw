@@ -2,8 +2,8 @@
 
 目标是用统一ASE能量/力接口探索可靠的低能结构。当前是研究版本：核心搜索独立
 使用Python运行，不调用LASP/Java；尚未证明跨体系优于成熟全局优化方法。
-当前工作分支为`research/ga-ssw-behavior-parity`，包含未提交研究改动；仅报Git HEAD
-不足以复现实验，应使用对应实验保存的源码。通用Calculator接口保留，后续研究
+2026-10-10当前研发分支为`research/c60-local-defect-qualification`；历史实验来自
+多个版本，复现应使用对应实验保存的源码，而非把当前HEAD用于所有旧实验。通用Calculator接口保留，后续研究
 后端按具体固定协议选择：材料主线保留MACE-OMAT-0-small，C60已按用户决定改用
 MACE-MH-1/omol；CUDA float64。当前运行与模型边界以[主线记录](MAINLINE.md)为准。
 
@@ -14,7 +14,7 @@ MACE-MH-1/omol；CUDA float64。当前运行与模型边界以[主线记录](MAI
 | 无约束团簇或固定胞三维周期体系 | `run_ssw` + `SSWConfig` + `ASESurface` | 固定cell，能量/力后端；不等于变胞搜索 |
 | 在同一SSW流程上加论文LS | `run_ls_ssw` + `LSSettings` | 显式提供有依据的pair表与目标响应 |
 | 使用反编译恢复的LS强度更新 | `run_native_ls_ssw` + `NativeLSSettings` | 原版启发的独立实现，不是完整原版时序复现 |
-| FixAtoms、Hookean或slab | `run_constrained_ssw` + `ConstrainedSSWConfig` | 专门入口；不承诺任意ASE约束 |
+| FixAtoms、Hookean或slab | `run_constrained_ssw` + `ConstrainedSSWConfig` | 专门入口；不承诺任意ASE约束；普通`run_ssw`另支持非周期原子对Hookean |
 | GA、变胞、刚体 | 各自实验入口 | 本阶段不作为固定胞SSW/LS默认组合 |
 
 Safe-total是目前研究配置的局部优化器；ASE LBFGSLineSearch和SciPy L-BFGS-B
@@ -22,12 +22,14 @@ Safe-total是目前研究配置的局部优化器；ASE LBFGSLineSearch和SciPy 
 不要把history500、PAM adaptive Gaussian、两阶段rotation等选项同时打开进行比较。
 
 方向退出可显式设为`SSWConfig(rotation_exit_policy='force_or_budget', ...)`。
-它只放行已求值且有限的`budget_exhausted`方向，记录`rotation_converged=False`，
+它只放行已求值且有限的预算退出方向，记录`rotation_converged=False`，
 并继续Gaussian爬坡；不是放宽真实落点力阈值。默认`force`仍要求方向残差达标。
-这里`force`是旋转退出策略的名称，检查量仍为`rotation_tol`对应的HVP残差
-（eV/Å²），不是原子力`fmax`，也不是原版的`ftol`。
+这里`force`是旋转退出策略的名称；普通旋转检查`rotation_tol`对应的HVP残差
+（eV/Å²）。可选恢复CBD检查`10*fd_step*HVP残差`（eV/Å），须按其显式配置解释。
+二者均不是原子力`fmax`，不能把同名/同数值阈值当相同精度。
 `subspace_exhausted`、未知原因和数值异常不放行。此选项适用于`run_ssw`及调用它
-的LS流程，当前不用于独立`atomic_climb`/变胞分块入口；不支持的入口显式拒绝。
+的LS流程；2026-10-07已接通周期`atomic_climb`及block原子段。联合VC方向求解
+仍要求自身收敛，不能由此推断也支持同一预算退出策略。
 AlOH26/brookite48已观察到预算放行后得到不同的力合格结构；尚无普遍效率优势，
 仍是显式实验选项。见[材料结果与适用边界](2026-09-17-rotation-budget-exit-results.md)。
 

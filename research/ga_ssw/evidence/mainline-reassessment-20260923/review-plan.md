@@ -13,3 +13,14 @@
 - Outputs: source/claim CSV here, bounded specialist audits in docs/research, one updated MAINLINE and a concrete research plan. No new global rules.
 
 Web follow-up: publisher LS/RC/VC pages returned403; author87/215/225 PDF URLs inaccessible through web tool. Existing local full texts used; no new download success claimed.
+
+## Continuation 2026-10-10
+
+Same question and comparison axes; retrieval cutoff now2026-10-10. The unit
+list includes a bounded GA2026/Java descriptor crosscheck, not a new GA study.
+Original SSW/LS/VC/RC text and archived ELF evidence were re-read against
+checkout222a078. Two completed C60 panels add experiment evidence, not new
+independent literature sources. ACS SSW/LS403 and authorVC tool-access failure
+remain; local originals are usable. New synthesis/priority record:
+docs/research/2026-10-10-paper-native-gap-priorities.md. No broad retrieval,
+parameter sweep, new optimizer or full-release parity scope was introduced.
