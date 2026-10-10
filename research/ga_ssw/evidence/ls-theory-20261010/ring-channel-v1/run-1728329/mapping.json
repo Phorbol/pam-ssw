@@ -1,0 +1,49 @@
+{
+  "graph_rule": "HC_BOND_LENGTHS + 0.1 A; preserve element and all adjacency including C-H",
+  "deleted_product_ring_edge_source_indices": [
+    2,
+    3
+  ],
+  "detected_two_CH2_product_carbons": [
+    2,
+    3
+  ],
+  "product_to_gauche_index_map": [
+    1,
+    2,
+    3,
+    0,
+    6,
+    4,
+    8,
+    7,
+    9,
+    5
+  ],
+  "proper_rotation_product_to_gauche": [
+    [
+      0.2714612606811754,
+      0.6535741054414239,
+      -0.7065052530914612
+    ],
+    [
+      0.6739703055748779,
+      -0.6531281376399832,
+      -0.34523566302778247
+    ],
+    [
+      -0.687075549814351,
+      -0.38244545299868526,
+      -0.6177885271902821
+    ]
+  ],
+  "translation_A": [
+    0.0009529741769962797,
+    0.0005304485010333641,
+    0.0008568740854583398
+  ],
+  "aligned_all_atom_rmsd_A": 0.8956828206632936,
+  "number_of_graph_isomorphisms": 8,
+  "next_mapping_rmsd_A": 0.8956828207100607,
+  "mapping_policy": "minimum proper-Kabsch RMSD; tie-break lexicographically; freeze numbering throughout NEB and qualification"
+}

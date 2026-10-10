@@ -1,0 +1,10 @@
+{
+  "base_commit": "56560e42214a13059661a365bd7e164704e81c1c",
+  "snapshot": "source",
+  "input_origins": {
+    "gauche.extxyz": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/channel-v1/run-1728173/plus-0.050.extxyz",
+    "cyclobutene.extxyz": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/mechanism-v1/mh1-1728065/case-0/minimum.extxyz"
+  },
+  "new_runner": "source/research/ga_ssw/probe_ls_ring_channel.py",
+  "core": "copied from channel-v1 snapshot, unchanged"
+}

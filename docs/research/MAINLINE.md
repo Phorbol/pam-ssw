@@ -30,8 +30,12 @@ C4H6/MH-1 GPU1728065完成：两异构体伸缩份额0.837/0.761，四体系共3
 [T2a已完成](../../research/ga_ssw/evidence/ls-theory-20261010/channel-readout.md)：GPU1728173，
 633请求/627calculate，约101°单负模驻点、双侧两步长到trans180°和gauche27°稳定端点。
 两端冻结W对该通道的一阶势垒斜率均负（−0.00757/−0.00504eV），不代表有限a效果。
-下一项为[同gauche起点闭环通道](../../research/ga_ssw/evidence/ls-theory-20261010/ring-channel-protocol.md)，
-用共同W比较困难成键与容易回返两通道，暂不改变LS控制器。
+[同gauche起点闭环通道T2b也已核查](../../research/ga_ssw/evidence/ls-theory-20261010/ring-channel-readout.md)：
+GPU1728329，1004请求/998calculate，TS单负模和双侧身份通过人工读出；共同W的
+闭环斜率−0.020857eV，比扭转−0.005042eV更负，gap斜率−0.015815eV。
+这支持一个通道的弱加载选择性，不是有限强度或SSW收益证据。
+下一项为[固定W有限加载T2c](../../research/ga_ssw/evidence/ls-theory-20261010/finite-channel-protocol.md)，
+检验离散延拓中的分支/连接及撤偏置身份；暂不改变LS控制器。
 独立分析脚本统一当前软模的四项Hessian变化分解，避免跨模相加归因。
 另推导了两种去原点力补偿的限制：笛卡尔补偿通常破坏旋转不变性，pair径向
 补偿在原点删除负横向项；暂不实施新补偿势，维持T1→已验证通道T2顺序。

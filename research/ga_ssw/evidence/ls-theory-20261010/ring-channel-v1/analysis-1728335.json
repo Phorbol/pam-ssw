@@ -1,0 +1,65 @@
+{
+  "endpoint_comparisons": {
+    "minus": {
+      "gauche": {
+        "same_index_graph": false,
+        "proper_rotation_same_index_rmsd_A": 0.8956784343250953
+      },
+      "cyclobutene": {
+        "same_index_graph": true,
+        "proper_rotation_same_index_rmsd_A": 8.900708317614063e-06
+      }
+    },
+    "plus": {
+      "gauche": {
+        "same_index_graph": true,
+        "proper_rotation_same_index_rmsd_A": 2.8726726301106354e-05
+      },
+      "cyclobutene": {
+        "same_index_graph": false,
+        "proper_rotation_same_index_rmsd_A": 0.8956867040536979
+      }
+    }
+  },
+  "same_side_checks": {
+    "minus": {
+      "same_order_rmsd_A": 2.0485332855951134e-06,
+      "energy_difference_025_minus_050_eV": -5.638867150992155e-11,
+      "torsion_025_deg_and_order": null,
+      "torsion_050_deg_and_order": null,
+      "wrapped_torsion_difference_025_minus_050_deg": null,
+      "interpretation": "geometry comparison only; no basin identity inferred"
+    },
+    "plus": {
+      "same_order_rmsd_A": 1.0638289126543157e-05,
+      "energy_difference_025_minus_050_eV": 5.356923793442547e-10,
+      "torsion_025_deg_and_order": [
+        27.024765489975607,
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ],
+      "torsion_050_deg_and_order": [
+        27.025268849044195,
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ],
+      "wrapped_torsion_difference_025_minus_050_deg": -0.0005033590686025491,
+      "interpretation": "geometry comparison only; no basin identity inferred"
+    }
+  },
+  "common_W_origin": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/channel-v1/run-1728173/plus-0.050.extxyz",
+  "torsion_barrier_eV": 0.15006118329256424,
+  "ring_candidate_barrier_eV": 2.2915985452737004,
+  "b_torsion_eV": -0.005042474398004426,
+  "b_ring_candidate_eV": -0.020857116977049284,
+  "barrier_gap_slope_eV": -0.015814642579044857,
+  "caveat": "common-W first-order branch predictions, subject to explicit endpoint review; no finite-a or SSW effectiveness claim"
+}
