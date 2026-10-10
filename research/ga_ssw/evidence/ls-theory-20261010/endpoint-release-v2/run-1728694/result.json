@@ -1,0 +1,1730 @@
+{
+  "status": "completed_five_endpoint_diagnostics",
+  "finite_run": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/finite",
+  "finite_run_status": "completed_stationary_branch_diagnostics",
+  "references": [
+    {
+      "label": "torsion_gauche",
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/plus-0.050.extxyz",
+      "energy_eV": -4243.8376215796425,
+      "energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/result.json"
+    },
+    {
+      "label": "torsion_trans",
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/minus-0.050.extxyz",
+      "energy_eV": -4243.921715268658,
+      "energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/result.json"
+    },
+    {
+      "label": "cyclobutene",
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/ring/minus-0.050.extxyz",
+      "energy_eV": -4243.5179378182265,
+      "energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/ring/result.json"
+    }
+  ],
+  "model": {
+    "path": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+    "sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+    "expected_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+    "head": "omol",
+    "device": "cuda",
+    "dtype": "float64",
+    "torch": "2.8.0+cu128",
+    "numpy": "2.0.2",
+    "python": "3.12.11 | packaged by Anaconda, Inc. | (main, Jun  5 2025, 13:09:17) [GCC 11.2.0]",
+    "platform": "Linux-6.8.0-71-generic-x86_64-with-glibc2.39",
+    "torch_num_threads": 1,
+    "tf32_matmul": false,
+    "tf32_cudnn": false,
+    "deterministic_algorithms": true,
+    "cuda_device_name": "Tesla V100-SXM2-32GB",
+    "ase": "3.26.0",
+    "scipy": "1.16.0"
+  },
+  "limits": {
+    "request_cap_total": 1000,
+    "wall_seconds_from_surface_creation": 300,
+    "force_tolerance_eV_A": 0.0003,
+    "optimizer": "projected physical-V BFGS",
+    "gtol": 0.0001,
+    "maxiter_per_endpoint": 200
+  },
+  "graph_rule": "same-index HC_BOND_LENGTHS + 0.1 A; includes all C-C and C-H adjacency",
+  "basin_identity_decided": false,
+  "endpoints": [
+    {
+      "label": "a-16-easy_ts-minus",
+      "amplitude": 16.0,
+      "branch": "easy_ts",
+      "sign": "minus",
+      "start_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/finite/a-16-easy_ts-minus-landing.extxyz",
+      "status": "completed_diagnostics",
+      "requests_start": 0,
+      "start_sha256": "6cd2e2383904d8d07aee8ef7e4098f09c001d498ae6db3af745e4ed5c2eeab4a",
+      "optimizer": {
+        "success_flag": true,
+        "message": "Optimization terminated successfully.",
+        "iterations": 32,
+        "function_calls": 44
+      },
+      "certificate": {
+        "energy_eV": -4243.837621580454,
+        "fmax_eV_A": 8.383533733714793e-05,
+        "force_qualified": true
+      },
+      "basis_shape": [
+        30,
+        24
+      ],
+      "graph_edges": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          3,
+          9
+        ]
+      ],
+      "reference_comparisons": {
+        "torsion_gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "reference_energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/result.json",
+          "physical_energy_difference_to_reference_eV": -8.11269273981452e-10,
+          "same_index_proper_kabsch_rmsd_A": 2.895186945449234e-05,
+          "same_index_graph_equal": true,
+          "endpoint_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "reference_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "alignment_is_diagnostic_only": true
+        },
+        "torsion_trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "reference_energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/result.json",
+          "physical_energy_difference_to_reference_eV": 0.08409368820412055,
+          "same_index_proper_kabsch_rmsd_A": 1.2900322854632447,
+          "same_index_graph_equal": true,
+          "endpoint_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "reference_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "alignment_is_diagnostic_only": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/ring/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "reference_energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/ring/result.json",
+          "physical_energy_difference_to_reference_eV": -0.3196837622272142,
+          "same_index_proper_kabsch_rmsd_A": 0.8956828204128515,
+          "same_index_graph_equal": false,
+          "endpoint_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "reference_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "alignment_is_diagnostic_only": true
+        }
+      },
+      "requests_end": 45,
+      "requests": 45,
+      "counted_wall_seconds": 2.2239180132746696,
+      "actual_calculate_calls_total": 44
+    },
+    {
+      "label": "a-16-easy_ts-plus",
+      "amplitude": 16.0,
+      "branch": "easy_ts",
+      "sign": "plus",
+      "start_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/finite/a-16-easy_ts-plus-landing.extxyz",
+      "status": "completed_diagnostics",
+      "requests_start": 45,
+      "start_sha256": "445ac5a0b4ef7bef502ce18d7a23a7fd27953dbf14d22536b3a92d2a01c57972",
+      "optimizer": {
+        "success_flag": true,
+        "message": "Optimization terminated successfully.",
+        "iterations": 29,
+        "function_calls": 43
+      },
+      "certificate": {
+        "energy_eV": -4243.921715268337,
+        "fmax_eV_A": 7.207659373697314e-05,
+        "force_qualified": true
+      },
+      "basis_shape": [
+        30,
+        24
+      ],
+      "graph_edges": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          3,
+          9
+        ]
+      ],
+      "reference_comparisons": {
+        "torsion_gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "reference_energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/result.json",
+          "physical_energy_difference_to_reference_eV": -0.0840936886943382,
+          "same_index_proper_kabsch_rmsd_A": 1.290004452001374,
+          "same_index_graph_equal": true,
+          "endpoint_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "reference_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "alignment_is_diagnostic_only": true
+        },
+        "torsion_trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "reference_energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/result.json",
+          "physical_energy_difference_to_reference_eV": 3.2105162972584367e-10,
+          "same_index_proper_kabsch_rmsd_A": 1.1801679645167849e-05,
+          "same_index_graph_equal": true,
+          "endpoint_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "reference_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "alignment_is_diagnostic_only": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/ring/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "reference_energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/ring/result.json",
+          "physical_energy_difference_to_reference_eV": -0.4037774501102831,
+          "same_index_proper_kabsch_rmsd_A": 1.6417741789397804,
+          "same_index_graph_equal": false,
+          "endpoint_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "reference_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "alignment_is_diagnostic_only": true
+        }
+      },
+      "requests_end": 89,
+      "requests": 44,
+      "counted_wall_seconds": 2.983047858811915,
+      "actual_calculate_calls_total": 87
+    },
+    {
+      "label": "a-16-ring_ts-minus",
+      "amplitude": 16.0,
+      "branch": "ring_ts",
+      "sign": "minus",
+      "start_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/finite/a-16-ring_ts-minus-landing.extxyz",
+      "status": "completed_diagnostics",
+      "requests_start": 89,
+      "start_sha256": "23fa93775598dc1c91b6d54954b5a18a84a4155016862ca875af220b6728924d",
+      "optimizer": {
+        "success_flag": true,
+        "message": "Optimization terminated successfully.",
+        "iterations": 33,
+        "function_calls": 45
+      },
+      "certificate": {
+        "energy_eV": -4243.8376215804665,
+        "fmax_eV_A": 7.099964201112914e-05,
+        "force_qualified": true
+      },
+      "basis_shape": [
+        30,
+        24
+      ],
+      "graph_edges": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          3,
+          9
+        ]
+      ],
+      "reference_comparisons": {
+        "torsion_gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "reference_energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/result.json",
+          "physical_energy_difference_to_reference_eV": -8.24002199806273e-10,
+          "same_index_proper_kabsch_rmsd_A": 2.804600453463376e-05,
+          "same_index_graph_equal": true,
+          "endpoint_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "reference_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "alignment_is_diagnostic_only": true
+        },
+        "torsion_trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "reference_energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/result.json",
+          "physical_energy_difference_to_reference_eV": 0.08409368819138763,
+          "same_index_proper_kabsch_rmsd_A": 1.290032160798939,
+          "same_index_graph_equal": true,
+          "endpoint_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "reference_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "alignment_is_diagnostic_only": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/ring/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "reference_energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/ring/result.json",
+          "physical_energy_difference_to_reference_eV": -0.3196837622399471,
+          "same_index_proper_kabsch_rmsd_A": 0.8956826715125397,
+          "same_index_graph_equal": false,
+          "endpoint_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "reference_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "alignment_is_diagnostic_only": true
+        }
+      },
+      "requests_end": 135,
+      "requests": 46,
+      "counted_wall_seconds": 3.7774507151916623,
+      "actual_calculate_calls_total": 132
+    },
+    {
+      "label": "a-16-ring_ts-plus",
+      "amplitude": 16.0,
+      "branch": "ring_ts",
+      "sign": "plus",
+      "start_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/finite/a-16-ring_ts-plus-landing.extxyz",
+      "status": "completed_diagnostics",
+      "requests_start": 135,
+      "start_sha256": "acfd99cbcf28f9fc7a38760ec905ddc13885c9d9994be904732dd9a1184e47d6",
+      "optimizer": {
+        "success_flag": true,
+        "message": "Optimization terminated successfully.",
+        "iterations": 33,
+        "function_calls": 46
+      },
+      "certificate": {
+        "energy_eV": -4243.5179378182365,
+        "fmax_eV_A": 4.1545668290174335e-05,
+        "force_qualified": true
+      },
+      "basis_shape": [
+        30,
+        24
+      ],
+      "graph_edges": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          3,
+          9
+        ]
+      ],
+      "reference_comparisons": {
+        "torsion_gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "reference_energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/result.json",
+          "physical_energy_difference_to_reference_eV": 0.31968376140594046,
+          "same_index_proper_kabsch_rmsd_A": 0.8956783419731427,
+          "same_index_graph_equal": false,
+          "endpoint_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "reference_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "alignment_is_diagnostic_only": true
+        },
+        "torsion_trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "reference_energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/result.json",
+          "physical_energy_difference_to_reference_eV": 0.4037774504213303,
+          "same_index_proper_kabsch_rmsd_A": 1.6417811644233153,
+          "same_index_graph_equal": false,
+          "endpoint_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "reference_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "alignment_is_diagnostic_only": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/ring/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "reference_energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/ring/result.json",
+          "physical_energy_difference_to_reference_eV": -1.000444171950221e-11,
+          "same_index_proper_kabsch_rmsd_A": 2.5045504163729154e-06,
+          "same_index_graph_equal": true,
+          "endpoint_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "reference_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "alignment_is_diagnostic_only": true
+        }
+      },
+      "requests_end": 182,
+      "requests": 47,
+      "counted_wall_seconds": 4.590840484946966,
+      "actual_calculate_calls_total": 178
+    },
+    {
+      "label": "a-8-easy_ts-plus",
+      "amplitude": 8.0,
+      "branch": "easy_ts",
+      "sign": "plus",
+      "start_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/finite/a-8-easy_ts-plus-landing.extxyz",
+      "status": "completed_diagnostics",
+      "requests_start": 182,
+      "start_sha256": "2280a8b0d9c742366282cf286ec099e50c7eebfe73afa198a191c1c201814b42",
+      "optimizer": {
+        "success_flag": true,
+        "message": "Optimization terminated successfully.",
+        "iterations": 23,
+        "function_calls": 37
+      },
+      "certificate": {
+        "energy_eV": -4243.921715268623,
+        "fmax_eV_A": 3.022969446072261e-05,
+        "force_qualified": true
+      },
+      "basis_shape": [
+        30,
+        24
+      ],
+      "graph_edges": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          3,
+          9
+        ]
+      ],
+      "reference_comparisons": {
+        "torsion_gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "reference_energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/result.json",
+          "physical_energy_difference_to_reference_eV": -0.08409368898082903,
+          "same_index_proper_kabsch_rmsd_A": 1.2900119170744806,
+          "same_index_graph_equal": true,
+          "endpoint_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "reference_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "alignment_is_diagnostic_only": true
+        },
+        "torsion_trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "reference_energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/torsion/result.json",
+          "physical_energy_difference_to_reference_eV": 3.456079866737127e-11,
+          "same_index_proper_kabsch_rmsd_A": 3.475256615146836e-06,
+          "same_index_graph_equal": true,
+          "endpoint_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "reference_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "alignment_is_diagnostic_only": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/ring/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "reference_energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v2/ring/result.json",
+          "physical_energy_difference_to_reference_eV": -0.40377745039677393,
+          "same_index_proper_kabsch_rmsd_A": 1.641780532457745,
+          "same_index_graph_equal": false,
+          "endpoint_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "reference_graph_edges": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "alignment_is_diagnostic_only": true
+        }
+      },
+      "requests_end": 220,
+      "requests": 38,
+      "counted_wall_seconds": 5.2461409186944366,
+      "actual_calculate_calls_total": 215
+    }
+  ],
+  "source_hashes": {
+    "runner": "d9e4c364058be0c7f3162f8aad114c352dfff3dfb49a5a89c537adf3dc8a5c72",
+    "qualifier": "f3419e58a00ae772b0f047cacd1e77e67dc411d63e49c7a94c44ffd7a97b09f5",
+    "ring_tools": "5f774f629881d99fafc128296d714fc9a63e5014c6c68e5b992ad97b17f36d89",
+    "finite_run_result": "73de7649878a9935566cba06b5ca7952f27c635ce738f14c1649f498732a5c66",
+    "torsion_reference_geometry": "667a9a844d9757a44aa4b060d67f903c04cb295717cddea4ab1bfddc6c453f0f",
+    "trans_reference_geometry": "d69d093769af99844d39ec95ad94dd89c57ee0106b7942cfe7f65a4db1de4677",
+    "cyclobutene_reference_geometry": "6a7ed6a379f8977c6fad821289c3ea48ac7775835640abd1d589323056231df9",
+    "torsion_gauche_energy_record": "1dcd172a4d572e49649aa2ab4be1838e3de4a0a11b0d3d94fe45756f42c2a92e",
+    "torsion_trans_energy_record": "1dcd172a4d572e49649aa2ab4be1838e3de4a0a11b0d3d94fe45756f42c2a92e",
+    "cyclobutene_energy_record": "5e95a960bde24d1327f230107fb02745d649596ebd4dddaf46b56b27ef5c204b"
+  },
+  "requests": 220,
+  "actual_calculate_calls": 215,
+  "denials": 0,
+  "request_boundary": null,
+  "counted_wall_seconds": 5.247546858154237,
+  "total_wall_seconds": 7.963295473717153
+}

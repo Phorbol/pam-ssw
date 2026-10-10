@@ -3,7 +3,7 @@
 GPU1728623已完成：4291物理E/F请求、4240实际calculate，Slurm90秒；
 CPU1728639只读分析2秒。五档的15个驻点均通过完整力与双模板惯性门，
 未用root成功标志替代资格。每个TS的两个偏置下坡终点中都有一侧近返回
-该档偏置minimum；另一侧身份由单独撤偏置核查确定，暂不自动宣称通道保持。
+该档偏置minimum；最高档另一侧身份已由[单独撤偏置核查](endpoint-release-readout.md)确认。
 
 |a|P (eV/atom)|扭转F势垒(eV)|闭环F势垒(eV)|扭转局部斜率(eV)|闭环局部斜率(eV)|
 |---:|---:|---:|---:|---:|---:|
@@ -28,5 +28,5 @@ a16的P=.33358仍低于论文PBE案例所用.7eV/atom；不据此追加a或外�
 原始结果：finite-channel-v1/run-1728623/result.json、requests.jsonl及逐点H/几何。
 源快照/三个驻点输入：finite-channel-v1/source、torsion、ring；provenance.json。
 派生结果：finite-channel-v1/analysis-1728639.json；脚本analyze_ls_channel_continuation.py。
-下一项：[五个端点撤偏置协议](endpoint-release-protocol.md)，只消除通道身份歧义。
+[五个端点撤偏置核查已完成](endpoint-release-readout.md)，220请求，最高档端点身份保持。
 端点通过后才设计SSW方向/逃逸消融；核心LS算法及默认值未改变。

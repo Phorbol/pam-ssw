@@ -1,0 +1,9 @@
+{
+  "base_commit": "a7a7c059c2fafec59c5cf44c3b4a7132b39a7dad",
+  "source_snapshot": "source",
+  "input_source": "finite-channel-v1/run-1728623; channel-v1/run-1728173; ring-channel-v1/run-1728329/qualification",
+  "protocol": "../endpoint-release-protocol.md",
+  "purpose": "five fixed endpoints physical release, no new LS amplitudes",
+  "parent_attempt": "endpoint-release-v1/run-1728686",
+  "correction": "Path conversion at sha256 helper boundary; prior run stopped before any E/F; real input hash contract checked without calculator"
+}

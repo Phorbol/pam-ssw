@@ -1,0 +1,103 @@
+{
+  "status": "stopped",
+  "finite_run": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v1/finite",
+  "finite_run_status": "completed_stationary_branch_diagnostics",
+  "references": [
+    {
+      "label": "torsion_gauche",
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v1/torsion/plus-0.050.extxyz",
+      "energy_eV": -4243.8376215796425,
+      "energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v1/torsion/result.json"
+    },
+    {
+      "label": "torsion_trans",
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v1/torsion/minus-0.050.extxyz",
+      "energy_eV": -4243.921715268658,
+      "energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v1/torsion/result.json"
+    },
+    {
+      "label": "cyclobutene",
+      "path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v1/ring/minus-0.050.extxyz",
+      "energy_eV": -4243.5179378182265,
+      "energy_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v1/ring/result.json"
+    }
+  ],
+  "model": {
+    "path": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+    "sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+    "expected_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+    "head": "omol",
+    "device": "cuda",
+    "dtype": "float64",
+    "torch": "2.8.0+cu128",
+    "numpy": "2.0.2",
+    "python": "3.12.11 | packaged by Anaconda, Inc. | (main, Jun  5 2025, 13:09:17) [GCC 11.2.0]",
+    "platform": "Linux-6.8.0-71-generic-x86_64-with-glibc2.39",
+    "torch_num_threads": 1,
+    "tf32_matmul": false,
+    "tf32_cudnn": false,
+    "deterministic_algorithms": true,
+    "cuda_device_name": "Tesla V100-SXM2-32GB",
+    "ase": "3.26.0",
+    "scipy": "1.16.0"
+  },
+  "limits": {
+    "request_cap_total": 1000,
+    "wall_seconds_from_surface_creation": 300,
+    "force_tolerance_eV_A": 0.0003,
+    "optimizer": "projected physical-V BFGS",
+    "gtol": 0.0001,
+    "maxiter_per_endpoint": 200
+  },
+  "graph_rule": "same-index HC_BOND_LENGTHS + 0.1 A; includes all C-C and C-H adjacency",
+  "basin_identity_decided": false,
+  "endpoints": [
+    {
+      "label": "a-16-easy_ts-minus",
+      "amplitude": 16.0,
+      "branch": "easy_ts",
+      "sign": "minus",
+      "start_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v1/finite/a-16-easy_ts-minus-landing.extxyz",
+      "status": "not_started"
+    },
+    {
+      "label": "a-16-easy_ts-plus",
+      "amplitude": 16.0,
+      "branch": "easy_ts",
+      "sign": "plus",
+      "start_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v1/finite/a-16-easy_ts-plus-landing.extxyz",
+      "status": "not_started"
+    },
+    {
+      "label": "a-16-ring_ts-minus",
+      "amplitude": 16.0,
+      "branch": "ring_ts",
+      "sign": "minus",
+      "start_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v1/finite/a-16-ring_ts-minus-landing.extxyz",
+      "status": "not_started"
+    },
+    {
+      "label": "a-16-ring_ts-plus",
+      "amplitude": 16.0,
+      "branch": "ring_ts",
+      "sign": "plus",
+      "start_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v1/finite/a-16-ring_ts-plus-landing.extxyz",
+      "status": "not_started"
+    },
+    {
+      "label": "a-8-easy_ts-plus",
+      "amplitude": 8.0,
+      "branch": "easy_ts",
+      "sign": "plus",
+      "start_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/endpoint-release-v1/finite/a-8-easy_ts-plus-landing.extxyz",
+      "status": "not_started"
+    }
+  ],
+  "error": "AttributeError(\"'str' object has no attribute 'open'\")",
+  "requests": 0,
+  "actual_calculate_calls": 0,
+  "denials": 0,
+  "request_boundary": null,
+  "counted_wall_seconds": 0.0007772892713546753,
+  "total_wall_seconds": 8.634924873709679
+}
