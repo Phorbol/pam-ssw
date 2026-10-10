@@ -1,0 +1,13 @@
+{
+  "base_commit": "2b7dd2ad75d26dc631a9e6c827596419635bba53",
+  "source_snapshot": "source",
+  "input_copy": "input; all24 raw candidate geometries and summary unchanged",
+  "references": "existing frozen T3 torsion and ring source files identified in input/summary.json",
+  "protocol": "../escape-qualification-protocol.md",
+  "budget": {
+    "requests": 6000,
+    "counted_seconds": 600,
+    "V100_cards": 1,
+    "slurm_minutes": 15
+  }
+}

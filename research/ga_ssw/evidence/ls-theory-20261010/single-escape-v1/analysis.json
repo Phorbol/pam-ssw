@@ -1,0 +1,1363 @@
+{
+  "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/run-1728766/summary.json",
+  "status": "all_24_arms_recorded",
+  "search_requests": 12959,
+  "fresh_requests": 24,
+  "actual_calculate_calls": 12983,
+  "rows": [
+    {
+      "run_id": "gauche-seed701-none",
+      "start": "gauche",
+      "seed": 701,
+      "arm": "none",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "lower_true_energy",
+      "error": null,
+      "search_requests": 409,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 8.636750174686313,
+      "mc_accepted": true,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.92150021864,
+      "fresh_fmax_eV_A": 0.012926403403951497,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": null,
+      "ls_prequench_fmax_eV_A": null,
+      "ls_prequench_requests": null,
+      "physical_response_eV": null,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.3930664359218692,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 0.8278285076859149,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.7986463918025108,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "gauche-seed701-ls-0.03",
+      "start": "gauche",
+      "seed": 701,
+      "arm": "ls-0.03",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "error": null,
+      "search_requests": 642,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 11.747179911471903,
+      "mc_accepted": true,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.837564565375,
+      "fresh_fmax_eV_A": 0.016199418266848113,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": "force",
+      "ls_prequench_fmax_eV_A": 0.04808760429771745,
+      "ls_prequench_requests": 7,
+      "physical_response_eV": 0.03153637489958783,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 0.9036957176858504,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 1.3881290495433014,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 0.9838449691229514,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "gauche-seed701-ls-0.48",
+      "start": "gauche",
+      "seed": 701,
+      "arm": "ls-0.48",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "error": null,
+      "search_requests": 673,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 12.266800983808935,
+      "mc_accepted": false,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.689705418617,
+      "fresh_fmax_eV_A": 0.027243582424491562,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": "force",
+      "ls_prequench_fmax_eV_A": 0.0326554983615479,
+      "ls_prequench_requests": 15,
+      "physical_response_eV": 3.340900302559021,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.214566239263283,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 1.025158797002889,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.3664592617329314,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "gauche-seed702-none",
+      "start": "gauche",
+      "seed": 702,
+      "arm": "none",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "lower_true_energy",
+      "error": null,
+      "search_requests": 264,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 4.730363097973168,
+      "mc_accepted": true,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.920709957669,
+      "fresh_fmax_eV_A": 0.0234981476915293,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": null,
+      "ls_prequench_fmax_eV_A": null,
+      "ls_prequench_requests": null,
+      "physical_response_eV": null,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.3103425876338608,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 0.026442784693320488,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.6578657302375897,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "gauche-seed702-ls-0.03",
+      "start": "gauche",
+      "seed": 702,
+      "arm": "ls-0.03",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "lower_true_energy",
+      "error": null,
+      "search_requests": 270,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 5.247533232904971,
+      "mc_accepted": true,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.9213881765445,
+      "fresh_fmax_eV_A": 0.016438597062385638,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": "force",
+      "ls_prequench_fmax_eV_A": 0.04808760429771745,
+      "ls_prequench_requests": 7,
+      "physical_response_eV": 0.03153637489958783,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.2971011531718797,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 0.011216957371576223,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.647309456186114,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "gauche-seed702-ls-0.48",
+      "start": "gauche",
+      "seed": 702,
+      "arm": "ls-0.48",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "error": null,
+      "search_requests": 642,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 11.63693550415337,
+      "mc_accepted": true,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.837564247295,
+      "fresh_fmax_eV_A": 0.02215209715432416,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": "force",
+      "ls_prequench_fmax_eV_A": 0.0326554983615479,
+      "ls_prequench_requests": 15,
+      "physical_response_eV": 3.340900302559021,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 0.8261055634215685,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 1.3864755426050408,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 0.9849674148120883,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "gauche-seed703-none",
+      "start": "gauche",
+      "seed": 703,
+      "arm": "none",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "lower_true_energy",
+      "error": null,
+      "search_requests": 187,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 4.060135724954307,
+      "mc_accepted": true,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.919936761077,
+      "fresh_fmax_eV_A": 0.02600115408339828,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": null,
+      "ls_prequench_fmax_eV_A": null,
+      "ls_prequench_requests": null,
+      "physical_response_eV": null,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.3142483397814104,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 0.033229342569424405,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.662111688396258,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "gauche-seed703-ls-0.03",
+      "start": "gauche",
+      "seed": 703,
+      "arm": "ls-0.03",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "lower_true_energy",
+      "error": null,
+      "search_requests": 170,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 3.4542664727196097,
+      "mc_accepted": true,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.92015432411,
+      "fresh_fmax_eV_A": 0.02852586043514483,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": "force",
+      "ls_prequench_fmax_eV_A": 0.04808760429771745,
+      "ls_prequench_requests": 7,
+      "physical_response_eV": 0.03153637489958783,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.3146623869121978,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 0.032437554355006566,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.6613498191582603,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "gauche-seed703-ls-0.48",
+      "start": "gauche",
+      "seed": 703,
+      "arm": "ls-0.48",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "error": null,
+      "search_requests": 707,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 12.582298643887043,
+      "mc_accepted": true,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.921659724582,
+      "fresh_fmax_eV_A": 0.01980075872647027,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": "force",
+      "ls_prequench_fmax_eV_A": 0.0326554983615479,
+      "ls_prequench_requests": 15,
+      "physical_response_eV": 3.340900302559021,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.2923641806032546,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 0.003472463940339153,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.643566207578966,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "gauche-seed704-none",
+      "start": "gauche",
+      "seed": 704,
+      "arm": "none",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "lower_true_energy",
+      "error": null,
+      "search_requests": 184,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 3.302376301959157,
+      "mc_accepted": true,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.921542198748,
+      "fresh_fmax_eV_A": 0.015430717470208934,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": null,
+      "ls_prequench_fmax_eV_A": null,
+      "ls_prequench_requests": null,
+      "physical_response_eV": null,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.2907888399736769,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 0.005604791347193522,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.6424196215484217,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "gauche-seed704-ls-0.03",
+      "start": "gauche",
+      "seed": 704,
+      "arm": "ls-0.03",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "lower_true_energy",
+      "error": null,
+      "search_requests": 201,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 3.9593327874317765,
+      "mc_accepted": true,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.921643460129,
+      "fresh_fmax_eV_A": 0.008569678921394538,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": "force",
+      "ls_prequench_fmax_eV_A": 0.04808760429771745,
+      "ls_prequench_requests": 7,
+      "physical_response_eV": 0.03153637489958783,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.2935217080376724,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 0.005107422176561534,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.644979980102404,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "gauche-seed704-ls-0.48",
+      "start": "gauche",
+      "seed": 704,
+      "arm": "ls-0.48",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "error": null,
+      "search_requests": 714,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 12.709126017987728,
+      "mc_accepted": true,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.92163372905,
+      "fresh_fmax_eV_A": 0.01939512947932965,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": "force",
+      "ls_prequench_fmax_eV_A": 0.0326554983615479,
+      "ls_prequench_requests": 15,
+      "physical_response_eV": 3.340900302559021,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.286279812230842,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 0.0054034447490809365,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.6388970725136558,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "trans-seed701-none",
+      "start": "trans",
+      "seed": 701,
+      "arm": "none",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "error": null,
+      "search_requests": 708,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 12.838295508176088,
+      "mc_accepted": true,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.92143495328,
+      "fresh_fmax_eV_A": 0.026197338546774196,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": null,
+      "ls_prequench_fmax_eV_A": null,
+      "ls_prequench_requests": null,
+      "physical_response_eV": null,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.3863565912083196,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 0.8275877578746516,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.8027469150530042,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "trans-seed701-ls-0.03",
+      "start": "trans",
+      "seed": 701,
+      "arm": "ls-0.03",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "error": null,
+      "search_requests": 675,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 12.068608366884291,
+      "mc_accepted": true,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.921259439479,
+      "fresh_fmax_eV_A": 0.025272781644483083,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": "force",
+      "ls_prequench_fmax_eV_A": 0.05802945789866356,
+      "ls_prequench_requests": 7,
+      "physical_response_eV": 0.03156201552155835,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.384776813513012,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 0.8273561280950275,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.8009795937688042,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "trans-seed701-ls-0.48",
+      "start": "trans",
+      "seed": 701,
+      "arm": "ls-0.48",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "error": null,
+      "search_requests": 692,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 12.416832706891,
+      "mc_accepted": false,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.8334804754995,
+      "fresh_fmax_eV_A": 0.02933009358177221,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": "force",
+      "ls_prequench_fmax_eV_A": 0.0999984391807794,
+      "ls_prequench_requests": 15,
+      "physical_response_eV": 3.2907745447382695,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 0.5566013785856155,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 1.237266086101569,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.0866539404848665,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "trans-seed702-none",
+      "start": "trans",
+      "seed": 702,
+      "arm": "none",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "error": null,
+      "search_requests": 719,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 12.739943799562752,
+      "mc_accepted": false,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.837425832022,
+      "fresh_fmax_eV_A": 0.024812103245094974,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": null,
+      "ls_prequench_fmax_eV_A": null,
+      "ls_prequench_requests": null,
+      "physical_response_eV": null,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 0.4956729631649642,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 1.2799342263855529,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.0610536211606234,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "trans-seed702-ls-0.03",
+      "start": "trans",
+      "seed": 702,
+      "arm": "ls-0.03",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "error": null,
+      "search_requests": 740,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 13.215624461881816,
+      "mc_accepted": false,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.837268020406,
+      "fresh_fmax_eV_A": 0.027835266123951468,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": "force",
+      "ls_prequench_fmax_eV_A": 0.05802945789866356,
+      "ls_prequench_requests": 7,
+      "physical_response_eV": 0.03156201552155835,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 0.5017856098441417,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 1.2748921695542652,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.0648783850282706,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "trans-seed702-ls-0.48",
+      "start": "trans",
+      "seed": 702,
+      "arm": "ls-0.48",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "error": null,
+      "search_requests": 656,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 11.769083863124251,
+      "mc_accepted": true,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.921091980402,
+      "fresh_fmax_eV_A": 0.02392908329929965,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": "force",
+      "ls_prequench_fmax_eV_A": 0.0999984391807794,
+      "ls_prequench_requests": 15,
+      "physical_response_eV": 3.2907745447382695,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.3903445672972292,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 0.8275311544315801,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.8005013303988802,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "trans-seed703-none",
+      "start": "trans",
+      "seed": 703,
+      "arm": "none",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "error": null,
+      "search_requests": 548,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 9.857407461851835,
+      "mc_accepted": false,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.517462299947,
+      "fresh_fmax_eV_A": 0.02127054902135732,
+      "component_count": 1,
+      "graph_labels": [
+        "cyclobutene"
+      ],
+      "connected_graph_change_candidate": true,
+      "ls_prequench_qualification": null,
+      "ls_prequench_fmax_eV_A": null,
+      "ls_prequench_requests": null,
+      "physical_response_eV": null,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.0560240764028777,
+          "graph_isomorphic_with_element_labels": false
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 1.6373144618376743,
+          "graph_isomorphic_with_element_labels": false
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.1221391606496824,
+          "graph_isomorphic_with_element_labels": true
+        }
+      }
+    },
+    {
+      "run_id": "trans-seed703-ls-0.03",
+      "start": "trans",
+      "seed": 703,
+      "arm": "ls-0.03",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "error": null,
+      "search_requests": 567,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 10.390194121748209,
+      "mc_accepted": false,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.517542137891,
+      "fresh_fmax_eV_A": 0.028859392623821978,
+      "component_count": 1,
+      "graph_labels": [
+        "cyclobutene"
+      ],
+      "connected_graph_change_candidate": true,
+      "ls_prequench_qualification": "force",
+      "ls_prequench_fmax_eV_A": 0.05802945789866356,
+      "ls_prequench_requests": 7,
+      "physical_response_eV": 0.03156201552155835,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.0546284839610331,
+          "graph_isomorphic_with_element_labels": false
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 1.638883715573534,
+          "graph_isomorphic_with_element_labels": false
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.1217906677751683,
+          "graph_isomorphic_with_element_labels": true
+        }
+      }
+    },
+    {
+      "run_id": "trans-seed703-ls-0.48",
+      "start": "trans",
+      "seed": 703,
+      "arm": "ls-0.48",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "error": null,
+      "search_requests": 677,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 12.487231652252376,
+      "mc_accepted": false,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4242.567125955935,
+      "fresh_fmax_eV_A": 0.02635066001488192,
+      "component_count": 1,
+      "graph_labels": [],
+      "connected_graph_change_candidate": true,
+      "ls_prequench_qualification": "force",
+      "ls_prequench_fmax_eV_A": 0.0999984391807794,
+      "ls_prequench_requests": 15,
+      "physical_response_eV": 3.2907745447382695,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.4082526480694826,
+          "graph_isomorphic_with_element_labels": false
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 1.690079189466041,
+          "graph_isomorphic_with_element_labels": false
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.5496313419761518,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "trans-seed704-none",
+      "start": "trans",
+      "seed": 704,
+      "arm": "none",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "error": null,
+      "search_requests": 633,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 11.328933047130704,
+      "mc_accepted": true,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.92149326199,
+      "fresh_fmax_eV_A": 0.02330237737948339,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": null,
+      "ls_prequench_fmax_eV_A": null,
+      "ls_prequench_requests": null,
+      "physical_response_eV": null,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.3894614247847683,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 0.8275566405354196,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.804400681354953,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "trans-seed704-ls-0.03",
+      "start": "trans",
+      "seed": 704,
+      "arm": "ls-0.03",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "error": null,
+      "search_requests": 630,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 11.425293077714741,
+      "mc_accepted": false,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.9186775941935,
+      "fresh_fmax_eV_A": 0.02809805058549141,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": "force",
+      "ls_prequench_fmax_eV_A": 0.05802945789866356,
+      "ls_prequench_requests": 7,
+      "physical_response_eV": 0.03156201552155835,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.3687125478155784,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 0.828586432487736,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.7767329778141434,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    },
+    {
+      "run_id": "trans-seed704-ls-0.48",
+      "start": "trans",
+      "seed": 704,
+      "arm": "ls-0.48",
+      "status": "returned_ssw_result",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "error": null,
+      "search_requests": 651,
+      "fresh_requests": 1,
+      "search_truncated": false,
+      "search_truncation_reason": null,
+      "elapsed_seconds": 11.576467270031571,
+      "mc_accepted": true,
+      "candidate_produced": true,
+      "physical_landing_completed": true,
+      "search_count_matches_result": true,
+      "checkpoint_read_error": null,
+      "fresh_force_qualified": true,
+      "fresh_energy_eV": -4243.9216511386985,
+      "fresh_fmax_eV_A": 0.026477911058003234,
+      "component_count": 1,
+      "graph_labels": [
+        "gauche",
+        "trans"
+      ],
+      "connected_graph_change_candidate": false,
+      "ls_prequench_qualification": "force",
+      "ls_prequench_fmax_eV_A": 0.0999984391807794,
+      "ls_prequench_requests": 15,
+      "physical_response_eV": 3.2907745447382695,
+      "reference_comparisons": {
+        "gauche": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/plus-0.050.extxyz",
+          "reference_energy_eV": -4243.8376215796425,
+          "same_index_proper_kabsch_rmsd_A": 1.3877804457113083,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "trans": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/torsion/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.921715268658,
+          "same_index_proper_kabsch_rmsd_A": 0.8272493257764119,
+          "graph_isomorphic_with_element_labels": true
+        },
+        "cyclobutene": {
+          "reference_path": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/single-escape-v1/source/research/ga_ssw/evidence/ls-theory-20261010/ring-channel-v1/run-1728329/qualification/minus-0.050.extxyz",
+          "reference_energy_eV": -4243.5179378182265,
+          "same_index_proper_kabsch_rmsd_A": 1.8055808798888313,
+          "graph_isomorphic_with_element_labels": false
+        }
+      }
+    }
+  ],
+  "groups": [
+    {
+      "start": "gauche",
+      "arm": "none",
+      "attempts": 4,
+      "completed_physical_landings": 4,
+      "fresh_force_qualified": 4,
+      "accepted_candidates": 4,
+      "truncated": 0,
+      "graph_change_candidates": 0,
+      "disconnected_candidates": 0,
+      "requests": 1044,
+      "fresh_requests": 4,
+      "wall_seconds": 20.729625299572945
+    },
+    {
+      "start": "gauche",
+      "arm": "ls-0.03",
+      "attempts": 4,
+      "completed_physical_landings": 4,
+      "fresh_force_qualified": 4,
+      "accepted_candidates": 4,
+      "truncated": 0,
+      "graph_change_candidates": 0,
+      "disconnected_candidates": 0,
+      "requests": 1283,
+      "fresh_requests": 4,
+      "wall_seconds": 24.40831240452826
+    },
+    {
+      "start": "gauche",
+      "arm": "ls-0.48",
+      "attempts": 4,
+      "completed_physical_landings": 4,
+      "fresh_force_qualified": 4,
+      "accepted_candidates": 3,
+      "truncated": 0,
+      "graph_change_candidates": 0,
+      "disconnected_candidates": 0,
+      "requests": 2736,
+      "fresh_requests": 4,
+      "wall_seconds": 49.19516114983708
+    },
+    {
+      "start": "trans",
+      "arm": "none",
+      "attempts": 4,
+      "completed_physical_landings": 4,
+      "fresh_force_qualified": 4,
+      "accepted_candidates": 2,
+      "truncated": 0,
+      "graph_change_candidates": 1,
+      "disconnected_candidates": 0,
+      "requests": 2608,
+      "fresh_requests": 4,
+      "wall_seconds": 46.76457981672138
+    },
+    {
+      "start": "trans",
+      "arm": "ls-0.03",
+      "attempts": 4,
+      "completed_physical_landings": 4,
+      "fresh_force_qualified": 4,
+      "accepted_candidates": 1,
+      "truncated": 0,
+      "graph_change_candidates": 1,
+      "disconnected_candidates": 0,
+      "requests": 2612,
+      "fresh_requests": 4,
+      "wall_seconds": 47.09972002822906
+    },
+    {
+      "start": "trans",
+      "arm": "ls-0.48",
+      "attempts": 4,
+      "completed_physical_landings": 4,
+      "fresh_force_qualified": 4,
+      "accepted_candidates": 2,
+      "truncated": 0,
+      "graph_change_candidates": 1,
+      "disconnected_candidates": 0,
+      "requests": 2676,
+      "fresh_requests": 4,
+      "wall_seconds": 48.2496154922992
+    }
+  ],
+  "limits": "Graph changes are candidates, not independently validated basin identities; completed landing may return to original basin; four seeds are development evidence only."
+}

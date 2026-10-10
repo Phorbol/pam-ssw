@@ -1,0 +1,73 @@
+{
+  "method": "Reflect gauche reference x coordinate, enumerate element and adjacency preserving permutations, proper Kabsch; no PES calls; no change to deduplication",
+  "rows": [
+    {
+      "run_id": "gauche-seed701-ls-0.03",
+      "proper_rmsd_original_A": 0.4821215670388665,
+      "proper_rmsd_mirrored_A": 2.884051206523315e-05,
+      "mapping": [
+        3,
+        2,
+        1,
+        0,
+        8,
+        9,
+        7,
+        6,
+        5,
+        4
+      ]
+    },
+    {
+      "run_id": "trans-seed701-ls-0.48",
+      "proper_rmsd_original_A": 0.482128413053827,
+      "proper_rmsd_mirrored_A": 2.1868504174596316e-05,
+      "mapping": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "run_id": "trans-seed702-none",
+      "proper_rmsd_original_A": 0.4821270641366429,
+      "proper_rmsd_mirrored_A": 2.3192778477986136e-05,
+      "mapping": [
+        3,
+        2,
+        1,
+        0,
+        9,
+        8,
+        7,
+        6,
+        5,
+        4
+      ]
+    },
+    {
+      "run_id": "trans-seed702-ls-0.03",
+      "proper_rmsd_original_A": 0.48212152314555823,
+      "proper_rmsd_mirrored_A": 2.8506602635090553e-05,
+      "mapping": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ]
+}
