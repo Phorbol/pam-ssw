@@ -1,0 +1,108 @@
+{
+  "provenance": {
+    "pilot_result": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-lifecycle-20260924/native_ls/result.json",
+    "pilot_fresh_request": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-lifecycle-20260924/native_ls/fresh-requests.jsonl",
+    "pilot_minimum_index": 3,
+    "pilot_fresh_request_index_1based": 4,
+    "fresh_minimum_frame_fields_verified_equal": [
+      "numbers",
+      "positions",
+      "cell",
+      "pbc"
+    ],
+    "pilot_result_sha256": "62b350ba9355d8574af90e563b8b8022fe13cb0c80f3409186749fc94627a8ea",
+    "pilot_fresh_requests_sha256": "4ca567b209feb3b2e4f817c88e949857eb776256b49642f15197e281696dd2c0"
+  },
+  "reference": {
+    "energy_eV": -4243.688051509608,
+    "max_force_eV_per_A": 0.021801889526744028,
+    "fresh_check_energy_eV": -4243.688051509608,
+    "fresh_check_max_force_eV_per_A": 0.02180188952674357
+  },
+  "numbers": [
+    6,
+    6,
+    6,
+    6,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "positions_A": [
+    [
+      0.3400962290444177,
+      -1.2736872258027243,
+      1.137335404208535
+    ],
+    [
+      -0.4954016188032278,
+      -0.488784747044047,
+      0.4745252953285094
+    ],
+    [
+      -0.12823990438227134,
+      0.8263459706738168,
+      -0.10409113079234057
+    ],
+    [
+      0.09049494892639076,
+      1.0407993748385374,
+      -1.3922298341204369
+    ],
+    [
+      0.013926297101992712,
+      -2.2230434502387544,
+      1.541314651764519
+    ],
+    [
+      1.3765374691987264,
+      -0.9969429167067592,
+      1.290106723155171
+    ],
+    [
+      -1.5263445950936436,
+      -0.8088403687260902,
+      0.34159322722197943
+    ],
+    [
+      -0.046285811858709655,
+      1.658475876535392,
+      0.5896192892072947
+    ],
+    [
+      0.026499653876917727,
+      0.24002119833936153,
+      -2.1194374031909082
+    ],
+    [
+      0.34871733198955146,
+      2.025656288131329,
+      -1.7587362227822423
+    ]
+  ],
+  "cell_A": [
+    [
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "pbc": [
+    false,
+    false,
+    false
+  ]
+}

@@ -1,0 +1,539 @@
+{
+  "status": "completed_stationary_and_downhill_diagnostics",
+  "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/channel-v1/input.json",
+  "source_sha256": "874d6e966f156bf819e9125550932ac8e358fcdc6008eb928d76088a72805e10",
+  "source_provenance": {
+    "pilot_result": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-lifecycle-20260924/native_ls/result.json",
+    "pilot_fresh_request": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/c4h6-mh1-lifecycle-20260924/native_ls/fresh-requests.jsonl",
+    "pilot_minimum_index": 3,
+    "pilot_fresh_request_index_1based": 4,
+    "fresh_minimum_frame_fields_verified_equal": [
+      "numbers",
+      "positions",
+      "cell",
+      "pbc"
+    ],
+    "pilot_result_sha256": "62b350ba9355d8574af90e563b8b8022fe13cb0c80f3409186749fc94627a8ea",
+    "pilot_fresh_requests_sha256": "4ca567b209feb3b2e4f817c88e949857eb776256b49642f15197e281696dd2c0"
+  },
+  "model": {
+    "path": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+    "sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+    "expected_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+    "head": "omol",
+    "device": "cuda",
+    "dtype": "float64",
+    "enable_cueq": false,
+    "enable_oeq": false,
+    "tf32_matmul": false,
+    "tf32_cudnn": false,
+    "torch_num_threads": 1,
+    "cuda_device_name": "Tesla V100-SXM2-32GB"
+  },
+  "environment": {
+    "python": "3.12.11 | packaged by Anaconda, Inc. | (main, Jun  5 2025, 13:09:17) [GCC 11.2.0]",
+    "platform": "Linux-6.8.0-71-generic-x86_64-with-glibc2.39",
+    "numpy": "2.0.2",
+    "scipy": "1.16.0",
+    "ase": "3.26.0",
+    "torch": "2.8.0+cu128",
+    "mace_torch": "0.3.16"
+  },
+  "setup_seconds_excluding_counted_wall": 7.008541190996766,
+  "chart": {
+    "kind": "fixed affine Eckart section",
+    "Q_shape": [
+      30,
+      24
+    ],
+    "Q_orthonormal_error": 6.300148452902242e-16
+  },
+  "limits": {
+    "requests": 1500,
+    "counted_wall_seconds": 600,
+    "force_tolerance_eV_A": 0.0003,
+    "projected_root_residual_tolerance_eV_A": 0.0003,
+    "hessian_margin_factor": 5.0,
+    "hessian_steps_A": [
+      0.001,
+      0.0005
+    ]
+  },
+  "phases": {
+    "ts_root": {
+      "method": "scipy.root hybr",
+      "jacobian": "central force differences, h=0.001 A",
+      "maxfev": 200,
+      "success_flag": true,
+      "status_code": 1,
+      "message": "The solution converged.",
+      "nfev": 11,
+      "njev": 1,
+      "q_residual_inf_eV_A": 1.004594324028591e-10,
+      "q_residual_norm_eV_A": 2.1396364479865093e-10,
+      "residual_qualified": true,
+      "requests": 107,
+      "request_total": 107
+    },
+    "ts_force_certificate": {
+      "energy_eV": -4243.68756039635,
+      "fmax_eV_A": 1.1243919250223592e-09,
+      "projected_gradient_inf_eV_A": 1.004594324028591e-10,
+      "force_qualified": true,
+      "requests": 1,
+      "request_total": 108,
+      "stationary_qualified": true,
+      "torsion_deg_and_order": [
+        100.99960813433671,
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ],
+      "hessian_qualified": true,
+      "negative_eigenvalue_eV_A2": -0.1882347322865371,
+      "next_eigenvalue_eV_A2": 0.8307102173666129
+    },
+    "ts_hessian": {
+      "steps_A": [
+        0.001,
+        0.0005
+      ],
+      "stencil_spread_eV_A2": 0.00032509425042310435,
+      "antisymmetric_norms_eV_A2": [
+        0.00023206003668156233,
+        5.801496367889003e-05
+      ],
+      "eigenvalues_eV_A2": [
+        -0.1882347322865371,
+        0.8307102173666129,
+        0.8752468364599186,
+        2.7806372648709123,
+        3.318107116435688,
+        5.02977838529071,
+        5.143240923206635,
+        7.169966916960784,
+        9.07661775523879,
+        9.24093339745477,
+        12.204778036584894,
+        12.820759853978585,
+        16.829420450001113,
+        20.996546846341456,
+        22.10322523331911,
+        24.132260784027906,
+        40.9071308653434,
+        54.90243791089839,
+        69.23752756012756,
+        83.95706740545194,
+        93.43490967741222,
+        96.34480185116699,
+        142.99613699016243,
+        146.78746832678604
+      ],
+      "negative_eigenvalue_count": 1,
+      "single_resolved_negative_mode": true,
+      "criterion": "lambda0 < -5*stencil spread and lambda1 > 5*stencil spread",
+      "requests": 96,
+      "request_total": 204
+    },
+    "minus-0.025": {
+      "energy_eV": -4243.921715268685,
+      "fmax_eV_A": 4.582242136813099e-05,
+      "projected_gradient_inf_eV_A": 5.823682492032929e-05,
+      "force_qualified": true,
+      "optimizer_success_flag": true,
+      "optimizer_message": "Optimization terminated successfully.",
+      "optimizer_steps": 43,
+      "torsion_deg_and_order": [
+        180.0000338409914,
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ],
+      "start_displacement_A": 0.025,
+      "side": "minus",
+      "requests": 61,
+      "request_total": 265
+    },
+    "minus-0.050": {
+      "energy_eV": -4243.921715268658,
+      "fmax_eV_A": 7.602072916411024e-05,
+      "projected_gradient_inf_eV_A": 3.6889042733042086e-05,
+      "force_qualified": true,
+      "optimizer_success_flag": true,
+      "optimizer_message": "Optimization terminated successfully.",
+      "optimizer_steps": 45,
+      "torsion_deg_and_order": [
+        180.00003353230852,
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ],
+      "start_displacement_A": 0.05,
+      "side": "minus",
+      "requests": 59,
+      "request_total": 324,
+      "hessian_qualified": true,
+      "lowest_eigenvalue_eV_A2": 0.23235481234243488,
+      "stable_minimum_qualified": true,
+      "minimum_energy_eV": -4243.921715268658,
+      "hessian_stencil_spread_eV_A2": 0.00012739622317840978
+    },
+    "minus-0.050_hessian": {
+      "steps_A": [
+        0.001,
+        0.0005
+      ],
+      "stencil_spread_eV_A2": 0.00012739622317840978,
+      "antisymmetric_norms_eV_A2": [
+        0.0002689208992063542,
+        6.7230291861276e-05
+      ],
+      "eigenvalues_eV_A2": [
+        0.23235481234243488,
+        0.5612295296675933,
+        1.3932847594267683,
+        2.2684444909355683,
+        3.168940228613361,
+        4.92589477981972,
+        6.321796168205258,
+        7.794938361940581,
+        7.948088564044575,
+        8.675203782556611,
+        10.639548452533184,
+        13.770193127403678,
+        15.98039707492972,
+        16.549205325189533,
+        24.347261886057137,
+        24.74441943683394,
+        38.71587205376501,
+        57.68379422058097,
+        68.1749704111101,
+        86.55174629839854,
+        92.55536009448996,
+        102.26010988076054,
+        141.30856047389028,
+        146.31705954072
+      ],
+      "positive_resolved_hessian": true,
+      "criterion": "lambda0 > 5*stencil spread",
+      "requests": 96,
+      "request_total": 420
+    },
+    "plus-0.025": {
+      "energy_eV": -4243.837621580631,
+      "fmax_eV_A": 3.3590854069902314e-05,
+      "projected_gradient_inf_eV_A": 3.068494041250722e-05,
+      "force_qualified": true,
+      "optimizer_success_flag": true,
+      "optimizer_message": "Optimization terminated successfully.",
+      "optimizer_steps": 43,
+      "torsion_deg_and_order": [
+        27.025797557941523,
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ],
+      "start_displacement_A": 0.025,
+      "side": "plus",
+      "requests": 60,
+      "request_total": 480
+    },
+    "plus-0.050": {
+      "energy_eV": -4243.8376215796425,
+      "fmax_eV_A": 8.786149280476087e-05,
+      "projected_gradient_inf_eV_A": 7.379313505126417e-05,
+      "force_qualified": true,
+      "optimizer_success_flag": true,
+      "optimizer_message": "Optimization terminated successfully.",
+      "optimizer_steps": 44,
+      "torsion_deg_and_order": [
+        27.02854636649936,
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ],
+      "start_displacement_A": 0.05,
+      "side": "plus",
+      "requests": 57,
+      "request_total": 537,
+      "hessian_qualified": true,
+      "lowest_eigenvalue_eV_A2": 0.09733206710583465,
+      "stable_minimum_qualified": true,
+      "minimum_energy_eV": -4243.8376215796425,
+      "hessian_stencil_spread_eV_A2": 0.00012249602673000183
+    },
+    "plus-0.050_hessian": {
+      "steps_A": [
+        0.001,
+        0.0005
+      ],
+      "stencil_spread_eV_A2": 0.00012249602673000183,
+      "antisymmetric_norms_eV_A2": [
+        0.00021630479320478328,
+        5.407614941890219e-05
+      ],
+      "eigenvalues_eV_A2": [
+        0.09733206710583465,
+        0.7407445910710236,
+        1.3081009577038998,
+        2.809213202715319,
+        3.255555310618969,
+        4.853225420545731,
+        5.710179409933765,
+        7.292530946457496,
+        7.465605472287704,
+        9.826638489754412,
+        11.212975481374794,
+        12.520644489061029,
+        14.523468545268669,
+        17.684673667882304,
+        23.60366099163807,
+        24.24723164288497,
+        39.2395122615411,
+        53.55133580930643,
+        72.72276125245628,
+        85.50352970754454,
+        93.63956928065606,
+        96.1499366716295,
+        140.73970820015555,
+        145.5587109984179
+      ],
+      "positive_resolved_hessian": true,
+      "criterion": "lambda0 > 5*stencil spread",
+      "requests": 96,
+      "request_total": 633
+    }
+  },
+  "ts_certificate": {
+    "energy_eV": -4243.68756039635,
+    "fmax_eV_A": 1.1243919250223592e-09,
+    "projected_gradient_inf_eV_A": 1.004594324028591e-10,
+    "force_qualified": true,
+    "requests": 1,
+    "request_total": 108,
+    "stationary_qualified": true,
+    "torsion_deg_and_order": [
+      100.99960813433671,
+      [
+        0,
+        1,
+        2,
+        3
+      ]
+    ],
+    "hessian_qualified": true,
+    "negative_eigenvalue_eV_A2": -0.1882347322865371,
+    "next_eigenvalue_eV_A2": 0.8307102173666129
+  },
+  "same_side_endpoint_comparisons": {
+    "minus": {
+      "same_order_rmsd_A": 6.570270384238079e-06,
+      "energy_difference_025_minus_050_eV": -2.7284841053187847e-11,
+      "torsion_025_deg_and_order": [
+        180.0000338409914,
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ],
+      "torsion_050_deg_and_order": [
+        180.00003353230852,
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ],
+      "wrapped_torsion_difference_025_minus_050_deg": 3.0868287126395444e-07,
+      "interpretation": "geometry comparison only; no basin identity inferred"
+    },
+    "plus": {
+      "same_order_rmsd_A": 2.40899604264492e-05,
+      "energy_difference_025_minus_050_eV": -9.88620740827173e-10,
+      "torsion_025_deg_and_order": [
+        27.025797557941523,
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ],
+      "torsion_050_deg_and_order": [
+        27.02854636649936,
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ],
+      "wrapped_torsion_difference_025_minus_050_deg": -0.002748808557839766,
+      "interpretation": "geometry comparison only; no basin identity inferred"
+    }
+  },
+  "baseline_W_differences": {
+    "minus": {
+      "frozen_at_endpoint": "minus-0.050",
+      "pair_count": 9,
+      "pairs": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          3,
+          9
+        ]
+      ],
+      "reference_distances_A": [
+        1.3274691025219394,
+        1.08123890100291,
+        1.083794397764745,
+        1.460210343595341,
+        1.0858444000584373,
+        1.3274699432301922,
+        1.0858438027202115,
+        1.0837947849081584,
+        1.0812390718757527
+      ],
+      "strengths_eV": [
+        0.1034052014350891,
+        0.12894510269165038,
+        0.12894510269165038,
+        0.1034052014350891,
+        0.12894510269165038,
+        0.1034052014350891,
+        0.12894510269165038,
+        0.12894510269165038,
+        0.12894510269165038
+      ],
+      "xi": 0.2,
+      "W_TS_eV": 1.0763126919607204,
+      "W_min_eV": 1.0838862204551696,
+      "baseline_barrier_slope_W_TS_minus_W_min_eV": -0.007573528494449144,
+      "interpretation": "a=0 envelope-slope prediction for this frozen W; no finite-a biased branch verified"
+    },
+    "plus": {
+      "frozen_at_endpoint": "plus-0.050",
+      "pair_count": 9,
+      "pairs": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          3,
+          9
+        ]
+      ],
+      "reference_distances_A": [
+        1.3276251653647333,
+        1.0812753976444327,
+        1.083419586734511,
+        1.4707519208995672,
+        1.0852243866408517,
+        1.3276254131653367,
+        1.0852246787985693,
+        1.0834213558273937,
+        1.0812756867022426
+      ],
+      "strengths_eV": [
+        0.1034052014350891,
+        0.12894510269165038,
+        0.12894510269165038,
+        0.1034052014350891,
+        0.12894510269165038,
+        0.1034052014350891,
+        0.12894510269165038,
+        0.12894510269165038,
+        0.12894510269165038
+      ],
+      "xi": 0.2,
+      "W_TS_eV": 1.0788437543448728,
+      "W_min_eV": 1.0838862204551696,
+      "baseline_barrier_slope_W_TS_minus_W_min_eV": -0.005042466110296795,
+      "interpretation": "a=0 envelope-slope prediction for this frozen W; no finite-a biased branch verified"
+    }
+  },
+  "requests": 633,
+  "denials": 0,
+  "request_boundary": null,
+  "actual_calculate_calls": 627,
+  "counted_wall_seconds": 13.432648777030408,
+  "total_seconds_after_model_setup": 13.3261117041111
+}

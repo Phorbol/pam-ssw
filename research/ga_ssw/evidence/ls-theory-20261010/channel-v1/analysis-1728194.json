@@ -1,0 +1,36 @@
+[
+  {
+    "side": "minus",
+    "baseline_barrier_eV": 0.23415487230795407,
+    "slope_eV": -0.007573533233656837,
+    "chi_eV": 0.06804362784796582,
+    "minus_b_over_sqrt_chi_sqrt_eV": 0.0290338617942462,
+    "torsion": [
+      180.00003353230852,
+      [
+        0,
+        1,
+        2,
+        3
+      ]
+    ],
+    "caveat": "weak a=0 branch prediction; numerical bidirectional quench evidence, not IRC or finite-a test"
+  },
+  {
+    "side": "plus",
+    "baseline_barrier_eV": 0.15006118329256424,
+    "slope_eV": -0.005042474398004426,
+    "chi_eV": 0.06810199113599319,
+    "minus_b_over_sqrt_chi_sqrt_eV": 0.01932252139991155,
+    "torsion": [
+      27.02854636649936,
+      [
+        0,
+        1,
+        2,
+        3
+      ]
+    ],
+    "caveat": "weak a=0 branch prediction; numerical bidirectional quench evidence, not IRC or finite-a test"
+  }
+]
