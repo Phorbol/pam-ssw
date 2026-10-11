@@ -1,0 +1,18 @@
+{
+  "commit": "296d7d4e37b4167e4ec6bbbbb5a8d98a6ae8a38f",
+  "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/shape-single-escape-v1/source",
+  "inputs_and_helpers": [
+    "research/ga_ssw/probe_ls_shape_paired_escape.py",
+    "research/ga_ssw/analyze_c4h6_ls_reaction_coverage.py",
+    "research/ga_ssw/evidence/periodic-rotation-priority-20260923/ledger.py",
+    "research/ga_ssw/evidence/c4h6-mh1-lifecycle-20260924/effective_config.json",
+    "research/ga_ssw/evidence/ls-theory-20261010/shape-single-escape-protocol.md",
+    "research/ga_ssw/evidence/ls-theory-20261010/channel-v1/run-1728173/plus-0.050.extxyz",
+    "research/ga_ssw/evidence/ls-theory-20261010/channel-v1/run-1728173/minus-0.050.extxyz",
+    "research/ga_ssw/evidence/ls-theory-20261010/c60-finite-response-v1/run-1729152/minimum.extxyz",
+    "research/ga_ssw/evidence/c60-ls-source3-qualification-20261007/qualification-1664282/final-candidate.extxyz"
+  ],
+  "core": "pamssw snapshot",
+  "purpose": "single-step development ablation",
+  "bounds": "96000 search +100 qualification E/F; one V100 <=60min"
+}

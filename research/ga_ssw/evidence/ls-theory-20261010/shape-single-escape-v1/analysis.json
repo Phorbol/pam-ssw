@@ -1,0 +1,2462 @@
+{
+  "analysis_scope": "offline read of campaign summary, each arm result.json, and saved initial/landing geometries; no PES or request ledgers",
+  "campaign_status": "all_24_arms_recorded",
+  "expected_arms": 24,
+  "present_unique_expected_arms": 24,
+  "missing_expected_arm_ids": [],
+  "duplicate_arm_ids": [],
+  "unexpected_arm_ids": [],
+  "input_qualifications": [
+    {
+      "name": "c4-gauche",
+      "status": "qualified",
+      "fmax_eV_A": 8.814115979018153e-05,
+      "energy_eV": -4243.8376215796425,
+      "source3_preflight": null
+    },
+    {
+      "name": "c4-trans",
+      "status": "qualified",
+      "fmax_eV_A": 7.619422360017856e-05,
+      "energy_eV": -4243.921715268658,
+      "source3_preflight": null
+    },
+    {
+      "name": "c60-minimum",
+      "status": "qualified",
+      "fmax_eV_A": 0.00011416349009278498,
+      "energy_eV": -62214.17099170079,
+      "source3_preflight": null
+    },
+    {
+      "name": "c60-isomer3",
+      "status": "qualified",
+      "fmax_eV_A": 0.01320693440306521,
+      "energy_eV": -62213.55121014449,
+      "source3_preflight": {
+        "force_at_most_0.05_eV_A": true,
+        "connected_at_1.70A": true,
+        "all_degree_three_at_1.70A": true
+      }
+    }
+  ],
+  "input_qualification_requests": 4,
+  "campaign_search_requests": 12735,
+  "campaign_fresh_requests": 24,
+  "campaign_qualification_and_fresh_requests": 28,
+  "campaign_elapsed_seconds": 472.0318386568688,
+  "by_arm": {
+    "none": {
+      "expected": 8,
+      "present": 8,
+      "complete_one_step_records": 8,
+      "driver_runs_completed": 8,
+      "candidate_generated_independent_of_mc": 8,
+      "fresh_force_qualified_candidates": 8,
+      "fresh_checks_completed": 8,
+      "fresh_checks_failed": 0,
+      "generated_candidates_without_fresh_result": 0,
+      "search_requests_total": 4031.0,
+      "fresh_requests_total": 8.0,
+      "actual_calculate_calls_total": 4039.0,
+      "elapsed_seconds_total": 150.35368139040656,
+      "failures_or_censored": 0,
+      "mc_accepted": 4,
+      "landing_minus_actual_initial_true_energy_deltas_eV": [
+        -0.08405700096591318,
+        -0.08308837802633207,
+        0.00028031537749484414,
+        0.08428943663602695,
+        10.250110286367999,
+        0.0012515461494331248,
+        0.5855281947151525,
+        0.5851135539196548
+      ],
+      "landing_to_actual_initial_radius_ratios": [
+        1.0460539937858833,
+        1.046334963450023,
+        0.9997451981488811,
+        0.9559337729771457,
+        1.0114675177680292,
+        1.0000409362471487,
+        1.0006991068881679,
+        1.0006308678809064
+      ],
+      "ls_prequench_records_present": 0
+    },
+    "pair-0.03": {
+      "expected": 8,
+      "present": 8,
+      "complete_one_step_records": 8,
+      "driver_runs_completed": 8,
+      "candidate_generated_independent_of_mc": 8,
+      "fresh_force_qualified_candidates": 8,
+      "fresh_checks_completed": 8,
+      "fresh_checks_failed": 0,
+      "generated_candidates_without_fresh_result": 0,
+      "search_requests_total": 4321.0,
+      "fresh_requests_total": 8.0,
+      "actual_calculate_calls_total": 4329.0,
+      "elapsed_seconds_total": 157.64385756477714,
+      "failures_or_censored": 0,
+      "mc_accepted": 4,
+      "landing_minus_actual_initial_true_energy_deltas_eV": [
+        5.701426744053606e-05,
+        -0.0837665969020236,
+        0.0004558291784633184,
+        0.08444724825221783,
+        10.248934646231646,
+        0.0013067707695881836,
+        0.5853225264145294,
+        0.5858941395999864
+      ],
+      "landing_to_actual_initial_radius_ratios": [
+        1.0000282604560224,
+        1.0459558201141086,
+        0.9994488823516805,
+        0.9562422625596149,
+        1.011515081143293,
+        1.0001468451821338,
+        1.0007526008981646,
+        1.0005982304583998
+      ],
+      "ls_prequench_records_present": 8
+    },
+    "shape-0.03": {
+      "expected": 8,
+      "present": 8,
+      "complete_one_step_records": 8,
+      "driver_runs_completed": 8,
+      "candidate_generated_independent_of_mc": 8,
+      "fresh_force_qualified_candidates": 8,
+      "fresh_checks_completed": 8,
+      "fresh_checks_failed": 0,
+      "generated_candidates_without_fresh_result": 0,
+      "search_requests_total": 4383.0,
+      "fresh_requests_total": 8.0,
+      "actual_calculate_calls_total": 4391.0,
+      "elapsed_seconds_total": 158.7411951746326,
+      "failures_or_censored": 0,
+      "mc_accepted": 4,
+      "landing_minus_actual_initial_true_energy_deltas_eV": [
+        -0.08273797251331416,
+        -0.0837056884302001,
+        0.0009844110963967978,
+        0.08415803760544804,
+        10.249175770644797,
+        0.0014502307240036316,
+        0.58518299816933,
+        0.5868915805258439
+      ],
+      "landing_to_actual_initial_radius_ratios": [
+        1.0464142217941859,
+        1.0464518409892027,
+        0.9999603524296465,
+        0.9558485596088657,
+        1.011521082216308,
+        1.000089238166724,
+        1.0006767718742673,
+        1.0005791242673743
+      ],
+      "ls_prequench_records_present": 8
+    }
+  },
+  "paired_graph_change_comparisons_by_cutoff": {
+    "shape-0.03_vs_pair-0.03": {
+      "c4-gauche:hc-table-plus-0.1A": {
+        "both_unchanged_graph": 2
+      },
+      "c4-trans:hc-table-plus-0.1A": {
+        "both_unchanged_graph": 2
+      },
+      "c60-minimum:1.64A": {
+        "both_changed_graph": 1,
+        "both_unchanged_graph": 1
+      },
+      "c60-minimum:1.70A": {
+        "both_changed_graph": 1,
+        "both_unchanged_graph": 1
+      },
+      "c60-minimum:1.80A": {
+        "both_changed_graph": 1,
+        "both_unchanged_graph": 1
+      },
+      "c60-isomer3:1.64A": {
+        "both_changed_graph": 2
+      },
+      "c60-isomer3:1.70A": {
+        "both_changed_graph": 2
+      },
+      "c60-isomer3:1.80A": {
+        "both_changed_graph": 2
+      }
+    },
+    "shape-0.03_vs_none": {
+      "c4-gauche:hc-table-plus-0.1A": {
+        "both_unchanged_graph": 2
+      },
+      "c4-trans:hc-table-plus-0.1A": {
+        "both_unchanged_graph": 2
+      },
+      "c60-minimum:1.64A": {
+        "both_changed_graph": 1,
+        "both_unchanged_graph": 1
+      },
+      "c60-minimum:1.70A": {
+        "both_changed_graph": 1,
+        "both_unchanged_graph": 1
+      },
+      "c60-minimum:1.80A": {
+        "both_changed_graph": 1,
+        "both_unchanged_graph": 1
+      },
+      "c60-isomer3:1.64A": {
+        "both_changed_graph": 2
+      },
+      "c60-isomer3:1.70A": {
+        "both_changed_graph": 2
+      },
+      "c60-isomer3:1.80A": {
+        "both_changed_graph": 2
+      }
+    },
+    "pair-0.03_vs_none": {
+      "c4-gauche:hc-table-plus-0.1A": {
+        "both_unchanged_graph": 2
+      },
+      "c4-trans:hc-table-plus-0.1A": {
+        "both_unchanged_graph": 2
+      },
+      "c60-minimum:1.64A": {
+        "both_changed_graph": 1,
+        "both_unchanged_graph": 1
+      },
+      "c60-minimum:1.70A": {
+        "both_changed_graph": 1,
+        "both_unchanged_graph": 1
+      },
+      "c60-minimum:1.80A": {
+        "both_changed_graph": 1,
+        "both_unchanged_graph": 1
+      },
+      "c60-isomer3:1.64A": {
+        "both_changed_graph": 2
+      },
+      "c60-isomer3:1.70A": {
+        "both_changed_graph": 2
+      },
+      "c60-isomer3:1.80A": {
+        "both_changed_graph": 2
+      }
+    }
+  },
+  "paired_landing_graph_isomorphism": {
+    "shape-0.03_vs_pair-0.03": {
+      "c4-gauche-seed701": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "hc-table-plus-0.1A": true
+        }
+      },
+      "c4-gauche-seed702": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "hc-table-plus-0.1A": true
+        }
+      },
+      "c4-trans-seed701": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "hc-table-plus-0.1A": true
+        }
+      },
+      "c4-trans-seed702": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "hc-table-plus-0.1A": true
+        }
+      },
+      "c60-minimum-seed701": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "1.64A": true,
+          "1.70A": true,
+          "1.80A": true
+        }
+      },
+      "c60-minimum-seed702": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "1.64A": true,
+          "1.70A": true,
+          "1.80A": true
+        }
+      },
+      "c60-isomer3-seed701": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "1.64A": true,
+          "1.70A": true,
+          "1.80A": true
+        }
+      },
+      "c60-isomer3-seed702": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "1.64A": true,
+          "1.70A": true,
+          "1.80A": true
+        }
+      }
+    },
+    "shape-0.03_vs_none": {
+      "c4-gauche-seed701": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "hc-table-plus-0.1A": true
+        }
+      },
+      "c4-gauche-seed702": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "hc-table-plus-0.1A": true
+        }
+      },
+      "c4-trans-seed701": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "hc-table-plus-0.1A": true
+        }
+      },
+      "c4-trans-seed702": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "hc-table-plus-0.1A": true
+        }
+      },
+      "c60-minimum-seed701": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "1.64A": true,
+          "1.70A": true,
+          "1.80A": true
+        }
+      },
+      "c60-minimum-seed702": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "1.64A": true,
+          "1.70A": true,
+          "1.80A": true
+        }
+      },
+      "c60-isomer3-seed701": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "1.64A": true,
+          "1.70A": true,
+          "1.80A": true
+        }
+      },
+      "c60-isomer3-seed702": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "1.64A": true,
+          "1.70A": true,
+          "1.80A": true
+        }
+      }
+    },
+    "pair-0.03_vs_none": {
+      "c4-gauche-seed701": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "hc-table-plus-0.1A": true
+        }
+      },
+      "c4-gauche-seed702": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "hc-table-plus-0.1A": true
+        }
+      },
+      "c4-trans-seed701": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "hc-table-plus-0.1A": true
+        }
+      },
+      "c4-trans-seed702": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "hc-table-plus-0.1A": true
+        }
+      },
+      "c60-minimum-seed701": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "1.64A": true,
+          "1.70A": true,
+          "1.80A": true
+        }
+      },
+      "c60-minimum-seed702": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "1.64A": true,
+          "1.70A": true,
+          "1.80A": true
+        }
+      },
+      "c60-isomer3-seed701": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "1.64A": true,
+          "1.70A": true,
+          "1.80A": true
+        }
+      },
+      "c60-isomer3-seed702": {
+        "status": "both_valid_true_candidates",
+        "by_cutoff": {
+          "1.64A": true,
+          "1.70A": true,
+          "1.80A": true
+        }
+      }
+    }
+  },
+  "paired_landing_graph_isomorphism_counts": {
+    "shape-0.03_vs_pair-0.03": {
+      "c4-gauche:hc-table-plus-0.1A": {
+        "isomorphic": 2
+      },
+      "c4-trans:hc-table-plus-0.1A": {
+        "isomorphic": 2
+      },
+      "c60-minimum:1.64A": {
+        "isomorphic": 2
+      },
+      "c60-minimum:1.70A": {
+        "isomorphic": 2
+      },
+      "c60-minimum:1.80A": {
+        "isomorphic": 2
+      },
+      "c60-isomer3:1.64A": {
+        "isomorphic": 2
+      },
+      "c60-isomer3:1.70A": {
+        "isomorphic": 2
+      },
+      "c60-isomer3:1.80A": {
+        "isomorphic": 2
+      }
+    },
+    "shape-0.03_vs_none": {
+      "c4-gauche:hc-table-plus-0.1A": {
+        "isomorphic": 2
+      },
+      "c4-trans:hc-table-plus-0.1A": {
+        "isomorphic": 2
+      },
+      "c60-minimum:1.64A": {
+        "isomorphic": 2
+      },
+      "c60-minimum:1.70A": {
+        "isomorphic": 2
+      },
+      "c60-minimum:1.80A": {
+        "isomorphic": 2
+      },
+      "c60-isomer3:1.64A": {
+        "isomorphic": 2
+      },
+      "c60-isomer3:1.70A": {
+        "isomorphic": 2
+      },
+      "c60-isomer3:1.80A": {
+        "isomorphic": 2
+      }
+    },
+    "pair-0.03_vs_none": {
+      "c4-gauche:hc-table-plus-0.1A": {
+        "isomorphic": 2
+      },
+      "c4-trans:hc-table-plus-0.1A": {
+        "isomorphic": 2
+      },
+      "c60-minimum:1.64A": {
+        "isomorphic": 2
+      },
+      "c60-minimum:1.70A": {
+        "isomorphic": 2
+      },
+      "c60-minimum:1.80A": {
+        "isomorphic": 2
+      },
+      "c60-isomer3:1.64A": {
+        "isomorphic": 2
+      },
+      "c60-isomer3:1.70A": {
+        "isomorphic": 2
+      },
+      "c60-isomer3:1.80A": {
+        "isomorphic": 2
+      }
+    }
+  },
+  "runs": [
+    {
+      "run_id": "c4-gauche-seed701-none",
+      "start": "c4-gauche",
+      "seed": 701,
+      "arm": "none",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "lower_true_energy",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c4-gauche-seed701-none/result.json",
+        "input_geometry": "c4-gauche-seed701-none/source-input.extxyz",
+        "actual_initial_geometry": "c4-gauche-seed701-none/initial-minimum.extxyz",
+        "landing_geometry": "c4-gauche-seed701-none/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": true,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "hc-table-plus-0.1A": "unchanged_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "c4_torsion_raw_input_deg": 27.028546714427122,
+      "c4_torsion_actual_initial_deg": 27.028546714427122,
+      "c4_torsion_landing_deg": 180.11488087487143,
+      "input_true_energy_eV": -4243.8376215796425,
+      "initial_true_energy_eV": -4243.8376215796425,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -4243.921678580608,
+      "fresh_true_energy_eV": -4243.921678580608,
+      "landing_minus_actual_initial_true_energy_eV": -0.08405700096591318,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 5.930564577778074,
+      "actual_initial_radius_norm_A": 5.930564577778074,
+      "landing_radius_norm_A": 6.2036907619898445,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.0460539937858833,
+      "search_requests": 410,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 411,
+      "elapsed_seconds": 8.97985521517694,
+      "gaussian_count": 16,
+      "ls_prequench": null,
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c4-gauche-seed701-pair-0.03",
+      "start": "c4-gauche",
+      "seed": 701,
+      "arm": "pair-0.03",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c4-gauche-seed701-pair-0.03/result.json",
+        "input_geometry": "c4-gauche-seed701-pair-0.03/source-input.extxyz",
+        "actual_initial_geometry": "c4-gauche-seed701-pair-0.03/initial-minimum.extxyz",
+        "landing_geometry": "c4-gauche-seed701-pair-0.03/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": true,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "hc-table-plus-0.1A": "unchanged_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "c4_torsion_raw_input_deg": 27.028546714427122,
+      "c4_torsion_actual_initial_deg": 27.028546714427122,
+      "c4_torsion_landing_deg": 333.03804513869363,
+      "input_true_energy_eV": -4243.8376215796425,
+      "initial_true_energy_eV": -4243.8376215796425,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -4243.837564565375,
+      "fresh_true_energy_eV": -4243.837564565375,
+      "landing_minus_actual_initial_true_energy_eV": 5.701426744053606e-05,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 5.930564577778074,
+      "actual_initial_radius_norm_A": 5.930564577778074,
+      "landing_radius_norm_A": 5.930732178237512,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.0000282604560224,
+      "search_requests": 642,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 643,
+      "elapsed_seconds": 11.841488461010158,
+      "gaussian_count": 25,
+      "ls_prequench": {
+        "qualification": "force",
+        "exit_policy": "force_or_step_limit",
+        "max_force_eV_A": 0.04808760429771745,
+        "converged": true,
+        "optimizer_steps": 4,
+        "soft_quench_requests": 5,
+        "total_preparation_requests": 7,
+        "true_energy_before_eV": -4243.8376215796425,
+        "true_energy_after_eV": -4243.806085204743,
+        "telemetry": {
+          "backend": "safe-lbfgs-total",
+          "termination_reason": "converged",
+          "converged": true,
+          "optimizer_success": true,
+          "evaluator_calls": 5,
+          "backend_evaluations": 5,
+          "accepted_steps": 4,
+          "rejected_steps": 0,
+          "line_search_evaluations": 4
+        }
+      },
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c4-gauche-seed701-shape-0.03",
+      "start": "c4-gauche",
+      "seed": 701,
+      "arm": "shape-0.03",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "lower_true_energy",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c4-gauche-seed701-shape-0.03/result.json",
+        "input_geometry": "c4-gauche-seed701-shape-0.03/source-input.extxyz",
+        "actual_initial_geometry": "c4-gauche-seed701-shape-0.03/initial-minimum.extxyz",
+        "landing_geometry": "c4-gauche-seed701-shape-0.03/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": true,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "hc-table-plus-0.1A": "unchanged_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "c4_torsion_raw_input_deg": 27.028546714427122,
+      "c4_torsion_actual_initial_deg": 27.028546714427122,
+      "c4_torsion_landing_deg": 176.30665661436888,
+      "input_true_energy_eV": -4243.8376215796425,
+      "initial_true_energy_eV": -4243.8376215796425,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -4243.920359552156,
+      "fresh_true_energy_eV": -4243.920359552156,
+      "landing_minus_actual_initial_true_energy_eV": -0.08273797251331416,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 5.930564577778074,
+      "actual_initial_radius_norm_A": 5.930564577778074,
+      "landing_radius_norm_A": 6.205827117455807,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.0464142217941859,
+      "search_requests": 500,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 501,
+      "elapsed_seconds": 9.264752644812688,
+      "gaussian_count": 19,
+      "ls_prequench": {
+        "qualification": "force",
+        "exit_policy": "force_or_step_limit",
+        "max_force_eV_A": 0.07547015756833067,
+        "converged": true,
+        "optimizer_steps": 12,
+        "soft_quench_requests": 16,
+        "total_preparation_requests": 18,
+        "true_energy_before_eV": -4243.8376215796425,
+        "true_energy_after_eV": -4243.779326385747,
+        "telemetry": {
+          "backend": "safe-lbfgs-total",
+          "termination_reason": "converged",
+          "converged": true,
+          "optimizer_success": true,
+          "evaluator_calls": 16,
+          "backend_evaluations": 16,
+          "accepted_steps": 12,
+          "rejected_steps": 3,
+          "line_search_evaluations": 15
+        }
+      },
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c4-gauche-seed702-none",
+      "start": "c4-gauche",
+      "seed": 702,
+      "arm": "none",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "lower_true_energy",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c4-gauche-seed702-none/result.json",
+        "input_geometry": "c4-gauche-seed702-none/source-input.extxyz",
+        "actual_initial_geometry": "c4-gauche-seed702-none/initial-minimum.extxyz",
+        "landing_geometry": "c4-gauche-seed702-none/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": true,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "hc-table-plus-0.1A": "unchanged_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "c4_torsion_raw_input_deg": 27.028546714427122,
+      "c4_torsion_actual_initial_deg": 27.028546714427122,
+      "c4_torsion_landing_deg": 182.55442390116866,
+      "input_true_energy_eV": -4243.8376215796425,
+      "initial_true_energy_eV": -4243.8376215796425,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -4243.920709957669,
+      "fresh_true_energy_eV": -4243.920709957669,
+      "landing_minus_actual_initial_true_energy_eV": -0.08308837802633207,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 5.930564577778074,
+      "actual_initial_radius_norm_A": 5.930564577778074,
+      "landing_radius_norm_A": 6.205357070727422,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.046334963450023,
+      "search_requests": 264,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 265,
+      "elapsed_seconds": 5.197141859913245,
+      "gaussian_count": 10,
+      "ls_prequench": null,
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c4-gauche-seed702-pair-0.03",
+      "start": "c4-gauche",
+      "seed": 702,
+      "arm": "pair-0.03",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "lower_true_energy",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c4-gauche-seed702-pair-0.03/result.json",
+        "input_geometry": "c4-gauche-seed702-pair-0.03/source-input.extxyz",
+        "actual_initial_geometry": "c4-gauche-seed702-pair-0.03/initial-minimum.extxyz",
+        "landing_geometry": "c4-gauche-seed702-pair-0.03/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": true,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "hc-table-plus-0.1A": "unchanged_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "c4_torsion_raw_input_deg": 27.028546714427122,
+      "c4_torsion_actual_initial_deg": 27.028546714427122,
+      "c4_torsion_landing_deg": 180.91755677570313,
+      "input_true_energy_eV": -4243.8376215796425,
+      "initial_true_energy_eV": -4243.8376215796425,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -4243.9213881765445,
+      "fresh_true_energy_eV": -4243.9213881765445,
+      "landing_minus_actual_initial_true_energy_eV": -0.0837665969020236,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 5.930564577778074,
+      "actual_initial_radius_norm_A": 5.930564577778074,
+      "landing_radius_norm_A": 6.203108536689547,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.0459558201141086,
+      "search_requests": 270,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 271,
+      "elapsed_seconds": 5.009532030904666,
+      "gaussian_count": 10,
+      "ls_prequench": {
+        "qualification": "force",
+        "exit_policy": "force_or_step_limit",
+        "max_force_eV_A": 0.04808760429771745,
+        "converged": true,
+        "optimizer_steps": 4,
+        "soft_quench_requests": 5,
+        "total_preparation_requests": 7,
+        "true_energy_before_eV": -4243.8376215796425,
+        "true_energy_after_eV": -4243.806085204743,
+        "telemetry": {
+          "backend": "safe-lbfgs-total",
+          "termination_reason": "converged",
+          "converged": true,
+          "optimizer_success": true,
+          "evaluator_calls": 5,
+          "backend_evaluations": 5,
+          "accepted_steps": 4,
+          "rejected_steps": 0,
+          "line_search_evaluations": 4
+        }
+      },
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c4-gauche-seed702-shape-0.03",
+      "start": "c4-gauche",
+      "seed": 702,
+      "arm": "shape-0.03",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "lower_true_energy",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c4-gauche-seed702-shape-0.03/result.json",
+        "input_geometry": "c4-gauche-seed702-shape-0.03/source-input.extxyz",
+        "actual_initial_geometry": "c4-gauche-seed702-shape-0.03/initial-minimum.extxyz",
+        "landing_geometry": "c4-gauche-seed702-shape-0.03/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": true,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "hc-table-plus-0.1A": "unchanged_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "c4_torsion_raw_input_deg": 27.028546714427122,
+      "c4_torsion_actual_initial_deg": 27.028546714427122,
+      "c4_torsion_landing_deg": 180.55199838689705,
+      "input_true_energy_eV": -4243.8376215796425,
+      "initial_true_energy_eV": -4243.8376215796425,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -4243.921327268073,
+      "fresh_true_energy_eV": -4243.921327268073,
+      "landing_minus_actual_initial_true_energy_eV": -0.0837056884302001,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 5.930564577778074,
+      "actual_initial_radius_norm_A": 5.930564577778074,
+      "landing_radius_norm_A": 6.206050220521219,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.0464518409892027,
+      "search_requests": 498,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 499,
+      "elapsed_seconds": 9.258433080976829,
+      "gaussian_count": 17,
+      "ls_prequench": {
+        "qualification": "force",
+        "exit_policy": "force_or_step_limit",
+        "max_force_eV_A": 0.07547015756833067,
+        "converged": true,
+        "optimizer_steps": 12,
+        "soft_quench_requests": 16,
+        "total_preparation_requests": 18,
+        "true_energy_before_eV": -4243.8376215796425,
+        "true_energy_after_eV": -4243.779326385747,
+        "telemetry": {
+          "backend": "safe-lbfgs-total",
+          "termination_reason": "converged",
+          "converged": true,
+          "optimizer_success": true,
+          "evaluator_calls": 16,
+          "backend_evaluations": 16,
+          "accepted_steps": 12,
+          "rejected_steps": 3,
+          "line_search_evaluations": 15
+        }
+      },
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c4-trans-seed701-none",
+      "start": "c4-trans",
+      "seed": 701,
+      "arm": "none",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c4-trans-seed701-none/result.json",
+        "input_geometry": "c4-trans-seed701-none/source-input.extxyz",
+        "actual_initial_geometry": "c4-trans-seed701-none/initial-minimum.extxyz",
+        "landing_geometry": "c4-trans-seed701-none/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": true,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "hc-table-plus-0.1A": "unchanged_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "c4_torsion_raw_input_deg": 180.0000336107686,
+      "c4_torsion_actual_initial_deg": 180.0000336107686,
+      "c4_torsion_landing_deg": 180.20307910562195,
+      "input_true_energy_eV": -4243.921715268658,
+      "initial_true_energy_eV": -4243.921715268658,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -4243.92143495328,
+      "fresh_true_energy_eV": -4243.92143495328,
+      "landing_minus_actual_initial_true_energy_eV": 0.00028031537749484414,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 6.204896573105103,
+      "actual_initial_radius_norm_A": 6.204896573105103,
+      "landing_radius_norm_A": 6.203315553972274,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 0.9997451981488811,
+      "search_requests": 708,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 709,
+      "elapsed_seconds": 12.93153977394104,
+      "gaussian_count": 25,
+      "ls_prequench": null,
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c4-trans-seed701-pair-0.03",
+      "start": "c4-trans",
+      "seed": 701,
+      "arm": "pair-0.03",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c4-trans-seed701-pair-0.03/result.json",
+        "input_geometry": "c4-trans-seed701-pair-0.03/source-input.extxyz",
+        "actual_initial_geometry": "c4-trans-seed701-pair-0.03/initial-minimum.extxyz",
+        "landing_geometry": "c4-trans-seed701-pair-0.03/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": true,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "hc-table-plus-0.1A": "unchanged_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "c4_torsion_raw_input_deg": 180.0000336107686,
+      "c4_torsion_actual_initial_deg": 180.0000336107686,
+      "c4_torsion_landing_deg": 180.1292530270726,
+      "input_true_energy_eV": -4243.921715268658,
+      "initial_true_energy_eV": -4243.921715268658,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -4243.921259439479,
+      "fresh_true_energy_eV": -4243.921259439479,
+      "landing_minus_actual_initial_true_energy_eV": 0.0004558291784633184,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 6.204896573105103,
+      "actual_initial_radius_norm_A": 6.204896573105103,
+      "landing_radius_norm_A": 6.201476945097667,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 0.9994488823516805,
+      "search_requests": 675,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 676,
+      "elapsed_seconds": 12.40623833797872,
+      "gaussian_count": 25,
+      "ls_prequench": {
+        "qualification": "force",
+        "exit_policy": "force_or_step_limit",
+        "max_force_eV_A": 0.05802945789866356,
+        "converged": true,
+        "optimizer_steps": 4,
+        "soft_quench_requests": 5,
+        "total_preparation_requests": 7,
+        "true_energy_before_eV": -4243.921715268658,
+        "true_energy_after_eV": -4243.890153253136,
+        "telemetry": {
+          "backend": "safe-lbfgs-total",
+          "termination_reason": "converged",
+          "converged": true,
+          "optimizer_success": true,
+          "evaluator_calls": 5,
+          "backend_evaluations": 5,
+          "accepted_steps": 4,
+          "rejected_steps": 0,
+          "line_search_evaluations": 4
+        }
+      },
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c4-trans-seed701-shape-0.03",
+      "start": "c4-trans",
+      "seed": 701,
+      "arm": "shape-0.03",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c4-trans-seed701-shape-0.03/result.json",
+        "input_geometry": "c4-trans-seed701-shape-0.03/source-input.extxyz",
+        "actual_initial_geometry": "c4-trans-seed701-shape-0.03/initial-minimum.extxyz",
+        "landing_geometry": "c4-trans-seed701-shape-0.03/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": true,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "hc-table-plus-0.1A": "unchanged_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "c4_torsion_raw_input_deg": 180.0000336107686,
+      "c4_torsion_actual_initial_deg": 180.0000336107686,
+      "c4_torsion_landing_deg": 176.88680305035842,
+      "input_true_energy_eV": -4243.921715268658,
+      "initial_true_energy_eV": -4243.921715268658,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -4243.9207308575615,
+      "fresh_true_energy_eV": -4243.9207308575615,
+      "landing_minus_actual_initial_true_energy_eV": 0.0009844110963967978,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 6.204896573105103,
+      "actual_initial_radius_norm_A": 6.204896573105103,
+      "landing_radius_norm_A": 6.2046505640316845,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 0.9999603524296465,
+      "search_requests": 672,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 673,
+      "elapsed_seconds": 12.463438152801245,
+      "gaussian_count": 25,
+      "ls_prequench": {
+        "qualification": "force",
+        "exit_policy": "force_or_step_limit",
+        "max_force_eV_A": 0.0835864209732781,
+        "converged": true,
+        "optimizer_steps": 8,
+        "soft_quench_requests": 10,
+        "total_preparation_requests": 12,
+        "true_energy_before_eV": -4243.921715268658,
+        "true_energy_after_eV": -4243.882709212263,
+        "telemetry": {
+          "backend": "safe-lbfgs-total",
+          "termination_reason": "converged",
+          "converged": true,
+          "optimizer_success": true,
+          "evaluator_calls": 10,
+          "backend_evaluations": 10,
+          "accepted_steps": 8,
+          "rejected_steps": 1,
+          "line_search_evaluations": 9
+        }
+      },
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c4-trans-seed702-none",
+      "start": "c4-trans",
+      "seed": 702,
+      "arm": "none",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c4-trans-seed702-none/result.json",
+        "input_geometry": "c4-trans-seed702-none/source-input.extxyz",
+        "actual_initial_geometry": "c4-trans-seed702-none/initial-minimum.extxyz",
+        "landing_geometry": "c4-trans-seed702-none/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": false,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "hc-table-plus-0.1A": "unchanged_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "c4_torsion_raw_input_deg": 180.0000336107686,
+      "c4_torsion_actual_initial_deg": 180.0000336107686,
+      "c4_torsion_landing_deg": 331.4996394619828,
+      "input_true_energy_eV": -4243.921715268658,
+      "initial_true_energy_eV": -4243.921715268658,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -4243.837425832022,
+      "fresh_true_energy_eV": -4243.837425832022,
+      "landing_minus_actual_initial_true_energy_eV": 0.08428943663602695,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 6.204896573105103,
+      "actual_initial_radius_norm_A": 6.204896573105103,
+      "landing_radius_norm_A": 5.931470192061322,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 0.9559337729771457,
+      "search_requests": 719,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 720,
+      "elapsed_seconds": 13.208004399202764,
+      "gaussian_count": 25,
+      "ls_prequench": null,
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c4-trans-seed702-pair-0.03",
+      "start": "c4-trans",
+      "seed": 702,
+      "arm": "pair-0.03",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c4-trans-seed702-pair-0.03/result.json",
+        "input_geometry": "c4-trans-seed702-pair-0.03/source-input.extxyz",
+        "actual_initial_geometry": "c4-trans-seed702-pair-0.03/initial-minimum.extxyz",
+        "landing_geometry": "c4-trans-seed702-pair-0.03/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": false,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "hc-table-plus-0.1A": "unchanged_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "c4_torsion_raw_input_deg": 180.0000336107686,
+      "c4_torsion_actual_initial_deg": 180.0000336107686,
+      "c4_torsion_landing_deg": 330.87046131751134,
+      "input_true_energy_eV": -4243.921715268658,
+      "initial_true_energy_eV": -4243.921715268658,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -4243.837268020406,
+      "fresh_true_energy_eV": -4243.837268020406,
+      "landing_minus_actual_initial_true_energy_eV": 0.08444724825221783,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 6.204896573105103,
+      "actual_initial_radius_norm_A": 6.204896573105103,
+      "landing_radius_norm_A": 5.933384338014424,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 0.9562422625596149,
+      "search_requests": 740,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 741,
+      "elapsed_seconds": 13.708014169009402,
+      "gaussian_count": 25,
+      "ls_prequench": {
+        "qualification": "force",
+        "exit_policy": "force_or_step_limit",
+        "max_force_eV_A": 0.05802945789866356,
+        "converged": true,
+        "optimizer_steps": 4,
+        "soft_quench_requests": 5,
+        "total_preparation_requests": 7,
+        "true_energy_before_eV": -4243.921715268658,
+        "true_energy_after_eV": -4243.890153253136,
+        "telemetry": {
+          "backend": "safe-lbfgs-total",
+          "termination_reason": "converged",
+          "converged": true,
+          "optimizer_success": true,
+          "evaluator_calls": 5,
+          "backend_evaluations": 5,
+          "accepted_steps": 4,
+          "rejected_steps": 0,
+          "line_search_evaluations": 4
+        }
+      },
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c4-trans-seed702-shape-0.03",
+      "start": "c4-trans",
+      "seed": 702,
+      "arm": "shape-0.03",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c4-trans-seed702-shape-0.03/result.json",
+        "input_geometry": "c4-trans-seed702-shape-0.03/source-input.extxyz",
+        "actual_initial_geometry": "c4-trans-seed702-shape-0.03/initial-minimum.extxyz",
+        "landing_geometry": "c4-trans-seed702-shape-0.03/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": false,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "hc-table-plus-0.1A": "unchanged_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "hc-table-plus-0.1A": true
+      },
+      "c4_torsion_raw_input_deg": 180.0000336107686,
+      "c4_torsion_actual_initial_deg": 180.0000336107686,
+      "c4_torsion_landing_deg": 331.9540436398855,
+      "input_true_energy_eV": -4243.921715268658,
+      "initial_true_energy_eV": -4243.921715268658,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -4243.837557231052,
+      "fresh_true_energy_eV": -4243.837557231052,
+      "landing_minus_actual_initial_true_energy_eV": 0.08415803760544804,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 6.204896573105103,
+      "actual_initial_radius_norm_A": 6.204896573105103,
+      "landing_radius_norm_A": 5.930941451924499,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 0.9558485596088657,
+      "search_requests": 728,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 729,
+      "elapsed_seconds": 13.500623226864263,
+      "gaussian_count": 25,
+      "ls_prequench": {
+        "qualification": "force",
+        "exit_policy": "force_or_step_limit",
+        "max_force_eV_A": 0.0835864209732781,
+        "converged": true,
+        "optimizer_steps": 8,
+        "soft_quench_requests": 10,
+        "total_preparation_requests": 12,
+        "true_energy_before_eV": -4243.921715268658,
+        "true_energy_after_eV": -4243.882709212263,
+        "telemetry": {
+          "backend": "safe-lbfgs-total",
+          "termination_reason": "converged",
+          "converged": true,
+          "optimizer_success": true,
+          "evaluator_calls": 10,
+          "backend_evaluations": 10,
+          "accepted_steps": 8,
+          "rejected_steps": 1,
+          "line_search_evaluations": 9
+        }
+      },
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c60-minimum-seed701-none",
+      "start": "c60-minimum",
+      "seed": 701,
+      "arm": "none",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c60-minimum-seed701-none/result.json",
+        "input_geometry": "c60-minimum-seed701-none/source-input.extxyz",
+        "actual_initial_geometry": "c60-minimum-seed701-none/initial-minimum.extxyz",
+        "landing_geometry": "c60-minimum-seed701-none/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": false,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "1.64A": "changed_graph",
+        "1.70A": "changed_graph",
+        "1.80A": "changed_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "1.64A": false,
+        "1.70A": false,
+        "1.80A": false
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "1.64A": true,
+        "1.70A": true,
+        "1.80A": true
+      },
+      "c4_torsion_raw_input_deg": null,
+      "c4_torsion_actual_initial_deg": null,
+      "c4_torsion_landing_deg": null,
+      "input_true_energy_eV": -62214.17099170079,
+      "initial_true_energy_eV": -62214.17099170079,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -62203.92088141442,
+      "fresh_true_energy_eV": -62203.92088141442,
+      "landing_minus_actual_initial_true_energy_eV": 10.250110286367999,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 27.25771442612247,
+      "actual_initial_radius_norm_A": 27.25771442612247,
+      "landing_radius_norm_A": 27.570292750619895,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.0114675177680292,
+      "search_requests": 471,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 472,
+      "elapsed_seconds": 26.911025922978297,
+      "gaussian_count": 25,
+      "ls_prequench": null,
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c60-minimum-seed701-pair-0.03",
+      "start": "c60-minimum",
+      "seed": 701,
+      "arm": "pair-0.03",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c60-minimum-seed701-pair-0.03/result.json",
+        "input_geometry": "c60-minimum-seed701-pair-0.03/source-input.extxyz",
+        "actual_initial_geometry": "c60-minimum-seed701-pair-0.03/initial-minimum.extxyz",
+        "landing_geometry": "c60-minimum-seed701-pair-0.03/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": false,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "1.64A": "changed_graph",
+        "1.70A": "changed_graph",
+        "1.80A": "changed_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "1.64A": false,
+        "1.70A": false,
+        "1.80A": false
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "1.64A": true,
+        "1.70A": true,
+        "1.80A": true
+      },
+      "c4_torsion_raw_input_deg": null,
+      "c4_torsion_actual_initial_deg": null,
+      "c4_torsion_landing_deg": null,
+      "input_true_energy_eV": -62214.17099170079,
+      "initial_true_energy_eV": -62214.17099170079,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -62203.92205705456,
+      "fresh_true_energy_eV": -62203.92205705456,
+      "landing_minus_actual_initial_true_energy_eV": 10.248934646231646,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 27.25771442612247,
+      "actual_initial_radius_norm_A": 27.25771442612247,
+      "landing_radius_norm_A": 27.571589219519975,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.011515081143293,
+      "search_requests": 521,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 522,
+      "elapsed_seconds": 30.104552496923134,
+      "gaussian_count": 25,
+      "ls_prequench": {
+        "qualification": "force",
+        "exit_policy": "force_or_step_limit",
+        "max_force_eV_A": 0.053286744096632165,
+        "converged": true,
+        "optimizer_steps": 4,
+        "soft_quench_requests": 5,
+        "total_preparation_requests": 7,
+        "true_energy_before_eV": -62214.17099170079,
+        "true_energy_after_eV": -62214.033078452434,
+        "telemetry": {
+          "backend": "safe-lbfgs-total",
+          "termination_reason": "converged",
+          "converged": true,
+          "optimizer_success": true,
+          "evaluator_calls": 5,
+          "backend_evaluations": 5,
+          "accepted_steps": 4,
+          "rejected_steps": 0,
+          "line_search_evaluations": 4
+        }
+      },
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c60-minimum-seed701-shape-0.03",
+      "start": "c60-minimum",
+      "seed": 701,
+      "arm": "shape-0.03",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c60-minimum-seed701-shape-0.03/result.json",
+        "input_geometry": "c60-minimum-seed701-shape-0.03/source-input.extxyz",
+        "actual_initial_geometry": "c60-minimum-seed701-shape-0.03/initial-minimum.extxyz",
+        "landing_geometry": "c60-minimum-seed701-shape-0.03/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": false,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "1.64A": "changed_graph",
+        "1.70A": "changed_graph",
+        "1.80A": "changed_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "1.64A": false,
+        "1.70A": false,
+        "1.80A": false
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "1.64A": true,
+        "1.70A": true,
+        "1.80A": true
+      },
+      "c4_torsion_raw_input_deg": null,
+      "c4_torsion_actual_initial_deg": null,
+      "c4_torsion_landing_deg": null,
+      "input_true_energy_eV": -62214.17099170079,
+      "initial_true_energy_eV": -62214.17099170079,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -62203.921815930145,
+      "fresh_true_energy_eV": -62203.921815930145,
+      "landing_minus_actual_initial_true_energy_eV": 10.249175770644797,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 27.25771442612247,
+      "actual_initial_radius_norm_A": 27.25771442612247,
+      "landing_radius_norm_A": 27.571752795054476,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.011521082216308,
+      "search_requests": 471,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 472,
+      "elapsed_seconds": 27.096753702964634,
+      "gaussian_count": 25,
+      "ls_prequench": {
+        "qualification": "force",
+        "exit_policy": "force_or_step_limit",
+        "max_force_eV_A": 0.03650178456344967,
+        "converged": true,
+        "optimizer_steps": 1,
+        "soft_quench_requests": 2,
+        "total_preparation_requests": 4,
+        "true_energy_before_eV": -62214.17099170079,
+        "true_energy_after_eV": -62214.17002635622,
+        "telemetry": {
+          "backend": "safe-lbfgs-total",
+          "termination_reason": "converged",
+          "converged": true,
+          "optimizer_success": true,
+          "evaluator_calls": 2,
+          "backend_evaluations": 2,
+          "accepted_steps": 1,
+          "rejected_steps": 0,
+          "line_search_evaluations": 1
+        }
+      },
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c60-minimum-seed702-none",
+      "start": "c60-minimum",
+      "seed": 702,
+      "arm": "none",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c60-minimum-seed702-none/result.json",
+        "input_geometry": "c60-minimum-seed702-none/source-input.extxyz",
+        "actual_initial_geometry": "c60-minimum-seed702-none/initial-minimum.extxyz",
+        "landing_geometry": "c60-minimum-seed702-none/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": true,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "1.64A": "unchanged_graph",
+        "1.70A": "unchanged_graph",
+        "1.80A": "unchanged_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "1.64A": true,
+        "1.70A": true,
+        "1.80A": true
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "1.64A": true,
+        "1.70A": true,
+        "1.80A": true
+      },
+      "c4_torsion_raw_input_deg": null,
+      "c4_torsion_actual_initial_deg": null,
+      "c4_torsion_landing_deg": null,
+      "input_true_energy_eV": -62214.17099170079,
+      "initial_true_energy_eV": -62214.17099170079,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -62214.16974015464,
+      "fresh_true_energy_eV": -62214.16974015464,
+      "landing_minus_actual_initial_true_energy_eV": 0.0012515461494331248,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 27.25771442612247,
+      "actual_initial_radius_norm_A": 27.25771442612247,
+      "landing_radius_norm_A": 27.258830254656928,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.0000409362471487,
+      "search_requests": 476,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 477,
+      "elapsed_seconds": 26.62399839796126,
+      "gaussian_count": 25,
+      "ls_prequench": null,
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c60-minimum-seed702-pair-0.03",
+      "start": "c60-minimum",
+      "seed": 702,
+      "arm": "pair-0.03",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c60-minimum-seed702-pair-0.03/result.json",
+        "input_geometry": "c60-minimum-seed702-pair-0.03/source-input.extxyz",
+        "actual_initial_geometry": "c60-minimum-seed702-pair-0.03/initial-minimum.extxyz",
+        "landing_geometry": "c60-minimum-seed702-pair-0.03/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": true,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "1.64A": "unchanged_graph",
+        "1.70A": "unchanged_graph",
+        "1.80A": "unchanged_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "1.64A": true,
+        "1.70A": true,
+        "1.80A": true
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "1.64A": true,
+        "1.70A": true,
+        "1.80A": true
+      },
+      "c4_torsion_raw_input_deg": null,
+      "c4_torsion_actual_initial_deg": null,
+      "c4_torsion_landing_deg": null,
+      "input_true_energy_eV": -62214.17099170079,
+      "initial_true_energy_eV": -62214.17099170079,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -62214.16968493002,
+      "fresh_true_energy_eV": -62214.16968493002,
+      "landing_minus_actual_initial_true_energy_eV": 0.0013067707695881836,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 27.25771442612247,
+      "actual_initial_radius_norm_A": 27.25771442612247,
+      "landing_radius_norm_A": 27.261717090161923,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.0001468451821338,
+      "search_requests": 475,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 476,
+      "elapsed_seconds": 26.84061818011105,
+      "gaussian_count": 25,
+      "ls_prequench": {
+        "qualification": "force",
+        "exit_policy": "force_or_step_limit",
+        "max_force_eV_A": 0.053286744096632165,
+        "converged": true,
+        "optimizer_steps": 4,
+        "soft_quench_requests": 5,
+        "total_preparation_requests": 7,
+        "true_energy_before_eV": -62214.17099170079,
+        "true_energy_after_eV": -62214.033078452434,
+        "telemetry": {
+          "backend": "safe-lbfgs-total",
+          "termination_reason": "converged",
+          "converged": true,
+          "optimizer_success": true,
+          "evaluator_calls": 5,
+          "backend_evaluations": 5,
+          "accepted_steps": 4,
+          "rejected_steps": 0,
+          "line_search_evaluations": 4
+        }
+      },
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c60-minimum-seed702-shape-0.03",
+      "start": "c60-minimum",
+      "seed": 702,
+      "arm": "shape-0.03",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c60-minimum-seed702-shape-0.03/result.json",
+        "input_geometry": "c60-minimum-seed702-shape-0.03/source-input.extxyz",
+        "actual_initial_geometry": "c60-minimum-seed702-shape-0.03/initial-minimum.extxyz",
+        "landing_geometry": "c60-minimum-seed702-shape-0.03/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": true,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "1.64A": "unchanged_graph",
+        "1.70A": "unchanged_graph",
+        "1.80A": "unchanged_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "1.64A": true,
+        "1.70A": true,
+        "1.80A": true
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "1.64A": true,
+        "1.70A": true,
+        "1.80A": true
+      },
+      "c4_torsion_raw_input_deg": null,
+      "c4_torsion_actual_initial_deg": null,
+      "c4_torsion_landing_deg": null,
+      "input_true_energy_eV": -62214.17099170079,
+      "initial_true_energy_eV": -62214.17099170079,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -62214.169541470066,
+      "fresh_true_energy_eV": -62214.169541470066,
+      "landing_minus_actual_initial_true_energy_eV": 0.0014502307240036316,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 27.25771442612247,
+      "actual_initial_radius_norm_A": 27.25771442612247,
+      "landing_radius_norm_A": 27.260146854586942,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.000089238166724,
+      "search_requests": 485,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 486,
+      "elapsed_seconds": 27.689225984970108,
+      "gaussian_count": 25,
+      "ls_prequench": {
+        "qualification": "force",
+        "exit_policy": "force_or_step_limit",
+        "max_force_eV_A": 0.03650178456344967,
+        "converged": true,
+        "optimizer_steps": 1,
+        "soft_quench_requests": 2,
+        "total_preparation_requests": 4,
+        "true_energy_before_eV": -62214.17099170079,
+        "true_energy_after_eV": -62214.17002635622,
+        "telemetry": {
+          "backend": "safe-lbfgs-total",
+          "termination_reason": "converged",
+          "converged": true,
+          "optimizer_success": true,
+          "evaluator_calls": 2,
+          "backend_evaluations": 2,
+          "accepted_steps": 1,
+          "rejected_steps": 0,
+          "line_search_evaluations": 1
+        }
+      },
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c60-isomer3-seed701-none",
+      "start": "c60-isomer3",
+      "seed": 701,
+      "arm": "none",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c60-isomer3-seed701-none/result.json",
+        "input_geometry": "c60-isomer3-seed701-none/source-input.extxyz",
+        "actual_initial_geometry": "c60-isomer3-seed701-none/initial-minimum.extxyz",
+        "landing_geometry": "c60-isomer3-seed701-none/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": false,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "1.64A": "changed_graph",
+        "1.70A": "changed_graph",
+        "1.80A": "changed_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "1.64A": false,
+        "1.70A": false,
+        "1.80A": false
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "1.64A": true,
+        "1.70A": true,
+        "1.80A": true
+      },
+      "c4_torsion_raw_input_deg": null,
+      "c4_torsion_actual_initial_deg": null,
+      "c4_torsion_landing_deg": null,
+      "input_true_energy_eV": -62213.55121014449,
+      "initial_true_energy_eV": -62213.55121014449,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -62212.965681949776,
+      "fresh_true_energy_eV": -62212.965681949776,
+      "landing_minus_actual_initial_true_energy_eV": 0.5855281947151525,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 27.24651700444549,
+      "actual_initial_radius_norm_A": 27.24651700444549,
+      "landing_radius_norm_A": 27.265565232161883,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.0006991068881679,
+      "search_requests": 510,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 511,
+      "elapsed_seconds": 29.723074542125687,
+      "gaussian_count": 25,
+      "ls_prequench": null,
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c60-isomer3-seed701-pair-0.03",
+      "start": "c60-isomer3",
+      "seed": 701,
+      "arm": "pair-0.03",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c60-isomer3-seed701-pair-0.03/result.json",
+        "input_geometry": "c60-isomer3-seed701-pair-0.03/source-input.extxyz",
+        "actual_initial_geometry": "c60-isomer3-seed701-pair-0.03/initial-minimum.extxyz",
+        "landing_geometry": "c60-isomer3-seed701-pair-0.03/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": false,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "1.64A": "changed_graph",
+        "1.70A": "changed_graph",
+        "1.80A": "changed_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "1.64A": false,
+        "1.70A": false,
+        "1.80A": false
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "1.64A": true,
+        "1.70A": true,
+        "1.80A": true
+      },
+      "c4_torsion_raw_input_deg": null,
+      "c4_torsion_actual_initial_deg": null,
+      "c4_torsion_landing_deg": null,
+      "input_true_energy_eV": -62213.55121014449,
+      "initial_true_energy_eV": -62213.55121014449,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -62212.96588761808,
+      "fresh_true_energy_eV": -62212.96588761808,
+      "landing_minus_actual_initial_true_energy_eV": 0.5853225264145294,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 27.24651700444549,
+      "actual_initial_radius_norm_A": 27.24651700444549,
+      "landing_radius_norm_A": 27.267022757614892,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.0007526008981646,
+      "search_requests": 525,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 526,
+      "elapsed_seconds": 30.48841781797819,
+      "gaussian_count": 25,
+      "ls_prequench": {
+        "qualification": "force",
+        "exit_policy": "force_or_step_limit",
+        "max_force_eV_A": 0.030572763832980517,
+        "converged": true,
+        "optimizer_steps": 4,
+        "soft_quench_requests": 6,
+        "total_preparation_requests": 8,
+        "true_energy_before_eV": -62213.55121014449,
+        "true_energy_after_eV": -62213.41449600566,
+        "telemetry": {
+          "backend": "safe-lbfgs-total",
+          "termination_reason": "converged",
+          "converged": true,
+          "optimizer_success": true,
+          "evaluator_calls": 6,
+          "backend_evaluations": 6,
+          "accepted_steps": 4,
+          "rejected_steps": 1,
+          "line_search_evaluations": 5
+        }
+      },
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c60-isomer3-seed701-shape-0.03",
+      "start": "c60-isomer3",
+      "seed": 701,
+      "arm": "shape-0.03",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c60-isomer3-seed701-shape-0.03/result.json",
+        "input_geometry": "c60-isomer3-seed701-shape-0.03/source-input.extxyz",
+        "actual_initial_geometry": "c60-isomer3-seed701-shape-0.03/initial-minimum.extxyz",
+        "landing_geometry": "c60-isomer3-seed701-shape-0.03/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": false,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "1.64A": "changed_graph",
+        "1.70A": "changed_graph",
+        "1.80A": "changed_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "1.64A": false,
+        "1.70A": false,
+        "1.80A": false
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "1.64A": true,
+        "1.70A": true,
+        "1.80A": true
+      },
+      "c4_torsion_raw_input_deg": null,
+      "c4_torsion_actual_initial_deg": null,
+      "c4_torsion_landing_deg": null,
+      "input_true_energy_eV": -62213.55121014449,
+      "initial_true_energy_eV": -62213.55121014449,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -62212.96602714632,
+      "fresh_true_energy_eV": -62212.96602714632,
+      "landing_minus_actual_initial_true_energy_eV": 0.58518299816933,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 27.24651700444549,
+      "actual_initial_radius_norm_A": 27.24651700444549,
+      "landing_radius_norm_A": 27.264956680825847,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.0006767718742673,
+      "search_requests": 529,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 530,
+      "elapsed_seconds": 30.424573209136724,
+      "gaussian_count": 25,
+      "ls_prequench": {
+        "qualification": "force",
+        "exit_policy": "force_or_step_limit",
+        "max_force_eV_A": 0.09841323964342359,
+        "converged": true,
+        "optimizer_steps": 0,
+        "soft_quench_requests": 1,
+        "total_preparation_requests": 3,
+        "true_energy_before_eV": -62213.55121014449,
+        "true_energy_after_eV": -62213.55121014449,
+        "telemetry": {
+          "backend": "safe-lbfgs-total",
+          "termination_reason": "converged",
+          "converged": true,
+          "optimizer_success": true,
+          "evaluator_calls": 1,
+          "backend_evaluations": 1,
+          "accepted_steps": 0,
+          "rejected_steps": 0,
+          "line_search_evaluations": 0
+        }
+      },
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c60-isomer3-seed702-none",
+      "start": "c60-isomer3",
+      "seed": 702,
+      "arm": "none",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c60-isomer3-seed702-none/result.json",
+        "input_geometry": "c60-isomer3-seed702-none/source-input.extxyz",
+        "actual_initial_geometry": "c60-isomer3-seed702-none/initial-minimum.extxyz",
+        "landing_geometry": "c60-isomer3-seed702-none/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": false,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "1.64A": "changed_graph",
+        "1.70A": "changed_graph",
+        "1.80A": "changed_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "1.64A": false,
+        "1.70A": false,
+        "1.80A": false
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "1.64A": true,
+        "1.70A": true,
+        "1.80A": true
+      },
+      "c4_torsion_raw_input_deg": null,
+      "c4_torsion_actual_initial_deg": null,
+      "c4_torsion_landing_deg": null,
+      "input_true_energy_eV": -62213.55121014449,
+      "initial_true_energy_eV": -62213.55121014449,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -62212.96609659057,
+      "fresh_true_energy_eV": -62212.96609659057,
+      "landing_minus_actual_initial_true_energy_eV": 0.5851135539196548,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 27.24651700444549,
+      "actual_initial_radius_norm_A": 27.24651700444549,
+      "landing_radius_norm_A": 27.263705956890167,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.0006308678809064,
+      "search_requests": 473,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 474,
+      "elapsed_seconds": 26.779041279107332,
+      "gaussian_count": 25,
+      "ls_prequench": null,
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c60-isomer3-seed702-pair-0.03",
+      "start": "c60-isomer3",
+      "seed": 702,
+      "arm": "pair-0.03",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c60-isomer3-seed702-pair-0.03/result.json",
+        "input_geometry": "c60-isomer3-seed702-pair-0.03/source-input.extxyz",
+        "actual_initial_geometry": "c60-isomer3-seed702-pair-0.03/initial-minimum.extxyz",
+        "landing_geometry": "c60-isomer3-seed702-pair-0.03/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": false,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "1.64A": "changed_graph",
+        "1.70A": "changed_graph",
+        "1.80A": "changed_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "1.64A": false,
+        "1.70A": false,
+        "1.80A": false
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "1.64A": true,
+        "1.70A": true,
+        "1.80A": true
+      },
+      "c4_torsion_raw_input_deg": null,
+      "c4_torsion_actual_initial_deg": null,
+      "c4_torsion_landing_deg": null,
+      "input_true_energy_eV": -62213.55121014449,
+      "initial_true_energy_eV": -62213.55121014449,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -62212.96531600489,
+      "fresh_true_energy_eV": -62212.96531600489,
+      "landing_minus_actual_initial_true_energy_eV": 0.5858941395999864,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 27.24651700444549,
+      "actual_initial_radius_norm_A": 27.24651700444549,
+      "landing_radius_norm_A": 27.262816700802855,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.0005982304583998,
+      "search_requests": 473,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 474,
+      "elapsed_seconds": 27.244996070861816,
+      "gaussian_count": 25,
+      "ls_prequench": {
+        "qualification": "force",
+        "exit_policy": "force_or_step_limit",
+        "max_force_eV_A": 0.030572763832980517,
+        "converged": true,
+        "optimizer_steps": 4,
+        "soft_quench_requests": 6,
+        "total_preparation_requests": 8,
+        "true_energy_before_eV": -62213.55121014449,
+        "true_energy_after_eV": -62213.41449600566,
+        "telemetry": {
+          "backend": "safe-lbfgs-total",
+          "termination_reason": "converged",
+          "converged": true,
+          "optimizer_success": true,
+          "evaluator_calls": 6,
+          "backend_evaluations": 6,
+          "accepted_steps": 4,
+          "rejected_steps": 1,
+          "line_search_evaluations": 5
+        }
+      },
+      "ls_update_present": false
+    },
+    {
+      "run_id": "c60-isomer3-seed702-shape-0.03",
+      "start": "c60-isomer3",
+      "seed": 702,
+      "arm": "shape-0.03",
+      "record_status": "returned",
+      "run_ssw_status": "completed",
+      "outer_step_status": "gaussian_limit",
+      "complete_one_step_record": true,
+      "driver_run_completed": true,
+      "failure_or_censored": false,
+      "error": null,
+      "artifact_status": {
+        "result_json": "read",
+        "source_input": "read",
+        "initial_geometry": "read",
+        "landing_geometry": "read"
+      },
+      "source_artifacts": {
+        "result_json": "c60-isomer3-seed702-shape-0.03/result.json",
+        "input_geometry": "c60-isomer3-seed702-shape-0.03/source-input.extxyz",
+        "actual_initial_geometry": "c60-isomer3-seed702-shape-0.03/initial-minimum.extxyz",
+        "landing_geometry": "c60-isomer3-seed702-shape-0.03/landing.extxyz"
+      },
+      "candidate_generated_independent_of_mc": true,
+      "mc_accepted": false,
+      "true_surface_landing": true,
+      "landing_converged": true,
+      "fresh_candidate_status": "completed",
+      "fresh_force_qualified": true,
+      "graph_change_initial_to_landing_by_cutoff": {
+        "1.64A": "changed_graph",
+        "1.70A": "changed_graph",
+        "1.80A": "changed_graph"
+      },
+      "initial_to_landing_isomorphic_by_cutoff": {
+        "1.64A": false,
+        "1.70A": false,
+        "1.80A": false
+      },
+      "raw_input_to_initial_isomorphic_by_cutoff": {
+        "1.64A": true,
+        "1.70A": true,
+        "1.80A": true
+      },
+      "c4_torsion_raw_input_deg": null,
+      "c4_torsion_actual_initial_deg": null,
+      "c4_torsion_landing_deg": null,
+      "input_true_energy_eV": -62213.55121014449,
+      "initial_true_energy_eV": -62213.55121014449,
+      "input_to_initial_true_energy_delta_eV": 0.0,
+      "landing_true_energy_eV": -62212.964318563965,
+      "fresh_true_energy_eV": -62212.964318563965,
+      "landing_minus_actual_initial_true_energy_eV": 0.5868915805258439,
+      "true_energy_delta_source": "fresh_candidate",
+      "raw_input_radius_norm_A": 27.24651700444549,
+      "actual_initial_radius_norm_A": 27.24651700444549,
+      "landing_radius_norm_A": 27.262296123644187,
+      "actual_initial_to_raw_radius_ratio": 1.0,
+      "landing_to_actual_initial_radius_ratio": 1.0005791242673743,
+      "search_requests": 500,
+      "fresh_requests": 1,
+      "search_denials": 0,
+      "search_boundary": null,
+      "actual_calculate_calls": 501,
+      "elapsed_seconds": 29.043395172106102,
+      "gaussian_count": 25,
+      "ls_prequench": {
+        "qualification": "force",
+        "exit_policy": "force_or_step_limit",
+        "max_force_eV_A": 0.09841323964342359,
+        "converged": true,
+        "optimizer_steps": 0,
+        "soft_quench_requests": 1,
+        "total_preparation_requests": 3,
+        "true_energy_before_eV": -62213.55121014449,
+        "true_energy_after_eV": -62213.55121014449,
+        "telemetry": {
+          "backend": "safe-lbfgs-total",
+          "termination_reason": "converged",
+          "converged": true,
+          "optimizer_success": true,
+          "evaluator_calls": 1,
+          "backend_evaluations": 1,
+          "accepted_steps": 0,
+          "rejected_steps": 0,
+          "line_search_evaluations": 0
+        }
+      },
+      "ls_update_present": false
+    }
+  ],
+  "interpretation_notes": [
+    "Graph isomorphism is reported separately for raw input to actual initial minimum, actual initial to landing, and landing-to-landing across arms, at every configured cutoff.",
+    "Graph changed/unchanged is a connectivity diagnostic only and never labels basin identity.",
+    "True-energy change uses the fresh true-surface candidate energy when available, otherwise the reported true-surface landing energy, minus result.initial.energy; LS or bias energies are excluded.",
+    "Radius ratios compare geometric-center norms for raw input to actual initial, and actual initial to landing.",
+    "Missing, duplicate, failed, and censored arms remain visible; absent candidates are not classified as force failures."
+  ]
+}
