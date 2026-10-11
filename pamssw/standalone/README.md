@@ -90,6 +90,18 @@ These are short integration settings, not recommended optimal search defaults.
 Replace Atoms and Calculator with the intended physical system/backend.
 `run_ls_ssw` additionally requires `ls=LSSettings(...)`; the C60 script shows
 explicit paper-derived parameters and true energy-response recording.
+An experimental opt-in `LSSettings(..., bias_geometry="shape")` evaluates the
+same frozen pair potential on centered coordinates `R0*x/||x||`, including the
+full force chain rule. It removes direct uniform-dilation work by the bias;
+it does not constrain physical cluster size or guarantee better escape.
+`R0` and neighbors are frozen for one outer step and rebuilt at the next
+true start or pool restart. This mode requires free nonperiodic clusters;
+constraints and the VC/constrained drivers reject it. The default remains
+`bias_geometry="pair"`. Shape checkpoints use schema 7 and cannot resume as
+pair; old checkpoints remain pair. The existing LS response update is reused,
+but its effectiveness with this geometry is not established. See the
+[approved scope](../../docs/research/2026-10-10-experimental-ls-geometry-proposal.md).
+
 `run_ga_ssw` additionally takes initial structures, groups, frozen descriptor
 references and `PaperGAConfig`; the water script provides a complete tested
 invocation. Install the package from this checkout with `python -m pip install .`.

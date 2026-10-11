@@ -83,6 +83,8 @@ def run_vc_ssw(atoms, surface, *, steps, config, rng, ls=None,
     maxiter/native_stop to enter true quench. This experimental proposal policy
     never substitutes numerical stopping for a physical landing certificate.
     """
+    if getattr(ls, 'bias_geometry', 'pair') == 'shape':
+        raise NotImplementedError('shape LS is unsupported by the variable-cell SSW driver')
     if isinstance(steps, bool) or not isinstance(steps, int) or steps < 0:
         raise ValueError('steps must be a nonnegative integer')
     if ls_prequench not in ('fixed_cell', 'joint'):

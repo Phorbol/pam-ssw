@@ -368,6 +368,9 @@ def run_constrained_ssw(atoms,surface,*,steps,config,rng,fixed_indices=None,dire
     and soft-mode refinement. They can still move in biased and true quenches
     unless also physically fixed. Rotation residuals then refer to that subspace.
     """
+    if (getattr(ls, 'bias_geometry', 'pair') == 'shape' or
+            getattr(getattr(checkpoint, 'ls_settings', None), 'bias_geometry', 'pair') == 'shape'):
+        raise NotImplementedError('shape LS is unsupported by the constrained SSW driver')
     if not isinstance(config,ConstrainedSSWConfig):raise TypeError('ConstrainedSSWConfig required')
     if isinstance(steps,(bool,np.bool_)) or not isinstance(steps,(int,np.integer)) or steps<0:raise ValueError('nonnegative integer steps required')
     from .pam_gaussian import PAMCurvatureGaussian
