@@ -1,0 +1,80 @@
+{
+  "scope": "saved relaxed geometry identity; not new PES qualification or phase proof",
+  "pes_calls": 0,
+  "sources": {
+    "phase139": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/tio2-phase139-joint-memory-compare/memory400/result.json",
+    "phase87": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/tio2-phase87-vc-pqc-single-step/joint/result.json",
+    "anatase": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/tio2-phase-qualification-20261007/run-1663408/anatase_fs/endpoint.extxyz"
+  },
+  "matcher": {
+    "scale": false,
+    "primitive_cell": true,
+    "attempt_supercell": true
+  },
+  "settings": {
+    "tight": {
+      "ltol": 0.05,
+      "stol": 0.1,
+      "angle_tol": 2.0
+    },
+    "broad": {
+      "ltol": 0.2,
+      "stol": 0.3,
+      "angle_tol": 5.0
+    }
+  },
+  "structures": {
+    "phase139": {
+      "natoms": 48,
+      "volume_A3": 910.023210669443,
+      "formula": "O32Ti16",
+      "pbc": [
+        true,
+        true,
+        true
+      ]
+    },
+    "phase87": {
+      "natoms": 48,
+      "volume_A3": 828.1984350246871,
+      "formula": "O32Ti16",
+      "pbc": [
+        true,
+        true,
+        true
+      ]
+    },
+    "anatase": {
+      "natoms": 12,
+      "volume_A3": 138.9704104678311,
+      "formula": "O8Ti4",
+      "pbc": [
+        true,
+        true,
+        true
+      ]
+    }
+  },
+  "matches": {
+    "tight": {
+      "phase139--phase87": false,
+      "phase139--anatase": false,
+      "phase87--anatase": false,
+      "self_checks": {
+        "phase139": true,
+        "phase87": true,
+        "anatase": true
+      }
+    },
+    "broad": {
+      "phase139--phase87": false,
+      "phase139--anatase": false,
+      "phase87--anatase": false,
+      "self_checks": {
+        "phase139": true,
+        "phase87": true,
+        "anatase": true
+      }
+    }
+  }
+}

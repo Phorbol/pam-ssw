@@ -15,6 +15,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import shutil
 import subprocess
 import sys
 import time
@@ -151,15 +152,15 @@ def _config_row(config):
             for arm, values in config.items()}
 
 
-def validate_inputs(plan):
+def validate_inputs(plan, case_id=CASE_ID):
     sys.path.insert(0, str(ROOT))
     from ase.io import read
     from mace.calculators import MACECalculator
     from pamssw.standalone.block_ssw import BlockSSWConfig
     from pamssw.standalone.paper_reference import SSWConfig
-    case = next((item for item in plan["cases"] if item.get("id") == CASE_ID), None)
+    case = next((item for item in plan["cases"] if item.get("id") == case_id), None)
     if case is None or case.get("natoms") != 48:
-        raise ValueError("frozen phase87_48 case absent or wrong atom count")
+        raise ValueError(f"frozen {case_id} case absent or wrong atom count")
     model = Path(plan["model"])
     if not model.is_file() or sha256(model) != plan["model_sha256"]:
         raise RuntimeError("frozen OMAT-small model missing or hash mismatch")
@@ -167,11 +168,11 @@ def validate_inputs(plan):
         if not case.get(field):
             raise ValueError(f"phase87_48 missing {field}")
     if not Path(case["path"]).is_file() or sha256(case["path"]) != case["sha256"]:
-        raise RuntimeError("phase87_48 source missing or hash mismatch")
+        raise RuntimeError(f"{case_id} source missing or hash mismatch")
     atoms = read(case["path"])
     if (len(atoms) != 48 or atoms.get_chemical_formula() != "O32Ti16" or
             not atoms.pbc.all() or atoms.constraints):
-        raise ValueError("frozen phase87_48 geometry contract mismatch")
+        raise ValueError(f"frozen {case_id} geometry contract mismatch")
     target = plan["target"]
     if not Path(target["path"]).is_file() or sha256(target["path"]) != target["sha256"]:
         raise RuntimeError("frozen anatase target missing or hash mismatch")
@@ -193,10 +194,10 @@ def validate_inputs(plan):
             "mace_constructor": str(__import__("inspect").signature(MACECalculator))}
 
 
-def preflight():
+def preflight(plan=None, case_id=CASE_ID):
     sys.path.insert(0, str(ROOT))
-    plan = load_plan()
-    validated = validate_inputs(plan)
+    plan = load_plan() if plan is None else plan
+    validated = validate_inputs(plan, case_id)
     from ase.io import read
     from pamssw.standalone.periodic_ga_reference import pymatgen_identity
     target = read(plan["target"]["path"])
@@ -212,7 +213,7 @@ def preflight():
     if any(not Path(path).is_relative_to(ROOT) for path in imports.values()):
         raise RuntimeError(f"core import escaped selected worktree: {imports}")
     return {"status": "preflight_passed", "real_pes_requests": 0,
-            "case": {"id": CASE_ID, "path": validated["case"]["path"],
+            "case": {"id": case_id, "path": validated["case"]["path"],
                      "sha256": sha256(validated["case"]["path"]), "natoms": len(validated["atoms"])},
             "model_sha256": sha256(plan["model"]), "treatment_configs": _config_row(validated["pair"]),
             "target_identity_self_match": matches, "mace_constructor": validated["mace_constructor"],
@@ -457,7 +458,10 @@ def _arm(plan, case, arm_name, seed, out, deadline, started, reference_energy):
     if target_gates is not None and target_gates["physical_gate_passed"]:
         best_qualified = {"role": "initial", "evaluation": initial_eval,
                           "qualification": target_gates}
+    initial_target_candidate = None
     if target_gates is not None and target_gates["target_candidate"]:
+        initial_target_candidate = {**target_gates,
+                                    "paid_requests_through_initial_quench": int(initial_record.get("requests", 0) or 0)}
         first_target = {"role": "initial", "evaluation": initial_eval,
                         "qualification": target_gates,
                         "paid_requests_through_outer": int(initial_record.get("requests", 0) or 0)}
@@ -563,6 +567,7 @@ def _arm(plan, case, arm_name, seed, out, deadline, started, reference_energy):
                    "positions_A": np.round(initial_eval.atoms.positions, 12).tolist(),
                    "cell_A": np.round(initial_eval.atoms.cell.array, 12).tolist()},
                "initial_quench_qualification": target_gates,
+               "initial_target_candidate_not_search_arrival": initial_target_candidate,
                "observed_minima": observed,
                "best_physical_search_endpoint": None if best_qualified is None else best_qualified["qualification"],
                "first_target_candidate": None if first_target is None else {
@@ -576,30 +581,45 @@ def _arm(plan, case, arm_name, seed, out, deadline, started, reference_energy):
     return payload
 
 
-def execute(out):
+def execute(out, *, plan=None, case_id=CASE_ID, seeds=SEEDS,
+            protocol_path=None, entrypoint_path=None):
     started = time.monotonic()
     deadline = started + INTERNAL_WALL_SECONDS
     import torch
     torch.set_num_threads(1)
     torch.set_num_interop_threads(1)
     sys.path.insert(0, str(ROOT))
-    plan = load_plan()
-    validated = validate_inputs(plan)
+    plan = load_plan() if plan is None else plan
+    validated = validate_inputs(plan, case_id)
     case = validated["case"]
     out.mkdir(parents=True, exist_ok=False)
     torch.manual_seed(0)
-    meta = {"status": "started", "scientific_scope": "paired 48-atom phase87 block-VC component ablation",
+    protocol_path = Path(protocol_path) if protocol_path is not None else HERE / "protocol.md"
+    entrypoint_path = Path(entrypoint_path) if entrypoint_path is not None else Path(__file__).resolve()
+    source_snapshot = out / "source-snapshot"
+    source_snapshot.mkdir()
+    snapshot_inputs = {"shared_runner": Path(__file__).resolve(), "entrypoint": entrypoint_path,
+                       "protocol": protocol_path, "target_panel_helper": PANEL_PATH,
+                       "qualification_helper": QUAL_PATH, "parent_plan": PLAN_PATH}
+    for label, source in snapshot_inputs.items():
+        if source.is_file():
+            shutil.copy2(source, source_snapshot / f"{label}__{source.name}")
+    meta = {"status": "started", "case_id": case_id,
+            "scientific_scope": f"paired 48-atom {case_id} block-VC component transfer",
             "started_unix": time.time(), "internal_deadline_seconds": INTERNAL_WALL_SECONDS,
             "source_head": subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True).strip(),
             "source_core": _core_provenance(), "runner_sha256": sha256(__file__),
-            "protocol_sha256": sha256(HERE / "protocol.md"),
+            "entrypoint_path": str(entrypoint_path), "entrypoint_sha256": sha256(entrypoint_path),
+            "protocol_path": str(protocol_path), "protocol_sha256": sha256(protocol_path),
+            "source_snapshot": {label: {"path": str(source), "sha256": sha256(source)}
+                                for label, source in snapshot_inputs.items() if source.is_file()},
             "input": {"path": case["path"], "sha256": sha256(case["path"])},
             "target": {"path": plan["target"]["path"], "sha256": sha256(plan["target"]["path"])},
             "model": {"path": plan["model"], "sha256": sha256(plan["model"])},
             "reused_helpers": {"target_panel": {"path": str(PANEL_PATH), "sha256": sha256(PANEL_PATH)},
                                "qualification": {"path": str(QUAL_PATH), "sha256": sha256(QUAL_PATH)},
                                "plan": {"path": str(PLAN_PATH), "sha256": sha256(PLAN_PATH)}},
-            "seeds": list(SEEDS), "limits": {"search_requests_total": SEARCH_CAP_TOTAL,
+            "seeds": list(seeds), "limits": {"search_requests_total": SEARCH_CAP_TOTAL,
                 "fresh_requests_total": FRESH_CAP_TOTAL, "outer_per_arm": OUTER_STEPS,
                 "per_arm_search_requests": SEARCH_CAP, "per_arm_fresh_requests": FRESH_CAP}}
     dump(out / "manifest.json", meta)
@@ -636,7 +656,7 @@ def execute(out):
         dump(out / "manifest.json", meta)
         arm_rows = []
         stop_all = False
-        for seed in SEEDS:
+        for seed in seeds:
             for arm_name in ("cell_only", "cell_plus_atomic"):
                 arm_out = out / f"seed-{seed}-{arm_name}"
                 if stop_all or time.monotonic() >= deadline:
@@ -653,7 +673,7 @@ def execute(out):
                 if row["status"] in ("paid_backend_failure", "runner_error", "fresh_backend_failure", "fresh_runner_error"):
                     stop_all = True
         pairs = {}
-        for seed in SEEDS:
+        for seed in seeds:
             cell = next((row for row in arm_rows if row.get("seed") == seed and row.get("arm") == "cell_only"), {})
             both = next((row for row in arm_rows if row.get("seed") == seed and row.get("arm") == "cell_plus_atomic"), {})
             pairs[str(seed)] = paired_trace_check(cell, both)
