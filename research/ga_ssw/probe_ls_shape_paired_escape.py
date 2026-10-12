@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import shutil
 import sys
 import time
@@ -135,7 +136,42 @@ class ResetSurface:
         return self.base.evaluate(atoms)
 
 
-def execute(out: Path) -> dict:
+def load_calibration(path: Path):
+    """Validate the bounded shape-only calibration before loading a model."""
+    path = path.expanduser().resolve()
+    data = json.loads(path.read_text())
+    starts = data.get("starts")
+    known = {name: input_path for name, input_path, _ in INPUTS}
+    if not isinstance(starts, dict) or not 1 <= len(starts) <= 3 or set(starts) - set(known):
+        raise ValueError("calibration starts must name one to three frozen inputs")
+    for name, item in starts.items():
+        if not isinstance(item, dict) or item.get("input_sha256") != sha256(known[name]):
+            raise ValueError(f"calibration input hash mismatch for {name}")
+        fraction = item.get("initial_fraction")
+        if (isinstance(fraction, bool) or not isinstance(fraction, (int, float)) or
+                not math.isfinite(fraction) or fraction <= 0):
+            raise ValueError(f"calibration initial_fraction must be positive and finite for {name}")
+        for chi_name in ("chi_pair_eV", "chi_shape_eV"):
+            chi = item.get(chi_name)
+            if (isinstance(chi, bool) or not isinstance(chi, (int, float)) or
+                    not math.isfinite(chi) or chi <= 0):
+                raise ValueError(f"calibration {chi_name} must be positive and finite for {name}")
+        if not isinstance(item.get("calibration_source"), str) or not item["calibration_source"].strip():
+            raise ValueError(f"calibration source is required for {name}")
+    protocol = data.get("protocol_path")
+    if protocol is None:
+        protocol = EVIDENCE / "shape-single-escape-protocol.md"
+    else:
+        protocol = Path(protocol)
+        if not protocol.is_absolute():
+            protocol = path.parent / protocol
+        protocol = protocol.resolve()
+    if not protocol.is_file():
+        raise FileNotFoundError(protocol)
+    return path, data, protocol
+
+
+def execute(out: Path, calibration_path: Path | None = None) -> dict:
     import ase
     import mace
     import scipy
@@ -143,11 +179,18 @@ def execute(out: Path) -> dict:
     from ase.io import read, write
     from mace.calculators import MACECalculator
 
+    calibration = load_calibration(calibration_path) if calibration_path is not None else None
+    selected_names = None if calibration is None else set(calibration[1]["starts"])
+    arms = ARMS if calibration is None else ("shape-linear-response",)
+    campaign_wall_seconds = CAMPAIGN_WALL_SECONDS if calibration is None else 1200
+    expected_runs = (len(INPUTS) if calibration is None else len(selected_names)) * len(SEEDS) * len(arms)
     if out.exists():
         raise FileExistsError(f"output must be new: {out}")
     out.parent.mkdir(parents=True, exist_ok=True)
     inputs = []
     for name, path, family in INPUTS:
+        if selected_names is not None and name not in selected_names:
+            continue
         if not path.is_file():
             raise FileNotFoundError(path)
         atoms = read(path, index=0)
@@ -250,9 +293,14 @@ def execute(out: Path) -> dict:
                                           "qualification_requests": qualification_requests})
 
     shutil.copy2(Path(__file__).resolve(), out / Path(__file__).name)
-    protocol = EVIDENCE / "shape-single-escape-protocol.md"
+    protocol = EVIDENCE / "shape-single-escape-protocol.md" if calibration is None else calibration[2]
+    if calibration is not None:
+        shutil.copy2(calibration[0], out / "calibration.json")
     record = {
         "status": "started", "protocol": str(protocol), "protocol_sha256": sha256(protocol),
+        "calibration": None if calibration is None else {
+            "path": str(calibration[0]), "sha256": sha256(calibration[0]),
+            "manifest": calibration[1]},
         "model": {"path": str(MODEL), "sha256": MODEL_SHA256, "head": "omol",
                   "device": "cuda", "dtype": "float64", "torch": torch.__version__,
                   "mace": mace.__version__, "ase": ase.__version__, "numpy": np.__version__,
@@ -263,10 +311,11 @@ def execute(out: Path) -> dict:
                           "softening": sha256(ROOT / "pamssw/standalone/softening.py"),
                           "shape_softening": sha256(ROOT / "pamssw/standalone/shape_softening.py"),
                           "protocol": sha256(protocol)},
-        "limits": {"seeds": SEEDS, "arms": ARMS, "starts": [x[0] for x in inputs],
+        "limits": {"seeds": SEEDS, "arms": arms, "starts": [x[0] for x in inputs],
                    "outer_steps": 1, "search_requests_per_arm": SEARCH_CAP,
                    "wall_seconds_per_arm": ARM_WALL_SECONDS,
-                   "campaign_wall_seconds": CAMPAIGN_WALL_SECONDS,
+                   "campaign_wall_seconds": campaign_wall_seconds,
+                   "expected_runs": expected_runs,
                    "total_qualification_requests_cap": QUALIFICATION_CAP,
                    "fresh_candidate_checks_per_arm": FRESH_CAP_PER_ARM},
         "input_qualifications": qualifications,
@@ -279,10 +328,16 @@ def execute(out: Path) -> dict:
                                                      "xi": spec["xi"], "learning_rate": spec["learning_rate"],
                                                      "prequench": asdict(prequench)}
                                              for family, spec in ls_configs.items()},
-                          "arms": {"none": None, "pair-0.03": {"bias_geometry": "pair", "initial_fraction": 0.03},
-                                   "shape-0.03": {"bias_geometry": "shape", "initial_fraction": 0.03}}},
+                          "arms": ({"none": None, "pair-0.03": {"bias_geometry": "pair", "initial_fraction": 0.03},
+                                    "shape-0.03": {"bias_geometry": "shape", "initial_fraction": 0.03}}
+                                   if calibration is None else
+                                   {"shape-linear-response": {"bias_geometry": "shape",
+                                    "initial_fraction_by_start": {name: item["initial_fraction"]
+                                        for name, item in calibration[1]["starts"].items()}}})},
         "runs": [], "search_requests_total": 0, "fresh_requests_total": 0,
-        "interpretation_limit": "single-step development comparison; four start structures, two paired seeds; not a success-rate, production, or general PES claim"}
+        "interpretation_limit": ("single-step development comparison; four start structures, two paired seeds; not a success-rate, production, or general PES claim"
+                                 if calibration is None else
+                                 "weak-response amplitude normalization from archived physical Hessians; finite response equality unverified; no independent validation or general PES claim")}
     ledger.dump(out / "provenance.json", record)
     ledger.dump(out / "effective_config.json", {k: record[k] for k in ("limits", "configuration", "model", "source_hashes")})
     ledger.dump(out / "summary.json", record)
@@ -290,7 +345,7 @@ def execute(out: Path) -> dict:
     for name, path, family, atoms in inputs:
         config = configs["c4" if family == "c4" else "c60"]
         for seed in SEEDS:
-            for arm in ARMS:
+            for arm in arms:
                 folder = out / f"{name}-seed{seed}-{arm}"
                 folder.mkdir()
                 write(folder / "source-input.extxyz", atoms)
@@ -299,18 +354,21 @@ def execute(out: Path) -> dict:
                 calls_before = calls["calls"]
                 row = {"run_id": folder.name, "start": name, "seed": seed, "arm": arm,
                        "input": str(path), "input_sha256": sha256(path), "status": "started"}
+                fraction = (0.03 if calibration is None else
+                            calibration[1]["starts"][name]["initial_fraction"])
+                row["initial_fraction"] = None if arm == "none" else fraction
                 ledger.dump(folder / "summary.json", row)
                 try:
-                    if time.monotonic() - campaign_started >= CAMPAIGN_WALL_SECONDS:
+                    if time.monotonic() - campaign_started >= campaign_wall_seconds:
                         raise TimeoutError("campaign wall cap")
                     calculator.reset()
                     base = ledger.CountedSurface(calculator, folder / "requests.jsonl", SEARCH_CAP,
-                                                  min(ARM_WALL_SECONDS, CAMPAIGN_WALL_SECONDS - (time.monotonic() - campaign_started)))
+                                                  min(ARM_WALL_SECONDS, campaign_wall_seconds - (time.monotonic() - campaign_started)))
                     surface = ResetSurface(base)
                     family_spec = ls_configs["c4" if family == "c4" else "c60"]
                     ls = None if arm == "none" else LSSettings(
                         dict(family_spec["bond_energies"]), dict(family_spec["bond_lengths"]),
-                        target_per_atom=family_spec["target_per_atom"], initial_fraction=0.03,
+                        target_per_atom=family_spec["target_per_atom"], initial_fraction=fraction,
                         xi=family_spec["xi"], learning_rate=family_spec["learning_rate"],
                         prequench=prequench,
                         bias_geometry="pair" if arm.startswith("pair") else "shape")
@@ -321,6 +379,17 @@ def execute(out: Path) -> dict:
                     ledger.dump(folder / "result.json", result)
                     write(folder / "initial-minimum.extxyz", result.initial.atoms)
                     write(folder / "current.extxyz", result.current)
+                    initial_delta = result.initial.atoms.positions - atoms.positions
+                    initial_graph = graph_bundle(result.initial.atoms, family, c4_graph_tools.graph, HC_BOND_LENGTHS)
+                    row["certified_initial"] = {
+                        "energy_eV": float(result.initial.energy),
+                        "fmax_eV_A": float(result.initial.max_force),
+                        "rms_displacement_from_input_A": float(np.sqrt(np.mean(np.sum(initial_delta ** 2, axis=1)))),
+                        "max_atom_displacement_from_input_A": float(np.linalg.norm(initial_delta, axis=1).max()),
+                        "same_positions_as_input": bool(np.array_equal(result.initial.atoms.positions, atoms.positions)),
+                        "graph_and_radius": initial_graph,
+                        "graph_isomorphic_to_input": compare_graphs(
+                            qualifications_by_name[name]["graph_and_radius"], initial_graph)}
                     rec = result.records[-1] if result.records else None
                     landing = None if rec is None else rec.landing
                     row.update({"run_ssw_status": result.status, "outer_records": len(result.records),
@@ -348,13 +417,15 @@ def execute(out: Path) -> dict:
                         row["landing_graph_and_radius"] = candidate_graph
                         row["graph_isomorphic_to_start"] = compare_graphs(
                             qualifications_by_name[name]["graph_and_radius"], candidate_graph)
+                        row["graph_isomorphic_to_certified_initial"] = compare_graphs(
+                            initial_graph, candidate_graph)
                         if is_candidate:
                             fresh = ResetSurface(ledger.CountedSurface(
                                 calculator, folder / "fresh-requests.jsonl",
                                 min(FRESH_CAP_PER_ARM,
                                     QUALIFICATION_CAP - qualification_requests - record["fresh_requests_total"]),
                                 max(0.0, min(ARM_WALL_SECONDS - (time.monotonic() - started),
-                                             CAMPAIGN_WALL_SECONDS - (time.monotonic() - campaign_started)))))
+                                             campaign_wall_seconds - (time.monotonic() - campaign_started)))))
                             try:
                                 e, f = fresh.evaluate(landing.atoms)
                                 fmax = float(np.linalg.norm(f, axis=1).max())
@@ -389,13 +460,13 @@ def execute(out: Path) -> dict:
                     record["fresh_requests_total"] += row["fresh_requests"]
                     record["elapsed_seconds"] = time.monotonic() - campaign_started
                     ledger.dump(out / "summary.json", record)
-                if time.monotonic() >= campaign_started + CAMPAIGN_WALL_SECONDS:
+                if time.monotonic() >= campaign_started + campaign_wall_seconds:
                     break
-            if time.monotonic() >= campaign_started + CAMPAIGN_WALL_SECONDS:
+            if time.monotonic() >= campaign_started + campaign_wall_seconds:
                 break
-        if time.monotonic() >= campaign_started + CAMPAIGN_WALL_SECONDS:
+        if time.monotonic() >= campaign_started + campaign_wall_seconds:
             break
-    record["status"] = "all_24_arms_recorded" if len(record["runs"]) == 24 else "campaign_incomplete"
+    record["status"] = ("all_24_arms_recorded" if calibration is None else "all_calibrated_arms_recorded") if len(record["runs"]) == expected_runs else "campaign_incomplete"
     record["qualification_and_fresh_requests_total"] = qualification_requests + record["fresh_requests_total"]
     record["actual_calculate_calls_total"] = calls["calls"]
     record["elapsed_seconds"] = time.monotonic() - campaign_started
@@ -407,9 +478,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("out", type=Path, help="new evidence directory")
     parser.add_argument("--execute", action="store_true", help="run the prepared GPU experiment")
+    parser.add_argument("--calibration", type=Path, help="validated shape-only calibration JSON")
     args = parser.parse_args()
     if args.execute:
-        result = execute(args.out.expanduser().resolve())
+        result = execute(args.out.expanduser().resolve(), calibration_path=args.calibration)
         print(json.dumps({"status": result["status"], "runs": len(result["runs"]),
                           "out": str(args.out.resolve())}, indent=2))
     else:

@@ -1,0 +1,277 @@
+{
+  "status": "offline_same_point_linear_response_calibration",
+  "scope": "No Calculator/PES/optimizer calls; susceptibility from archived physical Hessians and analytic bias gradients only.",
+  "protocol_path": "../shape-linear-response-protocol.md",
+  "calibration_script": "research/ga_ssw/evidence/ls-theory-20261010/shape-linear-response-v1/calibrate.py",
+  "calibration_script_sha256": "d0f0bd98d86ad1408ddcad239481434fa231e223f9085918280a80a792bd8c81",
+  "base_initial_fraction": 0.03,
+  "starts": {
+    "c60-minimum": {
+      "input_sha256": "7dc3b226aca4c1f26ff4b528811580963672cfe0f1ac74c32ca7345344310aff",
+      "campaign_input_sha256": "7dc3b226aca4c1f26ff4b528811580963672cfe0f1ac74c32ca7345344310aff",
+      "campaign_geometry_byte_identical": true,
+      "initial_fraction": 0.2520193208205729,
+      "base_pair_fraction": 0.03,
+      "chi_pair_eV": 0.2825119051962325,
+      "chi_shape_eV": 0.00400323965200948,
+      "amplitude_ratio_shape_over_pair": 8.40064402735243,
+      "dual_stencil_response_check": null,
+      "pair_count": 90,
+      "radius0_A": 27.25771442612247,
+      "bias_parameters": {
+        "initial_fraction_pair": 0.03,
+        "xi": 0.2,
+        "bond_energies_eV": {
+          "(6, 6)": 3.61
+        },
+        "bond_lengths_A": {
+          "(6, 6)": 1.64
+        }
+      },
+      "hessian": {
+        "path": "research/ga_ssw/evidence/ls-theory-20261010/c60-finite-response-v1/run-1729152/baseline.npz",
+        "sha256": "31b5d452a5f1d86c81b45725f7092d124900b68463f4c9c534ec6e1f3bdef3e7",
+        "matrix_key": "H",
+        "dual_matrix_key": null,
+        "dimension": 174,
+        "qualification_status": "completed; resolved strict minimum",
+        "physical_minimum_fmax_eV_A": 0.00011401265903925603,
+        "physical_hessian_stencils_A": [
+          0.001,
+          0.0005
+        ],
+        "saved_hessian_stencil_A": 0.0005,
+        "stencil_spread_eV_A2": 0.0004777696778074369,
+        "antisymmetric_norms_eV_A2": [
+          0.000264508871569671,
+          6.612711691179516e-05
+        ],
+        "lambda_min_eV_A2": 2.693352780047557,
+        "lambda_min_over_stencil_spread": 5637.34557707344,
+        "acceptance": "lambda_min > 5 * dual-stencil spread",
+        "positive_resolved": true,
+        "chart": "minimum-centered affine Eckart internal basis saved as Q",
+        "basis_input": "research/ga_ssw/evidence/ls-theory-20261010/c60-finite-response-v1/run-1729152/minimum.extxyz",
+        "basis_input_sha256": "7dc3b226aca4c1f26ff4b528811580963672cfe0f1ac74c32ca7345344310aff",
+        "kind": "minimum-centered affine Eckart section",
+        "transverse_to_endpoint_rigid_modes": true
+      },
+      "calibration_source": "research/ga_ssw/evidence/ls-theory-20261010/c60-finite-response-v1/run-1729152/result.json",
+      "calibration_details": {
+        "input_path": "research/ga_ssw/evidence/ls-theory-20261010/c60-finite-response-v1/run-1729152/minimum.extxyz",
+        "hessian_result_path": "research/ga_ssw/evidence/ls-theory-20261010/c60-finite-response-v1/run-1729152/result.json",
+        "bias_definition": "FrozenBondSoftening and FrozenShapeBondSoftening; same pair list, bond tables, xi=0.2, base fraction 0.03",
+        "equation": "chi = (Q^T grad W)^T H_Q^{-1} (Q^T grad W); shape uses its analytic pulled-back gradient at the same geometry"
+      }
+    },
+    "c4-gauche": {
+      "input_sha256": "667a9a844d9757a44aa4b060d67f903c04cb295717cddea4ab1bfddc6c453f0f",
+      "campaign_input_sha256": "667a9a844d9757a44aa4b060d67f903c04cb295717cddea4ab1bfddc6c453f0f",
+      "campaign_geometry_byte_identical": true,
+      "initial_fraction": 0.018550544488825763,
+      "base_pair_fraction": 0.03,
+      "chi_pair_eV": 0.06810199113599319,
+      "chi_shape_eV": 0.1781102841347671,
+      "amplitude_ratio_shape_over_pair": 0.6183514829608588,
+      "dual_stencil_response_check": {
+        "stencil_A": 0.001,
+        "chi_pair_eV": 0.06810201635164878,
+        "chi_shape_eV": 0.17811153545152758,
+        "amplitude_ratio_shape_over_pair": 0.6183494253289566
+      },
+      "pair_count": 9,
+      "radius0_A": 5.930564577778074,
+      "bias_parameters": {
+        "initial_fraction_pair": 0.03,
+        "xi": 0.2,
+        "bond_energies_eV": {
+          "(1, 1)": 4.526579856872559,
+          "(1, 6)": 4.29817008972168,
+          "(6, 6)": 3.4468400478363037
+        },
+        "bond_lengths_A": {
+          "(1, 1)": 0.8400000095367431,
+          "(1, 6)": 1.1900000333786012,
+          "(6, 6)": 1.6399999618530274
+        }
+      },
+      "hessian": {
+        "path": "research/ga_ssw/evidence/ls-theory-20261010/channel-v1/run-1728173/plus-0.050-hessian.npz",
+        "sha256": "ca3bdd2f2ac02f64581b822d0a42b3f1a145c2137b22418e08b8fc3ab4f32f32",
+        "matrix_key": "H_h0005",
+        "dual_matrix_key": "H_h001",
+        "dimension": 24,
+        "qualification_status": "force-qualified stable minimum; dual-stencil Hessian qualified",
+        "physical_minimum_fmax_eV_A": 8.786149280476087e-05,
+        "physical_hessian_stencils_A": [
+          0.001,
+          0.0005
+        ],
+        "saved_hessian_stencil_A": 0.0005,
+        "stencil_spread_eV_A2": 0.00012249602673000183,
+        "antisymmetric_norms_eV_A2": [
+          0.00021630479320478328,
+          5.407614941890219e-05
+        ],
+        "lambda_min_eV_A2": 0.09733206710583465,
+        "lambda_min_over_stencil_spread": 794.5732584483576,
+        "acceptance": "lambda0 > 5*stencil spread",
+        "positive_resolved": true,
+        "chart": "fixed affine Eckart internal chart based at channel-v1 input.extxyz",
+        "basis_input": "research/ga_ssw/evidence/ls-theory-20261010/channel-v1/run-1728173/input.extxyz",
+        "basis_input_sha256": "d5b380cfaf22fb2e21f5fadfe399eaa9aa49aa44a04b0cf2d4d2f3ad8adea719",
+        "kind": "fixed affine Eckart section",
+        "endpoint_rigid_subspace_overlap_singular_values": [
+          1.0,
+          0.9999999999999999,
+          0.9999999999999998,
+          0.9811068087641664,
+          0.9545541882114509,
+          0.8073663955238501
+        ],
+        "minimum_overlap_singular_value": 0.8073663955238501,
+        "transverse_to_endpoint_rigid_modes": true,
+        "current_internal_basis_overlap_singular_values": [
+          1.0000000000000002,
+          1.0000000000000002,
+          1.0000000000000002,
+          1.0000000000000002,
+          1.0000000000000002,
+          1.0000000000000002,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          0.9999999999999999,
+          0.9999999999999999,
+          0.9999999999999999,
+          0.9999999999999999,
+          0.9999999999999999,
+          0.9999999999999999,
+          0.9999999999999998,
+          0.9999999999999997,
+          0.9811068087160482,
+          0.9545541881637903,
+          0.8073663953042911
+        ],
+        "current_internal_basis_overlap_min_singular_value": 0.8073663953042911,
+        "saved_Q_transverse_to_current_rigid_modes": true
+      },
+      "calibration_source": "research/ga_ssw/evidence/ls-theory-20261010/channel-v1/run-1728173/result.json",
+      "calibration_details": {
+        "input_path": "research/ga_ssw/evidence/ls-theory-20261010/channel-v1/run-1728173/plus-0.050.extxyz",
+        "hessian_result_path": "research/ga_ssw/evidence/ls-theory-20261010/channel-v1/run-1728173/result.json",
+        "bias_definition": "FrozenBondSoftening and FrozenShapeBondSoftening; same pair list, bond tables, xi=0.2, base fraction 0.03",
+        "equation": "chi = (Q^T grad W)^T H_Q^{-1} (Q^T grad W); shape uses its analytic pulled-back gradient at the same geometry"
+      }
+    },
+    "c4-trans": {
+      "input_sha256": "d69d093769af99844d39ec95ad94dd89c57ee0106b7942cfe7f65a4db1de4677",
+      "campaign_input_sha256": "d69d093769af99844d39ec95ad94dd89c57ee0106b7942cfe7f65a4db1de4677",
+      "campaign_geometry_byte_identical": true,
+      "initial_fraction": 0.024741658946808902,
+      "base_pair_fraction": 0.03,
+      "chi_pair_eV": 0.06804362784796582,
+      "chi_shape_eV": 0.1000396901601795,
+      "amplitude_ratio_shape_over_pair": 0.8247219648936301,
+      "dual_stencil_response_check": {
+        "stencil_A": 0.001,
+        "chi_pair_eV": 0.06804366357138554,
+        "chi_shape_eV": 0.10003998111517244,
+        "amplitude_ratio_shape_over_pair": 0.8247209820796806
+      },
+      "pair_count": 9,
+      "radius0_A": 6.204896573105103,
+      "bias_parameters": {
+        "initial_fraction_pair": 0.03,
+        "xi": 0.2,
+        "bond_energies_eV": {
+          "(1, 1)": 4.526579856872559,
+          "(1, 6)": 4.29817008972168,
+          "(6, 6)": 3.4468400478363037
+        },
+        "bond_lengths_A": {
+          "(1, 1)": 0.8400000095367431,
+          "(1, 6)": 1.1900000333786012,
+          "(6, 6)": 1.6399999618530274
+        }
+      },
+      "hessian": {
+        "path": "research/ga_ssw/evidence/ls-theory-20261010/channel-v1/run-1728173/minus-0.050-hessian.npz",
+        "sha256": "a835d2f35811558cdd0a6396f87290febee51eb2b8f9049e348f7db16236ad8b",
+        "matrix_key": "H_h0005",
+        "dual_matrix_key": "H_h001",
+        "dimension": 24,
+        "qualification_status": "force-qualified stable minimum; dual-stencil Hessian qualified",
+        "physical_minimum_fmax_eV_A": 7.602072916411024e-05,
+        "physical_hessian_stencils_A": [
+          0.001,
+          0.0005
+        ],
+        "saved_hessian_stencil_A": 0.0005,
+        "stencil_spread_eV_A2": 0.00012739622317840978,
+        "antisymmetric_norms_eV_A2": [
+          0.0002689208992063542,
+          6.7230291861276e-05
+        ],
+        "lambda_min_eV_A2": 0.23235481234243488,
+        "lambda_min_over_stencil_spread": 1823.875202462146,
+        "acceptance": "lambda0 > 5*stencil spread",
+        "positive_resolved": true,
+        "chart": "fixed affine Eckart internal chart based at channel-v1 input.extxyz",
+        "basis_input": "research/ga_ssw/evidence/ls-theory-20261010/channel-v1/run-1728173/input.extxyz",
+        "basis_input_sha256": "d5b380cfaf22fb2e21f5fadfe399eaa9aa49aa44a04b0cf2d4d2f3ad8adea719",
+        "kind": "fixed affine Eckart section",
+        "endpoint_rigid_subspace_overlap_singular_values": [
+          1.0,
+          1.0,
+          0.9999999999999999,
+          0.9948909890741847,
+          0.9313508581061191,
+          0.7526487500881593
+        ],
+        "minimum_overlap_singular_value": 0.7526487500881593,
+        "transverse_to_endpoint_rigid_modes": true,
+        "current_internal_basis_overlap_singular_values": [
+          1.0000000000000004,
+          1.0000000000000004,
+          1.0000000000000004,
+          1.0000000000000002,
+          1.0000000000000002,
+          1.0000000000000002,
+          1.0000000000000002,
+          1.0000000000000002,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          0.9999999999999999,
+          0.9999999999999999,
+          0.9999999999999998,
+          0.9999999999999998,
+          0.9999999999999998,
+          0.9999999999999998,
+          0.9999999999999997,
+          0.9999999999999994,
+          0.9948909891184702,
+          0.9313508582775409,
+          0.7526487502081693
+        ],
+        "current_internal_basis_overlap_min_singular_value": 0.7526487502081693,
+        "saved_Q_transverse_to_current_rigid_modes": true
+      },
+      "calibration_source": "research/ga_ssw/evidence/ls-theory-20261010/channel-v1/run-1728173/result.json",
+      "calibration_details": {
+        "input_path": "research/ga_ssw/evidence/ls-theory-20261010/channel-v1/run-1728173/minus-0.050.extxyz",
+        "hessian_result_path": "research/ga_ssw/evidence/ls-theory-20261010/channel-v1/run-1728173/result.json",
+        "bias_definition": "FrozenBondSoftening and FrozenShapeBondSoftening; same pair list, bond tables, xi=0.2, base fraction 0.03",
+        "equation": "chi = (Q^T grad W)^T H_Q^{-1} (Q^T grad W); shape uses its analytic pulled-back gradient at the same geometry"
+      }
+    }
+  },
+  "interpretation_limit": "The rescaled fraction equalizes only the O(a^2) physical-minimum relaxation energy response. It does not equalize response vectors, transition-state/barrier response, finite prequench behavior, or SSW outcomes."
+}
