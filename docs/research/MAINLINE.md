@@ -1,3 +1,16 @@
+## 2026-10-12 当前：shape LS 理论诊断收口，等待方向消融配置决定
+
+可选shape实现已完成，默认仍pair，87项接口/恢复检查通过。
+两轮共30外步全数落点fresh力合格，无截断；12763+3769=16532实际模型计算。
+等弱响应后C60一个种子确实到达不同键图，但仍高于起点约9.17eV；匹配六臂
+请求较pair高约13%，尚无低能发现效率收益。停止shape幅度/长程扩张，保留实验性。
+[最终读出](../../research/ga_ssw/evidence/ls-theory-20261010/shape-linear-response-readout.md)。
+
+下一项回到SSW方向贡献消融；既有参数不能关闭局部项/位移seed。
+[最小三模式方案](2026-10-12-stage-direction-ablation-proposal.md)已提出，尚未实施：
+默认full不变，local_only/feedback_only先限定短程无恢复研究。
+此公共方向语义需依AGENTS第8节由用户确认；计算与LS结果归档已完成。
+
 ## 2026-10-11 当前：已批准可选形状 LS，进入完整外步验证
 
 用户已批准[最小设计](2026-10-10-experimental-ls-geometry-proposal.md)。

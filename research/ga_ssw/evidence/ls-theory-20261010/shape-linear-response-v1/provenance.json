@@ -1,0 +1,8 @@
+{
+  "commit": "2f11bc0ceb9580778c6c1d9f38b93fdffb6da988",
+  "source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ls-theory-20261010/shape-linear-response-v1/source",
+  "baseline_job": 1739743,
+  "core_snapshot_from": "296d7d4",
+  "max_search_requests": 24000,
+  "max_qualification_requests": 100
+}
