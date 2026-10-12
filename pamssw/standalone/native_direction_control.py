@@ -106,7 +106,13 @@ class LocalDirectionState:
         coefficients = np.zeros(10)
         coefficients[4:7] = self.coefficients[4:7]
         coefficients[9] = 1.2*np.sum(coefficients[:9])
-        return self._generate(atoms, seed, coefficients, rng)
+        generated = self._generate(atoms, seed, coefficients, rng)
+        feedback = seed.copy()
+        if coefficients[9] > 1e-6:
+            feedback *= coefficients[9]
+        direction = _native_normalize(feedback)
+        return LocalDirectionResult(direction, not np.any(direction),
+                                    generated.local_route, generated.group_marker)
 
     def _generate(self, atoms, seed, coefficients, rng):
         self.last_coefficients = np.asarray(coefficients).copy()
