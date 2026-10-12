@@ -1,0 +1,562 @@
+{
+  "run": "/home/gengjianrui/bin/pam-ssw-worktrees/vc-phase139-transfer-20261012/research/ga_ssw/evidence/vc-phase139-transfer-20261012/run-1757298",
+  "status": "completed",
+  "code": "628848da4bde799b19a5d31d18defef3c759b452",
+  "arms": [
+    {
+      "seed": 26101251,
+      "arm": "cell_only",
+      "status": "completed",
+      "paid_search": 4000,
+      "actual_search": 3967,
+      "paid_fresh": 2,
+      "actual_fresh": 2,
+      "initial_paid": 5,
+      "outcomes": {
+        "valid_landing": 20
+      },
+      "atomic_paths_paid_attempts": {
+        "not_scheduled": 20
+      },
+      "zero_request_records": 0,
+      "stage_unassigned_paid": 0,
+      "valid_atomic_landings": [],
+      "completed_gaussians": 0,
+      "budget_released_rotations": 0,
+      "target_candidates": [
+        {
+          "index": 12,
+          "cost": 2767
+        }
+      ],
+      "first_target": {
+        "energy_eV": -428.13456242476883,
+        "energy_per_atom_eV": -8.919470050516017,
+        "fmax_eV_A": 0.04318833765668888,
+        "stress_max_eV_A3": 0.00032568553399622043,
+        "natoms": 48,
+        "volume_A3": 556.2364358900584,
+        "identity_matches": {
+          "tight": true,
+          "broad": true
+        },
+        "identity_qualified": true,
+        "energy_window_passed": true,
+        "physical_gate_passed": true,
+        "target_candidate": true,
+        "paid_requests_through_outer": 2767
+      },
+      "fresh_checks": [
+        {
+          "energy_eV": -425.7858820520466,
+          "energy_per_atom_eV": -8.870539209417638,
+          "fmax_eV_A": 0.04891298542398664,
+          "stress_max_eV_A3": 0.0008156562135792698,
+          "natoms": 48,
+          "volume_A3": 919.0778517123998,
+          "identity_matches": {
+            "tight": false,
+            "broad": false
+          },
+          "identity_qualified": false,
+          "energy_window_passed": false,
+          "physical_gate_passed": true,
+          "target_candidate": false,
+          "role": "initial",
+          "calculator_calls": 1,
+          "paid_requests": 1,
+          "search_energy_eV": -425.7858820520465,
+          "cold_energy_delta_eV": -1.1368683772161603e-13,
+          "cold_energy_consistent_1e-6_eV": true
+        },
+        {
+          "energy_eV": -428.13456242476894,
+          "energy_per_atom_eV": -8.91947005051602,
+          "fmax_eV_A": 0.04318833765668827,
+          "stress_max_eV_A3": 0.00032568553399624423,
+          "natoms": 48,
+          "volume_A3": 556.2364358900584,
+          "identity_matches": {
+            "tight": true,
+            "broad": true
+          },
+          "identity_qualified": true,
+          "energy_window_passed": true,
+          "physical_gate_passed": true,
+          "target_candidate": true,
+          "role": "best_physical",
+          "calculator_calls": 2,
+          "paid_requests": 2,
+          "search_energy_eV": -428.13456242476883,
+          "cold_energy_delta_eV": -1.1368683772161603e-13,
+          "cold_energy_consistent_1e-6_eV": true
+        }
+      ],
+      "best": {
+        "energy_eV": -428.13456242476883,
+        "energy_per_atom_eV": -8.919470050516017,
+        "fmax_eV_A": 0.04318833765668888,
+        "stress_max_eV_A3": 0.00032568553399622043,
+        "natoms": 48,
+        "volume_A3": 556.2364358900584,
+        "identity_matches": {
+          "tight": true,
+          "broad": true
+        },
+        "identity_qualified": true,
+        "energy_window_passed": true,
+        "physical_gate_passed": true,
+        "target_candidate": true
+      },
+      "stage_costs": {
+        "atomic_rotation": 0,
+        "biased_quench": 0,
+        "cell_rotation_and_partial": 2782,
+        "gaussian_height": 0,
+        "true_checks_and_landing_quench": 1213
+      }
+    },
+    {
+      "seed": 26101251,
+      "arm": "cell_plus_atomic",
+      "status": "budget_censored",
+      "paid_search": 4000,
+      "actual_search": 3896,
+      "paid_fresh": 2,
+      "actual_fresh": 2,
+      "initial_paid": 5,
+      "outcomes": {
+        "valid_landing": 7,
+        "budget_censored": 1,
+        "not_started_no_budget": 12
+      },
+      "atomic_paths_paid_attempts": {
+        "not_scheduled": 4,
+        "atomic_landing_valid": 3,
+        "atomic_not_reached_after_cell_failure": 1
+      },
+      "zero_request_records": 12,
+      "stage_unassigned_paid": 30,
+      "valid_atomic_landings": [
+        {
+          "index": 1,
+          "accepted": false,
+          "target": false
+        },
+        {
+          "index": 3,
+          "accepted": false,
+          "target": false
+        },
+        {
+          "index": 5,
+          "accepted": false,
+          "target": false
+        }
+      ],
+      "completed_gaussians": 30,
+      "budget_released_rotations": 30,
+      "target_candidates": [],
+      "first_target": null,
+      "fresh_checks": [
+        {
+          "energy_eV": -425.7858820520465,
+          "energy_per_atom_eV": -8.870539209417634,
+          "fmax_eV_A": 0.04891298542396317,
+          "stress_max_eV_A3": 0.0008156562135759806,
+          "natoms": 48,
+          "volume_A3": 919.0778517124031,
+          "identity_matches": {
+            "tight": false,
+            "broad": false
+          },
+          "identity_qualified": false,
+          "energy_window_passed": false,
+          "physical_gate_passed": true,
+          "target_candidate": false,
+          "role": "initial",
+          "calculator_calls": 1,
+          "paid_requests": 1,
+          "search_energy_eV": -425.7858820520465,
+          "cold_energy_delta_eV": 0.0,
+          "cold_energy_consistent_1e-6_eV": true
+        },
+        {
+          "energy_eV": -424.3468545486483,
+          "energy_per_atom_eV": -8.840559469763507,
+          "fmax_eV_A": 0.0276816187215521,
+          "stress_max_eV_A3": 0.0001563522545472418,
+          "natoms": 48,
+          "volume_A3": 642.7687089174223,
+          "identity_matches": {
+            "tight": false,
+            "broad": false
+          },
+          "identity_qualified": false,
+          "energy_window_passed": false,
+          "physical_gate_passed": true,
+          "target_candidate": false,
+          "role": "last_distinct",
+          "calculator_calls": 2,
+          "paid_requests": 2,
+          "search_energy_eV": -424.3468545486483,
+          "cold_energy_delta_eV": 0.0,
+          "cold_energy_consistent_1e-6_eV": true
+        }
+      ],
+      "best": {
+        "energy_eV": -425.7858820520465,
+        "energy_per_atom_eV": -8.870539209417634,
+        "fmax_eV_A": 0.048912985423963364,
+        "stress_max_eV_A3": 0.0008156562135760822,
+        "natoms": 48,
+        "volume_A3": 919.0778517124031,
+        "identity_matches": {
+          "tight": false,
+          "broad": false
+        },
+        "identity_qualified": false,
+        "energy_window_passed": false,
+        "physical_gate_passed": true,
+        "target_candidate": false
+      },
+      "stage_costs": {
+        "atomic_rotation": 1200,
+        "biased_quench": 1197,
+        "cell_rotation_and_partial": 1071,
+        "gaussian_height": 0,
+        "true_checks_and_landing_quench": 497
+      }
+    },
+    {
+      "seed": 26101252,
+      "arm": "cell_only",
+      "status": "budget_censored",
+      "paid_search": 4000,
+      "actual_search": 3968,
+      "paid_fresh": 3,
+      "actual_fresh": 3,
+      "initial_paid": 5,
+      "outcomes": {
+        "valid_landing": 19,
+        "budget_censored": 1
+      },
+      "atomic_paths_paid_attempts": {
+        "not_scheduled": 20
+      },
+      "zero_request_records": 0,
+      "stage_unassigned_paid": 0,
+      "valid_atomic_landings": [],
+      "completed_gaussians": 0,
+      "budget_released_rotations": 0,
+      "target_candidates": [
+        {
+          "index": 5,
+          "cost": 1284
+        },
+        {
+          "index": 17,
+          "cost": 3740
+        }
+      ],
+      "first_target": {
+        "energy_eV": -428.13220948139383,
+        "energy_per_atom_eV": -8.919421030862372,
+        "fmax_eV_A": 0.046143888864677025,
+        "stress_max_eV_A3": 0.0008512381693693324,
+        "natoms": 48,
+        "volume_A3": 555.9832455686384,
+        "identity_matches": {
+          "tight": true,
+          "broad": true
+        },
+        "identity_qualified": true,
+        "energy_window_passed": true,
+        "physical_gate_passed": true,
+        "target_candidate": true,
+        "paid_requests_through_outer": 1284
+      },
+      "fresh_checks": [
+        {
+          "energy_eV": -425.78588205204653,
+          "energy_per_atom_eV": -8.870539209417636,
+          "fmax_eV_A": 0.04891298542399676,
+          "stress_max_eV_A3": 0.0008156562135792815,
+          "natoms": 48,
+          "volume_A3": 919.0778517123998,
+          "identity_matches": {
+            "tight": false,
+            "broad": false
+          },
+          "identity_qualified": false,
+          "energy_window_passed": false,
+          "physical_gate_passed": true,
+          "target_candidate": false,
+          "role": "initial",
+          "calculator_calls": 1,
+          "paid_requests": 1,
+          "search_energy_eV": -425.7858820520465,
+          "cold_energy_delta_eV": -5.684341886080802e-14,
+          "cold_energy_consistent_1e-6_eV": true
+        },
+        {
+          "energy_eV": -428.13382978156267,
+          "energy_per_atom_eV": -8.919454787115889,
+          "fmax_eV_A": 0.04612961981026971,
+          "stress_max_eV_A3": 0.0005158999628387926,
+          "natoms": 48,
+          "volume_A3": 556.1838785332483,
+          "identity_matches": {
+            "tight": true,
+            "broad": true
+          },
+          "identity_qualified": true,
+          "energy_window_passed": true,
+          "physical_gate_passed": true,
+          "target_candidate": true,
+          "role": "best_physical",
+          "calculator_calls": 2,
+          "paid_requests": 2,
+          "search_energy_eV": -428.13382978156255,
+          "cold_energy_delta_eV": -1.1368683772161603e-13,
+          "cold_energy_consistent_1e-6_eV": true
+        },
+        {
+          "energy_eV": -428.1322094813936,
+          "energy_per_atom_eV": -8.919421030862367,
+          "fmax_eV_A": 0.046143888864679024,
+          "stress_max_eV_A3": 0.000851238169369101,
+          "natoms": 48,
+          "volume_A3": 555.9832455686384,
+          "identity_matches": {
+            "tight": true,
+            "broad": true
+          },
+          "identity_qualified": true,
+          "energy_window_passed": true,
+          "physical_gate_passed": true,
+          "target_candidate": true,
+          "role": "first_target",
+          "calculator_calls": 3,
+          "paid_requests": 3,
+          "search_energy_eV": -428.13220948139383,
+          "cold_energy_delta_eV": 2.2737367544323206e-13,
+          "cold_energy_consistent_1e-6_eV": true
+        }
+      ],
+      "best": {
+        "energy_eV": -428.13382978156255,
+        "energy_per_atom_eV": -8.919454787115887,
+        "fmax_eV_A": 0.04612961981026975,
+        "stress_max_eV_A3": 0.000515899962838874,
+        "natoms": 48,
+        "volume_A3": 556.1838785332483,
+        "identity_matches": {
+          "tight": true,
+          "broad": true
+        },
+        "identity_qualified": true,
+        "energy_window_passed": true,
+        "physical_gate_passed": true,
+        "target_candidate": true
+      },
+      "stage_costs": {
+        "atomic_rotation": 0,
+        "biased_quench": 0,
+        "cell_rotation_and_partial": 2688,
+        "gaussian_height": 0,
+        "true_checks_and_landing_quench": 1307
+      }
+    },
+    {
+      "seed": 26101252,
+      "arm": "cell_plus_atomic",
+      "status": "budget_censored",
+      "paid_search": 4000,
+      "actual_search": 3888,
+      "paid_fresh": 2,
+      "actual_fresh": 2,
+      "initial_paid": 5,
+      "outcomes": {
+        "valid_landing": 7,
+        "budget_censored": 1,
+        "not_started_no_budget": 12
+      },
+      "atomic_paths_paid_attempts": {
+        "not_scheduled": 4,
+        "atomic_landing_valid": 3,
+        "rotation_budget_released_3_completed_gaussians": 1
+      },
+      "zero_request_records": 12,
+      "stage_unassigned_paid": 75,
+      "valid_atomic_landings": [
+        {
+          "index": 1,
+          "accepted": false,
+          "target": false
+        },
+        {
+          "index": 3,
+          "accepted": false,
+          "target": false
+        },
+        {
+          "index": 5,
+          "accepted": false,
+          "target": false
+        }
+      ],
+      "completed_gaussians": 33,
+      "budget_released_rotations": 33,
+      "target_candidates": [],
+      "first_target": null,
+      "fresh_checks": [
+        {
+          "energy_eV": -425.7858820520466,
+          "energy_per_atom_eV": -8.870539209417638,
+          "fmax_eV_A": 0.04891298542395962,
+          "stress_max_eV_A3": 0.0008156562135794622,
+          "natoms": 48,
+          "volume_A3": 919.0778517123998,
+          "identity_matches": {
+            "tight": false,
+            "broad": false
+          },
+          "identity_qualified": false,
+          "energy_window_passed": false,
+          "physical_gate_passed": true,
+          "target_candidate": false,
+          "role": "initial",
+          "calculator_calls": 1,
+          "paid_requests": 1,
+          "search_energy_eV": -425.7858820520466,
+          "cold_energy_delta_eV": 0.0,
+          "cold_energy_consistent_1e-6_eV": true
+        },
+        {
+          "energy_eV": -425.36680160561195,
+          "energy_per_atom_eV": -8.861808366783583,
+          "fmax_eV_A": 0.04088671113667371,
+          "stress_max_eV_A3": 0.0002982496902930933,
+          "natoms": 48,
+          "volume_A3": 589.834495586716,
+          "identity_matches": {
+            "tight": false,
+            "broad": false
+          },
+          "identity_qualified": false,
+          "energy_window_passed": false,
+          "physical_gate_passed": true,
+          "target_candidate": false,
+          "role": "last_distinct",
+          "calculator_calls": 2,
+          "paid_requests": 2,
+          "search_energy_eV": -425.366801605612,
+          "cold_energy_delta_eV": 5.684341886080802e-14,
+          "cold_energy_consistent_1e-6_eV": true
+        }
+      ],
+      "best": {
+        "energy_eV": -425.7858820520466,
+        "energy_per_atom_eV": -8.870539209417638,
+        "fmax_eV_A": 0.04891298542395957,
+        "stress_max_eV_A3": 0.0008156562135796189,
+        "natoms": 48,
+        "volume_A3": 919.0778517123998,
+        "identity_matches": {
+          "tight": false,
+          "broad": false
+        },
+        "identity_qualified": false,
+        "energy_window_passed": false,
+        "physical_gate_passed": true,
+        "target_candidate": false
+      },
+      "stage_costs": {
+        "atomic_rotation": 1320,
+        "biased_quench": 965,
+        "cell_rotation_and_partial": 1127,
+        "gaussian_height": 0,
+        "true_checks_and_landing_quench": 508
+      }
+    }
+  ],
+  "planned_arm_statuses": [
+    {
+      "seed": 26101251,
+      "arm": "cell_only",
+      "status": "completed"
+    },
+    {
+      "seed": 26101251,
+      "arm": "cell_plus_atomic",
+      "status": "budget_censored"
+    },
+    {
+      "seed": 26101252,
+      "arm": "cell_only",
+      "status": "budget_censored"
+    },
+    {
+      "seed": 26101252,
+      "arm": "cell_plus_atomic",
+      "status": "budget_censored"
+    }
+  ],
+  "paired_trace_checks": {
+    "26101251": {
+      "first_outer": {
+        "available": true,
+        "max_abs_numeric_difference": 5.4720672437724716e-11,
+        "categorical_fields_match": true,
+        "matches_within_trace_tolerance": true
+      },
+      "pre_atomic_cell_stage": {
+        "available": true,
+        "max_abs_numeric_difference": 1.9539925233402755e-14,
+        "categorical_fields_match": true,
+        "matches_within_trace_tolerance": true
+      },
+      "shared_initial": {
+        "energy_abs_difference_eV": 0.0,
+        "geometry_max_abs_difference": 0.0,
+        "geometry_categories_match": true,
+        "matches_within_trace_tolerance": true
+      },
+      "diagnostic": "pre-treatment trace comparison only; not a physical-search qualification"
+    },
+    "26101252": {
+      "first_outer": {
+        "available": true,
+        "max_abs_numeric_difference": 7.105427357601002e-15,
+        "categorical_fields_match": true,
+        "matches_within_trace_tolerance": true
+      },
+      "pre_atomic_cell_stage": {
+        "available": true,
+        "max_abs_numeric_difference": 7.105427357601002e-15,
+        "categorical_fields_match": true,
+        "matches_within_trace_tolerance": true
+      },
+      "shared_initial": {
+        "energy_abs_difference_eV": 1.1368683772161603e-13,
+        "geometry_max_abs_difference": 0.0,
+        "geometry_categories_match": true,
+        "matches_within_trace_tolerance": true
+      },
+      "diagnostic": "pre-treatment trace comparison only; not a physical-search qualification"
+    }
+  },
+  "total_search_paid": 16000,
+  "total_search_actual": 15719,
+  "fresh_plus_reference_paid": 10,
+  "fresh_plus_reference_actual": 10,
+  "limits": {
+    "search_requests_total": 16000,
+    "fresh_requests_total": 13,
+    "outer_per_arm": 20,
+    "per_arm_search_requests": 4000,
+    "per_arm_fresh_requests": 3
+  },
+  "interpretation": "Two seeds of one TiO2 starting geometry; bounded component diagnostic, not a success-rate estimate."
+}
