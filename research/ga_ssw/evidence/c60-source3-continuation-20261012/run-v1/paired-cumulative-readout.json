@@ -1,0 +1,1706 @@
+{
+  "comparisons": [
+    {
+      "arms": {
+        "paper_ls": {
+          "best_connected_energy_eV": -62213.55127504707,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.55128097183,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.025753967952665352,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.371863187642691,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.035637135083279,
+                2.035328471717265,
+                2.021455388001309
+              ],
+              "search_index": 63,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 13,
+          "run_status": "completed_100"
+        },
+        "ssw": {
+          "best_connected_energy_eV": -62213.55121014449,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.55116887503,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.01299016202525284,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.371818004045296,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.0354182050346727,
+                2.0348135680382815,
+                2.0222378865457262
+              ],
+              "search_index": 13,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 12,
+          "run_status": "completed_100"
+        }
+      },
+      "common_paid_search_horizon": 5000,
+      "prefix_reached_by_both": true,
+      "requested_prefix": 5000,
+      "seed": 26100791
+    },
+    {
+      "arms": {
+        "paper_ls": {
+          "best_connected_energy_eV": -62213.55127504707,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.55128097183,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.025753967952665352,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.371863187642691,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.035637135083279,
+                2.035328471717265,
+                2.021455388001309
+              ],
+              "search_index": 63,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 25,
+          "run_status": "completed_100"
+        },
+        "ssw": {
+          "best_connected_energy_eV": -62213.551234919134,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.55116887503,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.01299016202525284,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.371818004045296,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.0354182050346727,
+                2.0348135680382815,
+                2.0222378865457262
+              ],
+              "search_index": 13,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 24,
+          "run_status": "completed_100"
+        }
+      },
+      "common_paid_search_horizon": 10000,
+      "prefix_reached_by_both": true,
+      "requested_prefix": 10000,
+      "seed": 26100791
+    },
+    {
+      "arms": {
+        "paper_ls": {
+          "best_connected_energy_eV": -62213.55127504707,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.55128097183,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.025753967952665352,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.371863187642691,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.035637135083279,
+                2.035328471717265,
+                2.021455388001309
+              ],
+              "search_index": 63,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 47,
+          "run_status": "completed_100"
+        },
+        "ssw": {
+          "best_connected_energy_eV": -62213.551234919134,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.55116887503,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.01299016202525284,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.371818004045296,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.0354182050346727,
+                2.0348135680382815,
+                2.0222378865457262
+              ],
+              "search_index": 13,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 46,
+          "run_status": "completed_100"
+        }
+      },
+      "common_paid_search_horizon": 20000,
+      "prefix_reached_by_both": true,
+      "requested_prefix": 20000,
+      "seed": 26100791
+    },
+    {
+      "arms": {
+        "paper_ls": {
+          "best_connected_energy_eV": -62213.55128097183,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.55128097183,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.025753967952665352,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.371863187642691,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.035637135083279,
+                2.035328471717265,
+                2.021455388001309
+              ],
+              "search_index": 63,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 93,
+          "run_status": "completed_100"
+        },
+        "ssw": {
+          "best_connected_energy_eV": -62213.551234919134,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.55116887503,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.01299016202525284,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.371818004045296,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.0354182050346727,
+                2.0348135680382815,
+                2.0222378865457262
+              ],
+              "search_index": 13,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 91,
+          "run_status": "completed_100"
+        }
+      },
+      "common_paid_search_horizon": 40000,
+      "prefix_reached_by_both": true,
+      "requested_prefix": 40000,
+      "seed": 26100791
+    },
+    {
+      "arms": {
+        "paper_ls": {
+          "best_connected_energy_eV": -62213.55128097183,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.55128097183,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.025753967952665352,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.371863187642691,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.035637135083279,
+                2.035328471717265,
+                2.021455388001309
+              ],
+              "search_index": 63,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 101,
+          "run_status": "completed_100"
+        },
+        "ssw": {
+          "best_connected_energy_eV": -62213.551234919134,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.55116887503,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.01299016202525284,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.371818004045296,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.0354182050346727,
+                2.0348135680382815,
+                2.0222378865457262
+              ],
+              "search_index": 13,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 99,
+          "run_status": "completed_100"
+        }
+      },
+      "common_paid_search_horizon": 43269,
+      "prefix_reached_by_both": false,
+      "requested_prefix": 60000,
+      "seed": 26100791
+    },
+    {
+      "arms": {
+        "paper_ls": {
+          "best_connected_energy_eV": -62213.5512302081,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.5512302081,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.0158345369879499,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.3718389231960997,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.035866946357446,
+                2.035342054474837,
+                2.0211797540055705
+              ],
+              "search_index": 11,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 12,
+          "run_status": "completed_100"
+        },
+        "ssw": {
+          "best_connected_energy_eV": -62213.55125606391,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.551311738905,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.007480085473072065,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.3718965808011983,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.0358406486913148,
+                2.0352893872072464,
+                2.0211986873284986
+              ],
+              "search_index": 79,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 11,
+          "run_status": "completed_100"
+        }
+      },
+      "common_paid_search_horizon": 5000,
+      "prefix_reached_by_both": true,
+      "requested_prefix": 5000,
+      "seed": 26100792
+    },
+    {
+      "arms": {
+        "paper_ls": {
+          "best_connected_energy_eV": -62213.5512302081,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.5512302081,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.0158345369879499,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.3718389231960997,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.035866946357446,
+                2.035342054474837,
+                2.0211797540055705
+              ],
+              "search_index": 11,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 22,
+          "run_status": "completed_100"
+        },
+        "ssw": {
+          "best_connected_energy_eV": -62213.55125606391,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.551311738905,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.007480085473072065,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.3718965808011983,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.0358406486913148,
+                2.0352893872072464,
+                2.0211986873284986
+              ],
+              "search_index": 79,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 23,
+          "run_status": "completed_100"
+        }
+      },
+      "common_paid_search_horizon": 10000,
+      "prefix_reached_by_both": true,
+      "requested_prefix": 10000,
+      "seed": 26100792
+    },
+    {
+      "arms": {
+        "paper_ls": {
+          "best_connected_energy_eV": -62213.55126436364,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.5512302081,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.0158345369879499,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.3718389231960997,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.035866946357446,
+                2.035342054474837,
+                2.0211797540055705
+              ],
+              "search_index": 11,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 45,
+          "run_status": "completed_100"
+        },
+        "ssw": {
+          "best_connected_energy_eV": -62213.55125606391,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.551311738905,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.007480085473072065,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.3718965808011983,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.0358406486913148,
+                2.0352893872072464,
+                2.0211986873284986
+              ],
+              "search_index": 79,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 46,
+          "run_status": "completed_100"
+        }
+      },
+      "common_paid_search_horizon": 20000,
+      "prefix_reached_by_both": true,
+      "requested_prefix": 20000,
+      "seed": 26100792
+    },
+    {
+      "arms": {
+        "paper_ls": {
+          "best_connected_energy_eV": -62213.55126436364,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.5512302081,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.0158345369879499,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.3718389231960997,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.035866946357446,
+                2.035342054474837,
+                2.0211797540055705
+              ],
+              "search_index": 11,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 90,
+          "run_status": "completed_100"
+        },
+        "ssw": {
+          "best_connected_energy_eV": -62213.551311738905,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.551311738905,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.007480085473072065,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.3718965808011983,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.0358406486913148,
+                2.0352893872072464,
+                2.0211986873284986
+              ],
+              "search_index": 79,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 91,
+          "run_status": "completed_100"
+        }
+      },
+      "common_paid_search_horizon": 40000,
+      "prefix_reached_by_both": true,
+      "requested_prefix": 40000,
+      "seed": 26100792
+    },
+    {
+      "arms": {
+        "paper_ls": {
+          "best_connected_energy_eV": -62213.55126436364,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.5512302081,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.0158345369879499,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.3718389231960997,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.035866946357446,
+                2.035342054474837,
+                2.0211797540055705
+              ],
+              "search_index": 11,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 100,
+          "run_status": "completed_100"
+        },
+        "ssw": {
+          "best_connected_energy_eV": -62213.551311738905,
+          "cumulative_outer_count": 100,
+          "first_strict_Ih_target_cost": null,
+          "fresh_checks": [
+            {
+              "energy_eV": -62213.551311738905,
+              "energy_repeat_error_eV": 0.0,
+              "fmax_eV_A": 0.007480085473072065,
+              "graph_match_all_cutoffs": false,
+              "graphs": [
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.64,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.7,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                },
+                {
+                  "all_carbon": true,
+                  "components": 1,
+                  "cutoff_A": 1.8,
+                  "degree_counts": {
+                    "3": 60
+                  },
+                  "edges": 90,
+                  "face_counts": {
+                    "5": 12,
+                    "6": 20
+                  },
+                  "graph_cage_candidate": true,
+                  "ih_graph_match": false,
+                  "planar": true,
+                  "three_connected": true
+                }
+              ],
+              "label": "best_new_minimum",
+              "minimum_distance_A": 1.3718965808011983,
+              "numerical_qualified": true,
+              "parent_joint_target": false,
+              "physical_cage_review": "required",
+              "principal_rms_extents_A": [
+                2.0358406486913148,
+                2.0352893872072464,
+                2.0211986873284986
+              ],
+              "search_index": 79,
+              "status": "completed",
+              "strict_ih_target_candidate": false
+            }
+          ],
+          "qualified_observations": 101,
+          "run_status": "completed_100"
+        }
+      },
+      "common_paid_search_horizon": 44318,
+      "prefix_reached_by_both": false,
+      "requested_prefix": 60000,
+      "seed": 26100792
+    }
+  ],
+  "scope": "paired cumulative parent+child fixed-horizon readout; not a barrier or PBE claim",
+  "status": "paired_available"
+}
