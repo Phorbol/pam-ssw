@@ -102,7 +102,7 @@ class LocalDirectionState:
         if self.active_mask is not None:
             displacement = displacement.copy()
             displacement[~self.active_mask] = 0.
-        seed = _native_normalize(displacement)
+        seed = np.zeros_like(displacement)
         coefficients = np.zeros(10)
         coefficients[4:7] = self.coefficients[4:7]
         coefficients[9] = 1.2*np.sum(coefficients[:9])
