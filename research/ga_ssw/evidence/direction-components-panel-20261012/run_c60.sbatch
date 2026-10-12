@@ -7,7 +7,6 @@
 #SBATCH --qos=rush-1o2gpu
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=1
 #SBATCH --gpus-per-node=1
 #SBATCH --time=00:30:00
 #SBATCH --output=/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/c60-%j.out
