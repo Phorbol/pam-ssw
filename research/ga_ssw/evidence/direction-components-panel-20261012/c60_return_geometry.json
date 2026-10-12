@@ -1,0 +1,423 @@
+{
+  "zero_pes_analysis": true,
+  "input_run_root": "runs-1756515/c60",
+  "observed_pairs": 12,
+  "method": "centered, same-atom-index least-squares proper rotation; no permutation in RMS",
+  "graph_rule": "nonperiodic pair distance strictly below each existing cutoff and greater than zero",
+  "new_classification_threshold": null,
+  "limitations": [
+    "Small RMS and identical edge sets do not prove exact basin identity.",
+    "Different graphs and higher energies do not prove productive escape.",
+    "Coordinates are read from the saved extxyz frames, including their serialization precision."
+  ],
+  "rows": [
+    {
+      "method": "feedback_only",
+      "seed": 26101231,
+      "result_path": "runs-1756515/c60/feedback_only/seed-26101231/result.json",
+      "trajectory_path": "runs-1756515/c60/feedback_only/seed-26101231/structures.extxyz",
+      "initial_frame_role": "initial",
+      "landing_frame_role": "landing",
+      "search_requests": 425,
+      "fresh_landing_minus_initial_energy_eV": 0.0001738782666507177,
+      "same_index_proper_rotation_rms_A": 0.0024125681985439277,
+      "graphs": [
+        {
+          "cutoff_A": 1.64,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        },
+        {
+          "cutoff_A": 1.7,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        },
+        {
+          "cutoff_A": 1.8,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        }
+      ]
+    },
+    {
+      "method": "feedback_only",
+      "seed": 26101232,
+      "result_path": "runs-1756515/c60/feedback_only/seed-26101232/result.json",
+      "trajectory_path": "runs-1756515/c60/feedback_only/seed-26101232/structures.extxyz",
+      "initial_frame_role": "initial",
+      "landing_frame_role": "landing",
+      "search_requests": 286,
+      "fresh_landing_minus_initial_energy_eV": 0.001069902500603348,
+      "same_index_proper_rotation_rms_A": 0.0034789955187079624,
+      "graphs": [
+        {
+          "cutoff_A": 1.64,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        },
+        {
+          "cutoff_A": 1.7,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        },
+        {
+          "cutoff_A": 1.8,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        }
+      ]
+    },
+    {
+      "method": "feedback_only",
+      "seed": 26101233,
+      "result_path": "runs-1756515/c60/feedback_only/seed-26101233/result.json",
+      "trajectory_path": "runs-1756515/c60/feedback_only/seed-26101233/structures.extxyz",
+      "initial_frame_role": "initial",
+      "landing_frame_role": "landing",
+      "search_requests": 314,
+      "fresh_landing_minus_initial_energy_eV": 6.520011811517179e-05,
+      "same_index_proper_rotation_rms_A": 0.0016082965866144466,
+      "graphs": [
+        {
+          "cutoff_A": 1.64,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        },
+        {
+          "cutoff_A": 1.7,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        },
+        {
+          "cutoff_A": 1.8,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        }
+      ]
+    },
+    {
+      "method": "feedback_only",
+      "seed": 26101234,
+      "result_path": "runs-1756515/c60/feedback_only/seed-26101234/result.json",
+      "trajectory_path": "runs-1756515/c60/feedback_only/seed-26101234/structures.extxyz",
+      "initial_frame_role": "initial",
+      "landing_frame_role": "landing",
+      "search_requests": 285,
+      "fresh_landing_minus_initial_energy_eV": 8.012081525521353e-05,
+      "same_index_proper_rotation_rms_A": 0.0015226855773249318,
+      "graphs": [
+        {
+          "cutoff_A": 1.64,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        },
+        {
+          "cutoff_A": 1.7,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        },
+        {
+          "cutoff_A": 1.8,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        }
+      ]
+    },
+    {
+      "method": "full",
+      "seed": 26101231,
+      "result_path": "runs-1756515/c60/full/seed-26101231/result.json",
+      "trajectory_path": "runs-1756515/c60/full/seed-26101231/structures.extxyz",
+      "initial_frame_role": "initial",
+      "landing_frame_role": "landing",
+      "search_requests": 400,
+      "fresh_landing_minus_initial_energy_eV": 10.114824807998957,
+      "same_index_proper_rotation_rms_A": 0.5388590124899318,
+      "graphs": [
+        {
+          "cutoff_A": 1.64,
+          "landing_connected": true,
+          "landing_edges": 89,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        },
+        {
+          "cutoff_A": 1.7,
+          "landing_connected": true,
+          "landing_edges": 89,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        },
+        {
+          "cutoff_A": 1.8,
+          "landing_connected": true,
+          "landing_edges": 89,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        }
+      ]
+    },
+    {
+      "method": "full",
+      "seed": 26101232,
+      "result_path": "runs-1756515/c60/full/seed-26101232/result.json",
+      "trajectory_path": "runs-1756515/c60/full/seed-26101232/structures.extxyz",
+      "initial_frame_role": "initial",
+      "landing_frame_role": "landing",
+      "search_requests": 454,
+      "fresh_landing_minus_initial_energy_eV": 5.635253350563289,
+      "same_index_proper_rotation_rms_A": 0.39673148297890504,
+      "graphs": [
+        {
+          "cutoff_A": 1.64,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        },
+        {
+          "cutoff_A": 1.7,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        },
+        {
+          "cutoff_A": 1.8,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        }
+      ]
+    },
+    {
+      "method": "full",
+      "seed": 26101233,
+      "result_path": "runs-1756515/c60/full/seed-26101233/result.json",
+      "trajectory_path": "runs-1756515/c60/full/seed-26101233/structures.extxyz",
+      "initial_frame_role": "initial",
+      "landing_frame_role": "landing",
+      "search_requests": 402,
+      "fresh_landing_minus_initial_energy_eV": 3.470104275038466e-05,
+      "same_index_proper_rotation_rms_A": 0.0011976325069098725,
+      "graphs": [
+        {
+          "cutoff_A": 1.64,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        },
+        {
+          "cutoff_A": 1.7,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        },
+        {
+          "cutoff_A": 1.8,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        }
+      ]
+    },
+    {
+      "method": "full",
+      "seed": 26101234,
+      "result_path": "runs-1756515/c60/full/seed-26101234/result.json",
+      "trajectory_path": "runs-1756515/c60/full/seed-26101234/structures.extxyz",
+      "initial_frame_role": "initial",
+      "landing_frame_role": "landing",
+      "search_requests": 453,
+      "fresh_landing_minus_initial_energy_eV": 0.000293082746793516,
+      "same_index_proper_rotation_rms_A": 0.002009846513896902,
+      "graphs": [
+        {
+          "cutoff_A": 1.64,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        },
+        {
+          "cutoff_A": 1.7,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        },
+        {
+          "cutoff_A": 1.8,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": true,
+          "isomorphic_to_initial": true
+        }
+      ]
+    },
+    {
+      "method": "local_only",
+      "seed": 26101231,
+      "result_path": "runs-1756515/c60/local_only/seed-26101231/result.json",
+      "trajectory_path": "runs-1756515/c60/local_only/seed-26101231/structures.extxyz",
+      "initial_frame_role": "initial",
+      "landing_frame_role": "landing",
+      "search_requests": 489,
+      "fresh_landing_minus_initial_energy_eV": 9.036166935191432,
+      "same_index_proper_rotation_rms_A": 0.3526763127322457,
+      "graphs": [
+        {
+          "cutoff_A": 1.64,
+          "landing_connected": true,
+          "landing_edges": 89,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        },
+        {
+          "cutoff_A": 1.7,
+          "landing_connected": true,
+          "landing_edges": 89,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        },
+        {
+          "cutoff_A": 1.8,
+          "landing_connected": true,
+          "landing_edges": 89,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        }
+      ]
+    },
+    {
+      "method": "local_only",
+      "seed": 26101232,
+      "result_path": "runs-1756515/c60/local_only/seed-26101232/result.json",
+      "trajectory_path": "runs-1756515/c60/local_only/seed-26101232/structures.extxyz",
+      "initial_frame_role": "initial",
+      "landing_frame_role": "landing",
+      "search_requests": 428,
+      "fresh_landing_minus_initial_energy_eV": 24.834514903668605,
+      "same_index_proper_rotation_rms_A": 1.1564088412420324,
+      "graphs": [
+        {
+          "cutoff_A": 1.64,
+          "landing_connected": true,
+          "landing_edges": 93,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        },
+        {
+          "cutoff_A": 1.7,
+          "landing_connected": true,
+          "landing_edges": 93,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        },
+        {
+          "cutoff_A": 1.8,
+          "landing_connected": true,
+          "landing_edges": 94,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        }
+      ]
+    },
+    {
+      "method": "local_only",
+      "seed": 26101233,
+      "result_path": "runs-1756515/c60/local_only/seed-26101233/result.json",
+      "trajectory_path": "runs-1756515/c60/local_only/seed-26101233/structures.extxyz",
+      "initial_frame_role": "initial",
+      "landing_frame_role": "landing",
+      "search_requests": 844,
+      "fresh_landing_minus_initial_energy_eV": 19.703837458742782,
+      "same_index_proper_rotation_rms_A": 0.9394190995370334,
+      "graphs": [
+        {
+          "cutoff_A": 1.64,
+          "landing_connected": true,
+          "landing_edges": 88,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        },
+        {
+          "cutoff_A": 1.7,
+          "landing_connected": true,
+          "landing_edges": 90,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        },
+        {
+          "cutoff_A": 1.8,
+          "landing_connected": true,
+          "landing_edges": 91,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        }
+      ]
+    },
+    {
+      "method": "local_only",
+      "seed": 26101234,
+      "result_path": "runs-1756515/c60/local_only/seed-26101234/result.json",
+      "trajectory_path": "runs-1756515/c60/local_only/seed-26101234/structures.extxyz",
+      "initial_frame_role": "initial",
+      "landing_frame_role": "landing",
+      "search_requests": 490,
+      "fresh_landing_minus_initial_energy_eV": 12.265191270758805,
+      "same_index_proper_rotation_rms_A": 0.4922481532116778,
+      "graphs": [
+        {
+          "cutoff_A": 1.64,
+          "landing_connected": true,
+          "landing_edges": 89,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        },
+        {
+          "cutoff_A": 1.7,
+          "landing_connected": true,
+          "landing_edges": 89,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        },
+        {
+          "cutoff_A": 1.8,
+          "landing_connected": true,
+          "landing_edges": 89,
+          "same_index_edges": false,
+          "isomorphic_to_initial": false
+        }
+      ]
+    }
+  ]
+}
