@@ -74,6 +74,8 @@ def analyze(runs_root: Path):
             pair["arms"][arm] = {
                 "run": str(path), "status": result.get("status"),
                 "search_requests": result.get("search_requests_total"),
+                "first_connected_qualified_cost": observations[0][0] if observations else None,
+                "connected_qualified_observations": len(observations),
                 "fresh_requests": result.get("fresh_requests"),
                 "first_hit": result.get("status") == "first_hit",
                 "candidate_requests": (result.get("first_candidate") or {}).get("evaluation_requests"),

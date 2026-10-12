@@ -1,0 +1,267 @@
+{
+  "status": "readout_complete",
+  "pes_requests": 0,
+  "target_reference": {
+    "file": "/home/gengjianrui/bin/pam-ssw-worktrees/benchmark-lj38-20261012/research/ga_ssw/evidence/cluster-paper-reproduction-20260925/references/lj38.points",
+    "energy_eV": -173.928427,
+    "sha256": "61be40be128a801f1f2e8b8c7c047c87e66676d65831957424a132e95ab58454"
+  },
+  "second_minimum_reference": {
+    "file": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/lj38-source-20260912/optim-finish.extxyz",
+    "energy_eV": -173.25237760119302,
+    "fmax_eV_A": 0.0015821779885481586,
+    "qualification_file": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/lj38-source-20260912/optim-qualification.json",
+    "qualification_sha256": "f4406a977d99a59470659d9a7e7987cbbd8230aa99d05d9c1873316ec01840d6",
+    "sha256": "550c1e6070c2c86afd0e83f3475a1019fd322f3e5f373f89430f9851b3b9ca58",
+    "identity_basis": "pre-existing independently qualified OPTIM second-lowest LJ38 minimum"
+  },
+  "geometry_method": {
+    "implementation": "/home/gengjianrui/bin/pam-ssw-worktrees/benchmark-lj38-20261012/research/ga_ssw/evidence/ssw-native-lj-panel-20261007/analyze_panel.py",
+    "mapping_cap": 1000,
+    "proper_rotation_rms_tolerance_A": 0.081,
+    "connected_component_method": "/home/gengjianrui/bin/pam-ssw-worktrees/benchmark-lj38-20261012/research/ga_ssw/evidence/ssw-native-lj-panel-20261007/run_panel.py",
+    "connected_graph_cutoff_sigma": 1.3
+  },
+  "runs": [
+    {
+      "run": "/home/gengjianrui/bin/pam-ssw-worktrees/benchmark-lj38-20261012/research/ga_ssw/evidence/lj38-direction-target-20261012/runs/run-1755511-0",
+      "slot": 0,
+      "seed": 25092501,
+      "arm": "rotation",
+      "execution_status_preserved": "evaluation_failed",
+      "execution_error_field": null,
+      "search_requests_total": 800000,
+      "ledger_rows": 800001,
+      "result_denied_request_count": 1,
+      "ledger_denied_request_count": 1,
+      "denied_request_examples": [
+        {
+          "request": 800001,
+          "charged": false,
+          "status": "denied",
+          "reason": "request_cap_denied_before_evaluation",
+          "geometry_gate": {
+            "eligible": true,
+            "reason": "ok",
+            "scope": "nonperiodic_full_pair_no_storage_bound_v2",
+            "native_image_diagnostics_only": {
+              "eligible": false,
+              "reason": "outside_storage_cell",
+              "min_A": [
+                -4.675480668011153,
+                -3.706252871370787,
+                -3.5687984777134867
+              ],
+              "max_A": [
+                4.562304520789424,
+                5.951186849220039,
+                6.2762818749502784
+              ],
+              "axis_span_A": [
+                9.237785188800578,
+                9.657439720590826,
+                9.845080352663764
+              ],
+              "storage_cell_A": 100.0,
+              "max_span_A": 50.0
+            }
+          }
+        }
+      ],
+      "charged_failed_request_count": 0,
+      "paid_calculator_error_count": 0,
+      "paid_failure_examples": [],
+      "paid_calculator_error_examples": [],
+      "target_joint_hit": false,
+      "first_structural_target_minimum": {
+        "kind": "outer_step",
+        "outer_index": 530,
+        "cost_paid_requests": 466001,
+        "energy_eV": -173.9263870654933,
+        "fmax_eV_A": 0.03642205165968393,
+        "qualification": "force_qualified_connected_minimum",
+        "structure_ref": "outer-structures.extxyz#minimum:530",
+        "atom_count": 38,
+        "target_geometry": {
+          "classification": "same",
+          "best_proper_rotation_rms_A": 0.006831774266517055,
+          "rms_tolerance_A": 0.081,
+          "mappings_checked": 2,
+          "mapping_cap": 1000,
+          "capped": false
+        },
+        "second_minimum_geometry": {
+          "classification": "different",
+          "reason": "graphs_not_isomorphic",
+          "mappings_checked": 0,
+          "mapping_cap": 1000,
+          "capped": false
+        }
+      },
+      "first_structural_target_cost_requests": 466001,
+      "first_second_minimum_match": null,
+      "target_geometry_inconclusive_minimum_count": 0,
+      "target_geometry_inconclusive_minima": [],
+      "uncosted_structural_observations": [],
+      "eligible_minima_scanned": 762,
+      "minima_records_seen": 901,
+      "best_structure_readout": {
+        "file": "/home/gengjianrui/bin/pam-ssw-worktrees/benchmark-lj38-20261012/research/ga_ssw/evidence/lj38-direction-target-20261012/runs/run-1755511-0/best.extxyz",
+        "energy_eV": -173.92721455032694,
+        "fresh_record": {
+          "role": "best",
+          "energy_eV": -173.92721455032694,
+          "fmax_eV_A": 0.0382163428998155,
+          "force_gate_0p05": true,
+          "force_gate_0p01_informational": false,
+          "requests": 2
+        },
+        "target_geometry": {
+          "classification": "same",
+          "best_proper_rotation_rms_A": 0.0041432253221805665,
+          "rms_tolerance_A": 0.081,
+          "mappings_checked": 2,
+          "mapping_cap": 1000,
+          "capped": false
+        },
+        "second_minimum_geometry": {
+          "classification": "different",
+          "reason": "graphs_not_isomorphic",
+          "mappings_checked": 0,
+          "mapping_cap": 1000,
+          "capped": false
+        },
+        "connected_component_sizes_1p3sigma": [
+          38
+        ]
+      },
+      "structures_sha256": "810b1450358aa528fb766f97f3a7cf14ad0a76469fe2784a2f590d0e621bed27",
+      "progress_sha256": "d8d74ea688ce2ad8755ec9ea77ca70d0cc2e9ec0c091dcdc311ed45433c3906b",
+      "search_ledger_sha256": "fd0bee66a2575886ffe5e145d0f4a35965f377af8a4c2c53c422c6dd9eb73653",
+      "scope": "post-hoc structural identity only; does not change the predeclared joint energy/force/geometry target hit"
+    },
+    {
+      "run": "/home/gengjianrui/bin/pam-ssw-worktrees/benchmark-lj38-20261012/research/ga_ssw/evidence/lj38-direction-target-20261012/runs/run-1755511-1",
+      "slot": 1,
+      "seed": 25092501,
+      "arm": "full_per_atom",
+      "execution_status_preserved": "evaluation_failed",
+      "execution_error_field": null,
+      "search_requests_total": 800000,
+      "ledger_rows": 800001,
+      "result_denied_request_count": 1,
+      "ledger_denied_request_count": 1,
+      "denied_request_examples": [
+        {
+          "request": 800001,
+          "charged": false,
+          "status": "denied",
+          "reason": "request_cap_denied_before_evaluation",
+          "geometry_gate": {
+            "eligible": true,
+            "reason": "ok",
+            "scope": "nonperiodic_full_pair_no_storage_bound_v2",
+            "native_image_diagnostics_only": {
+              "eligible": false,
+              "reason": "outside_storage_cell",
+              "min_A": [
+                -4.639884183098994,
+                -3.439207513519897,
+                -4.003483826796359
+              ],
+              "max_A": [
+                4.6450252739636975,
+                5.0677534492153695,
+                5.471523444872038
+              ],
+              "axis_span_A": [
+                9.284909457062692,
+                8.506960962735267,
+                9.475007271668396
+              ],
+              "storage_cell_A": 100.0,
+              "max_span_A": 50.0
+            }
+          }
+        }
+      ],
+      "charged_failed_request_count": 0,
+      "paid_calculator_error_count": 0,
+      "paid_failure_examples": [],
+      "paid_calculator_error_examples": [],
+      "target_joint_hit": false,
+      "first_structural_target_minimum": null,
+      "first_structural_target_cost_requests": null,
+      "first_second_minimum_match": {
+        "kind": "outer_step",
+        "outer_index": 9,
+        "cost_paid_requests": 2714,
+        "energy_eV": -173.25210699355955,
+        "fmax_eV_A": 0.024446808374389298,
+        "qualification": "force_qualified_connected_minimum",
+        "structure_ref": "outer-structures.extxyz#minimum:9",
+        "atom_count": 38,
+        "target_geometry": {
+          "classification": "different",
+          "reason": "graphs_not_isomorphic",
+          "mappings_checked": 0,
+          "mapping_cap": 1000,
+          "capped": false
+        },
+        "second_minimum_geometry": {
+          "classification": "same",
+          "best_proper_rotation_rms_A": 0.0015823549547092667,
+          "rms_tolerance_A": 0.081,
+          "mappings_checked": 2,
+          "mapping_cap": 1000,
+          "capped": false
+        }
+      },
+      "target_geometry_inconclusive_minimum_count": 0,
+      "target_geometry_inconclusive_minima": [],
+      "uncosted_structural_observations": [],
+      "eligible_minima_scanned": 1242,
+      "minima_records_seen": 1268,
+      "best_structure_readout": {
+        "file": "/home/gengjianrui/bin/pam-ssw-worktrees/benchmark-lj38-20261012/research/ga_ssw/evidence/lj38-direction-target-20261012/runs/run-1755511-1/best.extxyz",
+        "energy_eV": -173.25221135513738,
+        "fresh_record": {
+          "role": "best",
+          "energy_eV": -173.25221135513738,
+          "fmax_eV_A": 0.012814186266372542,
+          "force_gate_0p05": true,
+          "force_gate_0p01_informational": false,
+          "requests": 2
+        },
+        "target_geometry": {
+          "classification": "different",
+          "reason": "graphs_not_isomorphic",
+          "mappings_checked": 0,
+          "mapping_cap": 1000,
+          "capped": false
+        },
+        "second_minimum_geometry": {
+          "classification": "same",
+          "best_proper_rotation_rms_A": 0.0015701864924815257,
+          "rms_tolerance_A": 0.081,
+          "mappings_checked": 2,
+          "mapping_cap": 1000,
+          "capped": false
+        },
+        "connected_component_sizes_1p3sigma": [
+          38
+        ]
+      },
+      "structures_sha256": "38a9c4def80ed5fca82d20463cb4ac3ea34663afb632b297918b45ca0d6b3e57",
+      "progress_sha256": "8c7dfe4a90d320e4b58995b1ee591393a1e40ca87e50974fe608d016f7af9196",
+      "search_ledger_sha256": "5c3170d8722cb1970493d1959361c7cf970c922885b9b6d2efe4074507ecf349",
+      "scope": "post-hoc structural identity only; does not change the predeclared joint energy/force/geometry target hit"
+    }
+  ],
+  "limitations": [
+    "A capped nonmatch is inconclusive, not evidence of structural difference.",
+    "A geometry match to the second-minimum endpoint does not establish a transition path or funnel residence.",
+    "Structural target discovery is reported separately from the frozen joint target criterion.",
+    "Execution status and denied/paid failed requests are preserved as independent fields."
+  ]
+}

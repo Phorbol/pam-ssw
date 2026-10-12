@@ -1,0 +1,85 @@
+{
+  "status": "complete",
+  "scope": "paired development results on two reused LJ38 starts; not a success-rate estimate",
+  "runs_root": "/home/gengjianrui/bin/pam-ssw-worktrees/benchmark-lj38-20261012/research/ga_ssw/evidence/lj38-direction-target-20261012/runs",
+  "pairs": [
+    {
+      "seed": 25092501,
+      "status": "paired_readout",
+      "common_paid_request_prefix": 800000,
+      "arms": {
+        "rotation": {
+          "run": "/home/gengjianrui/bin/pam-ssw-worktrees/benchmark-lj38-20261012/research/ga_ssw/evidence/lj38-direction-target-20261012/runs/run-1755511-0",
+          "status": "evaluation_failed",
+          "search_requests": 800000,
+          "first_connected_qualified_cost": 1363,
+          "connected_qualified_observations": 762,
+          "fresh_requests": 2,
+          "first_hit": false,
+          "candidate_requests": null,
+          "first_hit_requests": null,
+          "candidate_energy_eV": null,
+          "candidate_fresh_passed": null,
+          "best_qualified_energy_at_shared_prefix_eV": -173.92721455032694,
+          "best_energy_eV": -173.92721455032694,
+          "search_wall_seconds": 1433.4728922301438
+        },
+        "full_per_atom": {
+          "run": "/home/gengjianrui/bin/pam-ssw-worktrees/benchmark-lj38-20261012/research/ga_ssw/evidence/lj38-direction-target-20261012/runs/run-1755511-1",
+          "status": "evaluation_failed",
+          "search_requests": 800000,
+          "first_connected_qualified_cost": 1100,
+          "connected_qualified_observations": 1242,
+          "fresh_requests": 2,
+          "first_hit": false,
+          "candidate_requests": null,
+          "first_hit_requests": null,
+          "candidate_energy_eV": null,
+          "candidate_fresh_passed": null,
+          "best_qualified_energy_at_shared_prefix_eV": -173.25221135513738,
+          "best_energy_eV": -173.25221135513738,
+          "search_wall_seconds": 1494.3886723751202
+        }
+      }
+    },
+    {
+      "seed": 25092502,
+      "status": "paired_readout",
+      "common_paid_request_prefix": 629409,
+      "arms": {
+        "rotation": {
+          "run": "/home/gengjianrui/bin/pam-ssw-worktrees/benchmark-lj38-20261012/research/ga_ssw/evidence/lj38-direction-target-20261012/runs/run-1755511-2",
+          "status": "completed",
+          "search_requests": 678674,
+          "first_connected_qualified_cost": null,
+          "connected_qualified_observations": 0,
+          "fresh_requests": 2,
+          "first_hit": false,
+          "candidate_requests": null,
+          "first_hit_requests": null,
+          "candidate_energy_eV": null,
+          "candidate_fresh_passed": null,
+          "best_qualified_energy_at_shared_prefix_eV": null,
+          "best_energy_eV": -117.42565627835958,
+          "search_wall_seconds": 1216.5758852621075
+        },
+        "full_per_atom": {
+          "run": "/home/gengjianrui/bin/pam-ssw-worktrees/benchmark-lj38-20261012/research/ga_ssw/evidence/lj38-direction-target-20261012/runs/run-1755511-3",
+          "status": "first_hit",
+          "search_requests": 629409,
+          "first_connected_qualified_cost": 2049,
+          "connected_qualified_observations": 991,
+          "fresh_requests": 1,
+          "first_hit": true,
+          "candidate_requests": 629409,
+          "first_hit_requests": 629409,
+          "candidate_energy_eV": -173.9276401752455,
+          "candidate_fresh_passed": true,
+          "best_qualified_energy_at_shared_prefix_eV": -173.9276401752455,
+          "best_energy_eV": -173.9276401752455,
+          "search_wall_seconds": 1126.732333289925
+        }
+      }
+    }
+  ]
+}
