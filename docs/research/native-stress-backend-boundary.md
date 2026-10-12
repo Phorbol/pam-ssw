@@ -26,8 +26,18 @@ On a successful read, 0x417734 tests `external_dedcell`; its false branch joins
 the common exit. Its true branch copies the nine entries into +0xc8 and calls
 `dedcell2stress_` at 0x4177d1. Both reach the common tensor sign flip. Root
 independently inspected these archived instructions after the scoped review.
-This does not establish effective parsed flag value, physical units, axis
-layout or final SSW-object transfer. Do not send guessed `+/- ASE stress`.
+This does not establish the effective flag of any actual run, physical units,
+axis layout or final SSW-object transfer. Do not send guessed `+/- ASE stress`.
+
+A subsequent bounded root inspection located the actual input keyword:
+`external.dedcell` at 0x4a30b44. `readkey_` at 0x411420–0x411443 passes
+that 16-character string and flag address 0x5d71d18 to
+`getkeys_mp_get_logical_` (0x47c730). `module_pes_reset_` zeroes r15d at
+0x414e1f and stores it into the flag at 0x414eb4. This establishes the
+keyword and reset behavior, not runtime call ordering or absence of later
+writes. Small disassembly slices are in `native-external-stress-key-evidence/`.
+A first attempted ELF inspection lacked pyelftools; the same bounded address
+lookup was completed with stdlib ELF64 segment parsing, without installation.
 
 The live `research/ga_ssw/lasp_external_ase.py` deliberately rejects changed
 cells and returns E/F only; its socket client also writes only E/F. Existing
