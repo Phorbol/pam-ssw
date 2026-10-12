@@ -37,3 +37,20 @@ Cholesky of G preserves the cell metric up to an orthogonal factor; that
 identity alone cannot improve a Euclidean optimizer or establish useful
 preconditioning. Do not add a cell scaling parameter or replace the validated
 log-strain chart until the actual mapping and solver implications are clear.
+
+## 2026-10-12 coordinate and reset follow-up
+
+Let native column cell be A and stored factxyz be B, with factxyzb=C=B^{-T}.
+The scalar loops now identify scart atoms q=B*s (`cart2scart`0x59f6e0–0x59f732),
+and the inverse s=C^T*q=B^{-1}q (`scart2cart`0x59e805–0x59e842), followed by
+r=A*s (`0x59ed4e` onward). q's last three columns directly store A.
+This is an affine reference chart, not log-strain. Mapping is not a claim that
+all native force consumers are its exact adjoint.
+
+Direct table bytes0x53cacc0+0xa0 point to set_smat0x5a3b90. Calls appear at
+set_status0x5e9bfe, allopt_judge_converg0x5f6d32, make_decision0x5fbe07 and
+allopt0x5fe474. Root checked the set_status branch's literal0x4a45ed4 is
+`Allopt`, so that observed reset is a quench-state transition, not evidence
+of a refresh inside every Gaussian. Other indirect paths remain unproven.
+Do not assume B frozen for an entire search, or infer every local BFGS update
+is performed in an unchanged metric. No new PES was needed for this slice.
