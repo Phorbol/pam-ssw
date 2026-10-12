@@ -1,0 +1,1537 @@
+{
+  "comparison": "existing compare_geometry(initial, landing): graph isomorphism plus proper-rotation RMS",
+  "geometry_comparator": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/ssw-native-lj-panel-20261007/analyze_panel.py",
+  "purpose": "zero-PES return-to-initial geometry classification; not basin-coverage inference",
+  "run_roots": [
+    "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756504",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756505"
+  ],
+  "slot_count": 24,
+  "slots": [
+    {
+      "case": "lj38",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 586,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -167.38499150555367,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.027543033591011547,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              38
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 6.543435494446328,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 629,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 586,
+          "charged_requests": 629,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": 5.867386095632753,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -173.25237760118642,
+      "initial_present": true,
+      "landing_accepted": false,
+      "landing_energy_eV": -167.38499150555367,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "gaussian_limit",
+      "method": "feedback_only",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756504/lj38/feedback_only/seed-26101231",
+      "seed": 26101231,
+      "status": "completed"
+    },
+    {
+      "case": "lj38",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 518,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -168.9412119993984,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.040152577909192244,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              38
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 4.987215000601594,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 561,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 518,
+          "charged_requests": 561,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": 4.311165601788019,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -173.25237760118642,
+      "initial_present": true,
+      "landing_accepted": false,
+      "landing_energy_eV": -168.9412119993984,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "gaussian_limit",
+      "method": "feedback_only",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756504/lj38/feedback_only/seed-26101232",
+      "seed": 26101232,
+      "status": "completed"
+    },
+    {
+      "case": "lj38",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 609,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -171.20143604354064,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.038462441808734774,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              38
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 2.7269909564593604,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 652,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 609,
+          "charged_requests": 652,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": 2.0509415576457855,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -173.25237760118642,
+      "initial_present": true,
+      "landing_accepted": false,
+      "landing_energy_eV": -171.20143604354064,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "gaussian_limit",
+      "method": "feedback_only",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756504/lj38/feedback_only/seed-26101233",
+      "seed": 26101233,
+      "status": "completed"
+    },
+    {
+      "case": "lj38",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 593,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -170.80456984289964,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.031337500223383205,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              38
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 3.1238571571003604,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 636,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 593,
+          "charged_requests": 636,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": 2.4478077582867854,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -173.25237760118642,
+      "initial_present": true,
+      "landing_accepted": false,
+      "landing_energy_eV": -170.80456984289964,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "gaussian_limit",
+      "method": "feedback_only",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756504/lj38/feedback_only/seed-26101234",
+      "seed": 26101234,
+      "status": "completed"
+    },
+    {
+      "case": "lj38",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 677,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -173.25226535910355,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.021673143615884145,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              38
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 0.6761616408964528,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 720,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 677,
+          "charged_requests": 720,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": 0.00011224208287785586,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -173.25237760118642,
+      "initial_present": true,
+      "landing_accepted": true,
+      "landing_energy_eV": -173.25226535910355,
+      "landing_geometry_vs_same_run_initial": {
+        "best_proper_rotation_rms_A": 0.0010831850225782958,
+        "capped": false,
+        "classification": "same",
+        "mapping_cap": 1000,
+        "mappings_checked": 2,
+        "rms_tolerance_A": 0.081
+      },
+      "landing_present": true,
+      "landing_status": "gaussian_limit",
+      "method": "full",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756504/lj38/full/seed-26101231",
+      "seed": 26101231,
+      "status": "completed"
+    },
+    {
+      "case": "lj38",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 763,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -167.69753731122844,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.03758854521752349,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              38
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 6.230889688771555,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 806,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 763,
+          "charged_requests": 806,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": 5.55484028995798,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -173.25237760118642,
+      "initial_present": true,
+      "landing_accepted": false,
+      "landing_energy_eV": -167.69753731122844,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "gaussian_limit",
+      "method": "full",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756504/lj38/full/seed-26101232",
+      "seed": 26101232,
+      "status": "completed"
+    },
+    {
+      "case": "lj38",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 699,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -165.0742625218159,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.03166432947178795,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              37,
+              1
+            ],
+            "full_cluster": false
+          },
+          "target_energy_delta_eV": 8.854164478184089,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 742,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 699,
+          "charged_requests": 742,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": 8.178115079370514,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -173.25237760118642,
+      "initial_present": true,
+      "landing_accepted": false,
+      "landing_energy_eV": -165.0742625218159,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "gaussian_limit",
+      "method": "full",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756504/lj38/full/seed-26101233",
+      "seed": 26101233,
+      "status": "completed"
+    },
+    {
+      "case": "lj38",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 690,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -171.7731764845463,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.02220220141381106,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              38
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 2.1552505154537016,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 733,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 690,
+          "charged_requests": 733,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": 1.4792011166401267,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -173.25237760118642,
+      "initial_present": true,
+      "landing_accepted": false,
+      "landing_energy_eV": -171.7731764845463,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "gaussian_limit",
+      "method": "full",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756504/lj38/full/seed-26101234",
+      "seed": 26101234,
+      "status": "completed"
+    },
+    {
+      "case": "lj38",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 601,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -168.1047333696461,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.04886611893794596,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              38
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 5.823693630353887,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 644,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 601,
+          "charged_requests": 644,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": 5.147644231540312,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -173.25237760118642,
+      "initial_present": true,
+      "landing_accepted": false,
+      "landing_energy_eV": -168.1047333696461,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "gaussian_limit",
+      "method": "local_only",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756504/lj38/local_only/seed-26101231",
+      "seed": 26101231,
+      "status": "completed"
+    },
+    {
+      "case": "lj38",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 1057,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -169.22060426959263,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.02721942344547823,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              38
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 4.707822730407372,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 1100,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 1057,
+          "charged_requests": 1100,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": 4.031773331593797,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -173.25237760118642,
+      "initial_present": true,
+      "landing_accepted": false,
+      "landing_energy_eV": -169.22060426959263,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "gaussian_limit",
+      "method": "local_only",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756504/lj38/local_only/seed-26101232",
+      "seed": 26101232,
+      "status": "completed"
+    },
+    {
+      "case": "lj38",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 1135,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -163.09956215426664,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.032255493176509394,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              37,
+              1
+            ],
+            "full_cluster": false
+          },
+          "target_energy_delta_eV": 10.828864845733364,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 1178,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 1135,
+          "charged_requests": 1178,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": 10.152815446919789,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -173.25237760118642,
+      "initial_present": true,
+      "landing_accepted": false,
+      "landing_energy_eV": -163.09956215426664,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "gaussian_limit",
+      "method": "local_only",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756504/lj38/local_only/seed-26101233",
+      "seed": 26101233,
+      "status": "completed"
+    },
+    {
+      "case": "lj38",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 720,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -170.14569432197962,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.040887435495531296,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              38
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 3.7827326780203805,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 763,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 720,
+          "charged_requests": 763,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": 3.1066832792068055,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -173.25237760118642,
+      "initial_present": true,
+      "landing_accepted": false,
+      "landing_energy_eV": -170.14569432197962,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "gaussian_limit",
+      "method": "local_only",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756504/lj38/local_only/seed-26101234",
+      "seed": 26101234,
+      "status": "completed"
+    },
+    {
+      "case": "lj55",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 86,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -261.0482533880173,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.04362979561271009,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              55
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 18.200216611982682,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 90,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 86,
+          "charged_requests": 90,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": -0.9581927016240002,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -260.0900606863933,
+      "initial_present": true,
+      "landing_accepted": true,
+      "landing_energy_eV": -261.0482533880173,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "lower_true_energy",
+      "method": "feedback_only",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756505/lj55/feedback_only/seed-26101231",
+      "seed": 26101231,
+      "status": "completed"
+    },
+    {
+      "case": "lj55",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 178,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -260.2749764579967,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.048546346264894916,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              55
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 18.973493542003325,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 188,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 178,
+          "charged_requests": 188,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": -0.18491577160335737,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -260.0900606863933,
+      "initial_present": true,
+      "landing_accepted": true,
+      "landing_energy_eV": -260.2749764579967,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "lower_true_energy",
+      "method": "feedback_only",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756505/lj55/feedback_only/seed-26101232",
+      "seed": 26101232,
+      "status": "completed"
+    },
+    {
+      "case": "lj55",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 107,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -261.1481584757387,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.0404071372340098,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              55
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 18.100311524261315,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 111,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 107,
+          "charged_requests": 111,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": -1.0580977893453678,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -260.0900606863933,
+      "initial_present": true,
+      "landing_accepted": true,
+      "landing_energy_eV": -261.1481584757387,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "lower_true_energy",
+      "method": "feedback_only",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756505/lj55/feedback_only/seed-26101233",
+      "seed": 26101233,
+      "status": "completed"
+    },
+    {
+      "case": "lj55",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 113,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -260.8638231309191,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.04766703485501897,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              55
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 18.384646869080882,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 117,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 113,
+          "charged_requests": 117,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": -0.7737624445258007,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -260.0900606863933,
+      "initial_present": true,
+      "landing_accepted": true,
+      "landing_energy_eV": -260.8638231309191,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "lower_true_energy",
+      "method": "feedback_only",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756505/lj55/feedback_only/seed-26101234",
+      "seed": 26101234,
+      "status": "completed"
+    },
+    {
+      "case": "lj55",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 86,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -261.0482533880173,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.04362979561271009,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              55
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 18.200216611982682,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 90,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 86,
+          "charged_requests": 90,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": -0.9581927016240002,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -260.0900606863933,
+      "initial_present": true,
+      "landing_accepted": true,
+      "landing_energy_eV": -261.0482533880173,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "lower_true_energy",
+      "method": "full",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756505/lj55/full/seed-26101231",
+      "seed": 26101231,
+      "status": "completed"
+    },
+    {
+      "case": "lj55",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 246,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -260.4603786336833,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.04518012363678015,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              55
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 18.788091366316678,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 259,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 246,
+          "charged_requests": 259,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": -0.37031794729000467,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -260.0900606863933,
+      "initial_present": true,
+      "landing_accepted": true,
+      "landing_energy_eV": -260.4603786336833,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "lower_true_energy",
+      "method": "full",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756505/lj55/full/seed-26101232",
+      "seed": 26101232,
+      "status": "completed"
+    },
+    {
+      "case": "lj55",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 107,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -261.1481584757387,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.0404071372340098,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              55
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 18.100311524261315,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 111,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 107,
+          "charged_requests": 111,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": -1.0580977893453678,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -260.0900606863933,
+      "initial_present": true,
+      "landing_accepted": true,
+      "landing_energy_eV": -261.1481584757387,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "lower_true_energy",
+      "method": "full",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756505/lj55/full/seed-26101233",
+      "seed": 26101233,
+      "status": "completed"
+    },
+    {
+      "case": "lj55",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 113,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -260.8638231309191,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.04766703485501897,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              55
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 18.384646869080882,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 117,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 113,
+          "charged_requests": 117,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": -0.7737624445258007,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -260.0900606863933,
+      "initial_present": true,
+      "landing_accepted": true,
+      "landing_energy_eV": -260.8638231309191,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "lower_true_energy",
+      "method": "full",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756505/lj55/full/seed-26101234",
+      "seed": 26101234,
+      "status": "completed"
+    },
+    {
+      "case": "lj55",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 86,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -261.0482533880173,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.04362979561271009,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              55
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 18.200216611982682,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 90,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 86,
+          "charged_requests": 90,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": -0.9581927016240002,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -260.0900606863933,
+      "initial_present": true,
+      "landing_accepted": true,
+      "landing_energy_eV": -261.0482533880173,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "lower_true_energy",
+      "method": "local_only",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756505/lj55/local_only/seed-26101231",
+      "seed": 26101231,
+      "status": "completed"
+    },
+    {
+      "case": "lj55",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 311,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -260.13878520848175,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.048484640225110724,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              55
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 19.109684791518248,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 330,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 311,
+          "charged_requests": 330,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": -0.048724522088434696,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -260.0900606863933,
+      "initial_present": true,
+      "landing_accepted": true,
+      "landing_energy_eV": -260.13878520848175,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "lower_true_energy",
+      "method": "local_only",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756505/lj55/local_only/seed-26101232",
+      "seed": 26101232,
+      "status": "completed"
+    },
+    {
+      "case": "lj55",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 107,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -261.1481584757387,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.0404071372340098,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              55
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 18.100311524261315,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 111,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 107,
+          "charged_requests": 111,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": -1.0580977893453678,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -260.0900606863933,
+      "initial_present": true,
+      "landing_accepted": true,
+      "landing_energy_eV": -261.1481584757387,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "lower_true_energy",
+      "method": "local_only",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756505/lj55/local_only/seed-26101233",
+      "seed": 26101233,
+      "status": "completed"
+    },
+    {
+      "case": "lj55",
+      "costs": {
+        "additional_pes_calls_for_this_readout": 0,
+        "fresh_ledger_recount": {
+          "actual_calculator_calls": 1,
+          "charged_requests": 1,
+          "present": true
+        },
+        "runner_actual_calculator_calls": 113,
+        "runner_denied_requests": 0,
+        "runner_fresh": {
+          "actual_calculator_calls": 1,
+          "energy_delta_from_saved_landing_eV": 0.0,
+          "energy_eV": -260.8638231309191,
+          "fresh_calculation_confirmed": true,
+          "max_force_eV_A": 0.04766703485501897,
+          "passed_force_gate": true,
+          "requests": 1,
+          "selected_role": "lowest_energy_force_qualified_saved_landing",
+          "structure_diagnostics": {
+            "connected_component_sizes_1p3sigma": [
+              55
+            ],
+            "full_cluster": true,
+            "published_GM_geometry": {
+              "capped": false,
+              "classification": "different",
+              "mapping_cap": 1000,
+              "mappings_checked": 0,
+              "reason": "graphs_not_isomorphic"
+            }
+          },
+          "target_energy_delta_eV": 18.384646869080882,
+          "target_energy_window": false
+        },
+        "runner_search_requests": 117,
+        "search_ledger_recount": {
+          "actual_calculator_calls": 113,
+          "charged_requests": 117,
+          "present": true
+        }
+      },
+      "energy_delta_landing_minus_initial_eV": -0.7737624445258007,
+      "error": null,
+      "execution_outcome": "completed",
+      "initial_energy_eV": -260.0900606863933,
+      "initial_present": true,
+      "landing_accepted": true,
+      "landing_energy_eV": -260.8638231309191,
+      "landing_geometry_vs_same_run_initial": {
+        "capped": false,
+        "classification": "different",
+        "mapping_cap": 1000,
+        "mappings_checked": 0,
+        "reason": "graphs_not_isomorphic"
+      },
+      "landing_present": true,
+      "landing_status": "lower_true_energy",
+      "method": "local_only",
+      "run_dir": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/direction-components-panel-20261012/runs-1756505/lj55/local_only/seed-26101234",
+      "seed": 26101234,
+      "status": "completed"
+    }
+  ]
+}
