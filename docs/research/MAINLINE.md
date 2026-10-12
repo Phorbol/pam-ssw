@@ -1,5 +1,17 @@
 ## 2026-10-12 最新主线：困难基准驱动，按消融证据保留设计
 
+当前推进：独立分支 `experiment/vc-atomic-contribution-20261012` 准备48原子TiO2的
+cell-only/交替原子SSW对照，两新seed、四臂、每臂20外步/4000搜索请求。
+目的为检验原子段在完整流程中的贡献；不继续扩充优化器或方向消融。
+外部oracle硬限额与既有离线分类可支持这次不续跑的有限实验，因此不把缺少
+block checkpoint/resume当作提交前必须新增的公共架构。预算后零调用外步不计尝试，
+付费后端错误优先于截尾分类。当前尚未提交该计算。
+
+C60保存中心零PES核查：12臂144个中心；反馈单项在1.70Å下没有中心边变化，
+另两阈值仅三次单边越界。缺少最终偏置端点，不能归因于真淬火撤销重排；
+保持不推广单项方向、不修改释放策略的决定。
+[读出与边界](../../research/ga_ssw/evidence/direction-components-panel-20261012/center-return-diagnosis/decision.md)。
+
 方向条件消融已收口，未改变公共API/默认配置。独立worktree源码：
 full=6c70ef4、local-only=a13ab97、feedback-only=7e2a309，两个实验分支已push。
 LJ38/LJ55/C60各4seed×3方法共36次完整外步；16165搜索请求/15127实际计算，
