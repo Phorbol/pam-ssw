@@ -1,0 +1,118 @@
+{
+  "run": "research/ga_ssw/evidence/native-vc-lifecycle-trace-20261012/run-1754853",
+  "process": {
+    "state": "completed",
+    "returncode": 0,
+    "wall_seconds": 3.4709903802722692,
+    "timeout_seconds": 120.0,
+    "cleanup_survivors": []
+  },
+  "stages": [
+    {
+      "generator_serial": 1,
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0,
+        0.8,
+        0.0,
+        0.2,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lrigid": 0,
+      "phases": [
+        "entry",
+        "after_history_scale",
+        "after_coefficient18",
+        "after_coefficient28"
+      ],
+      "entry_norm": null,
+      "entry_interpretation": "history_disabled_entry_storage_not_interpreted",
+      "history": null,
+      "after_coefficient18": {
+        "max_abs_error": 0.0,
+        "expected_norm": 0.6153874917312351
+      },
+      "after_coefficient28": {
+        "max_abs_error": 0.0,
+        "expected_norm": 0.5588143268111172
+      }
+    },
+    {
+      "generator_serial": 2,
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.2,
+        0.0,
+        0.0,
+        0.0,
+        0.30000000000000004
+      ],
+      "lrigid": 0,
+      "phases": [
+        "entry",
+        "after_history_scale",
+        "after_coefficient18",
+        "after_coefficient28"
+      ],
+      "entry_norm": 1.0,
+      "entry_interpretation": "active_history",
+      "history": {
+        "max_abs_error": 0.0,
+        "expected_norm": 0.30000000000000004
+      },
+      "after_coefficient18": {
+        "max_abs_error": 0.0,
+        "expected_norm": 0.30000000000000004
+      },
+      "after_coefficient28": {
+        "max_abs_error": 0.0,
+        "expected_norm": 0.34380079225117127
+      }
+    },
+    {
+      "generator_serial": 3,
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.2,
+        0.0,
+        0.0,
+        0.0,
+        0.30000000000000004
+      ],
+      "lrigid": 0,
+      "phases": [
+        "entry",
+        "after_history_scale",
+        "after_coefficient18",
+        "after_coefficient28"
+      ],
+      "entry_norm": 1.0,
+      "entry_interpretation": "active_history",
+      "history": {
+        "max_abs_error": 0.0,
+        "expected_norm": 0.3000000000000001
+      },
+      "after_coefficient18": {
+        "max_abs_error": 0.0,
+        "expected_norm": 0.3000000000000001
+      },
+      "after_coefficient28": {
+        "max_abs_error": 0.0,
+        "expected_norm": 0.3852957557750468
+      }
+    }
+  ],
+  "scope": "native vector algebra only; not search efficacy or block-cycle equivalence"
+}

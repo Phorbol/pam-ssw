@@ -1,0 +1,95 @@
+{
+  "status": "execution_returned_unqualified",
+  "scope": "native control-flow diagnostic only",
+  "limits": {
+    "native_wall_seconds": 120,
+    "cpu_job_seconds": 300,
+    "input_outer_steps": 2,
+    "distinct_observed_outer_steps": 2,
+    "trace_events": 500,
+    "arms": 1,
+    "input_run_type": 15
+  },
+  "binary": "/home/gengjianrui/bin/pam-ssw-research/ga-ssw-20260909/GA-SSW_program/lasp",
+  "binary_sha256": "bba43b391619ae03cf7e9c455d8fe3a7c7bb7d434a56c7ef297bee38aa9b6704",
+  "executed_binary": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/native-vc-lifecycle-trace-20261012/run-1754853/lasp",
+  "executed_binary_sha256": "bba43b391619ae03cf7e9c455d8fe3a7c7bb7d434a56c7ef297bee38aa9b6704",
+  "geometry_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/lj-bulk-stacking-readiness-20261007/geometry.py",
+  "geometry_sha256": "1278b58a63c31dc1d345414f403615954fed429fd370bc4de4dc2a0d246ad5d8",
+  "arc_writer_source": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/lasp-explicit-seed-qualification-20261007/run-1664773/runner.py",
+  "arc_writer_sha256": "9f4dda133752f2990d8aadb82cd900f5c75d4dbc3336e22c6901134eeed412fb",
+  "native_pair_scale": {
+    "a12": 150830.0777733409,
+    "a6": 388.36848195153647,
+    "sigma_A": 2.7011,
+    "source": "docs/research/native-lj-stress-producer.md"
+  },
+  "input": {
+    "formula": "Ar24",
+    "pbc": [
+      true,
+      true,
+      true
+    ],
+    "cell_A": [
+      [
+        6.063764477376896,
+        0.0,
+        0.0
+      ],
+      [
+        3.031882238688448,
+        5.2513740799740605,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        14.853128889987703
+      ]
+    ],
+    "input_arc_sha256": "c994626b8960e1ab1b99ee34f47f8fcb8338e7cf362443286a3d6220393795ba"
+  },
+  "artifacts": {
+    "lasp.in": "44f1a12f451ee2a0c5b51bd6029a3b88a1f2f228d66407b08a39a83a3fc7026c",
+    "trace.py": "04698ddef15f218c4122e70748ef5a297c86dd9cdeedfb8b965eac85c83290e1",
+    "trace.gdb": "5aee47690bc391aeadd95c4bc19d87b3a24119f3c3f1c54b852c987d0d088f65",
+    "bounded_process.py": "33e8642046feef3063fedc242215cd0427b49b5b8fe29539fa81a93347ea1911",
+    "probe_native_vc_lifecycle.py": "4181008c8f868605ba13bbe3ab3a9f64d094d10e1cc2253994bc91d2639f9260"
+  },
+  "runtime": {
+    "python": "/home/gengjianrui/.conda/envs/mace_env/bin/python",
+    "mpi_lib": "/opt/devtools/intel/oneapi/mpi/2021.13/lib",
+    "I_MPI_FABRICS": "shm",
+    "I_MPI_PIN": "0"
+  },
+  "qualification": "initial native LJ convergence and cell-event coverage unverified",
+  "command": [
+    "/home/gengjianrui/.conda/envs/mace_env/bin/python",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/native-vc-lifecycle-trace-20261012/run-1754853/bounded_process.py",
+    "--cwd",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/native-vc-lifecycle-trace-20261012/run-1754853",
+    "--timeout",
+    "120",
+    "--log",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/native-vc-lifecycle-trace-20261012/run-1754853/child.log",
+    "--status",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/native-vc-lifecycle-trace-20261012/run-1754853/process.json",
+    "--",
+    "gdb",
+    "-q",
+    "-nx",
+    "-batch",
+    "-x",
+    "trace.gdb",
+    "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/native-vc-lifecycle-trace-20261012/run-1754853/lasp"
+  ],
+  "supervisor_returncode": 0,
+  "child_process": {
+    "state": "completed",
+    "returncode": 0,
+    "wall_seconds": 3.4709903802722692,
+    "timeout_seconds": 120.0,
+    "cleanup_survivors": []
+  }
+}

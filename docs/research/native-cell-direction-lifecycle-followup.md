@@ -36,7 +36,7 @@ random-vector generator itself.
 
 The enclosing climb has a concrete post-processing dispatch. After the
 selected trajectory record is handled (`0x5f3470--0x5f3711`), it reads
-`object+0x100` (`run_type`, DWARF offset 256) at `0x5f3750`:
+`para+0x100` (`run_type`, DWARF offset 256 in `ssw_para`) at `0x5f3750`:
 
 * `run_type == 0xf` reaches `0x5f3762`, the type-bound slot `+0x1f0`, hence
   `update_mode0_`, then writes the `CBD_Unb...` status through slot `+0x190`;
@@ -75,7 +75,7 @@ introduces fresh random numbers after persistent-state-dependent preparation;
 it cannot be labeled either “independent redraw every cell cycle” or “pure
 retention” from this evidence alone.
 
-The exact paper-level meaning of `run_type` values 0xf/0x10 and whether every
+At the time of this static audit, the exact paper-level meaning of `run_type` values 0xf/0x10 and whether every
 individual NG inner iteration reaches this post-processing branch remains
 outside this static slice. It also does not map all paper `cell_cycles`
 counters to native state transitions. The independent implementation must
@@ -83,8 +83,41 @@ keep its cycle frequency and direction-lifecycle policy explicit until that
 outer state machine and the generator's data-flow semantics are separately
 traced.
 
+## 2026-10-12 correction and dynamic follow-up
+
+The earlier version incorrectly assigned `run_type` to the CSSW object. Root
+and an independent review now checked DWARF `<41634>` (`ssw_para`) and
+`<41699>` (member offset256), plus `0x5f246c`, which loads `rbx` with
+`ssw_parameters_mp_para_=0x53ed7a0`. Thus the dispatch reads the parameter
+record, not the CSSW structure. The branch targets above remain valid.
+
+In bounded native run1754624, input Run_Type15 is echoed and both post-stage
+dispatches read15 from this parameter record. Three cell Gaussian stages in
+one outer step invoke `gen_randommode` three times; the first two completed
+stages each invoke `update_mode0`. Native stdout separately distinguishes
+these stages from their5/15/1 reverse-communication climb iterations.
+This resolves repeated random-input generation at those observed stage
+boundaries, not complete replacement of direction history, nor identity with
+the2014 paper's CBD-cell cycle or input16 behavior.
+
+[Dynamic readout and corrected field interpretation](../../research/ga_ssw/evidence/native-vc-lifecycle-trace-20261012/readout.md).
+The raw first trace retains erroneous `run_type`/dispatch-object annotations;
+only the explicitly corrected derived records may be used for those fields.
+
 Sources: `research/ga_ssw/evidence/native-stress-producer-review/cssw-type-table.json`,
 `docs/research/native-cell-direction-evidence/ssw_move.asm`,
 `analysis/selected-dwarf.txt`, and the uploaded ELF disassembly at the addresses
 listed above. No production source, MAINLINE, GPU job, PES call, or native main
 execution was changed or run.
+
+### Actual vector participation, same input (1754853)
+
+A second bounded read-only run saved generator vectors and coefficients.
+Stage1 uses c3=.8, c5=.2, c9=0; stages2/3 use c3=0, c5=.2, c9=.3.
+The entering history vector has norm1 on stages2/3, and the observed history
+scaling and subsequent local addition equal the corresponding scalar-vector
+operations. This closes actual historical participation for this trace, not
+only the presence of static code. Both fresh input and history are used; pure
+independent redraw is false for these boundaries. Full local-cell construction
+and mapping to the paper's cycles remain separate. See the linked readout and
+mixing-readout-v2 for raw provenance and the unused-entry-storage analysis fix.

@@ -12,8 +12,13 @@ C60请求252→321，anatase334→319，故没有通用提速证据。C60开启�
 并非完整笼。两轮八个落点都高于初态且被MC拒绝。默认关闭，结束该面板；
 [迁移及反例](../../research/ga_ssw/evidence/protected-move-transfer-20261013/readout.md)。
 核心c51a856已push并核验远端SHA；不改变Safe-total、势模型或阈值。
-原版VC生命周期静态追加核查未获新证据，转为准备内置LJ原程序最多两外步动态trace，
-仅区分模式更新的调用频率，不做相序/性能比较。已有TiO2 atomic预算释放实验不重复。
+原版VC生命周期动态trace1754624已完成：同一外步的3个cell Gaussian阶段均调用
+gen_randommode，前两stage后均update；21次climb入口只是5+15+1次内层迭代。
+修正旧run_type字段归属（属于para而非CSSW对象），原始误标记录保留，离线修正。
+[动态证据与限制](../../research/ga_ssw/evidence/native-vc-lifecycle-trace-20261012/readout.md)。
+同输入快照1754853进一步确认：后两段实际为0.3×归一化历史向量+0.2×局部cell项，
+首段才有.8全局cell项；各乘加逐项核对一致。否定纯独立重抽解释，但局部cell构造
+及Python坐标映射尚未闭合。不改VC默认、不把native阶段等同2014周期，不重复TiO2预算释放。
 原版direct counter已核对为最多50次trial（不是51），0.1Å只限制被拒绝后的下一次trial。
 
 ## 2026-10-12 当前：回到论文与LASP反编译驱动的功能覆盖

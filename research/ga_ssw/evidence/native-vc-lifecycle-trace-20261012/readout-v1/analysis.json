@@ -1,0 +1,89 @@
+{
+  "raw_run": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/native-vc-lifecycle-trace-20261012/run-1754624",
+  "scope": "one native cell outer step; no search or phase validation",
+  "correction": "run_type belongs to ssw_para; dispatch rbx is para, r13 is CSSW descriptor",
+  "parameter_run_type_observations": [
+    15,
+    15
+  ],
+  "counts": {
+    "ssw_move": 68,
+    "get_random_mode0": 1,
+    "get_random_after_choice": 1,
+    "findmodepattern_cell": 3,
+    "gen_randommode": 3,
+    "climb": 21,
+    "climb_post_dispatch": 2,
+    "update_mode0": 2
+  },
+  "counts_by_nsswstep": {
+    "0": {
+      "ssw_move": 9
+    },
+    "1": {
+      "ssw_move": 59,
+      "get_random_mode0": 1,
+      "get_random_after_choice": 1,
+      "findmodepattern_cell": 3,
+      "gen_randommode": 3,
+      "climb": 21,
+      "climb_post_dispatch": 2,
+      "update_mode0": 2
+    }
+  },
+  "native_cell_gaussian_stages": {
+    "1": {
+      "climb_iterations": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "displacement_line": 154,
+      "finish_line": 221,
+      "generator_event": 14,
+      "generator_return_address": "0x5e82b6"
+    },
+    "2": {
+      "climb_iterations": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "displacement_line": 291,
+      "finish_line": 488,
+      "generator_event": 28,
+      "generator_return_address": "0x5ff735"
+    },
+    "3": {
+      "climb_iterations": [
+        1
+      ],
+      "displacement_line": 567,
+      "finish_line": 582,
+      "generator_event": 66,
+      "generator_return_address": "0x5ff735"
+    }
+  },
+  "process": {
+    "state": "completed",
+    "returncode": 0,
+    "wall_seconds": 3.2510681180283427,
+    "timeout_seconds": 120.0,
+    "cleanup_survivors": []
+  },
+  "limits": "random-generator invocation per observed stage; not proof of independent full direction redraw, paper2014 cycle identity, full stress qualification or efficacy"
+}

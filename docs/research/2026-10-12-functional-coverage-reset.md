@@ -22,7 +22,7 @@ SSW2013、LS2024、VC2014、RC2025、GA2026全文已归档；Q公式另据PTSD20
 |固定胞SSW|`paper_reference.run_ssw`；CBD、连续Gaussian、真势淬火、MC、方向与池状态恢复；可选标量保护已接入实际位移定宽及耗尽释放|保护只支持批准的固定胞无约束组合，元素短距离表未恢复；耗尽释放已做状态回归，真实面板只有缩步成功、没有耗尽。默认关闭，不宣称原版全行为等价|
 |LS|`softening.py`、`ls_cycle.py`、`ls_native_reference.py`；冻结邻居/参考长度、软面预淬火、响应更新、撤偏置；周期实现另有入口|论文幅度响应与native元素表控制明确分开；并非缺少LS本体。native预淬火退出处坐标/力配对及更新资格仍有反编译边界；性能混合不等于功能缺失|
 |描述符梯度方向|`descriptor_direction.py`与方向控制器显式S1/S2库已接通梯度→投影→CBD→多Gaussian→恢复，默认关闭；C60/TiO2真实生命周期已测|S3–S6及完整native选择器未闭合；VC梯度未实现，约束/LS/池全部组合未做科学验收；本轮无效率收益|
-|VC|`block_ssw.run_block_ssw`是交替cell/原子方案；`vc_reference.run_vc_ssw`另为联合log-strain方案|block每周期重新随机cell方向，源码明确标记native生命周期未验证；原子段限制global/translation_only/Safe-total；不能声称任意方向/LS组合均可直接继承|
+|VC|`block_ssw.run_block_ssw`是交替cell/原子方案；`vc_reference.run_vc_ssw`另为联合log-strain方案|block每周期重新随机cell方向；新native动态记录已确认同一外步三段Gaussian各调用生成器，静态数据流另有历史位移混合，实际混合量正在核对。不能把block周期等同native Gaussian阶段；原子段仍限制global/translation_only/Safe-total|
 |RC|`rc_reference.py`、`rc_forest_reference.py`、`rc_vc_reference.py`及精确坐标/力回拉|固定拓扑、连续周期映像等适用域；native有限角krot/Kabsch完整组合及最终力输出未闭合。不因此声称当前树缺少一个已证明必要的自由度|
 |团簇GA|`paper_ga.run_ga_ssw`的TYPE0/3三阶段、LS、恢复|论文canonical DCCD与Java NNA不同；当前调度为显式替代，不能叫完整原版调度复现|
 |周期/分子晶体GA|`periodic_ga_reference.run_periodic_ga`、`molecular_periodic_ga_reference.run_molecular_periodic_ga`；TYPE1/2、周期路由、独立matcher、默认VC及walker回调|不同于团簇GA入口；没有团簇路径同等的显式checkpoint/resume契约。TYPE2拒绝fixed_cell；组合能力需按入口核验|
@@ -71,3 +71,5 @@ S1/S2实施与真实结果：[实施记录](2026-10-12-q-entry-implementation.md
 外步与fresh复核完成；见[读出](../../research/ga_ssw/evidence/protected-move-20261012/readout.md)。
 固定参数迁移检查后关闭这一有界任务，随后回到VC交替路径的实际验收缺口；
 不把未恢复的native字段本身当作必须增加算法组件的依据。
+
+2026-10-12后续：保护固定参数迁移已结束，C60成本出现反例，因此默认关闭、不扩充调参。VC转入[原版动态生命周期诊断](../../research/ga_ssw/evidence/native-vc-lifecycle-trace-20261012/readout.md)；仅LJ控制流诊断，不作为真实材料科学验收。TiO2既有atomic预算释放已完成，不重复提交。
