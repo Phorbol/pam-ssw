@@ -37,8 +37,8 @@ Reuse input/backend/hash/provenance/ledger helpers from probe_q_paper_cases.py. 
 ## Task 3: integrate and report
 
 - [x] Verify artifacts and targeted results, update MAINLINE, approved proposal status and readout.
-- [ ] Commit only scoped files/evidence and push authorized research branch; verify remote SHA.
-- [ ] Continue next evidence-led task unless architecture/user decision is genuinely required.
+- [x] Commit only scoped files/evidence and push authorized research branch; verify remote SHA.
+- [x] Continue next evidence-led task unless architecture/user decision is genuinely required.
 
 ## 执行记录
 
@@ -56,3 +56,9 @@ Reuse input/backend/hash/provenance/ledger helpers from probe_q_paper_cases.py. 
   首次缩步前配对一致至浮点量级；C60连通改善但仍异常配位，所有落点高于初态。
   [读出](../../research/ga_ssw/evidence/protected-move-20261012/readout.md)。
 - 继续固定参数跨结构检查，不调阈值，不将短程结果升级为搜索效率结论。
+
+- 实现与首轮证据已提交c51a856，SSH push成功且ls-remote核对同一完整SHA。
+
+- 固定参数迁移GPU1754531、CPU1754539已完成；C60成本反例阻止普遍提速结论。
+  [迁移读出](../../research/ga_ssw/evidence/protected-move-transfer-20261013/readout.md)。
+  有限实现任务收口；继续VC有界动态trace，不扩大保护参数扫描。

@@ -1,0 +1,470 @@
+{
+  "raw_run": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/protected-move-transfer-20261013/run-1754531",
+  "scope": "development paired single outer step; no general efficiency claim",
+  "search_requests": 1226,
+  "fresh_requests": 4,
+  "rows": [
+    {
+      "case": "c60-isomer1",
+      "arm": "protected-off",
+      "status": "completed",
+      "failure_class": null,
+      "fresh_failure_class": null,
+      "search_requests": 252,
+      "search_calculate_calls": 233,
+      "fresh_requests": 1,
+      "fresh_calculate_calls": 1,
+      "search_boundary": null,
+      "fresh_boundary": null,
+      "search_elapsed_seconds": 15.1615099189803,
+      "arm_elapsed_seconds": 15.307038625702262,
+      "fresh_endpoint": {
+        "target": "last-outer-landing",
+        "endpoint_kind": "landing",
+        "energy_eV": -62203.6067464612,
+        "fmax_eV_A": 0.037906634078110304,
+        "force_qualified": true,
+        "same_numbers": true,
+        "same_cell": true,
+        "same_pbc": true,
+        "geometry_diagnostics": {
+          "minimum_nonself_distance_A": 1.2284856482296174,
+          "atom_count": 60,
+          "periodic": false,
+          "distance_graphs": {
+            "1.64": {
+              "edges": 88,
+              "components": 2,
+              "degree_counts": {
+                "1": 2,
+                "3": 58
+              }
+            },
+            "1.7": {
+              "edges": 88,
+              "components": 2,
+              "degree_counts": {
+                "1": 2,
+                "3": 58
+              }
+            },
+            "1.8": {
+              "edges": 90,
+              "components": 1,
+              "degree_counts": {
+                "1": 1,
+                "3": 57,
+                "4": 2
+              }
+            }
+          }
+        }
+      },
+      "constructed_gaussians": 6,
+      "guard_stages": 0,
+      "rejected_trials": 0,
+      "shortened_moves": 0,
+      "release_reasons": [
+        "gaussian_limit"
+      ],
+      "widths": [
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6
+      ],
+      "initial_energy_eV": -62215.39337079062,
+      "landing_delta_eV": [
+        11.786624329419283
+      ],
+      "fresh_energy_error_eV": 0.0,
+      "cluster_geometry": [
+        {
+          "cutoff_A": 1.64,
+          "component_sizes": [
+            2,
+            58
+          ],
+          "degrees": {
+            "1": 2,
+            "3": 58
+          }
+        },
+        {
+          "cutoff_A": 1.7,
+          "component_sizes": [
+            2,
+            58
+          ],
+          "degrees": {
+            "1": 2,
+            "3": 58
+          }
+        },
+        {
+          "cutoff_A": 1.8,
+          "component_sizes": [
+            60
+          ],
+          "degrees": {
+            "1": 1,
+            "3": 57,
+            "4": 2
+          }
+        }
+      ]
+    },
+    {
+      "case": "c60-isomer1",
+      "arm": "protected-on",
+      "status": "completed",
+      "failure_class": null,
+      "fresh_failure_class": null,
+      "search_requests": 321,
+      "search_calculate_calls": 302,
+      "fresh_requests": 1,
+      "fresh_calculate_calls": 1,
+      "search_boundary": null,
+      "fresh_boundary": null,
+      "search_elapsed_seconds": 16.732077547814697,
+      "arm_elapsed_seconds": 16.880751481745392,
+      "fresh_endpoint": {
+        "target": "last-outer-landing",
+        "endpoint_kind": "landing",
+        "energy_eV": -62208.51249916682,
+        "fmax_eV_A": 0.045108556326947206,
+        "force_qualified": true,
+        "same_numbers": true,
+        "same_cell": true,
+        "same_pbc": true,
+        "geometry_diagnostics": {
+          "minimum_nonself_distance_A": 1.302107776586097,
+          "atom_count": 60,
+          "periodic": false,
+          "distance_graphs": {
+            "1.64": {
+              "edges": 89,
+              "components": 1,
+              "degree_counts": {
+                "1": 1,
+                "3": 59
+              }
+            },
+            "1.7": {
+              "edges": 89,
+              "components": 1,
+              "degree_counts": {
+                "1": 1,
+                "3": 59
+              }
+            },
+            "1.8": {
+              "edges": 89,
+              "components": 1,
+              "degree_counts": {
+                "1": 1,
+                "3": 59
+              }
+            }
+          }
+        }
+      },
+      "constructed_gaussians": 6,
+      "guard_stages": 6,
+      "rejected_trials": 50,
+      "shortened_moves": 3,
+      "release_reasons": [
+        "gaussian_limit"
+      ],
+      "widths": [
+        0.5999999999999998,
+        0.6000000000000001,
+        0.5999999999999998,
+        0.27797473809585144,
+        0.22641216152118424,
+        0.2640760011910592
+      ],
+      "initial_energy_eV": -62215.39337079062,
+      "landing_delta_eV": [
+        6.880871623798157
+      ],
+      "fresh_energy_error_eV": 0.0,
+      "cluster_geometry": [
+        {
+          "cutoff_A": 1.64,
+          "component_sizes": [
+            60
+          ],
+          "degrees": {
+            "1": 1,
+            "3": 59
+          }
+        },
+        {
+          "cutoff_A": 1.7,
+          "component_sizes": [
+            60
+          ],
+          "degrees": {
+            "1": 1,
+            "3": 59
+          }
+        },
+        {
+          "cutoff_A": 1.8,
+          "component_sizes": [
+            60
+          ],
+          "degrees": {
+            "1": 1,
+            "3": 59
+          }
+        }
+      ]
+    },
+    {
+      "case": "tio2-anatase-fs",
+      "arm": "protected-off",
+      "status": "completed",
+      "failure_class": null,
+      "fresh_failure_class": null,
+      "search_requests": 334,
+      "search_calculate_calls": 315,
+      "fresh_requests": 1,
+      "fresh_calculate_calls": 1,
+      "search_boundary": null,
+      "fresh_boundary": null,
+      "search_elapsed_seconds": 4.269101942889392,
+      "arm_elapsed_seconds": 4.352864240761846,
+      "fresh_endpoint": {
+        "target": "last-outer-landing",
+        "endpoint_kind": "landing",
+        "energy_eV": -104.7216107836547,
+        "fmax_eV_A": 0.023104940544822098,
+        "force_qualified": true,
+        "same_numbers": true,
+        "same_cell": true,
+        "same_pbc": true,
+        "geometry_diagnostics": {
+          "minimum_nonself_distance_A": 1.7485326160344214,
+          "atom_count": 12,
+          "periodic": true,
+          "coordination_by_center_species": {
+            "8": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "5": 1,
+                "6": 2,
+                "7": 1,
+                "8": 2,
+                "9": 1,
+                "10": 1
+              }
+            },
+            "22": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "6": 3,
+                "7": 1
+              }
+            }
+          },
+          "interpretation": "distance and coordination diagnostic only; no phase assignment"
+        }
+      },
+      "constructed_gaussians": 6,
+      "guard_stages": 0,
+      "rejected_trials": 0,
+      "shortened_moves": 0,
+      "release_reasons": [
+        "gaussian_limit"
+      ],
+      "widths": [
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6
+      ],
+      "initial_energy_eV": -107.03412204372171,
+      "landing_delta_eV": [
+        2.312511260067012
+      ],
+      "fresh_energy_error_eV": 0.0,
+      "periodic_3A_image_counts": [
+        11,
+        12,
+        9,
+        13,
+        12,
+        11,
+        10,
+        6,
+        9,
+        7,
+        7,
+        7
+      ],
+      "nearest_periodic_distance_A": 1.7485326189586254
+    },
+    {
+      "case": "tio2-anatase-fs",
+      "arm": "protected-on",
+      "status": "completed",
+      "failure_class": null,
+      "fresh_failure_class": null,
+      "search_requests": 319,
+      "search_calculate_calls": 300,
+      "fresh_requests": 1,
+      "fresh_calculate_calls": 1,
+      "search_boundary": null,
+      "fresh_boundary": null,
+      "search_elapsed_seconds": 4.069579954724759,
+      "arm_elapsed_seconds": 4.1512627876363695,
+      "fresh_endpoint": {
+        "target": "last-outer-landing",
+        "endpoint_kind": "landing",
+        "energy_eV": -105.63559851535938,
+        "fmax_eV_A": 0.03315470719820544,
+        "force_qualified": true,
+        "same_numbers": true,
+        "same_cell": true,
+        "same_pbc": true,
+        "geometry_diagnostics": {
+          "minimum_nonself_distance_A": 1.7708244978217336,
+          "atom_count": 12,
+          "periodic": true,
+          "coordination_by_center_species": {
+            "8": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "6": 2,
+                "7": 2,
+                "8": 1,
+                "9": 2,
+                "10": 1
+              }
+            },
+            "22": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "6": 4
+              }
+            }
+          },
+          "interpretation": "distance and coordination diagnostic only; no phase assignment"
+        }
+      },
+      "constructed_gaussians": 6,
+      "guard_stages": 6,
+      "rejected_trials": 7,
+      "shortened_moves": 1,
+      "release_reasons": [
+        "gaussian_limit"
+      ],
+      "widths": [
+        0.6000000000000002,
+        0.6,
+        0.6,
+        0.6,
+        0.6000000000000002,
+        0.4190023776562497
+      ],
+      "initial_energy_eV": -107.03412204372171,
+      "landing_delta_eV": [
+        1.3985235283623325
+      ],
+      "fresh_energy_error_eV": 0.0,
+      "periodic_3A_image_counts": [
+        12,
+        13,
+        10,
+        12,
+        13,
+        8,
+        10,
+        10,
+        7,
+        8,
+        7,
+        8
+      ],
+      "nearest_periodic_distance_A": 1.77082450099211
+    }
+  ],
+  "pair_prefix": [
+    {
+      "case": "c60-isomer1",
+      "prefix_through_first_guard": [
+        {
+          "stage": 0,
+          "first_guard_rejection": false,
+          "center_max_difference_A": 0.0,
+          "CBD_direction_max_difference": 1.3420931033181205e-12
+        },
+        {
+          "stage": 1,
+          "first_guard_rejection": false,
+          "center_max_difference_A": 1.4765966227514582e-12,
+          "CBD_direction_max_difference": 2.2187820157559823e-12
+        },
+        {
+          "stage": 2,
+          "first_guard_rejection": false,
+          "center_max_difference_A": 2.489564110419451e-12,
+          "CBD_direction_max_difference": 4.099826957768967e-12
+        },
+        {
+          "stage": 3,
+          "first_guard_rejection": true,
+          "center_max_difference_A": 5.070610598068015e-12,
+          "CBD_direction_max_difference": 1.5216716775512396e-12
+        }
+      ]
+    },
+    {
+      "case": "tio2-anatase-fs",
+      "prefix_through_first_guard": [
+        {
+          "stage": 0,
+          "first_guard_rejection": false,
+          "center_max_difference_A": 0.0,
+          "CBD_direction_max_difference": 0.0
+        },
+        {
+          "stage": 1,
+          "first_guard_rejection": false,
+          "center_max_difference_A": 2.5909940859492053e-11,
+          "CBD_direction_max_difference": 6.478079184191188e-11
+        },
+        {
+          "stage": 2,
+          "first_guard_rejection": false,
+          "center_max_difference_A": 6.866418544859698e-11,
+          "CBD_direction_max_difference": 9.292039360175863e-11
+        },
+        {
+          "stage": 3,
+          "first_guard_rejection": false,
+          "center_max_difference_A": 1.8259270975207187e-06,
+          "CBD_direction_max_difference": 3.1549997174251665e-06
+        },
+        {
+          "stage": 4,
+          "first_guard_rejection": false,
+          "center_max_difference_A": 5.4897318768620806e-05,
+          "CBD_direction_max_difference": 5.1230627896692305e-05
+        },
+        {
+          "stage": 5,
+          "first_guard_rejection": true,
+          "center_max_difference_A": 4.845994760271921e-05,
+          "CBD_direction_max_difference": 6.479406936415842e-05
+        }
+      ]
+    }
+  ]
+}

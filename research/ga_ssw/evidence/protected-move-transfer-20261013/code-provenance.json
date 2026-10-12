@@ -1,0 +1,13 @@
+{
+  "core_commit": "c51a856609a00fdb6897b3e8cad14687f4acb544",
+  "source_snapshot": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/protected-move-transfer-20261013/source-v1",
+  "wrapper_sha256": "299339144240f5778f89025c02c18ae3f5c2610c2f16b3a87ba2c392c267c0f2",
+  "cpu_preflight_smoke_job": 1754506,
+  "cpu_result": "completed; both S2 modes finite/nonzero; smoke4arms289search+4fresh; not scientific evidence",
+  "gpu_job": 1754531,
+  "gpu_status": "completed, exit0, allocation57s",
+  "analysis_job": 1754539,
+  "note": "full core frozen from c51a856 plus uncommitted wrapper source in source-v1; input/model/protocol identity in run provenance",
+  "gpu_result": "4 arms1226search+4fresh;1150actual search calculations; no failures or censoring",
+  "analysis_result": "ledger closure and geometry/prefix analysis complete"
+}
