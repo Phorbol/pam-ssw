@@ -3,11 +3,14 @@
 当前进入方向条件消融：采用旧提案备选A的独立源码分支，不新增公共配置。
 local-only=a13ab97、feedback-only=7e2a309，均以6c70ef4为父；根agent独立
 重跑初轴/RNG/marker/公式专项检查通过。原完整方向测试的1/2项有意语义冲突
-保留未改，不能称全部默认测试通过。尚未执行新PES对照。
+保留未改，不能称全部默认测试通过。新PES对照已提交，结果待验证。
 [执行计划](2026-10-12-direction-source-ablation-plan.md)：选已有合格LJ38 SLM、
 LJ55非GM完整簇及C60source3，三源码×四预注册seed的单完整外步，
 每次≤2000搜索+1fresh；LJ用CPU，C60单V100总≤30min、≤24000+12。
-统一runner准备中，提交前核对实际导入路径、初始配对、预算与第二Gaussian暴露。
+runner 9a8fa4c完成零PES预检、2项契约测试和独立审查；CPU1756504/1756505分别LJ38/LJ55，
+GPU1756507为C60。GPU首提交因显式CPU数违反调度规则被拒，未产生计算；
+fc6c758仅移除GPU脚本的cpus-per-task后提交成功。源码/参数冻结，未自动重试计算。
+输出位于research/ga_ssw/evidence/direction-components-panel-20261012/runs-<jobid>。
 这是局部项/反馈的条件移除效应，非独立可相加贡献，也不证明全局成功率。
 
 目标是独立 Python/ASE 的有效 SSW 系列搜索。论文和 LASP 反编译提供可检验
