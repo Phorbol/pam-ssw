@@ -14,6 +14,13 @@ phase87能量反例仍保留。不改默认，不延长或调参，此组件面�
 external.dedcell解析关键词和reset已找到，但ASE到最终SSW应力符号/单位仍待实测。
 [应力契约](native-stress-backend-boundary.md)。正准备独立的Cu/EMT有界诊断，
 只核对张量传递，不新建通用桥接API、不开始native TiO2性能搜索。
+CPU1757580已完成3次EMT/3次变化晶胞请求：parsed flag为F，发送-ASE完整应力，
+legacy逐值一致，最终class残差最大7.11e-8eV/Å³，远低于现用stress门；无需精度追查。
+无失败或残留进程；尚未证明MACE/完整晶胞梯度/VC搜索性能。
+[结果](../../../native-external-stress-20261012/research/ga_ssw/evidence/native-external-stress-20261012/decision.md)。
+下一项涉及既有固定胞研究桥接的公开调用语义，已备好
+[显式变胞模式最小方案](2026-10-12-lasp-ase-variable-cell-bridge-proposal.md)，待用户讨论；
+不因诊断成功便静默放宽原接口的固定胞保护。
 
 
 当前最新结果：`experiment/vc-atomic-contribution-20261012`（runner e68a7ed，
