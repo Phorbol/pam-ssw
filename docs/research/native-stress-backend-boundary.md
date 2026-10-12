@@ -9,6 +9,35 @@ this inspection does not prove `SSW_object.stress == ASE stress` for the uploade
 NN backend or all external backends. There is direct evidence of backend-specific
 sign/unit operations, so inferring that equality from the name `stress` is unsafe.
 
+
+## 2026-10-12 external file contract clarification
+
+Re-reading the archived `otherpot.asm` closes the file-level boundary, not the
+physical ASE-to-native convention. After E at 0x416d74 and Cartesian forces at
+0x416dd1, addresses 0x416dfe–0x416e24 initialize all nine doubles at legacy
+object +0x110 to zero. The read descriptor specifies 0x48 bytes (72 bytes),
+then 0x416e37 calls the reader. Thus the expected optional tensor has nine
+components, not six Voigt entries. EOF (-1 at 0x416e3a) skips the dedcell
+branch and rejoins the common exit, where the zero entries are negated.
+An E/F-only file can therefore proceed without a useful cell tensor; process
+completion does not qualify a native external VC calculation.
+
+On a successful read, 0x417734 tests `external_dedcell`; its false branch joins
+the common exit. Its true branch copies the nine entries into +0xc8 and calls
+`dedcell2stress_` at 0x4177d1. Both reach the common tensor sign flip. Root
+independently inspected these archived instructions after the scoped review.
+This does not establish effective parsed flag value, physical units, axis
+layout or final SSW-object transfer. Do not send guessed `+/- ASE stress`.
+
+The live `research/ga_ssw/lasp_external_ase.py` deliberately rejects changed
+cells and returns E/F only; its socket client also writes only E/F. Existing
+C60 native comparisons are fixed-cell. No same-OMAT native TiO2 VC comparison
+was found. Next useful prerequisite, if pursuing that reference, is an explicit
+current-cell E/F/full-tensor contract followed by finite-strain validation;
+no new bridge or core algorithm is implemented by this note. An official-site
+search did not supply a source establishing this low-level tensor convention.
+
+
 ## What the instructions establish
 
 The legacy `otherpot_` routine at 0x4150a0 has a LAMMPS extraction path:
