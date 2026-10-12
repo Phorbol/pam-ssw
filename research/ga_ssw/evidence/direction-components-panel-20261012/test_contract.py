@@ -27,3 +27,8 @@ def test_second_gaussian_exposure_includes_zero_release():
     exposure = RUNNER.second_gaussian_exposures(step)
     assert exposure == [{"index": 1, "status": "direction_zero_release",
                          "recovered_direction": {"reason": "zero_direction"}}]
+
+
+def test_c60_parent_mc_field_maps_to_native_api():
+    protocol = RUNNER.case_protocol("c60")
+    assert protocol["native_mc"] == {"energy_tol": 0.1, "maxtrap": 99999}

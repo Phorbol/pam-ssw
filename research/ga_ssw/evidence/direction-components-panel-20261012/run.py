@@ -98,10 +98,21 @@ def source_probe(method):
     if method == "full":
         from research.ga_ssw.full_pair_lj import FullPairLJ
         assert FullPairLJ is not None
+    # Instantiate every frozen scientific settings object in this source-root
+    # process. Dict serialization alone cannot catch API/field-name drift.
+    settings_checks = {}
+    for case in INPUTS:
+        protocol = case_protocol(case)
+        settings_checks[case] = {
+            "ssw_config": asdict(SSWConfig(**protocol["ssw_config"])),
+            "direction": asdict(RecoveredDirectionSettings(**protocol["direction"])),
+            "native_mc": asdict(NativeMCSettings(**protocol["native_mc"])),
+        }
     return {"root": str(root), "git_head": head, "expected_core_commit": expected_head,
             "core_tree": actual_core_tree,
             "actual_modules": {k: str(v) for k, v in actual.items()},
-            "native_direction_control_sha256": sha256(actual["native_direction_control"])}
+            "native_direction_control_sha256": sha256(actual["native_direction_control"]),
+            "settings_instantiated": settings_checks}
 
 
 def preflight():
@@ -174,8 +185,10 @@ def case_protocol(case):
                 "target_energy_eV": -173.928427 if case == "lj38" else -279.248470,
                 "target_energy_tolerance_eV": .001}
     plan = json.loads(C60_PLAN.read_text())
+    native_mc = {"energy_tol": plan["native_mc"]["energy_tol_eV"],
+                 "maxtrap": plan["native_mc"]["maxtrap"]}
     return {"backend": "MH-1 / omol / float64 / cuda", "ssw_config": plan["ssw_config"],
-            "direction": plan["recovered_direction"], "native_mc": plan["native_mc"],
+            "direction": plan["recovered_direction"], "native_mc": native_mc,
             "temperature_K": 150., "fmax": .03, "plan": plan,
             "target_energy_eV": plan["reference_energy_eV"], "target_energy_tolerance_eV": .01}
 

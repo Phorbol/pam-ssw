@@ -99,3 +99,16 @@ about this one-step mechanism on these saved inputs. It does not identify a
 transition-state path or prove a basin change. Mixed directions across seeds
 or cases leave the mechanism context-dependent and do not justify a default
 change. No PES outcomes exist until the explicit compute jobs are run.
+
+## Corrected C60 execution after zero-PES configuration failure
+
+Job1756507 stopped before its first PES call: the saved plan uses
+`energy_tol_eV`, whereas NativeMCSettings accepts `energy_tol`. This is a
+runner translation error, not a direction result. Its failed slot and logs
+remain archived. Actual allocated runtime was 11 seconds. The correction
+explicitly translates the field with the same 0.1 eV value and constructs all
+settings under each source during zero-PES preflight. The corrected run has
+a new job/output identity, 29-minute allocation and 27-minute search window;
+together with the failed startup it remains below the 30-minute GPU-series
+ceiling. No search was replayed, no seed changed, and no automatic retry is
+installed. The 24 completed CPU arms are not rerun.
