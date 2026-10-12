@@ -1,5 +1,21 @@
 ## 2026-10-12 最新主线：困难基准驱动，按消融证据保留设计
 
+最新迁移已完成：GPU1757298，phase139两seed×仅变胞/交替原子，16000搜索请求、
+15719实际计算＋10冷验/参考。仅变胞两seed均命中anatase（2767/1284请求），
+交替组两seed均未命中；63个Gaussian完成、6个合格原子落点全部MC拒绝。
+本次四初态均非目标、处理前配对诊断均通过，全部选定cold帧力/应力合格。
+seed51仅变胞恰好4000请求完成20步，另三臂截尾；24个零请求尾记录不计尝试。
+[完整决策](../../../vc-phase139-transfer-20261012/research/ga_ssw/evidence/vc-phase139-transfer-20261012/decision.md)
+（实验分支01aaac9）。连同phase87可描述4/4对1/4，仅两初态四seed、非普遍成功率；
+phase87能量反例仍保留。不改默认，不延长或调参，此组件面板结束。
+
+下一项是可信native VC参照的前置门：既有ASE bridge明确只E/F、拒绝变胞。
+静态核查已确认external.ene随后读取9分量tensor，EOF可能留下零tensor；
+external.dedcell解析关键词和reset已找到，但ASE到最终SSW应力符号/单位仍待实测。
+[应力契约](native-stress-backend-boundary.md)。正准备独立的Cu/EMT有界诊断，
+只核对张量传递，不新建通用桥接API、不开始native TiO2性能搜索。
+
+
 当前最新结果：`experiment/vc-atomic-contribution-20261012`（runner e68a7ed，
 结果0aeacf3）完成48原子TiO2的cell-only/交替原子SSW对照；GPU1756999，
 15619搜索请求/15359实际计算＋12次复核，无付费后端失败。仅变胞两seed均冷验
