@@ -1,0 +1,279 @@
+{
+  "status": "zero_pes_preflight_ok",
+  "pes_requests": 0,
+  "contract": {
+    "cases": [
+      "lj38",
+      "lj55",
+      "c60"
+    ],
+    "methods": [
+      "full",
+      "local_only",
+      "feedback_only"
+    ],
+    "seeds": [
+      26101231,
+      26101232,
+      26101233,
+      26101234
+    ],
+    "arm_count": 36,
+    "outer_steps_per_arm": 1,
+    "search_cap_per_arm": 2000,
+    "fresh_cap_per_arm": 1,
+    "max_search_requests": 72000,
+    "max_fresh_requests": 36,
+    "lj_case_wall_seconds": 600,
+    "lj_total_cpu_minutes": 20,
+    "c60_allocation_wall_seconds": 1800
+  },
+  "inputs": [
+    {
+      "case": "lj38",
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/ga-ssw-behavior-parity/research/ga_ssw/evidence/lj38-source-20260912/optim-finish.extxyz",
+      "sha256": "550c1e6070c2c86afd0e83f3475a1019fd322f3e5f373f89430f9851b3b9ca58",
+      "natoms": 38,
+      "symbols": [
+        "Ar"
+      ],
+      "pbc": [
+        false,
+        false,
+        false
+      ],
+      "constraints": [],
+      "cell_A": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "case": "lj55",
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/lj55-direction-target-20261007/prepared-1663031/lj55-seed26100721/prepared.extxyz",
+      "sha256": "92187ae4b4f183562bef5a35d6b39fce8b83bdd1e98350d7a43c3ee37d65b9d6",
+      "natoms": 55,
+      "symbols": [
+        "Ar"
+      ],
+      "pbc": [
+        false,
+        false,
+        false
+      ],
+      "constraints": [],
+      "cell_A": [
+        [
+          100.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          100.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          100.0
+        ]
+      ]
+    },
+    {
+      "case": "c60",
+      "input": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/c60-source3-paper-ls-transfer-20261007/prepared-20261007-a/seed-26100791/ssw/initial-fresh.traj",
+      "sha256": "64068b32fb152a12487efe47fafb4645655ff0cd0fbf5717112ea74e008ed089",
+      "natoms": 60,
+      "symbols": [
+        "C"
+      ],
+      "pbc": [
+        false,
+        false,
+        false
+      ],
+      "constraints": [],
+      "cell_A": [
+        [
+          50.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          50.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          50.0
+        ]
+      ]
+    }
+  ],
+  "sources": {
+    "full": {
+      "root": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification",
+      "git_head": "b79aa7405813f54d39aa920763aa2a5eb5201abb",
+      "expected_core_commit": "6c70ef4b1a568866f084a9670a01eeae496d79fc",
+      "core_tree": "208a1c98c684410adb3aef881463ea1524eb86bd",
+      "actual_modules": {
+        "pamssw": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/__init__.py",
+        "paper_reference": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/paper_reference.py",
+        "recovered_direction": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/recovered_direction.py",
+        "native_direction_control": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/pamssw/standalone/native_direction_control.py"
+      },
+      "native_direction_control_sha256": "0e7380366159b63de03bafcbc9a2017d0c1ff4f61c71bd3d3a06aef9c2fb0aa2"
+    },
+    "local_only": {
+      "root": "/home/gengjianrui/bin/pam-ssw-worktrees/direction-local-only-20261012",
+      "git_head": "a13ab976a04aff821fa4a0352a23274f56ed8387",
+      "expected_core_commit": "a13ab976a04aff821fa4a0352a23274f56ed8387",
+      "core_tree": "f0c12830127794e21e9c72aa79d3e4e17e1f2d95",
+      "actual_modules": {
+        "pamssw": "/home/gengjianrui/bin/pam-ssw-worktrees/direction-local-only-20261012/pamssw/__init__.py",
+        "paper_reference": "/home/gengjianrui/bin/pam-ssw-worktrees/direction-local-only-20261012/pamssw/standalone/paper_reference.py",
+        "recovered_direction": "/home/gengjianrui/bin/pam-ssw-worktrees/direction-local-only-20261012/pamssw/standalone/recovered_direction.py",
+        "native_direction_control": "/home/gengjianrui/bin/pam-ssw-worktrees/direction-local-only-20261012/pamssw/standalone/native_direction_control.py"
+      },
+      "native_direction_control_sha256": "7839d67668f4695ef68fa235a2edab19cb0eb218e7c2db91c42686c20897eec2"
+    },
+    "feedback_only": {
+      "root": "/home/gengjianrui/bin/pam-ssw-worktrees/direction-feedback-only-20261012",
+      "git_head": "7e2a30945427a32dfd3b173bbf7ecdf0ee9a1d94",
+      "expected_core_commit": "7e2a30945427a32dfd3b173bbf7ecdf0ee9a1d94",
+      "core_tree": "3c3298a50b4890e508d49c4889722dbca2e5eb1a",
+      "actual_modules": {
+        "pamssw": "/home/gengjianrui/bin/pam-ssw-worktrees/direction-feedback-only-20261012/pamssw/__init__.py",
+        "paper_reference": "/home/gengjianrui/bin/pam-ssw-worktrees/direction-feedback-only-20261012/pamssw/standalone/paper_reference.py",
+        "recovered_direction": "/home/gengjianrui/bin/pam-ssw-worktrees/direction-feedback-only-20261012/pamssw/standalone/recovered_direction.py",
+        "native_direction_control": "/home/gengjianrui/bin/pam-ssw-worktrees/direction-feedback-only-20261012/pamssw/standalone/native_direction_control.py"
+      },
+      "native_direction_control_sha256": "202f3dddc7c19ad85bef0f298c2f0ba698a6697afe577c44fdd6cbc318e07436"
+    }
+  },
+  "c60_model": "/home/gengjianrui/.cache/mace/mace-mh-1.model",
+  "c60_model_sha256": "a522eb7f59c7879963d41586528f4980baf33e086c94aa92e3eafdeccad3be47",
+  "protocols": {
+    "lj38": {
+      "backend": "FullPairLJ(epsilon=1,sigma=2.7,untruncated,nonperiodic)",
+      "ssw_config": {
+        "width": 0.6,
+        "rotation_bias": 1.0,
+        "max_gaussians": 14,
+        "temperature_K": 464.20495549675246,
+        "fmax": 0.05,
+        "relax_steps": 1000,
+        "fd_step": 0.001,
+        "rotation_hvp": 39,
+        "rotation_tol": 0.02,
+        "forward_force": 0.1,
+        "direction_sampling": "global",
+        "rotation_solver": "broyden-euclidean",
+        "cluster_frame": "direction_only",
+        "quench_optimizer": "safe-lbfgs-total",
+        "lbfgs_memory": 500,
+        "bias_stage_steps": null,
+        "bias_fmax": 0.1,
+        "pre_rotation_hvp": null,
+        "rotation_exit_policy": "force_or_budget"
+      },
+      "direction": {
+        "ratio_local": 50,
+        "local_probability": 0.5,
+        "group_threshold": 0.5,
+        "pre_rotmax": 5,
+        "rotmax": 15,
+        "pre_ftol": 0.2,
+        "ftol": 0.02,
+        "metric": "euclidean",
+        "max_force_calls": 40,
+        "c1_radius_policy": "per_atom",
+        "startup_order": "legacy",
+        "geometry": "nonperiodic",
+        "descriptor_modes": [],
+        "descriptor_probability": 0.0
+      },
+      "native_height": {
+        "initial_weight": 0.5,
+        "negative_weight": 0.2,
+        "level": 1,
+        "max_weight": 10.0,
+        "growth_step": 1.0,
+        "growth_scale": 2.0
+      },
+      "native_mc": {
+        "energy_tol": 0.1,
+        "maxtrap": 99999
+      },
+      "temperature_K": 464.20495549675246,
+      "fmax": 0.05,
+      "target_energy_eV": -173.928427,
+      "target_energy_tolerance_eV": 0.001
+    },
+    "c60": {
+      "backend": "MH-1 / omol / float64 / cuda",
+      "ssw_config": {
+        "width": 0.6,
+        "rotation_bias": 1.0,
+        "max_gaussians": 12,
+        "temperature_K": 150.0,
+        "fmax": 0.03,
+        "relax_steps": 1000,
+        "fd_step": 0.001,
+        "rotation_hvp": 39,
+        "rotation_tol": 0.02,
+        "forward_force": 0.1,
+        "direction_sampling": "global",
+        "rotation_solver": "broyden-euclidean",
+        "cluster_frame": "direction_only",
+        "quench_optimizer": "safe-lbfgs-total",
+        "lbfgs_memory": 500,
+        "bias_stage_steps": null,
+        "bias_fmax": 0.1,
+        "pre_rotation_hvp": null,
+        "rotation_exit_policy": "force_or_budget"
+      },
+      "direction": {
+        "ratio_local": 50,
+        "local_probability": 0.5,
+        "group_threshold": 0.5,
+        "pre_rotmax": 5,
+        "rotmax": 15,
+        "pre_ftol": 0.2,
+        "ftol": 0.02,
+        "metric": "euclidean",
+        "max_force_calls": 40,
+        "c1_radius_policy": "per_atom",
+        "startup_order": "legacy",
+        "geometry": "nonperiodic"
+      },
+      "native_mc": {
+        "energy_tol_eV": 0.1,
+        "maxtrap": 99999
+      },
+      "temperature_K": 150.0,
+      "fmax": 0.03,
+      "target_energy_eV": -62215.39337079062,
+      "target_energy_tolerance_eV": 0.01
+    }
+  },
+  "c60_backend_import": {
+    "available": true
+  }
+}
