@@ -139,7 +139,11 @@ def exposure_summary(result):
         total += len(exposures)
         if exposures:
             outer_with_exposure += 1
-        details.extend({"outer_index": event.get("index"), **item} for item in exposures)
+        # Full stage arrays stay in the original result; summaries need only
+        # the exposure identity, including zero-direction release.
+        details.extend({"outer_index": event.get("index"),
+                        "index": item.get("index"), "status": item.get("status")}
+                       for item in exposures)
     return {"index_ge_1_exposure_count": total,
             "outer_attempts_with_exposure": outer_with_exposure,
             "exposures": details}
