@@ -1,0 +1,399 @@
+{
+  "run_directory": "/home/gengjianrui/bin/pam-ssw-worktrees/vc-optimizer-frozen-20261012/research/ga_ssw/evidence/vc-frozen-optimizer-20261012/run-1756782",
+  "campaign_status": "completed",
+  "manifest_error": null,
+  "campaign_error": null,
+  "elapsed_seconds": 20.134848844259977,
+  "campaign_accounting": {
+    "reported_paid_efs": 640,
+    "reported_failed_paid_efs": 0,
+    "reported_unpaid_denials": 0,
+    "reported_actual_calculator_calls": 640,
+    "recounted_from_campaign_ledger": {
+      "paid_efs": 640,
+      "actual_calculator_calls": 640,
+      "paid_errors": 0,
+      "unpaid_denials": 0
+    },
+    "campaign_ledger_rows": 640,
+    "campaign_ledger_error": null
+  },
+  "pairs": {
+    "phase87": {
+      "safe_total_status": "completed",
+      "scipy_lbfgsb_status": "completed",
+      "shared_target": {
+        "safe_total": true,
+        "scipy_lbfgsb": true
+      },
+      "objective_descent_eV": {
+        "safe_total": 5.91848487460237,
+        "scipy_lbfgsb": 5.922452804011186
+      },
+      "fresh_joint_qualification": {
+        "safe_total": true,
+        "scipy_lbfgsb": true
+      },
+      "inner_cost": {
+        "safe_total": {
+          "paid_efs": 82,
+          "actual_calculator_calls": 82,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        },
+        "scipy_lbfgsb": {
+          "paid_efs": 81,
+          "actual_calculator_calls": 81,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        }
+      },
+      "quench_cost": {
+        "safe_total": {
+          "paid_efs": 59,
+          "actual_calculator_calls": 59,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        },
+        "scipy_lbfgsb": {
+          "paid_efs": 61,
+          "actual_calculator_calls": 61,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        }
+      },
+      "elapsed_seconds": {
+        "safe_total": {
+          "inner": 2.156329929828644,
+          "quench": 0.7163657294586301
+        },
+        "scipy_lbfgsb": {
+          "inner": 1.00375547260046,
+          "quench": 0.7396035855636001
+        }
+      }
+    },
+    "phase139": {
+      "safe_total_status": "completed",
+      "scipy_lbfgsb_status": "completed",
+      "shared_target": {
+        "safe_total": true,
+        "scipy_lbfgsb": true
+      },
+      "objective_descent_eV": {
+        "safe_total": 7.486300235287274,
+        "scipy_lbfgsb": 7.483948980187449
+      },
+      "fresh_joint_qualification": {
+        "safe_total": true,
+        "scipy_lbfgsb": true
+      },
+      "inner_cost": {
+        "safe_total": {
+          "paid_efs": 107,
+          "actual_calculator_calls": 107,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        },
+        "scipy_lbfgsb": {
+          "paid_efs": 111,
+          "actual_calculator_calls": 111,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        }
+      },
+      "quench_cost": {
+        "safe_total": {
+          "paid_efs": 63,
+          "actual_calculator_calls": 63,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        },
+        "scipy_lbfgsb": {
+          "paid_efs": 70,
+          "actual_calculator_calls": 70,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        }
+      },
+      "elapsed_seconds": {
+        "safe_total": {
+          "inner": 1.3797095818445086,
+          "quench": 0.8072127429768443
+        },
+        "scipy_lbfgsb": {
+          "inner": 1.4310167543590069,
+          "quench": 0.8968013739213347
+        }
+      }
+    }
+  },
+  "arms": {
+    "phase87-safe_total": {
+      "status": "completed",
+      "inner_status": "converged",
+      "inner_shared_target_reached": true,
+      "inner_initial_objective_eV": -416.60281326666063,
+      "inner_final_objective_eV": -422.521298141263,
+      "inner_objective_descent_eV": 5.91848487460237,
+      "inner_initial_block_norm_eV_A": 3.9494143867421254,
+      "inner_final_block_norm_eV_A": 0.09859097450616423,
+      "inner_logical_attempts": 82,
+      "inner_elapsed_seconds": 2.156329929828644,
+      "quench_status": "converged",
+      "quench_elapsed_seconds": 0.7163657294586301,
+      "quench_energy_eV": -423.4227716718233,
+      "fresh_certificate": {
+        "energy_eV": -423.4227716718233,
+        "max_force_eV_A": 0.045089086132998064,
+        "max_abs_stress_eV_A3": 0.0001405888802074638,
+        "force_qualified": true,
+        "stress_qualified": true,
+        "jointly_qualified": true
+      },
+      "cost_by_stage": {
+        "inner": {
+          "paid_efs": 82,
+          "actual_calculator_calls": 82,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        },
+        "quench": {
+          "paid_efs": 59,
+          "actual_calculator_calls": 59,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        },
+        "certificate": {
+          "paid_efs": 1,
+          "actual_calculator_calls": 1,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        }
+      },
+      "reported_cost_fields": {
+        "inner_logical_requests": null,
+        "inner_elapsed_seconds": 2.156329929828644,
+        "inner_paid_efs": 82,
+        "quench_paid_efs": 59,
+        "certificate_paid_efs": 1,
+        "arm_paid_efs": 142,
+        "arm_actual_calculator_calls": 142
+      },
+      "cost_crosscheck": {
+        "ledger_arm_paid_efs": 142,
+        "reported_arm_paid_efs": 142,
+        "arm_paid_efs_match": true,
+        "ledger_arm_actual_calculator_calls": 142,
+        "reported_arm_actual_calculator_calls": 142,
+        "inner_logical_attempts_from_result": 82,
+        "reported_inner_logical_requests": null
+      },
+      "artifact_issues": {
+        "result": null,
+        "ledger": null
+      }
+    },
+    "phase87-scipy_lbfgsb": {
+      "status": "completed",
+      "inner_status": "shared_block_target",
+      "inner_shared_target_reached": true,
+      "inner_initial_objective_eV": -416.60281326666075,
+      "inner_final_objective_eV": -422.52526607067193,
+      "inner_objective_descent_eV": 5.922452804011186,
+      "inner_initial_block_norm_eV_A": 3.9494143867421125,
+      "inner_final_block_norm_eV_A": 0.09828609463717614,
+      "inner_logical_attempts": 81,
+      "inner_elapsed_seconds": 1.00375547260046,
+      "quench_status": "converged",
+      "quench_elapsed_seconds": 0.7396035855636001,
+      "quench_energy_eV": -423.42415218814483,
+      "fresh_certificate": {
+        "energy_eV": -423.42415218814483,
+        "max_force_eV_A": 0.0479325660718846,
+        "max_abs_stress_eV_A3": 0.00023381615107837835,
+        "force_qualified": true,
+        "stress_qualified": true,
+        "jointly_qualified": true
+      },
+      "cost_by_stage": {
+        "inner": {
+          "paid_efs": 81,
+          "actual_calculator_calls": 81,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        },
+        "quench": {
+          "paid_efs": 61,
+          "actual_calculator_calls": 61,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        },
+        "certificate": {
+          "paid_efs": 1,
+          "actual_calculator_calls": 1,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        }
+      },
+      "reported_cost_fields": {
+        "inner_logical_requests": null,
+        "inner_elapsed_seconds": 1.00375547260046,
+        "inner_paid_efs": 81,
+        "quench_paid_efs": 61,
+        "certificate_paid_efs": 1,
+        "arm_paid_efs": 143,
+        "arm_actual_calculator_calls": 143
+      },
+      "cost_crosscheck": {
+        "ledger_arm_paid_efs": 143,
+        "reported_arm_paid_efs": 143,
+        "arm_paid_efs_match": true,
+        "ledger_arm_actual_calculator_calls": 143,
+        "reported_arm_actual_calculator_calls": 143,
+        "inner_logical_attempts_from_result": 81,
+        "reported_inner_logical_requests": null
+      },
+      "artifact_issues": {
+        "result": null,
+        "ledger": null
+      }
+    },
+    "phase139-safe_total": {
+      "status": "completed",
+      "inner_status": "converged",
+      "inner_shared_target_reached": true,
+      "inner_initial_objective_eV": -413.10984943961665,
+      "inner_final_objective_eV": -420.5961496749039,
+      "inner_objective_descent_eV": 7.486300235287274,
+      "inner_initial_block_norm_eV_A": 4.346951987723359,
+      "inner_final_block_norm_eV_A": 0.08144247758308686,
+      "inner_logical_attempts": 107,
+      "inner_elapsed_seconds": 1.3797095818445086,
+      "quench_status": "converged",
+      "quench_elapsed_seconds": 0.8072127429768443,
+      "quench_energy_eV": -421.3693485820719,
+      "fresh_certificate": {
+        "energy_eV": -421.36934858207184,
+        "max_force_eV_A": 0.049867511357656005,
+        "max_abs_stress_eV_A3": 0.00011816485364519059,
+        "force_qualified": true,
+        "stress_qualified": true,
+        "jointly_qualified": true
+      },
+      "cost_by_stage": {
+        "inner": {
+          "paid_efs": 107,
+          "actual_calculator_calls": 107,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        },
+        "quench": {
+          "paid_efs": 63,
+          "actual_calculator_calls": 63,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        },
+        "certificate": {
+          "paid_efs": 1,
+          "actual_calculator_calls": 1,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        }
+      },
+      "reported_cost_fields": {
+        "inner_logical_requests": null,
+        "inner_elapsed_seconds": 1.3797095818445086,
+        "inner_paid_efs": 107,
+        "quench_paid_efs": 63,
+        "certificate_paid_efs": 1,
+        "arm_paid_efs": 171,
+        "arm_actual_calculator_calls": 171
+      },
+      "cost_crosscheck": {
+        "ledger_arm_paid_efs": 171,
+        "reported_arm_paid_efs": 171,
+        "arm_paid_efs_match": true,
+        "ledger_arm_actual_calculator_calls": 171,
+        "reported_arm_actual_calculator_calls": 171,
+        "inner_logical_attempts_from_result": 107,
+        "reported_inner_logical_requests": null
+      },
+      "artifact_issues": {
+        "result": null,
+        "ledger": null
+      }
+    },
+    "phase139-scipy_lbfgsb": {
+      "status": "completed",
+      "inner_status": "shared_block_target",
+      "inner_shared_target_reached": true,
+      "inner_initial_objective_eV": -413.1098494396164,
+      "inner_final_objective_eV": -420.5937984198039,
+      "inner_objective_descent_eV": 7.483948980187449,
+      "inner_initial_block_norm_eV_A": 4.346951987723366,
+      "inner_final_block_norm_eV_A": 0.06130934478594692,
+      "inner_logical_attempts": 111,
+      "inner_elapsed_seconds": 1.4310167543590069,
+      "quench_status": "converged",
+      "quench_elapsed_seconds": 0.8968013739213347,
+      "quench_energy_eV": -421.3722341988518,
+      "fresh_certificate": {
+        "energy_eV": -421.37223419885174,
+        "max_force_eV_A": 0.04933781562971414,
+        "max_abs_stress_eV_A3": 0.00014961502614927588,
+        "force_qualified": true,
+        "stress_qualified": true,
+        "jointly_qualified": true
+      },
+      "cost_by_stage": {
+        "inner": {
+          "paid_efs": 111,
+          "actual_calculator_calls": 111,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        },
+        "quench": {
+          "paid_efs": 70,
+          "actual_calculator_calls": 70,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        },
+        "certificate": {
+          "paid_efs": 1,
+          "actual_calculator_calls": 1,
+          "paid_errors": 0,
+          "unpaid_denials": 0
+        }
+      },
+      "reported_cost_fields": {
+        "inner_logical_requests": null,
+        "inner_elapsed_seconds": 1.4310167543590069,
+        "inner_paid_efs": 111,
+        "quench_paid_efs": 70,
+        "certificate_paid_efs": 1,
+        "arm_paid_efs": 182,
+        "arm_actual_calculator_calls": 182
+      },
+      "cost_crosscheck": {
+        "ledger_arm_paid_efs": 182,
+        "reported_arm_paid_efs": 182,
+        "arm_paid_efs_match": true,
+        "ledger_arm_actual_calculator_calls": 182,
+        "reported_arm_actual_calculator_calls": 182,
+        "inner_logical_attempts_from_result": 111,
+        "reported_inner_logical_requests": null
+      },
+      "artifact_issues": {
+        "result": null,
+        "ledger": null
+      }
+    }
+  },
+  "not_run_arms": [],
+  "interpretation_limits": [
+    "Optimizer-bundle comparison is limited to the two frozen TiO2 starts.",
+    "Inner biased-gradient target and unbiased force/stress qualification are separate outcomes.",
+    "A censored or failed arm is not a converged or physically qualified result."
+  ]
+}

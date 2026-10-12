@@ -1,7 +1,9 @@
 # Frozen biased-VC local-optimizer comparison
 
-Status: protocol for review only. It authorizes no calculation or scheduler
-submission. The question is whether Safe-total and SciPy L-BFGS-B behave
+Status: reviewed; bounded GPU job 1756782 submitted from runner commit 18fa744.
+Four contract checks and zero-PES preflight passed with PYTHONNOUSERSITE=1.
+Without that launcher environment, root preflight encountered a user-site
+Matplotlib/scienceplots import conflict; no PES was evaluated. The question is whether Safe-total and SciPy L-BFGS-B behave
 differently when minimizing the same saved biased variable-cell objective from
 the same chart point, and whether any inner-stage difference survives an
 identical unbiased physical quench. This is a local optimizer diagnostic, not a
@@ -113,8 +115,8 @@ that stopped early on relative energy change. The quench uses the physical
 E+pV objective without Gaussians, the existing 5 A chart, 0.2 A maximum q-step,
 history 500, at most 300 iterations and a 400-oracle-call cap. Its physical
 landing gate is `max_i ||F_i||_2 <= 0.05 eV/A` and maximum absolute stress
-component `<= 0.001 eV/A^3` (pressure is zero). These force and stress limits
-are the inherited outer physical thresholds; the inner biased gradient is not
+component `<= 0.001 eV/A^3` (pressure is zero). The force threshold follows the user-selected 0.05 setting; the stress
+threshold is inherited from the archived VC protocol; the inner biased gradient is not
 expected to vanish at the physical endpoint. Perform one independent final
 E/F/stress certificate per valid quench result and count it in the same
 budget.
