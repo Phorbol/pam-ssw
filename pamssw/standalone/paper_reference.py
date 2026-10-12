@@ -239,6 +239,8 @@ class SSWCheckpoint:
     pool_state: object = None
     hookean_specs: tuple = ()
     base_schema_version: object = None
+    protected_move_policy: object = None
+    wrapped_schema_version: object = None
 
 
 def _checkpoint_copy(value):
@@ -260,7 +262,9 @@ def _checkpoint_copy(value):
             _checkpoint_copy(getattr(value, 'recovered_direction_state', None)),
             _checkpoint_copy(getattr(value, 'pool_state', None)),
             tuple(getattr(value, 'hookean_specs', ())),
-            getattr(value, 'base_schema_version', None))
+            getattr(value, 'base_schema_version', None),
+            _checkpoint_copy(getattr(value, 'protected_move_policy', None)),
+            getattr(value, 'wrapped_schema_version', None))
     if isinstance(value, Atoms):
         result = value.copy()
         result.calc = None
@@ -321,10 +325,29 @@ def save_ssw_checkpoint(path, checkpoint):
 def _validate_ssw_checkpoint(checkpoint):
     if not isinstance(checkpoint, SSWCheckpoint):
         raise TypeError('checkpoint must be SSWCheckpoint')
-    if checkpoint.schema_version not in (1, 2, 3, 4, 5, 6, 7, 8):
+    if checkpoint.schema_version not in (1, 2, 3, 4, 5, 6, 7, 8, 9):
         raise ValueError(f'unsupported SSW checkpoint schema {checkpoint.schema_version!r}')
+    wrapped_schema = getattr(checkpoint, 'wrapped_schema_version', None)
+    if checkpoint.schema_version == 9:
+        from .protected_move import ScalarMovePolicy
+        if not isinstance(getattr(checkpoint, 'protected_move_policy', None), ScalarMovePolicy):
+            raise ValueError('schema 9 requires a typed protected move policy')
+        if (isinstance(wrapped_schema, (bool, np.bool_)) or
+                not isinstance(wrapped_schema, (int, np.integer)) or
+                int(wrapped_schema) not in (1, 2, 3, 4, 5, 6, 7, 8)):
+            raise ValueError('schema 9 requires a valid wrapped schema version 1 through 8')
+        identity_schema = int(wrapped_schema)
+        if (checkpoint.ls is not None or checkpoint.height_policy is not None or
+                checkpoint.gaussian_policy is not None or checkpoint.reconnect_distance is not None or
+                tuple(getattr(checkpoint, 'hookean_specs', ())) or
+                getattr(checkpoint, 'pool_state', None) is not None):
+            raise ValueError('schema 9 protected move cannot wrap LS, pools, constraints, or alternate height/width policies')
+    else:
+        if getattr(checkpoint, 'protected_move_policy', None) is not None or wrapped_schema is not None:
+            raise ValueError('protected move identity requires schema 9')
+        identity_schema = checkpoint.schema_version
     base_schema = getattr(checkpoint, 'base_schema_version', None)
-    if checkpoint.schema_version in (6, 7, 8):
+    if identity_schema in (6, 7, 8):
         if (isinstance(base_schema, (bool, np.bool_)) or
                 not isinstance(base_schema, (int, np.integer)) or
                 int(base_schema) not in (1, 2, 3, 4, 5)):
@@ -333,14 +356,14 @@ def _validate_ssw_checkpoint(checkpoint):
     else:
         if base_schema is not None:
             raise ValueError('base schema version is only valid for schema 6/7/8 checkpoints')
-        capability_schema = checkpoint.schema_version
+        capability_schema = identity_schema
     from .ssw_restraints import validate_checkpoint_hookean_metadata
     validate_checkpoint_hookean_metadata(checkpoint)
     from .shape_softening import FrozenShapeBondSoftening
     geometry = getattr(checkpoint.ls, 'bias_geometry', 'pair')
     initial_failure = checkpoint.status == 'ls_initialization_failed'
-    if checkpoint.schema_version == 7 or (
-            checkpoint.schema_version == 8 and
+    if identity_schema == 7 or (
+            identity_schema == 8 and
             getattr(getattr(checkpoint, 'ls', None), 'bias_geometry', 'pair') == 'shape'):
         if not isinstance(checkpoint.ls, LSSettings) or geometry != 'shape':
             raise ValueError('shape schema requires shape LS settings')
@@ -371,7 +394,7 @@ def _validate_ssw_checkpoint(checkpoint):
         _validate_pure(pool_state)
     saved_mc = getattr(checkpoint, 'mc_settings', None)
     saved_mc_state = getattr(checkpoint, 'native_mc_state', None)
-    if checkpoint.schema_version in (6, 7, 8) and capability_schema == 1 and saved_mc is not None:
+    if checkpoint.schema_version in (6, 7, 8, 9) and capability_schema == 1 and saved_mc is not None:
         raise ValueError('wrapped native MC state requires base schema 2 or later')
     if (saved_mc is None) != (saved_mc_state is None):
         raise ValueError('checkpoint native MC settings and state must be paired')
@@ -394,9 +417,9 @@ def _validate_ssw_checkpoint(checkpoint):
             raise ValueError('schema 3 checkpoint requires typed recovered rotation settings')
     saved_direction = getattr(checkpoint, 'recovered_direction_state', None)
     descriptor_modes = tuple(getattr(getattr(saved_direction, 'settings', None), 'descriptor_modes', ()))
-    if descriptor_modes and checkpoint.schema_version != 8:
+    if descriptor_modes and identity_schema != 8:
         raise ValueError('descriptor direction checkpoint requires schema 8')
-    if checkpoint.schema_version == 8:
+    if identity_schema == 8:
         from .recovered_direction import RecoveredDirectionCheckpointState
         if not isinstance(saved_direction, RecoveredDirectionCheckpointState):
             raise ValueError('schema 8 requires recovered direction state')
@@ -506,7 +529,7 @@ def run_ssw(atoms, surface, *, steps, config, rng, ls=None, height_policy=None, 
             checkpoint_path=None, checkpoint_callback=None, progress_callback=None,
             structure_matcher=None, bias_quench_adapter=None,
             recovered_direction=None, recovered_rotation=None, mc=None,
-            starter_selector=None, selector_rng=None):
+            starter_selector=None, selector_rng=None, move_policy=None):
     """Run independent fixed-cell SSW; optional LS uses frozen image bonds for full PBC.
 
 ``steps`` counts additional outer attempts. To resume, explicitly pass a
@@ -602,6 +625,20 @@ only global translations in direction refinement. No rotation removal, MIC bias,
 or cell optimization is performed. Physical E/F retain ASE PBC; the path bias
 lives on the continuous coordinate lift and must not be evaluated after wrapping.
 """
+    if move_policy is not None:
+        from .protected_move import ScalarMovePolicy
+        if not isinstance(move_policy, ScalarMovePolicy):
+            raise TypeError('move_policy must be ScalarMovePolicy or None')
+        if ls is not None or height_policy is not None or gaussian_policy is not None:
+            raise ValueError('protected moves cannot be combined with LS, height_policy, or gaussian_policy')
+        if reconnect_distance is not None or starter_selector is not None:
+            raise ValueError('protected moves cannot be combined with reconnection or pool selection')
+        if config.cluster_frame == 'eckart':
+            raise NotImplementedError('protected moves do not support the Eckart frame')
+        from .protected_move import validate_move_geometry
+        validate_move_geometry(atoms)
+        if bias_quench_adapter is not None:
+            raise ValueError('protected moves cannot be combined with bias_quench_adapter')
     if checkpoint is not None:
         _validate_ssw_checkpoint(checkpoint)
         if checkpoint.status != 'completed':
@@ -737,9 +774,12 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
         if mc is None and saved_mc:
             raise ValueError('native MC checkpoint requires native MC settings')
         if mc is not None:
+            saved_identity = (checkpoint.wrapped_schema_version
+                              if checkpoint.schema_version == 9
+                              else checkpoint.schema_version)
             capability_schema = (checkpoint.base_schema_version
-                                 if checkpoint.schema_version in (6, 7, 8)
-                                 else checkpoint.schema_version)
+                                 if saved_identity in (6, 7, 8)
+                                 else saved_identity)
             if capability_schema not in (2, 3, 4, 5) or getattr(checkpoint, 'native_mc_state', None) is None:
                 raise ValueError('checkpoint lacks native MC state')
             if getattr(checkpoint, 'mc_settings', None) != mc:
@@ -769,6 +809,8 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
             raise ValueError('checkpoint height policy does not match requested policy')
         if _policy_signature(checkpoint.gaussian_policy) != _policy_signature(gaussian_policy):
             raise ValueError('checkpoint Gaussian policy does not match requested policy')
+        if _policy_signature(getattr(checkpoint, 'protected_move_policy', None)) != _policy_signature(move_policy):
+            raise ValueError('checkpoint protected move policy does not match requested policy')
         cp_atoms = checkpoint.current
         if tuple(cp_atoms.numbers) != tuple(atoms.numbers) or tuple(cp_atoms.pbc) != tuple(atoms.pbc):
             raise ValueError('checkpoint current composition/PBC does not match input atoms')
@@ -849,9 +891,9 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
             height_update_budget, reconnect_distance,
             deepcopy(rng.bit_generator.state), prior_requests + surface.requests - begin,
             next_index, status, identity_view=_checkpoint_copy(identity_view),
-            schema_version=(8 if direction_controller is not None and getattr(direction_controller.settings, 'descriptor_modes', ()) else
+            schema_version=(9 if move_policy is not None else (8 if direction_controller is not None and getattr(direction_controller.settings, 'descriptor_modes', ()) else
                             (7 if isinstance(ls, LSSettings) and getattr(ls, 'bias_geometry', 'pair') == 'shape' else
-                             (6 if hookean_specs else base_schema_version))),
+                             (6 if hookean_specs else base_schema_version)))),
             mc_settings=_checkpoint_copy(mc),
             native_mc_state=_checkpoint_copy(native_mc_state),
             recovered_rotation=_checkpoint_copy(recovered_rotation),
@@ -861,7 +903,11 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
             hookean_specs=tuple(hookean_specs),
             base_schema_version=(base_schema_version if hookean_specs or
                                  (direction_controller is not None and getattr(direction_controller.settings, 'descriptor_modes', ())) or
-                                 isinstance(ls, LSSettings) and getattr(ls, 'bias_geometry', 'pair') == 'shape' else None))
+                                 isinstance(ls, LSSettings) and getattr(ls, 'bias_geometry', 'pair') == 'shape' else None),
+            protected_move_policy=_checkpoint_copy(move_policy),
+            wrapped_schema_version=((8 if direction_controller is not None and getattr(direction_controller.settings, 'descriptor_modes', ()) else
+                                     (7 if isinstance(ls, LSSettings) and getattr(ls, 'bias_geometry', 'pair') == 'shape' else
+                                      (6 if hookean_specs else base_schema_version))) if move_policy is not None else None))
 
     if checkpoint is None and ls is not None:
         try:
@@ -919,6 +965,7 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
         minima_before = len(minima)
         work = current.copy()
         climb = []
+        saved_stage_centers = []
         landing = prepared = None
         status = 'gaussian_limit'
         error_message = None
@@ -986,6 +1033,8 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
             solve_direction = paper_broyden_direction
         for gaussian_index in range(config.max_gaussians):
             event = None
+            protected_diagnostics = None
+            protected_context = {}
             stage_before = surface.requests
             try:
                 if direction_controller is not None:
@@ -1111,6 +1160,37 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
                     climb.append(failed_event)
                     break
                 center = work.positions.copy()
+                move_direction = np.asarray(mode.direction)
+                move_width = float(config.width)
+                if move_policy is not None:
+                    from .protected_move import protected_move
+                    move = protected_move(work, move_direction, move_width, move_policy)
+                    protected_diagnostics = move.diagnostics
+                    if not move.accepted:
+                        # The helper returns the saved stage center after the
+                        # last rejected geometry; never release the last trial.
+                        work = current.copy()
+                        if saved_stage_centers:
+                            work.positions = saved_stage_centers[-1]
+                        status = 'move_retry_exhausted'
+                        climb.append(dict(index=gaussian_index, status=status,
+                            center=center.tolist(), move_policy=move_policy,
+                            move_diagnostics=protected_diagnostics,
+                            requests=surface.requests-stage_before))
+                        break
+                    displaced = move.atoms
+                    move_direction = move.direction
+                    move_width = move.width
+                    protected_context = {
+                        'protected_move': protected_diagnostics,
+                        'requested_direction': np.asarray(mode.direction).tolist(),
+                        'requested_width': float(config.width),
+                    }
+                else:
+                    displaced = work.copy()
+                    displaced.positions += move_width * move_direction
+                    if frame is not None:
+                        displaced.positions = frame.positions(displaced.positions)
                 background_force = None
                 force_parallel = None
                 height_preparation = None
@@ -1125,21 +1205,20 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
                     if frame is not None: displaced.positions = frame.positions(displaced.positions)
                     terms.append(ProjectedGaussian(center, mode.direction, width, weight))
                 elif height_policy is None:
-                    displaced = work.copy(); displaced.positions += config.width * mode.direction
-                    if frame is not None: displaced.positions = frame.positions(displaced.positions)
                     background = SurfaceCalculator(surface, terms=terms); displaced.calc = background
                     background_force = displaced.get_forces()
-                    force_parallel = float(np.sum(background_force * mode.direction))
-                    width = config.width
-                    weight = (config.forward_force - force_parallel) * config.width * math.exp(.5)
+                    force_parallel = float(np.sum(background_force * move_direction))
+                    width = move_width
+                    weight = (config.forward_force - force_parallel) * move_width * math.exp(.5)
                     if not np.isfinite(weight) or weight <= 0:
                         status = 'nonpositive_height'
                         failed_event = dict(index=gaussian_index, weight=weight,
                                           background_forward_force=force_parallel)
+                        failed_event.update(protected_context)
                         if stage_diagnostics is not None: failed_event.update(stage_diagnostics)
                         climb.append(failed_event)
                         break
-                    terms.append(ProjectedGaussian(center, mode.direction, config.width, weight))
+                    terms.append(ProjectedGaussian(center, move_direction, move_width, weight))
                 else:
                     from .native_height_policy import FrozenHeightGaussian
                     displaced = work.copy(); displaced.positions += config.width * mode.direction
@@ -1192,19 +1271,23 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
                     event = {}
                     climb.append(event)
                 event.update(index=gaussian_index, rotation_solver=('recovered-cbd' if (direction_controller is not None or recovered_rotation is not None) else config.rotation_solver), cluster_frame=config.cluster_frame, center=center.tolist(),
-                             direction=mode.direction.tolist(), weight=weight,
+                             direction=move_direction.tolist(), weight=weight,
                              width=width, rotation_residual=mode.residual_norm,
                              rotation_stop_reason=rotation_stop, rotation_converged=bool(mode.converged),
                              rotation_budget_released=bool(rotation_budget_released),
                              rotation_force_requests=mode.force_calls, actual_anchor=actual_anchor.tolist(),
                              actual_rotation_bias=float(actual_a),
                              status='height_prepared', requests=surface.requests-stage_before)
+                if protected_diagnostics is not None:
+                    event.update(protected_context)
                 if policy_data is not None:
                     event['gaussian_policy'] = policy_data
                     event['curvature_scope'] = ('physical PES plus frozen LS' if soft_terms else 'physical PES')
                 if stage_diagnostics is not None: event.update(stage_diagnostics)
                 if direction_controller is not None:
                     direction_controller.save_gaussian_center(center)
+                if move_policy is not None:
+                    saved_stage_centers.append(center.copy())
                 if height_preparation is not None:
                     event['height_preparation'] = height_preparation
                 stage_steps = config.relax_steps if config.bias_stage_steps is None else config.bias_stage_steps
@@ -1292,8 +1375,10 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
                 status = 'cluster_frame_failed'
                 error_message = str(error)
                 if event is None:
-                    climb.append(dict(index=gaussian_index, cluster_frame=config.cluster_frame,
-                                      error=error_message, requests=surface.requests-stage_before))
+                    failed_event = dict(index=gaussian_index, cluster_frame=config.cluster_frame,
+                                      error=error_message, requests=surface.requests-stage_before)
+                    failed_event.update(protected_context)
+                    climb.append(failed_event)
                 else:
                     event.update(status=status, error=error_message, requests=surface.requests-stage_before)
                 break
@@ -1301,7 +1386,10 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
                 status = run_status = 'evaluation_failed'
                 error_message = f'climb: {type(error).__name__}: {error}'
                 if event is None:
-                    climb.append(dict(index=gaussian_index, error=error_message, requests=surface.requests-stage_before))
+                    failed_event = dict(index=gaussian_index, error=error_message,
+                                      requests=surface.requests-stage_before)
+                    failed_event.update(protected_context)
+                    climb.append(failed_event)
                 else:
                     event.update(status=status, error=error_message, requests=surface.requests-stage_before)
                 break
@@ -1313,7 +1401,7 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
             landing_input = cluster_reconnection.atoms
         else:
             landing_input = work
-        if status in ('gaussian_limit', 'lower_true_energy', 'stage_release'):
+        if status in ('gaussian_limit', 'lower_true_energy', 'stage_release', 'move_retry_exhausted'):
             try:
                 landing = quench(landing_input, surface, fmax=config.fmax,
                                  steps=config.relax_steps, optimizer=quench_optimizer, lbfgs_memory=config.lbfgs_memory)

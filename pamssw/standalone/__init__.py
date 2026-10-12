@@ -83,3 +83,6 @@ __all__ += ['RecoveredRotationSettings']
 
 from .starter_selection import StarterObservation, StarterPoolSnapshot
 __all__ += ['StarterObservation', 'StarterPoolSnapshot']
+
+from .protected_move import ScalarMovePolicy
+__all__ += ['ScalarMovePolicy']

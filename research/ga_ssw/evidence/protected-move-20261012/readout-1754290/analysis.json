@@ -1,0 +1,475 @@
+{
+  "raw_run": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/protected-move-20261012/run-1754252",
+  "scope": "development paired single outer step; no general efficiency claim",
+  "search_requests": 1354,
+  "fresh_requests": 4,
+  "rows": [
+    {
+      "case": "c60-isomer2",
+      "arm": "protected-off",
+      "status": "completed",
+      "failure_class": null,
+      "fresh_failure_class": null,
+      "search_requests": 394,
+      "search_calculate_calls": 375,
+      "fresh_requests": 1,
+      "fresh_calculate_calls": 1,
+      "search_boundary": null,
+      "fresh_boundary": null,
+      "search_elapsed_seconds": 22.79446758888662,
+      "arm_elapsed_seconds": 22.945087134838104,
+      "fresh_endpoint": {
+        "target": "last-outer-landing",
+        "endpoint_kind": "landing",
+        "energy_eV": -62202.78540699356,
+        "fmax_eV_A": 0.048335213690687336,
+        "force_qualified": true,
+        "same_numbers": true,
+        "same_cell": true,
+        "same_pbc": true,
+        "geometry_diagnostics": {
+          "minimum_nonself_distance_A": 1.2787563818963323,
+          "atom_count": 60,
+          "periodic": false,
+          "distance_graphs": {
+            "1.64": {
+              "edges": 87,
+              "components": 2,
+              "degree_counts": {
+                "1": 2,
+                "2": 2,
+                "3": 56
+              }
+            },
+            "1.7": {
+              "edges": 87,
+              "components": 2,
+              "degree_counts": {
+                "1": 2,
+                "2": 2,
+                "3": 56
+              }
+            },
+            "1.8": {
+              "edges": 87,
+              "components": 2,
+              "degree_counts": {
+                "1": 2,
+                "2": 2,
+                "3": 56
+              }
+            }
+          }
+        }
+      },
+      "constructed_gaussians": 6,
+      "guard_stages": 0,
+      "rejected_trials": 0,
+      "shortened_moves": 0,
+      "release_reasons": [
+        "gaussian_limit"
+      ],
+      "widths": [
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6
+      ],
+      "initial_energy_eV": -62214.17020995467,
+      "landing_delta_eV": [
+        11.384802961110836
+      ],
+      "fresh_energy_error_eV": 0.0,
+      "cluster_geometry": [
+        {
+          "cutoff_A": 1.64,
+          "component_sizes": [
+            4,
+            56
+          ],
+          "degrees": {
+            "1": 2,
+            "2": 2,
+            "3": 56
+          }
+        },
+        {
+          "cutoff_A": 1.7,
+          "component_sizes": [
+            4,
+            56
+          ],
+          "degrees": {
+            "1": 2,
+            "2": 2,
+            "3": 56
+          }
+        },
+        {
+          "cutoff_A": 1.8,
+          "component_sizes": [
+            4,
+            56
+          ],
+          "degrees": {
+            "1": 2,
+            "2": 2,
+            "3": 56
+          }
+        }
+      ],
+      "prior_off_search_requests": 401,
+      "matches_prior_off_requests": false,
+      "prior_off_landing_max_position_difference_A": 0.16788759889772997,
+      "prior_off_landing_energy_difference_eV": 0.002695785806281492
+    },
+    {
+      "case": "c60-isomer2",
+      "arm": "protected-on",
+      "status": "completed",
+      "failure_class": null,
+      "fresh_failure_class": null,
+      "search_requests": 339,
+      "search_calculate_calls": 320,
+      "fresh_requests": 1,
+      "fresh_calculate_calls": 1,
+      "search_boundary": null,
+      "fresh_boundary": null,
+      "search_elapsed_seconds": 17.71364028286189,
+      "arm_elapsed_seconds": 17.864935627905652,
+      "fresh_endpoint": {
+        "target": "last-outer-landing",
+        "endpoint_kind": "landing",
+        "energy_eV": -62209.16669434768,
+        "fmax_eV_A": 0.03722993071808642,
+        "force_qualified": true,
+        "same_numbers": true,
+        "same_cell": true,
+        "same_pbc": true,
+        "geometry_diagnostics": {
+          "minimum_nonself_distance_A": 1.2847469811600596,
+          "atom_count": 60,
+          "periodic": false,
+          "distance_graphs": {
+            "1.64": {
+              "edges": 90,
+              "components": 1,
+              "degree_counts": {
+                "1": 1,
+                "3": 57,
+                "4": 2
+              }
+            },
+            "1.7": {
+              "edges": 90,
+              "components": 1,
+              "degree_counts": {
+                "1": 1,
+                "3": 57,
+                "4": 2
+              }
+            },
+            "1.8": {
+              "edges": 91,
+              "components": 1,
+              "degree_counts": {
+                "2": 1,
+                "3": 57,
+                "4": 1,
+                "5": 1
+              }
+            }
+          }
+        }
+      },
+      "constructed_gaussians": 6,
+      "guard_stages": 6,
+      "rejected_trials": 39,
+      "shortened_moves": 2,
+      "release_reasons": [
+        "gaussian_limit"
+      ],
+      "widths": [
+        0.6,
+        0.6000000000000001,
+        0.6,
+        0.22641216152118424,
+        0.21509155344512523,
+        0.6000000000000001
+      ],
+      "initial_energy_eV": -62214.17020995467,
+      "landing_delta_eV": [
+        5.003515606986184
+      ],
+      "fresh_energy_error_eV": 0.0,
+      "cluster_geometry": [
+        {
+          "cutoff_A": 1.64,
+          "component_sizes": [
+            60
+          ],
+          "degrees": {
+            "1": 1,
+            "3": 57,
+            "4": 2
+          }
+        },
+        {
+          "cutoff_A": 1.7,
+          "component_sizes": [
+            60
+          ],
+          "degrees": {
+            "1": 1,
+            "3": 57,
+            "4": 2
+          }
+        },
+        {
+          "cutoff_A": 1.8,
+          "component_sizes": [
+            60
+          ],
+          "degrees": {
+            "2": 1,
+            "3": 57,
+            "4": 1,
+            "5": 1
+          }
+        }
+      ]
+    },
+    {
+      "case": "tio2-phase87",
+      "arm": "protected-off",
+      "status": "completed",
+      "failure_class": null,
+      "fresh_failure_class": null,
+      "search_requests": 328,
+      "search_calculate_calls": 309,
+      "fresh_requests": 1,
+      "fresh_calculate_calls": 1,
+      "search_boundary": null,
+      "fresh_boundary": null,
+      "search_elapsed_seconds": 3.894836374092847,
+      "arm_elapsed_seconds": 3.9780243979766965,
+      "fresh_endpoint": {
+        "target": "last-outer-landing",
+        "endpoint_kind": "landing",
+        "energy_eV": -101.70827329876566,
+        "fmax_eV_A": 0.04616676419764979,
+        "force_qualified": true,
+        "same_numbers": true,
+        "same_cell": true,
+        "same_pbc": true,
+        "geometry_diagnostics": {
+          "minimum_nonself_distance_A": 1.6404700681058364,
+          "atom_count": 12,
+          "periodic": true,
+          "coordination_by_center_species": {
+            "8": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "3": 1,
+                "4": 1,
+                "5": 1,
+                "6": 2,
+                "7": 1,
+                "8": 2
+              }
+            },
+            "22": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "3": 1,
+                "5": 1,
+                "6": 1,
+                "7": 1
+              }
+            }
+          },
+          "interpretation": "distance and coordination diagnostic only; no phase assignment"
+        }
+      },
+      "constructed_gaussians": 6,
+      "guard_stages": 0,
+      "rejected_trials": 0,
+      "shortened_moves": 0,
+      "release_reasons": [
+        "gaussian_limit"
+      ],
+      "widths": [
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6
+      ],
+      "initial_energy_eV": -106.5292197026681,
+      "landing_delta_eV": [
+        4.82094640390244
+      ],
+      "fresh_energy_error_eV": 0.0,
+      "periodic_3A_image_counts": [
+        8,
+        7,
+        4,
+        9,
+        6,
+        10,
+        10,
+        5,
+        4,
+        6,
+        7,
+        8
+      ],
+      "nearest_periodic_distance_A": 1.640470064606116,
+      "prior_off_search_requests": 328,
+      "matches_prior_off_requests": true,
+      "prior_off_landing_max_position_difference_A": 0.0,
+      "prior_off_landing_energy_difference_eV": 0.0
+    },
+    {
+      "case": "tio2-phase87",
+      "arm": "protected-on",
+      "status": "completed",
+      "failure_class": null,
+      "fresh_failure_class": null,
+      "search_requests": 293,
+      "search_calculate_calls": 274,
+      "fresh_requests": 1,
+      "fresh_calculate_calls": 1,
+      "search_boundary": null,
+      "fresh_boundary": null,
+      "search_elapsed_seconds": 3.4751910141203552,
+      "arm_elapsed_seconds": 3.55769632011652,
+      "fresh_endpoint": {
+        "target": "last-outer-landing",
+        "endpoint_kind": "landing",
+        "energy_eV": -103.51325688952551,
+        "fmax_eV_A": 0.049879501942895456,
+        "force_qualified": true,
+        "same_numbers": true,
+        "same_cell": true,
+        "same_pbc": true,
+        "geometry_diagnostics": {
+          "minimum_nonself_distance_A": 1.6323455905198316,
+          "atom_count": 12,
+          "periodic": true,
+          "coordination_by_center_species": {
+            "8": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "3": 1,
+                "4": 1,
+                "6": 4,
+                "7": 2
+              }
+            },
+            "22": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "3": 1,
+                "4": 3
+              }
+            }
+          },
+          "interpretation": "distance and coordination diagnostic only; no phase assignment"
+        }
+      },
+      "constructed_gaussians": 6,
+      "guard_stages": 6,
+      "rejected_trials": 19,
+      "shortened_moves": 3,
+      "release_reasons": [
+        "gaussian_limit"
+      ],
+      "widths": [
+        0.6,
+        0.6,
+        0.44105513437500005,
+        0.32421605259758257,
+        0.5999999999999999,
+        0.5699999999999997
+      ],
+      "initial_energy_eV": -106.5292197026681,
+      "landing_delta_eV": [
+        3.0159628131425933
+      ],
+      "fresh_energy_error_eV": 0.0,
+      "periodic_3A_image_counts": [
+        11,
+        9,
+        5,
+        6,
+        9,
+        9,
+        8,
+        6,
+        5,
+        5,
+        4,
+        5
+      ],
+      "nearest_periodic_distance_A": 1.6323455940088307
+    }
+  ],
+  "pair_prefix": [
+    {
+      "case": "c60-isomer2",
+      "prefix_through_first_guard": [
+        {
+          "stage": 0,
+          "first_guard_rejection": false,
+          "center_max_difference_A": 0.0,
+          "CBD_direction_max_difference": 1.3151008060319214e-12
+        },
+        {
+          "stage": 1,
+          "first_guard_rejection": false,
+          "center_max_difference_A": 1.4164225348167747e-12,
+          "CBD_direction_max_difference": 2.1637414082675832e-12
+        },
+        {
+          "stage": 2,
+          "first_guard_rejection": false,
+          "center_max_difference_A": 1.4073187060148484e-12,
+          "CBD_direction_max_difference": 5.075648235042252e-12
+        },
+        {
+          "stage": 3,
+          "first_guard_rejection": true,
+          "center_max_difference_A": 3.696045691725658e-10,
+          "CBD_direction_max_difference": 2.7677346525756263e-11
+        }
+      ]
+    },
+    {
+      "case": "tio2-phase87",
+      "prefix_through_first_guard": [
+        {
+          "stage": 0,
+          "first_guard_rejection": false,
+          "center_max_difference_A": 0.0,
+          "CBD_direction_max_difference": 0.0
+        },
+        {
+          "stage": 1,
+          "first_guard_rejection": false,
+          "center_max_difference_A": 1.1901590823981678e-13,
+          "CBD_direction_max_difference": 4.250488849777412e-12
+        },
+        {
+          "stage": 2,
+          "first_guard_rejection": true,
+          "center_max_difference_A": 5.5637716656065095e-12,
+          "CBD_direction_max_difference": 5.982381257041425e-12
+        }
+      ]
+    }
+  ]
+}

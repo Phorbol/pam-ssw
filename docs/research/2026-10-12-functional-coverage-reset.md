@@ -19,7 +19,7 @@ SSW2013、LS2024、VC2014、RC2025、GA2026全文已归档；Q公式另据PTSD20
 
 |范围|当前真实入口/机制|明确剩余工作|
 |---|---|---|
-|固定胞SSW|`paper_reference.run_ssw`；CBD、连续Gaussian、真势淬火、MC、方向与池状态恢复|原版受保护位移、接受后实际位移定宽、重试耗尽后的释放状态没有完整对应入口；不能用固定宽度冒充|
+|固定胞SSW|`paper_reference.run_ssw`；CBD、连续Gaussian、真势淬火、MC、方向与池状态恢复；可选标量保护已接入实际位移定宽及耗尽释放|保护只支持批准的固定胞无约束组合，元素短距离表未恢复；耗尽释放已做状态回归，真实面板只有缩步成功、没有耗尽。默认关闭，不宣称原版全行为等价|
 |LS|`softening.py`、`ls_cycle.py`、`ls_native_reference.py`；冻结邻居/参考长度、软面预淬火、响应更新、撤偏置；周期实现另有入口|论文幅度响应与native元素表控制明确分开；并非缺少LS本体。native预淬火退出处坐标/力配对及更新资格仍有反编译边界；性能混合不等于功能缺失|
 |描述符梯度方向|`descriptor_direction.py`与方向控制器显式S1/S2库已接通梯度→投影→CBD→多Gaussian→恢复，默认关闭；C60/TiO2真实生命周期已测|S3–S6及完整native选择器未闭合；VC梯度未实现，约束/LS/池全部组合未做科学验收；本轮无效率收益|
 |VC|`block_ssw.run_block_ssw`是交替cell/原子方案；`vc_reference.run_vc_ssw`另为联合log-strain方案|block每周期重新随机cell方向，源码明确标记native生命周期未验证；原子段限制global/translation_only/Safe-total；不能声称任意方向/LS组合均可直接继承|
@@ -66,3 +66,8 @@ TYPE1/2/4、周期描述符/匹配和VC walker接口已在其他模块实现。
 或已知原版缺陷时记录边界，不以“复现完整”之名强行引入。
 
 S1/S2实施与真实结果：[实施记录](2026-10-12-q-entry-implementation.md)。原执行顺序中的最小入口任务已完成；后续不为改善单例而扩展模式调参。
+
+受保护移动已获用户批准并完成第一轮实现验收：CPU88项通过，C60/TiO2四个真实
+外步与fresh复核完成；见[读出](../../research/ga_ssw/evidence/protected-move-20261012/readout.md)。
+固定参数迁移检查后关闭这一有界任务，随后回到VC交替路径的实际验收缺口；
+不把未恢复的native字段本身当作必须增加算法组件的依据。

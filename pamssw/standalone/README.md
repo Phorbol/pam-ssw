@@ -720,6 +720,39 @@ allows the next Gaussian; release ends climbing and invokes the ordinary
 true-surface quench and Metropolis decision. Neither flag certifies a true
 minimum. This interface currently rejects checkpoint use.
 
+### Optional fixed-cell scalar protected moves
+
+`run_ssw(..., move_policy=ScalarMovePolicy())` enables a native-derived scalar
+retry guard for the proposed Gaussian displacement. The default `None` keeps
+the existing path and random stream. The policy uses the recovered 2 Angstrom
+maximum atom displacement, 0.25 maximum closest-distance contraction, 0.95
+shrink factor, 0.1 Angstrom retry floor, and 50 evaluated-trial boundary.
+These are native heuristics, not universal chemical thresholds. ASE minimum
+image distances (including nonzero periodic self images) define this Python
+implementation's geometry contract; it does not reproduce the native species
+short-distance predicate.
+
+```python
+from pamssw.standalone import ScalarMovePolicy, run_ssw
+
+result = run_ssw(atoms, surface, steps=steps, config=config, rng=rng,
+                 move_policy=ScalarMovePolicy())
+```
+
+An accepted shortened trial stores the actual displacement's normalized
+direction and Euclidean width in the Gaussian history. If all trials fail,
+the driver restores the first saved center on the first Gaussian, or the
+previous saved Gaussian center on a later stage, records
+`move_retry_exhausted`, and sends that geometry through the ordinary
+unbiased true-surface landing quench. This option supports unconstrained
+Cartesian, `direction_only`, and `translation_only` fixed-cell runs, including
+recovered direction modes. It cannot be combined with LS, pool selection,
+Hookean constraints, articulated-chain or variable-cell drivers, or alternate
+height/width policies. Protected-move checkpoints use schema 9 and retain the
+wrapped checkpoint schema and policy identity; resume with the same policy.
+This Python implementation is experimental and does not establish search
+efficacy or native numerical parity.
+
 The research `StatefulNativeStageAdapter` uses recovered scalar stopping
 conditions with explicit independent energy references and evaluation budgets.
 It supports all-mobile Cartesian biased relaxation, including the existing

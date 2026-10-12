@@ -1,0 +1,18 @@
+{
+  "baseline": "19263063fcd0f796bdabb44f337a50ccdae1d68e",
+  "source_snapshot": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/protected-move-20261012/source-green-v2",
+  "v1_source_snapshot": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/protected-move-20261012/source-green-v1",
+  "red_source_snapshot": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/protected-move-20261012/source-red",
+  "note": "full tested core/tests and both runner sources retained; not just git HEAD",
+  "cpu_red": 1754084,
+  "cpu_v1": 1754151,
+  "failed_smoke_v1": 1754155,
+  "cpu_v2": 1754239,
+  "cpu_v2_result": "88 passed in2.49s",
+  "smoke_v2": 1754240,
+  "smoke_v2_result": "4arms318search+4fresh, explicit identityCBD; no scientific evidence",
+  "review": "v2 scoped independent review approved; no remaining substantive findings",
+  "gpu": 1754252,
+  "gpu_result": "4 complete arms; 1354 search requests plus 4 fresh evaluations; 1278 search calculate calls plus 4 fresh calls; allocation 62 seconds",
+  "readout": 1754290
+}

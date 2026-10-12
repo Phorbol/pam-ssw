@@ -56,3 +56,19 @@ receive a failed move outcome and restored native trajectory point. Therefore
 this exact failure-to-Allopt lifecycle is not represented by those callbacks.
 This note records the interface-coverage boundary only; it proposes no new
 architecture or implementation.
+
+## Direct-trial counter and Python index mapping (implementation preflight)
+
+Root rechecked the direct branch: `0x5c6da9` sets esi=1, `0x5c6dd6` stores
+it in int counter `[rbp-0x348]`, and `0x5c71d8` increments after constructing
+the trial, before guards. After rejection, `0x5c749c` shrinks by0.95 and
+`0x5c74be–0x5c74cb` allows another trial only when new ds>=0.1 and counter<=50.
+Thus at most50 evaluated trials, not initial+50 retries. The first trial is
+not gated by the0.1 lower bound. This remains the inspected direct branch.
+
+For the independent driver, if current center is saved before trial at Python
+stage k starting at0, native ng=k+1 recovery maps to saved_centers[max(0,k-1)].
+This matches first-center/previous-center semantics; no rejected trial may be
+inserted into the Gaussian history. Tests must check actual landing_input,
+not just a diagnostic index. Python base-surface quench remains a documented
+implementation choice; this static evidence is not full native E/F parity.
