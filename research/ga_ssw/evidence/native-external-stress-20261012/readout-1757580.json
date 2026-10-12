@@ -1,0 +1,47 @@
+{
+  "source_run": "/home/gengjianrui/bin/pam-ssw-worktrees/native-external-stress-20261012/research/ga_ssw/evidence/native-external-stress-20261012/run-1757580",
+  "source_head": "1065e56fd04210438f51c1bcbbf2548a1fd0948f",
+  "execution_status": "stopped_at_third_class_entry",
+  "calculator_calls": 3,
+  "parsed_flags": [
+    0
+  ],
+  "rows": [
+    {
+      "request": 1,
+      "legacy_vs_ase_max_eV_A3": 0.0,
+      "class_vs_ase_max_eV_A3": 4.260323472476957e-09,
+      "ase_max_stress_eV_A3": 0.019540867185695584,
+      "native_cell_transpose_vs_callback_max_A": 3.4821523702682766e-11,
+      "cell_change_from_first_A": 0.0,
+      "volume_A3": 47.26044371182824,
+      "external_pressure_stored": 0.0
+    },
+    {
+      "request": 2,
+      "legacy_vs_ase_max_eV_A3": 0.0,
+      "class_vs_ase_max_eV_A3": 1.549172828733958e-08,
+      "ase_max_stress_eV_A3": 0.0158571322743248,
+      "native_cell_transpose_vs_callback_max_A": 3.880857701171747e-11,
+      "cell_change_from_first_A": 0.0064970435000000215,
+      "volume_A3": 47.03732697916961,
+      "external_pressure_stored": 0.0
+    },
+    {
+      "request": 3,
+      "legacy_vs_ase_max_eV_A3": 0.0,
+      "class_vs_ase_max_eV_A3": 7.100236939193427e-08,
+      "ase_max_stress_eV_A3": 0.008655830223565968,
+      "native_cell_transpose_vs_callback_max_A": 3.786430652526207e-11,
+      "cell_change_from_first_A": 0.02038776269999998,
+      "volume_A3": 46.62641612743147,
+      "external_pressure_stored": 0.0
+    }
+  ],
+  "scope": "Three changing-cell Cu4/EMT handoffs, explicit external.dedcell F and wire=-ASE stress. No search efficacy, full gradient or arbitrary-backend qualification.",
+  "limitations": [
+    "Class atomic positions not read; linkage uses callback ID and nearest otherpot return plus cell.",
+    "Symmetric physical stress cannot discriminate row versus column flattening.",
+    "Small class/legacy residual retained without precision tuning."
+  ]
+}
