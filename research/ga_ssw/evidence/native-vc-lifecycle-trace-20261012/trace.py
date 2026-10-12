@@ -98,7 +98,9 @@ def generator_snapshot(obj, label):
             # destination and the scratch descriptor object+0x1848. Do not
             # give the latter an unclosed scientific interpretation.
             'destination_object_offset1788': vector_descriptor(obj + 0x1788),
-            'scratch_object_offset1848': vector_descriptor(obj + 0x1848)}
+            'scratch_object_offset1848': vector_descriptor(obj + 0x1848),
+            'local_saved_state': {'I': i32(0x791b8b0), 'Y': read(0x791b8a8, '<d'),
+                                  'MAXLA': i32(0x791b8b4), 'MINLA': i32(0x791b8b8)}}
 
 
 def finish(reason):
@@ -154,7 +156,8 @@ class Observer(gdb.Breakpoint):
                    'cell_mode_event_serial_within_step': CELL_UPDATE_SERIAL[step],
                    'call_count': COUNTS[self.label], 'call_count_within_step': PER_STEP[step][self.label],
                    'ratio_atomcell': i32(PARA + 0x2db58), 'ng': i32(PARA + 0xf4),
-                   'ng_cell': i32(PARA + 0xf8)}
+                   'ng_cell': i32(PARA + 0xf8),
+                   'object_gaussian_index': i32(obj + 0x1660)}
             # Preserve raw registers and caller boundaries to distinguish
             # repeated reverse-communication entries during later analysis.
             # No unverified register is labeled a native cycle counter.
@@ -169,7 +172,14 @@ class Observer(gdb.Breakpoint):
                 callers.append({'pc': int(frame.pc()), 'function': frame.name()})
                 frame = frame.older()
             row['frames'] = callers
+            if self.label in ('local_cell_call_A', 'local_cell_call_B'):
+                row['local_cell_input'] = {
+                    'flag': i32(register('r8')), 'flag2': i32(register('r9')),
+                    'latt': [read(register('rdi')+8*k, '<d') for k in range(3)],
+                    'cell_storage': [read(register('rsi')+8*k, '<d') for k in range(9)],
+                    'fixlat': [i32(register('rcx')+4*k) for k in range(3)]}
             if self.label in SNAPSHOT_PHASES:
+
                 row['generator_snapshot'] = generator_snapshot(obj, self.label)
             if self.object_source == 'descriptor' or self.label == 'gen_randommode':
                 row['return_address'] = read(register('rsp'), '<Q')
@@ -192,6 +202,8 @@ for address, label, source in (
     (0x5f3750, 'climb_post_dispatch', 'r13_descriptor'),
     (0x5ff2e0, 'update_mode0', 'descriptor'),
     (0x5ff750, 'gen_randommode', 'parent'),
+    (0x6076ef, 'local_cell_call_A', 'parent'),
+    (0x607bda, 'local_cell_call_B', 'parent'),
     (0x5ffa5b, 'gen_after_history_scale', 'parent'),
     (0x602d36, 'gen_after_coefficient18', 'parent'),
     (0x604136, 'gen_after_coefficient28', 'parent'),

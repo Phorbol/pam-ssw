@@ -121,3 +121,16 @@ If history participates, document the concrete mechanism gap and compare it to
 the already recovered Python direction feedback before proposing any public
 VC state change. If not, retain the observed conditional boundary and close this
 probe. No default mixing coefficient will be inferred as generally optimal.
+
+## Revision 4: is the active local mode itself redrawn?
+
+Revision3 showed the global random coefficient becomes zero after stage1.
+The local helper has saved I/Y/extrema state and only resets for flag==1.
+Consequently a generator RNG call does not establish active random noise in
+the returned direction. This is the last planned same-input lifecycle probe:
+record the actual A/B local-helper call, flag values, ng and saved state at
+existing generator snapshots. Same one-CPU/120-second/500-event bounds, no
+input changes. No automatic retries. If later flags are not1 and I/Y persist,
+report geometric/history continuation of a retained local pattern, not fresh
+random direction each stage. This diagnoses executed state lifetime only;
+no claim about optimal memory coefficient or global-search benefit follows.

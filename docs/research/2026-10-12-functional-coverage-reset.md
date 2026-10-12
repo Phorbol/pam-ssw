@@ -20,7 +20,7 @@ SSW2013、LS2024、VC2014、RC2025、GA2026全文已归档；Q公式另据PTSD20
 |范围|当前真实入口/机制|明确剩余工作|
 |---|---|---|
 |固定胞SSW|`paper_reference.run_ssw`；CBD、连续Gaussian、真势淬火、MC、方向与池状态恢复；可选标量保护已接入实际位移定宽及耗尽释放|保护只支持批准的固定胞无约束组合，元素短距离表未恢复；耗尽释放已做状态回归，真实面板只有缩步成功、没有耗尽。默认关闭，不宣称原版全行为等价|
-|LS|`softening.py`、`ls_cycle.py`、`ls_native_reference.py`；冻结邻居/参考长度、软面预淬火、响应更新、撤偏置；周期实现另有入口|论文幅度响应与native元素表控制明确分开；并非缺少LS本体。native预淬火退出处坐标/力配对及更新资格仍有反编译边界；性能混合不等于功能缺失|
+|LS|`softening.py`、`ls_cycle.py`、`ls_native_reference.py`；冻结邻居/参考长度、软面预淬火、响应更新、撤偏置；周期实现另有入口|论文幅度响应与native元素表控制明确分开；并非缺少LS本体。Python退出点坐标/力配对与force/maxiter资格已实现；未闭合的是native调用等价性，不是已证Python缺陷。性能混合不等于功能缺失|
 |描述符梯度方向|`descriptor_direction.py`与方向控制器显式S1/S2库已接通梯度→投影→CBD→多Gaussian→恢复，默认关闭；C60/TiO2真实生命周期已测|S3–S6及完整native选择器未闭合；VC梯度未实现，约束/LS/池全部组合未做科学验收；本轮无效率收益|
 |VC|`block_ssw.run_block_ssw`是交替cell/原子方案；`vc_reference.run_vc_ssw`另为联合log-strain方案|block每周期重新随机cell方向；新native动态记录已确认同一外步三段Gaussian各调用生成器，静态数据流另有历史位移混合，实际混合量正在核对。不能把block周期等同native Gaussian阶段；原子段仍限制global/translation_only/Safe-total|
 |RC|`rc_reference.py`、`rc_forest_reference.py`、`rc_vc_reference.py`及精确坐标/力回拉|固定拓扑、连续周期映像等适用域；native有限角krot/Kabsch完整组合及最终力输出未闭合。不因此声称当前树缺少一个已证明必要的自由度|
