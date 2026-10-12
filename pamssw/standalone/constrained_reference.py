@@ -280,15 +280,20 @@ def _constrained_config_equal(saved, requested):
 
 def _validate_constrained_checkpoint(checkpoint):
     if not isinstance(checkpoint,ConstrainedCheckpoint): raise TypeError('checkpoint must be ConstrainedCheckpoint')
-    if checkpoint.schema_version not in (1, 2): raise ValueError(f'unsupported constrained checkpoint schema {checkpoint.schema_version!r}')
+    if checkpoint.schema_version not in (1, 2, 3): raise ValueError(f'unsupported constrained checkpoint schema {checkpoint.schema_version!r}')
     direction = getattr(checkpoint, 'recovered_direction', None)
     state = getattr(checkpoint, 'recovered_direction_state', None)
     if checkpoint.schema_version == 1 and (direction is not None or state is not None):
         raise ValueError('direction metadata requires constrained schema 2')
-    if checkpoint.schema_version == 2:
+    if checkpoint.schema_version in (2, 3):
         from .recovered_direction import RecoveredDirectionSettings, RecoveredDirectionCheckpointState
         if not isinstance(direction, RecoveredDirectionSettings):
-            raise ValueError('schema 2 requires recovered direction settings')
+            raise ValueError('direction checkpoint requires recovered direction settings')
+        modes = tuple(getattr(direction, 'descriptor_modes', ()))
+        if modes and checkpoint.schema_version != 3:
+            raise ValueError('descriptor direction requires constrained schema 3')
+        if checkpoint.schema_version == 3 and not modes:
+            raise ValueError('schema 3 requires an explicit descriptor mode library')
         if (checkpoint.chart_reference.pbc.any() and
                 getattr(direction, 'geometry', 'nonperiodic') != 'periodic_local'):
             raise ValueError('recovered direction checkpoint requires nonperiodic geometry')
@@ -526,7 +531,8 @@ def run_constrained_ssw(atoms,surface,*,steps,config,rng,fixed_indices=None,dire
             (resume_state['evaluation_requests'] if resume_state is not None else 0)+surface.requests-begin_requests,
             next_index,status,hookean_specs=tuple(constraints.hookean_specs),
             gaussian_policy=None if gaussian_policy is None else _constrained_copy(gaussian_policy),
-            schema_version=2 if direction_lifecycle is not None else 1,
+            schema_version=(3 if direction_lifecycle is not None and getattr(recovered_direction, 'descriptor_modes', ()) else
+                            (2 if direction_lifecycle is not None else 1)),
             recovered_direction=_constrained_copy(recovered_direction),
             recovered_direction_state=(None if direction_lifecycle is None else
                                        _constrained_copy(direction_lifecycle.checkpoint_state())))

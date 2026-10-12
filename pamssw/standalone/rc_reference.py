@@ -200,6 +200,14 @@ def _run_reduced_ssw(atoms,surface,*,steps,config,rng,factory,coordinate_label="
                     stage['recovered_direction'] = diagnostic
                     stage['initial_direction'] = anchor.copy()
                     if release:
+                        unavailable = (
+                            diagnostic.get('descriptor_direction', {}).get('stop_reason')
+                            == 'zero_descriptor_gradient')
+                        if unavailable:
+                            stage.update(status='descriptor_direction_unavailable',
+                                         requests=surface.requests-stage_before)
+                            status='descriptor_direction_unavailable'
+                            break
                         stage.update(status='direction_zero_release', requests=surface.requests-stage_before)
                         status='stage_release'
                         break

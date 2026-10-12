@@ -31,6 +31,8 @@ class RecoveredDirectionSettings:
     c1_radius_policy: str = 'restricted'
     startup_order: str = 'legacy'
     geometry: str = 'nonperiodic'
+    descriptor_modes: tuple = ()
+    descriptor_probability: float = 0.0
 
     def __post_init__(self):
         if (isinstance(self.ratio_local, (bool, np.bool_)) or
@@ -62,6 +64,17 @@ class RecoveredDirectionSettings:
             raise ValueError('startup_order must be legacy or randomized')
         if getattr(self, 'geometry', 'nonperiodic') not in ('nonperiodic', 'periodic_local'):
             raise ValueError('geometry must be nonperiodic or periodic_local')
+        from .descriptor_direction import DescriptorMode
+        modes = tuple(getattr(self, 'descriptor_modes', ()))
+        if any(not isinstance(mode, DescriptorMode) for mode in modes):
+            raise TypeError('descriptor_modes must contain DescriptorMode values')
+        probability = float(getattr(self, 'descriptor_probability', 0.0))
+        if not np.isfinite(probability) or not 0 <= probability <= 1:
+            raise ValueError('descriptor_probability must lie in [0,1]')
+        if probability > 0 and not modes:
+            raise ValueError('descriptor_probability requires a nonempty descriptor_modes library')
+        object.__setattr__(self, 'descriptor_modes', modes)
+        object.__setattr__(self, 'descriptor_probability', probability)
 
 
 @dataclass(frozen=True)
@@ -229,6 +242,8 @@ class RecoveredDirectionController:
         self._group_marker = None
         self._geometry_cell = None
         self._geometry_pbc = None
+        self._descriptor_mode = None
+        self._descriptor_diagnostics = None
 
     def checkpoint_state(self):
         if self._pair is None or self._group is None:
@@ -261,6 +276,9 @@ class RecoveredDirectionController:
 
     def validate_geometry(self, atoms):
         """Validate controller geometry without consuming RNG or calculator calls."""
+        for mode in tuple(getattr(self.settings, 'descriptor_modes', ())):
+            if mode.center >= len(atoms):
+                raise ValueError('descriptor center is outside the structure')
         if getattr(self.settings, 'geometry', 'nonperiodic') == 'periodic_local':
             _validate_periodic_atoms(atoms, 'periodic direction')
             if self._geometry_cell is not None and (
@@ -407,6 +425,19 @@ class RecoveredDirectionController:
             raise ValueError('current and work require matching atoms')
         if self._pair is None or self._group is None:
             raise ValueError('initialize or observe_landing must select pair/group first')
+        self._descriptor_mode = None
+        self._descriptor_diagnostics = None
+        probability = float(getattr(self.settings, 'descriptor_probability', 0.0))
+        modes = tuple(getattr(self.settings, 'descriptor_modes', ()))
+        if probability > 0:
+            from .native_local_pair import _next_random
+            if _next_random(rng) < probability:
+                self._descriptor_mode = modes[min(int(_next_random(rng) * len(modes)), len(modes)-1)]
+        if self._descriptor_mode is not None:
+            self._coefficients = None
+            self._outer_reference = reference
+            self._state = None
+            return self._descriptor_result(work)
         selected = select_local_coefficients(
             self._group, rng, ratio_local=self.settings.ratio_local,
             local_probability=self.settings.local_probability,
@@ -425,17 +456,42 @@ class RecoveredDirectionController:
         return result
 
     def save_gaussian_center(self, center):
+        if self._descriptor_mode is not None:
+            return
         if self._state is None:
             raise ValueError('begin_escape must precede a Gaussian center')
         positions = center.positions if hasattr(center, 'positions') else center
         self._state.save_gaussian_center(positions)
 
     def update_direction(self, work, rng):
+        if self._descriptor_mode is not None:
+            return self._descriptor_result(work)
         if self._state is None:
             raise ValueError('begin_escape must precede direction updates')
         result = self._state.update(work, rng)
         self._group_marker = result.group_marker
         return result
+
+    def _descriptor_result(self, atoms):
+        from .descriptor_direction import normalized_descriptor_direction
+        direction, value, images, norm = normalized_descriptor_direction(
+            atoms, self._descriptor_mode, self.active_mask)
+        self._descriptor_diagnostics = {
+            'family': self._descriptor_mode.family,
+            'center': int(self._descriptor_mode.center),
+            'neighbor_species': list(self._descriptor_mode.neighbor_species),
+            'cutoff': float(self._descriptor_mode.cutoff),
+            'exponent': int(self._descriptor_mode.exponent),
+            'epsilon': float(self._descriptor_mode.epsilon),
+            'degree': self._descriptor_mode.degree,
+            'image_count': int(images), 'gradient_norm': float(norm),
+            'descriptor_value': float(value), 'direction_source': 'explicit_descriptor_gradient',
+            'stop_reason': None if direction is not None else 'zero_descriptor_gradient',
+        }
+        from .native_direction_control import LocalDirectionResult
+        return LocalDirectionResult(np.zeros_like(atoms.positions) if direction is None else direction,
+                                    direction is None, 'explicit_descriptor',
+                                    -1 if self._group_marker is None else self._group_marker)
 
     def observe_landing(self, landing_atoms, rng):
         """Select the next pair/group before any caller-owned MC decision."""
@@ -448,6 +504,8 @@ class RecoveredDirectionController:
             raise ValueError('landing atom count changed within escape')
         self._select_and_refresh(self._outer_reference, landing_atoms, rng)
         self._state = None
+        self._descriptor_mode = None
+        self._descriptor_diagnostics = None
 
     @property
     def diagnostics(self):
@@ -484,8 +542,10 @@ class RecoveredDirectionController:
             'selection': selection,
             'refresh': refresh,
             'initialized': self._pair is not None,
-            'escape_active': self._state is not None,
+            'escape_active': self._state is not None or self._descriptor_mode is not None,
         }
+        if self._descriptor_mode is not None:
+            result['descriptor_direction'] = self._descriptor_diagnostics
         if self.active_mask is not None:
             result['selection_mode'] = 'active_conditional_selection'
             result['active_mask'] = self.active_mask.tolist()

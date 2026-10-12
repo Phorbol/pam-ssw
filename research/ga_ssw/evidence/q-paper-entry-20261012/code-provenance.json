@@ -1,0 +1,16 @@
+{
+  "head": "d6978b09b405d0ced5989416e22cc5f902e67d0f",
+  "cpu_snapshot": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/q-paper-entry-20261012/source-cpu-v3",
+  "cpu_job": 1753627,
+  "cpu_result": "77 passed in 3.20s",
+  "gpu_snapshot": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/q-paper-entry-20261012/source-gpu-v2",
+  "note": "complete core copied from tested CPU snapshot; new module and all modified source retained in snapshot; tracked diff alongside",
+  "runner_smoke_job": 1753658,
+  "runner_smoke_result": "6 arms wiring passed; 82 quadratic requests plus14fresh; no MLIP",
+  "gpu_job": 1753675,
+  "readout_job": 1753695,
+  "setup_failed_job": 1753645,
+  "setup_failed_job_ledger_records": 1,
+  "setup_failed_job_scheduler_state": "COMPLETED; cancellation request raced with normal script exit",
+  "guard_replay_job": 1753822
+}

@@ -2,6 +2,33 @@
 
 Current concise entry-point and evidence guide: [固定胞使用说明](../../docs/research/FIXED_CELL_USER_GUIDE.md).
 
+## Experimental explicit S1/S2 directions
+
+`RecoveredDirectionSettings` accepts `descriptor_modes=(DescriptorMode(...),)`
+and an explicit `descriptor_probability`. Both default to disabled; disabling
+the selector consumes no additional random draws. Import `DescriptorMode` from
+`pamssw.standalone.descriptor_direction`. Every mode specifies `family` (`S1` or
+`S2`), a zero-based `center`, `neighbor_species` (atomic numbers; empty means all),
+`cutoff` in Angstrom, integer radial `exponent`, cutoff-guard `epsilon` in
+Angstrom, and for S2 a nonnegative harmonic `degree`. No default mode library
+or recommended parameter set is supplied.
+
+One selected mode is retained for an outer attempt and its full atomic gradient
+is recomputed at each Gaussian center. Periodic images are explicitly enumerated;
+their gradients accumulate onto original atoms. Active-coordinate projection
+precedes normalization, then the existing recovered CBD rotates the direction.
+There is no displacement/local-vector mixing on this explicit branch. A zero
+descriptor or projected gradient records `descriptor_direction_unavailable`,
+without a random fallback or a successful landing. This is a paper-inspired
+mode library, not the complete native S1–S6 selector or native trajectory parity.
+
+Nonempty libraries require ordinary checkpoint schema 8 or constrained schema 3;
+older readers reject these formats. Library parameters and probability are part
+of the restart identity. Existing Q-off checkpoints remain supported. Current
+verification and paper-case evidence are recorded in
+`docs/research/2026-10-12-q-entry-implementation.md`; implementation does not
+establish a search-efficiency improvement.
+
 This package implements search components in Python using ASE calculators for
 the physical potential. It does not launch LASP or Java. It does not call the
 existing PAM walker. Uploaded programs are external test oracles only.

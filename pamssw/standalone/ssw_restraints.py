@@ -37,10 +37,10 @@ def validate_checkpoint_hookean_metadata(checkpoint):
     if not isinstance(raw_specs, tuple):
         raise ValueError('checkpoint Hookean metadata must be an immutable tuple')
     specs = tuple(raw_specs)
-    if checkpoint.schema_version == 6:
-        if not specs:
+    if checkpoint.schema_version in (6, 8):
+        if checkpoint.schema_version == 6 and not specs:
             raise ValueError('schema 6 checkpoint requires Hookean restraint metadata')
-        if checkpoint.initial.atoms.pbc.any():
+        if specs and checkpoint.initial.atoms.pbc.any():
             raise ValueError('schema 6 Hookean checkpoint requires nonperiodic atoms')
         from .ase_constraints import _canonical_hookean, _hookean_from_spec
         for spec in specs:
@@ -56,4 +56,4 @@ def validate_checkpoint_hookean_metadata(checkpoint):
             except (TypeError, KeyError, ValueError, IndexError) as error:
                 raise ValueError('invalid checkpoint Hookean metadata') from error
     elif specs:
-        raise ValueError('Hookean metadata requires checkpoint schema 6')
+        raise ValueError('Hookean metadata requires checkpoint schema 6 or 8')

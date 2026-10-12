@@ -1,0 +1,851 @@
+{
+  "scope": "post-hoc geometry replay, two default native scalar guards only; no species flag, pressure scaling or native periodic parity claim",
+  "raw_run": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/q-paper-entry-20261012/run-1753675",
+  "stages": 72,
+  "rejected": 12,
+  "rows": [
+    {
+      "arm": "c60-isomer2-Qoff",
+      "stages": [
+        {
+          "outer": 0,
+          "gaussian": 0,
+          "maximum_atom_move_A": 0.19000827548333984,
+          "closest_before_A": 1.35970362,
+          "closest_after_A": 1.3284685528177833,
+          "closest_ratio": 0.9770280326368356,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 1,
+          "maximum_atom_move_A": 0.20091557516508357,
+          "closest_before_A": 1.3489913139779215,
+          "closest_after_A": 1.3229839731128223,
+          "closest_ratio": 0.9807208982032595,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 2,
+          "maximum_atom_move_A": 0.2159980839784701,
+          "closest_before_A": 1.3389520827071677,
+          "closest_after_A": 1.3250517210268464,
+          "closest_ratio": 0.9896184771211404,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 3,
+          "maximum_atom_move_A": 0.23782891796354383,
+          "closest_before_A": 1.3347427476830767,
+          "closest_after_A": 1.328536520314749,
+          "closest_ratio": 0.9953502445477971,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 4,
+          "maximum_atom_move_A": 0.28006443284187377,
+          "closest_before_A": 1.333561967247169,
+          "closest_after_A": 1.3335074397613094,
+          "closest_ratio": 0.9999591113969962,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 5,
+          "maximum_atom_move_A": 0.3222504732595045,
+          "closest_before_A": 1.3411096726465932,
+          "closest_after_A": 1.345650768889834,
+          "closest_ratio": 1.003386073738682,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 0,
+          "maximum_atom_move_A": 0.1985405331753798,
+          "closest_before_A": 1.35970362,
+          "closest_after_A": 1.3508848620527367,
+          "closest_ratio": 0.9935142057301699,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 1,
+          "maximum_atom_move_A": 0.19067384490452166,
+          "closest_before_A": 1.3528493907011416,
+          "closest_after_A": 1.3326648205831675,
+          "closest_ratio": 0.9850799577124302,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 2,
+          "maximum_atom_move_A": 0.17427664800436718,
+          "closest_before_A": 1.3357063679343015,
+          "closest_after_A": 1.3133935389635307,
+          "closest_ratio": 0.9832951092347654,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 3,
+          "maximum_atom_move_A": 0.17470969427597446,
+          "closest_before_A": 1.3231893129710455,
+          "closest_after_A": 1.3118310889813685,
+          "closest_ratio": 0.9914160249948107,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 4,
+          "maximum_atom_move_A": 0.2184623503213063,
+          "closest_before_A": 1.3493307969221113,
+          "closest_after_A": 1.3569272027622923,
+          "closest_ratio": 1.0056297579937468,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 5,
+          "maximum_atom_move_A": 0.28204824216536495,
+          "closest_before_A": 1.3519203443445669,
+          "closest_after_A": 1.345885767489397,
+          "closest_ratio": 0.9955362925926707,
+          "rejected": false
+        }
+      ],
+      "rejected": 0,
+      "components": [
+        {
+          "landing": 0,
+          "cutoff_A": 1.64,
+          "sizes": [
+            60
+          ],
+          "minimum_intercomponent_distance_A": null
+        },
+        {
+          "landing": 0,
+          "cutoff_A": 1.7,
+          "sizes": [
+            60
+          ],
+          "minimum_intercomponent_distance_A": null
+        },
+        {
+          "landing": 0,
+          "cutoff_A": 1.8,
+          "sizes": [
+            60
+          ],
+          "minimum_intercomponent_distance_A": null
+        },
+        {
+          "landing": 1,
+          "cutoff_A": 1.64,
+          "sizes": [
+            60
+          ],
+          "minimum_intercomponent_distance_A": null
+        },
+        {
+          "landing": 1,
+          "cutoff_A": 1.7,
+          "sizes": [
+            60
+          ],
+          "minimum_intercomponent_distance_A": null
+        },
+        {
+          "landing": 1,
+          "cutoff_A": 1.8,
+          "sizes": [
+            60
+          ],
+          "minimum_intercomponent_distance_A": null
+        }
+      ]
+    },
+    {
+      "arm": "c60-isomer2-S1",
+      "stages": [
+        {
+          "outer": 0,
+          "gaussian": 0,
+          "maximum_atom_move_A": 0.541357559773174,
+          "closest_before_A": 1.35970362,
+          "closest_after_A": 1.3045888732659239,
+          "closest_ratio": 0.9594656174158924,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 1,
+          "maximum_atom_move_A": 0.20213014021194206,
+          "closest_before_A": 1.336099402388496,
+          "closest_after_A": 1.1775399122953443,
+          "closest_ratio": 0.8813265765932529,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 2,
+          "maximum_atom_move_A": 0.32233402752168916,
+          "closest_before_A": 1.238116410103739,
+          "closest_after_A": 1.1642792058638078,
+          "closest_ratio": 0.9403632779297832,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 3,
+          "maximum_atom_move_A": 0.30254560036482836,
+          "closest_before_A": 1.2912011310228904,
+          "closest_after_A": 1.1400639149889913,
+          "closest_ratio": 0.8829483552928984,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 4,
+          "maximum_atom_move_A": 0.30857818442252216,
+          "closest_before_A": 1.2408162023908185,
+          "closest_after_A": 1.24027126829359,
+          "closest_ratio": 0.9995608260948088,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 5,
+          "maximum_atom_move_A": 0.3638517792634559,
+          "closest_before_A": 1.2535718340450568,
+          "closest_after_A": 1.175097456495319,
+          "closest_ratio": 0.9373993771888486,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 0,
+          "maximum_atom_move_A": 0.541357559773174,
+          "closest_before_A": 1.35970362,
+          "closest_after_A": 1.3045888732659239,
+          "closest_ratio": 0.9594656174158924,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 1,
+          "maximum_atom_move_A": 0.20213014021194206,
+          "closest_before_A": 1.336099402388496,
+          "closest_after_A": 1.1775399122953443,
+          "closest_ratio": 0.8813265765932529,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 2,
+          "maximum_atom_move_A": 0.32233402752168916,
+          "closest_before_A": 1.238116410103739,
+          "closest_after_A": 1.1642792058638078,
+          "closest_ratio": 0.9403632779297832,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 3,
+          "maximum_atom_move_A": 0.30254560036482836,
+          "closest_before_A": 1.2912011310228904,
+          "closest_after_A": 1.1400639149889913,
+          "closest_ratio": 0.8829483552928984,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 4,
+          "maximum_atom_move_A": 0.30857818442252216,
+          "closest_before_A": 1.2408162023908185,
+          "closest_after_A": 1.24027126829359,
+          "closest_ratio": 0.9995608260948088,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 5,
+          "maximum_atom_move_A": 0.3638517792634559,
+          "closest_before_A": 1.2535718340450568,
+          "closest_after_A": 1.175097456495319,
+          "closest_ratio": 0.9373993771888486,
+          "rejected": false
+        }
+      ],
+      "rejected": 0,
+      "components": [
+        {
+          "landing": 0,
+          "cutoff_A": 1.64,
+          "sizes": [
+            60
+          ],
+          "minimum_intercomponent_distance_A": null
+        },
+        {
+          "landing": 0,
+          "cutoff_A": 1.7,
+          "sizes": [
+            60
+          ],
+          "minimum_intercomponent_distance_A": null
+        },
+        {
+          "landing": 0,
+          "cutoff_A": 1.8,
+          "sizes": [
+            60
+          ],
+          "minimum_intercomponent_distance_A": null
+        },
+        {
+          "landing": 1,
+          "cutoff_A": 1.64,
+          "sizes": [
+            60
+          ],
+          "minimum_intercomponent_distance_A": null
+        },
+        {
+          "landing": 1,
+          "cutoff_A": 1.7,
+          "sizes": [
+            60
+          ],
+          "minimum_intercomponent_distance_A": null
+        },
+        {
+          "landing": 1,
+          "cutoff_A": 1.8,
+          "sizes": [
+            60
+          ],
+          "minimum_intercomponent_distance_A": null
+        }
+      ]
+    },
+    {
+      "arm": "c60-isomer2-S2",
+      "stages": [
+        {
+          "outer": 0,
+          "gaussian": 0,
+          "maximum_atom_move_A": 0.5602041007380978,
+          "closest_before_A": 1.35970362,
+          "closest_after_A": 1.3441583963146904,
+          "closest_ratio": 0.9885671969562679,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 1,
+          "maximum_atom_move_A": 0.5162557058392411,
+          "closest_before_A": 1.353498713276331,
+          "closest_after_A": 1.3339808358930862,
+          "closest_ratio": 0.9855796853060916,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 2,
+          "maximum_atom_move_A": 0.49363741334275635,
+          "closest_before_A": 1.3742092762769222,
+          "closest_after_A": 1.3739601527192984,
+          "closest_ratio": 0.9998187149789158,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 3,
+          "maximum_atom_move_A": 0.44092747687958345,
+          "closest_before_A": 1.3052383059106738,
+          "closest_after_A": 0.47163186156203474,
+          "closest_ratio": 0.36133774148849696,
+          "rejected": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 4,
+          "maximum_atom_move_A": 0.3660563379555885,
+          "closest_before_A": 1.3022245425390615,
+          "closest_after_A": 0.9216610411325861,
+          "closest_ratio": 0.70775892407583,
+          "rejected": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 5,
+          "maximum_atom_move_A": 0.44886956197046723,
+          "closest_before_A": 1.2932612088374462,
+          "closest_after_A": 0.6271682893774926,
+          "closest_ratio": 0.48495097903792705,
+          "rejected": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 0,
+          "maximum_atom_move_A": 0.5602041007380978,
+          "closest_before_A": 1.35970362,
+          "closest_after_A": 1.3441583963146904,
+          "closest_ratio": 0.9885671969562679,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 1,
+          "maximum_atom_move_A": 0.5162557058392411,
+          "closest_before_A": 1.353498713276331,
+          "closest_after_A": 1.3339808358930862,
+          "closest_ratio": 0.9855796853060916,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 2,
+          "maximum_atom_move_A": 0.49363741334275635,
+          "closest_before_A": 1.3742092762769222,
+          "closest_after_A": 1.3739601527192984,
+          "closest_ratio": 0.9998187149789158,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 3,
+          "maximum_atom_move_A": 0.44092747687958345,
+          "closest_before_A": 1.3052383059106738,
+          "closest_after_A": 0.47163186156203474,
+          "closest_ratio": 0.36133774148849696,
+          "rejected": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 4,
+          "maximum_atom_move_A": 0.3660563379555885,
+          "closest_before_A": 1.3022245425390615,
+          "closest_after_A": 0.9216610411325861,
+          "closest_ratio": 0.70775892407583,
+          "rejected": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 5,
+          "maximum_atom_move_A": 0.44886956197046723,
+          "closest_before_A": 1.2932612088374462,
+          "closest_after_A": 0.6271682893774926,
+          "closest_ratio": 0.48495097903792705,
+          "rejected": true
+        }
+      ],
+      "rejected": 6,
+      "components": [
+        {
+          "landing": 0,
+          "cutoff_A": 1.64,
+          "sizes": [
+            4,
+            56
+          ],
+          "minimum_intercomponent_distance_A": 16.69145626022134
+        },
+        {
+          "landing": 0,
+          "cutoff_A": 1.7,
+          "sizes": [
+            4,
+            56
+          ],
+          "minimum_intercomponent_distance_A": 16.69145626022134
+        },
+        {
+          "landing": 0,
+          "cutoff_A": 1.8,
+          "sizes": [
+            4,
+            56
+          ],
+          "minimum_intercomponent_distance_A": 16.69145626022134
+        },
+        {
+          "landing": 1,
+          "cutoff_A": 1.64,
+          "sizes": [
+            4,
+            56
+          ],
+          "minimum_intercomponent_distance_A": 16.69145626022134
+        },
+        {
+          "landing": 1,
+          "cutoff_A": 1.7,
+          "sizes": [
+            4,
+            56
+          ],
+          "minimum_intercomponent_distance_A": 16.69145626022134
+        },
+        {
+          "landing": 1,
+          "cutoff_A": 1.8,
+          "sizes": [
+            4,
+            56
+          ],
+          "minimum_intercomponent_distance_A": 16.69145626022134
+        }
+      ]
+    },
+    {
+      "arm": "tio2-phase87-Qoff",
+      "stages": [
+        {
+          "outer": 0,
+          "gaussian": 0,
+          "maximum_atom_move_A": 0.31288487068546317,
+          "closest_before_A": 1.7767697971546152,
+          "closest_after_A": 1.7771486844284956,
+          "closest_ratio": 1.0002132449991479,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 1,
+          "maximum_atom_move_A": 0.24203886237624453,
+          "closest_before_A": 1.7735444761665828,
+          "closest_after_A": 1.7861824568812708,
+          "closest_ratio": 1.0071258324132948,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 2,
+          "maximum_atom_move_A": 0.33303842373632025,
+          "closest_before_A": 1.7248666045413865,
+          "closest_after_A": 1.7025367860316336,
+          "closest_ratio": 0.987054176565909,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 3,
+          "maximum_atom_move_A": 0.34365001112096805,
+          "closest_before_A": 1.7815208106156943,
+          "closest_after_A": 1.7811236492832399,
+          "closest_ratio": 0.9997770661279465,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 4,
+          "maximum_atom_move_A": 0.2777107566860085,
+          "closest_before_A": 1.7789335376400897,
+          "closest_after_A": 1.7332157668839498,
+          "closest_ratio": 0.9743004616030858,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 5,
+          "maximum_atom_move_A": 0.2878265198816784,
+          "closest_before_A": 1.7551808648120197,
+          "closest_after_A": 1.739540269302095,
+          "closest_ratio": 0.9910888981167192,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 0,
+          "maximum_atom_move_A": 0.3533326730703272,
+          "closest_before_A": 1.7767697971546152,
+          "closest_after_A": 1.7040001742764797,
+          "closest_ratio": 0.9590438654491587,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 1,
+          "maximum_atom_move_A": 0.33130608504039916,
+          "closest_before_A": 1.7518197537452809,
+          "closest_after_A": 1.7522094972754447,
+          "closest_ratio": 1.0002224792415604,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 2,
+          "maximum_atom_move_A": 0.3531133685998656,
+          "closest_before_A": 1.8057778302473821,
+          "closest_after_A": 1.7143512115094661,
+          "closest_ratio": 0.9493699517147184,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 3,
+          "maximum_atom_move_A": 0.3450612086702646,
+          "closest_before_A": 1.8067485252372013,
+          "closest_after_A": 1.6589652981537013,
+          "closest_ratio": 0.9182048718904596,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 4,
+          "maximum_atom_move_A": 0.39618468710256505,
+          "closest_before_A": 1.765234432412494,
+          "closest_after_A": 1.6517615249345265,
+          "closest_ratio": 0.9357179389918837,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 5,
+          "maximum_atom_move_A": 0.286004442054106,
+          "closest_before_A": 1.805437377216141,
+          "closest_after_A": 1.6839324906898343,
+          "closest_ratio": 0.9327005810006777,
+          "rejected": false
+        }
+      ],
+      "rejected": 0,
+      "components": []
+    },
+    {
+      "arm": "tio2-phase87-S1",
+      "stages": [
+        {
+          "outer": 0,
+          "gaussian": 0,
+          "maximum_atom_move_A": 0.3122082958805008,
+          "closest_before_A": 1.7767697971546152,
+          "closest_after_A": 1.597732252925182,
+          "closest_ratio": 0.8992342482880166,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 1,
+          "maximum_atom_move_A": 0.4544842839444756,
+          "closest_before_A": 1.7386275597904248,
+          "closest_after_A": 1.6218518603022631,
+          "closest_ratio": 0.9328345516953396,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 2,
+          "maximum_atom_move_A": 0.36997042958659476,
+          "closest_before_A": 1.6401241814210183,
+          "closest_after_A": 1.4999273051785122,
+          "closest_ratio": 0.9145205723867578,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 3,
+          "maximum_atom_move_A": 0.30394722080649195,
+          "closest_before_A": 1.6192275776665197,
+          "closest_after_A": 1.5076795236149703,
+          "closest_ratio": 0.9311103296472371,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 4,
+          "maximum_atom_move_A": 0.36447251658765034,
+          "closest_before_A": 1.6358519261642817,
+          "closest_after_A": 1.4174446866122306,
+          "closest_ratio": 0.8664871581230651,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 5,
+          "maximum_atom_move_A": 0.39382545517939826,
+          "closest_before_A": 1.6585849615617718,
+          "closest_after_A": 1.298247032734741,
+          "closest_ratio": 0.7827437621961035,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 0,
+          "maximum_atom_move_A": 0.3122082958805008,
+          "closest_before_A": 1.7767697971546152,
+          "closest_after_A": 1.597732252925182,
+          "closest_ratio": 0.8992342482880166,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 1,
+          "maximum_atom_move_A": 0.4544842839444756,
+          "closest_before_A": 1.7386275597904248,
+          "closest_after_A": 1.6218518603022631,
+          "closest_ratio": 0.9328345516953396,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 2,
+          "maximum_atom_move_A": 0.36997042958659476,
+          "closest_before_A": 1.6401241814210183,
+          "closest_after_A": 1.4999273051785122,
+          "closest_ratio": 0.9145205723867578,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 3,
+          "maximum_atom_move_A": 0.30394722080649195,
+          "closest_before_A": 1.6192275776665197,
+          "closest_after_A": 1.5076795236149703,
+          "closest_ratio": 0.9311103296472371,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 4,
+          "maximum_atom_move_A": 0.36447251658765034,
+          "closest_before_A": 1.6358519261642817,
+          "closest_after_A": 1.4174446866122306,
+          "closest_ratio": 0.8664871581230651,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 5,
+          "maximum_atom_move_A": 0.39382545517939826,
+          "closest_before_A": 1.6585849615617718,
+          "closest_after_A": 1.298247032734741,
+          "closest_ratio": 0.7827437621961035,
+          "rejected": false
+        }
+      ],
+      "rejected": 0,
+      "components": []
+    },
+    {
+      "arm": "tio2-phase87-S2",
+      "stages": [
+        {
+          "outer": 0,
+          "gaussian": 0,
+          "maximum_atom_move_A": 0.35354911240981096,
+          "closest_before_A": 1.7767697971546152,
+          "closest_after_A": 1.4410342153515077,
+          "closest_ratio": 0.8110415978812974,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 1,
+          "maximum_atom_move_A": 0.371608872407804,
+          "closest_before_A": 1.6386124776055955,
+          "closest_after_A": 1.4317347696623677,
+          "closest_ratio": 0.8737482408009455,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 2,
+          "maximum_atom_move_A": 0.4122947875402869,
+          "closest_before_A": 1.8079119897713067,
+          "closest_after_A": 1.2189473516106635,
+          "closest_ratio": 0.674229364320359,
+          "rejected": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 3,
+          "maximum_atom_move_A": 0.34925673003424157,
+          "closest_before_A": 1.6743393800147186,
+          "closest_after_A": 1.1089724503000578,
+          "closest_ratio": 0.6623343293104108,
+          "rejected": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 4,
+          "maximum_atom_move_A": 0.454285735114709,
+          "closest_before_A": 1.7065215195942451,
+          "closest_after_A": 1.3805136455236906,
+          "closest_ratio": 0.8089635141852366,
+          "rejected": false
+        },
+        {
+          "outer": 0,
+          "gaussian": 5,
+          "maximum_atom_move_A": 0.48464419768903844,
+          "closest_before_A": 1.6515723149410644,
+          "closest_after_A": 0.9187955572433949,
+          "closest_ratio": 0.5563156689728005,
+          "rejected": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 0,
+          "maximum_atom_move_A": 0.35354911240981096,
+          "closest_before_A": 1.7767697971546152,
+          "closest_after_A": 1.4410342153515077,
+          "closest_ratio": 0.8110415978812974,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 1,
+          "maximum_atom_move_A": 0.371608872407804,
+          "closest_before_A": 1.6386124776055955,
+          "closest_after_A": 1.4317347696623677,
+          "closest_ratio": 0.8737482408009455,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 2,
+          "maximum_atom_move_A": 0.4122947875402869,
+          "closest_before_A": 1.8079119897713067,
+          "closest_after_A": 1.2189473516106635,
+          "closest_ratio": 0.674229364320359,
+          "rejected": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 3,
+          "maximum_atom_move_A": 0.34925673003424157,
+          "closest_before_A": 1.6743393800147186,
+          "closest_after_A": 1.1089724503000578,
+          "closest_ratio": 0.6623343293104108,
+          "rejected": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 4,
+          "maximum_atom_move_A": 0.454285735114709,
+          "closest_before_A": 1.7065215195942451,
+          "closest_after_A": 1.3805136455236906,
+          "closest_ratio": 0.8089635141852366,
+          "rejected": false
+        },
+        {
+          "outer": 1,
+          "gaussian": 5,
+          "maximum_atom_move_A": 0.48464419768903844,
+          "closest_before_A": 1.6515723149410644,
+          "closest_after_A": 0.9187955572433949,
+          "closest_ratio": 0.5563156689728005,
+          "rejected": true
+        }
+      ],
+      "rejected": 6,
+      "components": []
+    }
+  ]
+}

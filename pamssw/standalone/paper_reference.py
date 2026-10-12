@@ -321,27 +321,29 @@ def save_ssw_checkpoint(path, checkpoint):
 def _validate_ssw_checkpoint(checkpoint):
     if not isinstance(checkpoint, SSWCheckpoint):
         raise TypeError('checkpoint must be SSWCheckpoint')
-    if checkpoint.schema_version not in (1, 2, 3, 4, 5, 6, 7):
+    if checkpoint.schema_version not in (1, 2, 3, 4, 5, 6, 7, 8):
         raise ValueError(f'unsupported SSW checkpoint schema {checkpoint.schema_version!r}')
     base_schema = getattr(checkpoint, 'base_schema_version', None)
-    if checkpoint.schema_version in (6, 7):
+    if checkpoint.schema_version in (6, 7, 8):
         if (isinstance(base_schema, (bool, np.bool_)) or
                 not isinstance(base_schema, (int, np.integer)) or
                 int(base_schema) not in (1, 2, 3, 4, 5)):
-            raise ValueError('schema 6/7 checkpoint requires a valid base schema version 1 through 5')
+            raise ValueError('schema 6/7/8 checkpoint requires a valid base schema version 1 through 5')
         capability_schema = int(base_schema)
     else:
         if base_schema is not None:
-            raise ValueError('base schema version is only valid for schema 6/7 checkpoints')
+            raise ValueError('base schema version is only valid for schema 6/7/8 checkpoints')
         capability_schema = checkpoint.schema_version
     from .ssw_restraints import validate_checkpoint_hookean_metadata
     validate_checkpoint_hookean_metadata(checkpoint)
     from .shape_softening import FrozenShapeBondSoftening
     geometry = getattr(checkpoint.ls, 'bias_geometry', 'pair')
     initial_failure = checkpoint.status == 'ls_initialization_failed'
-    if checkpoint.schema_version == 7:
+    if checkpoint.schema_version == 7 or (
+            checkpoint.schema_version == 8 and
+            getattr(getattr(checkpoint, 'ls', None), 'bias_geometry', 'pair') == 'shape'):
         if not isinstance(checkpoint.ls, LSSettings) or geometry != 'shape':
-            raise ValueError('schema 7 requires shape LS settings')
+            raise ValueError('shape schema requires shape LS settings')
         if tuple(getattr(checkpoint, 'hookean_specs', ())):
             raise ValueError('shape LS checkpoint cannot include Hookean restraints')
         if checkpoint.initial.atoms.pbc.any() or checkpoint.current.pbc.any():
@@ -358,7 +360,7 @@ def _validate_ssw_checkpoint(checkpoint):
                 raise ValueError('shape LS checkpoint requires positive finite radius0')
             checkpoint.frozen._validate_atoms(checkpoint.current)
     elif geometry == 'shape' or isinstance(checkpoint.frozen, FrozenShapeBondSoftening):
-        raise ValueError('shape LS checkpoint requires schema 7')
+        raise ValueError('shape LS checkpoint requires schema 7 or shape descriptor schema 8')
     pool_state = getattr(checkpoint, 'pool_state', None)
     if capability_schema == 5 and pool_state is None:
         raise ValueError('schema 5 checkpoint requires pool state')
@@ -369,8 +371,8 @@ def _validate_ssw_checkpoint(checkpoint):
         _validate_pure(pool_state)
     saved_mc = getattr(checkpoint, 'mc_settings', None)
     saved_mc_state = getattr(checkpoint, 'native_mc_state', None)
-    if checkpoint.schema_version in (6, 7) and capability_schema == 1 and saved_mc is not None:
-        raise ValueError('schema 6/7 native MC state requires base schema 2 or later')
+    if checkpoint.schema_version in (6, 7, 8) and capability_schema == 1 and saved_mc is not None:
+        raise ValueError('wrapped native MC state requires base schema 2 or later')
     if (saved_mc is None) != (saved_mc_state is None):
         raise ValueError('checkpoint native MC settings and state must be paired')
     if capability_schema == 2:
@@ -391,6 +393,15 @@ def _validate_ssw_checkpoint(checkpoint):
         if not isinstance(saved_rotation, RecoveredRotationSettings):
             raise ValueError('schema 3 checkpoint requires typed recovered rotation settings')
     saved_direction = getattr(checkpoint, 'recovered_direction_state', None)
+    descriptor_modes = tuple(getattr(getattr(saved_direction, 'settings', None), 'descriptor_modes', ()))
+    if descriptor_modes and checkpoint.schema_version != 8:
+        raise ValueError('descriptor direction checkpoint requires schema 8')
+    if checkpoint.schema_version == 8:
+        from .recovered_direction import RecoveredDirectionCheckpointState
+        if not isinstance(saved_direction, RecoveredDirectionCheckpointState):
+            raise ValueError('schema 8 requires recovered direction state')
+        if not tuple(getattr(saved_direction.settings, 'descriptor_modes', ())):
+            raise ValueError('schema 8 requires an explicit descriptor mode library')
     if capability_schema < 4 and saved_direction is not None:
         raise ValueError('recovered direction requires checkpoint schema 4')
     if capability_schema == 4 or saved_direction is not None:
@@ -531,10 +542,13 @@ combined with checkpointing; the default path remains the direct ``quench``
 call. ``gaussian_index`` is zero-based and ``steps`` remains the number of
 additional outer attempts.
 
-``recovered_direction`` explicitly selects experimental Run5/Q-off local
-generation, stage displacement updates and recovered CBD. It requires a free
-nonperiodic cluster with ``cluster_frame='direction_only'``. Outer-boundary
-checkpointing uses schema 4 and restores pair/group/marker and main RNG. Its settings replace SSWConfig's rotation_solver, rotation_bias,
+``recovered_direction`` selects experimental local generation, stage displacement
+updates and recovered CBD. Its default is Q-off; an explicit S1/S2 mode library
+selects descriptor gradients instead. Nonperiodic clusters require
+``cluster_frame='direction_only'``; ``geometry='periodic_local'`` uses the
+fixed-cell translation frame. Outer-boundary checkpointing uses schema 4
+(Q-off) or schema 8 (explicit descriptor library), retaining settings,
+pair/group/marker and main RNG. Its settings replace SSWConfig's rotation_solver, rotation_bias,
 rotation_hvp and rotation_tol; fd_step and rotation_exit_policy still apply.
 Startup selection is a stated Python contract, not full native trajectory
 parity. Gaussian/quench/MC rules remain those of this shared driver.
@@ -724,7 +738,7 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
             raise ValueError('native MC checkpoint requires native MC settings')
         if mc is not None:
             capability_schema = (checkpoint.base_schema_version
-                                 if checkpoint.schema_version in (6, 7)
+                                 if checkpoint.schema_version in (6, 7, 8)
                                  else checkpoint.schema_version)
             if capability_schema not in (2, 3, 4, 5) or getattr(checkpoint, 'native_mc_state', None) is None:
                 raise ValueError('checkpoint lacks native MC state')
@@ -835,8 +849,9 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
             height_update_budget, reconnect_distance,
             deepcopy(rng.bit_generator.state), prior_requests + surface.requests - begin,
             next_index, status, identity_view=_checkpoint_copy(identity_view),
-            schema_version=(7 if isinstance(ls, LSSettings) and getattr(ls, 'bias_geometry', 'pair') == 'shape' else
-                            (6 if hookean_specs else base_schema_version)),
+            schema_version=(8 if direction_controller is not None and getattr(direction_controller.settings, 'descriptor_modes', ()) else
+                            (7 if isinstance(ls, LSSettings) and getattr(ls, 'bias_geometry', 'pair') == 'shape' else
+                             (6 if hookean_specs else base_schema_version))),
             mc_settings=_checkpoint_copy(mc),
             native_mc_state=_checkpoint_copy(native_mc_state),
             recovered_rotation=_checkpoint_copy(recovered_rotation),
@@ -845,6 +860,7 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
             pool_state=_checkpoint_copy(checkpoint_pool_state()),
             hookean_specs=tuple(hookean_specs),
             base_schema_version=(base_schema_version if hookean_specs or
+                                 (direction_controller is not None and getattr(direction_controller.settings, 'descriptor_modes', ())) or
                                  isinstance(ls, LSSettings) and getattr(ls, 'bias_geometry', 'pair') == 'shape' else None))
 
     if checkpoint is None and ls is not None:
@@ -870,9 +886,11 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
                     recovered_direction_state=(None if direction_controller is None else _checkpoint_copy(direction_controller.checkpoint_state())),
                     pool_state=_checkpoint_copy(checkpoint_pool_state()),
                     hookean_specs=tuple(hookean_specs),
-                    schema_version=(7 if isinstance(ls, LSSettings) and getattr(ls, 'bias_geometry', 'pair') == 'shape' else
-                                    (6 if hookean_specs else base_schema_version)),
+                    schema_version=(8 if direction_controller is not None and getattr(direction_controller.settings, 'descriptor_modes', ()) else
+                                    (7 if isinstance(ls, LSSettings) and getattr(ls, 'bias_geometry', 'pair') == 'shape' else
+                                     (6 if hookean_specs else base_schema_version))),
                     base_schema_version=(base_schema_version if hookean_specs or
+                                         (direction_controller is not None and getattr(direction_controller.settings, 'descriptor_modes', ())) or
                                          isinstance(ls, LSSettings) and getattr(ls, 'bias_geometry', 'pair') == 'shape' else None))
                 if checkpoint_path is not None:
                     save_ssw_checkpoint(checkpoint_path, cp)
@@ -976,6 +994,16 @@ lives on the continuous coordinate lift and must not be evaluated after wrapping
                     else:
                         generated_direction = direction_controller.begin_escape(current, work, rng)
                     if generated_direction.release_all:
+                        descriptor_unavailable = (
+                            generated_direction.local_route == 'explicit_descriptor' and
+                            direction_controller.diagnostics.get('descriptor_direction', {}).get('stop_reason')
+                            == 'zero_descriptor_gradient')
+                        if descriptor_unavailable:
+                            status = 'descriptor_direction_unavailable'
+                            climb.append(dict(index=gaussian_index, status=status,
+                                recovered_direction=direction_controller.diagnostics,
+                                requests=surface.requests-stage_before))
+                            break
                         status = 'stage_release'
                         climb.append(dict(index=gaussian_index, status='direction_zero_release',
                             recovered_direction=direction_controller.diagnostics,

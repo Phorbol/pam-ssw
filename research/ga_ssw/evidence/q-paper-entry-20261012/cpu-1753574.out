@@ -1,0 +1,219 @@
+.....FFF..F.FF.......................................................... [ 93%]
+.....                                                                    [100%]
+=================================== FAILURES ===================================
+_____________ test_disabled_descriptor_modes_consume_no_rng_draws ______________
+
+    def test_disabled_descriptor_modes_consume_no_rng_draws():
+        atoms = Atoms('H4', positions=[[0., 0., 0.], [1., 0., .2],
+                                       [0., 1.2, 0.], [1.1, 1., .4]])
+        a = np.random.default_rng(8); b = np.random.default_rng(8)
+        controller = RecoveredDirectionController(_settings())
+>       controller.initialize(atoms, atoms.copy(), a)
+
+tests/standalone/test_descriptor_direction.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+pamssw/standalone/recovered_direction.py:392: in initialize
+    self._select_and_refresh(reference, initial_quenched, rng)
+pamssw/standalone/recovered_direction.py:350: in _select_and_refresh
+    pair = self._require_pair(refreshed.pair)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pair = (3, None)
+
+    @staticmethod
+    def _require_pair(pair):
+        if len(pair) != 2 or pair[1] is None:
+>           raise ValueError('native selection did not produce a complete atom pair')
+E           ValueError: native selection did not produce a complete atom pair
+
+pamssw/standalone/recovered_direction.py:323: ValueError
+______ test_selected_mode_recomputes_each_gaussian_and_records_provenance ______
+
+    def test_selected_mode_recomputes_each_gaussian_and_records_provenance():
+        atoms = Atoms('H4', positions=[[0., 0., 0.], [1., 0., .2],
+                                       [0., 1.2, 0.], [1.1, 1., .4]])
+        controller = RecoveredDirectionController(_settings(
+            descriptor_modes=(mode(),), descriptor_probability=1.))
+>       controller.initialize(atoms, atoms.copy(), np.random.default_rng(3))
+
+tests/standalone/test_descriptor_direction.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+pamssw/standalone/recovered_direction.py:392: in initialize
+    self._select_and_refresh(reference, initial_quenched, rng)
+pamssw/standalone/recovered_direction.py:350: in _select_and_refresh
+    pair = self._require_pair(refreshed.pair)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pair = (1, None)
+
+    @staticmethod
+    def _require_pair(pair):
+        if len(pair) != 2 or pair[1] is None:
+>           raise ValueError('native selection did not produce a complete atom pair')
+E           ValueError: native selection did not produce a complete atom pair
+
+pamssw/standalone/recovered_direction.py:323: ValueError
+__ test_zero_descriptor_gradient_returns_unavailable_without_random_fallback ___
+
+    def test_zero_descriptor_gradient_returns_unavailable_without_random_fallback():
+        atoms = Atoms('H2', positions=[[0., 0., 0.], [1., 0., 0.]])
+        unavailable_mode = mode(neighbor_species=(6,))
+        controller = RecoveredDirectionController(_settings(
+            descriptor_modes=(unavailable_mode,), descriptor_probability=1.))
+>       controller.initialize(atoms, atoms.copy(), np.random.default_rng(31))
+
+tests/standalone/test_descriptor_direction.py:119: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+pamssw/standalone/recovered_direction.py:392: in initialize
+    self._select_and_refresh(reference, initial_quenched, rng)
+pamssw/standalone/recovered_direction.py:350: in _select_and_refresh
+    pair = self._require_pair(refreshed.pair)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pair = (1, None)
+
+    @staticmethod
+    def _require_pair(pair):
+        if len(pair) != 2 or pair[1] is None:
+>           raise ValueError('native selection did not produce a complete atom pair')
+E           ValueError: native selection did not produce a complete atom pair
+
+pamssw/standalone/recovered_direction.py:323: ValueError
+__________ test_recovered_direction_checkpoint_binds_the_mode_library __________
+
+    def test_recovered_direction_checkpoint_binds_the_mode_library():
+        atoms = Atoms('H3', positions=[[0., 0., 0.], [1., .1, .2], [.2, 1.1, .4]])
+        first = RecoveredDirectionController(_settings(
+            descriptor_modes=(mode(cutoff=2.8),), descriptor_probability=.4))
+>       first.initialize(atoms, atoms.copy(), np.random.default_rng(17))
+
+tests/standalone/test_descriptor_direction.py:180: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+pamssw/standalone/recovered_direction.py:392: in initialize
+    self._select_and_refresh(reference, initial_quenched, rng)
+pamssw/standalone/recovered_direction.py:350: in _select_and_refresh
+    pair = self._require_pair(refreshed.pair)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pair = (1, None)
+
+    @staticmethod
+    def _require_pair(pair):
+        if len(pair) != 2 or pair[1] is None:
+>           raise ValueError('native selection did not produce a complete atom pair')
+E           ValueError: native selection did not produce a complete atom pair
+
+pamssw/standalone/recovered_direction.py:323: ValueError
+__ test_constrained_q_unavailable_candidate_does_not_run_true_landing_quench ___
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x14daaa1f3530>
+
+    def test_constrained_q_unavailable_candidate_does_not_run_true_landing_quench(monkeypatch):
+        from types import SimpleNamespace
+        import pamssw.standalone.constrained_reference as driver
+        from pamssw.standalone.constrained_reference import ConstrainedSSWConfig, run_constrained_ssw
+    
+        class FlatSurface:
+            requests = 0
+            def evaluate(self, atoms):
+                self.requests += 1
+                return 0., np.zeros_like(atoms.positions)
+    
+        atoms = Atoms('H3', positions=[[0., 0., 0.], [1., .2, 0.], [.1, 1.1, .3]])
+        calls = []
+        def fake_quench(atoms, surface, **kwargs):
+            calls.append(1)
+            return driver.ConstrainedQuenchResult(atoms.copy(), 0., 0., 0.,
+                SimpleNamespace(converged=True), {'certified': True}, 0)
+        monkeypatch.setattr(driver, 'constrained_quench', fake_quench)
+        settings = _settings(descriptor_modes=(mode(neighbor_species=(6,)),),
+                             descriptor_probability=1.)
+>       config = ConstrainedSSWConfig(width=.1, rotation_bias=1., max_gaussians=1,
+                                      relax_steps=0, fmax=.1)
+
+tests/standalone/test_descriptor_direction.py:238: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<string>:20: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ConstrainedSSWConfig(width=0.1, rotation_bias=1.0, temperature_K=300.0, forward_force=0.1, max_gaussians=1, gradient_t...one, rotation_solver='generalized-dimer', pre_rotation_hvp=None, recovered_rotation=None, rotation_exit_policy='force')
+
+    def __post_init__(self):
+        from pamssw.relax import _validate_lbfgs_memory
+        _validate_lbfgs_memory(self.lbfgs_memory, 'safe-lbfgs-total')
+        for k in ('width','forward_force','gradient_tol','fmax','max_step','fd_step','rotation_tol'):
+            v=getattr(self,k)
+            if not np.isscalar(v) or not np.isfinite(v) or v<=0:raise ValueError(f'{k} must be positive finite')
+        for k in ('temperature_K',):
+            v=getattr(self,k)
+            if not np.isscalar(v) or not np.isfinite(v) or v<0:raise ValueError(f'{k} must be nonnegative finite')
+        if self.rotation_bias is not None and (not np.isscalar(self.rotation_bias) or
+                not np.isfinite(self.rotation_bias) or self.rotation_bias < 0):
+            raise ValueError('rotation_bias must be nonnegative finite or None')
+        for k in ('max_gaussians','relax_steps','rotation_hvp'):
+            v=getattr(self,k)
+>           if isinstance(v,(bool,np.bool_)) or not isinstance(v,(int,np.integer)) or v<1:raise ValueError(f'{k} must be positive integer')
+                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           ValueError: relax_steps must be positive integer
+
+pamssw/standalone/constrained_reference.py:53: ValueError
+_______ test_q_checkpoint_split_resume_matches_continuous_and_binds_rng ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x14daaa2075c0>
+tmp_path = PosixPath('/tmp/pytest-of-gengjianrui/pytest-0/test_q_checkpoint_split_resume0')
+
+    def test_q_checkpoint_split_resume_matches_continuous_and_binds_rng(monkeypatch, tmp_path):
+        from ase.cluster import Icosahedron
+        import pamssw.standalone.paper_reference as driver
+        from pamssw.standalone.paper_reference import SSWConfig, run_ssw, load_ssw_checkpoint
+        from pamssw.standalone.surface import QuenchResult
+    
+        class FlatSurface:
+            requests = 0
+            def evaluate(self, atoms):
+                self.requests += 1
+                return 0., np.zeros_like(atoms.positions)
+    
+        monkeypatch.setattr(driver, 'quench', lambda atoms, surface, **kwargs:
+            QuenchResult(atoms.copy(), 0., 0., True, 0, 0, 'stub'))
+        atoms = Icosahedron('Cu', 2)
+        settings = _settings(descriptor_modes=(mode(cutoff=4.2),), descriptor_probability=1.)
+        config = SSWConfig(width=.1, rotation_bias=1., max_gaussians=2,
+            temperature_K=0., fmax=.03, relax_steps=0, fd_step=.001,
+            rotation_hvp=2, rotation_tol=.02, direction_sampling='global',
+            cluster_frame='direction_only')
+        continuous = run_ssw(atoms.copy(), FlatSurface(), steps=2, config=config,
+            rng=np.random.default_rng(19), recovered_direction=settings)
+        path = tmp_path / 'q-state.pkl'
+        run_ssw(atoms.copy(), FlatSurface(), steps=1, config=config,
+            rng=np.random.default_rng(19), recovered_direction=settings, checkpoint_path=path)
+        checkpoint = load_ssw_checkpoint(path)
+        assert checkpoint.schema_version == 8
+        from dataclasses import replace
+        downgraded_surface = FlatSurface()
+        with pytest.raises(ValueError, match='schema 8'):
+            run_ssw(atoms.copy(), downgraded_surface, steps=0, config=config,
+                rng=np.random.default_rng(999), checkpoint=replace(checkpoint, schema_version=4, base_schema_version=None))
+        assert downgraded_surface.requests == 0
+        changed_surface = FlatSurface()
+        changed_settings = _settings(descriptor_modes=(mode(cutoff=4.3),), descriptor_probability=1.)
+>       with pytest.raises(ValueError, match='settings'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'settings'
+E         Actual message: "cannot resume terminal checkpoint with status 'evaluation_failed'"
+
+tests/standalone/test_descriptor_direction.py:283: AssertionError
+=========================== short test summary info ============================
+FAILED tests/standalone/test_descriptor_direction.py::test_disabled_descriptor_modes_consume_no_rng_draws
+FAILED tests/standalone/test_descriptor_direction.py::test_selected_mode_recomputes_each_gaussian_and_records_provenance
+FAILED tests/standalone/test_descriptor_direction.py::test_zero_descriptor_gradient_returns_unavailable_without_random_fallback
+FAILED tests/standalone/test_descriptor_direction.py::test_recovered_direction_checkpoint_binds_the_mode_library
+FAILED tests/standalone/test_descriptor_direction.py::test_constrained_q_unavailable_candidate_does_not_run_true_landing_quench
+FAILED tests/standalone/test_descriptor_direction.py::test_q_checkpoint_split_resume_matches_continuous_and_binds_rng
+6 failed, 71 passed in 5.91s

@@ -1,0 +1,2180 @@
+{
+  "raw_run": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/q-paper-entry-20261012/run-1753675",
+  "status": "all_6_arms_recorded",
+  "search_requests": 4156,
+  "fresh_requests": 18,
+  "rows": [
+    {
+      "case": "c60-isomer2",
+      "arm": "Qoff",
+      "run_status": "completed",
+      "failure_class": null,
+      "outer_steps": 2,
+      "outer_statuses": {
+        "gaussian_limit": 2
+      },
+      "gaussians_constructed": 12,
+      "descriptor_stages": 0,
+      "descriptor_families": [],
+      "landings": 2,
+      "search_requests": 395,
+      "search_calculate_calls": 358,
+      "fresh_requests": 3,
+      "fresh_force_pass": 3,
+      "fresh_count": 3,
+      "max_fresh_energy_error_eV": 0.0,
+      "fresh_geometry": [
+        {
+          "minimum_nonself_distance_A": 1.35970362,
+          "atom_count": 60,
+          "periodic": false,
+          "distance_graphs": {
+            "1.64": {
+              "edges": 90,
+              "components": 1,
+              "degree_counts": {
+                "3": 60
+              }
+            },
+            "1.7": {
+              "edges": 90,
+              "components": 1,
+              "degree_counts": {
+                "3": 60
+              }
+            },
+            "1.8": {
+              "edges": 90,
+              "components": 1,
+              "degree_counts": {
+                "3": 60
+              }
+            }
+          }
+        },
+        {
+          "minimum_nonself_distance_A": 1.22355780655318,
+          "atom_count": 60,
+          "periodic": false,
+          "distance_graphs": {
+            "1.64": {
+              "edges": 89,
+              "components": 1,
+              "degree_counts": {
+                "1": 1,
+                "2": 1,
+                "3": 57,
+                "4": 1
+              }
+            },
+            "1.7": {
+              "edges": 89,
+              "components": 1,
+              "degree_counts": {
+                "1": 1,
+                "2": 1,
+                "3": 57,
+                "4": 1
+              }
+            },
+            "1.8": {
+              "edges": 89,
+              "components": 1,
+              "degree_counts": {
+                "1": 1,
+                "2": 1,
+                "3": 57,
+                "4": 1
+              }
+            }
+          }
+        },
+        {
+          "minimum_nonself_distance_A": 1.3408902154699487,
+          "atom_count": 60,
+          "periodic": false,
+          "distance_graphs": {
+            "1.64": {
+              "edges": 89,
+              "components": 1,
+              "degree_counts": {
+                "2": 2,
+                "3": 58
+              }
+            },
+            "1.7": {
+              "edges": 89,
+              "components": 1,
+              "degree_counts": {
+                "2": 2,
+                "3": 58
+              }
+            },
+            "1.8": {
+              "edges": 89,
+              "components": 1,
+              "degree_counts": {
+                "2": 2,
+                "3": 58
+              }
+            }
+          }
+        }
+      ],
+      "full_periodic_images": [],
+      "stages": [
+        {
+          "outer": 0,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 19,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 20,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 18,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 18,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 29,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 118,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 20,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 18,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 22,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 38,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 24,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 21,
+          "Q": null,
+          "has_gaussian": true
+        }
+      ],
+      "resume_status": "completed_second_segment",
+      "initial_energy": -62214.17020995467,
+      "landing_energies": [
+        -62205.00371137591,
+        -62206.43746012228
+      ]
+    },
+    {
+      "case": "c60-isomer2",
+      "arm": "S1",
+      "run_status": "completed",
+      "failure_class": null,
+      "outer_steps": 2,
+      "outer_statuses": {
+        "gaussian_limit": 2
+      },
+      "gaussians_constructed": 12,
+      "descriptor_stages": 12,
+      "descriptor_families": [
+        "S1"
+      ],
+      "landings": 2,
+      "search_requests": 1105,
+      "search_calculate_calls": 1068,
+      "fresh_requests": 3,
+      "fresh_force_pass": 3,
+      "fresh_count": 3,
+      "max_fresh_energy_error_eV": 0.0,
+      "fresh_geometry": [
+        {
+          "minimum_nonself_distance_A": 1.35970362,
+          "atom_count": 60,
+          "periodic": false,
+          "distance_graphs": {
+            "1.64": {
+              "edges": 90,
+              "components": 1,
+              "degree_counts": {
+                "3": 60
+              }
+            },
+            "1.7": {
+              "edges": 90,
+              "components": 1,
+              "degree_counts": {
+                "3": 60
+              }
+            },
+            "1.8": {
+              "edges": 90,
+              "components": 1,
+              "degree_counts": {
+                "3": 60
+              }
+            }
+          }
+        },
+        {
+          "minimum_nonself_distance_A": 1.321640604609286,
+          "atom_count": 60,
+          "periodic": false,
+          "distance_graphs": {
+            "1.64": {
+              "edges": 89,
+              "components": 1,
+              "degree_counts": {
+                "2": 2,
+                "3": 58
+              }
+            },
+            "1.7": {
+              "edges": 90,
+              "components": 1,
+              "degree_counts": {
+                "2": 1,
+                "3": 58,
+                "4": 1
+              }
+            },
+            "1.8": {
+              "edges": 90,
+              "components": 1,
+              "degree_counts": {
+                "2": 1,
+                "3": 58,
+                "4": 1
+              }
+            }
+          }
+        },
+        {
+          "minimum_nonself_distance_A": 1.321640604609286,
+          "atom_count": 60,
+          "periodic": false,
+          "distance_graphs": {
+            "1.64": {
+              "edges": 89,
+              "components": 1,
+              "degree_counts": {
+                "2": 2,
+                "3": 58
+              }
+            },
+            "1.7": {
+              "edges": 90,
+              "components": 1,
+              "degree_counts": {
+                "2": 1,
+                "3": 58,
+                "4": 1
+              }
+            },
+            "1.8": {
+              "edges": 90,
+              "components": 1,
+              "degree_counts": {
+                "2": 1,
+                "3": 58,
+                "4": 1
+              }
+            }
+          }
+        }
+      ],
+      "full_periodic_images": [],
+      "stages": [
+        {
+          "outer": 0,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 27,
+          "Q": {
+            "family": "S1",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 10,
+            "gradient_norm": 0.4218872465939997,
+            "descriptor_value": 0.4016378397398662,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 96,
+          "Q": {
+            "family": "S1",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 10,
+            "gradient_norm": 0.3672178208117187,
+            "descriptor_value": 0.483913449326412,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 68,
+          "Q": {
+            "family": "S1",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 13,
+            "gradient_norm": 0.4205463126198505,
+            "descriptor_value": 0.4755565287078951,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 130,
+          "Q": {
+            "family": "S1",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 14,
+            "gradient_norm": 0.3528592260894906,
+            "descriptor_value": 0.44226763049090967,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 54,
+          "Q": {
+            "family": "S1",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 11,
+            "gradient_norm": 0.32951267816897645,
+            "descriptor_value": 0.3607332953544074,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 161,
+          "Q": {
+            "family": "S1",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 13,
+            "gradient_norm": 0.3686062781485612,
+            "descriptor_value": 0.4754859634187553,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 27,
+          "Q": {
+            "family": "S1",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 10,
+            "gradient_norm": 0.4218872465939997,
+            "descriptor_value": 0.4016378397398662,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 96,
+          "Q": {
+            "family": "S1",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 10,
+            "gradient_norm": 0.3672178208117187,
+            "descriptor_value": 0.483913449326412,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 68,
+          "Q": {
+            "family": "S1",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 13,
+            "gradient_norm": 0.4205463126198505,
+            "descriptor_value": 0.4755565287078951,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 130,
+          "Q": {
+            "family": "S1",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 14,
+            "gradient_norm": 0.3528592260894906,
+            "descriptor_value": 0.44226763049090967,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 54,
+          "Q": {
+            "family": "S1",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 11,
+            "gradient_norm": 0.32951267816897645,
+            "descriptor_value": 0.3607332953544074,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 161,
+          "Q": {
+            "family": "S1",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 13,
+            "gradient_norm": 0.3686062781485612,
+            "descriptor_value": 0.4754859634187553,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        }
+      ],
+      "resume_status": "completed_second_segment",
+      "initial_energy": -62214.17020995467,
+      "landing_energies": [
+        -62200.922817785184,
+        -62200.922817785184
+      ]
+    },
+    {
+      "case": "c60-isomer2",
+      "arm": "S2",
+      "run_status": "completed",
+      "failure_class": null,
+      "outer_steps": 2,
+      "outer_statuses": {
+        "gaussian_limit": 2
+      },
+      "gaussians_constructed": 12,
+      "descriptor_stages": 12,
+      "descriptor_families": [
+        "S2"
+      ],
+      "landings": 2,
+      "search_requests": 801,
+      "search_calculate_calls": 764,
+      "fresh_requests": 3,
+      "fresh_force_pass": 3,
+      "fresh_count": 3,
+      "max_fresh_energy_error_eV": 0.0,
+      "fresh_geometry": [
+        {
+          "minimum_nonself_distance_A": 1.35970362,
+          "atom_count": 60,
+          "periodic": false,
+          "distance_graphs": {
+            "1.64": {
+              "edges": 90,
+              "components": 1,
+              "degree_counts": {
+                "3": 60
+              }
+            },
+            "1.7": {
+              "edges": 90,
+              "components": 1,
+              "degree_counts": {
+                "3": 60
+              }
+            },
+            "1.8": {
+              "edges": 90,
+              "components": 1,
+              "degree_counts": {
+                "3": 60
+              }
+            }
+          }
+        },
+        {
+          "minimum_nonself_distance_A": 1.2784177480982,
+          "atom_count": 60,
+          "periodic": false,
+          "distance_graphs": {
+            "1.64": {
+              "edges": 87,
+              "components": 2,
+              "degree_counts": {
+                "1": 2,
+                "2": 2,
+                "3": 56
+              }
+            },
+            "1.7": {
+              "edges": 87,
+              "components": 2,
+              "degree_counts": {
+                "1": 2,
+                "2": 2,
+                "3": 56
+              }
+            },
+            "1.8": {
+              "edges": 87,
+              "components": 2,
+              "degree_counts": {
+                "1": 2,
+                "2": 2,
+                "3": 56
+              }
+            }
+          }
+        },
+        {
+          "minimum_nonself_distance_A": 1.2784177480982,
+          "atom_count": 60,
+          "periodic": false,
+          "distance_graphs": {
+            "1.64": {
+              "edges": 87,
+              "components": 2,
+              "degree_counts": {
+                "1": 2,
+                "2": 2,
+                "3": 56
+              }
+            },
+            "1.7": {
+              "edges": 87,
+              "components": 2,
+              "degree_counts": {
+                "1": 2,
+                "2": 2,
+                "3": 56
+              }
+            },
+            "1.8": {
+              "edges": 87,
+              "components": 2,
+              "degree_counts": {
+                "1": 2,
+                "2": 2,
+                "3": 56
+              }
+            }
+          }
+        }
+      ],
+      "full_periodic_images": [],
+      "stages": [
+        {
+          "outer": 0,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 24,
+          "Q": {
+            "family": "S2",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 10,
+            "gradient_norm": 0.217488892501779,
+            "descriptor_value": 0.09723730444679957,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 33,
+          "Q": {
+            "family": "S2",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 10,
+            "gradient_norm": 0.17009508073559654,
+            "descriptor_value": 0.12764983729314372,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 69,
+          "Q": {
+            "family": "S2",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 9,
+            "gradient_norm": 0.0823797293548556,
+            "descriptor_value": 0.021572241267556785,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 53,
+          "Q": {
+            "family": "S2",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 3,
+            "gradient_norm": 0.18723533111689072,
+            "descriptor_value": 0.08849757537841547,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 111,
+          "Q": {
+            "family": "S2",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 3,
+            "gradient_norm": 0.18203739450220835,
+            "descriptor_value": 0.17816210615057845,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 100,
+          "Q": {
+            "family": "S2",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 3,
+            "gradient_norm": 0.14934205258474,
+            "descriptor_value": 0.09712403410916076,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 24,
+          "Q": {
+            "family": "S2",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 10,
+            "gradient_norm": 0.217488892501779,
+            "descriptor_value": 0.09723730444679957,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 33,
+          "Q": {
+            "family": "S2",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 10,
+            "gradient_norm": 0.17009508073559654,
+            "descriptor_value": 0.12764983729314372,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 69,
+          "Q": {
+            "family": "S2",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 9,
+            "gradient_norm": 0.0823797293548556,
+            "descriptor_value": 0.021572241267556785,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 53,
+          "Q": {
+            "family": "S2",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 3,
+            "gradient_norm": 0.18723533111689072,
+            "descriptor_value": 0.08849757537841547,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 111,
+          "Q": {
+            "family": "S2",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 3,
+            "gradient_norm": 0.18203739450220835,
+            "descriptor_value": 0.17816210615057845,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 100,
+          "Q": {
+            "family": "S2",
+            "center": 0,
+            "neighbor_species": [
+              6
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 3,
+            "gradient_norm": 0.14934205258474,
+            "descriptor_value": 0.09712403410916076,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        }
+      ],
+      "resume_status": "completed_second_segment",
+      "initial_energy": -62214.17020995467,
+      "landing_energies": [
+        -62202.78810277936,
+        -62202.78810277936
+      ]
+    },
+    {
+      "case": "tio2-phase87",
+      "arm": "Qoff",
+      "run_status": "completed",
+      "failure_class": null,
+      "outer_steps": 2,
+      "outer_statuses": {
+        "gaussian_limit": 2
+      },
+      "gaussians_constructed": 12,
+      "descriptor_stages": 0,
+      "descriptor_families": [],
+      "landings": 2,
+      "search_requests": 465,
+      "search_calculate_calls": 428,
+      "fresh_requests": 3,
+      "fresh_force_pass": 3,
+      "fresh_count": 3,
+      "max_fresh_energy_error_eV": 0.0,
+      "fresh_geometry": [
+        {
+          "minimum_nonself_distance_A": 1.7767697971546155,
+          "atom_count": 12,
+          "periodic": true,
+          "coordination_by_center_species": {
+            "8": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "5": 4,
+                "6": 4
+              }
+            },
+            "22": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "4": 4
+              }
+            }
+          },
+          "interpretation": "distance and coordination diagnostic only; no phase assignment"
+        },
+        {
+          "minimum_nonself_distance_A": 1.7769099936539154,
+          "atom_count": 12,
+          "periodic": true,
+          "coordination_by_center_species": {
+            "8": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "5": 4,
+                "6": 4
+              }
+            },
+            "22": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "4": 4
+              }
+            }
+          },
+          "interpretation": "distance and coordination diagnostic only; no phase assignment"
+        },
+        {
+          "minimum_nonself_distance_A": 1.7812227241322613,
+          "atom_count": 12,
+          "periodic": true,
+          "coordination_by_center_species": {
+            "8": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "5": 4,
+                "6": 4
+              }
+            },
+            "22": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "4": 4
+              }
+            }
+          },
+          "interpretation": "distance and coordination diagnostic only; no phase assignment"
+        }
+      ],
+      "full_periodic_images": [
+        {
+          "minimum": 0,
+          "cutoff_A": 3.0,
+          "full_image_neighbor_count": [
+            9,
+            9,
+            9,
+            9,
+            8,
+            8,
+            8,
+            8,
+            5,
+            5,
+            5,
+            5
+          ],
+          "minimum_image_distance_A": 1.7767697971546152,
+          "self_images": 0
+        },
+        {
+          "minimum": 1,
+          "cutoff_A": 3.0,
+          "full_image_neighbor_count": [
+            9,
+            9,
+            9,
+            9,
+            8,
+            8,
+            8,
+            8,
+            5,
+            5,
+            5,
+            5
+          ],
+          "minimum_image_distance_A": 1.7769099879380457,
+          "self_images": 0
+        },
+        {
+          "minimum": 2,
+          "cutoff_A": 3.0,
+          "full_image_neighbor_count": [
+            9,
+            9,
+            9,
+            9,
+            8,
+            8,
+            8,
+            8,
+            5,
+            5,
+            5,
+            5
+          ],
+          "minimum_image_distance_A": 1.7812227161356924,
+          "self_images": 0
+        }
+      ],
+      "stages": [
+        {
+          "outer": 0,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 20,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 32,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 38,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 49,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 25,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 20,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 27,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 36,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 69,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 35,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 51,
+          "Q": null,
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 25,
+          "Q": null,
+          "has_gaussian": true
+        }
+      ],
+      "resume_status": "completed_second_segment",
+      "initial_energy": -106.5292197026681,
+      "landing_energies": [
+        -106.52072706579723,
+        -106.52489596758343
+      ]
+    },
+    {
+      "case": "tio2-phase87",
+      "arm": "S1",
+      "run_status": "completed",
+      "failure_class": null,
+      "outer_steps": 2,
+      "outer_statuses": {
+        "gaussian_limit": 2
+      },
+      "gaussians_constructed": 12,
+      "descriptor_stages": 12,
+      "descriptor_families": [
+        "S1"
+      ],
+      "landings": 2,
+      "search_requests": 735,
+      "search_calculate_calls": 698,
+      "fresh_requests": 3,
+      "fresh_force_pass": 3,
+      "fresh_count": 3,
+      "max_fresh_energy_error_eV": 0.0,
+      "fresh_geometry": [
+        {
+          "minimum_nonself_distance_A": 1.7767697971546155,
+          "atom_count": 12,
+          "periodic": true,
+          "coordination_by_center_species": {
+            "8": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "5": 4,
+                "6": 4
+              }
+            },
+            "22": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "4": 4
+              }
+            }
+          },
+          "interpretation": "distance and coordination diagnostic only; no phase assignment"
+        },
+        {
+          "minimum_nonself_distance_A": 1.6184735689168852,
+          "atom_count": 12,
+          "periodic": true,
+          "coordination_by_center_species": {
+            "8": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "4": 3,
+                "5": 1,
+                "6": 2,
+                "8": 2
+              }
+            },
+            "22": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "3": 1,
+                "4": 1,
+                "5": 2
+              }
+            }
+          },
+          "interpretation": "distance and coordination diagnostic only; no phase assignment"
+        },
+        {
+          "minimum_nonself_distance_A": 1.6184735689168852,
+          "atom_count": 12,
+          "periodic": true,
+          "coordination_by_center_species": {
+            "8": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "4": 3,
+                "5": 1,
+                "6": 2,
+                "8": 2
+              }
+            },
+            "22": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "3": 1,
+                "4": 1,
+                "5": 2
+              }
+            }
+          },
+          "interpretation": "distance and coordination diagnostic only; no phase assignment"
+        }
+      ],
+      "full_periodic_images": [
+        {
+          "minimum": 0,
+          "cutoff_A": 3.0,
+          "full_image_neighbor_count": [
+            9,
+            9,
+            9,
+            9,
+            8,
+            8,
+            8,
+            8,
+            5,
+            5,
+            5,
+            5
+          ],
+          "minimum_image_distance_A": 1.7767697971546152,
+          "self_images": 0
+        },
+        {
+          "minimum": 1,
+          "cutoff_A": 3.0,
+          "full_image_neighbor_count": [
+            7,
+            7,
+            11,
+            9,
+            7,
+            7,
+            5,
+            8,
+            4,
+            5,
+            6,
+            6
+          ],
+          "minimum_image_distance_A": 1.6184735692483412,
+          "self_images": 0
+        },
+        {
+          "minimum": 2,
+          "cutoff_A": 3.0,
+          "full_image_neighbor_count": [
+            7,
+            7,
+            11,
+            9,
+            7,
+            7,
+            5,
+            8,
+            4,
+            5,
+            6,
+            6
+          ],
+          "minimum_image_distance_A": 1.6184735692483412,
+          "self_images": 0
+        }
+      ],
+      "stages": [
+        {
+          "outer": 0,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 39,
+          "Q": {
+            "family": "S1",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 5,
+            "gradient_norm": 0.20234659502855049,
+            "descriptor_value": 0.2137551149308024,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 40,
+          "Q": {
+            "family": "S1",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 5,
+            "gradient_norm": 0.23428681617636368,
+            "descriptor_value": 0.210381245243235,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 86,
+          "Q": {
+            "family": "S1",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 5,
+            "gradient_norm": 0.19684059418169883,
+            "descriptor_value": 0.22563809993062778,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 41,
+          "Q": {
+            "family": "S1",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 5,
+            "gradient_norm": 0.21231385497710778,
+            "descriptor_value": 0.21619749356159862,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 84,
+          "Q": {
+            "family": "S1",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 6,
+            "gradient_norm": 0.2628757326792075,
+            "descriptor_value": 0.19818691628951657,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 55,
+          "Q": {
+            "family": "S1",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 5,
+            "gradient_norm": 0.23021333768969224,
+            "descriptor_value": 0.18493512589932135,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 39,
+          "Q": {
+            "family": "S1",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 5,
+            "gradient_norm": 0.20234659502855049,
+            "descriptor_value": 0.2137551149308024,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 40,
+          "Q": {
+            "family": "S1",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 5,
+            "gradient_norm": 0.23428681617636368,
+            "descriptor_value": 0.210381245243235,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 86,
+          "Q": {
+            "family": "S1",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 5,
+            "gradient_norm": 0.19684059418169883,
+            "descriptor_value": 0.22563809993062778,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 41,
+          "Q": {
+            "family": "S1",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 5,
+            "gradient_norm": 0.21231385497710778,
+            "descriptor_value": 0.21619749356159862,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 84,
+          "Q": {
+            "family": "S1",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 6,
+            "gradient_norm": 0.2628757326792075,
+            "descriptor_value": 0.19818691628951657,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 55,
+          "Q": {
+            "family": "S1",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": null,
+            "image_count": 5,
+            "gradient_norm": 0.23021333768969224,
+            "descriptor_value": 0.18493512589932135,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        }
+      ],
+      "resume_status": "completed_second_segment",
+      "initial_energy": -106.5292197026681,
+      "landing_energies": [
+        -103.0121077798191,
+        -103.0121077798191
+      ]
+    },
+    {
+      "case": "tio2-phase87",
+      "arm": "S2",
+      "run_status": "completed",
+      "failure_class": null,
+      "outer_steps": 2,
+      "outer_statuses": {
+        "gaussian_limit": 2
+      },
+      "gaussians_constructed": 12,
+      "descriptor_stages": 12,
+      "descriptor_families": [
+        "S2"
+      ],
+      "landings": 2,
+      "search_requests": 655,
+      "search_calculate_calls": 618,
+      "fresh_requests": 3,
+      "fresh_force_pass": 3,
+      "fresh_count": 3,
+      "max_fresh_energy_error_eV": 0.0,
+      "fresh_geometry": [
+        {
+          "minimum_nonself_distance_A": 1.7767697971546155,
+          "atom_count": 12,
+          "periodic": true,
+          "coordination_by_center_species": {
+            "8": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "5": 4,
+                "6": 4
+              }
+            },
+            "22": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "4": 4
+              }
+            }
+          },
+          "interpretation": "distance and coordination diagnostic only; no phase assignment"
+        },
+        {
+          "minimum_nonself_distance_A": 1.6404700681058364,
+          "atom_count": 12,
+          "periodic": true,
+          "coordination_by_center_species": {
+            "8": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "3": 1,
+                "4": 1,
+                "5": 1,
+                "6": 2,
+                "7": 1,
+                "8": 2
+              }
+            },
+            "22": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "3": 1,
+                "5": 1,
+                "6": 1,
+                "7": 1
+              }
+            }
+          },
+          "interpretation": "distance and coordination diagnostic only; no phase assignment"
+        },
+        {
+          "minimum_nonself_distance_A": 1.6404700681058364,
+          "atom_count": 12,
+          "periodic": true,
+          "coordination_by_center_species": {
+            "8": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "3": 1,
+                "4": 1,
+                "5": 1,
+                "6": 2,
+                "7": 1,
+                "8": 2
+              }
+            },
+            "22": {
+              "cutoff_A": 3.0,
+              "coordination_counts": {
+                "3": 1,
+                "5": 1,
+                "6": 1,
+                "7": 1
+              }
+            }
+          },
+          "interpretation": "distance and coordination diagnostic only; no phase assignment"
+        }
+      ],
+      "full_periodic_images": [
+        {
+          "minimum": 0,
+          "cutoff_A": 3.0,
+          "full_image_neighbor_count": [
+            9,
+            9,
+            9,
+            9,
+            8,
+            8,
+            8,
+            8,
+            5,
+            5,
+            5,
+            5
+          ],
+          "minimum_image_distance_A": 1.7767697971546152,
+          "self_images": 0
+        },
+        {
+          "minimum": 1,
+          "cutoff_A": 3.0,
+          "full_image_neighbor_count": [
+            8,
+            7,
+            4,
+            9,
+            6,
+            10,
+            10,
+            5,
+            4,
+            6,
+            7,
+            8
+          ],
+          "minimum_image_distance_A": 1.640470064606116,
+          "self_images": 0
+        },
+        {
+          "minimum": 2,
+          "cutoff_A": 3.0,
+          "full_image_neighbor_count": [
+            8,
+            7,
+            4,
+            9,
+            6,
+            10,
+            10,
+            5,
+            4,
+            6,
+            7,
+            8
+          ],
+          "minimum_image_distance_A": 1.640470064606116,
+          "self_images": 0
+        }
+      ],
+      "stages": [
+        {
+          "outer": 0,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 47,
+          "Q": {
+            "family": "S2",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 5,
+            "gradient_norm": 0.09619621812152732,
+            "descriptor_value": 0.0012579243438287217,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 48,
+          "Q": {
+            "family": "S2",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 4,
+            "gradient_norm": 0.12346760588721026,
+            "descriptor_value": 0.01494306465500495,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 47,
+          "Q": {
+            "family": "S2",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 4,
+            "gradient_norm": 0.08689552449825726,
+            "descriptor_value": 0.02177902972430022,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 47,
+          "Q": {
+            "family": "S2",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 5,
+            "gradient_norm": 0.1207756070170389,
+            "descriptor_value": 0.04865496253042582,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 41,
+          "Q": {
+            "family": "S2",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 4,
+            "gradient_norm": 0.09790775853642004,
+            "descriptor_value": 0.019481045934075892,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 0,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 72,
+          "Q": {
+            "family": "S2",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 5,
+            "gradient_norm": 0.1714343194184779,
+            "descriptor_value": 0.017315820880459642,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 0,
+          "status": "converged",
+          "requests": 47,
+          "Q": {
+            "family": "S2",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 5,
+            "gradient_norm": 0.09619621812152732,
+            "descriptor_value": 0.0012579243438287217,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 1,
+          "status": "converged",
+          "requests": 48,
+          "Q": {
+            "family": "S2",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 4,
+            "gradient_norm": 0.12346760588721026,
+            "descriptor_value": 0.01494306465500495,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 2,
+          "status": "converged",
+          "requests": 47,
+          "Q": {
+            "family": "S2",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 4,
+            "gradient_norm": 0.08689552449825726,
+            "descriptor_value": 0.02177902972430022,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 3,
+          "status": "converged",
+          "requests": 47,
+          "Q": {
+            "family": "S2",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 5,
+            "gradient_norm": 0.1207756070170389,
+            "descriptor_value": 0.04865496253042582,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 4,
+          "status": "converged",
+          "requests": 41,
+          "Q": {
+            "family": "S2",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 4,
+            "gradient_norm": 0.09790775853642004,
+            "descriptor_value": 0.019481045934075892,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        },
+        {
+          "outer": 1,
+          "gaussian": 5,
+          "status": "converged",
+          "requests": 72,
+          "Q": {
+            "family": "S2",
+            "center": 8,
+            "neighbor_species": [
+              8
+            ],
+            "cutoff": 3.0,
+            "exponent": 0,
+            "epsilon": 0.0,
+            "degree": 2,
+            "image_count": 5,
+            "gradient_norm": 0.1714343194184779,
+            "descriptor_value": 0.017315820880459642,
+            "direction_source": "explicit_descriptor_gradient",
+            "stop_reason": null
+          },
+          "has_gaussian": true
+        }
+      ],
+      "resume_status": "completed_second_segment",
+      "initial_energy": -106.5292197026681,
+      "landing_energies": [
+        -101.70827329876566,
+        -101.70827329876566
+      ]
+    }
+  ],
+  "scope": "one seed, fixed-cell lifecycle verification; no efficiency or phase-search claim",
+  "periodic_diagnostic_note": "raw runner coordination uses MIC pairs; this readout additionally enumerates all images at3Angstrom without changing raw data"
+}

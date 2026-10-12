@@ -1,0 +1,14 @@
+{
+  "raw_run": "/home/gengjianrui/bin/pam-ssw-worktrees/c60-local-defect-qualification/research/ga_ssw/evidence/q-paper-entry-20261012/run-1753675",
+  "status": "all_6_arms_recorded",
+  "search_requests": 4156,
+  "fresh_requests": 18,
+  "scope": "one seed, fixed-cell lifecycle verification; no efficiency or phase-search claim",
+  "periodic_diagnostic_note": "raw runner coordination uses MIC pairs; this readout additionally enumerates all images at3Angstrom without changing raw data"
+}
+{"case": "c60-isomer2", "arm": "Qoff", "outer_steps": 2, "gaussians_constructed": 12, "descriptor_stages": 0, "landings": 2, "search_requests": 395, "fresh_force_pass": 3, "fresh_count": 3, "outer_statuses": {"gaussian_limit": 2}}
+{"case": "c60-isomer2", "arm": "S1", "outer_steps": 2, "gaussians_constructed": 12, "descriptor_stages": 12, "landings": 2, "search_requests": 1105, "fresh_force_pass": 3, "fresh_count": 3, "outer_statuses": {"gaussian_limit": 2}}
+{"case": "c60-isomer2", "arm": "S2", "outer_steps": 2, "gaussians_constructed": 12, "descriptor_stages": 12, "landings": 2, "search_requests": 801, "fresh_force_pass": 3, "fresh_count": 3, "outer_statuses": {"gaussian_limit": 2}}
+{"case": "tio2-phase87", "arm": "Qoff", "outer_steps": 2, "gaussians_constructed": 12, "descriptor_stages": 0, "landings": 2, "search_requests": 465, "fresh_force_pass": 3, "fresh_count": 3, "outer_statuses": {"gaussian_limit": 2}}
+{"case": "tio2-phase87", "arm": "S1", "outer_steps": 2, "gaussians_constructed": 12, "descriptor_stages": 12, "landings": 2, "search_requests": 735, "fresh_force_pass": 3, "fresh_count": 3, "outer_statuses": {"gaussian_limit": 2}}
+{"case": "tio2-phase87", "arm": "S2", "outer_steps": 2, "gaussians_constructed": 12, "descriptor_stages": 12, "landings": 2, "search_requests": 655, "fresh_force_pass": 3, "fresh_count": 3, "outer_statuses": {"gaussian_limit": 2}}

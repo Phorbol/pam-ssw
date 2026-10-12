@@ -1,0 +1,10 @@
+{
+  "job": 1753645,
+  "reason": "parent review discovered CountedSurface incorrectly wrapping ASESurface rather than ASE Calculator; cancelled to avoid knowingly invalid experiment",
+  "scientific_comparison_eligible": false,
+  "actual_requests": "pending raw ledger audit; do not infer zero from cancellation",
+  "retry": "no automatic retry; targeted harness correction and CPU smoke required",
+  "observed_scheduler_state": "COMPLETED exit0 in43s; harness caught setup failure and returned before cancellation took effect",
+  "actual_search_requests": 1,
+  "actual_model_calculations": 0
+}
