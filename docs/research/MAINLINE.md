@@ -12,6 +12,13 @@ GPU1756507为C60。GPU首提交因显式CPU数违反调度规则被拒，未产�
 fc6c758仅移除GPU脚本的cpus-per-task后提交成功。源码/参数冻结，未自动重试计算。
 输出位于research/ga_ssw/evidence/direction-components-panel-20261012/runs-<jobid>。
 这是局部项/反馈的条件移除效应，非独立可相加贡献，也不证明全局成功率。
+CPU24臂已完成，搜索10895请求/10301实际计算+24fresh，ledger独立复核一致。
+仅5组配对真正暴露：feedback-only全部更省请求，相对full落点能量2低3高；
+LJ38一组full/local-only均[37,1]裂解，feedback完整。3组未暴露LJ55不能算支持证据。
+C60旧计划字段energy_tol_eV未映射API，1756507在0PES处失败（11秒）。
+a568fd0显式映射并增加9组配置对象构造预检，3项契约测试通过；新GPU1756515
+限29分钟/搜索27分钟，连同旧启动仍不超过系列30分钟。旧失败保留，不重跑CPU。
+当前不升级任何方向默认；C60结果仍待审查。
 
 目标是独立 Python/ASE 的有效 SSW 系列搜索。论文和 LASP 反编译提供可检验
 设计，不以逐位一致或组件数量作为验收。两条独立 worktree 已并行完成搜索，
