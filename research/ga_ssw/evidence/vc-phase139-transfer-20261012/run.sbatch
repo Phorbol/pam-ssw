@@ -3,6 +3,8 @@
 #SBATCH --account=sjtu-caoxiaoming
 #SBATCH --partition=4V100
 #SBATCH --qos=rush-1o2gpu
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
 #SBATCH --gpus-per-node=1
 #SBATCH --time=00:30:00
 #SBATCH --output=/home/gengjianrui/bin/pam-ssw-worktrees/vc-phase139-transfer-20261012/research/ga_ssw/evidence/vc-phase139-transfer-20261012/slurm-%j.out
