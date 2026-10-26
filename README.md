@@ -21,6 +21,11 @@ checks softened atomic forces, stress and the joint gradient; this is an
 experimental option whose convergence does not establish better exploration.
 See [the derivation and comparison protocol](docs/research/joint-ls-preparation-design.md).
 
+## Safe-total optimizer reuse
+
+For the source branch, algorithm, runnable ASE example, parameters and evidence limits,
+see [Safe-total L-BFGS handoff guide (中文)](docs/guides/safe-lbfgs-handoff-zh.md).
+
 ## What It Does
 
 - Runs SSW or LS-SSW searches from a single starting structure.
